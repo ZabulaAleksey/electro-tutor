@@ -6,6 +6,18 @@ import type { Language, Page } from "../types";
 
 export default function Catalog({ language, onNavigate }: { language: Language; onNavigate: (page: Page) => void }) {
   const [openSections, setOpenSections] = useState<string[]>(["dc"]);
+  const topicCountLabel = (count: number) => {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    if (language === "uk") {
+      if (mod10 === 1 && mod100 !== 11) return `${count} тема`;
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} теми`;
+      return `${count} тем`;
+    }
+    if (mod10 === 1 && mod100 !== 11) return `${count} тема`;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} темы`;
+    return `${count} тем`;
+  };
 
   const toggleSection = (id: string) => {
     setOpenSections((current) =>
@@ -40,7 +52,7 @@ export default function Catalog({ language, onNavigate }: { language: Language; 
                   <p>{section.description[language]}</p>
                 </span>
                 <span className="curriculum-count">
-                  {section.topics.length} {language === "ru" ? "тем" : "тем"}
+                  {topicCountLabel(section.topics.length)}
                 </span>
                 <ChevronDown className="curriculum-chevron" size={20} />
               </button>

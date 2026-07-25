@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import Catalog from "./pages/Catalog";
 import MeshLesson from "./pages/MeshLesson";
+import InfoPage from "./pages/InfoPage";
 import type { DetailLevel, Language, Page, Theme } from "./types";
 
 export default function App() {
@@ -49,12 +50,14 @@ export default function App() {
       <main>
         {page === "home" && <Home language={language} onNavigate={navigate} />}
         {page === "catalog" && <Catalog language={language} onNavigate={navigate} />}
+        {page === "interactive" && <InfoPage kind="interactive" language={language} onNavigate={navigate} />}
+        {page === "contacts" && <InfoPage kind="contacts" language={language} onNavigate={navigate} />}
         {page === "lesson" && (
           <MeshLesson language={language} level={level} onLevel={setLevel} onNavigate={navigate} />
         )}
       </main>
       <footer>
-        <span>© 2026 Потенциал</span>
+        <span>© 2026 {language === "ru" ? "Потенциал" : "Потенціал"}</span>
         <span>{language === "ru" ? "Учимся понимать, а не запоминать." : "Вчимося розуміти, а не запам’ятовувати."}</span>
       </footer>
     </>

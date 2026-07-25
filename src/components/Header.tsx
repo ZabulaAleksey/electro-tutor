@@ -32,6 +32,11 @@ export default function Header({
         </button>
         <button className={page === "catalog" ? "active" : ""} onClick={() => onNavigate("catalog")}>
           {text.catalog[language]}
+        </button>        <button className={page === "interactive" ? "active" : ""} onClick={() => onNavigate("interactive")}>
+          {language === "ru" ? "Интерактив" : "Інтерактив"}
+        </button>
+        <button className={page === "contacts" ? "active" : ""} onClick={() => onNavigate("contacts")}>
+          {language === "ru" ? "Контакты" : "Контакти"}
         </button>
       </nav>
       <button

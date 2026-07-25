@@ -21,17 +21,37 @@ export default function MeshLesson({
 
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>(".lesson-section"));
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveSection(Number(visible.target.id.replace("step-", "")));
-      },
-      { rootMargin: "-20% 0px -58% 0px", threshold: [0, 0.15, 0.4, 0.7] },
-    );
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    let frame = 0;
+
+    const updateActiveSection = () => {
+      frame = 0;
+      const readingLine = window.innerHeight * 0.32;
+      let current = 1;
+
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= readingLine) {
+          current = Number(section.id.replace("step-", ""));
+        } else {
+          break;
+        }
+      }
+
+      setActiveSection(current);
+    };
+
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
   return (
     <div className="lesson-page">

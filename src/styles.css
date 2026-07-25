@@ -262,3 +262,4 @@ body { background: var(--paper); transition: background-color .25s ease, color .
   .info-icon svg { width: 28px; height: 28px; }
   .curriculum-topic { grid-template-columns: 30px 1fr 66px; }
 }
+[data-theme="dark"] footer { background: #eef2ef; color: #43504a; }

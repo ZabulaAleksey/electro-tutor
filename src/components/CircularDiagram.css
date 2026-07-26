@@ -1,0 +1,46 @@
+.interactive-intro { min-height: auto; padding-bottom: 70px; }
+.interactive-section { padding-top: 0; }
+.circle-lab { border-top: 1px solid var(--line); padding-top: 72px; }
+.circle-lab-heading { display: flex; justify-content: space-between; align-items: end; gap: 36px; margin-bottom: 34px; }
+.circle-lab-heading h2 { margin: 10px 0 0; font-size: 36px; letter-spacing: -.04em; }
+.circle-lab-heading p { max-width: 420px; margin: 0; color: var(--muted); line-height: 1.6; }
+.circle-lab-layout { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 32px; align-items: start; }
+.circle-controls { display: grid; gap: 14px; }
+.circle-controls fieldset { margin: 0; padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--white); }
+.circle-controls legend { padding: 0 6px; color: var(--ink); font-weight: 700; font-size: 13px; }
+.circle-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.circle-controls input[type="number"] { width: 100%; min-width: 0; padding: 9px 10px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 13px; }
+.resistance-control { padding: 18px; border: 1px solid var(--line); border-radius: 13px; background: var(--white); }
+.resistance-control > span { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; color: var(--ink); font-size: 12px; }
+.resistance-control strong { color: var(--orange); font-size: 15px; }
+.resistance-control input { width: 100%; margin: 14px 0 5px; accent-color: var(--orange); }
+.resistance-control small { display: flex; justify-content: space-between; color: var(--muted); font-weight: 500; }
+.circle-plot { min-width: 0; }
+.circle-plot svg { width: 100%; height: auto; display: block; overflow: visible; background: var(--white); border: 1px solid var(--line); border-radius: 15px; }
+.plot-grid line { stroke: var(--line); stroke-width: .75; }
+.plot-grid text, .plot-axes text { fill: var(--muted); font: 11px "DM Sans", sans-serif; }
+.plot-axes line { stroke: var(--muted); stroke-width: 1.2; }
+.current-locus { fill: none; stroke: var(--orange); stroke-width: 3; }
+.current-vector line { stroke-width: 2.2; }
+.current-vector circle { stroke: var(--white); stroke-width: 2; }
+.current-vector text { fill: var(--ink); font: 700 14px "DM Sans", sans-serif; }
+.current-vector.idle line, .current-vector.idle circle, .arrow-head.idle { stroke: var(--green); fill: var(--green); }
+.current-vector.short line, .current-vector.short circle, .arrow-head.short { stroke: var(--violet); fill: var(--violet); }
+.current-vector.active line, .current-vector.active circle, .arrow-head.active { stroke: var(--blue); fill: var(--blue); }
+.circle-readout { display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 14px 4px 0; color: var(--muted); font-size: 12px; }
+.circle-readout b { color: var(--ink); }
+@media (max-width: 900px) {
+  .circle-lab-layout { grid-template-columns: 1fr; }
+  .circle-controls { grid-template-columns: repeat(2, 1fr); }
+  .resistance-control { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .interactive-intro { padding-bottom: 50px; }
+  .circle-lab { padding-top: 52px; }
+  .circle-lab-heading { display: block; }
+  .circle-lab-heading h2 { font-size: 29px; }
+  .circle-lab-heading p { margin-top: 14px; }
+  .circle-controls { grid-template-columns: 1fr; }
+  .resistance-control { grid-column: auto; }
+  .circle-plot svg { margin: 0 -8px; width: calc(100% + 16px); }
+}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type C = { re: number; im: number };
 const polar = (m: number, d: number): C => ({ re: m * Math.cos(d * Math.PI / 180), im: m * Math.sin(d * Math.PI / 180) });
@@ -40,10 +40,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
     const xy = (p: C) => ({ x: 360 + p.re * scale, y: 260 - p.im * scale });
     let drawing = false;
     const path = points.map((p) => {
-      if (p === null || abs(p) > plotLimit) {
-        drawing = false;
-        return "";
-      }
+      if (p === null || abs(p) > plotLimit) { drawing = false; return ""; }
       const q = xy(p), command = drawing ? "L" : "M";
       drawing = true;
       return `${command}${q.x.toFixed(2)},${q.y.toFixed(2)}`;
@@ -56,8 +53,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
     { id: "short", label: "Iк", value: model.ik },
     ...(model.current ? [{ id: "active", label: "I(R)", value: model.current }] : []),
   ];
-  const step = model.extent <= 3 ? 1 : model.extent <= 8 ? 2 : 5;
-  const ticks: number[] = [];
+  const step = model.extent <= 3 ? 1 : model.extent <= 8 ? 2 : 5, ticks: number[] = [];
   for (let n = -Math.floor(model.extent / step) * step; n <= model.extent; n += step) ticks.push(n);
 
   return <section className="circle-lab">
@@ -69,7 +65,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
       <div className="circle-controls">
         <Group title={ru ? "Ток холостого хода I₀" : "Струм холостого ходу I₀"}><Field label="Модуль, А" value={i0m} min={0} step={.1} set={setI0m}/><Field label={ru ? "Угол, °" : "Кут, °"} value={i0a} step={1} set={setI0a}/></Group>
         <Group title={ru ? "Ток короткого замыкания Iк" : "Струм короткого замикання Iк"}><Field label="Модуль, А" value={ikm} min={0} step={.1} set={setIkm}/><Field label={ru ? "Угол, °" : "Кут, °"} value={ika} step={1} set={setIka}/></Group>
-        <Group title={ru ? "Выход и нагрузка" : "Вихід і навантаження"}><Field label={ru ? "|Zвых|, Ом" : "|Zвих|, Ом"} value={zm} min={.01} step={.1} set={setZm}/><Field label={ru ? "∠Zвых, °" : "∠Zвих, °"} value={za} step={1} set={setZa}/><Field label={ru ? "Угол нагрузки φ, °" : "Кут навантаження φ, °"} value={phi} step={1} set={setPhi}/></Group>
+        <Group title={ru ? "Выход и нагрузка" : "Вихід і навантаження"}><Field label={ru ? "|Zвых|, Ом" : "|Zвих|, Ом"} value={zm} min={.01} step={.1} set={setZm}/><Field label={ru ? "∠Zвых, °" : "∠Zвих, °"} value={za} min={-90} max={90} step={1} set={setZa}/><Field label={ru ? "Угол нагрузки φ, °" : "Кут навантаження φ, °"} value={phi} min={-90} max={90} step={1} set={setPhi}/></Group>
         <label className="resistance-control"><span>{ru ? "Сопротивление нагрузки R" : "Опір навантаження R"}<strong>{Number.isFinite(model.resistance) ? `${fmt(model.resistance)} Ом` : "∞"}</strong></span><input type="range" min="0" max="100" step=".2" value={position} onChange={e => setPosition(Number(e.target.value))}/><small><span>0</span><span>|Z|</span><span>∞</span></small></label>
       </div>
       <div className="circle-plot">
@@ -92,6 +88,21 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return <fieldset><legend>{title}</legend>{children}</fieldset>;
 }
-function Field({ label, value, min, step, set }: { label: string; value: number; min?: number; step: number; set: (n: number) => void }) {
-  return <label><span>{label}</span><input type="number" value={value} min={min} step={step} onChange={e => { const n = Number(e.target.value); if (Number.isFinite(n)) set(n); }}/></label>;
+
+function Field({ label, value, min, max, step, set }: { label: string; value: number; min?: number; max?: number; step: number; set: (n: number) => void }) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+  const update = (raw: string) => {
+    setDraft(raw);
+    if (raw === "" || raw === "-" || raw === "+" || raw === "." || raw === "-.") return;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const limited = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, parsed));
+    set(limited);
+    if (limited !== parsed) setDraft(String(limited));
+  };
+  const restoreIfIncomplete = () => {
+    if (draft === "" || draft === "-" || !Number.isFinite(Number(draft))) setDraft(String(value));
+  };
+  return <label><span>{label}</span><input type="number" inputMode="decimal" value={draft} min={min} max={max} step={step} onChange={e => update(e.target.value)} onBlur={restoreIfIncomplete}/></label>;
 }

@@ -5,27 +5,13 @@ import "../pwa.css";
 import type { Language } from "../types";
 
 interface Props {
-  title: string;
-  description: string;
-  language: Language;
+  title: string; description: string; language: Language;
   active?: "home" | "topics" | "interactive" | "services" | "contacts";
-  alternatePath?: string;
-  keywords?: string[];
+  alternatePath?: string; keywords?: string[];
 }
-
-const {
-  title,
-  description,
-  language,
-  active = "home",
-  alternatePath = "/",
-  keywords = [],
-} = Astro.props;
-
-const ru = language === "ru";
-const otherLanguage = ru ? "uk" : "ru";
-const currentPath = Astro.url.pathname;
-const canonical = new URL(currentPath, Astro.site);
+const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
+const ru = language === "ru", otherLanguage = ru ? "uk" : "ru";
+const canonical = new URL(Astro.url.pathname, Astro.site);
 const alternate = new URL(`/${otherLanguage}${alternatePath}`, Astro.site);
 const nav = [
   { id: "home", href: `/${language}/`, ru: "Главная", uk: "Головна" },
@@ -35,115 +21,115 @@ const nav = [
   { id: "contacts", href: `/${language}/contacts/`, ru: "Контакты", uk: "Контакти" },
 ];
 ---
-
 <!doctype html>
 <html lang={language}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#246b54" />
-    <meta name="description" content={description} />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content={ru ? "Потенциал" : "Потенціал"} />
-    {keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/icons/potential.svg" type="image/svg+xml" />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang={otherLanguage} href={alternate} />
-    <link rel="alternate" hreflang={language} href={canonical} />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <title>{title}</title>
-    <script is:inline>
-      (() => {
-        const saved = localStorage.getItem("potential-theme");
-        const theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        document.documentElement.dataset.theme = theme;
-      })();
-    </script>
-  </head>
-  <body>
-    <header class="header astro-header">
-      <a class="brand" href={`/${language}/`} aria-label={ru ? "Потенциал" : "Потенціал"}>
-        <span class="brand-mark" aria-hidden="true">∿</span>
-        <span>
-          <strong>{ru ? "ПОТЕНЦИАЛ" : "ПОТЕНЦІАЛ"}</strong>
-          <small>{ru ? "Инженерный учебник" : "Інженерний підручник"}</small>
-        </span>
-      </a>
-      <nav aria-label={ru ? "Основная навигация" : "Головна навігація"}>
-        {nav.map((item) => (
-          <a class:list={{ active: active === item.id }} href={item.href}>{item[language]}</a>
-        ))}
-      </nav>
-      <button class="app-install-link" id="app-install" type="button" aria-label={ru ? "Установить приложение" : "Встановити застосунок"}>
-        <span class="app-install-icon" aria-hidden="true">⇩</span>
-        <span class="app-install-label">{ru ? "Приложение" : "Застосунок"}</span>
-      </button>
-      <button class="theme-toggle" id="theme-toggle" aria-label={ru ? "Переключить тему" : "Перемкнути тему"} title={ru ? "Светлая / тёмная тема" : "Світла / темна тема"}>
-        <span class="theme-light">☾</span>
-        <span class="theme-dark">☀</span>
-      </button>
-      <a class="language-link" href={`/${otherLanguage}${alternatePath}`}>{ru ? "UA" : "RU"}</a>
-    </header>
-    <main><slot /></main>
-    <footer>
-      <span>© 2026 {ru ? "Потенциал" : "Потенціал"}</span>
-      <span>{ru ? "Учимся понимать, а не запоминать." : "Вчимося розуміти, а не запам’ятовувати."}</span>
-    </footer>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#246b54" />
+  <meta name="description" content={description} />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content={ru ? "Потенциал" : "Потенціал"} />
+  {keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icons/potential.svg" type="image/svg+xml" />
+  <link rel="canonical" href={canonical} />
+  <link rel="alternate" hreflang={otherLanguage} href={alternate} />
+  <link rel="alternate" hreflang={language} href={canonical} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <title>{title}</title>
+  <script is:inline>
+    (() => {
+      const saved = localStorage.getItem("potential-theme");
+      document.documentElement.dataset.theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    })();
+  </script>
+</head>
+<body>
+  <header class="header astro-header">
+    <a class="brand" href={`/${language}/`} aria-label={ru ? "Потенциал" : "Потенціал"}>
+      <span class="brand-mark" aria-hidden="true">∿</span>
+      <span><strong>{ru ? "ПОТЕНЦИАЛ" : "ПОТЕНЦІАЛ"}</strong><small>{ru ? "Инженерный учебник" : "Інженерний підручник"}</small></span>
+    </a>
+    <nav aria-label={ru ? "Основная навигация" : "Головна навігація"}>
+      {nav.map(item => <a class:list={{ active: active === item.id }} href={item.href}>{item[language]}</a>)}
+    </nav>
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={ru ? "Открыть меню" : "Відкрити меню"}>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+    </button>
+    <button class="app-install-link" id="app-install" type="button" aria-label={ru ? "Установить приложение" : "Встановити застосунок"}>
+      <span class="app-install-icon" aria-hidden="true">⇩</span><span class="app-install-label">{ru ? "Приложение" : "Застосунок"}</span>
+    </button>
+    <button class="theme-toggle" id="theme-toggle" aria-label={ru ? "Переключить тему" : "Перемкнути тему"} title={ru ? "Светлая / тёмная тема" : "Світла / темна тема"}>
+      <span class="theme-light">☾</span><span class="theme-dark">☀</span>
+    </button>
+    <a class="language-link" href={`/${otherLanguage}${alternatePath}`}>{ru ? "UA" : "RU"}</a>
+  </header>
+  <main><slot /></main>
+  <footer><span>© 2026 {ru ? "Потенциал" : "Потенціал"}</span><span>{ru ? "Учимся понимать, а не запоминать." : "Вчимося розуміти, а не запам’ятовувати."}</span></footer>
 
-    <dialog class="install-dialog" id="install-dialog">
-      <div class="install-dialog-content">
-        <h2>{ru ? "Установить приложение" : "Встановити застосунок"}</h2>
-        <p data-install-copy>{ru ? "Установите «Потенциал» на главный экран и открывайте учебник как обычное приложение." : "Встановіть «Потенціал» на головний екран і відкривайте підручник як звичайний застосунок."}</p>
-        <ol data-ios-steps hidden>
-          <li>{ru ? "Откройте меню «Поделиться» в Safari." : "Відкрийте меню «Поділитися» у Safari."}</li>
-          <li>{ru ? "Выберите «На экран Домой»." : "Виберіть «На початковий екран»."}</li>
-          <li>{ru ? "Нажмите «Добавить»." : "Натисніть «Додати»."}</li>
-        </ol>
-        <form method="dialog"><button class="button primary">{ru ? "Понятно" : "Зрозуміло"}</button></form>
-      </div>
-    </dialog>
+  <dialog class="install-dialog" id="install-dialog">
+    <div class="install-dialog-content">
+      <h2>{ru ? "Установить приложение" : "Встановити застосунок"}</h2>
+      <p>{ru ? "Установите «Потенциал» на главный экран и открывайте учебник как обычное приложение." : "Встановіть «Потенціал» на головний екран і відкривайте підручник як звичайний застосунок."}</p>
+      <ol data-ios-steps hidden>
+        <li>{ru ? "Откройте меню «Поделиться» в Safari." : "Відкрийте меню «Поділитися» у Safari."}</li>
+        <li>{ru ? "Выберите «На экран Домой»." : "Виберіть «На початковий екран»."}</li>
+        <li>{ru ? "Нажмите «Добавить»." : "Натисніть «Додати»."}</li>
+      </ol>
+      <form method="dialog"><button class="button primary">{ru ? "Понятно" : "Зрозуміло"}</button></form>
+    </div>
+  </dialog>
 
-    <script is:inline>
-      const themeToggle = document.querySelector("#theme-toggle");
-      themeToggle?.addEventListener("click", () => {
-        const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem("potential-theme", next);
-      });
-
-      if ("serviceWorker" in navigator) {
-        addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
+  <script is:inline>
+    const header = document.querySelector(".astro-header");
+    const menuToggle = document.querySelector("#mobile-menu-toggle");
+    menuToggle?.addEventListener("click", () => {
+      const open = header?.classList.toggle("mobile-open") ?? false;
+      menuToggle.setAttribute("aria-expanded", String(open));
+    });
+    header?.querySelectorAll("nav a").forEach(link => link.addEventListener("click", () => {
+      header.classList.remove("mobile-open");
+      menuToggle?.setAttribute("aria-expanded", "false");
+    }));
+    addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        header?.classList.remove("mobile-open");
+        menuToggle?.setAttribute("aria-expanded", "false");
       }
+    });
 
-      let installPrompt;
-      const installButton = document.querySelector("#app-install");
-      const installDialog = document.querySelector("#install-dialog");
-      const iosSteps = installDialog?.querySelector("[data-ios-steps]");
-      const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    document.querySelector("#theme-toggle")?.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("potential-theme", next);
+    });
+    if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
 
-      if (isStandalone) installButton?.setAttribute("hidden", "");
-      addEventListener("beforeinstallprompt", (event) => {
-        event.preventDefault();
-        installPrompt = event;
-      });
-      installButton?.addEventListener("click", async () => {
-        if (installPrompt) {
-          await installPrompt.prompt();
-          const result = await installPrompt.userChoice;
-          if (result.outcome === "accepted") installButton.setAttribute("hidden", "");
-          installPrompt = undefined;
-          return;
-        }
-        if (iosSteps) iosSteps.hidden = !isIos;
-        installDialog?.showModal();
-      });
-      addEventListener("appinstalled", () => installButton?.setAttribute("hidden", ""));
-    </script>
-  </body>
+    let installPrompt;
+    const installButton = document.querySelector("#app-install");
+    const installDialog = document.querySelector("#install-dialog");
+    const iosSteps = installDialog?.querySelector("[data-ios-steps]");
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (standalone) installButton?.setAttribute("hidden", "");
+    addEventListener("beforeinstallprompt", event => { event.preventDefault(); installPrompt = event; });
+    installButton?.addEventListener("click", async () => {
+      if (installPrompt) {
+        await installPrompt.prompt();
+        const result = await installPrompt.userChoice;
+        if (result.outcome === "accepted") installButton.setAttribute("hidden", "");
+        installPrompt = undefined;
+        return;
+      }
+      if (iosSteps) iosSteps.hidden = !ios;
+      installDialog?.showModal();
+    });
+    addEventListener("appinstalled", () => installButton?.setAttribute("hidden", ""));
+  </script>
+</body>
 </html>

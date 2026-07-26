@@ -1,0 +1,65 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { curriculum } from "../../../curriculum";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+
+const topicCountLabel = (count: number) => {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (language === "uk") {
+    if (mod10 === 1 && mod100 !== 11) return `${count} тема`;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} теми`;
+    return `${count} тем`;
+  }
+  if (mod10 === 1 && mod100 !== 11) return `${count} тема`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} темы`;
+  return `${count} тем`;
+};
+---
+
+<BaseLayout
+  title={ru ? "Все темы по электротехнике — Потенциал" : "Усі теми з електротехніки — Потенціал"}
+  description={ru ? "Структурированный каталог тем по электротехнике." : "Структурований каталог тем з електротехніки."}
+  language={language}
+  active="topics"
+  alternatePath="/topics/"
+>
+  <section class="section catalog-page">
+    <span class="eyebrow"><i></i>{ru ? "Библиотека знаний" : "Бібліотека знань"}</span>
+    <h1>{ru ? "Карта электротехники" : "Мапа електротехніки"}</h1>
+    <p class="page-lead">
+      {ru ? "Раскрывайте разделы и двигайтесь от фундаментальных законов к сложным процессам." : "Розкривайте розділи та рухайтеся від фундаментальних законів до складних процесів."}
+    </p>
+    <div class="curriculum">
+      {curriculum.map((section, index) => (
+        <details class="curriculum-section" open={index === 0}>
+          <summary class="curriculum-trigger">
+            <span class="curriculum-index">{section.index}</span>
+            <span><h2>{section.title[language]}</h2><p>{section.description[language]}</p></span>
+            <span class="curriculum-count">{topicCountLabel(section.topics.length)}</span>
+            <span class="curriculum-chevron">⌄</span>
+          </summary>
+          <div class="curriculum-static-topics">
+            {section.topics.map((topic) => (
+              <article class="curriculum-topic">
+                <span class="curriculum-topic-number">{section.index}.{topic.index}</span>
+                <div><h3>{topic.title[language]}</h3><p>{topic.description[language]}</p></div>
+                <span class="duration">{topic.duration} {ru ? "мин" : "хв"}</span>
+                {topic.id === "mesh"
+                  ? <a class="round-button" href={`/${language}/topics/dc/mesh-current-method/`}>→</a>
+                  : <span class="soon-label">{ru ? "Скоро" : "Незабаром"}</span>}
+              </article>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

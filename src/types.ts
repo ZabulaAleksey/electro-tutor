@@ -1,6 +1,6 @@
 export type Language = "ru" | "uk";
 export type DetailLevel = 1 | 2 | 3;
-export type Page = "home" | "catalog" | "lesson" | "interactive" | "contacts";
+export type Page = "home" | "catalog" | "lesson" | "interactive" | "services" | "contacts";
 export type Theme = "light" | "dark";
 
 export type LocalizedText = {

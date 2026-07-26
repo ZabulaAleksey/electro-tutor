@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Language } from "../../types";
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+---
+<BaseLayout title={ru ? "Контакты — Потенциал" : "Контакти — Потенціал"} description={ru ? "Контакты автора учебного проекта Потенциал." : "Контакти автора навчального проєкту Потенціал."} language={language} active="contacts" alternatePath="/contacts/">
+  <section class="section info-page">
+    <span class="eyebrow"><i></i>{ru ? "Обратная связь" : "Зворотний зв’язок"}</span>
+    <h1>{ru ? "Контакты" : "Контакти"}</h1>
+    <p>{ru ? "Здесь появятся ваши рабочие контакты и форма обращения." : "Тут з’являться ваші робочі контакти та форма звернення."}</p>
+    <div class="info-placeholder">
+      <strong>{ru ? "Раздел готов к наполнению" : "Розділ готовий до наповнення"}</strong>
+      <span>E-mail · Telegram · LinkedIn</span>
+    </div>
+  </section>
+</BaseLayout>

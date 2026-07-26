@@ -1,0 +1,38 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import MeshLessonIsland from "../../../../components/MeshLessonIsland";
+import type { Language } from "../../../../types";
+
+export async function getStaticPaths() {
+  const lessons = await getCollection("lessons", ({ data }) => !data.draft);
+  return lessons.map((entry) => ({
+    params: {
+      lang: entry.data.language,
+      section: entry.data.section,
+      slug: entry.data.slug,
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const language = entry.data.language as Language;
+const { Content } = await render(entry);
+const alternatePath = `/topics/${entry.data.section}/${entry.data.slug}/`;
+---
+
+<BaseLayout
+  title={`${entry.data.title} — Потенциал`}
+  description={entry.data.description}
+  language={language}
+  active="topics"
+  alternatePath={alternatePath}
+  keywords={entry.data.keywords}
+>
+  <div class="seo-intro sr-only">
+    <h1>{entry.data.title}</h1>
+    <Content />
+  </div>
+  <MeshLessonIsland language={language} client:load />
+</BaseLayout>

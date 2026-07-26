@@ -1,0 +1,101 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { topics } from "../../data";
+import type { Language } from "../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const copy = ru
+  ? {
+      title: "Потенциал — электротехника понятно",
+      description: "Двуязычный интерактивный учебник по электротехнике с формулами, схемами и подробными решениями.",
+      eyebrow: "Интерактивный курс по электротехнике",
+      heading: "От формулы — к пониманию.",
+      lead: "Изучайте электрические цепи в своём темпе. Выбирайте глубину объяснения, исследуйте схемы и наблюдайте, как из законов рождается решение.",
+      primary: "Открыть пример урока",
+      secondary: "Смотреть все темы",
+      section: "Начните с основ",
+    }
+  : {
+      title: "Потенціал — електротехніка зрозуміло",
+      description: "Двомовний інтерактивний підручник з електротехніки з формулами, схемами та докладними розв’язаннями.",
+      eyebrow: "Інтерактивний курс з електротехніки",
+      heading: "Від формули — до розуміння.",
+      lead: "Вивчайте електричні кола у своєму темпі. Обирайте глибину пояснення, досліджуйте схеми та спостерігайте, як із законів народжується розв’язання.",
+      primary: "Відкрити приклад уроку",
+      secondary: "Переглянути всі теми",
+      section: "Почніть з основ",
+    };
+---
+
+<BaseLayout
+  title={copy.title}
+  description={copy.description}
+  language={language}
+  active="home"
+  alternatePath="/"
+>
+  <section class="hero astro-home">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow"><i></i>{copy.eyebrow}</span>
+        <h1>{copy.heading.split(" — ")[0]} —<br /><em>{copy.heading.split(" — ")[1]}</em></h1>
+        <p>{copy.lead}</p>
+        <div class="hero-actions">
+          <a class="button primary" href={`/${language}/topics/dc/mesh-current-method/`}>
+            {copy.primary} <span>→</span>
+          </a>
+          <a class="button ghost" href={`/${language}/topics/`}>{copy.secondary}</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="visual-card card-formula">
+          <span>{ru ? "Закон Кирхгофа" : "Закон Кірхгофа"}</span>
+          <strong>∑ I<sub>k</sub> = 0</strong>
+        </div>
+        <svg viewBox="0 0 490 330">
+          <g fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M50 95 H180 M310 95 H440 V245 H310 M180 245 H50 V95 M180 95 H310 M180 245 H310" />
+            <path d="M245 95 V140 M245 190 V245" />
+          </g>
+          <g fill="none" stroke="currentColor" stroke-width="3">
+            <rect x="95" y="80" width="70" height="30" rx="5" />
+            <rect x="325" y="80" width="70" height="30" rx="5" />
+            <rect x="230" y="135" width="30" height="60" rx="5" />
+            <circle cx="50" cy="170" r="27" />
+            <circle cx="440" cy="170" r="27" />
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="feature-strip">
+      <span>RU / UA</span>
+      <span>3 {ru ? "уровня объяснения" : "рівні пояснення"}</span>
+      <span>LaTeX</span>
+      <span>{ru ? "Наглядные схемы" : "Наочні схеми"}</span>
+    </div>
+  </section>
+
+  <section class="section topic-preview">
+    <div class="section-heading">
+      <div><span class="section-kicker">01 — DC</span><h2>{copy.section}</h2></div>
+      <p>{ru ? "Фундаментальные методы расчёта электрических цепей." : "Фундаментальні методи розрахунку електричних кіл."}</p>
+    </div>
+    <div class="topic-grid">
+      {topics.map((topic) => (
+        <article class={`topic-card ${topic.accent}`}>
+          <div class="topic-card-top"><span>{topic.index}</span><small>{topic.duration} {ru ? "мин" : "хв"}</small></div>
+          <h3>{topic.title[language]}</h3>
+          <p>{topic.description[language]}</p>
+          {topic.id === "mesh"
+            ? <a href={`/${language}/topics/dc/mesh-current-method/`}>{ru ? "Начать изучение" : "Почати вивчення"} →</a>
+            : <span class="soon-label">{ru ? "Скоро" : "Незабаром"}</span>}
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

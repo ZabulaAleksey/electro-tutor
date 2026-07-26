@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Language } from "../../types";
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+---
+<BaseLayout title={ru ? "Интерактивные схемы — Потенциал" : "Інтерактивні схеми — Потенціал"} description={ru ? "Интерактивные электрические схемы и тренажёры." : "Інтерактивні електричні схеми та тренажери."} language={language} active="interactive" alternatePath="/interactive/">
+  <section class="section info-page">
+    <span class="eyebrow"><i></i>{ru ? "Учебная лаборатория" : "Навчальна лабораторія"}</span>
+    <h1>{ru ? "Интерактив" : "Інтерактив"}</h1>
+    <p>{ru ? "Здесь появятся интерактивные схемы, векторные диаграммы и расчётные тренажёры." : "Тут з’являться інтерактивні схеми, векторні діаграми та розрахункові тренажери."}</p>
+    <a class="button primary" href={`/${language}/topics/dc/mesh-current-method/`}>{ru ? "Открыть демонстрацию" : "Відкрити демонстрацію"} →</a>
+  </section>
+</BaseLayout>

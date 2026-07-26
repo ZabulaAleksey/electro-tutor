@@ -1,0 +1,35 @@
+.app-install-link {
+  min-height: 38px;
+  margin-right: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.app-install-link:hover { color: var(--green); border-color: var(--green); }
+.app-install-link[hidden] { display: none; }
+.app-install-icon { font-size: 18px; line-height: 1; color: var(--green); }
+.install-dialog { max-width: 470px; padding: 0; border: 1px solid var(--line); border-radius: 16px; color: var(--ink); background: var(--white); }
+.install-dialog::backdrop { background: rgba(0,0,0,.45); }
+.install-dialog-content { padding: 28px; }
+.install-dialog h2 { margin: 0 0 12px; font-size: 25px; }
+.install-dialog p { color: var(--muted); line-height: 1.6; }
+.install-dialog ol { padding-left: 22px; color: var(--muted); line-height: 1.7; }
+.install-dialog .button { margin-top: 20px; }
+@media (max-width: 1080px) {
+  .app-install-label { display: none; }
+  .app-install-link { width: 38px; padding: 0; justify-content: center; }
+}
+@media (max-width: 600px) {
+  .app-install-link { margin-left: auto; }
+  .astro-header .theme-toggle { margin-left: 0; }
+  .install-dialog { max-width: calc(100% - 32px); }
+}

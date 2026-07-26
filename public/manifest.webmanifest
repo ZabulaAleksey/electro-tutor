@@ -1,0 +1,40 @@
+{
+  "id": "/",
+  "name": "Потенциал — электротехника",
+  "short_name": "Потенциал",
+  "description": "Интерактивный учебник по электротехнике на русском и украинском языках.",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f3ee",
+  "theme_color": "#246b54",
+  "categories": ["education", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/potential.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/potential-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Все темы",
+      "short_name": "Темы",
+      "url": "/ru/topics/"
+    },
+    {
+      "name": "Интерактив",
+      "short_name": "Интерактив",
+      "url": "/ru/interactive/"
+    }
+  ]
+}

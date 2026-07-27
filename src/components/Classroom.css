@@ -1,0 +1,27 @@
+.classroom-page { max-width: 1240px; margin: 0 auto; padding: 82px 34px 90px; }
+.classroom-heading { max-width: 760px; margin-bottom: 34px; }
+.classroom-heading h1 { margin: 12px 0 14px; font-size: clamp(42px, 6vw, 72px); line-height: .98; letter-spacing: -.055em; }
+.classroom-heading p { max-width: 650px; color: var(--muted); font-size: 18px; line-height: 1.6; }
+.classroom-panel { overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--white); box-shadow: 0 20px 55px rgba(22,31,27,.08); }
+.classroom-controls { display: grid; grid-template-columns: minmax(180px,1fr) minmax(220px,1.2fr) auto auto auto; gap: 12px; align-items: end; padding: 20px; border-bottom: 1px solid var(--line); }
+.classroom-controls label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.classroom-controls input { min-width: 0; padding: 13px 14px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; font: inherit; text-transform: none; }
+.classroom-controls .button { min-height: 47px; white-space: nowrap; }
+.classroom-controls button:disabled { cursor: wait; opacity: .6; }
+.classroom-hint { min-height: 20px; margin: 0; padding: 13px 20px; color: var(--muted); background: var(--paper); border-bottom: 1px solid var(--line); font-size: 12px; }
+.meeting-frame { position: relative; display: grid; place-items: center; width: 100%; height: min(68vh,720px); min-height: 500px; background: #17201c; }
+.meeting-frame > iframe { display: block; }
+.meeting-placeholder { display: grid; place-items: center; gap: 14px; color: #f7f5ef; }
+.meeting-placeholder span { display: grid; place-items: center; width: 74px; height: 74px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; color: #e66820; font-size: 44px; }
+.meeting-placeholder strong { font-size: 18px; }
+@media (max-width: 1000px) {
+  .classroom-controls { grid-template-columns: 1fr 1fr; }
+  .classroom-controls .button { justify-content: center; }
+}
+@media (max-width: 620px) {
+  .classroom-page { padding: 54px 16px 70px; }
+  .classroom-heading h1 { font-size: 43px; }
+  .classroom-heading p { font-size: 16px; }
+  .classroom-controls { grid-template-columns: 1fr; padding: 15px; }
+  .meeting-frame { height: 72vh; min-height: 520px; }
+}

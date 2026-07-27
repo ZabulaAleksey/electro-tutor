@@ -6,7 +6,7 @@ import type { Language } from "../types";
 
 interface Props {
   title: string; description: string; language: Language;
-  active?: "home" | "topics" | "interactive" | "services" | "contacts";
+  active?: "home" | "topics" | "interactive" | "classroom" | "services" | "contacts";
   alternatePath?: string; keywords?: string[];
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
@@ -17,6 +17,7 @@ const nav = [
   { id: "home", href: `/${language}/`, ru: "Главная", uk: "Головна" },
   { id: "topics", href: `/${language}/topics/`, ru: "Все темы", uk: "Усі теми" },
   { id: "interactive", href: `/${language}/interactive/`, ru: "Интерактив", uk: "Інтерактив" },
+  { id: "classroom", href: `/${language}/classroom/`, ru: "Кабинет", uk: "Кабінет" },
   { id: "services", href: `/${language}/services/`, ru: "Услуги", uk: "Послуги" },
   { id: "contacts", href: `/${language}/contacts/`, ru: "Контакты", uk: "Контакти" },
 ];

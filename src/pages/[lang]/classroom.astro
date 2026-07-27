@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Classroom from "../../components/Classroom";
+import type { Language } from "../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+---
+<BaseLayout
+  title={ru ? "Кабинет занятия — Потенциал" : "Кабінет заняття — Потенціал"}
+  description={ru
+    ? "Онлайн-занятие с общей доской, видеосвязью, голосом и демонстрацией экрана."
+    : "Онлайн-заняття зі спільною дошкою, відеозв’язком, голосом і демонстрацією екрана."}
+  language={language}
+  active="classroom"
+  alternatePath="/classroom/"
+>
+  <Classroom language={language} client:load />
+</BaseLayout>

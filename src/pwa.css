@@ -27,7 +27,7 @@
   .app-install-link { width: 38px; padding: 0; justify-content: center; }
 }
 @media (max-width: 900px) {
-  .astro-header { position: sticky; }
+  .astro-header { position: fixed; }
   .mobile-menu-toggle { display: block; margin-left: auto; flex: none; }
   .astro-header .app-install-link { margin-left: 0; }
   .astro-header nav {

@@ -17,15 +17,15 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; padding-top: 76px; min-width: 320px; min-height: 100vh; }
 button { font: inherit; color: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 
 .header {
   height: 76px; padding: 0 max(28px, calc((100vw - 1240px) / 2));
   display: flex; align-items: center; border-bottom: 1px solid var(--line);
-  background: rgba(245,243,238,.94); position: sticky; top: 0; z-index: 50;
+  background: rgba(245,243,238,.94); position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   backdrop-filter: blur(14px);
 }
 .brand { border: 0; background: none; padding: 0; display: flex; align-items: center; gap: 11px; cursor: pointer; text-align: left; }

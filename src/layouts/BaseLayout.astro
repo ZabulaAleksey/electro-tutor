@@ -89,59 +89,103 @@ const nav = [
   </dialog>
 
   <script is:inline>
-    const header = document.querySelector(".astro-header");
-    document.addEventListener("click", event => {
-      const origin = event.target;
-      const link = origin instanceof Element ? origin.closest("[data-language-link]") : null;
-      if (!(link instanceof HTMLAnchorElement)) return;
-      const target = new URL(link.href);
-      target.search = location.search;
-      target.hash = location.hash;
-      link.href = target.toString();
-    }, true);
-    const menuToggle = document.querySelector("#mobile-menu-toggle");
-    menuToggle?.addEventListener("click", () => {
-      const open = header?.classList.toggle("mobile-open") ?? false;
-      menuToggle.setAttribute("aria-expanded", String(open));
-    });
-    header?.querySelectorAll("nav a").forEach(link => link.addEventListener("click", () => {
-      header.classList.remove("mobile-open");
-      menuToggle?.setAttribute("aria-expanded", "false");
-    }));
-    addEventListener("keydown", event => {
-      if (event.key === "Escape") {
+    (() => {
+      const state = window.__potentialUi ||= { installPrompt: null, globalEventsReady: false };
+
+      const applySavedTheme = () => {
+        const saved = localStorage.getItem("potential-theme");
+        document.documentElement.dataset.theme = saved
+          || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      };
+
+      const closeMobileMenu = () => {
+        const header = document.querySelector(".astro-header");
+        const toggle = document.querySelector("#mobile-menu-toggle");
         header?.classList.remove("mobile-open");
-        menuToggle?.setAttribute("aria-expanded", "false");
-      }
-    });
+        toggle?.setAttribute("aria-expanded", "false");
+      };
 
-    document.querySelector("#theme-toggle")?.addEventListener("click", () => {
-      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("potential-theme", next);
-    });
-    if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
+      const restoreLanguageScroll = () => {
+        const saved = sessionStorage.getItem("potential-language-scroll");
+        if (!saved) return;
+        sessionStorage.removeItem("potential-language-scroll");
+        try {
+          const scroll = JSON.parse(saved);
+          if (scroll.path === location.pathname && Number.isFinite(scroll.y)) {
+            requestAnimationFrame(() => requestAnimationFrame(() => scrollTo(0, scroll.y)));
+          }
+        } catch {}
+      };
 
-    let installPrompt;
-    const installButton = document.querySelector("#app-install");
-    const installDialog = document.querySelector("#install-dialog");
-    const iosSteps = installDialog?.querySelector("[data-ios-steps]");
-    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (standalone) installButton?.setAttribute("hidden", "");
-    addEventListener("beforeinstallprompt", event => { event.preventDefault(); installPrompt = event; });
-    installButton?.addEventListener("click", async () => {
-      if (installPrompt) {
-        await installPrompt.prompt();
-        const result = await installPrompt.userChoice;
-        if (result.outcome === "accepted") installButton.setAttribute("hidden", "");
-        installPrompt = undefined;
-        return;
+      const initializePageControls = () => {
+        applySavedTheme();
+        const header = document.querySelector(".astro-header");
+        const menuToggle = document.querySelector("#mobile-menu-toggle");
+        const themeToggle = document.querySelector("#theme-toggle");
+        const installButton = document.querySelector("#app-install");
+        const installDialog = document.querySelector("#install-dialog");
+        const iosSteps = installDialog?.querySelector("[data-ios-steps]");
+        const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+        if (menuToggle) menuToggle.onclick = () => {
+          const open = header?.classList.toggle("mobile-open") ?? false;
+          menuToggle.setAttribute("aria-expanded", String(open));
+        };
+        header?.querySelectorAll("nav a").forEach(link => link.onclick = closeMobileMenu);
+
+        if (themeToggle) themeToggle.onclick = () => {
+          const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+          document.documentElement.dataset.theme = next;
+          localStorage.setItem("potential-theme", next);
+        };
+
+        if (standalone) installButton?.setAttribute("hidden", "");
+        if (installButton) installButton.onclick = async () => {
+          if (state.installPrompt) {
+            await state.installPrompt.prompt();
+            const result = await state.installPrompt.userChoice;
+            if (result.outcome === "accepted") installButton.setAttribute("hidden", "");
+            state.installPrompt = null;
+            return;
+          }
+          if (iosSteps) iosSteps.hidden = !ios;
+          installDialog?.showModal();
+        };
+
+        restoreLanguageScroll();
+      };
+
+      if (!state.globalEventsReady) {
+        state.globalEventsReady = true;
+        document.addEventListener("click", event => {
+          const origin = event.target;
+          const link = origin instanceof Element ? origin.closest("[data-language-link]") : null;
+          if (!(link instanceof HTMLAnchorElement)) return;
+          const target = new URL(link.href);
+          target.search = location.search;
+          target.hash = location.hash;
+          link.href = target.toString();
+          sessionStorage.setItem("potential-language-scroll", JSON.stringify({ path: target.pathname, y: scrollY }));
+        }, true);
+        addEventListener("keydown", event => {
+          if (event.key === "Escape") closeMobileMenu();
+        });
+        addEventListener("beforeinstallprompt", event => {
+          event.preventDefault();
+          state.installPrompt = event;
+        });
+        addEventListener("appinstalled", () => {
+          document.querySelector("#app-install")?.setAttribute("hidden", "");
+        });
+        document.addEventListener("astro:page-load", initializePageControls);
+        if ("serviceWorker" in navigator) {
+          addEventListener("load", () => navigator.serviceWorker.register("/sw.js"), { once: true });
+        }
       }
-      if (iosSteps) iosSteps.hidden = !ios;
-      installDialog?.showModal();
-    });
-    addEventListener("appinstalled", () => installButton?.setAttribute("hidden", ""));
+
+      initializePageControls();
+    })();
   </script>
 </body>
 </html>

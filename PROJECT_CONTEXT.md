@@ -35,6 +35,7 @@
 - `/uk/topics/dc/mesh-current-method/`;
 - `/ru/services/`, `/uk/services/`;
 - `/ru/interactive/`, `/uk/interactive/`;
+- `/ru/classroom/`, `/uk/classroom/`;
 - `/ru/contacts/`, `/uk/contacts/`.
 
 ## Контент

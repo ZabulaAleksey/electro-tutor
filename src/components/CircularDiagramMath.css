@@ -1,0 +1,31 @@
+/*
+ * Математический стиль круговой диаграммы.
+ * Здесь можно независимо менять сетку, оси, векторы, стрелки и подписи SVG.
+ */
+.circle-plot svg { font-family: "Times New Roman", Times, serif; }
+.plot-grid line { stroke: var(--line); stroke-width: .75; }
+.plot-grid text, .plot-axes text {
+  fill: var(--muted);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 13px;
+  font-style: italic;
+}
+.plot-axes line { stroke: var(--muted); stroke-width: 1.15; }
+.current-locus { fill: none; stroke: var(--orange); stroke-width: 2.6; }
+.current-vector line { stroke-width: 1.8; }
+.current-vector circle { stroke: var(--white); stroke-width: 1.5; }
+.current-vector text {
+  fill: var(--ink);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+}
+.math-arrow { stroke-linejoin: miter; stroke-width: .35; }
+.current-vector.idle line, .current-vector.idle circle, .arrow-head.idle { stroke: var(--green); fill: var(--green); }
+.current-vector.short line, .current-vector.short circle, .arrow-head.short { stroke: var(--violet); fill: var(--violet); }
+.current-vector.active line, .current-vector.active circle, .arrow-head.active { stroke: var(--blue); fill: var(--blue); }
+.circle-readout, .circle-readout b {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15px;
+}

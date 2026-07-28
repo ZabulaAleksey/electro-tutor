@@ -3,6 +3,7 @@ import "katex/dist/katex.min.css";
 import "../styles.css";
 import "../pwa.css";
 import type { Language } from "../types";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string; description: string; language: Language;
@@ -43,6 +44,7 @@ const nav = [
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <title>{title}</title>
+  <ClientRouter />
   <script is:inline>
     (() => {
       const saved = localStorage.getItem("potential-theme");
@@ -68,7 +70,7 @@ const nav = [
     <button class="theme-toggle" id="theme-toggle" aria-label={ru ? "Переключить тему" : "Перемкнути тему"} title={ru ? "Светлая / тёмная тема" : "Світла / темна тема"}>
       <span class="theme-light">☾</span><span class="theme-dark">☀</span>
     </button>
-    <a class="language-link" href={`/${otherLanguage}${alternatePath}`}>{ru ? "UA" : "RU"}</a>
+    <a class="language-link" data-language-link href={`/${otherLanguage}${alternatePath}`}>{ru ? "UA" : "RU"}</a>
   </header>
   <main><slot /></main>
   <footer><span>© 2026 {ru ? "Потенциал" : "Потенціал"}</span><span>{ru ? "Учимся понимать, а не запоминать." : "Вчимося розуміти, а не запам’ятовувати."}</span></footer>
@@ -88,6 +90,15 @@ const nav = [
 
   <script is:inline>
     const header = document.querySelector(".astro-header");
+    document.addEventListener("click", event => {
+      const origin = event.target;
+      const link = origin instanceof Element ? origin.closest("[data-language-link]") : null;
+      if (!(link instanceof HTMLAnchorElement)) return;
+      const target = new URL(link.href);
+      target.search = location.search;
+      target.hash = location.hash;
+      link.href = target.toString();
+    }, true);
     const menuToggle = document.querySelector("#mobile-menu-toggle");
     menuToggle?.addEventListener("click", () => {
       const open = header?.classList.toggle("mobile-open") ?? false;

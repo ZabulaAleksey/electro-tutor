@@ -17,16 +17,7 @@
 .resistance-control small { display: flex; justify-content: space-between; color: var(--muted); font-weight: 500; }
 .circle-plot { min-width: 0; }
 .circle-plot svg { width: 100%; height: auto; display: block; overflow: visible; background: var(--white); border: 1px solid var(--line); border-radius: 15px; }
-.plot-grid line { stroke: var(--line); stroke-width: .75; }
-.plot-grid text, .plot-axes text { fill: var(--muted); font: 11px "DM Sans", sans-serif; }
-.plot-axes line { stroke: var(--muted); stroke-width: 1.2; }
-.current-locus { fill: none; stroke: var(--orange); stroke-width: 3; }
-.current-vector line { stroke-width: 2.2; }
-.current-vector circle { stroke: var(--white); stroke-width: 2; }
-.current-vector text { fill: var(--ink); font: 700 14px "DM Sans", sans-serif; }
-.current-vector.idle line, .current-vector.idle circle, .arrow-head.idle { stroke: var(--green); fill: var(--green); }
-.current-vector.short line, .current-vector.short circle, .arrow-head.short { stroke: var(--violet); fill: var(--violet); }
-.current-vector.active line, .current-vector.active circle, .arrow-head.active { stroke: var(--blue); fill: var(--blue); }
+
 .circle-readout { display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 14px 4px 0; color: var(--muted); font-size: 12px; }
 .circle-readout b { color: var(--ink); }
 @media (max-width: 900px) {

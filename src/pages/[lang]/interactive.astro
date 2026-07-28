@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import CircularDiagram from "../../components/CircularDiagram";
 import "../../components/CircularDiagram.css";
+import "../../components/CircularDiagramMath.css";
 import type { Language } from "../../types";
 
 export function getStaticPaths() {
@@ -24,6 +25,6 @@ const ru = language === "ru";
     <p>{ru ? "Исследуйте режимы электрических цепей с помощью управляемых схем, векторных диаграмм и расчётных тренажёров." : "Досліджуйте режими електричних кіл за допомогою керованих схем, векторних діаграм і розрахункових тренажерів."}</p>
   </section>
   <div class="section interactive-section">
-    <CircularDiagram client:load language={language} />
+    <CircularDiagram client:load transition:persist="circular-diagram" language={language} />
   </div>
 </BaseLayout>

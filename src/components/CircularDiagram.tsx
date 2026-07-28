@@ -15,10 +15,24 @@ const fmt = (n: number, d = 2) => Number(n.toFixed(d)).toString();
 
 export default function CircularDiagram({ language }: { language: "ru" | "uk" }) {
   const ru = language === "ru";
-  const [i0m, setI0m] = useState(1.5), [i0a, setI0a] = useState(-18);
-  const [ikm, setIkm] = useState(8), [ika, setIka] = useState(-55);
-  const [zm, setZm] = useState(4), [za, setZa] = useState(35);
-  const [phi, setPhi] = useState(25), [position, setPosition] = useState(43);
+  const fromUrl = (key: string, fallback: number) => {
+    if (typeof window === "undefined") return fallback;
+    const raw = new URLSearchParams(location.search).get(key);
+    if (raw === null) return fallback;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  const [i0m, setI0m] = useState(() => fromUrl("i0m", 1.5)), [i0a, setI0a] = useState(() => fromUrl("i0a", -18));
+  const [ikm, setIkm] = useState(() => fromUrl("ikm", 8)), [ika, setIka] = useState(() => fromUrl("ika", -55));
+  const [zm, setZm] = useState(() => fromUrl("zm", 4)), [za, setZa] = useState(() => fromUrl("za", 35));
+  const [phi, setPhi] = useState(() => fromUrl("phi", 25)), [position, setPosition] = useState(() => fromUrl("r", 43));
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    Object.entries({ i0m, i0a, ikm, ika, zm, za, phi, r: position })
+      .forEach(([key, value]) => params.set(key, String(value)));
+    history.replaceState(history.state, "", `${location.pathname}?${params}${location.hash}`);
+  }, [i0m, i0a, ikm, ika, zm, za, phi, position]);
 
   const model = useMemo(() => {
     const i0 = polar(i0m, i0a), ik = polar(ikm, ika), zout = polar(zm, za);
@@ -70,7 +84,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
       </div>
       <div className="circle-plot">
         <svg viewBox="0 0 720 520" role="img" aria-label={ru ? "Круговая диаграмма токов" : "Колова діаграма струмів"}>
-          <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" className={`arrow-head ${v.id}`}/></marker>)}</defs>
+          <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="12" markerHeight="7" refX="10.5" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5,.8 L11,3.5 L.5,6.2 L3,3.5 Z" className={`math-arrow arrow-head ${v.id}`}/></marker>)}</defs>
           <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{t}</text><text x="367" y={y - 6}>{t}</text></>}</g>; })}</g>
           <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">Re I, A</text><text x="370" y="38">Im I, A</text></g>
           <path d={model.path} className="current-locus"/>

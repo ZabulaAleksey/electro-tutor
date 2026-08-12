@@ -1,18 +1,18 @@
-# Electro Tutor - local instructions
+# Electro Tutor — локальные инструкции
 
-Before working here, read `~/codex-workspace/AGENTS.md`. This file contains only project-specific additions; a more local `AGENTS.md` takes priority for its directory.
+Перед началом работы прочитай `~/codex-workspace/AGENTS.md`. Этот файл содержит только дополнения для проекта; более локальный `AGENTS.md` имеет приоритет в своём каталоге.
 
-## Project context
+## Контекст проекта
 
-- Astro-based bilingual RU/UA electrical-engineering learning platform.
-- Start with `PROJECT_CONTEXT.md`; use `ARCHITECTURE.md` for code location, `CONTENT_GUIDE.md` for lessons, and `PAYMENTS_AND_BOOKING.md` only for scheduling or payment work.
-- Keep user-facing educational content consistent across supported locales.
-- Do not edit generated `dist/` output or dependency directories manually.
+- Двуязычная учебная платформа по электротехнике на Astro с локалями RU/UA.
+- Начинай с `PROJECT_CONTEXT.md`; для расположения кода используй `ARCHITECTURE.md`, для уроков — `CONTENT_GUIDE.md`, а `PAYMENTS_AND_BOOKING.md` открывай только при работе с расписанием или платежами.
+- Поддерживай согласованность пользовательского учебного контента во всех поддерживаемых локалях.
+- Не редактируй вручную сгенерированный каталог `dist/` и каталоги зависимостей.
 
-## Commands
+## Команды
 
-- Development: `npm run dev`
-- Static and type checks: `npm run check` and `npm run lint`
-- Production build: `npm run build`
+- Разработка: `npm run dev`
+- Статические проверки и проверка типов: `npm run check` и `npm run lint`
+- Production-сборка: `npm run build`
 
-Load only the documents and AI Dev Team rules relevant to the current task; do not preload all rules, SPEC files, or `LEARNING_LOG.md`.
+Загружай только документы и правила AI Dev Team, относящиеся к текущей задаче; не загружай заранее все правила, файлы SPEC или `LEARNING_LOG.md`.

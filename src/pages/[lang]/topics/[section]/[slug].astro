@@ -1,18 +1,20 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import MeshLessonIsland from "../../../../components/MeshLessonIsland";
+import { resolveInteractiveComponent } from "../../../../content/interactive-registry";
+import { getPublishedLessonManifest } from "../../../../content/published-lessons";
 import type { Language } from "../../../../types";
 
 export async function getStaticPaths() {
-  const lessons = await getCollection("lessons", ({ data }) => !data.draft);
-  return lessons.map((entry) => ({
+  const lessons = await getPublishedLessonManifest();
+  return lessons.map((lesson) => ({
     params: {
-      lang: entry.data.language,
-      section: entry.data.section,
-      slug: entry.data.slug,
+      lang: lesson.language,
+      section: lesson.section,
+      slug: lesson.slug,
     },
-    props: { entry },
+    props: { entry: lesson.entry },
   }));
 }
 
@@ -20,6 +22,9 @@ const { entry } = Astro.props;
 const language = entry.data.language as Language;
 const { Content } = await render(entry);
 const alternatePath = `/topics/${entry.data.section}/${entry.data.slug}/`;
+const registeredInteractive = resolveInteractiveComponent(entry.data.interactive);
+// Astro's hydration transform must see the concrete component import in this module.
+const hasMeshInteractive = registeredInteractive === MeshLessonIsland;
 ---
 
 <BaseLayout
@@ -30,9 +35,9 @@ const alternatePath = `/topics/${entry.data.section}/${entry.data.slug}/`;
   alternatePath={alternatePath}
   keywords={entry.data.keywords}
 >
-  <div class="seo-intro sr-only">
-    <h1>{entry.data.title}</h1>
+  <article class="lesson-intro">
+    {!registeredInteractive ? <h1>{entry.data.title}</h1> : null}
     <Content />
-  </div>
-  <MeshLessonIsland language={language} client:load />
+  </article>
+  {hasMeshInteractive ? <MeshLessonIsland language={language} client:load /> : null}
 </BaseLayout>

@@ -18,3 +18,7 @@ export const interactiveRegistry = {
     component: MeshLessonIsland,
   },
 } as const satisfies Record<InteractiveKey, InteractiveDescriptor>;
+
+export function resolveInteractiveComponent(key: InteractiveKey | undefined) {
+  return key ? interactiveRegistry[key].component : undefined;
+}

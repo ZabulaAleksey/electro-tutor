@@ -86,23 +86,27 @@ prompts/                     протокол поэтапного продол�
 ```text
 src/content/lessons/<lang>/<slug>.mdx
         ↓ validation by content.config.ts
-getCollection("lessons", !draft)
+getPublishedLessonManifest() → pair/uniqueness contracts
         ↓
-/[lang]/topics/[section]/[slug]/
+Astro route + derived curriculum availability
+        ↓
+visible MDX HTML + optional registered React island
 ```
 
 Frontmatter содержит `title`, `description`, `language`, `section`, `slug`,
-`order`, `duration`, `keywords` и `draft`. Правила автора находятся в
-`CONTENT_GUIDE.md`.
+`order`, `duration`, `keywords`, `draft` и optional `interactive`. Правила
+автора находятся в `CONTENT_GUIDE.md`.
 
-Каталог пока имеет отдельный источник `curriculum.ts`/`data.ts`. Флаг
-`available` не выводится из Content Collections, а ссылки для доступных карточек
-жёстко ведут на `mesh-current-method`. Это известный разрыв модели, а не целевая
-архитектура.
+`lesson-manifest.ts` фильтрует draft, проверяет уникальность и парность RU/UK,
+формирует локализованные маршруты и сохраняет ссылку на Content Collection
+entry. `curriculum-publication.ts` выводит `available` и `href` карточек из
+manifest; `curriculum.ts` остаётся источником порядка и локализованного UI.
 
-Маршрут урока также всегда подключает `MeshLessonIsland`, поэтому новый MDX
-создаст URL и метаданные, но не универсальное содержимое урока. Сведение этих
-источников — этап `ET-02` в `ROADMAP.md`.
+Универсальный route получает только записи manifest, рендерит видимый MDX и
+по optional ключу выбирает разрешённый React island из статического registry.
+Для текущего `mesh-lesson` route использует конкретный статический import,
+необходимый Astro для генерации hydration metadata; произвольные dynamic
+imports из frontmatter не допускаются.
 
 ## Общий макет и клиентское состояние
 

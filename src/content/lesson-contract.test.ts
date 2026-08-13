@@ -3,7 +3,10 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { parseLessonContractEntry } from "./lesson-contract-file";
-import { interactiveRegistry } from "./interactive-registry";
+import {
+  interactiveRegistry,
+  resolveInteractiveComponent,
+} from "./interactive-registry";
 import {
   type LessonContractEntry,
   validateLessonContracts,
@@ -127,6 +130,7 @@ duration: 10
 `;
 
     expect(parseLessonContractEntry(source, "example.mdx", "example").interactive).toBeUndefined();
+    expect(resolveInteractiveComponent(undefined)).toBeUndefined();
   });
 
   it("accepts the known interactive on its registered lesson", () => {
@@ -148,6 +152,9 @@ interactive: mesh-lesson
       slug: "mesh-current-method",
       component: expect.any(Function),
     });
+    expect(resolveInteractiveComponent("mesh-lesson")).toBe(
+      interactiveRegistry["mesh-lesson"].component,
+    );
   });
 
   it("rejects an unknown interactive key", () => {

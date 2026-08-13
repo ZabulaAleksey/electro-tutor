@@ -6,8 +6,10 @@
 
 Этап `ET-01` завершён: инженерные проверки, unit/contract-тесты и зависимости
 приведены в воспроизводимое состояние. `npm audit` сообщает 0 известных
-уязвимостей. Для текущего `ET-02` зафиксирована feature-SPEC единой модели
-публикации; следующий срез — типизированный optional interactive registry.
+уязвимостей. `ET-02` завершён: опубликованные маршруты и доступность каталога
+выводятся из единого manifest, MDX видим в статическом HTML, а React island
+подключается только по проверенному optional ключу. Текущий этап — `ET-04`,
+browser-проверка интерактива.
 
 ## Что реализовано
 
@@ -31,25 +33,26 @@
   `miniflare 5.20260811.1-alpha` и `undici 7.29.0`.
 - feature-SPEC единой публикации уроков с manifest, derived availability,
   универсальным MDX route и optional island.
+- единый manifest опубликованных парных RU/UK-уроков и resolver карточек;
+- универсальный маршрут урока с видимым MDX и статическим optional island
+  registry;
+- аудит собранного HTML для локализованных ссылок, MDX и hydration marker.
 
 ## Что не реализовано
 
 - аккаунты, backend и база данных;
 - собственный контроль доступа/хранения кабинета;
 - платёжный checkout, webhook и заказы;
-- универсальный renderer нескольких уроков;
-- автоматические integration/e2e/security tests;
+- новые уроки кроме парного `mesh-current-method`;
+- автоматические browser/e2e/security tests;
 - подтверждённый production-домен.
 
 ## Известные проблемы
 
-1. `data.ts` помечает Закон Ома и Законы Кирхгофа доступными, хотя парные MDX
-   отсутствуют; каталог ведёт доступные карточки на `mesh-current-method`.
-2. Маршрут любого MDX-урока подключает специализированный `MeshLessonIsland`.
-3. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
-4. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и
+1. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
+2. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и
    SLA.
-5. Service worker использует первую версию cache key; стратегия обновления на
+3. Service worker использует первую версию cache key; стратегия обновления на
    реальном установленном клиенте не проверена автоматически.
 
 ## Ограничения и внешние решения
@@ -75,10 +78,12 @@
 
 - 2026-08-14: `npm audit` — 0 известных уязвимостей после совместимого
   `npm audit fix` без `--force`;
-- 2026-08-14: `npm test` — успешно, 2 test files и 19 тестов без skip/disable;
-- 2026-08-14: `npm run check` — успешно, 36 файлов, 0 errors/warnings/hints;
+- 2026-08-14: `npm test` — успешно, 4 test files и 38 тестов без skip/disable;
+- 2026-08-14: `npm run check` — успешно, 44 файла, 0 errors/warnings/hints;
 - 2026-08-14: `npm run lint` — успешно;
 - 2026-08-14: `npm run build` — успешно, 15 статических страниц и sitemap;
+- 2026-08-14: `node scripts/audit-built-lessons.mjs` — успешно: видимый RU/UK
+  MDX, hydration marker и ссылки публикации в собранном HTML;
 - 2026-08-14: `npm ci --dry-run --ignore-scripts --offline` — lockfile
   воспроизводим из локального npm cache;
 - 2026-08-13: `npm run check` — фактическая проверка не запущена из-за

@@ -36,7 +36,8 @@
         "typescript": "~5.7.2",
         "typescript-eslint": "^8.18.2",
         "vitest": "^4.1.10",
-        "wrangler": "^4.114.0"
+        "wrangler": "^4.114.0",
+        "yaml": "^2.9.0"
     },
     "engines": {
         "node": ">=22.12.0"

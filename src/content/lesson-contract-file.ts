@@ -1,5 +1,9 @@
 import { parse } from "yaml";
 
+import {
+  interactiveAssignmentError,
+  isInteractiveKey,
+} from "./interactive-contract";
 import type { LessonContractEntry, LessonLanguage } from "./lesson-contract";
 
 type Frontmatter = Record<string, unknown>;
@@ -43,14 +47,27 @@ export function parseLessonContractEntry(
     throw new Error(`${source} has no valid draft frontmatter field.`);
   }
 
+  const interactiveValue = frontmatter.interactive;
+  if (interactiveValue !== undefined && !isInteractiveKey(interactiveValue)) {
+    throw new Error(`${source} has unknown interactive key "${String(interactiveValue)}".`);
+  }
+
+  const section = required<string>(frontmatter, source, "section", "string");
+  const slug = required<string>(frontmatter, source, "slug", "string");
+  const assignmentError = interactiveAssignmentError(interactiveValue, section, slug);
+  if (assignmentError) {
+    throw new Error(`${source}: ${assignmentError}`);
+  }
+
   return {
     source,
     translationKey,
     language: language as LessonLanguage,
-    section: required(frontmatter, source, "section", "string"),
-    slug: required(frontmatter, source, "slug", "string"),
+    section,
+    slug,
     order: required(frontmatter, source, "order", "number"),
     duration: required(frontmatter, source, "duration", "number"),
     draft,
+    interactive: interactiveValue,
   };
 }

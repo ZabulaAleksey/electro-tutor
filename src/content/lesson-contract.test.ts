@@ -3,6 +3,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { parseLessonContractEntry } from "./lesson-contract-file";
+import { interactiveRegistry } from "./interactive-registry";
 import {
   type LessonContractEntry,
   validateLessonContracts,
@@ -113,5 +114,90 @@ duration: 5e1
       duration: 50,
       draft: false,
     });
+  });
+
+  it("accepts lessons without an interactive key", () => {
+    const source = `---
+language: ru
+section: dc
+slug: example
+order: 1
+duration: 10
+---
+`;
+
+    expect(parseLessonContractEntry(source, "example.mdx", "example").interactive).toBeUndefined();
+  });
+
+  it("accepts the known interactive on its registered lesson", () => {
+    const source = `---
+language: ru
+section: dc
+slug: mesh-current-method
+order: 3
+duration: 50
+interactive: mesh-lesson
+---
+`;
+
+    expect(parseLessonContractEntry(source, "mesh.mdx", "mesh").interactive).toBe(
+      "mesh-lesson",
+    );
+    expect(interactiveRegistry["mesh-lesson"]).toMatchObject({
+      section: "dc",
+      slug: "mesh-current-method",
+      component: expect.any(Function),
+    });
+  });
+
+  it("rejects an unknown interactive key", () => {
+    const source = `---
+language: ru
+section: dc
+slug: mesh-current-method
+order: 3
+duration: 50
+interactive: arbitrary-module
+---
+`;
+
+    expect(() => parseLessonContractEntry(source, "mesh.mdx", "mesh")).toThrow(
+      /unknown interactive key "arbitrary-module"/,
+    );
+  });
+
+  it("rejects a known interactive on an incompatible lesson", () => {
+    const source = `---
+language: ru
+section: ac
+slug: mesh-current-method
+order: 3
+duration: 50
+interactive: mesh-lesson
+---
+`;
+
+    expect(() => parseLessonContractEntry(source, "mesh.mdx", "mesh")).toThrow(
+      /Interactive "mesh-lesson" is only allowed for dc\/mesh-current-method/,
+    );
+  });
+
+  it("rejects a RU/UK pair with inconsistent interactive keys", () => {
+    const ruLesson = lesson({
+      source: "src/content/lessons/ru/mesh-current-method.mdx",
+      translationKey: "mesh-current-method",
+      slug: "mesh-current-method",
+      interactive: "mesh-lesson",
+    });
+    const ukLesson = lesson({
+      source: "src/content/lessons/uk/mesh-current-method.mdx",
+      translationKey: "mesh-current-method",
+      language: "uk",
+      slug: "mesh-current-method",
+    });
+
+    expect(() => validateLessonContracts([ruLesson, ukLesson])).toThrow(
+      /inconsistent interactive/,
+    );
   });
 });

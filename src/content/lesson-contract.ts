@@ -1,3 +1,5 @@
+import type { InteractiveKey } from "./interactive-contract";
+
 export const lessonLanguages = ["ru", "uk"] as const;
 
 export type LessonLanguage = (typeof lessonLanguages)[number];
@@ -11,9 +13,17 @@ export interface LessonContractEntry {
   order: number;
   duration: number;
   draft: boolean;
+  interactive?: InteractiveKey;
 }
 
-const sharedFields = ["section", "slug", "order", "duration", "draft"] as const;
+const sharedFields = [
+  "section",
+  "slug",
+  "order",
+  "duration",
+  "draft",
+  "interactive",
+] as const;
 
 function publicationKey(entry: LessonContractEntry): string {
   return `${entry.language}/${entry.section}/${entry.slug}`;

@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { topics } from "../../data";
+import { getPublishedLessonManifest } from "../../content/published-lessons";
+import { resolveTopicPublication } from "../../curriculum-publication";
+import { curriculum } from "../../curriculum";
 import type { Language } from "../../types";
 
 export function getStaticPaths() {
@@ -9,6 +11,16 @@ export function getStaticPaths() {
 
 const language = Astro.params.lang as Language;
 const ru = language === "ru";
+const homeSection = curriculum.find((section) => section.id === "dc");
+if (!homeSection) {
+  throw new Error('Homepage curriculum section "dc" is missing.');
+}
+const lessonManifest = await getPublishedLessonManifest();
+const publishedTopics = homeSection.topics.map((topic) => ({
+  topic,
+  publication: resolveTopicPublication(lessonManifest, language, homeSection.id, topic),
+}));
+const primaryPublication = publishedTopics.find(({ publication }) => publication.available)?.publication;
 const copy = ru
   ? {
       title: "Потенциал — электротехника понятно",
@@ -46,7 +58,10 @@ const copy = ru
         <h1>{copy.heading.split(" — ")[0]} —<br /><em>{copy.heading.split(" — ")[1]}</em></h1>
         <p>{copy.lead}</p>
         <div class="hero-actions">
-          <a class="button primary" href={`/${language}/topics/dc/mesh-current-method/`}>
+          <a
+            class="button primary"
+            href={primaryPublication?.available ? primaryPublication.href : `/${language}/topics/`}
+          >
             {copy.primary} <span>→</span>
           </a>
           <a class="button ghost" href={`/${language}/topics/`}>{copy.secondary}</a>
@@ -86,13 +101,13 @@ const copy = ru
       <p>{ru ? "Фундаментальные методы расчёта электрических цепей." : "Фундаментальні методи розрахунку електричних кіл."}</p>
     </div>
     <div class="topic-grid">
-      {topics.map((topic) => (
+      {publishedTopics.map(({ topic, publication }) => (
         <article class={`topic-card ${topic.accent}`}>
           <div class="topic-card-top"><span>{topic.index}</span><small>{topic.duration} {ru ? "мин" : "хв"}</small></div>
           <h3>{topic.title[language]}</h3>
           <p>{topic.description[language]}</p>
-          {topic.id === "mesh"
-            ? <a href={`/${language}/topics/dc/mesh-current-method/`}>{ru ? "Начать изучение" : "Почати вивчення"} →</a>
+          {publication.available
+            ? <a href={publication.href}>{ru ? "Начать изучение" : "Почати вивчення"} →</a>
             : <span class="soon-label">{ru ? "Скоро" : "Незабаром"}</span>}
         </article>
       ))}

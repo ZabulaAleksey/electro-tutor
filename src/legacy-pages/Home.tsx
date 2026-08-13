@@ -90,7 +90,7 @@ export default function Home({
               {topic.id === "mesh" ? (
                 <button onClick={() => onNavigate("lesson")}>{text.start[language]}<ArrowRight size={16} /></button>
               ) : (
-                <button disabled>{topic.available ? text.soon[language] : text.soon[language]}</button>
+                <button disabled>{text.soon[language]}</button>
               )}
             </article>
           ))}

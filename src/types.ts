@@ -18,10 +18,10 @@ export type CurriculumSection = {
 
 export type Topic = {
   id: string;
+  lessonSlug?: string;
   index: string;
   title: LocalizedText;
   description: LocalizedText;
   duration: number;
-  available: boolean;
   accent: "green" | "blue" | "orange" | "violet";
 };

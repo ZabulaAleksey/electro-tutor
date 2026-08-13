@@ -1,5 +1,7 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getPublishedLessonManifest } from "../../../content/published-lessons";
+import { resolveTopicPublication } from "../../../curriculum-publication";
 import { curriculum } from "../../../curriculum";
 import type { Language } from "../../../types";
 
@@ -9,6 +11,14 @@ export function getStaticPaths() {
 
 const language = Astro.params.lang as Language;
 const ru = language === "ru";
+const lessonManifest = await getPublishedLessonManifest();
+const publishedCurriculum = curriculum.map((section) => ({
+  ...section,
+  topics: section.topics.map((topic) => ({
+    ...topic,
+    publication: resolveTopicPublication(lessonManifest, language, section.id, topic),
+  })),
+}));
 
 const topicCountLabel = (count: number) => {
   const mod10 = count % 10;
@@ -38,7 +48,7 @@ const topicCountLabel = (count: number) => {
       {ru ? "Раскрывайте разделы и двигайтесь от фундаментальных законов к сложным процессам." : "Розкривайте розділи та рухайтеся від фундаментальних законів до складних процесів."}
     </p>
     <div class="curriculum">
-      {curriculum.map((section, index) => (
+      {publishedCurriculum.map((section, index) => (
         <details class="curriculum-section" open={index === 0}>
           <summary class="curriculum-trigger">
             <span class="curriculum-index">{section.index}</span>
@@ -52,8 +62,8 @@ const topicCountLabel = (count: number) => {
                 <span class="curriculum-topic-number">{section.index}.{topic.index}</span>
                 <div><h3>{topic.title[language]}</h3><p>{topic.description[language]}</p></div>
                 <span class="duration">{topic.duration} {ru ? "мин" : "хв"}</span>
-                {topic.id === "mesh"
-                  ? <a class="round-button" href={`/${language}/topics/dc/mesh-current-method/`}>→</a>
+                {topic.publication.available
+                  ? <a class="round-button" href={topic.publication.href}>→</a>
                   : <span class="soon-label">{ru ? "Скоро" : "Незабаром"}</span>}
               </article>
             ))}

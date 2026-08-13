@@ -16,7 +16,6 @@ const topic = (
   title: { ru, uk },
   description: { ru: descriptionRu, uk: descriptionUk },
   duration,
-  available: false,
   accent,
 });
 

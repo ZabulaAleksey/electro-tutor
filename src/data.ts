@@ -10,7 +10,6 @@ export const topics: Topic[] = [
       uk: "Зв'язок струму, напруги та опору на ділянці кола.",
     },
     duration: 20,
-    available: true,
     accent: "green",
   },
   {
@@ -22,11 +21,11 @@ export const topics: Topic[] = [
       uk: "Рівняння для вузлів і замкнених контурів.",
     },
     duration: 35,
-    available: true,
     accent: "blue",
   },
   {
     id: "mesh",
+    lessonSlug: "mesh-current-method",
     index: "03",
     title: { ru: "Метод контурных токов", uk: "Метод контурних струмів" },
     description: {
@@ -34,7 +33,6 @@ export const topics: Topic[] = [
       uk: "Системний розрахунок складних кіл через незалежні контури.",
     },
     duration: 50,
-    available: true,
     accent: "orange",
   },
   {
@@ -46,7 +44,6 @@ export const topics: Topic[] = [
       uk: "Розрахунок кола через потенціали його незалежних вузлів.",
     },
     duration: 45,
-    available: false,
     accent: "violet",
   },
 ];

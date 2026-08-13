@@ -6,3 +6,6 @@ dist/
 !.env.example
 *.tsbuildinfo
 .wrangler/
+test-results/
+playwright-report/
+blob-report/

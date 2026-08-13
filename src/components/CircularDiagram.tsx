@@ -9,24 +9,39 @@ const fmt = (n: number, d = 2) => Number(n.toFixed(d)).toString();
 
 export default function CircularDiagram({ language }: { language: "ru" | "uk" }) {
   const ru = language === "ru";
-  const fromUrl = (key: string, fallback: number) => {
-    if (typeof window === "undefined") return fallback;
-    const raw = new URLSearchParams(location.search).get(key);
-    if (raw === null) return fallback;
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
-  const [i0m, setI0m] = useState(() => fromUrl("i0m", 1.5)), [i0a, setI0a] = useState(() => fromUrl("i0a", -18));
-  const [ikm, setIkm] = useState(() => fromUrl("ikm", 8)), [ika, setIka] = useState(() => fromUrl("ika", -55));
-  const [zm, setZm] = useState(() => fromUrl("zm", 4)), [za, setZa] = useState(() => fromUrl("za", 35));
-  const [phi, setPhi] = useState(() => fromUrl("phi", 25)), [position, setPosition] = useState(() => fromUrl("r", 43));
+  const [i0m, setI0m] = useState(1.5), [i0a, setI0a] = useState(-18);
+  const [ikm, setIkm] = useState(8), [ika, setIka] = useState(-55);
+  const [zm, setZm] = useState(4), [za, setZa] = useState(35);
+  const [phi, setPhi] = useState(25), [position, setPosition] = useState(43);
+  const [urlReady, setUrlReady] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const fromUrl = (key: string, fallback: number) => {
+      const raw = params.get(key);
+      if (raw === null) return fallback;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    setI0m(fromUrl("i0m", 1.5));
+    setI0a(fromUrl("i0a", -18));
+    setIkm(fromUrl("ikm", 8));
+    setIka(fromUrl("ika", -55));
+    setZm(fromUrl("zm", 4));
+    setZa(fromUrl("za", 35));
+    setPhi(fromUrl("phi", 25));
+    setPosition(fromUrl("r", 43));
+    setUrlReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!urlReady) return;
     const params = new URLSearchParams(location.search);
     Object.entries({ i0m, i0a, ikm, ika, zm, za, phi, r: position })
       .forEach(([key, value]) => params.set(key, String(value)));
     history.replaceState(history.state, "", `${location.pathname}?${params}${location.hash}`);
-  }, [i0m, i0a, ikm, ika, zm, za, phi, position]);
+  }, [i0m, i0a, ikm, ika, zm, za, phi, position, urlReady]);
 
   const model = useMemo(() => buildCircularDiagramModel({
     i0Magnitude: i0m,

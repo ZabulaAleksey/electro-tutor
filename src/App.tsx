@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
-import Home from "./pages/Home";
-import Catalog from "./pages/Catalog";
-import MeshLesson from "./pages/MeshLesson";
-import InfoPage from "./pages/InfoPage";
+import Home from "./legacy-pages/Home";
+import Catalog from "./legacy-pages/Catalog";
+import MeshLesson from "./legacy-pages/MeshLesson";
+import InfoPage from "./legacy-pages/InfoPage";
 import type { DetailLevel, Language, Page, Theme } from "./types";
 
 export default function App() {

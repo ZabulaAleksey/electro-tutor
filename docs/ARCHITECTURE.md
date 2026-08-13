@@ -1,0 +1,190 @@
+# Архитектура Electro Tutor
+
+Документ описывает фактическое устройство проекта «Потенциал». Требования
+находятся в `../specs/`, а известные расхождения реализации — в
+`AI_STATUS.md`.
+
+## Общая модель
+
+```text
+MDX lessons ──────────────┐
+curriculum.ts + data.ts ──┼─> Astro static routes ─> dist/
+BaseLayout + CSS ─────────┘           │
+                                      └─> React islands
+
+dist/ ─> Cloudflare Static Assets
+      └> GitHub Pages workflow
+
+Browser ─> Jitsi public API (только кабинет)
+        └> Cal.com URL (только если задан PUBLIC_CALCOM_URL)
+        └> Google Fonts CSS/font files
+```
+
+Astro генерирует индексируемый HTML. React используется для состояния и
+интерактива, а не как основной маршрутизатор production-сайта.
+
+## Технологии и границы
+
+| Задача | Реализация |
+|---|---|
+| Маршруты и статическая сборка | Astro 7 |
+| Интерактивные острова | React 19 |
+| Учебные материалы | Astro Content Collections + MDX |
+| Формулы | KaTeX |
+| SEO | canonical, hreflang, sitemap, статический HTML |
+| PWA | manifest, service worker, offline page |
+| Онлайн-занятие | публичный Jitsi IFrame API и его whiteboard |
+| Production assets | Cloudflare Workers Static Assets |
+| Дополнительный deploy | GitHub Pages workflow |
+
+Минимальная версия Node.js определяется `package.json`: `>=22.12.0`.
+
+## Карта репозитория
+
+```text
+src/
+├─ pages/                    Astro-маршруты
+├─ layouts/BaseLayout.astro  head, навигация, тема, язык, PWA
+├─ content/lessons/          парные RU/UK MDX-уроки
+├─ components/               React islands и локальные CSS
+├─ legacy-pages/             унаследованные React-страницы
+├─ content.config.ts         схема frontmatter
+├─ curriculum.ts             разделы и карточки каталога
+├─ data.ts                   первые карточки и общие переводы
+├─ types.ts                  общие TypeScript-типы
+├─ styles.css                глобальный UI
+└─ pwa.css                   UI установки PWA
+
+public/                      статические файлы и service worker
+specs/                       канонические требования
+docs/                        архитектура, решения и состояние
+prompts/                     протокол поэтапного продолжения
+.github/workflows/           GitHub Actions
+```
+
+Сгенерированные `dist/`, `.astro/`, `*.tsbuildinfo` и зависимости не являются
+исходным кодом и вручную не редактируются.
+
+## Маршруты
+
+| Файл | URL |
+|---|---|
+| `src/pages/index.astro` | `/` → `/ru/` |
+| `src/pages/[lang]/index.astro` | `/ru/`, `/uk/` |
+| `src/pages/[lang]/topics/index.astro` | каталог |
+| `src/pages/[lang]/topics/[section]/[slug].astro` | опубликованный урок |
+| `src/pages/[lang]/interactive.astro` | круговая диаграмма |
+| `src/pages/[lang]/classroom.astro` | кабинет занятия |
+| `src/pages/[lang]/services.astro` | услуги и расписание |
+| `src/pages/[lang]/contacts.astro` | контакты |
+
+`getStaticPaths()` создаёт локали во время сборки. Код локали украинского языка
+— `uk`; надпись в переключателе — `UA`.
+
+## Поток учебного контента
+
+```text
+src/content/lessons/<lang>/<slug>.mdx
+        ↓ validation by content.config.ts
+getCollection("lessons", !draft)
+        ↓
+/[lang]/topics/[section]/[slug]/
+```
+
+Frontmatter содержит `title`, `description`, `language`, `section`, `slug`,
+`order`, `duration`, `keywords` и `draft`. Правила автора находятся в
+`CONTENT_GUIDE.md`.
+
+Каталог пока имеет отдельный источник `curriculum.ts`/`data.ts`. Флаг
+`available` не выводится из Content Collections, а ссылки для доступных карточек
+жёстко ведут на `mesh-current-method`. Это известный разрыв модели, а не целевая
+архитектура.
+
+Маршрут урока также всегда подключает `MeshLessonIsland`, поэтому новый MDX
+создаст URL и метаданные, но не универсальное содержимое урока. Сведение этих
+источников — этап `ET-02` в `ROADMAP.md`.
+
+## Общий макет и клиентское состояние
+
+`BaseLayout.astro` владеет SEO head, навигацией, footer, темой, переключением
+языка, установкой PWA и регистрацией service worker. Он сохраняет:
+
+- тему в `localStorage` (`potential-theme`);
+- позицию прокрутки при смене языка в `sessionStorage`;
+- query/hash при переходе на парную локаль.
+
+`MeshLessonIsland.tsx` сохраняет уровень подробности в `potential-level`.
+`CircularDiagram.tsx` хранит ввод в query-параметрах, чтобы состояние можно было
+передать ссылкой.
+
+## Кабинет занятия
+
+`Classroom.tsx` нормализует код комнаты, создаёт приглашение и по действию
+пользователя загружает `https://meet.jit.si/external_api.js`. Имя сохраняется в
+`localStorage`; сервер проекта данные кабинета не хранит. Комната не имеет
+собственной авторизации или серверной политики доступа. Ограничения описаны в
+`SECURITY.md`.
+
+## Расписание и платежи
+
+`services.astro` читает только публичный `PUBLIC_CALCOM_URL`. При его отсутствии
+выводится fallback. Платёжного backend, checkout и webhook нет; будущий контракт
+находится в `../specs/features/payments-and-booking.spec.md`.
+
+Глобальный CSS импортирует DM Sans и Manrope из Google Fonts; при недоступности
+сети используются системные fallback-шрифты.
+
+## PWA и кэш
+
+- `public/manifest.webmanifest` задаёт установку и shortcuts;
+- `public/sw.js` использует network-first для навигации и cache-first для
+  остальных GET-ресурсов текущего origin;
+- `public/offline.html` — резерв для навигации без сети.
+
+При изменении списка/стратегии кэша необходимо менять `potential-pwa-v1`, иначе
+установленные клиенты могут сохранить старые ресурсы.
+
+## SEO и публикация
+
+`astro.config.mjs` строит canonical и sitemap от `SITE_URL`; резервное значение
+`https://electrotutor.example` допустимо только локально. `wrangler.jsonc`
+описывает Cloudflare Static Assets. `.github/workflows/deploy.yml` отдельно
+собирает и публикует `dist` в GitHub Pages после push в `main`.
+
+Production-домен и основной публичный канал пока не зафиксированы окончательно.
+
+## Legacy-слой
+
+`src/App.tsx`, `src/main.tsx` и часть `src/legacy-pages/` происходят из
+React/Vite-прототипа. Production-маршрут урока всё ещё использует
+`legacy-pages/MeshLesson.tsx` через island. Новые страницы не должны расширять
+старый SPA-роутинг; целевая граница — Astro/MDX плюс малые универсальные islands.
+
+## Где вносить изменения
+
+| Задача | Каноническое место |
+|---|---|
+| SEO head, меню, footer, тема, язык | `src/layouts/BaseLayout.astro` |
+| Глобальные токены и layout | `src/styles.css`, `src/pwa.css` |
+| Разделы и карточки каталога | `src/curriculum.ts`, `src/data.ts` |
+| Frontmatter и публикация урока | `src/content.config.ts`, `src/content/lessons/` |
+| Формулы | `src/components/Formula.tsx` |
+| Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
+| Математика и state круговой диаграммы | `src/components/CircularDiagram.tsx` |
+| Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |
+| Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css` |
+| PWA cache/offline | `public/sw.js`, `public/offline.html` |
+| Cloudflare/GitHub deploy | `wrangler.jsonc`, `.github/workflows/deploy.yml` |
+
+## Проверки
+
+Целевой набор:
+
+```bash
+npm run check
+npm run lint
+npm run build
+git diff --check
+```
+
+Текущее состояние команд отражено в `AI_STATUS.md`.

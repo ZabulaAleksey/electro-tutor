@@ -1,16 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  buildCircularDiagramModel,
+  complexArgumentDegrees,
+  complexMagnitude,
+} from "../models/circular-diagram";
 
-type C = { re: number; im: number };
-const polar = (m: number, d: number): C => ({ re: m * Math.cos(d * Math.PI / 180), im: m * Math.sin(d * Math.PI / 180) });
-const add = (a: C, b: C): C => ({ re: a.re + b.re, im: a.im + b.im });
-const sub = (a: C, b: C): C => ({ re: a.re - b.re, im: a.im - b.im });
-const mul = (a: C, b: C): C => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re });
-const div = (a: C, b: C): C => {
-  const d = b.re ** 2 + b.im ** 2;
-  return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
-};
-const abs = (z: C) => Math.hypot(z.re, z.im);
-const arg = (z: C) => Math.atan2(z.im, z.re) * 180 / Math.PI;
 const fmt = (n: number, d = 2) => Number(n.toFixed(d)).toString();
 
 export default function CircularDiagram({ language }: { language: "ru" | "uk" }) {
@@ -34,33 +28,16 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
     history.replaceState(history.state, "", `${location.pathname}?${params}${location.hash}`);
   }, [i0m, i0a, ikm, ika, zm, za, phi, position]);
 
-  const model = useMemo(() => {
-    const i0 = polar(i0m, i0a), ik = polar(ikm, ika), zout = polar(zm, za);
-    const at = (r: number): C | null => {
-      if (!Number.isFinite(r)) return i0;
-      const denominator = add(zout, polar(r, phi));
-      if (abs(denominator) < Math.max(1, abs(zout)) * 1e-9) return null;
-      return add(i0, mul(sub(ik, i0), div(zout, denominator)));
-    };
-    const points: Array<C | null> = [at(0)];
-    for (let n = 0; n <= 180; n++) points.push(at(zm * 10 ** (-3 + n / 30)));
-    points.push(i0);
-    const resistance = position >= 100 ? Infinity : zm * 10 ** (-3 + position / 100 * 6);
-    const current = at(resistance);
-    const plotLimit = Math.max(1, abs(i0), abs(ik)) * 12;
-    const visible = points.filter((p): p is C => p !== null && abs(p) <= plotLimit);
-    const extent = Math.max(1, ...visible.flatMap(p => [Math.abs(p.re), Math.abs(p.im)]), abs(ik)) * 1.18;
-    const scale = Math.min(612 / (extent * 2), 412 / (extent * 2));
-    const xy = (p: C) => ({ x: 360 + p.re * scale, y: 260 - p.im * scale });
-    let drawing = false;
-    const path = points.map((p) => {
-      if (p === null || abs(p) > plotLimit) { drawing = false; return ""; }
-      const q = xy(p), command = drawing ? "L" : "M";
-      drawing = true;
-      return `${command}${q.x.toFixed(2)},${q.y.toFixed(2)}`;
-    }).join(" ");
-    return { i0, ik, current, resistance, extent, xy, path };
-  }, [i0m, i0a, ikm, ika, zm, za, phi, position]);
+  const model = useMemo(() => buildCircularDiagramModel({
+    i0Magnitude: i0m,
+    i0Angle: i0a,
+    ikMagnitude: ikm,
+    ikAngle: ika,
+    outputImpedanceMagnitude: zm,
+    outputImpedanceAngle: za,
+    loadAngle: phi,
+    position,
+  }), [i0m, i0a, ikm, ika, zm, za, phi, position]);
 
   const vectors = [
     { id: "idle", label: "I₀", value: model.i0 },
@@ -91,7 +68,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
           {vectors.map(v => { const p = model.xy(v.value); return <g className={`current-vector ${v.id}`} key={v.id}><line x1="360" y1="260" x2={p.x} y2={p.y} markerEnd={`url(#arrow-${v.id})`}/><circle cx={p.x} cy={p.y} r={v.id === "active" ? 6 : 4}/><text x={p.x + 10} y={p.y - 10}>{v.label}</text></g>; })}
         </svg>
         <div className="circle-readout" aria-live="polite">
-          {vectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(abs(v.value))}∠{fmt(arg(v.value), 1)}° A</span>)}
+          {vectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
           {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {ru ? "идеальная резонансная точка: Zвых + Zн = 0" : "ідеальна резонансна точка: Zвих + Zн = 0"}</span>}
         </div>
       </div>

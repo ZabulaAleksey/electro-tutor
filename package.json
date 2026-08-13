@@ -8,7 +8,8 @@
         "build": "astro build",
         "preview": "astro preview",
         "lint": "eslint .",
-        "check": "astro check"
+        "check": "astro check",
+        "test": "vitest run"
     },
     "dependencies": {
         "@astrojs/mdx": "^7.0.3",
@@ -34,6 +35,7 @@
         "madge": "^8.0.0",
         "typescript": "~5.7.2",
         "typescript-eslint": "^8.18.2",
+        "vitest": "^4.1.10",
         "wrangler": "^4.114.0"
     },
     "engines": {

@@ -7,12 +7,20 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['.astro/**', 'dist/**', 'node_modules/**', '**/*.tsbuildinfo'],
+    ignores: [
+      '.astro/**',
+      'blob-report/**',
+      'dist/**',
+      'node_modules/**',
+      'playwright-report/**',
+      'test-results/**',
+      '**/*.tsbuildinfo',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['*.{js,mjs,cjs}', 'vite.config.ts'],
+    files: ['*.{js,mjs,cjs}', 'scripts/**/*.{js,mjs,cjs}', 'vite.config.ts'],
     languageOptions: {
       globals: globals.node,
     },

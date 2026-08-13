@@ -4,8 +4,7 @@
 
 Roadmap: `ET-02 — Единая модель публикации уроков`
 
-SPEC: требуется создать `../specs/features/lesson-publishing.spec.md` до
-изменения наблюдаемого поведения; базовые требования —
+SPEC: `../specs/features/lesson-publishing.spec.md`; базовые требования —
 `../specs/system.spec.md` (`FR-002`, `FR-003`, `AC-002`, `AC-003`).
 
 ## Цель
@@ -36,14 +35,13 @@ SPEC: требуется создать `../specs/features/lesson-publishing.spe
 
 ## Шаги
 
-1. Создать feature-SPEC единой модели публикации и связать её с системной SPEC.
-2. Расширить frontmatter типизированным optional ключом и добавить статический
+1. Расширить frontmatter типизированным optional ключом и добавить статический
    registry допустимых islands.
-3. Построить manifest опубликованных уроков с проверяемым resolver.
-4. Удалить жёсткие ссылки карточек на `mesh-current-method`, выводя доступность
+2. Построить manifest опубликованных уроков с проверяемым resolver.
+3. Удалить жёсткие ссылки карточек на `mesh-current-method`, выводя доступность
    и `href` из manifest.
-5. Сделать универсальный MDX route с optional island и добавить contract-тесты.
-6. Выполнить test, check, lint, build и browser-проверку в рамках `ET-04`.
+4. Сделать универсальный MDX route с optional island и добавить contract-тесты.
+5. Выполнить test, check, lint, build и browser-проверку в рамках `ET-04`.
 
 ## Критерии приёмки
 

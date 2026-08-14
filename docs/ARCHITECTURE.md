@@ -17,7 +17,7 @@ dist/ ─> Cloudflare Static Assets
 
 Browser ─> Jitsi public API (только кабинет)
         └> Cal.com URL (только если задан PUBLIC_CALCOM_URL)
-        └> Google Fonts CSS/font files
+        └> Google Fonts CSS/font files (неблокирующий progressive enhancement)
 ```
 
 Astro генерирует индексируемый HTML. React используется для состояния и
@@ -135,8 +135,10 @@ imports из frontmatter не допускаются.
 выводится fallback. Платёжного backend, checkout и webhook нет; будущий контракт
 находится в `../specs/features/payments-and-booking.spec.md`.
 
-Глобальный CSS импортирует DM Sans и Manrope из Google Fonts; при недоступности
-сети используются системные fallback-шрифты.
+`BaseLayout` запускает неблокирующую загрузку DM Sans и Manrope из Google Fonts
+через preload и stylesheet с первоначальным media `print`. Критический CSS не
+содержит внешнего `@import`, поэтому первый рендер использует системные
+fallback-шрифты и не зависит от ответа внешнего сервиса.
 
 ## PWA и кэш
 

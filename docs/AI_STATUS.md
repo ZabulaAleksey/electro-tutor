@@ -4,7 +4,7 @@
 
 ## Текущий этап
 
-Этапы `ET-00`, `ET-01`, `ET-02` и `ET-04` завершены. Инженерные проверки,
+Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04` и `ET-04.2` завершены. Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Следующего неблокированного продуктового этапа нет; работа приостановлена
 до входных решений пользователя.
@@ -24,6 +24,8 @@
 - Vitest: unit-тесты математической модели и contract-тесты RU/UK-публикации;
 - Playwright/Chromium: RU/UK smoke, query/hash, theme persistence, keyboard,
   accessible names, live region и mobile layout 390×844;
+- неблокирующий первый рендер с системными fallback-шрифтами при зависшем или
+  недоступном Google Fonts;
 - аудит собранного HTML для MDX, hydration marker и локализованных ссылок.
 
 ## Что не реализовано
@@ -66,9 +68,9 @@
 
 ## Последние проверки
 
-- 2026-08-14: `npm run test:e2e` — 19 Chromium-тестов без skip/disable;
+- 2026-08-14: `npm run test:e2e` — 20 Chromium-тестов без skip/disable;
 - 2026-08-14: `npm test` — 4 файла, 38 тестов без skip/disable;
-- 2026-08-14: `npm run check` — 49 файлов, 0 errors/warnings/hints;
+- 2026-08-14: `npm run check` — 50 файлов, 0 errors/warnings/hints;
 - 2026-08-14: `npm run lint` — успешно;
 - 2026-08-14: `npm run build` — 15 статических страниц и sitemap;
 - 2026-08-14: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,

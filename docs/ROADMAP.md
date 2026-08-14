@@ -100,6 +100,15 @@ Roadmap задаёт порядок развития, но не заменяет
 темы, клавиатуры, accessible names, live region и mobile layout 390×844. Скриншоты
 прикладываются к test-results и не хранятся в Git.
 
+### ET-04.2 — Неблокирующая загрузка web-font
+
+Статус: `DONE` (2026-08-14)
+
+Блокирующий Google Fonts `@import` удалён из критического CSS. DM Sans и Manrope
+подключаются из `BaseLayout` как progressive enhancement, а детерминированный
+Playwright-тест удерживает запрос Google CSS и подтверждает быстрый первый рендер
+на системных fallback-шрифтах.
+
 Зависимость: `ET-01.2`.
 
 ## ET-05 — Production-модель кабинета

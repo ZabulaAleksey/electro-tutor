@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap");
-
 :root {
   font-family: "DM Sans", system-ui, sans-serif;
   color: #25302d;
@@ -30,7 +28,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .brand { border: 0; background: none; padding: 0; display: flex; align-items: center; gap: 11px; cursor: pointer; text-align: left; }
 .brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--green); }
-.brand strong { font: 800 15px/1 "Manrope"; letter-spacing: .11em; display: block; }
+.brand strong { font: 800 15px/1 "Manrope", system-ui, sans-serif; letter-spacing: .11em; display: block; }
 .brand small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; letter-spacing: .04em; }
 .header nav { display: flex; gap: 34px; margin: 0 auto; }
 .header nav button { border: 0; background: none; padding: 27px 2px 24px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
@@ -45,7 +43,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hero-copy { padding: 105px 66px 70px; border-right: 1px solid var(--line); }
 .eyebrow { text-transform: uppercase; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .13em; display: flex; align-items: center; gap: 9px; }
 .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
-h1, h2, h3 { font-family: "Manrope", sans-serif; margin-top: 0; }
+h1, h2, h3 { font-family: "Manrope", system-ui, sans-serif; margin-top: 0; }
 .hero h1 { font-size: clamp(50px, 5vw, 72px); letter-spacing: -.055em; line-height: 1.04; margin: 30px 0 26px; }
 .hero h1 em { color: var(--orange); font-style: normal; font-family: Georgia, serif; font-weight: 400; }
 .hero-copy > p { font-size: 18px; line-height: 1.7; color: var(--muted); max-width: 530px; }
@@ -89,7 +87,7 @@ h1, h2, h3 { font-family: "Manrope", sans-serif; margin-top: 0; }
 .page-lead { color: var(--muted); font-size:18px; }
 .catalog-list { margin-top: 55px; border-top: 1px solid var(--line); }
 .catalog-item { display:grid; grid-template-columns: 70px 1fr 110px 55px; align-items:center; gap:25px; padding:27px 0; border-bottom:1px solid var(--line); }
-.catalog-number { font: 700 15px "Manrope"; color:var(--accent); }
+.catalog-number { font: 700 15px "Manrope", system-ui, sans-serif; color:var(--accent); }
 .catalog-item h2 { font-size:22px; margin:0 0 6px; }.catalog-item p { color:var(--muted); margin:0; }
 .duration { display:flex; gap:6px; align-items:center; color:var(--muted); font-size:13px; }
 .round-button { width:43px; height:43px; border-radius:50%; border:0; display:grid; place-items:center; background:var(--accent); color:white; cursor:pointer; }
@@ -135,7 +133,7 @@ h1, h2, h3 { font-family: "Manrope", sans-serif; margin-top: 0; }
 .success-note { display:flex; align-items:center; gap:10px; color:var(--green); background:#e6f0ea; padding:17px 20px; border-radius:11px; font-weight:700; margin-top:25px; }
 .success-note svg { width:19px; }
 .lesson-next { border-top:1px solid var(--line); padding-top:30px; display:flex; justify-content:space-between; align-items:center; }
-.lesson-next span { color:var(--muted); font-size:11px; display:block; margin-bottom:5px; }.lesson-next strong { font-family:"Manrope"; }
+.lesson-next span { color:var(--muted); font-size:11px; display:block; margin-bottom:5px; }.lesson-next strong { font-family:"Manrope", system-ui, sans-serif; }
 .lesson-next button { border:0; width:44px; height:44px; display:grid; place-items:center; border-radius:50%; color:#aaa; }
 footer { min-height:80px; padding:25px max(28px, calc((100vw - 1110px) / 2)); background:var(--ink); color:#adb5b2; display:flex; justify-content:space-between; align-items:center; font-size:12px; }
 

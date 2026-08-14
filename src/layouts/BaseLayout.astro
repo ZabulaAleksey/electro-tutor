@@ -14,6 +14,7 @@ const { title, description, language, active = "home", alternatePath = "/", keyw
 const ru = language === "ru", otherLanguage = ru ? "uk" : "ru";
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const alternate = new URL(`/${otherLanguage}${alternatePath}`, Astro.site);
+const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const nav = [
   { id: "home", href: `/${language}/`, ru: "Главная", uk: "Головна" },
   { id: "topics", href: `/${language}/topics/`, ru: "Все темы", uk: "Усі теми" },
@@ -39,6 +40,10 @@ const nav = [
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={otherLanguage} href={alternate} />
   <link rel="alternate" hreflang={language} href={canonical} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href={webFontStylesheet} />
+  <link rel="stylesheet" href={webFontStylesheet} media="print" onload="this.setAttribute('media','all')" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />

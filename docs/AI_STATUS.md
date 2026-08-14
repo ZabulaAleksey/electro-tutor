@@ -4,10 +4,11 @@
 
 ## Текущий этап
 
-Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04` и `ET-04.2` завершены. Инженерные проверки,
+Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2` и `ET-04.3` завершены.
+Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
-состоянии. Следующего неблокированного продуктового этапа нет; работа приостановлена
-до входных решений пользователя.
+состоянии. Следующего неблокированного продуктового этапа нет; дальнейшая работа
+потребует входных решений пользователя.
 
 ## Что реализовано
 
@@ -18,6 +19,8 @@
   подключается только по проверенному статическому registry key;
 - интерактивная круговая диаграмма с URL-state и обработкой сингулярной точки;
 - тема, mobile navigation, PWA manifest/service worker/offline page;
+- безопасный `potential-pwa-v2`: update текущего клиента, миграция публичного
+  offline-кэша, изоляция namespaces и исключение private/error/query;
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
 - Cloudflare Static Assets и GitHub Pages configuration;
 - Astro check, ESLint 9, production build и `npm audit` без известных уязвимостей;
@@ -34,18 +37,16 @@
 - аккаунты, backend, база данных и собственный контроль доступа/хранения кабинета;
 - production booking integration;
 - checkout, webhook и заказы;
-- автоматические security tests;
+- полный автоматический security suite;
 - подтверждённый production-домен и release.
 
 ## Известные проблемы и ограничения
 
 1. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
 2. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
-3. Service worker использует первую версию cache key; обновление установленного клиента
-   не проверено автоматизированным browser-тестом.
-4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
+3. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
    через разрешённый Playwright fallback только в Chromium.
-5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
+4. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
 ## Входные решения для продолжения
 
@@ -68,9 +69,9 @@
 
 ## Последние проверки
 
-- 2026-08-14: `npm run test:e2e` — 20 Chromium-тестов без skip/disable;
+- 2026-08-14: `npm run test:e2e` — 21 Chromium-тест без skip/disable;
 - 2026-08-14: `npm test` — 4 файла, 38 тестов без skip/disable;
-- 2026-08-14: `npm run check` — 50 файлов, 0 errors/warnings/hints;
+- 2026-08-14: `npm run check` — 51 файл, 0 errors/warnings/hints;
 - 2026-08-14: `npm run lint` — успешно;
 - 2026-08-14: `npm run build` — 15 статических страниц и sitemap;
 - 2026-08-14: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,

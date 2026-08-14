@@ -69,3 +69,25 @@ git diff --check
 2. Выполнить `npm run test:e2e` и найти контракт `NFR-006` среди 20 тестов.
 3. Проверить отсутствие внешнего `@import`: `rg "@import|fonts.googleapis" src`.
 4. Выполнить `npm run check`, `npm run lint` и аудит собранного HTML.
+
+## 2026-08-14 — Безопасное обновление PWA и offline-навигация
+
+### Что и зачем изменено
+
+- Cache key обновлён до `potential-pwa-v2`, потому что изменилась стратегия.
+- Service worker кэширует только успешные публичные страницы и статические
+  ресурсы, не сохраняет 404/`private`/`no-store`/API и не трогает чужие кэши.
+- Playwright моделирует byte-обновление одного `/sw.js`, перенос безопасного
+  кэша, offline-reload и offline fallback.
+
+### Как увидеть изменения воочию
+
+1. Выполнить `npm run build`, затем `npm run preview -- --host 127.0.0.1 --port 4322`.
+2. Открыть `http://127.0.0.1:4322/ru/topics/` и DevTools → Application →
+   Service Workers; `/sw.js` должен иметь статус activated/running.
+3. В Cache Storage открыть `potential-pwa-v2` и убедиться, что каталог сохранён.
+4. В DevTools → Network включить Offline и перезагрузить каталог: останется
+   заголовок «Карта электротехники».
+5. Не возвращая сеть, открыть `/ru/not-cached-offline/`: появится экран
+   «Нет подключения / Немає з’єднання».
+6. Вернуть Network → No throttling и остановить preview сочетанием `Ctrl+C`.

@@ -143,12 +143,16 @@ fallback-шрифты и не зависит от ответа внешнего 
 ## PWA и кэш
 
 - `public/manifest.webmanifest` задаёт установку и shortcuts;
-- `public/sw.js` использует network-first для навигации и cache-first для
-  остальных GET-ресурсов текущего origin;
+- `public/sw.js` использует network-first для публичной навигации и cache-first
+  только для статических `font/image/manifest/script/style` текущего origin;
 - `public/offline.html` — резерв для навигации без сети.
 
-При изменении списка/стратегии кэша необходимо менять `potential-pwa-v1`, иначе
-установленные клиенты могут сохранить старые ресурсы.
+Текущий namespace — `potential-pwa-v2`. При активации безопасные публичные
+ответы мигрируют из прежних `potential-pwa-*`, после чего удаляются только
+собственные старые namespaces. 404/5xx, `private`/`no-store` и пути
+`/api`, `/auth`, `/checkout`, `/payments` не кэшируются. Чужие Cache Storage
+namespaces не читаются и не удаляются; navigation cache key хранится без query.
+При следующем изменении стратегии cache key снова должен измениться.
 
 ## SEO и публикация
 

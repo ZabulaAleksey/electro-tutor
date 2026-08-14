@@ -136,9 +136,11 @@ imports из frontmatter не допускаются.
 находится в `../specs/features/payments-and-booking.spec.md`.
 
 `BaseLayout` запускает неблокирующую загрузку DM Sans и Manrope из Google Fonts
-через preload и stylesheet с первоначальным media `print`. Критический CSS не
-содержит внешнего `@import`, поэтому первый рендер использует системные
-fallback-шрифты и не зависит от ответа внешнего сервиса.
+через preload и stylesheet с первоначальным media `print`. После загрузки
+self-hosted script `/scripts/web-font.js` переключает stylesheet на media `all`;
+inline event handler для этого не используется. Критический CSS не содержит
+внешнего `@import`, поэтому первый рендер использует системные fallback-шрифты и
+не зависит от ответа внешнего сервиса.
 
 ## PWA и кэш
 

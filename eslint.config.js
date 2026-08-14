@@ -32,6 +32,12 @@ export default defineConfig(
     },
   },
   {
+    files: ['public/scripts/**/*.js'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  {
     files: ['src/**/*.tsx'],
     languageOptions: {
       ecmaVersion: 2022,

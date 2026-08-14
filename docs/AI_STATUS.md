@@ -28,7 +28,8 @@
 - Playwright/Chromium: RU/UK smoke, query/hash, theme persistence, keyboard,
   accessible names, live region и mobile layout 390×844;
 - неблокирующий первый рендер с системными fallback-шрифтами при зависшем или
-  недоступном Google Fonts;
+  недоступном Google Fonts; применение загруженного stylesheet выполняет
+  self-hosted script без inline `onload`;
 - аудит собранного HTML для MDX, hydration marker и локализованных ссылок.
 
 ## Что не реализовано

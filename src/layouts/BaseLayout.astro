@@ -43,7 +43,8 @@ const nav = [
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href={webFontStylesheet} />
-  <link rel="stylesheet" href={webFontStylesheet} media="print" onload="this.setAttribute('media','all')" />
+  <link rel="stylesheet" href={webFontStylesheet} media="print" data-web-font-stylesheet />
+  <script is:inline src="/scripts/web-font.js" defer></script>
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />

@@ -99,7 +99,9 @@ room-коды и параметры интерактива не перечисл
 ## Известные риски
 
 1. Публичные Jitsi-комнаты не имеют собственного контроля доступа.
-2. В проекте нет настроенной Content Security Policy.
+2. В проекте нет настроенной Content Security Policy. Обработчик загрузки
+   web-font уже вынесен из inline `onload` в self-hosted script, но остальные
+   inline-скрипты layout потребуют nonce/hash или выноса перед строгой CSP.
 3. Зависимости внешнего Jitsi script не закреплены локальным integrity hash.
 4. Шрифты загружаются с внешних Google origins; self-hosting/privacy-решение не
    принято.

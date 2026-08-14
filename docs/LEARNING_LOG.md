@@ -59,15 +59,16 @@ git diff --check
 - Внешний `@import` удалён из `src/styles.css`, потому что он делал первый рендер
   зависимым от ответа Google Fonts.
 - `BaseLayout.astro` подключает те же семейства неблокирующе, сохраняя системные
-  fallback-шрифты.
+  fallback-шрифты; внешний `/scripts/web-font.js` включает stylesheet после
+  загрузки без inline `onload`.
 - Playwright-тест удерживает только Google Fonts CSS и требует видимый `main h1`
-  до освобождения запроса.
+  до освобождения запроса, а затем проверяет применение stylesheet.
 
 ### Как воспроизвести самостоятельно
 
 1. Выполнить `npm run build`.
-2. Выполнить `npm run test:e2e` и найти контракт `NFR-006` среди 20 тестов.
-3. Проверить отсутствие внешнего `@import`: `rg "@import|fonts.googleapis" src`.
+2. Выполнить `npm run test:e2e` и найти контракт `NFR-006` среди 21 теста.
+3. Проверить отсутствие inline handler: `rg "onload=" src/layouts dist/ru/index.html`.
 4. Выполнить `npm run check`, `npm run lint` и аудит собранного HTML.
 
 ## 2026-08-14 — Безопасное обновление PWA и offline-навигация

@@ -1,6 +1,6 @@
 # Electro Tutor — project overlay
 
-Сначала применяй `~/codex-workspace/AGENTS.md`. Этот файл содержит только
+Сначала применяй `~/.codex/AGENTS.md`. Этот файл содержит только
 локальные инварианты и маршрутизацию; общие agents, Skills, hooks, MCP, Git
 workflow и правила качества наследуются и здесь не дублируются.
 

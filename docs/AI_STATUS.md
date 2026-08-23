@@ -1,5 +1,11 @@
 # Статус проекта для AI-сессии
 
+## Governance migration — 2026-08-24
+
+- Единственный источник этапов: `prompts/STAGES.md`; старый `STAGED_PROMPTS.md` перенесён без потери содержания.
+- Project overlay, 38 unit/integration tests, ESLint, Astro check и production build — PASS.
+- Репозиторий перемещён в `~/codex-workspace/electro-tutor`; push/merge не выполнялись.
+
 Обновлено: 2026-08-14
 
 ## Текущий этап

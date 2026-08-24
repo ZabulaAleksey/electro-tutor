@@ -200,3 +200,11 @@ git diff --check
 ```
 
 Текущее состояние команд отражено в `AI_STATUS.md`.
+
+## Контракт зависимостей
+
+- Источник истины (Source of truth): `package.json`, `pnpm-lock.yaml` и `pnpm-workspace.yaml`; канонический менеджер — `pnpm@11.23.0`.
+- Чистое восстановление (Clean restore): удалить только disposable `node_modules`, затем выполнить `pnpm install --frozen-lockfile`.
+- Общий pnpm content store и global virtual store разрешены; `allowBuilds` ограничен `esbuild` и `workerd`.
+- `node_modules`, `.astro`, `dist` и тестовые/build caches можно пересоздавать; исходники, lesson content и локальные секреты dependency cleanup не затрагивает.
+- GitHub Actions использует тот же frozen lockfile; базовые gates: `pnpm check`, `pnpm lint`, `pnpm test`, `pnpm build` и `pnpm test:e2e`.

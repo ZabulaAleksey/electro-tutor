@@ -193,9 +193,9 @@ React/Vite-прототипа. Production-маршрут урока всё ещ�
 Целевой набор:
 
 ```bash
-npm run check
-npm run lint
-npm run build
+pnpm check
+pnpm lint
+pnpm build
 git diff --check
 ```
 

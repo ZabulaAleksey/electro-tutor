@@ -48,8 +48,8 @@ Roadmap задаёт порядок развития, но не заменяет
   совместимости Astro/MDX;
 - обновить dev/tooling chains `brace-expansion` и
   `wrangler`/`miniflare`/`undici`;
-- сравнить lockfile, повторить полный quality pipeline и `npm audit`;
-- не применять `npm audit fix --force` без анализа breaking changes.
+- сравнить lockfile, повторить полный quality pipeline и `pnpm audit`;
+- не применять принудительные dependency fixes без анализа breaking changes.
 
 Зависимость: `ET-01.2`. Обнаруженные уязвимости относятся к build/tooling
 цепочкам и не являются удалённо вызываемыми endpoint статического сайта, но

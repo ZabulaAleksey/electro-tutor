@@ -3,6 +3,23 @@
 Здесь фиксируются только существенные технические и продуктовые решения. Новое
 решение дополняет журнал; исторические записи не переписываются задним числом.
 
+## ADR-000 — pnpm и shared dependency stores
+
+Дата: 2026-08-24
+
+Статус: принято после compatibility pilot
+
+Решение: использовать `pnpm@11.23.0`, project-local `pnpm-lock.yaml`,
+machine-level content-addressable store и `virtualStoreType: global`.
+
+Причина: воспроизводимый единый Node workflow и устранение дублирования
+dependency payload между независимыми репозиториями.
+
+Последствия: CI и operational commands используют только pnpm. При
+несовместимости global virtual store возвращается project-local virtual store,
+но сохраняются pnpm и общий content store; возврат к npm требует отдельного
+доказанного исключения.
+
 ## ADR-001 — Astro/MDX как основной слой, React как islands
 
 Дата: 2026-07, подтверждено аудитом 2026-08-13

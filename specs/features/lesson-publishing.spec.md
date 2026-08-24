@@ -220,7 +220,7 @@ type InteractiveDescriptor = {
 | LP-FR-004, LP-AC-003, LP-AC-006 | route contract и production build |
 | LP-FR-005, LP-FR-006, LP-AC-004, LP-AC-005, LP-AC-005a | schema/registry и cross-field contract |
 | LP-FR-007 | browser-тест локализованной навигации |
-| LP-NFR-001, LP-AC-007 | `npm test`, `npm run check`, `npm run lint`, `npm run build` |
+| LP-NFR-001, LP-AC-007 | `pnpm test`, `pnpm check`, `pnpm lint`, `pnpm build` |
 
 ## 17. Открытые вопросы
 

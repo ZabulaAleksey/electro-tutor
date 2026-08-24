@@ -6,24 +6,24 @@ PWA-возможностями. Технические коды локалей �
 
 ## Быстрый старт
 
-Требования: Node.js `>=22.12.0`, npm 10+.
+Требования: Node.js `>=22.12.0`, pnpm `11.23.0`.
 
 ```bash
-npm install
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Локальный сайт: `http://localhost:4321`.
 
-На Windows при запрете запуска `npm.ps1` используй `npm.cmd run dev` и
-аналогично для остальных npm-команд.
+На Windows при запрете запуска `pnpm.ps1` используй `pnpm.cmd dev` и
+аналогично для остальных pnpm-команд.
 
 ## Проверки
 
 ```bash
-npm run check
-npm run lint
-npm run build
+pnpm check
+pnpm lint
+pnpm build
 ```
 
 Результат production-сборки находится в `dist/` и вручную не редактируется.

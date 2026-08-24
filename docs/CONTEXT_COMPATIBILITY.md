@@ -7,7 +7,7 @@
 
 | Возможность | Что уже есть | Потребность проекта | Статус | Решение |
 |---|---|---|---|---|
-| Общие инженерные правила | `~/codex-workspace/AGENTS.md`, `rules/` | локальные инварианты Astro/контента | `EXTEND` | тонкий проектный `AGENTS.md` |
+| Общие инженерные правила | `~/.codex/AGENTS.md`, `rules/` | локальные инварианты Astro/контента | `EXTEND` | тонкий проектный `AGENTS.md` |
 | Git workflow | workspace-правила | обычная feature/chore ветка | `INHERITED` | локальную копию не создавать |
 | Skills этапов | `resume-project`, `plan-stage`, `implement-stage`, `review-change`, `explain-change` | продолжение roadmap | `INHERITED` | вызывать по протоколу, не копировать |
 | Agents/review | глобальные роли и встроенные agents | специалисты только по сложности | `INHERITED` | локальные agents не создавать без пробела |

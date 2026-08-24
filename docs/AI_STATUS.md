@@ -1,5 +1,19 @@
 # Статус проекта для AI-сессии
 
+## Governance migration — 2026-08-24
+
+- Единственный источник этапов: `prompts/STAGES.md`; старый `STAGED_PROMPTS.md` перенесён без потери содержания.
+- Project overlay, 38 unit/integration tests, ESLint, Astro check и production build — PASS.
+- Репозиторий находится в `~/codex-workspace/electro-tutor`; dependency-manager migration локально интегрирована в `main`, push не выполнялся.
+
+## Dependency manager migration — 2026-08-24
+
+- Канонический менеджер зависимостей: `pnpm@11.23.0`; единственный lock-файл — `pnpm-lock.yaml`.
+- Store вынесен в общий пользовательский каталог pnpm, virtual store работает в global mode; build-скрипты разрешены только для `esbuild` и `workerd`.
+- `vite@8.2.1` объявлен прямой dev-зависимостью: npm раньше скрывал отсутствие декларации через hoisting.
+- Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
+- GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
+
 Обновлено: 2026-08-14
 
 ## Текущий этап
@@ -23,7 +37,7 @@
   offline-кэша, изоляция namespaces и исключение private/error/query;
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
 - Cloudflare Static Assets и GitHub Pages configuration;
-- Astro check, ESLint 9, production build и `npm audit` без известных уязвимостей;
+- Astro check, ESLint 9 и production build проходят; актуальный dependency audit выполняется через pnpm;
 - Vitest: unit-тесты математической модели и contract-тесты RU/UK-публикации;
 - Playwright/Chromium: RU/UK smoke, query/hash, theme persistence, keyboard,
   accessible names, live region и mobile layout 390×844;
@@ -66,7 +80,7 @@
 - безопасность: `SECURITY.md`;
 - этапы: `ROADMAP.md`;
 - текущая работа: `AI_PLAN.md`;
-- протокол запуска: `../prompts/STAGED_PROMPTS.md`.
+- протокол запуска: `../prompts/STAGES.md`.
 
 ## Последние проверки
 

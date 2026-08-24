@@ -1,6 +1,6 @@
 # Electro Tutor — project overlay
 
-Сначала применяй `~/codex-workspace/AGENTS.md`. Этот файл содержит только
+Сначала применяй `~/.codex/AGENTS.md`. Этот файл содержит только
 локальные инварианты и маршрутизацию; общие agents, Skills, hooks, MCP, Git
 workflow и правила качества наследуются и здесь не дублируются.
 
@@ -53,14 +53,15 @@ workflow и правила качества наследуются и здесь
 ## Команды
 
 ```bash
-npm run dev
-npm run check
-npm run lint
-npm run build
+pnpm dev
+pnpm check
+pnpm lint
+pnpm build
 ```
 
-В Windows PowerShell при блокировке `npm.ps1` используй `npm.cmd` с теми же
-аргументами.
+Канонический package manager — `pnpm@11.23.0`; используй `pnpm install
+--frozen-lockfile` и не создавай npm/Yarn/Bun lockfiles. В Windows PowerShell
+при блокировке `pnpm.ps1` используй `pnpm.cmd` с теми же аргументами.
 
 
 ## Локальные правила тестирования
@@ -70,13 +71,13 @@ npm run build
 - Изменение тестов без отдельного требования по их переопределению запрещено.
 
 ### Unit / integration / component
-- unit + integration: `npm run test`
-- component/sanity: `npm run lint`, `npm run check`, `npm run build`
+- unit + integration: `pnpm test`
+- component/sanity: `pnpm lint`, `pnpm check`, `pnpm build`
 
 ### E2E (критические)
 1. Подгрузка основных страниц и переключения RU/UK с корректным рендерингом контента.
 2. Жизненный цикл PWA и доступность в офлайн-режиме.
 3. Загрузка шрифтов/ресурсов и устойчивость навигации между ключевыми маршрутами.
 
-- Запуск E2E: `npm run test:e2e`
+- Запуск E2E: `pnpm test:e2e`
 - Если API/контентные зависимости для сценариев отсутствуют: `BLOCKED_BY_BACKEND_ELECTRO_TUTOR`.

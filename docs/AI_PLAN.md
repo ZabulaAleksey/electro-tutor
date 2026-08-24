@@ -1,5 +1,7 @@
 # Текущий AI-план
 
+Инфраструктурный срез: миграция npm → pnpm с clean restore, CI parity и global virtual store compatibility proof. Продуктовые требования и принятые tests не изменяются.
+
 Статус: `DONE`
 
 ## ET-04.3 — Service worker update и offline-контракт

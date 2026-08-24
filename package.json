@@ -2,6 +2,7 @@
     "name": "electro-tutor",
     "private": true,
     "version": "0.1.0",
+    "packageManager": "pnpm@11.23.0",
     "type": "module",
     "scripts": {
         "dev": "astro dev",
@@ -10,7 +11,7 @@
         "lint": "eslint .",
         "check": "astro check",
         "test": "vitest run",
-        "test:e2e": "npm run build && node scripts/run-e2e.mjs",
+        "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
         "test:e2e:install": "playwright install chromium"
     },
     "dependencies": {
@@ -38,6 +39,7 @@
         "madge": "^8.0.0",
         "typescript": "~5.7.2",
         "typescript-eslint": "^8.18.2",
+        "vite": "8.2.1",
         "vitest": "^4.1.10",
         "wrangler": "^4.114.0",
         "yaml": "^2.9.0"

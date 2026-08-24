@@ -152,7 +152,7 @@ canonical и `hreflang`. Production-сборка должна получать �
 - AC-004: canonical/hreflang формируются от production `SITE_URL`.
 - AC-005: состояние интерактива воспроизводится из URL после перезагрузки.
 - AC-006: секреты отсутствуют в клиентском bundle и публичных файлах.
-- AC-007: `npm run check`, `npm run lint` и `npm run build` завершаются успешно.
+- AC-007: `pnpm check`, `pnpm lint` и `pnpm build` завершаются успешно.
 - AC-008: при удерживаемом запросе `fonts.googleapis.com` основной `h1` становится
   видимым без ожидания ответа внешнего сервиса.
 - AC-009: browser-тест подтверждает смену активного service worker, offline-reload
@@ -163,10 +163,10 @@ canonical и `hreflang`. Production-сборка должна получать �
 
 | Требование | Проверка |
 |---|---|
-| FR-001, FR-002, NFR-002 | `npm run build` и аудит сгенерированных маршрутов |
+| FR-001, FR-002, NFR-002 | `pnpm build` и аудит сгенерированных маршрутов |
 | FR-006 | будущие unit-тесты математической модели и browser-тест query state |
 | FR-007, NFR-003 | browser-проверка темы, языка, клавиатуры и responsive |
-| NFR-001 | `npm run check`, `npm run lint`, `npm run build` |
+| NFR-001 | `pnpm check`, `pnpm lint`, `pnpm build` |
 | NFR-004 | review diff и `docs/SECURITY.md` |
 | NFR-006 | Playwright E2E с удерживаемым запросом Google Fonts |
 | FR-008 | Playwright E2E жизненного цикла service worker и offline-навигации |

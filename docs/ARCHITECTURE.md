@@ -118,8 +118,11 @@ imports из frontmatter не допускаются.
 - query/hash при переходе на парную локаль.
 
 `MeshLessonIsland.tsx` сохраняет уровень подробности в `potential-level`.
-`CircularDiagram.tsx` хранит ввод в query-параметрах, чтобы состояние можно было
-передать ссылкой.
+`circular-diagram-state.ts` владеет схемой `v=1`, defaults, domain limits и pure
+pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.tsx`
+получает только типизированное состояние, синхронизирует его с UI и browser
+history и не передаёт сырые `URLSearchParams` математической модели. Legacy
+share-ссылки без `v` мигрируют; повреждённые ссылки восстанавливают defaults.
 
 ## Кабинет занятия
 
@@ -184,7 +187,9 @@ Production-домен и основной публичный канал пока
 | Frontmatter и публикация урока | `src/content.config.ts`, `src/content/lessons/` |
 | Формулы | `src/components/Formula.tsx` |
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
-| Математика и state круговой диаграммы | `src/components/CircularDiagram.tsx` |
+| Математика круговой диаграммы | `src/models/circular-diagram.ts` |
+| URL/state schema и limits | `src/models/circular-diagram-state.ts` |
+| Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |
 | Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css` |
 | PWA cache/offline | `public/sw.js`, `public/offline.html` |

@@ -45,7 +45,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-03 — Версионированный URL/state круговой диаграммы
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-27)
 
 - определить типизированную версионированную схему URL-state и единые domain limits;
 - реализовать pure parse/validate/normalize/canonicalize pipeline;
@@ -53,6 +53,17 @@ Roadmap задаёт порядок развития, но не заменяет
 - покрыть boundary/property, component и живые browser-сценарии.
 
 Зависимость: `TUTOR-02`.
+
+### TUTOR-04 — Реальный production-контракт RU/UK
+
+Статус: `PLANNED`
+
+- определить locale source of truth, fallback и production route/SEO contract;
+- инвентаризировать UI, metadata, ошибки, aria-labels и CircularDiagram;
+- зафиксировать предметный glossary для терминов, обозначений и единиц;
+- добавить build-time parity validation, fallback tests и RU/UK E2E.
+
+Зависимость: `TUTOR-03`.
 
 ## ET-00 — Канонический контекст
 

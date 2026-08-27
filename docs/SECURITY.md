@@ -13,6 +13,7 @@
 | Браузер ↔ Cal.com | переход по публичному URL | включается переменной окружения |
 | Браузер ↔ Google Fonts | IP/заголовки запроса, CSS и шрифты | неблокирующая optional-загрузка из `BaseLayout` |
 | Браузер storage | тема, уровень, имя, позиция/параметры | локальное/session storage |
+| URL query → CircularDiagram | восемь публичных числовых параметров | schema `v=1`, size/duplicate/type/range validation до модели |
 | Build ↔ Cloudflare/GitHub | статические assets | CI/deploy конфигурация |
 
 Backend, база данных, аккаунты и платёжные endpoints сейчас отсутствуют.
@@ -49,6 +50,9 @@ Backend, база данных, аккаунты и платёжные endpoints
 ## Недоверенный ввод и внешние URL
 
 - значения query и формы валидируются и ограничиваются до использования;
+- CircularDiagram принимает query длиной не более 1024 символов, отклоняет
+  unknown version, duplicate known keys, нечисловые и выходящие за domain limits
+  значения; fallback заменяет весь state defaults и канонизирует URL;
 - URL календаря задаётся оператором через окружение, но перед production нужно
   проверить схему `https`, ожидаемый host и отсутствие секретных query;
 - ссылки, открывающие новую вкладку, используют безопасный `rel`;

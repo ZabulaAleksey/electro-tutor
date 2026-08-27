@@ -1,5 +1,26 @@
 # Учебный журнал
 
+## 2026-08-27 — URL как недоверенный versioned input
+
+### Что изменено
+
+- Схема, defaults и limits вынесены из React в pure TypeScript state-модуль.
+- Legacy query мигрирует в `v=1`; повреждённый state восстанавливается целиком,
+  а browser history различает частые и смысловые изменения.
+
+### Повторяемый вывод
+
+`Number.isFinite(Number(value))` защищает только от части синтаксических ошибок.
+Без version, duplicate policy, ranges, maximum size и canonical serialization URL
+остаётся альтернативным способом обхода UI-инвариантов.
+
+### Как повторить самостоятельно
+
+1. Описать поля/defaults/ranges до изменения компонента.
+2. Проверить NaN, Infinity, пустые, duplicate, oversized и unknown version.
+3. Доказать идемпотентность `serialize(parse(serialize(state)))`.
+4. Пройти share, reload, back/forward и locale switch на реальном route.
+
 ## 2026-08-27 — Как отличить toolchain от второго приложения
 
 ### Что изменено

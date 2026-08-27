@@ -1,54 +1,52 @@
 # Текущий AI-план
 
-## TUTOR-03 — Версионированный URL/state круговой диаграммы
+## TUTOR-04 — Реальный production-контракт RU/UK
 
-- Stage ID: `TUTOR-03`
+- Stage ID: `TUTOR-04`
 
 Статус: `PLANNED`
 
-Цель: закрыть `T0-URL-001` — недоверенный URL не должен обходить инварианты
-математической модели, а share/reload/history должны воспроизводить одно и то же
-каноническое состояние.
+Цель: закрыть `T0-LOC-001` — заявленная локализация RU/UK должна быть единым
+проверяемым контрактом production Astro artifact, а не набором несвязанных
+строк и частичных browser-сценариев.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-00..TUTOR-02` завершены и validated locally;
-- текущая математическая модель, `CircularDiagram.tsx` и browser query tests
-  доступны как baseline;
-- production boundary — Astro, ADR-012.
+- `TUTOR-00..TUTOR-03` завершены и validated locally;
+- production Astro routes обеих локалей, парный lesson manifest и system locale
+  requirements существуют;
+- versioned share URL сохраняется при locale switch.
 
 ### Runnable vertical slice и scenario
 
-Одна версия типизированной схемы выполняет pure pipeline
-`parse → validate → normalize → canonicalize`. UI, URL и browser history
-используют одинаковые domain limits.
+Один locale source of truth питает production routes, UI, metadata, errors и
+aria-labels; build-time validator ловит missing/extra keys.
 
-Concrete end-to-end scenario: допустимая share-ссылка восстанавливает состояние;
-изменение параметров создаёт канонический URL; back/forward и reload сохраняют
-согласованность. Невалидные данные и неизвестная версия безопасно переходят к
-defaults/сообщению и не попадают напрямую в модель.
+Concrete end-to-end scenario: пользователь открывает одинаковый смысловой route
+на RU и UK, переключает язык с сохранением versioned query/hash и получает
+локализованные metadata, controls, errors и accessible names без чужого fallback.
 
 ### Scope
 
-- schema version, fields, types, ranges, enums, defaults и maximum size;
-- unknown version/params, duplicate keys, encoding и canonical ordering;
-- единые limits для UI, URL, history и будущего import/saved adapter;
-- `replaceState` для частых обновлений, `pushState` для смысловых переходов;
-- unit/property/boundary, component и живые Chromium E2E.
+- locale source of truth, route strategy и fallback;
+- canonical/hreflang и форматирование чисел, единиц и дат;
+- inventory пользовательских строк, metadata, errors, aria-labels и CircularDiagram;
+- предметный glossary/contract для терминов, формул, обозначений и единиц;
+- build-time parity validation, fallback tests и RU/UK E2E.
 
 ### Non-goals и deferred scope
 
-- backend, аккаунты и сохранённые presets;
-- RU/UK route parity, base path, canonical/deploy gates и следующие findings;
-- визуальный редизайн диаграммы;
-- временный adapter допустим только если остаётся полностью рабочим и не
-  передаёт сырые `URLSearchParams` в domain model.
+- новые локали и машинный перевод без предметной проверки;
+- base-path portability, CI/deploy gates и security baseline следующих stages;
+- новый content model или переписывание Astro routes;
+- существующая Astro implementation допустима, если подключена к одному
+  проверяемому contract и не зависит от удалённого legacy frontend.
 
 ### PASS evidence и rollback
 
-- NaN/Infinity, отрицательные/огромные значения, duplicate/unknown keys,
-  encoded payload и unknown version безопасны;
-- parse/canonicalize детерминированы, canonicalization стабильна и идемпотентна;
-- старые допустимые ссылки работают или мигрируют детерминированно;
+- обе локали присутствуют в production artifact и имеют эквивалентные routes;
+- locale switch сохраняет semantic route и canonical interactive state;
+- metadata, canonical/hreflang, UI errors и aria-labels локализованы;
+- missing/extra/untranslated contract keys блокируются tests/build validation;
 - static checks, unit/integration/component, build, lesson audit и live E2E PASS;
-- rollback — единый Stage 3 commit без изменения lesson content.
+- rollback — единый Stage 4 commit без изменения authored lesson formulas.

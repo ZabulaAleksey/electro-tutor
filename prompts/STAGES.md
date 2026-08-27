@@ -94,7 +94,7 @@ build, lesson audit и 21 Chromium E2E прошли. Production seam
 
 ## TUTOR-03 — Версионированный URL/state круговой диаграммы
 
-Статус: `planned`
+Статус: `completed` (`validated locally`, 2026-08-27)
 
 Dependency DAG: `TUTOR-02` completed. Entry preconditions: finding
 `T0-URL-001`, текущая математическая модель и browser query-state tests доступны.
@@ -124,6 +124,42 @@ encoded payload и unknown version не нарушают limits; канониз�
 идемпотентна; старые допустимые ссылки продолжают работать либо детерминированно
 мигрируют; back/forward/reload и share-link проходят живой E2E. Rollback: один
 Stage 3 commit без изменения content contract.
+
+Acceptance evidence: feature-SPEC, ADR-013, pure state module, 18 новых
+boundary/property tests и 4 новых browser scenarios. Полный pipeline: Astro
+check 49 файлов, ESLint, 56 unit/integration tests, 15-page build, lesson audit
+и 25 Chromium E2E — PASS.
+
+## TUTOR-04 — Реальный production-контракт RU/UK
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-03` completed. Entry preconditions: production Astro
+routes обеих локалей, system locale contract, парный lesson manifest и
+канонический URL-state доступны.
+
+Runnable vertical slice: один locale source of truth управляет production Astro
+routes, UI strings, metadata, errors и aria-labels. Build-time validation ловит
+missing/extra keys, а RU/UK artifact и share URL проходят живой browser path.
+
+Concrete end-to-end scenario: пользователь открывает одинаковый смысловой route
+на RU и UK, переключает локаль с сохранением валидного versioned query/hash и
+видит локализованные metadata, controls, errors и accessibility names без
+fallback в чужой язык.
+
+Scope: locale source, route strategy/fallback, canonical/hreflang, форматирование
+чисел/единиц/дат, полный inventory пользовательского текста и CircularDiagram,
+предметный glossary, build-time parity validation, fallback tests и RU/UK E2E.
+
+Non-goals: машинный перевод без предметной проверки, новые локали, base-path
+portability, deploy gates и новый content model. Допустимая temporary
+implementation: существующие Astro routes при условии единого проверяемого
+locale contract; нельзя оставлять production strings в мёртвом legacy contour.
+
+PASS: production artifact содержит обе локали; locale switch сохраняет
+смысловой route и canonical interactive state; metadata/canonical/hreflang
+корректны; missing/extra/untranslated contract keys блокируют build/tests;
+full static/unit/component/E2E pipeline проходит. Rollback: один Stage 4 commit.
 
 ## Одна команда
 

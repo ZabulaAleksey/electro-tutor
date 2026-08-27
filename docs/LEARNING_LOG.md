@@ -1,5 +1,29 @@
 # Учебный журнал
 
+## 2026-08-27 — Общий content store не означает global virtual store
+
+### Что изменено
+
+- Удалён `virtualStoreType: global`; pnpm снова материализует зависимости в
+  project-local `node_modules/.pnpm`.
+- Добавлен regression contract, запрещающий возврат несовместимого режима.
+- Исправление проверено clean Linux frozen install и production build.
+
+### Повторяемый вывод
+
+Общий content-addressable store безопасно экономит место, но global virtual
+store меняет реальные пути модулей. Инструменты с virtual modules и compile
+metadata, такие как Astro/Rolldown, могут работать в накопленном локальном store
+и ломаться в свежем Linux CI. Прямая dependency иногда скрывает первый missing
+package, но не исправляет общий path-resolution invariant.
+
+### Как повторить самостоятельно
+
+1. Выполнить `pnpm install --frozen-lockfile --force`.
+2. Убедиться, что virtual store расположен в `node_modules/.pnpm`.
+3. Выполнить `pnpm test`, `pnpm check`, `pnpm lint` и `pnpm build`.
+4. Для CI parity повторить frozen install/build в чистом Linux Node 22 container.
+
 ## 2026-08-27 — Base path проверяется artifact и живой навигацией
 
 ### Что изменено

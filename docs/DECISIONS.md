@@ -7,7 +7,7 @@
 
 Дата: 2026-08-24
 
-Статус: принято после compatibility pilot
+Статус: заменено ADR-016 после Cloudflare/Linux failure
 
 Решение: использовать `pnpm@11.23.0`, project-local `pnpm-lock.yaml`,
 machine-level content-addressable store и `virtualStoreType: global`.
@@ -19,6 +19,30 @@ dependency payload между независимыми репозиториям�
 несовместимости global virtual store возвращается project-local virtual store,
 но сохраняются pnpm и общий content store; возврат к npm требует отдельного
 доказанного исключения.
+
+## ADR-016 — Project-local virtual store для переносимой Astro-сборки
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: сохранить общий pnpm content-addressable store, но удалить
+`virtualStoreType: global`. Dependency graph материализуется в стандартном
+project-local virtual store; pnpm, frozen lockfile и `allowBuilds` не меняются.
+
+Причина: fresh Linux install в Cloudflare и чистом Node 22 container связывал
+Astro/MDX/Rolldown через внешний global links tree. Сначала не разрешался bare
+package `satteri`, а после прямого workaround следующий virtual module искал
+`ClientRouter.astro` через ошибочный `/work/root/...` path. Это доказало общий
+дефект materialization, а не отсутствие одной production dependency.
+
+Рассмотренная альтернатива: добавить `satteri` как прямую dependency отклонена,
+потому что она устраняет только первый symptom и оставляет следующий сбой
+Astro virtual-module metadata. Смена package manager также не требуется.
+
+Последствия: `node_modules` остаётся disposable и project-local, payload
+по-прежнему дедуплицируется общим pnpm content store. Clean Linux frozen install
+и production build являются обязательным regression evidence.
 
 ## ADR-001 — Astro/MDX как основной слой, React как islands
 

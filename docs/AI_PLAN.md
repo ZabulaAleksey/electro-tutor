@@ -15,8 +15,9 @@
 - `TUTOR-00..TUTOR-05` завершены и validated locally;
 - Astro является единственной production boundary;
 - root и non-empty-base artifact contracts подтверждены;
-- GitHub Pages workflow использует frozen pnpm install и получает `SITE_URL` и
-  `BASE_PATH` из `actions/configure-pages`.
+- GitHub Pages workflow использует frozen pnpm install и явно задаёт
+  `SITE_URL=https://zabulaaleksey.github.io` и
+  `BASE_PATH=/electro-tutor/` в workflow/build environment.
 
 ### Runnable vertical slice и scenario
 
@@ -35,6 +36,10 @@ pipeline и передаёт единственный проверенный art
 - установить явный порядок gates без retry, скрывающего flaky tests;
 - сделать deploy зависимым от обязательного verify и checked artifact;
 - сохранить безопасный cache, concurrency cancellation и минимальные permissions;
+- ограничить manual deployment production-веткой либо подтверждённой
+  environment policy, сузить permissions до job scope и не сохранять checkout
+  credentials без необходимости;
+- закрепить все referenced GitHub Actions immutable commit SHA;
 - документировать одну команду полной локальной проверки.
 
 ### Non-goals и deferred scope
@@ -49,6 +54,9 @@ pipeline и передаёт единственный проверенный art
 - broken type, unit и live E2E fixtures в контролируемой проверке блокируют deploy DAG;
 - успешный pipeline публикует ровно artifact, созданный обязательным verify job;
 - локальная full-verify command повторяет CI gates в том же существенном порядке;
-- workflow permissions, cache и concurrency проверены;
+- manual deploy ограничен `main` либо подтверждённой environment policy;
+- build/deploy permissions разделены по job, checkout credentials не
+  сохраняются без необходимости, все referenced Actions закреплены full SHA;
+- workflow cache и concurrency проверены;
 - static, unit/integration/component, build, E2E и configured security checks PASS;
 - rollback — единый Stage 6 commit без deploy/production configuration write.

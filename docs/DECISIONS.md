@@ -76,7 +76,7 @@ React используется только для интерактивного 
 
 Дата: 2026-07
 
-Статус: принято временно
+Статус: заменено ADR-017
 
 Решение: хранить конфигурацию Cloudflare Static Assets и GitHub Pages workflow.
 
@@ -85,6 +85,9 @@ GitHub Pages остаётся готовым дополнительным кан
 
 Последствия: до релиза нужно выбрать основной публичный URL и передавать его в
 `SITE_URL`; публикация не выполняется агентом без явного запроса.
+
+Последующее решение: ADR-017 сохранило эту запись как исторический факт и
+закрепило GitHub Pages единственным production deployment path.
 
 ## ADR-004 — Публичный Jitsi только как MVP кабинета
 
@@ -344,7 +347,47 @@ GitHub Pages project-site. Смешение origin и path также позво
 неоднозначности на nested routes; отдельная сборка для каждого host отклонена,
 потому что дублирует контракт вместо параметризации.
 
-Последствия: новые внутренние URL должны использовать base-aware helper либо
-scope-relative web-platform semantics. GitHub Pages build получает `origin` и
-`base_path` от `actions/configure-pages`; production domain и deploy остаются
-отдельным release-решением.
+Последствия на момент принятия: новые внутренние URL должны использовать
+base-aware helper либо scope-relative web-platform semantics. Для GitHub Pages
+планировалось получать `origin` и `base_path` от `actions/configure-pages`, а
+production domain и deploy оставались отдельным release-решением. Эта
+outputs-based схема не стала действующим production workflow.
+
+Последующее решение: ADR-017 закрепило конкретные production inputs в
+`.github/workflows/pages.yml` и выбрало GitHub Pages как production provider;
+base/site portability contract ADR-015 не изменён.
+
+## ADR-017 — GitHub Pages как production deployment provider
+
+Дата: 2026-08-28
+
+Статус: принято; заменяет ADR-003 в части текущего deployment
+
+Решение: использовать единственный production path
+`GitHub repository → GitHub Actions → Astro build → dist/ → GitHub Pages`.
+Активный workflow — `.github/workflows/pages.yml`; он запускает автоматическую
+публикацию при push в `main`, использует Node `22.23.1`, `pnpm@11.23.0`,
+`SITE_URL=https://zabulaaleksey.github.io` и
+`BASE_PATH=/electro-tutor/`. Production URL —
+`https://zabulaaleksey.github.io/electro-tutor/`.
+
+Причина: после migration проекта на pnpm Cloudflare deployment path оказался
+ненадёжным или нецелесообразным в текущей конфигурации. Точная первопричина
+Cloudflare-side initialization issue окончательно не доказана. GitHub Pages
+pipeline и автоматический deploy из `main` прошли ручную live-проверку, а
+production-like project-base build прошёл locale, lesson и site artifact
+audits. Live evidence получено от оператора; URL workflow run и commit SHA в
+repository не зафиксированы.
+
+Рассмотренные альтернативы: оставить Cloudflare вторым production channel
+отклонено, потому что это сохраняло две конкурирующие deployment definitions и
+не давало одному current source of truth. Возврат к npm не рассматривался как
+исправление deployment: pnpm остаётся каноническим и воспроизводимым
+dependency contract.
+
+Последствия: `wrangler.jsonc`, `public/_redirects`, дублирующий
+`.github/workflows/deploy.yml`, Wrangler dependency и `.wrangler/` удалены.
+Base-aware locale redirect выполняет `src/pages/index.astro`, поэтому edge
+redirect не требуется. Исторические Cloudflare ADR и baseline evidence
+сохраняются, но current architecture/security/status больше не описывают
+Cloudflare как действующий provider.

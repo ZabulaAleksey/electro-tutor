@@ -7,13 +7,17 @@
 ## Общая модель
 
 ```text
-MDX lessons ──────────────┐
-curriculum.ts + data.ts ──┼─> Astro static routes ─> dist/
-BaseLayout + CSS ─────────┘           │
-                                      └─> React islands
-
-dist/ ─> Cloudflare Static Assets
-      └> GitHub Pages workflow
+Source: Astro pages/layouts, MDX lessons, CSS and React islands
+        ↓
+      Astro
+        ↓
+  pnpm run build
+        ↓
+      dist/
+        ↓
+GitHub Actions (`.github/workflows/pages.yml`)
+        ↓
+GitHub Pages (`/electro-tutor/`)
 
 Browser ─> Jitsi public API (только кабинет)
         └> Cal.com URL (только если задан PUBLIC_CALCOM_URL)
@@ -34,8 +38,9 @@ Astro генерирует индексируемый HTML. React использ
 | SEO | canonical, hreflang, sitemap, статический HTML |
 | PWA | manifest, service worker, offline page |
 | Онлайн-занятие | публичный Jitsi IFrame API и его whiteboard |
-| Production assets | Cloudflare Workers Static Assets |
-| Дополнительный deploy | GitHub Pages workflow |
+| Package manager / build | pnpm 11.23.0 / `pnpm run build` |
+| CI/CD | GitHub Actions, `.github/workflows/pages.yml` |
+| Production assets | GitHub Pages, project base `/electro-tutor/` |
 
 Минимальная версия Node.js определяется `package.json`: `>=22.12.0`.
 
@@ -70,7 +75,7 @@ prompts/                     протокол поэтапного продол�
 
 | Файл | URL |
 |---|---|
-| `src/pages/index.astro` | `/` → `/ru/` |
+| `src/pages/index.astro` | `<BASE_PATH>` → `<BASE_PATH>ru/` |
 | `src/pages/[lang]/index.astro` | `/ru/`, `/uk/` |
 | `src/pages/[lang]/topics/index.astro` | каталог |
 | `src/pages/[lang]/topics/[section]/[slug].astro` | опубликованный урок |
@@ -81,6 +86,11 @@ prompts/                     протокол поэтапного продол�
 
 `getStaticPaths()` создаёт локали во время сборки. Код локали украинского языка
 — `uk`; надпись в переключателе — `UA`.
+
+Корневой route реализует redirect через `Astro.redirect(...)` с
+`import.meta.env.BASE_URL`. Поэтому production path
+`/electro-tutor/` переходит на `/electro-tutor/ru/` внутри static site build;
+отдельный Cloudflare edge redirect не нужен.
 
 `astro.config.mjs` нормализует независимые параметры `SITE_URL` (origin для
 canonical/sitemap) и `BASE_PATH` (deployment prefix). Runtime-код формирует
@@ -182,12 +192,25 @@ scope из `BaseLayout`, поэтому PWA не выходит за project-sit
 
 `astro.config.mjs` строит canonical и sitemap от `SITE_URL`, а маршруты и assets
 — от `BASE_PATH`; резервный origin `https://electrotutor.example` допустим
-только локально. Build завершается аудитом внутренних HTML/CSS/manifest targets,
-PWA scope и запретом localhost/machine-local URL. `wrangler.jsonc` описывает
-Cloudflare Static Assets. GitHub Pages workflow получает origin/base path из
-`actions/configure-pages`, собирает и публикует `dist` после push в `main`.
+только локально. Активный workflow `.github/workflows/pages.yml` явно задаёт
+`SITE_URL=https://zabulaaleksey.github.io` и `BASE_PATH=/electro-tutor/`.
+Build завершается аудитом внутренних HTML/CSS/manifest targets, PWA scope и
+запретом localhost/machine-local URL.
 
-Production-домен и основной публичный канал пока не зафиксированы окончательно.
+Deployment boundary:
+
+```text
+GitHub repository
+  → push в main
+  → GitHub Actions
+  → pnpm install --frozen-lockfile
+  → pnpm run build
+  → dist/
+  → GitHub Pages
+```
+
+Production URL — `https://zabulaaleksey.github.io/electro-tutor/`. Cloudflare,
+Wrangler и edge redirect больше не являются компонентами current architecture.
 
 ## Переходный lesson seam
 
@@ -214,7 +237,7 @@ Production-домен и основной публичный канал пока
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |
 | Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css` |
 | PWA cache/offline | `public/sw.js`, `public/offline.html` |
-| Cloudflare/GitHub deploy | `wrangler.jsonc`, `.github/workflows/deploy.yml` |
+| GitHub Pages deploy | `.github/workflows/pages.yml` |
 
 ## Проверки
 
@@ -237,4 +260,7 @@ git diff --check
   Astro/Rolldown virtual modules должны разрешаться одинаково в clean Linux CI.
   `allowBuilds` ограничен `esbuild` и `workerd`.
 - `node_modules`, `.astro`, `dist` и тестовые/build caches можно пересоздавать; исходники, lesson content и локальные секреты dependency cleanup не затрагивает.
-- GitHub Actions использует тот же frozen lockfile; базовые gates: `pnpm check`, `pnpm lint`, `pnpm test`, `pnpm build` и `pnpm test:e2e`.
+- GitHub Pages workflow использует тот же frozen lockfile, но сейчас выполняет
+  только `pnpm run build` перед upload/deploy. `pnpm check`, `pnpm lint`,
+  `pnpm test` и live `pnpm test:e2e` являются целевыми обязательными gates
+  `TUTOR-06`, а не действующими CI gates.

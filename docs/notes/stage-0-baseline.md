@@ -10,6 +10,16 @@ Evidence level: `validated locally`
 
 Product mutations: отсутствуют
 
+## Later resolution — 2026-08-28
+
+Stage 0 evidence ниже сохранено в исходном историческом контексте: на момент
+аудита GitHub Pages workflow и Cloudflare configuration действительно
+существовали одновременно. Позднее Cloudflare deployment был выведен из
+эксплуатации, `wrangler.jsonc`, `public/_redirects` и дублирующий
+`.github/workflows/deploy.yml` удалены, а GitHub Pages выбран и live-проверен
+как production path. Current state находится в `../AI_STATUS.md`; пути и
+reproduction commands ниже относятся к состоянию repository на дату baseline.
+
 ## Назначение и границы
 
 Документ фиксирует проверяемое brownfield-состояние перед дальнейшим развитием

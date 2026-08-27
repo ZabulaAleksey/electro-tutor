@@ -99,15 +99,21 @@ PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
 ```
 
 `SITE_URL` содержит только origin и обязателен перед публичным SEO-релизом.
-`BASE_PATH=/` используется для root-domain; GitHub Pages project-site получает
-base path из `actions/configure-pages`. Без `SITE_URL` сборка использует
+`BASE_PATH=/` используется для root-domain. Активный GitHub Pages workflow явно
+задаёт production-значения `SITE_URL=https://zabulaaleksey.github.io` и
+`BASE_PATH=/electro-tutor/`; без `SITE_URL` локальная сборка использует
 резервный `https://electrotutor.example`. `PUBLIC_CALCOM_URL` необязателен: без
 него страница услуг показывает локализованный fallback.
 
 ## Публикация
 
-- `wrangler.jsonc` описывает Cloudflare Static Assets;
-- `.github/workflows/deploy.yml` получает site origin/base path из GitHub Pages
-  metadata и собирает project-site artifact без hardcoded domain;
-- основной production-домен и канал ещё требуют решения;
+- Production URL: <https://zabulaaleksey.github.io/electro-tutor/>.
+- Единственный активный deployment workflow — `.github/workflows/pages.yml`:
+  push в `main` запускает frozen pnpm install, `pnpm run build`, загрузку
+  `dist/` как Pages artifact и публикацию через GitHub Pages.
+- Production artifact собирается с project base `/electro-tutor/`.
+- `src/pages/index.astro` выполняет base-aware redirect с
+  `/electro-tutor/` на `/electro-tutor/ru/` внутри Astro static build;
+  отдельный edge redirect не требуется.
+- Cloudflare/Wrangler больше не входят в действующий deployment path.
 - deploy не выполняется автоматически агентом без явного запроса пользователя.

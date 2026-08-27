@@ -139,6 +139,11 @@ Roadmap задаёт порядок развития, но не заменяет
 цепочкам и не являются удалённо вызываемыми endpoint статического сайта, но
 должны быть устранены до production-релиза.
 
+Историческая запись `wrangler`/`miniflare`/`undici` сохранена как evidence
+выполненного на тот момент dependency remediation. Позднее Cloudflare deployment
+был выведен из эксплуатации, а Wrangler и связанные deployment dependencies
+удалены; текущий production provider — GitHub Pages.
+
 ## ET-02 — Единая модель публикации уроков
 
 Статус: `DONE` (2026-08-14)
@@ -238,17 +243,22 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 услуги и провайдер. Реализация включает hosted checkout, idempotent backend,
 проверенный webhook, RU/UK состояния и security review.
 
-## ET-08 — Подготовка публичного релиза
+## ET-08 — Завершение public release hardening
 
-Статус: `BLOCKED`
+Статус: `PLANNED` после `TUTOR-06`
 
-- подтвердить основной production-домен и канал публикации;
-- задать `SITE_URL` и проверить canonical/hreflang/sitemap;
+- GitHub Pages выбран как production provider и live-проверен по адресу
+  `https://zabulaaleksey.github.io/electro-tutor/` с base
+  `/electro-tutor/`; evidence предоставлено оператором, URL workflow run и
+  commit SHA в repository не зафиксированы;
+- завершить обязательные pre-deploy quality gates этапа `TUTOR-06`;
 - выполнить полный quality/security/responsive/PWA checklist;
 - проверить обновление уже установленного service worker;
-- deploy выполнять только по явной команде пользователя.
+- любые следующие production changes/deploy выполнять только по явной команде
+  пользователя.
 
-Блокер: production-домен и решение о канале публикации.
+Зависимость: `TUTOR-06`; прежний внешний blocker выбора provider/domain снят
+миграцией на GitHub Pages 2026-08-28.
 
 ## Optional после базовых этапов
 

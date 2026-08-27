@@ -1,5 +1,24 @@
 # Статус проекта для AI-сессии
 
+## Production deployment — 2026-08-28
+
+- Production provider: GitHub Pages; URL:
+  `https://zabulaaleksey.github.io/electro-tutor/`.
+- CI/CD: единственный активный workflow `.github/workflows/pages.yml`; push в
+  `main` запускает GitHub Actions и автоматическую публикацию Pages.
+- Toolchain: Node `22.23.1`, `pnpm@11.23.0`, frozen install и Astro static
+  output `dist/`.
+- Production inputs: `SITE_URL=https://zabulaaleksey.github.io` и
+  `BASE_PATH=/electro-tutor/`; root redirect на `ru/` выполняет Astro.
+- GitHub Pages deployment и автоматический deploy из `main` проверены вручную
+  на live-сайте. Production-like local build и artifact audits — PASS: 14
+  localized routes, lesson publication audit, 90 files с base
+  `/electro-tutor/`. Live evidence предоставлено оператором; URL workflow run и
+  commit SHA в repository не зафиксированы.
+- Cloudflare deployment выведен из эксплуатации. `wrangler`, `wrangler.jsonc`,
+  `public/_redirects`, дублирующий `.github/workflows/deploy.yml` и правило
+  `.wrangler/` удалены; исторические записи сохранены как history/evidence.
+
 ## Tutor Stage 0 baseline — 2026-08-27
 
 - `TUTOR-00` завершён и validated locally; product code/config не изменялись.
@@ -38,7 +57,7 @@
 - Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
 - GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
 
-Обновлено: 2026-08-27
+Обновлено: 2026-08-28
 
 ## Текущий этап
 
@@ -64,7 +83,8 @@
 - безопасный `potential-pwa-v2`: update текущего клиента, миграция публичного
   offline-кэша, изоляция namespaces и исключение private/error/query;
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
-- Cloudflare Static Assets и GitHub Pages configuration;
+- GitHub Pages production deployment через GitHub Actions с единственным
+  workflow `.github/workflows/pages.yml`;
 - единый нормализованный `SITE_URL`/`BASE_PATH` contract, base-aware routes,
   assets, manifest и service worker scope для root и project-site artifact;
 - post-build audit внутренних HTML/CSS/manifest targets и запрет machine-local URL;
@@ -86,21 +106,23 @@
 - production booking integration;
 - checkout, webhook и заказы;
 - полный автоматический security suite;
-- подтверждённый production-домен и release.
+- полный обязательный pre-deploy quality pipeline и итоговый release-hardening.
 
 ## Известные проблемы и ограничения
 
 1. Полный реестр подтверждённых Stage 0 findings хранится в
    `notes/stage-0-baseline.md`; оставшийся release finding `T0-REL-001` назначен
    этапу `TUTOR-06`.
-2. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
+2. Без `SITE_URL` локальные/альтернативные сборки используют
+   `electrotutor.example`; production Pages workflow задаёт точный origin.
 3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
 4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
    через разрешённый Playwright fallback только в Chromium.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
-`T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001` и `T0-BASE-001`
-закрыты; `T0-REL-001` остаётся открытым согласно `notes/stage-0-baseline.md`.
+`T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`,
+`T0-SEO-001` и `T0-DEP-001` закрыты; `T0-REL-001` остаётся открытым согласно
+`notes/stage-0-baseline.md`.
 
 ## Входные решения для продолжения
 
@@ -108,7 +130,6 @@
 - модель кабинета/Jitsi и требования контроля доступа (`ET-05`);
 - публичный booking URL Cal.com либо выбранная альтернатива (`ET-06`);
 - юридическая/платёжная модель, страны, валюты, возвраты и провайдер (`ET-07`);
-- production-домен и канал публикации (`ET-08`).
 
 ## Канонический контекст
 
@@ -123,6 +144,12 @@
 
 ## Последние проверки
 
+- 2026-08-28 (deployment migration): GitHub Pages production URL и
+  автоматический deploy из `main` проверены оператором вручную (URL workflow
+  run и commit SHA в repository не зафиксированы); production-like build с
+  `SITE_URL=https://zabulaaleksey.github.io` и
+  `BASE_PATH=/electro-tutor/` — PASS, locale audit 14 routes, lesson audit и
+  site artifact audit 90 files — PASS;
 - 2026-08-27 (Cloudflare build fix): clean Linux Node 22 container с
   `pnpm install --frozen-lockfile`, project-local `node_modules/.pnpm`,
   15-page production build и все artifact audits — PASS; локально 69 tests,

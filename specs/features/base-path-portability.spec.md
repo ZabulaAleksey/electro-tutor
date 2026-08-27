@@ -2,7 +2,7 @@
 
 Статус: Действует
 
-Версия: 1.0
+Версия: 1.1
 
 ## Цель
 
@@ -40,11 +40,13 @@
 3. Live browser smoke открывает direct home, nested lesson и interactive route,
    проверяет assets, 404 и locale switch с query/hash под непустым base.
 4. Service worker script URL/scope и offline cache paths соответствуют base.
-5. GitHub Pages build получает `SITE_URL` и `BASE_PATH` из outputs
-   `actions/configure-pages`, без hardcoded будущего домена.
+5. GitHub Pages workflow явно передаёт production build значения
+   `SITE_URL=https://zabulaaleksey.github.io` и
+   `BASE_PATH=/electro-tutor/`; artifact audit подтверждает этот project base и
+   не допускает localhost/machine-local URL.
 
 ## Non-goals
 
-- фактический deploy, production domain/DNS и выбор окончательного hosting;
+- управление внешним GitHub Pages deployment, DNS и repository settings;
 - полная перестройка CI quality gates следующего этапа;
 - изменение locale, lesson content или URL-state schemas.

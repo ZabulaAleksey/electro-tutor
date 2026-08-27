@@ -31,7 +31,9 @@
 ## Dependency manager migration — 2026-08-24
 
 - Канонический менеджер зависимостей: `pnpm@11.23.0`; единственный lock-файл — `pnpm-lock.yaml`.
-- Store вынесен в общий пользовательский каталог pnpm, virtual store работает в global mode; build-скрипты разрешены только для `esbuild` и `workerd`.
+- Content store остаётся общим, virtual store возвращён в project-local mode
+  после воспроизведённой несовместимости Astro/Rolldown в clean Linux build;
+  build-скрипты разрешены только для `esbuild` и `workerd`.
 - `vite@8.2.1` объявлен прямой dev-зависимостью: npm раньше скрывал отсутствие декларации через hoisting.
 - Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
 - GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
@@ -121,6 +123,10 @@
 
 ## Последние проверки
 
+- 2026-08-27 (Cloudflare build fix): clean Linux Node 22 container с
+  `pnpm install --frozen-lockfile`, project-local `node_modules/.pnpm`,
+  15-page production build и все artifact audits — PASS; локально 69 tests,
+  Astro check 64 файла, ESLint и production build — PASS;
 - 2026-08-27 (`TUTOR-05`): 68 unit/integration tests, Astro check 63 файла,
   ESLint, root и `/electro-tutor/` builds по 15 страниц, locale audit 14 routes,
   lesson/site artifact audits по 91 файлу, 4 project-base и 46 root Chromium

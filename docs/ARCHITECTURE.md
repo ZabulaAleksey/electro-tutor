@@ -47,8 +47,9 @@ src/
 ├─ layouts/BaseLayout.astro  head, навигация, тема, язык, PWA
 ├─ content/lessons/          парные RU/UK MDX-уроки
 ├─ components/               React islands и локальные CSS
-├─ legacy-pages/             унаследованные React-страницы
+├─ legacy-pages/MeshLesson.tsx  переходная реализация island урока
 ├─ content.config.ts         схема frontmatter
+├─ site-path.ts              base-aware route/asset helpers
 ├─ curriculum.ts             разделы и карточки каталога
 ├─ data.ts                   первые карточки и общие переводы
 ├─ types.ts                  общие TypeScript-типы
@@ -80,6 +81,20 @@ prompts/                     протокол поэтапного продол�
 
 `getStaticPaths()` создаёт локали во время сборки. Код локали украинского языка
 — `uk`; надпись в переключателе — `UA`.
+
+`astro.config.mjs` нормализует независимые параметры `SITE_URL` (origin для
+canonical/sitemap) и `BASE_PATH` (deployment prefix). Runtime-код формирует
+внутренние URL только через `site-path.ts` и `import.meta.env.BASE_URL`, поэтому
+один artifact contract работает в `/` и, например, `/electro-tutor/`.
+
+`src/i18n/` — единый locale catalog общей оболочки, page metadata, действий,
+ошибок и accessible names. Runtime helpers нормализуют поддерживаемые коды и
+форматируют пользовательские числа, даты, длительности и plural forms.
+`scripts/validate-locales.mjs` блокирует build при missing/extra/empty или
+неподтверждённо одинаковых ключах; `scripts/audit-built-locales.mjs` проверяет
+парность 14 собранных routes, `html[lang]`, canonical и `ru`/`uk`/`x-default`
+hreflang. Авторский lesson MDX и математические обозначения остаются в своих
+domain sources и проверяются lesson contract.
 
 ## Поток учебного контента
 
@@ -118,8 +133,11 @@ imports из frontmatter не допускаются.
 - query/hash при переходе на парную локаль.
 
 `MeshLessonIsland.tsx` сохраняет уровень подробности в `potential-level`.
-`CircularDiagram.tsx` хранит ввод в query-параметрах, чтобы состояние можно было
-передать ссылкой.
+`circular-diagram-state.ts` владеет схемой `v=1`, defaults, domain limits и pure
+pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.tsx`
+получает только типизированное состояние, синхронизирует его с UI и browser
+history и не передаёт сырые `URLSearchParams` математической модели. Legacy
+share-ссылки без `v` мигрируют; повреждённые ссылки восстанавливают defaults.
 
 ## Кабинет занятия
 
@@ -156,21 +174,29 @@ inline event handler для этого не используется. Крити
 namespaces не читаются и не удаляются; navigation cache key хранится без query.
 При следующем изменении стратегии cache key снова должен измениться.
 
+Manifest использует scope-relative URL, а worker выводит offline/static paths
+из `self.registration.scope`. Регистрация получает base-aware script URL и
+scope из `BaseLayout`, поэтому PWA не выходит за project-site prefix.
+
 ## SEO и публикация
 
-`astro.config.mjs` строит canonical и sitemap от `SITE_URL`; резервное значение
-`https://electrotutor.example` допустимо только локально. `wrangler.jsonc`
-описывает Cloudflare Static Assets. `.github/workflows/deploy.yml` отдельно
-собирает и публикует `dist` в GitHub Pages после push в `main`.
+`astro.config.mjs` строит canonical и sitemap от `SITE_URL`, а маршруты и assets
+— от `BASE_PATH`; резервный origin `https://electrotutor.example` допустим
+только локально. Build завершается аудитом внутренних HTML/CSS/manifest targets,
+PWA scope и запретом localhost/machine-local URL. `wrangler.jsonc` описывает
+Cloudflare Static Assets. GitHub Pages workflow получает origin/base path из
+`actions/configure-pages`, собирает и публикует `dist` после push в `main`.
 
 Production-домен и основной публичный канал пока не зафиксированы окончательно.
 
-## Legacy-слой
+## Переходный lesson seam
 
-`src/App.tsx`, `src/main.tsx` и часть `src/legacy-pages/` происходят из
-React/Vite-прототипа. Production-маршрут урока всё ещё использует
-`legacy-pages/MeshLesson.tsx` через island. Новые страницы не должны расширять
-старый SPA-роутинг; целевая граница — Astro/MDX плюс малые универсальные islands.
+От React/Vite-прототипа сохранён только используемый production-путь
+`MeshLessonIsland.tsx → legacy-pages/MeshLesson.tsx`. Он подключается из
+статического Astro registry и не является отдельным SPA или маршрутизатором.
+Корневые `index.html`, `src/main.tsx`, `src/App.tsx`, неиспользуемые страницы и
+отдельный `vite.config.*` удалены в `TUTOR-02`. Новые страницы не должны
+расширять этот seam; целевая граница — Astro/MDX плюс малые React islands.
 
 ## Где вносить изменения
 
@@ -182,7 +208,9 @@ React/Vite-прототипа. Production-маршрут урока всё ещ�
 | Frontmatter и публикация урока | `src/content.config.ts`, `src/content/lessons/` |
 | Формулы | `src/components/Formula.tsx` |
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
-| Математика и state круговой диаграммы | `src/components/CircularDiagram.tsx` |
+| Математика круговой диаграммы | `src/models/circular-diagram.ts` |
+| URL/state schema и limits | `src/models/circular-diagram-state.ts` |
+| Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |
 | Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css` |
 | PWA cache/offline | `public/sw.js`, `public/offline.html` |

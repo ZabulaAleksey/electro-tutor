@@ -1,11 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { cwd, stdout } from "node:process";
+import { normalizeBasePath } from "./site-contract.mjs";
 
 const root = cwd();
+const outputDirectory = process.env.BUILD_OUTPUT_DIR || "dist";
+const basePath = normalizeBasePath(process.env.BASE_PATH);
+const withBase = (path) => basePath === "/" ? path : `${basePath.slice(0, -1)}${path}`;
 
 async function html(relativePath) {
-  return readFile(resolve(root, "dist", relativePath, "index.html"), "utf8");
+  return readFile(resolve(root, outputDirectory, relativePath, "index.html"), "utf8");
 }
 
 function requireMatch(source, pattern, message) {
@@ -80,7 +84,7 @@ for (const lesson of lessons) {
     `${lesson.language} lesson hides its primary MDX content from sighted users.`,
   );
 
-  const expectedHref = `/${lesson.language}/topics/dc/mesh-current-method/`;
+  const expectedHref = withBase(`/${lesson.language}/topics/dc/mesh-current-method/`);
   for (const page of ["", "topics"]) {
     const listingHtml = await html(`${lesson.language}/${page}`);
     if (!listingHtml.includes(`href="${expectedHref}"`)) {
@@ -88,7 +92,7 @@ for (const lesson of lessons) {
     }
     rejectMatch(
       listingHtml,
-      /href="\/(?:ru|uk)\/topics\/(?:dc|ac)\/(?:ohm|kirchhoff|nodes|power-factor|phasors|resonance|three-phase)\/"/,
+      new RegExp(`href="${withBase("/(?:ru|uk)/topics/(?:dc|ac)/(?:ohm|kirchhoff|nodes|power-factor|phasors|resonance|three-phase)/")}"`),
       `${lesson.language}/${page || "home"} links an unpublished topic.`,
     );
   }

@@ -1,5 +1,27 @@
 # Статус проекта для AI-сессии
 
+## Tutor Stage 0 baseline — 2026-08-27
+
+- `TUTOR-00` завершён и validated locally; product code/config не изменялись.
+- Brownfield reconciliation подтвердил Astro static production boundary,
+  единственный pnpm lockfile и существующий полный project overlay.
+- Baseline PASS: Astro check 52 files; ESLint; 38 unit/integration tests;
+  production build 15 pages; lesson publication audit; 21 Chromium E2E.
+- Канонический evidence и findings: `notes/stage-0-baseline.md`.
+- Release blockers: root-absolute project-site paths, placeholder production
+  canonical и deploy без обязательных quality gates.
+- Governance finding `T0-CTX-001` закрыт в `TUTOR-01`: active operational
+  ссылки указывают на `prompts/STAGES.md`, переносимый workflow находится в README.
+- `T0-APP-001` закрыт в `TUTOR-02`: Astro — единственный application build;
+  orphan Vite SPA удалён, рабочий `MeshLesson` island сохранён.
+- `T0-URL-001` закрыт в `TUTOR-03`: URL-state использует schema `v=1`, единые
+  limits, canonical migration/fallback и browser history contract.
+- `T0-LOC-001` закрыт в `TUTOR-04`: единый RU/UK catalog, locale-aware helpers,
+  build validator и artifact/Chromium route matrix подтверждают production contract.
+- `T0-BASE-001` закрыт в `TUTOR-05`: единый base/site contract, route/asset
+  helpers и root/project-base artifact/Chromium проверки подтверждают переносимость.
+- Следующий разрешённый этап: `TUTOR-06` — обязательные pre-deploy quality gates.
+
 ## Governance migration — 2026-08-24
 
 - Единственный источник этапов: `prompts/STAGES.md`; старый `STAGED_PROMPTS.md` перенесён без потери содержания.
@@ -14,31 +36,40 @@
 - Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
 - GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
 
-Обновлено: 2026-08-14
+Обновлено: 2026-08-27
 
 ## Текущий этап
 
-Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2` и `ET-04.3` завершены.
+Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
+`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
-состоянии. Следующего неблокированного продуктового этапа нет; дальнейшая работа
-потребует входных решений пользователя.
+состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
+но approved stabilization track продолжает работу с `TUTOR-06`.
 
 ## Что реализовано
 
 - Astro 7 static site с RU/UK-маршрутами, React 19 islands и Content Collections/MDX;
+- один production frontend path `astro build → dist/`; отдельного Vite SPA нет,
+  Vite остаётся только частью Astro/Vitest toolchain;
 - парный RU/UK-урок `mesh-current-method` с тремя уровнями объяснения;
 - единый manifest опубликованных парных уроков, derived availability и resolver карточек;
 - универсальный MDX route: индексируемый текст видим в static HTML, optional React island
   подключается только по проверенному статическому registry key;
-- интерактивная круговая диаграмма с URL-state и обработкой сингулярной точки;
+- интерактивная круговая диаграмма с versioned/canonical URL-state, safe fallback,
+  back/forward/reload и обработкой сингулярной точки;
 - тема, mobile navigation, PWA manifest/service worker/offline page;
 - безопасный `potential-pwa-v2`: update текущего клиента, миграция публичного
   offline-кэша, изоляция namespaces и исключение private/error/query;
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
 - Cloudflare Static Assets и GitHub Pages configuration;
+- единый нормализованный `SITE_URL`/`BASE_PATH` contract, base-aware routes,
+  assets, manifest и service worker scope для root и project-site artifact;
+- post-build audit внутренних HTML/CSS/manifest targets и запрет machine-local URL;
 - Astro check, ESLint 9 и production build проходят; актуальный dependency audit выполняется через pnpm;
-- Vitest: unit-тесты математической модели и contract-тесты RU/UK-публикации;
+- Vitest: unit-тесты математической модели, URL-state schema и RU/UK-публикации;
+- единый locale catalog для shell/pages/classroom/diagrams, build-time parity
+  validation и artifact audit для canonical и `ru`/`uk`/`x-default` hreflang;
 - Playwright/Chromium: RU/UK smoke, query/hash, theme persistence, keyboard,
   accessible names, live region и mobile layout 390×844;
 - неблокирующий первый рендер с системными fallback-шрифтами при зависшем или
@@ -57,11 +88,17 @@
 
 ## Известные проблемы и ограничения
 
-1. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
-2. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
-3. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
+1. Полный реестр подтверждённых Stage 0 findings хранится в
+   `notes/stage-0-baseline.md`; оставшийся release finding `T0-REL-001` назначен
+   этапу `TUTOR-06`.
+2. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
+3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
+4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
    через разрешённый Playwright fallback только в Chromium.
-4. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
+5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
+
+`T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001` и `T0-BASE-001`
+закрыты; `T0-REL-001` остаётся открытым согласно `notes/stage-0-baseline.md`.
 
 ## Входные решения для продолжения
 
@@ -84,12 +121,28 @@
 
 ## Последние проверки
 
-- 2026-08-14: `npm run test:e2e` — 21 Chromium-тест без skip/disable;
-- 2026-08-14: `npm test` — 4 файла, 38 тестов без skip/disable;
-- 2026-08-14: `npm run check` — 51 файл, 0 errors/warnings/hints;
-- 2026-08-14: `npm run lint` — успешно;
-- 2026-08-14: `npm run build` — 15 статических страниц и sitemap;
-- 2026-08-14: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,
+- 2026-08-27 (`TUTOR-05`): 68 unit/integration tests, Astro check 63 файла,
+  ESLint, root и `/electro-tutor/` builds по 15 страниц, locale audit 14 routes,
+  lesson/site artifact audits по 91 файлу, 4 project-base и 46 root Chromium
+  E2E — PASS;
+- 2026-08-27 (`TUTOR-04`): locale validator 156 paired keys, Astro check 56
+  файлов, ESLint, 62 unit/integration tests, 15-page build, locale artifact
+  audit 14 routes, lesson audit и 42 Chromium E2E — PASS;
+- 2026-08-27 (`TUTOR-03`): Astro check 49 файлов, ESLint, 56 unit/integration
+  tests, 15-page build, lesson audit и 25 Chromium E2E — PASS;
+  valid/legacy/invalid URL, canonicalization и history navigation подтверждены;
+- 2026-08-27 (`TUTOR-02`): frozen install, Astro check 46 файлов, ESLint,
+  38 unit/integration tests, 15-page build, lesson audit и 21 Chromium E2E — PASS;
+  orphan SPA/config references не найдены;
+- 2026-08-27: `pnpm.cmd check:context` и фактический SessionStart hook — PASS;
+  следующий selector после синхронизации — `TUTOR-06`;
+- 2026-08-27: global context validator и project overlay validator — PASS;
+- 2026-08-27: `pnpm.cmd test:e2e` — 21 Chromium-тест без skip/disable;
+- 2026-08-27: `pnpm.cmd test` — 4 файла, 38 тестов без skip/disable;
+- 2026-08-27: `pnpm.cmd check` — 53 файла, 0 errors/warnings/hints;
+- 2026-08-27: `pnpm.cmd lint` — успешно;
+- 2026-08-27: `pnpm.cmd build` — 15 статических страниц и sitemap;
+- 2026-08-27: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,
   hydration marker и корректные публикационные ссылки;
-- 2026-08-14: `npm audit` — 0 известных уязвимостей;
-- 2026-08-14: `npm ci --dry-run --ignore-scripts --offline` — lockfile воспроизводим.
+- 2026-08-27: read-only framework reconciliation — `BROWNFIELD`, один
+  `pnpm-lock.yaml`, dependency drift не найден.

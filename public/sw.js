@@ -1,12 +1,14 @@
 const CACHE_PREFIX = "potential-pwa-";
 const CACHE = `${CACHE_PREFIX}v2`;
+const SCOPE_URL = new URL("./", self.registration.scope);
+const withBase = (path = "") => new URL(path.replace(/^\/+/, ""), SCOPE_URL).pathname;
 const CORE = [
-  "/",
-  "/ru/",
-  "/uk/",
-  "/offline.html",
-  "/manifest.webmanifest",
-  "/icons/potential.svg",
+  withBase(),
+  withBase("ru/"),
+  withBase("uk/"),
+  withBase("offline.html"),
+  withBase("manifest.webmanifest"),
+  withBase("icons/potential.svg"),
 ];
 const CACHEABLE_DESTINATIONS = new Set([
   "font",
@@ -15,7 +17,7 @@ const CACHEABLE_DESTINATIONS = new Set([
   "script",
   "style",
 ]);
-const PRIVATE_PATH_PREFIXES = ["/api", "/auth", "/checkout", "/payments"];
+const PRIVATE_PATH_PREFIXES = ["api", "auth", "checkout", "payments"].map(withBase);
 
 function isPublicSameOriginRequest(request) {
   const url = new URL(request.url);
@@ -64,7 +66,7 @@ async function networkFirstNavigation(request) {
     }
     return response;
   } catch {
-    return (await cache.match(cacheKey)) || cache.match("/offline.html");
+    return (await cache.match(cacheKey)) || cache.match(withBase("offline.html"));
   }
 }
 

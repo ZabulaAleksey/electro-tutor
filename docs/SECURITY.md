@@ -13,6 +13,7 @@
 | Браузер ↔ Cal.com | переход по публичному URL | включается переменной окружения |
 | Браузер ↔ Google Fonts | IP/заголовки запроса, CSS и шрифты | неблокирующая optional-загрузка из `BaseLayout` |
 | Браузер storage | тема, уровень, имя, позиция/параметры | локальное/session storage |
+| URL query → CircularDiagram | восемь публичных числовых параметров | schema `v=1`, size/duplicate/type/range validation до модели |
 | Build ↔ Cloudflare/GitHub | статические assets | CI/deploy конфигурация |
 
 Backend, база данных, аккаунты и платёжные endpoints сейчас отсутствуют.
@@ -20,7 +21,7 @@ Backend, база данных, аккаунты и платёжные endpoints
 ## Секреты и конфигурация
 
 - `.env` не коммитится; публичный пример — `.env.example`;
-- `SITE_URL` и `PUBLIC_CALCOM_URL` не являются секретами;
+- `SITE_URL`, `BASE_PATH` и `PUBLIC_CALCOM_URL` не являются секретами;
 - будущие API keys, OAuth tokens, webhook secrets и provider credentials должны
   храниться только в server-side secret storage;
 - секреты нельзя помещать в `src/`, `public/`, client-prefixed variables,
@@ -49,6 +50,9 @@ Backend, база данных, аккаунты и платёжные endpoints
 ## Недоверенный ввод и внешние URL
 
 - значения query и формы валидируются и ограничиваются до использования;
+- CircularDiagram принимает query длиной не более 1024 символов, отклоняет
+  unknown version, duplicate known keys, нечисловые и выходящие за domain limits
+  значения; fallback заменяет весь state defaults и канонизирует URL;
 - URL календаря задаётся оператором через окружение, но перед production нужно
   проверить схему `https`, ожидаемый host и отсутствие секретных query;
 - ссылки, открывающие новую вкладку, используют безопасный `rel`;
@@ -66,6 +70,8 @@ Service worker может долго сохранять старый код. И�
 или удаляет чужие кэши origin. Query удаляется из navigation cache key, поэтому
 room-коды и параметры интерактива не перечисляются через Cache Storage.
 Кэшировать ответы с будущими персональными или платёжными данными запрещено.
+Worker ограничен `self.registration.scope`, а build audit отклоняет внутренние
+targets вне `BASE_PATH` и случайные localhost/machine-local URL.
 
 ## Платежи
 

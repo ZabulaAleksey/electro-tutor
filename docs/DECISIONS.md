@@ -98,7 +98,7 @@ production-модель доступа должна быть решена на �
 Статус: принято
 
 Решение: требования хранятся в `specs/`, инженерный контекст — в `docs/`, один
-операционный протокол — в `prompts/STAGED_PROMPTS.md`. Корневые дубли
+операционный протокол — в `prompts/STAGES.md`. Корневые дубли
 `PROJECT_CONTEXT.md`, `ARCHITECTURE.md` и тематические планы удаляются после
 переноса уникальной информации.
 
@@ -108,6 +108,9 @@ production-модель доступа должна быть решена на �
 Последствия: `README.md` остаётся человеческой точкой входа, `AGENTS.md` —
 тонким маршрутизатором, а команда `Продолжай Electro Tutor` выполняет один
 следующий подэтап.
+
+Путь протокола уточнён ADR-011 после governance migration; роль источника и
+one-stage semantics ADR-006 не изменились.
 
 ## ADR-007 — Каноническая версия Node из `package.json`
 
@@ -194,3 +197,130 @@ cache key, а чужие namespaces сохраняются.
 
 Последствия: изменение стратегии требует следующего cache key; новые приватные
 route prefixes должны оставаться вне PWA-кэша и сопровождаться негативным тестом.
+
+## ADR-011 — Локальный stage source и переносимое продолжение
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: единственный операционный stage source — `prompts/STAGES.md`. Команда
+`Продолжай Electro Tutor` использует repository-local status/plan/SPEC и
+dependency-aware selector; внешний или machine-local prompt не является
+обязательной зависимостью. Между компьютерами перед continuation проверяются
+Git state, выбранная ветка, frozen dependency restore и project overlay.
+
+Причина: governance migration перенесла stage protocol, но active ссылки на
+прежний путь остались в router, README, SPEC и compatibility matrix. Новый
+session не мог выполнить documented continuation contract из clean clone.
+
+Рассмотренная альтернатива: восстановить legacy-файл как alias отклонена, потому
+что создала бы второй stage source и позволила их содержимому разойтись.
+
+Последствия: все active operational ссылки указывают на `prompts/STAGES.md`;
+historical audit может упоминать прежний путь только как evidence миграции.
+Hooks, MCP, agents и product runtime не добавляются.
+
+## ADR-012 — Astro как единственная production frontend boundary
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: production-приложение собирается только командой `astro build` и
+публикует `dist/`. Неиспользуемый React/Vite SPA shell, его страницы и отдельные
+Vite/TypeScript configs удалены после import/script/history audit. Используемый
+путь `MeshLessonIsland → legacy-pages/MeshLesson` сохранён как переходный React
+island. `vitest.config.ts`, `vite` и `@vitejs/plugin-react` остаются частью
+тестового и Astro toolchain, но не определяют второй application entrypoint.
+
+Причина: root `index.html → src/main.tsx → src/App.tsx` не вызывался ни одним
+package script, Astro route или deployment workflow. Его наличие создавало
+ложную production boundary и поддерживало мёртвые страницы и generated configs.
+
+Рассмотренные альтернативы: оставить shell как archive отклонено, потому что у
+него нет самостоятельной роли, build/test contract или пользователя; перенести
+его в отдельный experimental contour отклонено по той же причине; переписать
+`MeshLesson` отложено как отдельная миграция без пользы для текущего stage.
+
+Последствия: один production frontend и один deployment artifact становятся
+однозначными. Изменение откатывается возвратом единого commit `TUTOR-02`.
+Инструментальное упоминание Vite в выводе Astro/Vitest не означает возврат SPA.
+
+## ADR-013 — Единая версия и граница доверия URL-state
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: круговая диаграмма использует pure state-модуль со схемой `v=1`,
+defaults и domain limits из feature-SPEC. Невалидный known state восстанавливает
+весь набор defaults, а legacy-ссылки без версии мигрируют. Частые изменения
+range заменяют текущую history entry; завершённый числовой ввод создаёт новую.
+
+Причина: прежний компонент напрямую преобразовывал `URLSearchParams` через
+`Number()` и пропускал любые finite values в математическую модель. UI limits,
+URL и browser history имели разные контракты, а back/forward не обрабатывались.
+
+Рассмотренные альтернативы: clamp каждого недоверенного поля отклонён, потому
+что создаёт правдоподобное, но не запрошенное пользователем состояние; частичный
+fallback отклонён из-за смешения доверенных defaults и повреждённой ссылки;
+JSON/base64 payload отклонён как менее читаемый и хуже совместимый share-format.
+
+Последствия: все consumers должны использовать один typed contract. Добавление
+поля или изменение семантики требует новой версии либо явной миграции; unknown
+version никогда не интерпретируется как текущая.
+
+## ADR-014 — Проверяемый locale catalog и authored content boundary
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: общая production-копия RU/UK хранится в парных `src/i18n/*.json` и
+читается через typed runtime API. Build сначала проверяет одинаковую структуру,
+непустые значения и явно одобренные совпадающие термины, а после Astro build
+аудирует locale routes и SEO links. Lesson MDX, формулы и математические
+обозначения остаются в предметных источниках; их парность проверяет отдельный
+lesson publication contract.
+
+Причина: inline ternaries не давали доказать полноту UI/metadata/errors/ARIA, а
+слепой перенос authored lesson content в UI-словарь смешал бы разные источники
+истины. Явный список одинаковых терминов отличает корректный инвариант или
+межъязыковое совпадение от пропущенного перевода.
+
+Рассмотренные альтернативы: один каталог с optional fallback отклонён из-за
+риска скрытого русского текста на UK-route; перенос всего MDX в translation
+keys отклонён как ухудшение authoring и content schema; runtime-only validation
+отклонена, потому что дефект должен блокировать production artifact.
+
+Последствия: новая общая строка требует пары RU/UK; технические совпадения
+одобряются явно. `/` остаётся русским default, а каждый semantic route получает
+`ru`, `uk` и `x-default`. Engineering share/readout сохраняет десятичную точку
+по уже принятому URL/state-контракту.
+
+## ADR-015 — Раздельные site origin и deployment base path
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: `SITE_URL` задаёт только публичный origin для canonical/sitemap, а
+нормализованный `BASE_PATH` — prefix внутренних routes/assets. Astro config,
+`site-path.ts`, scope-relative manifest и service worker, выводящий paths из
+собственного registration scope, образуют единый contract. Root и project-base
+artifacts проходят одинаковые post-build и live Chromium проверки.
+
+Причина: root-absolute ссылки работали локально и на apex-domain, но ломали
+GitHub Pages project-site. Смешение origin и path также позволяло случайно
+встроить machine-local или будущий production URL в artifact.
+
+Рассмотренные альтернативы: ручная конкатенация prefix в каждом компоненте
+отклонена как источник расхождений; относительные URL повсюду отклонены из-за
+неоднозначности на nested routes; отдельная сборка для каждого host отклонена,
+потому что дублирует контракт вместо параметризации.
+
+Последствия: новые внутренние URL должны использовать base-aware helper либо
+scope-relative web-platform semantics. GitHub Pages build получает `origin` и
+`base_path` от `actions/configure-pages`; production domain и deploy остаются
+отдельным release-решением.

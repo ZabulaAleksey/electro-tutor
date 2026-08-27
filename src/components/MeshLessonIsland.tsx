@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import MeshLesson from "../legacy-pages/MeshLesson";
 import type { DetailLevel, Language, Page } from "../types";
+import { localePath } from "../site-path";
 
 const pagePath = (page: Page, language: Language) => {
-  const root = `/${language}`;
-  if (page === "home") return `${root}/`;
-  if (page === "catalog") return `${root}/topics/`;
-  if (page === "interactive") return `${root}/interactive/`;
-  if (page === "contacts") return `${root}/contacts/`;
-  if (page === "services") return `${root}/services/`;
-  return `${root}/topics/dc/mesh-current-method/`;
+  if (page === "home") return localePath(language);
+  if (page === "catalog") return localePath(language, "/topics/");
+  if (page === "interactive") return localePath(language, "/interactive/");
+  if (page === "contacts") return localePath(language, "/contacts/");
+  if (page === "services") return localePath(language, "/services/");
+  return localePath(language, "/topics/dc/mesh-current-method/");
 };
 
 export default function MeshLessonIsland({ language }: { language: Language }) {

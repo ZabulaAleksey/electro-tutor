@@ -1,6 +1,6 @@
 # Совместимость проектного контекста
 
-Аудит: 2026-08-13. Статусы соответствуют workspace-политике:
+Первичный аудит: 2026-08-13. Reconciliation повторён: 2026-08-27. Статусы соответствуют workspace-политике:
 `INHERITED`, `EXTEND`, `PROJECT_ONLY`, `CONFLICT`, `OBSOLETE`.
 
 ## Возможности AI-инфраструктуры
@@ -14,7 +14,21 @@
 | Hooks | workspace/global | специальный hook не нужен | `INHERITED` | новых hooks нет |
 | MCP/apps | доступны из активной конфигурации | только по фактической интеграции | `INHERITED` | локальные MCP не добавлять |
 | Codex config | глобальная конфигурация | проектных параметров нет | `INHERITED` | второй config не создавать |
-| Маршрут одной команды | отсутствовал | выбрать и выполнить один подэтап | `PROJECT_ONLY` | `prompts/STAGED_PROMPTS.md` + router в `AGENTS.md` |
+| Маршрут одной команды | `prompts/STAGES.md` и router в `AGENTS.md` | выбрать и выполнить один dependency-valid stage | `PROJECT_ONLY` | один локальный stage source без alias/remote dependency |
+
+## TUTOR-00 — brownfield reconciliation
+
+Read-only `reconcile_project_framework.py` классифицировал repository как
+`BROWNFIELD`: dependency drift отсутствует, канонический manager — pnpm,
+существующие project документы сохраняются через `MERGE`, product files имеют
+`FORBIDDEN_TO_OVERWRITE` для framework refresh.
+
+| Возможность | Найденное состояние | Статус | Resolution owner / target |
+|---|---|---|---|
+| Stage source | `prompts/STAGES.md`; active router/docs/SPEC синхронизированы Stage `TUTOR-01` | `CONFLICT` → `EXTEND` | один канон; legacy path остаётся только historical evidence в Stage 0 audit |
+| Production boundary | единственный Astro production path; Vite используется только toolchain | `CONFLICT` → `EXTEND` | `T0-APP-001` закрыт Stage `TUTOR-02`, ADR-012 |
+| Global framework | локальных generic agents/hooks/MCP/config нет | `INHERITED` | сохранить без новых слоёв |
+| Baseline evidence | полный реестр и команды находятся в `notes/stage-0-baseline.md` | `PROJECT_ONLY` | canonical audit record Stage 0 |
 
 ## Разрешённые конфликты документов
 

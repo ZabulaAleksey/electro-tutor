@@ -5,6 +5,90 @@ Roadmap задаёт порядок развития, но не заменяет
 
 Статусы: `DONE`, `CURRENT`, `PLANNED`, `BLOCKED`, `OPTIONAL`.
 
+## Tutor stabilization track — 2026
+
+Этот track принят поверх существующей ET-карты для доказательной стабилизации
+нынешнего production-контура. Он не разблокирует старые product stages без их
+входных решений.
+
+### TUTOR-00 — Инвентаризация и reconciliation
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- brownfield repository, приложения, routes, content, tests и deployment
+  entrypoints классифицированы;
+- baseline checks выполнены;
+- findings `T0-APP-001..T0-DEP-001` сохранены в
+  `notes/stage-0-baseline.md`;
+- product defects намеренно не исправлялись.
+
+### TUTOR-01 — Канонический локальный контекст
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- устранить зависимость продолжения от отсутствующего `STAGED_PROMPTS.md`;
+- согласовать локальные status/plan/roadmap/SPEC/decisions/compatibility links;
+- зафиксировать portable continuation contract и проверить overlay.
+
+Зависимость: `TUTOR-00`.
+
+### TUTOR-02 — Production boundary и Vite SPA
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- оформить evidence-based ADR для Astro production и legacy Vite contour;
+- удалить доказанно мёртвый SPA либо изолировать его с отдельной ролью;
+- сохранить используемый `MeshLesson` seam до отдельной миграции;
+- привести scripts/docs/config к одному production build path.
+
+Зависимость: `TUTOR-01`.
+
+### TUTOR-03 — Версионированный URL/state круговой диаграммы
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- определить типизированную версионированную схему URL-state и единые domain limits;
+- реализовать pure parse/validate/normalize/canonicalize pipeline;
+- синхронизировать UI, URL и browser history без обхода инвариантов;
+- покрыть boundary/property, component и живые browser-сценарии.
+
+Зависимость: `TUTOR-02`.
+
+### TUTOR-04 — Реальный production-контракт RU/UK
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- определить locale source of truth, fallback и production route/SEO contract;
+- инвентаризировать UI, metadata, ошибки, aria-labels и CircularDiagram;
+- зафиксировать предметный glossary для терминов, обозначений и единиц;
+- добавить build-time parity validation, fallback tests и RU/UK E2E.
+
+Зависимость: `TUTOR-03`.
+
+### TUTOR-05 — Base-path portability и project-site artifact
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- инвентаризировать root-absolute routes/assets/redirects и service worker paths;
+- ввести один build-time base/site URL contract и route/asset helpers;
+- проверить root и непустой project base, deep links, locale/share URLs и 404;
+- добавить artifact smoke и broken internal link/asset audit.
+
+Зависимость: `TUTOR-04`.
+
+### TUTOR-06 — Обязательные quality gates перед публикацией
+
+Статус: `PLANNED`
+
+- свести локальную full-verify command и CI к одному существенному порядку gates;
+- блокировать upload/deploy при ошибке static, unit/integration/component, build
+  или live E2E проверки;
+- передавать deploy job именно проверенный artifact без повторной сборки;
+- проверить frozen install, cache, concurrency cancellation, permissions и
+  доступные dependency/security checks.
+
+Зависимость: `TUTOR-05`.
+
 ## ET-00 — Канонический контекст
 
 Статус: `DONE` (2026-08-13)

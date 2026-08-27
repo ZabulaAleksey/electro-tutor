@@ -1,5 +1,5 @@
 import { Atom, BookOpenText, Zap } from "lucide-react";
-import { text } from "../data";
+import { getLocale } from "../i18n";
 import type { DetailLevel, Language } from "../types";
 
 const icons = { 1: Atom, 2: BookOpenText, 3: Zap };
@@ -13,9 +13,11 @@ export default function LevelPicker({
   language: Language;
   onChange: (value: DetailLevel) => void;
 }) {
+  const copy = getLocale(language).levelPicker;
+  const labels = { 1: copy.one, 2: copy.two, 3: copy.three } as const;
   return (
     <div className="level-picker">
-      <span className="level-label">{text.level[language]}</span>
+      <span className="level-label">{copy.label}</span>
       <div className="level-options">
         {([1, 2, 3] as DetailLevel[]).map((value) => {
           const Icon = icons[value];
@@ -26,7 +28,7 @@ export default function LevelPicker({
               onClick={() => onChange(value)}
             >
               <Icon size={16} />
-              <span>{value}. {text.levels[value][language]}</span>
+              <span>{value}. {labels[value]}</span>
             </button>
           );
         })}

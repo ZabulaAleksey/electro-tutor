@@ -6,10 +6,13 @@
     "type": "module",
     "scripts": {
         "dev": "astro dev",
-        "build": "astro build",
+        "build": "pnpm run check:locales && astro build && node scripts/audit-built-locales.mjs && node scripts/audit-built-lessons.mjs && node scripts/audit-built-site.mjs",
+        "check:base-path": "node scripts/check-base-path.mjs",
         "preview": "astro preview",
         "lint": "eslint .",
         "check": "astro check",
+        "check:context": "node scripts/validate-context-route.mjs",
+        "check:locales": "node scripts/validate-locales.mjs",
         "test": "vitest run",
         "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
         "test:e2e:install": "playwright install chromium"

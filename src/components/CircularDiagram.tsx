@@ -1,58 +1,75 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  CIRCULAR_DIAGRAM_DEFAULTS,
+  CIRCULAR_DIAGRAM_LIMITS,
+  canonicalizeCircularDiagramState,
+  normalizeCircularDiagramState,
+  parseCircularDiagramSearch,
+  type CircularDiagramParseStatus,
+  type CircularDiagramState,
+} from "../models/circular-diagram-state";
 import {
   buildCircularDiagramModel,
   complexArgumentDegrees,
   complexMagnitude,
 } from "../models/circular-diagram";
+import { getLocale } from "../i18n";
+import type { Language } from "../types";
 
-const fmt = (n: number, d = 2) => Number(n.toFixed(d)).toString();
+export default function CircularDiagram({ language }: { language: Language }) {
+  const copy = getLocale(language);
+  const fmt = (value: number, digits = 2) => Number(value.toFixed(digits)).toString();
+  const [parameters, setParameters] = useState<CircularDiagramState>({
+    ...CIRCULAR_DIAGRAM_DEFAULTS,
+  });
+  const [urlStatus, setUrlStatus] = useState<CircularDiagramParseStatus>("valid");
 
-export default function CircularDiagram({ language }: { language: "ru" | "uk" }) {
-  const ru = language === "ru";
-  const [i0m, setI0m] = useState(1.5), [i0a, setI0a] = useState(-18);
-  const [ikm, setIkm] = useState(8), [ika, setIka] = useState(-55);
-  const [zm, setZm] = useState(4), [za, setZa] = useState(35);
-  const [phi, setPhi] = useState(25), [position, setPosition] = useState(43);
-  const [urlReady, setUrlReady] = useState(false);
+  const writeUrl = (state: CircularDiagramState, mode: "push" | "replace") => {
+    const url = `${location.pathname}${canonicalizeCircularDiagramState(state)}${location.hash}`;
+    history[mode === "push" ? "pushState" : "replaceState"](history.state, "", url);
+  };
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const fromUrl = (key: string, fallback: number) => {
-      const raw = params.get(key);
-      if (raw === null) return fallback;
-      const parsed = Number(raw);
-      return Number.isFinite(parsed) ? parsed : fallback;
+    const restoreFromLocation = () => {
+      const parsed = parseCircularDiagramSearch(location.search);
+      setParameters(parsed.state);
+      setUrlStatus(parsed.status);
+      if (location.search !== parsed.canonicalSearch) {
+        const url = `${location.pathname}${parsed.canonicalSearch}${location.hash}`;
+        history.replaceState(history.state, "", url);
+      }
     };
 
-    setI0m(fromUrl("i0m", 1.5));
-    setI0a(fromUrl("i0a", -18));
-    setIkm(fromUrl("ikm", 8));
-    setIka(fromUrl("ika", -55));
-    setZm(fromUrl("zm", 4));
-    setZa(fromUrl("za", 35));
-    setPhi(fromUrl("phi", 25));
-    setPosition(fromUrl("r", 43));
-    setUrlReady(true);
+    restoreFromLocation();
+    addEventListener("popstate", restoreFromLocation);
+    return () => removeEventListener("popstate", restoreFromLocation);
   }, []);
 
-  useEffect(() => {
-    if (!urlReady) return;
-    const params = new URLSearchParams(location.search);
-    Object.entries({ i0m, i0a, ikm, ika, zm, za, phi, r: position })
-      .forEach(([key, value]) => params.set(key, String(value)));
-    history.replaceState(history.state, "", `${location.pathname}?${params}${location.hash}`);
-  }, [i0m, i0a, ikm, ika, zm, za, phi, position, urlReady]);
+  const updateParameter = (key: keyof CircularDiagramState, value: number) => {
+    setParameters((current) => normalizeCircularDiagramState({ ...current, [key]: value }));
+  };
+
+  const commitParameter = (
+    key: keyof CircularDiagramState,
+    value: number,
+    mode: "push" | "replace",
+  ) => {
+    const next = normalizeCircularDiagramState({ ...parameters, [key]: value });
+    setParameters(next);
+    setUrlStatus("valid");
+    writeUrl(next, mode);
+  };
 
   const model = useMemo(() => buildCircularDiagramModel({
-    i0Magnitude: i0m,
-    i0Angle: i0a,
-    ikMagnitude: ikm,
-    ikAngle: ika,
-    outputImpedanceMagnitude: zm,
-    outputImpedanceAngle: za,
-    loadAngle: phi,
-    position,
-  }), [i0m, i0a, ikm, ika, zm, za, phi, position]);
+    i0Magnitude: parameters.i0m,
+    i0Angle: parameters.i0a,
+    ikMagnitude: parameters.ikm,
+    ikAngle: parameters.ika,
+    outputImpedanceMagnitude: parameters.zm,
+    outputImpedanceAngle: parameters.za,
+    loadAngle: parameters.phi,
+    position: parameters.r,
+  }), [parameters]);
 
   const vectors = [
     { id: "idle", label: "I₀", value: model.i0 },
@@ -62,20 +79,31 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
   const step = model.extent <= 3 ? 1 : model.extent <= 8 ? 2 : 5, ticks: number[] = [];
   for (let n = -Math.floor(model.extent / step) * step; n <= model.extent; n += step) ticks.push(n);
 
+  const field = (key: keyof CircularDiagramState) => ({
+    value: parameters[key],
+    min: CIRCULAR_DIAGRAM_LIMITS[key].min,
+    max: CIRCULAR_DIAGRAM_LIMITS[key].max,
+    set: (value: number) => updateParameter(key, value),
+    commit: (value: number) => commitParameter(key, value, "push"),
+  });
+
   return <section className="circle-lab">
     <div className="circle-lab-heading">
-      <div><span className="section-kicker">{ru ? "КРУГОВАЯ ДИАГРАММА" : "КОЛОВА ДІАГРАМА"}</span><h2>{ru ? "Годограф тока четырёхполюсника" : "Годограф струму чотириполюсника"}</h2></div>
-      <p>{ru ? "Конец вектора тока движется по дуге от Iк к I₀." : "Кінець вектора струму рухається дугою від Iк до I₀."}</p>
+      <div><span className="section-kicker">{copy.diagram.kicker}</span><h2>{copy.diagram.title}</h2></div>
+      <p>{copy.diagram.lead}</p>
     </div>
+    {urlStatus === "recovered" && <p className="circle-state-notice" role="status">
+      {copy.diagram.recovered}
+    </p>}
     <div className="circle-lab-layout">
       <div className="circle-controls">
-        <Group title={ru ? "Ток холостого хода I₀" : "Струм холостого ходу I₀"}><Field label="Модуль, А" value={i0m} min={0} step={.1} set={setI0m}/><Field label={ru ? "Угол, °" : "Кут, °"} value={i0a} step={1} set={setI0a}/></Group>
-        <Group title={ru ? "Ток короткого замыкания Iк" : "Струм короткого замикання Iк"}><Field label="Модуль, А" value={ikm} min={0} step={.1} set={setIkm}/><Field label={ru ? "Угол, °" : "Кут, °"} value={ika} step={1} set={setIka}/></Group>
-        <Group title={ru ? "Выход и нагрузка" : "Вихід і навантаження"}><Field label={ru ? "|Zвых|, Ом" : "|Zвих|, Ом"} value={zm} min={.01} step={.1} set={setZm}/><Field label={ru ? "∠Zвых, °" : "∠Zвих, °"} value={za} min={-90} max={90} step={1} set={setZa}/><Field label={ru ? "Угол нагрузки φ, °" : "Кут навантаження φ, °"} value={phi} min={-90} max={90} step={1} set={setPhi}/></Group>
-        <label className="resistance-control"><span>{ru ? "Сопротивление нагрузки R" : "Опір навантаження R"}<strong>{Number.isFinite(model.resistance) ? `${fmt(model.resistance)} Ом` : "∞"}</strong></span><input type="range" min="0" max="100" step=".2" value={position} onChange={e => setPosition(Number(e.target.value))}/><small><span>0</span><span>|Z|</span><span>∞</span></small></label>
+        <Group title={copy.diagram.idle}><Field label={copy.diagram.magnitude} {...field("i0m")} step={.1}/><Field label={copy.diagram.angle} {...field("i0a")} step={1}/></Group>
+        <Group title={copy.diagram.short}><Field label={copy.diagram.magnitude} {...field("ikm")} step={.1}/><Field label={copy.diagram.angle} {...field("ika")} step={1}/></Group>
+        <Group title={copy.diagram.output}><Field label={copy.diagram.outputMagnitude} {...field("zm")} step={.1}/><Field label={copy.diagram.outputAngle} {...field("za")} step={1}/><Field label={copy.diagram.loadAngle} {...field("phi")} step={1}/></Group>
+        <label className="resistance-control"><span>{copy.diagram.resistance}<strong>{Number.isFinite(model.resistance) ? `${fmt(model.resistance)} ${copy.units.ohm}` : "∞"}</strong></span><input type="range" min={CIRCULAR_DIAGRAM_LIMITS.r.min} max={CIRCULAR_DIAGRAM_LIMITS.r.max} step=".2" value={parameters.r} onChange={event => commitParameter("r", Number(event.target.value), "replace")}/><small><span>0</span><span>|Z|</span><span>∞</span></small></label>
       </div>
       <div className="circle-plot">
-        <svg viewBox="0 0 720 520" role="img" aria-label={ru ? "Круговая диаграмма токов" : "Колова діаграма струмів"}>
+        <svg viewBox="0 0 720 520" role="img" aria-label={copy.diagram.aria}>
           <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="12" markerHeight="7" refX="10.5" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5,.8 L11,3.5 L.5,6.2 L3,3.5 Z" className={`math-arrow arrow-head ${v.id}`}/></marker>)}</defs>
           <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{t}</text><text x="367" y={y - 6}>{t}</text></>}</g>; })}</g>
           <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">Re I, A</text><text x="370" y="38">Im I, A</text></g>
@@ -84,7 +112,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
         </svg>
         <div className="circle-readout" aria-live="polite">
           {vectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
-          {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {ru ? "идеальная резонансная точка: Zвых + Zн = 0" : "ідеальна резонансна точка: Zвих + Zн = 0"}</span>}
+          {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {copy.diagram.singularity}</span>}
         </div>
       </div>
     </div>
@@ -95,20 +123,41 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   return <fieldset><legend>{title}</legend>{children}</fieldset>;
 }
 
-function Field({ label, value, min, max, step, set }: { label: string; value: number; min?: number; max?: number; step: number; set: (n: number) => void }) {
+function Field({ label, value, min, max, step, set, commit }: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  set: (value: number) => void;
+  commit: (value: number) => void;
+}) {
   const [draft, setDraft] = useState(String(value));
+  const valueOnFocus = useRef(value);
   useEffect(() => setDraft(String(value)), [value]);
+
+  const parseDraft = (raw: string): number | null => {
+    if (raw === "" || raw === "-" || raw === "+" || raw === "." || raw === "-.") return null;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return null;
+    return Math.min(max, Math.max(min, parsed));
+  };
   const update = (raw: string) => {
     setDraft(raw);
-    if (raw === "" || raw === "-" || raw === "+" || raw === "." || raw === "-.") return;
-    const parsed = Number(raw);
-    if (!Number.isFinite(parsed)) return;
-    const limited = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, parsed));
+    const limited = parseDraft(raw);
+    if (limited === null) return;
     set(limited);
-    if (limited !== parsed) setDraft(String(limited));
+    if (limited !== Number(raw)) setDraft(String(limited));
   };
-  const restoreIfIncomplete = () => {
-    if (draft === "" || draft === "-" || !Number.isFinite(Number(draft))) setDraft(String(value));
+  const finish = () => {
+    const limited = parseDraft(draft);
+    if (limited === null) {
+      setDraft(String(value));
+      return;
+    }
+    setDraft(String(limited));
+    if (limited !== valueOnFocus.current) commit(limited);
   };
-  return <label><span>{label}</span><input type="number" inputMode="decimal" value={draft} min={min} max={max} step={step} onChange={e => update(e.target.value)} onBlur={restoreIfIncomplete}/></label>;
+
+  return <label><span>{label}</span><input type="number" inputMode="decimal" value={draft} min={min} max={max} step={step} onFocus={() => { valueOnFocus.current = value; }} onChange={event => update(event.target.value)} onBlur={finish} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur(); }}/></label>;
 }

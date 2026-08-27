@@ -1,5 +1,151 @@
 # Учебный журнал
 
+## 2026-08-27 — Base path проверяется artifact и живой навигацией
+
+### Что изменено
+
+- `SITE_URL` отделён от `BASE_PATH`, а внутренние URL проходят через один helper.
+- Manifest и service worker используют scope-relative contract.
+- Один audit проверяет root и project-base artifacts, а Chromium открывает
+  прямые deep links, переключает локаль и подтверждает service worker scope.
+
+### Повторяемый вывод
+
+Успешная static-сборка не доказывает переносимость: root-absolute URL остаются
+валидными строками, но уходят за prefix project-site. Надёжное evidence сочетает
+проверку файлового графа собранного artifact и live HTTP-навигацию под реальным
+непустым base path.
+
+### Как повторить самостоятельно
+
+1. Выполнить `pnpm build` для root contract.
+2. Выполнить `pnpm check:base-path` для `/electro-tutor/`.
+3. Проверить `SITE_URL` и `BASE_PATH` в `.env.example`.
+4. Добавляя route или asset, использовать helpers из `src/site-path.ts`.
+5. Перед коммитом выполнить `git diff --check`.
+
+## 2026-08-27 — Локализация как проверяемая схема данных
+
+### Что изменено
+
+- Общие UI, metadata, errors и accessible names перенесены в парные RU/UK
+  catalogs с одним runtime API.
+- Build валидирует ключи и после сборки проверяет semantic routes и SEO links.
+
+### Повторяемый вывод
+
+Наличие двух переводов рядом в ternary не доказывает полноту локализации.
+Нужны schema parity, явные инварианты и проверка уже собранного artifact. При
+этом authored content и математические символы не обязаны становиться UI keys.
+
+### Как повторить самостоятельно
+
+1. Разделить общий UI, authored content и технические инварианты.
+2. Сравнить деревья locale keys и запретить пустые/неодобренные совпадения.
+3. Проверить `html[lang]`, canonical и все hreflang в production artifact.
+4. Пройти semantic route matrix и locale switch в реальном браузере.
+
+## 2026-08-27 — URL как недоверенный versioned input
+
+### Что изменено
+
+- Схема, defaults и limits вынесены из React в pure TypeScript state-модуль.
+- Legacy query мигрирует в `v=1`; повреждённый state восстанавливается целиком,
+  а browser history различает частые и смысловые изменения.
+
+### Повторяемый вывод
+
+`Number.isFinite(Number(value))` защищает только от части синтаксических ошибок.
+Без version, duplicate policy, ranges, maximum size и canonical serialization URL
+остаётся альтернативным способом обхода UI-инвариантов.
+
+### Как повторить самостоятельно
+
+1. Описать поля/defaults/ranges до изменения компонента.
+2. Проверить NaN, Infinity, пустые, duplicate, oversized и unknown version.
+3. Доказать идемпотентность `serialize(parse(serialize(state)))`.
+4. Пройти share, reload, back/forward и locale switch на реальном route.
+
+## 2026-08-27 — Как отличить toolchain от второго приложения
+
+### Что изменено
+
+- Import/script/deployment graph подтвердил Astro как единственный production path.
+- Удалены orphan entrypoint, страницы и отдельные Vite/TypeScript configs; рабочий
+  `MeshLesson` island и Vitest Vite integration сохранены.
+
+### Повторяемый вывод
+
+Наличие Vite dependency или строки `[vite]` в Astro build не доказывает наличие
+Vite-приложения. Application boundary определяется достижимым entrypoint,
+package scripts, deployment artifact и живым E2E-путём.
+
+### Как повторить самостоятельно
+
+1. Проследить package script до build tool и публикуемого каталога.
+2. Найти входной HTML/JS и проверить обратные imports из production routes.
+3. Отделить runtime entrypoint от test/build plugins.
+4. После удаления выполнить frozen install, static checks, unit, build и E2E.
+
+## 2026-08-27 — Переносимый context route без второго prompt source
+
+### Что изменено
+
+- Router, README, context SPEC, decisions и compatibility matrix сведены к
+  одному `prompts/STAGES.md`.
+- Source-of-truth matrix отделяет requirements, implementation evidence,
+  architecture, current plan/status, operational stages и Notion ideas.
+- ПК ↔ ноутбук workflow начинается с Git-state и frozen restore, а не с
+  destructive cleanup или предположения, что dirty work уже перенесён.
+
+### Повторяемый вывод
+
+Alias для переименованного stage-файла создаёт второй источник и скрывает stale
+links. Безопаснее синхронно обновить active consumers, сохранить migration как
+historical evidence и доказать clean-session selector через существующий
+repository file.
+
+### Как повторить самостоятельно
+
+1. Проверить `Test-Path prompts/STAGES.md` в PowerShell или `test -f prompts/STAGES.md`.
+2. Выполнить `pnpm check:context`: script проверит active references, ровно один
+   `Stage ID` в `AI_PLAN.md` и уникальный heading в `prompts/STAGES.md`.
+3. Запустить `python ~/.codex/tools/validate_project_overlay.py .` в POSIX-shell
+   либо `py -3 -B "$HOME/.codex/tools/validate_project_overlay.py" .` в Windows
+   PowerShell.
+4. Прочитать `docs/AI_STATUS.md` → `docs/AI_PLAN.md` → выбранный heading в
+   `prompts/STAGES.md`; следующим должен быть `TUTOR-02`, blocked ET-stages не
+   должны выбираться.
+
+## 2026-08-27 — Evidence-first baseline перед стабилизацией Tutor
+
+### Что проверено
+
+- Brownfield reconciliation выполнен до mutations.
+- Production Astro отделён от legacy Vite entrypoint по imports, scripts и
+  build artifact, а не по названию каталога.
+- Известные URL/base-path/CI/context риски воспроизведены точечными `rg`, build
+  и test commands и получили стабильные finding IDs.
+- Полный baseline повторён pinned pnpm toolchain: check, lint, 38 unit/integration,
+  15-page build, lesson audit и 21 Chromium E2E.
+
+### Повторяемый вывод
+
+Успешный build доказывает сборку текущего root deployment contract, но не
+доказывает non-root base portability, безопасность недоверенного URL-state или
+наличие pre-deploy quality gates. Эти свойства требуют отдельных artifact,
+adversarial и pipeline checks.
+
+### Как повторить самостоятельно
+
+1. Выполнить `pnpm check`, `pnpm lint` и `pnpm test`.
+2. Выполнить `pnpm build` и `node scripts/audit-built-lessons.mjs`.
+3. Выполнить `pnpm test:e2e` и подтвердить 21 Chromium test. На Windows при
+   блокировке PowerShell shim использовать эквивалентный `pnpm.cmd`.
+4. Найти root-absolute paths: `rg -n 'href="/|src="/' dist`.
+5. Сверить stage references: `rg -n -e 'STAGED_PROMPTS' -e 'STAGES\.md' AGENTS.md README.md docs prompts specs`.
+6. Проверить findings и reproduction в `docs/notes/stage-0-baseline.md`.
+
 ## 2026-08-14 — Воспроизводимая browser-проверка Electro Tutor
 
 ### Что и зачем изменено

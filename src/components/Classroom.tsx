@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./Classroom.css";
 import type { Language } from "../types";
+import { getLocale } from "../i18n";
 
 type JitsiApi = {
   executeCommand: (command: string, ...args: unknown[]) => void;
@@ -12,29 +13,6 @@ declare global {
     JitsiMeetExternalAPI?: new (domain: string, options: Record<string, unknown>) => JitsiApi;
   }
 }
-
-const copy = {
-  ru: {
-    eyebrow: "ОНЛАЙН-ЗАНЯТИЕ", title: "Кабинет занятия",
-    lead: "Общая доска, видео, голос, чат и демонстрация экрана — в одной комнате.",
-    name: "Ваше имя", namePlaceholder: "Например, Алексей", room: "Код комнаты",
-    start: "Войти в кабинет", invite: "Скопировать приглашение", copied: "Ссылка скопирована",
-    board: "Открыть доску", leave: "Выйти",
-    hint: "Отправьте ученику ссылку-приглашение. Камера и микрофон включаются только после входа.",
-    loading: "Подключаем кабинет…",
-    error: "Не удалось загрузить видеокабинет. Проверьте интернет и блокировщик рекламы.",
-  },
-  uk: {
-    eyebrow: "ОНЛАЙН-ЗАНЯТТЯ", title: "Кабінет заняття",
-    lead: "Спільна дошка, відео, голос, чат і демонстрація екрана — в одній кімнаті.",
-    name: "Ваше ім’я", namePlaceholder: "Наприклад, Олексій", room: "Код кімнати",
-    start: "Увійти до кабінету", invite: "Скопіювати запрошення", copied: "Посилання скопійовано",
-    board: "Відкрити дошку", leave: "Вийти",
-    hint: "Надішліть учневі посилання-запрошення. Камера й мікрофон вмикаються лише після входу.",
-    loading: "Підключаємо кабінет…",
-    error: "Не вдалося завантажити відеокабінет. Перевірте інтернет і блокувальник реклами.",
-  },
-};
 
 function safeRoom(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 48);
@@ -64,7 +42,7 @@ function loadJitsi() {
 }
 
 export default function Classroom({ language }: { language: Language }) {
-  const t = copy[language];
+  const t = getLocale(language).classroom;
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<JitsiApi | null>(null);
   const [room, setRoom] = useState("");

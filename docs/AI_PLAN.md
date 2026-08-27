@@ -1,51 +1,54 @@
 # Текущий AI-план
 
-Инфраструктурный срез: миграция npm → pnpm с clean restore, CI parity и global virtual store compatibility proof. Продуктовые требования и принятые tests не изменяются.
+## TUTOR-06 — Обязательные quality gates перед публикацией
 
-Статус: `DONE`
+- Stage ID: `TUTOR-06`
 
-## ET-04.3 — Service worker update и offline-контракт
+Статус: `PLANNED`
 
-Цель: автоматизированно подтвердить, что новая версия service worker получает
-контроль над уже открытой страницей, ранее открытый маршрут работает offline, а
-неизвестный маршрут показывает предсказуемый offline fallback.
+Цель: закрыть `T0-REL-001` — deploy не должен запускаться и публиковать
+артефакт, пока единый воспроизводимый quality pipeline не подтвердил исходный
+код и именно этот production artifact.
 
-Область файлов:
+### Dependencies и входные предпосылки
 
-- `specs/system.spec.md` — уточнённый `FR-008` и `AC-009`;
-- `tests/e2e/pwa-lifecycle.spec.ts` — Chromium-контракт жизненного цикла;
-- `public/sw.js` и регистрация в `BaseLayout.astro` — только если RED-тест выявит
-  нарушение контракта;
-- `docs/AI_STATUS.md`, `docs/ROADMAP.md`, при изменении границ — архитектура,
-  решения и безопасность.
+- `TUTOR-00..TUTOR-05` завершены и validated locally;
+- Astro является единственной production boundary;
+- root и non-empty-base artifact contracts подтверждены;
+- GitHub Pages workflow использует frozen pnpm install и получает `SITE_URL` и
+  `BASE_PATH` из `actions/configure-pages`.
 
-Критерии приёмки:
+### Runnable vertical slice и scenario
 
-- первая загрузка получает активный controller service worker;
-- byte-изменение по неизменному `/sw.js` приводит к `controllerchange` в текущей вкладке;
-- ранее открытая страница перезагружается без сети;
-- неизвестный offline-маршрут показывает `offline.html`;
-- 404, `Cache-Control: no-store` и зарезервированный `/api/` не попадают в кэш;
-- query-параметры кабинета/интерактива не попадают в navigation cache key;
-- активация удаляет старый `potential-pwa-*`, но сохраняет чужой cache namespace;
-- тест не игнорирует посторонние runtime/network errors;
-- unit/contract, полный Chromium E2E, Astro check, lint, build и HTML audit проходят.
+Одна локальная команда и эквивалентный CI job выполняют frozen install,
+format/diff hygiene, static checks, lint, unit/integration/component tests,
+production build, live E2E smoke и доступные dependency/security checks.
+Deploy job зависит от успешного verify job и публикует проверенный artifact.
 
-Non-goals: deploy, production-домен, кэширование внешних origin, UI-баннер
-обновления и offline-доступ к будущим приватным/auth/payment-данным.
+Concrete end-to-end scenario: намеренно сломанный type, unit test или E2E smoke
+останавливает workflow до upload/deploy; исправленная версия проходит тот же
+pipeline и передаёт единственный проверенный artifact в GitHub Pages deploy.
 
-Откат: удалить новый E2E-контракт и вернуть уточнение `FR-008`; production-код
-меняется только при воспроизводимом нарушении.
+### Scope
 
-Результат: service worker переведён на `potential-pwa-v2`, безопасно мигрирует
-публичный кэш, изолирует чужие namespaces, не кэширует 404/private/no-store/API
-и нормализует navigation cache key без query. Контракт подтверждён Playwright.
+- нормализовать локальную full-verify command и CI parity;
+- установить явный порядок gates без retry, скрывающего flaky tests;
+- сделать deploy зависимым от обязательного verify и checked artifact;
+- сохранить безопасный cache, concurrency cancellation и минимальные permissions;
+- документировать одну команду полной локальной проверки.
 
-## Визуальная проверка
+### Non-goals и deferred scope
 
-В DevTools → Application → Service Workers виден активный `/sw.js`; после
-включения Offline ранее открытая страница продолжает отображаться, а новый URL
-показывает «Нет подключения / Немає з’єднання».
+- фактический deploy, production-домен, DNS или merge в `main`;
+- изменение product behavior, locale/content/URL-state schemas;
+- добавление нового security scanner без оценки необходимости и контракта;
+- обход красного gate через skip, retry или параллельную пересборку artifact.
 
-Следующего неблокированного продуктового этапа нет: `ET-03/05/06/07/08`
-ожидают перечисленных в `AI_STATUS.md` решений пользователя.
+### PASS evidence и rollback
+
+- broken type, unit и live E2E fixtures в контролируемой проверке блокируют deploy DAG;
+- успешный pipeline публикует ровно artifact, созданный обязательным verify job;
+- локальная full-verify command повторяет CI gates в том же существенном порядке;
+- workflow permissions, cache и concurrency проверены;
+- static, unit/integration/component, build, E2E и configured security checks PASS;
+- rollback — единый Stage 6 commit без deploy/production configuration write.

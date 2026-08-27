@@ -1,4 +1,4 @@
-import type { LocalizedText, Topic } from "./types";
+import type { Topic } from "./types";
 
 export const topics: Topic[] = [
   {
@@ -47,19 +47,3 @@ export const topics: Topic[] = [
     accent: "violet",
   },
 ];
-
-export const text = {
-  brandSub: { ru: "Инженерный учебник", uk: "Інженерний підручник" },
-  home: { ru: "Главная", uk: "Головна" },
-  catalog: { ru: "Все темы", uk: "Усі теми" },
-  continue: { ru: "Продолжить обучение", uk: "Продовжити навчання" },
-  start: { ru: "Начать изучение", uk: "Почати вивчення" },
-  soon: { ru: "Скоро", uk: "Незабаром" },
-  minutes: { ru: "мин", uk: "хв" },
-  level: { ru: "Глубина объяснения", uk: "Глибина пояснення" },
-  levels: {
-    1: { ru: "Исследователь", uk: "Дослідник" },
-    2: { ru: "Объяснение", uk: "Пояснення" },
-    3: { ru: "Только решение", uk: "Лише розв’язання" },
-  },
-} satisfies Record<string, LocalizedText | Record<number, LocalizedText>>;

@@ -5,6 +5,7 @@ import MeshLessonIsland from "../../../../components/MeshLessonIsland";
 import { resolveInteractiveComponent } from "../../../../content/interactive-registry";
 import { getPublishedLessonManifest } from "../../../../content/published-lessons";
 import type { Language } from "../../../../types";
+import { getLocale } from "../../../../i18n";
 
 export async function getStaticPaths() {
   const lessons = await getPublishedLessonManifest();
@@ -20,6 +21,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const language = entry.data.language as Language;
+const copy = getLocale(language);
 const { Content } = await render(entry);
 const alternatePath = `/topics/${entry.data.section}/${entry.data.slug}/`;
 const registeredInteractive = resolveInteractiveComponent(entry.data.interactive);
@@ -28,7 +30,7 @@ const hasMeshInteractive = registeredInteractive === MeshLessonIsland;
 ---
 
 <BaseLayout
-  title={`${entry.data.title} — Потенциал`}
+  title={`${entry.data.title} — ${copy.lesson.brandSeparator}`}
   description={entry.data.description}
   language={language}
   active="topics"

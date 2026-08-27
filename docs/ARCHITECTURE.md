@@ -47,7 +47,7 @@ src/
 ├─ layouts/BaseLayout.astro  head, навигация, тема, язык, PWA
 ├─ content/lessons/          парные RU/UK MDX-уроки
 ├─ components/               React islands и локальные CSS
-├─ legacy-pages/             унаследованные React-страницы
+├─ legacy-pages/MeshLesson.tsx  переходная реализация island урока
 ├─ content.config.ts         схема frontmatter
 ├─ curriculum.ts             разделы и карточки каталога
 ├─ data.ts                   первые карточки и общие переводы
@@ -165,12 +165,14 @@ namespaces не читаются и не удаляются; navigation cache ke
 
 Production-домен и основной публичный канал пока не зафиксированы окончательно.
 
-## Legacy-слой
+## Переходный lesson seam
 
-`src/App.tsx`, `src/main.tsx` и часть `src/legacy-pages/` происходят из
-React/Vite-прототипа. Production-маршрут урока всё ещё использует
-`legacy-pages/MeshLesson.tsx` через island. Новые страницы не должны расширять
-старый SPA-роутинг; целевая граница — Astro/MDX плюс малые универсальные islands.
+От React/Vite-прототипа сохранён только используемый production-путь
+`MeshLessonIsland.tsx → legacy-pages/MeshLesson.tsx`. Он подключается из
+статического Astro registry и не является отдельным SPA или маршрутизатором.
+Корневые `index.html`, `src/main.tsx`, `src/App.tsx`, неиспользуемые страницы и
+отдельный `vite.config.*` удалены в `TUTOR-02`. Новые страницы не должны
+расширять этот seam; целевая граница — Astro/MDX плюс малые React islands.
 
 ## Где вносить изменения
 

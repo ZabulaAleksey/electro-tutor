@@ -26,7 +26,7 @@ Read-only `reconcile_project_framework.py` классифицировал reposi
 | Возможность | Найденное состояние | Статус | Resolution owner / target |
 |---|---|---|---|
 | Stage source | `prompts/STAGES.md`; active router/docs/SPEC синхронизированы Stage `TUTOR-01` | `CONFLICT` → `EXTEND` | один канон; legacy path остаётся только historical evidence в Stage 0 audit |
-| Production boundary | Astro production и отдельный Vite SPA entrypoint | `CONFLICT` | `T0-APP-001`, Stage `TUTOR-02` |
+| Production boundary | единственный Astro production path; Vite используется только toolchain | `CONFLICT` → `EXTEND` | `T0-APP-001` закрыт Stage `TUTOR-02`, ADR-012 |
 | Global framework | локальных generic agents/hooks/MCP/config нет | `INHERITED` | сохранить без новых слоёв |
 | Baseline evidence | полный реестр и команды находятся в `notes/stage-0-baseline.md` | `PROJECT_ONLY` | canonical audit record Stage 0 |
 

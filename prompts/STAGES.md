@@ -54,7 +54,7 @@ validation. Product behavior/runtime code не изменялись.
 
 ## TUTOR-02 — Production boundary и судьба Vite SPA
 
-Статус: `planned`
+Статус: `completed` (`validated locally`, 2026-08-27)
 
 Dependency DAG: `TUTOR-01` completed. Entry preconditions: findings
 `T0-APP-001`, production Astro build и transitional
@@ -86,6 +86,44 @@ PASS: ADR фиксирует решение и альтернативы; оди�
 path; clean restore, check, lint, unit/integration, build, lesson audit и E2E
 проходят; orphan references отсутствуют. Rollback: вернуть единый Stage 2 commit
 без изменения пользовательского контента.
+
+Acceptance evidence: ADR-012, `docs/ARCHITECTURE.md`, удалённый orphan SPA shell
+и отдельные configs; frozen install, Astro check, ESLint, 38 tests, 15-page
+build, lesson audit и 21 Chromium E2E прошли. Production seam
+`MeshLessonIsland → legacy-pages/MeshLesson` сохранён.
+
+## TUTOR-03 — Версионированный URL/state круговой диаграммы
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-02` completed. Entry preconditions: finding
+`T0-URL-001`, текущая математическая модель и browser query-state tests доступны.
+
+Runnable vertical slice: одна типизированная версия URL/state schema управляет
+чтением, валидацией, нормализацией и канонической сериализацией состояния
+круговой диаграммы. UI, URL, history, saved/imported state используют одинаковые
+domain limits; недоверенный URL не обходит инварианты.
+
+Concrete end-to-end scenario: пользователь открывает допустимую share-ссылку,
+видит соответствующее состояние, меняет параметры, проходит back/forward и
+reload без расхождения UI/URL. Невалидная или неизвестная версия безопасно
+переходит к defaults/понятному сообщению и каноническому URL.
+
+Scope: поля, типы, ranges, enums, defaults, version, unknown-version policy,
+duplicate/unknown keys, canonical ordering/encoding и maximum size; pure
+`parse → validate → normalize → canonicalize`; `replaceState` для частых и
+`pushState` для смысловых переходов; unit/property/boundary, component и E2E.
+
+Non-goals: новый backend, аккаунты/saved presets, исправление RU/UK/base-path/CI,
+редизайн диаграммы. Допустимая temporary implementation: только полностью
+рабочий локальный adapter над существующим UI; нельзя доверять значениям
+`URLSearchParams` напрямую. Deferred scope: остальные Stage 0 findings.
+
+PASS: NaN/Infinity, огромные/отрицательные числа, duplicate/unknown keys,
+encoded payload и unknown version не нарушают limits; канонизация стабильна и
+идемпотентна; старые допустимые ссылки продолжают работать либо детерминированно
+мигрируют; back/forward/reload и share-link проходят живой E2E. Rollback: один
+Stage 3 commit без изменения content contract.
 
 ## Одна команда
 

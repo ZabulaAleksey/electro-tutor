@@ -27,6 +27,8 @@ pnpm build
 ```
 
 Результат production-сборки находится в `dist/` и вручную не редактируется.
+Astro — единственный application build path; Vite используется внутри Astro и
+Vitest как инструмент и не является отдельным SPA entrypoint.
 Известные проблемы команд зафиксированы в `docs/AI_STATUS.md`.
 
 ## Контекст проекта

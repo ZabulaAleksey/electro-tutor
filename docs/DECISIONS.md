@@ -220,3 +220,29 @@ session не мог выполнить documented continuation contract из cle
 Последствия: все active operational ссылки указывают на `prompts/STAGES.md`;
 historical audit может упоминать прежний путь только как evidence миграции.
 Hooks, MCP, agents и product runtime не добавляются.
+
+## ADR-012 — Astro как единственная production frontend boundary
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: production-приложение собирается только командой `astro build` и
+публикует `dist/`. Неиспользуемый React/Vite SPA shell, его страницы и отдельные
+Vite/TypeScript configs удалены после import/script/history audit. Используемый
+путь `MeshLessonIsland → legacy-pages/MeshLesson` сохранён как переходный React
+island. `vitest.config.ts`, `vite` и `@vitejs/plugin-react` остаются частью
+тестового и Astro toolchain, но не определяют второй application entrypoint.
+
+Причина: root `index.html → src/main.tsx → src/App.tsx` не вызывался ни одним
+package script, Astro route или deployment workflow. Его наличие создавало
+ложную production boundary и поддерживало мёртвые страницы и generated configs.
+
+Рассмотренные альтернативы: оставить shell как archive отклонено, потому что у
+него нет самостоятельной роли, build/test contract или пользователя; перенести
+его в отдельный experimental contour отклонено по той же причине; переписать
+`MeshLesson` отложено как отдельная миграция без пользы для текущего stage.
+
+Последствия: один production frontend и один deployment artifact становятся
+однозначными. Изменение откатывается возвратом единого commit `TUTOR-02`.
+Инструментальное упоминание Vite в выводе Astro/Vitest не означает возврат SPA.

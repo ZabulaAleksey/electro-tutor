@@ -1,49 +1,54 @@
 # Текущий AI-план
 
-## TUTOR-02 — Production boundary и судьба Vite SPA
+## TUTOR-03 — Версионированный URL/state круговой диаграммы
 
-- Stage ID: `TUTOR-02`
+- Stage ID: `TUTOR-03`
 
 Статус: `PLANNED`
 
-Цель: устранить `T0-APP-001` и оставить один очевидный production frontend
-boundary без преждевременного переписывания Astro или добавления Next.js.
+Цель: закрыть `T0-URL-001` — недоверенный URL не должен обходить инварианты
+математической модели, а share/reload/history должны воспроизводить одно и то же
+каноническое состояние.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-00` и `TUTOR-01` завершены и validated locally;
-- baseline: `notes/stage-0-baseline.md`;
-- Astro production build и используемый seam
-  `MeshLessonIsland → legacy-pages/MeshLesson` подтверждены.
+- `TUTOR-00..TUTOR-02` завершены и validated locally;
+- текущая математическая модель, `CircularDiagram.tsx` и browser query tests
+  доступны как baseline;
+- production boundary — Astro, ADR-012.
 
 ### Runnable vertical slice и scenario
 
-Один production command строит Astro RU/UK artifact. Мёртвый Vite SPA удалён
-после import/script/history audit либо изолирован как самостоятельный
-experimental contour с отдельной ответственностью и build/test contract.
+Одна версия типизированной схемы выполняет pure pipeline
+`parse → validate → normalize → canonicalize`. UI, URL и browser history
+используют одинаковые domain limits.
 
-Concrete end-to-end scenario: clean frozen restore → check/lint/unit → Astro
-production build → lesson audit → Chromium E2E; отсутствуют orphan
-scripts/imports и второй неописанный production entrypoint.
+Concrete end-to-end scenario: допустимая share-ссылка восстанавливает состояние;
+изменение параметров создаёт канонический URL; back/forward и reload сохраняют
+согласованность. Невалидные данные и неизвестная версия безопасно переходят к
+defaults/сообщению и не попадают напрямую в модель.
 
 ### Scope
 
-- ADR о production boundary и рассмотренных альтернативах;
-- `index.html`, `src/main.tsx`, `src/App.tsx`, `src/legacy-pages/**`;
-- Vite/TypeScript configs и package scripts только по доказанным зависимостям;
-- README, architecture/status/roadmap/stage protocol и затронутые tests.
+- schema version, fields, types, ranges, enums, defaults и maximum size;
+- unknown version/params, duplicate keys, encoding и canonical ordering;
+- единые limits для UI, URL, history и будущего import/saved adapter;
+- `replaceState` для частых обновлений, `pushState` для смысловых переходов;
+- unit/property/boundary, component и живые Chromium E2E.
 
 ### Non-goals и deferred scope
 
-- не внедрять Next.js и не переписывать Astro;
-- не изменять пользовательский lesson content;
-- не исправлять URL-state, RU/UK, base path, CI/deploy или следующие findings;
-- допустим только полностью рабочий Astro baseline либо явно изолированный и
-  самостоятельно проверяемый temporary legacy contour.
+- backend, аккаунты и сохранённые presets;
+- RU/UK route parity, base path, canonical/deploy gates и следующие findings;
+- визуальный редизайн диаграммы;
+- временный adapter допустим только если остаётся полностью рабочим и не
+  передаёт сырые `URLSearchParams` в domain model.
 
 ### PASS evidence и rollback
 
-- один production command и deployment build path;
-- ADR и repository map согласованы с фактическими imports/scripts;
-- clean restore, check, lint, unit/integration, build, lesson audit и E2E PASS;
-- rollback — единый Stage 2 commit без потери пользовательского контента.
+- NaN/Infinity, отрицательные/огромные значения, duplicate/unknown keys,
+  encoded payload и unknown version безопасны;
+- parse/canonicalize детерминированы, canonicalization стабильна и идемпотентна;
+- старые допустимые ссылки работают или мигрируют детерминированно;
+- static checks, unit/integration/component, build, lesson audit и live E2E PASS;
+- rollback — единый Stage 3 commit без изменения lesson content.

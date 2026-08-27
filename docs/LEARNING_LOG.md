@@ -1,5 +1,26 @@
 # Учебный журнал
 
+## 2026-08-27 — Как отличить toolchain от второго приложения
+
+### Что изменено
+
+- Import/script/deployment graph подтвердил Astro как единственный production path.
+- Удалены orphan entrypoint, страницы и отдельные Vite/TypeScript configs; рабочий
+  `MeshLesson` island и Vitest Vite integration сохранены.
+
+### Повторяемый вывод
+
+Наличие Vite dependency или строки `[vite]` в Astro build не доказывает наличие
+Vite-приложения. Application boundary определяется достижимым entrypoint,
+package scripts, deployment artifact и живым E2E-путём.
+
+### Как повторить самостоятельно
+
+1. Проследить package script до build tool и публикуемого каталога.
+2. Найти входной HTML/JS и проверить обратные imports из production routes.
+3. Отделить runtime entrypoint от test/build plugins.
+4. После удаления выполнить frozen install, static checks, unit, build и E2E.
+
 ## 2026-08-27 — Переносимый context route без второго prompt source
 
 ### Что изменено

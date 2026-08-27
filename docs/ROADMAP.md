@@ -34,7 +34,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-02 — Production boundary и Vite SPA
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-27)
 
 - оформить evidence-based ADR для Astro production и legacy Vite contour;
 - удалить доказанно мёртвый SPA либо изолировать его с отдельной ролью;
@@ -42,6 +42,17 @@ Roadmap задаёт порядок развития, но не заменяет
 - привести scripts/docs/config к одному production build path.
 
 Зависимость: `TUTOR-01`.
+
+### TUTOR-03 — Версионированный URL/state круговой диаграммы
+
+Статус: `PLANNED`
+
+- определить типизированную версионированную схему URL-state и единые domain limits;
+- реализовать pure parse/validate/normalize/canonicalize pipeline;
+- синхронизировать UI, URL и browser history без обхода инвариантов;
+- покрыть boundary/property, component и живые browser-сценарии.
+
+Зависимость: `TUTOR-02`.
 
 ## ET-00 — Канонический контекст
 

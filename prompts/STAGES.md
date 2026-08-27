@@ -24,7 +24,7 @@ Rollback: удалить только audit/status documentation commit; product
 
 ## TUTOR-01 — Канонический локальный контекст
 
-Статус: `planned`
+Статус: `completed` (`validated locally`, 2026-08-27)
 
 Dependency DAG: `TUTOR-00` completed. Entry preconditions: baseline findings
 `T0-CTX-001` и brownfield reconciliation доступны локально.
@@ -44,8 +44,48 @@ temporary implementation: отсутствует — local route должна б
 рабочей. Deferred scope: production boundary и остальные findings.
 
 PASS: active links не указывают на отсутствующий stage file; selector и relative
-links однозначны; overlay/context checks и `git diff --check` проходят. Rollback:
-один documentation-only commit.
+links однозначны; `pnpm check:context`, SessionStart hook, overlay/context checks
+и `git diff --check` проходят. Rollback: один context-only commit.
+
+Acceptance evidence: `AGENTS.md`, `README.md`,
+`specs/features/context-automation.spec.md`, `docs/project-context.md`, ADR-011
+`scripts/validate-context-route.mjs`, SessionStart output и project overlay
+validation. Product behavior/runtime code не изменялись.
+
+## TUTOR-02 — Production boundary и судьба Vite SPA
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-01` completed. Entry preconditions: findings
+`T0-APP-001`, production Astro build и transitional
+`MeshLessonIsland → legacy-pages/MeshLesson` подтверждены локально.
+
+Runnable vertical slice: один очевидный production frontend command и один
+deployment build path. Неиспользуемый Vite SPA либо безопасно удалён после
+import/script/history audit, либо изолирован как самостоятельный
+archive/experimental contour с доказанной ответственностью и отдельным
+build/test contract.
+
+Concrete end-to-end scenario: clean frozen install запускает канонический build,
+генерирует Astro RU/UK artifact и проходит существующие unit/integration,
+component/static и Chromium E2E; repository не содержит orphan scripts/imports
+или второго неописанного production entrypoint.
+
+Scope: evidence-based ADR, `index.html`, `src/main.tsx`, `src/App.tsx`,
+`src/legacy-pages/**`, Vite/TypeScript configs, package scripts, README,
+architecture/decisions/status и затронутые tests. Сначала отделить используемый
+`MeshLesson` seam от мёртвого SPA shell.
+
+Non-goals: Next.js, переписывание Astro, новый framework, исправления
+URL-state/RU-UK/base-path/CI следующих stages. Допустимая temporary
+implementation: явно изолированный и самостоятельно проверяемый legacy contour;
+не допускается скрытый второй production path. Deferred scope: findings
+`T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`, `T0-REL-001`, `T0-SEO-001`.
+
+PASS: ADR фиксирует решение и альтернативы; один production command и deployment
+path; clean restore, check, lint, unit/integration, build, lesson audit и E2E
+проходят; orphan references отсутствуют. Rollback: вернуть единый Stage 2 commit
+без изменения пользовательского контента.
 
 ## Одна команда
 
@@ -56,7 +96,8 @@ links однозначны; overlay/context checks и `git diff --check` про�
 ```
 
 Команда выполняет ровно один следующий допустимый подэтап. Для явного выбора
-можно написать `Начинай этап ET-XX.YY`; зависимости и блокеры всё равно
+можно написать `Начинай этап TUTOR-XX` или `Начинай этап ET-XX.YY`;
+зависимости и блокеры всё равно
 проверяются.
 
 ## P-01 — Возобновление и выбор

@@ -24,7 +24,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-01 — Канонический локальный контекст
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-27)
 
 - устранить зависимость продолжения от отсутствующего `STAGED_PROMPTS.md`;
 - согласовать локальные status/plan/roadmap/SPEC/decisions/compatibility links;
@@ -32,8 +32,16 @@ Roadmap задаёт порядок развития, но не заменяет
 
 Зависимость: `TUTOR-00`.
 
-Следующий после него stage: `TUTOR-02` — решение по production boundary и Vite
-SPA. Детальный contract добавляется в `prompts/STAGES.md` до запуска stage.
+### TUTOR-02 — Production boundary и Vite SPA
+
+Статус: `PLANNED`
+
+- оформить evidence-based ADR для Astro production и legacy Vite contour;
+- удалить доказанно мёртвый SPA либо изолировать его с отдельной ролью;
+- сохранить используемый `MeshLesson` seam до отдельной миграции;
+- привести scripts/docs/config к одному production build path.
+
+Зависимость: `TUTOR-01`.
 
 ## ET-00 — Канонический контекст
 

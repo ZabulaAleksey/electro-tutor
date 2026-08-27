@@ -98,7 +98,7 @@ production-модель доступа должна быть решена на �
 Статус: принято
 
 Решение: требования хранятся в `specs/`, инженерный контекст — в `docs/`, один
-операционный протокол — в `prompts/STAGED_PROMPTS.md`. Корневые дубли
+операционный протокол — в `prompts/STAGES.md`. Корневые дубли
 `PROJECT_CONTEXT.md`, `ARCHITECTURE.md` и тематические планы удаляются после
 переноса уникальной информации.
 
@@ -108,6 +108,9 @@ production-модель доступа должна быть решена на �
 Последствия: `README.md` остаётся человеческой точкой входа, `AGENTS.md` —
 тонким маршрутизатором, а команда `Продолжай Electro Tutor` выполняет один
 следующий подэтап.
+
+Путь протокола уточнён ADR-011 после governance migration; роль источника и
+one-stage semantics ADR-006 не изменились.
 
 ## ADR-007 — Каноническая версия Node из `package.json`
 
@@ -194,3 +197,26 @@ cache key, а чужие namespaces сохраняются.
 
 Последствия: изменение стратегии требует следующего cache key; новые приватные
 route prefixes должны оставаться вне PWA-кэша и сопровождаться негативным тестом.
+
+## ADR-011 — Локальный stage source и переносимое продолжение
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: единственный операционный stage source — `prompts/STAGES.md`. Команда
+`Продолжай Electro Tutor` использует repository-local status/plan/SPEC и
+dependency-aware selector; внешний или machine-local prompt не является
+обязательной зависимостью. Между компьютерами перед continuation проверяются
+Git state, выбранная ветка, frozen dependency restore и project overlay.
+
+Причина: governance migration перенесла stage protocol, но active ссылки на
+прежний путь остались в router, README, SPEC и compatibility matrix. Новый
+session не мог выполнить documented continuation contract из clean clone.
+
+Рассмотренная альтернатива: восстановить legacy-файл как alias отклонена, потому
+что создала бы второй stage source и позволила их содержимому разойтись.
+
+Последствия: все active operational ссылки указывают на `prompts/STAGES.md`;
+historical audit может упоминать прежний путь только как evidence миграции.
+Hooks, MCP, agents и product runtime не добавляются.

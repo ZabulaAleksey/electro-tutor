@@ -11,8 +11,9 @@
 - Release blockers: невалидированный URL-state CircularDiagram, root-absolute
   project-site paths, placeholder canonical и deploy без обязательных quality
   gates.
-- Governance blocker: active ссылки на отсутствующий `prompts/STAGED_PROMPTS.md`.
-- Следующий разрешённый этап: `TUTOR-01` — канонический локальный контекст.
+- Governance finding `T0-CTX-001` закрыт в `TUTOR-01`: active operational
+  ссылки указывают на `prompts/STAGES.md`, переносимый workflow находится в README.
+- Следующий разрешённый этап: `TUTOR-02` — production boundary и Vite SPA.
 
 ## Governance migration — 2026-08-24
 
@@ -33,11 +34,11 @@
 ## Текущий этап
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
-`TUTOR-00` завершены.
+`TUTOR-00`, `TUTOR-01` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
-но approved stabilization track продолжает работу с `TUTOR-01`.
+но approved stabilization track продолжает работу с `TUTOR-02`.
 
 ## Что реализовано
 
@@ -80,6 +81,9 @@
    через разрешённый Playwright fallback только в Chromium.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
+`T0-CTX-001` закрыт; остальные findings Stage 0 остаются открытыми согласно
+`notes/stage-0-baseline.md`.
+
 ## Входные решения для продолжения
 
 - следующая учебная тема и подтверждённые исходные материалы (`ET-03`);
@@ -101,9 +105,12 @@
 
 ## Последние проверки
 
+- 2026-08-27: `pnpm.cmd check:context` и фактический SessionStart hook — PASS;
+  `TUTOR-02` выбран из единственного record в `prompts/STAGES.md`;
+- 2026-08-27: global context validator и project overlay validator — PASS;
 - 2026-08-27: `pnpm.cmd test:e2e` — 21 Chromium-тест без skip/disable;
 - 2026-08-27: `pnpm.cmd test` — 4 файла, 38 тестов без skip/disable;
-- 2026-08-27: `pnpm.cmd check` — 52 файла, 0 errors/warnings/hints;
+- 2026-08-27: `pnpm.cmd check` — 53 файла, 0 errors/warnings/hints;
 - 2026-08-27: `pnpm.cmd lint` — успешно;
 - 2026-08-27: `pnpm.cmd build` — 15 статических страниц и sitemap;
 - 2026-08-27: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,

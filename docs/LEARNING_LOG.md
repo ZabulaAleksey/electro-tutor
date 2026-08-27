@@ -1,5 +1,35 @@
 # Учебный журнал
 
+## 2026-08-27 — Переносимый context route без второго prompt source
+
+### Что изменено
+
+- Router, README, context SPEC, decisions и compatibility matrix сведены к
+  одному `prompts/STAGES.md`.
+- Source-of-truth matrix отделяет requirements, implementation evidence,
+  architecture, current plan/status, operational stages и Notion ideas.
+- ПК ↔ ноутбук workflow начинается с Git-state и frozen restore, а не с
+  destructive cleanup или предположения, что dirty work уже перенесён.
+
+### Повторяемый вывод
+
+Alias для переименованного stage-файла создаёт второй источник и скрывает stale
+links. Безопаснее синхронно обновить active consumers, сохранить migration как
+historical evidence и доказать clean-session selector через существующий
+repository file.
+
+### Как повторить самостоятельно
+
+1. Проверить `Test-Path prompts/STAGES.md` в PowerShell или `test -f prompts/STAGES.md`.
+2. Выполнить `pnpm check:context`: script проверит active references, ровно один
+   `Stage ID` в `AI_PLAN.md` и уникальный heading в `prompts/STAGES.md`.
+3. Запустить `python ~/.codex/tools/validate_project_overlay.py .` в POSIX-shell
+   либо `py -3 -B "$HOME/.codex/tools/validate_project_overlay.py" .` в Windows
+   PowerShell.
+4. Прочитать `docs/AI_STATUS.md` → `docs/AI_PLAN.md` → выбранный heading в
+   `prompts/STAGES.md`; следующим должен быть `TUTOR-02`, blocked ET-stages не
+   должны выбираться.
+
 ## 2026-08-27 — Evidence-first baseline перед стабилизацией Tutor
 
 ### Что проверено

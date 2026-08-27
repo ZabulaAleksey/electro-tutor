@@ -14,7 +14,7 @@
 | Hooks | workspace/global | специальный hook не нужен | `INHERITED` | новых hooks нет |
 | MCP/apps | доступны из активной конфигурации | только по фактической интеграции | `INHERITED` | локальные MCP не добавлять |
 | Codex config | глобальная конфигурация | проектных параметров нет | `INHERITED` | второй config не создавать |
-| Маршрут одной команды | отсутствовал | выбрать и выполнить один подэтап | `PROJECT_ONLY` | `prompts/STAGED_PROMPTS.md` + router в `AGENTS.md` |
+| Маршрут одной команды | `prompts/STAGES.md` и router в `AGENTS.md` | выбрать и выполнить один dependency-valid stage | `PROJECT_ONLY` | один локальный stage source без alias/remote dependency |
 
 ## TUTOR-00 — brownfield reconciliation
 
@@ -25,7 +25,7 @@ Read-only `reconcile_project_framework.py` классифицировал reposi
 
 | Возможность | Найденное состояние | Статус | Resolution owner / target |
 |---|---|---|---|
-| Stage source | существует `prompts/STAGES.md`, но active docs/SPEC ссылаются на удалённый `STAGED_PROMPTS.md` | `CONFLICT` | `T0-CTX-001`, Stage `TUTOR-01` |
+| Stage source | `prompts/STAGES.md`; active router/docs/SPEC синхронизированы Stage `TUTOR-01` | `CONFLICT` → `EXTEND` | один канон; legacy path остаётся только historical evidence в Stage 0 audit |
 | Production boundary | Astro production и отдельный Vite SPA entrypoint | `CONFLICT` | `T0-APP-001`, Stage `TUTOR-02` |
 | Global framework | локальных generic agents/hooks/MCP/config нет | `INHERITED` | сохранить без новых слоёв |
 | Baseline evidence | полный реестр и команды находятся в `notes/stage-0-baseline.md` | `PROJECT_ONLY` | canonical audit record Stage 0 |

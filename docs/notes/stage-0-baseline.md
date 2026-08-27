@@ -53,7 +53,7 @@ contacts.
 
 | Команда / проверка | Результат | Scope и caveat |
 |---|---|---|
-| `python ~/.codex/tools/reconcile_project_framework.py --json .` | PASS | read-only; `BROWNFIELD`; canonical docs требуют `MERGE`, product files защищены от framework overwrite |
+| `py -3 -B "$HOME/.codex/tools/reconcile_project_framework.py" --json .` | PASS | Windows PowerShell, read-only; POSIX equivalent uses `python ~/.codex/tools/...`; `BROWNFIELD`, product files protected |
 | `pnpm.cmd check` | PASS | 52 Astro/TypeScript files, 0 errors/warnings/hints |
 | `pnpm.cmd lint` | PASS | весь tracked project surface |
 | `pnpm.cmd test` | PASS | 4 files, 38 unit/integration contract tests |

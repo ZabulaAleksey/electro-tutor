@@ -10,6 +10,7 @@
         "preview": "astro preview",
         "lint": "eslint .",
         "check": "astro check",
+        "check:context": "node scripts/validate-context-route.mjs",
         "test": "vitest run",
         "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
         "test:e2e:install": "playwright install chromium"

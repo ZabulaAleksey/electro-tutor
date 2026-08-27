@@ -1,49 +1,49 @@
 # Текущий AI-план
 
-## TUTOR-01 — Канонический локальный контекст
+## TUTOR-02 — Production boundary и судьба Vite SPA
+
+- Stage ID: `TUTOR-02`
 
 Статус: `PLANNED`
 
-Цель: устранить подтверждённый `T0-CTX-001`, чтобы новый Codex-сеанс находил
-текущее состояние, следующий этап и команды проверки только из repository и
-глобального ДЕВ.
+Цель: устранить `T0-APP-001` и оставить один очевидный production frontend
+boundary без преждевременного переписывания Astro или добавления Next.js.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-00` завершён и подтверждён локально;
+- `TUTOR-00` и `TUTOR-01` завершены и validated locally;
 - baseline: `notes/stage-0-baseline.md`;
-- product findings `T0-APP-001..T0-DEP-001` не исправляются в этом этапе.
+- Astro production build и используемый seam
+  `MeshLessonIsland → legacy-pages/MeshLesson` подтверждены.
 
-### Runnable vertical slice
+### Runnable vertical slice и scenario
 
-Команда продолжения из `AGENTS.md` разрешается в существующий
-`prompts/STAGES.md`, выбирает один допустимый stage и использует актуальные
-`AI_STATUS`, `AI_PLAN`, `ROADMAP`, SPEC и compatibility matrix без внешнего
-`STAGED_PROMPTS.md`.
+Один production command строит Astro RU/UK artifact. Мёртвый Vite SPA удалён
+после import/script/history audit либо изолирован как самостоятельный
+experimental contour с отдельной ответственностью и build/test contract.
 
-Concrete end-to-end scenario: на чистом clone/session пользователь пишет
-`Продолжай Electro Tutor`; агент по локальным относительным ссылкам определяет
-`TUTOR-02` как следующий stage, не выбирает `BLOCKED` ET-этап и получает
-канонические команды проверки.
+Concrete end-to-end scenario: clean frozen restore → check/lint/unit → Astro
+production build → lesson audit → Chromium E2E; отсутствуют orphan
+scripts/imports и второй неописанный production entrypoint.
 
 ### Scope
 
-- semantic/link reconciliation `STAGED_PROMPTS.md` → `STAGES.md`;
-- source-of-truth matrix и cross-device continuation contract;
-- синхронизация `AGENTS.md`, README, context SPEC, decisions, compatibility,
-  status/plan/roadmap и stage protocol;
-- deterministic context/overlay validation.
+- ADR о production boundary и рассмотренных альтернативах;
+- `index.html`, `src/main.tsx`, `src/App.tsx`, `src/legacy-pages/**`;
+- Vite/TypeScript configs и package scripts только по доказанным зависимостям;
+- README, architecture/status/roadmap/stage protocol и затронутые tests.
 
 ### Non-goals и deferred scope
 
-- не исправлять Vite boundary, URL-state, RU/UK, base path, CI или deploy;
-- не добавлять hooks, MCP, agents, framework или runtime services;
-- допускается только полностью рабочая локальная документационная route; внешняя
-  страница не может быть temporary dependency.
+- не внедрять Next.js и не переписывать Astro;
+- не изменять пользовательский lesson content;
+- не исправлять URL-state, RU/UK, base path, CI/deploy или следующие findings;
+- допустим только полностью рабочий Astro baseline либо явно изолированный и
+  самостоятельно проверяемый temporary legacy contour.
 
 ### PASS evidence и rollback
 
-- отсутствуют active references на несуществующий `STAGED_PROMPTS.md`;
-- repository links и stage selector однозначны;
-- project overlay validator, context-specific tests и `git diff --check` проходят;
-- rollback — один documentation-only commit без product/runtime mutations.
+- один production command и deployment build path;
+- ADR и repository map согласованы с фактическими imports/scripts;
+- clean restore, check, lint, unit/integration, build, lesson audit и E2E PASS;
+- rollback — единый Stage 2 commit без потери пользовательского контента.

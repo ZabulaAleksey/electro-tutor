@@ -49,6 +49,7 @@ src/
 ├─ components/               React islands и локальные CSS
 ├─ legacy-pages/MeshLesson.tsx  переходная реализация island урока
 ├─ content.config.ts         схема frontmatter
+├─ site-path.ts              base-aware route/asset helpers
 ├─ curriculum.ts             разделы и карточки каталога
 ├─ data.ts                   первые карточки и общие переводы
 ├─ types.ts                  общие TypeScript-типы
@@ -80,6 +81,11 @@ prompts/                     протокол поэтапного продол�
 
 `getStaticPaths()` создаёт локали во время сборки. Код локали украинского языка
 — `uk`; надпись в переключателе — `UA`.
+
+`astro.config.mjs` нормализует независимые параметры `SITE_URL` (origin для
+canonical/sitemap) и `BASE_PATH` (deployment prefix). Runtime-код формирует
+внутренние URL только через `site-path.ts` и `import.meta.env.BASE_URL`, поэтому
+один artifact contract работает в `/` и, например, `/electro-tutor/`.
 
 `src/i18n/` — единый locale catalog общей оболочки, page metadata, действий,
 ошибок и accessible names. Runtime helpers нормализуют поддерживаемые коды и
@@ -168,12 +174,18 @@ inline event handler для этого не используется. Крити
 namespaces не читаются и не удаляются; navigation cache key хранится без query.
 При следующем изменении стратегии cache key снова должен измениться.
 
+Manifest использует scope-relative URL, а worker выводит offline/static paths
+из `self.registration.scope`. Регистрация получает base-aware script URL и
+scope из `BaseLayout`, поэтому PWA не выходит за project-site prefix.
+
 ## SEO и публикация
 
-`astro.config.mjs` строит canonical и sitemap от `SITE_URL`; резервное значение
-`https://electrotutor.example` допустимо только локально. `wrangler.jsonc`
-описывает Cloudflare Static Assets. `.github/workflows/deploy.yml` отдельно
-собирает и публикует `dist` в GitHub Pages после push в `main`.
+`astro.config.mjs` строит canonical и sitemap от `SITE_URL`, а маршруты и assets
+— от `BASE_PATH`; резервный origin `https://electrotutor.example` допустим
+только локально. Build завершается аудитом внутренних HTML/CSS/manifest targets,
+PWA scope и запретом localhost/machine-local URL. `wrangler.jsonc` описывает
+Cloudflare Static Assets. GitHub Pages workflow получает origin/base path из
+`actions/configure-pages`, собирает и публикует `dist` после push в `main`.
 
 Production-домен и основной публичный канал пока не зафиксированы окончательно.
 

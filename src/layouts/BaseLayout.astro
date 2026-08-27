@@ -4,6 +4,7 @@ import "../styles.css";
 import "../pwa.css";
 import type { Language } from "../types";
 import { getLocale, getOtherLanguage } from "../i18n";
+import { localePath, SITE_BASE_PATH, withBasePath } from "../site-path";
 import { ClientRouter } from "astro:transitions";
 
 interface Props {
@@ -14,21 +15,25 @@ interface Props {
 const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
 const copy = getLocale(language);
 const otherLanguage = getOtherLanguage(language);
-const canonical = new URL(Astro.url.pathname, Astro.site);
-const alternate = new URL(`/${otherLanguage}${alternatePath}`, Astro.site);
-const defaultAlternate = new URL(`/ru${alternatePath}`, Astro.site);
+const canonical = new URL(localePath(language, alternatePath), Astro.site);
+const alternate = new URL(localePath(otherLanguage, alternatePath), Astro.site);
+const defaultAlternate = new URL(localePath("ru", alternatePath), Astro.site);
+const manifestPath = withBasePath("/manifest.webmanifest");
+const iconPath = withBasePath("/icons/potential.svg");
+const webFontScriptPath = withBasePath("/scripts/web-font.js");
+const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const nav = [
-  { id: "home", href: `/${language}/`, label: copy.nav.home },
-  { id: "topics", href: `/${language}/topics/`, label: copy.nav.topics },
-  { id: "interactive", href: `/${language}/interactive/`, label: copy.nav.interactive },
-  { id: "classroom", href: `/${language}/classroom/`, label: copy.nav.classroom },
-  { id: "services", href: `/${language}/services/`, label: copy.nav.services },
-  { id: "contacts", href: `/${language}/contacts/`, label: copy.nav.contacts },
+  { id: "home", href: localePath(language), label: copy.nav.home },
+  { id: "topics", href: localePath(language, "/topics/"), label: copy.nav.topics },
+  { id: "interactive", href: localePath(language, "/interactive/"), label: copy.nav.interactive },
+  { id: "classroom", href: localePath(language, "/classroom/"), label: copy.nav.classroom },
+  { id: "services", href: localePath(language, "/services/"), label: copy.nav.services },
+  { id: "contacts", href: localePath(language, "/contacts/"), label: copy.nav.contacts },
 ];
 ---
 <!doctype html>
-<html lang={language}>
+<html lang={language} data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -38,8 +43,8 @@ const nav = [
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content={copy.brand.name} />
   {keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/icons/potential.svg" type="image/svg+xml" />
+  <link rel="manifest" href={manifestPath} />
+  <link rel="icon" href={iconPath} type="image/svg+xml" />
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={otherLanguage} href={alternate} />
   <link rel="alternate" hreflang={language} href={canonical} />
@@ -48,7 +53,7 @@ const nav = [
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href={webFontStylesheet} />
   <link rel="stylesheet" href={webFontStylesheet} media="print" data-web-font-stylesheet />
-  <script is:inline src="/scripts/web-font.js" defer></script>
+  <script is:inline src={webFontScriptPath} defer></script>
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
@@ -64,7 +69,7 @@ const nav = [
 </head>
 <body>
   <header class="header astro-header">
-    <a class="brand" href={`/${language}/`} aria-label={copy.brand.name}>
+    <a class="brand" href={localePath(language)} aria-label={copy.brand.name}>
       <span class="brand-mark" aria-hidden="true">∿</span>
       <span><strong>{copy.brand.display}</strong><small>{copy.brand.tagline}</small></span>
     </a>
@@ -80,7 +85,7 @@ const nav = [
     <button class="theme-toggle" id="theme-toggle" aria-label={copy.actions.theme} title={copy.actions.themeTitle}>
       <span class="theme-light">☾</span><span class="theme-dark">☀</span>
     </button>
-    <a class="language-link" data-language-link href={`/${otherLanguage}${alternatePath}`}>{language === "ru" ? "UA" : "RU"}</a>
+    <a class="language-link" data-language-link href={localePath(otherLanguage, alternatePath)}>{language === "ru" ? "UA" : "RU"}</a>
   </header>
   <main><slot /></main>
   <footer><span>© 2026 {copy.brand.name}</span><span>{copy.brand.motto}</span></footer>
@@ -190,7 +195,12 @@ const nav = [
         });
         document.addEventListener("astro:page-load", initializePageControls);
         if ("serviceWorker" in navigator) {
-          addEventListener("load", () => navigator.serviceWorker.register("/sw.js"), { once: true });
+          addEventListener("load", () => {
+            const root = document.documentElement;
+            const scriptURL = root.dataset.serviceWorkerPath;
+            const scope = root.dataset.basePath;
+            if (scriptURL && scope) navigator.serviceWorker.register(scriptURL, { scope });
+          }, { once: true });
         }
       }
 

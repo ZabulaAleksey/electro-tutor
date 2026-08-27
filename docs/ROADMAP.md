@@ -67,7 +67,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-05 — Base-path portability и project-site artifact
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-27)
 
 - инвентаризировать root-absolute routes/assets/redirects и service worker paths;
 - ввести один build-time base/site URL contract и route/asset helpers;
@@ -75,6 +75,19 @@ Roadmap задаёт порядок развития, но не заменяет
 - добавить artifact smoke и broken internal link/asset audit.
 
 Зависимость: `TUTOR-04`.
+
+### TUTOR-06 — Обязательные quality gates перед публикацией
+
+Статус: `PLANNED`
+
+- свести локальную full-verify command и CI к одному существенному порядку gates;
+- блокировать upload/deploy при ошибке static, unit/integration/component, build
+  или live E2E проверки;
+- передавать deploy job именно проверенный artifact без повторной сборки;
+- проверить frozen install, cache, concurrency cancellation, permissions и
+  доступные dependency/security checks.
+
+Зависимость: `TUTOR-05`.
 
 ## ET-00 — Канонический контекст
 

@@ -21,7 +21,7 @@ Backend, база данных, аккаунты и платёжные endpoints
 ## Секреты и конфигурация
 
 - `.env` не коммитится; публичный пример — `.env.example`;
-- `SITE_URL` и `PUBLIC_CALCOM_URL` не являются секретами;
+- `SITE_URL`, `BASE_PATH` и `PUBLIC_CALCOM_URL` не являются секретами;
 - будущие API keys, OAuth tokens, webhook secrets и provider credentials должны
   храниться только в server-side secret storage;
 - секреты нельзя помещать в `src/`, `public/`, client-prefixed variables,
@@ -70,6 +70,8 @@ Service worker может долго сохранять старый код. И�
 или удаляет чужие кэши origin. Query удаляется из navigation cache key, поэтому
 room-коды и параметры интерактива не перечисляются через Cache Storage.
 Кэшировать ответы с будущими персональными или платёжными данными запрещено.
+Worker ограничен `self.registration.scope`, а build audit отклоняет внутренние
+targets вне `BASE_PATH` и случайные localhost/machine-local URL.
 
 ## Платежи
 

@@ -168,7 +168,7 @@ matrix. Pipeline: Astro check 56 files, ESLint, 62 unit/integration tests,
 
 ## TUTOR-05 — Base-path portability и GitHub Pages project-site
 
-Статус: `planned`
+Статус: `completed` (validated locally, 2026-08-27)
 
 Dependency DAG: `TUTOR-04` completed. Entry preconditions: единый Astro artifact,
 versioned share URL, RU/UK semantic routes и locale SEO contract подтверждены.
@@ -192,6 +192,38 @@ PASS: root и project-base artifact открывают home/nested/interactive d
 links; locale/share/reload сохраняют path/query/hash; internal assets и service
 worker scope не дают 404; localhost/machine-local URL не протекают. Rollback:
 один Stage 5 commit без deploy.
+
+Acceptance evidence: `features/base-path-portability.spec.md`, ADR-015,
+base/site validators и helpers, root artifact audit 91 files, project-base
+artifact audit 91 files, 4 project-base Chromium E2E и полный root Chromium
+набор. Static, unit/integration/component и оба production builds — PASS.
+
+## TUTOR-06 — Обязательные quality gates перед публикацией
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-05` completed. Entry preconditions: единый Astro artifact,
+root/non-empty-base contracts и frozen pnpm install подтверждены.
+
+Runnable vertical slice: одна локальная full-verify command и эквивалентный CI
+job выполняют format/diff hygiene, static checks, lint, unit/integration/component,
+build, live E2E smoke и configured dependency/security checks; deploy получает
+проверенный artifact только после всех обязательных gates.
+
+Concrete end-to-end scenario: broken type, unit test или E2E smoke останавливает
+deploy DAG; исправленная версия проходит тот же pipeline и публикует artifact,
+созданный verify job.
+
+Scope: CI/local parity, порядок gates, deploy dependency, artifact hand-off,
+frozen install, cache, concurrency cancellation, minimal permissions и README
+full-verify command.
+
+Non-goals: фактический deploy, production domain/DNS, product behavior changes,
+скрытие flaky tests через retry или skip, новый scanner без отдельной оценки.
+
+PASS: negative gate probes блокируют deploy; green pipeline передаёт ровно один
+checked artifact; local/CI gates совпадают; permissions/cache/concurrency
+проверены. Rollback: один Stage 6 commit без deploy.
 
 ## Одна команда
 

@@ -6,7 +6,10 @@ import { setTimeout as delay } from "node:timers/promises";
 const host = "127.0.0.1";
 const port = 4322;
 const baseURL = `http://${host}:${port}`;
+const readinessPath = process.env.E2E_BASE_PATH || "/";
+const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
+const selectedSpec = process.env.E2E_SPEC;
 
 function spawnNode(modulePath, args, options = {}) {
   return spawn(process.execPath, [resolve(projectRoot, modulePath), ...args], {
@@ -36,7 +39,7 @@ async function waitUntilReady(preview, timeoutMs = 30_000) {
     }
 
     try {
-      const response = await fetch(baseURL, { signal: AbortSignal.timeout(1_000) });
+      const response = await fetch(readinessURL, { signal: AbortSignal.timeout(1_000) });
       if (response.ok) return;
     } catch {
       // The preview socket is not ready yet.
@@ -45,7 +48,7 @@ async function waitUntilReady(preview, timeoutMs = 30_000) {
     await delay(100);
   }
 
-  throw new Error(`Astro preview did not become ready at ${baseURL} within ${timeoutMs}ms.`);
+  throw new Error(`Astro preview did not become ready at ${readinessURL} within ${timeoutMs}ms.`);
 }
 
 async function stopPreview(preview) {
@@ -72,13 +75,15 @@ const preview = spawnNode("node_modules/astro/bin/astro.mjs", [
   host,
   "--port",
   String(port),
+  "--strictPort",
 ]);
 
 let exitCode = 1;
 
 try {
   await waitUntilReady(preview);
-  const playwright = spawnNode("node_modules/@playwright/test/cli.js", ["test"], {
+  const playwrightArgs = selectedSpec ? ["test", selectedSpec] : ["test"];
+  const playwright = spawnNode("node_modules/@playwright/test/cli.js", playwrightArgs, {
     env: { ...process.env, E2E_EXTERNAL_SERVER: "1" },
   });
   const result = await waitForExit(playwright);

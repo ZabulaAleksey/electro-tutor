@@ -1,5 +1,29 @@
 # Учебный журнал
 
+## 2026-08-27 — Base path проверяется artifact и живой навигацией
+
+### Что изменено
+
+- `SITE_URL` отделён от `BASE_PATH`, а внутренние URL проходят через один helper.
+- Manifest и service worker используют scope-relative contract.
+- Один audit проверяет root и project-base artifacts, а Chromium открывает
+  прямые deep links, переключает локаль и подтверждает service worker scope.
+
+### Повторяемый вывод
+
+Успешная static-сборка не доказывает переносимость: root-absolute URL остаются
+валидными строками, но уходят за prefix project-site. Надёжное evidence сочетает
+проверку файлового графа собранного artifact и live HTTP-навигацию под реальным
+непустым base path.
+
+### Как повторить самостоятельно
+
+1. Выполнить `pnpm build` для root contract.
+2. Выполнить `pnpm check:base-path` для `/electro-tutor/`.
+3. Проверить `SITE_URL` и `BASE_PATH` в `.env.example`.
+4. Добавляя route или asset, использовать helpers из `src/site-path.ts`.
+5. Перед коммитом выполнить `git diff --check`.
+
 ## 2026-08-27 — Локализация как проверяемая схема данных
 
 ### Что изменено

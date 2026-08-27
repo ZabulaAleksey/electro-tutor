@@ -18,7 +18,9 @@
   limits, canonical migration/fallback и browser history contract.
 - `T0-LOC-001` закрыт в `TUTOR-04`: единый RU/UK catalog, locale-aware helpers,
   build validator и artifact/Chromium route matrix подтверждают production contract.
-- Следующий разрешённый этап: `TUTOR-05` — base-path portability.
+- `T0-BASE-001` закрыт в `TUTOR-05`: единый base/site contract, route/asset
+  helpers и root/project-base artifact/Chromium проверки подтверждают переносимость.
+- Следующий разрешённый этап: `TUTOR-06` — обязательные pre-deploy quality gates.
 
 ## Governance migration — 2026-08-24
 
@@ -39,11 +41,11 @@
 ## Текущий этап
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
-`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04` завершены.
+`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
-но approved stabilization track продолжает работу с `TUTOR-04`.
+но approved stabilization track продолжает работу с `TUTOR-06`.
 
 ## Что реализовано
 
@@ -61,6 +63,9 @@
   offline-кэша, изоляция namespaces и исключение private/error/query;
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
 - Cloudflare Static Assets и GitHub Pages configuration;
+- единый нормализованный `SITE_URL`/`BASE_PATH` contract, base-aware routes,
+  assets, manifest и service worker scope для root и project-site artifact;
+- post-build audit внутренних HTML/CSS/manifest targets и запрет machine-local URL;
 - Astro check, ESLint 9 и production build проходят; актуальный dependency audit выполняется через pnpm;
 - Vitest: unit-тесты математической модели, URL-state schema и RU/UK-публикации;
 - единый locale catalog для shell/pages/classroom/diagrams, build-time parity
@@ -84,15 +89,16 @@
 ## Известные проблемы и ограничения
 
 1. Полный реестр подтверждённых Stage 0 findings хранится в
-   `notes/stage-0-baseline.md`; оставшиеся product fixes отложены по этапам 3–6.
+   `notes/stage-0-baseline.md`; оставшийся release finding `T0-REL-001` назначен
+   этапу `TUTOR-06`.
 2. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
 3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
 4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
    через разрешённый Playwright fallback только в Chromium.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
-`T0-CTX-001`, `T0-APP-001`, `T0-URL-001` и `T0-LOC-001` закрыты; остальные findings Stage 0 остаются открытыми согласно
-`notes/stage-0-baseline.md`.
+`T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001` и `T0-BASE-001`
+закрыты; `T0-REL-001` остаётся открытым согласно `notes/stage-0-baseline.md`.
 
 ## Входные решения для продолжения
 
@@ -115,6 +121,10 @@
 
 ## Последние проверки
 
+- 2026-08-27 (`TUTOR-05`): 68 unit/integration tests, Astro check 63 файла,
+  ESLint, root и `/electro-tutor/` builds по 15 страниц, locale audit 14 routes,
+  lesson/site artifact audits по 91 файлу, 4 project-base и 46 root Chromium
+  E2E — PASS;
 - 2026-08-27 (`TUTOR-04`): locale validator 156 paired keys, Astro check 56
   файлов, ESLint, 62 unit/integration tests, 15-page build, locale artifact
   audit 14 routes, lesson audit и 42 Chromium E2E — PASS;
@@ -125,7 +135,7 @@
   38 unit/integration tests, 15-page build, lesson audit и 21 Chromium E2E — PASS;
   orphan SPA/config references не найдены;
 - 2026-08-27: `pnpm.cmd check:context` и фактический SessionStart hook — PASS;
-  следующий selector после синхронизации — `TUTOR-04`;
+  следующий selector после синхронизации — `TUTOR-06`;
 - 2026-08-27: global context validator и project overlay validator — PASS;
 - 2026-08-27: `pnpm.cmd test:e2e` — 21 Chromium-тест без skip/disable;
 - 2026-08-27: `pnpm.cmd test` — 4 файла, 38 тестов без skip/disable;

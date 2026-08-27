@@ -6,7 +6,8 @@
     "type": "module",
     "scripts": {
         "dev": "astro dev",
-        "build": "pnpm run check:locales && astro build && node scripts/audit-built-locales.mjs",
+        "build": "pnpm run check:locales && astro build && node scripts/audit-built-locales.mjs && node scripts/audit-built-lessons.mjs && node scripts/audit-built-site.mjs",
+        "check:base-path": "node scripts/check-base-path.mjs",
         "preview": "astro preview",
         "lint": "eslint .",
         "check": "astro check",

@@ -298,3 +298,29 @@ keys отклонён как ухудшение authoring и content schema; run
 одобряются явно. `/` остаётся русским default, а каждый semantic route получает
 `ru`, `uk` и `x-default`. Engineering share/readout сохраняет десятичную точку
 по уже принятому URL/state-контракту.
+
+## ADR-015 — Раздельные site origin и deployment base path
+
+Дата: 2026-08-27
+
+Статус: принято
+
+Решение: `SITE_URL` задаёт только публичный origin для canonical/sitemap, а
+нормализованный `BASE_PATH` — prefix внутренних routes/assets. Astro config,
+`site-path.ts`, scope-relative manifest и service worker, выводящий paths из
+собственного registration scope, образуют единый contract. Root и project-base
+artifacts проходят одинаковые post-build и live Chromium проверки.
+
+Причина: root-absolute ссылки работали локально и на apex-domain, но ломали
+GitHub Pages project-site. Смешение origin и path также позволяло случайно
+встроить machine-local или будущий production URL в artifact.
+
+Рассмотренные альтернативы: ручная конкатенация prefix в каждом компоненте
+отклонена как источник расхождений; относительные URL повсюду отклонены из-за
+неоднозначности на nested routes; отдельная сборка для каждого host отклонена,
+потому что дублирует контракт вместо параметризации.
+
+Последствия: новые внутренние URL должны использовать base-aware helper либо
+scope-relative web-platform semantics. GitHub Pages build получает `origin` и
+`base_path` от `actions/configure-pages`; production domain и deploy остаются
+отдельным release-решением.

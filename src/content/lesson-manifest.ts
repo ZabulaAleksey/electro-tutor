@@ -1,5 +1,6 @@
 import type { InteractiveKey } from "./interactive-contract";
 import type { LessonLanguage } from "./lesson-contract";
+import { localePath } from "../site-path";
 
 export interface LessonManifestData {
   title: string;
@@ -19,7 +20,7 @@ export interface LessonManifestSource {
   data: LessonManifestData;
 }
 
-export type LessonHref = `/${LessonLanguage}/topics/${string}/${string}/`;
+export type LessonHref = `${string}/${LessonLanguage}/topics/${string}/${string}/`;
 
 export interface PublishedLesson<
   TEntry extends LessonManifestSource = LessonManifestSource,
@@ -55,7 +56,7 @@ export function lessonHref(
   const encodedSection = encodeURIComponent(section);
   const encodedSlug = encodeURIComponent(slug);
 
-  return `/${language}/topics/${encodedSection}/${encodedSlug}/`;
+  return localePath(language, `/topics/${encodedSection}/${encodedSlug}/`) as LessonHref;
 }
 
 export function createPublishedLessonManifest<

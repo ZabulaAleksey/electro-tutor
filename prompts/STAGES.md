@@ -132,7 +132,7 @@ check 49 файлов, ESLint, 56 unit/integration tests, 15-page build, lesson 
 
 ## TUTOR-04 — Реальный production-контракт RU/UK
 
-Статус: `planned`
+Статус: `completed` (validated locally, 2026-08-27)
 
 Dependency DAG: `TUTOR-03` completed. Entry preconditions: production Astro
 routes обеих локалей, system locale contract, парный lesson manifest и
@@ -160,6 +160,38 @@ PASS: production artifact содержит обе локали; locale switch с
 смысловой route и canonical interactive state; metadata/canonical/hreflang
 корректны; missing/extra/untranslated contract keys блокируют build/tests;
 full static/unit/component/E2E pipeline проходит. Rollback: один Stage 4 commit.
+
+Acceptance evidence: `features/localization.spec.md`, ADR-014, 156 paired locale
+keys, formatter/fallback tests, 14-route artifact audit и full Chromium RU/UK
+matrix. Pipeline: Astro check 56 files, ESLint, 62 unit/integration tests,
+15-page build, lesson audit и 42 Chromium E2E — PASS.
+
+## TUTOR-05 — Base-path portability и GitHub Pages project-site
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-04` completed. Entry preconditions: единый Astro artifact,
+versioned share URL, RU/UK semantic routes и locale SEO contract подтверждены.
+
+Runnable vertical slice: один base/site URL contract управляет build config,
+routes и assets; root и non-empty-base artifacts проходят автоматический audit.
+
+Concrete end-to-end scenario: пользователь открывает RU/UK interactive deep
+link под project base, получает assets, переключает язык с сохранением query/hash
+и обновляет страницу без 404.
+
+Scope: inventory root-absolute links/assets/canonical/redirects/fetch/router и
+service-worker paths; config/helpers для base/site; deep links, locale routes,
+share URLs, 404 behavior; non-empty-base smoke и broken link/asset audit.
+
+Non-goals: deploy, production domain/DNS, CI quality gates `TUTOR-06`, изменение
+locale/content/URL-state schemas. Допустимы текущие hosting adapters при
+доказанной работе обоих artifact modes; future domain не хардкодится.
+
+PASS: root и project-base artifact открывают home/nested/interactive direct
+links; locale/share/reload сохраняют path/query/hash; internal assets и service
+worker scope не дают 404; localhost/machine-local URL не протекают. Rollback:
+один Stage 5 commit без deploy.
 
 ## Одна команда
 

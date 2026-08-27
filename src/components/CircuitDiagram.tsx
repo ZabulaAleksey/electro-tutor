@@ -1,17 +1,15 @@
 import type { Language } from "../types";
+import { getLocale } from "../i18n";
 
 export default function CircuitDiagram({ language }: { language: Language }) {
+  const copy = getLocale(language).circuit;
   return (
     <div className="circuit-wrap">
       <svg
         className="circuit"
         viewBox="0 0 760 320"
         role="img"
-        aria-label={
-          language === "ru"
-            ? "Двухконтурная электрическая схема"
-            : "Двоконтурна електрична схема"
-        }
+        aria-label={copy.aria}
       >
         <defs>
           <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -64,8 +62,8 @@ export default function CircuitDiagram({ language }: { language: Language }) {
         <circle cx="350" cy="240" r="5" fill="#27302d" />
       </svg>
       <div className="circuit-legend">
-        <span><i className="dot blue" /> I₁ — {language === "ru" ? "левый контур" : "лівий контур"}</span>
-        <span><i className="dot orange" /> I₂ — {language === "ru" ? "правый контур" : "правий контур"}</span>
+        <span><i className="dot blue" /> I₁ — {copy.left}</span>
+        <span><i className="dot orange" /> I₂ — {copy.right}</span>
       </div>
     </div>
   );

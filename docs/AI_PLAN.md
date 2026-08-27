@@ -1,52 +1,51 @@
 # Текущий AI-план
 
-## TUTOR-04 — Реальный production-контракт RU/UK
+## TUTOR-05 — Base-path portability и GitHub Pages project-site
 
-- Stage ID: `TUTOR-04`
+- Stage ID: `TUTOR-05`
 
 Статус: `PLANNED`
 
-Цель: закрыть `T0-LOC-001` — заявленная локализация RU/UK должна быть единым
-проверяемым контрактом production Astro artifact, а не набором несвязанных
-строк и частичных browser-сценариев.
+Цель: закрыть `T0-PATH-001` — production artifact должен одинаково работать
+на корневом домене и под непустым project base path без 404 внутренних
+routes/assets и утечек machine-local URL.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-00..TUTOR-03` завершены и validated locally;
-- production Astro routes обеих локалей, парный lesson manifest и system locale
-  requirements существуют;
-- versioned share URL сохраняется при locale switch.
+- `TUTOR-00..TUTOR-04` завершены и validated locally;
+- Astro является единственной production boundary;
+- versioned share URL и RU/UK semantic route/SEO contract подтверждены;
+- текущие GitHub Pages/Cloudflare configs доступны для read-only reconciliation.
 
 ### Runnable vertical slice и scenario
 
-Один locale source of truth питает production routes, UI, metadata, errors и
-aria-labels; build-time validator ловит missing/extra keys.
+Один base/site URL contract питает build configuration и маленькие route/asset
+helpers; production artifact проверяется под root и тестовым непустым base.
 
-Concrete end-to-end scenario: пользователь открывает одинаковый смысловой route
-на RU и UK, переключает язык с сохранением versioned query/hash и получает
-локализованные metadata, controls, errors и accessible names без чужого fallback.
+Concrete end-to-end scenario: пользователь открывает прямую ссылку на RU/UK
+interactive route под project base, получает все assets, переключает локаль с
+сохранением versioned query/hash и обновляет страницу без 404.
 
 ### Scope
 
-- locale source of truth, route strategy и fallback;
-- canonical/hreflang и форматирование чисел, единиц и дат;
-- inventory пользовательских строк, metadata, errors, aria-labels и CircularDiagram;
-- предметный glossary/contract для терминов, формул, обозначений и единиц;
-- build-time parity validation, fallback tests и RU/UK E2E.
+- inventory root-absolute links/assets/canonical/redirects/fetch/router/service worker paths;
+- один конфигурационный base/site contract и helpers без ручной конкатенации;
+- deep links, locale routes, share URLs и 404 behavior;
+- artifact smoke под непустым base и broken internal links/assets audit;
+- root-domain compatibility без hardcoded будущего production domain.
 
 ### Non-goals и deferred scope
 
-- новые локали и машинный перевод без предметной проверки;
-- base-path portability, CI/deploy gates и security baseline следующих stages;
-- новый content model или переписывание Astro routes;
-- существующая Astro implementation допустима, если подключена к одному
-  проверяемому contract и не зависит от удалённого legacy frontend.
+- фактический deploy, production-домен и DNS;
+- полная нормализация CI quality gates (`TUTOR-06`);
+- изменение locale, content или URL-state schemas;
+- существующие hosting adapters допустимы, если оба artifact modes доказаны.
 
 ### PASS evidence и rollback
 
-- обе локали присутствуют в production artifact и имеют эквивалентные routes;
-- locale switch сохраняет semantic route и canonical interactive state;
-- metadata, canonical/hreflang, UI errors и aria-labels локализованы;
-- missing/extra/untranslated contract keys блокируются tests/build validation;
-- static checks, unit/integration/component, build, lesson audit и live E2E PASS;
-- rollback — единый Stage 4 commit без изменения authored lesson formulas.
+- root и non-empty-base builds открывают home, nested lesson и interactive deep link;
+- locale switch/share/reload сохраняют semantic path, query и hash под base;
+- internal routes/assets и service worker scope не дают 404;
+- artifact не содержит localhost, machine-local или случайный future domain;
+- static checks, unit/integration/component, оба builds и live E2E PASS;
+- rollback — единый Stage 5 commit без deploy/production configuration write.

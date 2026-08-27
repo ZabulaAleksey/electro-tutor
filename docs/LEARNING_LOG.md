@@ -1,5 +1,26 @@
 # Учебный журнал
 
+## 2026-08-27 — Локализация как проверяемая схема данных
+
+### Что изменено
+
+- Общие UI, metadata, errors и accessible names перенесены в парные RU/UK
+  catalogs с одним runtime API.
+- Build валидирует ключи и после сборки проверяет semantic routes и SEO links.
+
+### Повторяемый вывод
+
+Наличие двух переводов рядом в ternary не доказывает полноту локализации.
+Нужны schema parity, явные инварианты и проверка уже собранного artifact. При
+этом authored content и математические символы не обязаны становиться UI keys.
+
+### Как повторить самостоятельно
+
+1. Разделить общий UI, authored content и технические инварианты.
+2. Сравнить деревья locale keys и запретить пустые/неодобренные совпадения.
+3. Проверить `html[lang]`, canonical и все hreflang в production artifact.
+4. Пройти semantic route matrix и locale switch в реальном браузере.
+
 ## 2026-08-27 — URL как недоверенный versioned input
 
 ### Что изменено

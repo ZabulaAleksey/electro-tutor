@@ -81,6 +81,15 @@ prompts/                     протокол поэтапного продол�
 `getStaticPaths()` создаёт локали во время сборки. Код локали украинского языка
 — `uk`; надпись в переключателе — `UA`.
 
+`src/i18n/` — единый locale catalog общей оболочки, page metadata, действий,
+ошибок и accessible names. Runtime helpers нормализуют поддерживаемые коды и
+форматируют пользовательские числа, даты, длительности и plural forms.
+`scripts/validate-locales.mjs` блокирует build при missing/extra/empty или
+неподтверждённо одинаковых ключах; `scripts/audit-built-locales.mjs` проверяет
+парность 14 собранных routes, `html[lang]`, canonical и `ru`/`uk`/`x-default`
+hreflang. Авторский lesson MDX и математические обозначения остаются в своих
+domain sources и проверяются lesson contract.
+
 ## Поток учебного контента
 
 ```text

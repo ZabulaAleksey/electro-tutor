@@ -13,11 +13,12 @@ import {
   complexArgumentDegrees,
   complexMagnitude,
 } from "../models/circular-diagram";
+import { getLocale } from "../i18n";
+import type { Language } from "../types";
 
-const fmt = (n: number, d = 2) => Number(n.toFixed(d)).toString();
-
-export default function CircularDiagram({ language }: { language: "ru" | "uk" }) {
-  const ru = language === "ru";
+export default function CircularDiagram({ language }: { language: Language }) {
+  const copy = getLocale(language);
+  const fmt = (value: number, digits = 2) => Number(value.toFixed(digits)).toString();
   const [parameters, setParameters] = useState<CircularDiagramState>({
     ...CIRCULAR_DIAGRAM_DEFAULTS,
   });
@@ -88,23 +89,21 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
 
   return <section className="circle-lab">
     <div className="circle-lab-heading">
-      <div><span className="section-kicker">{ru ? "КРУГОВАЯ ДИАГРАММА" : "КОЛОВА ДІАГРАМА"}</span><h2>{ru ? "Годограф тока четырёхполюсника" : "Годограф струму чотириполюсника"}</h2></div>
-      <p>{ru ? "Конец вектора тока движется по дуге от Iк к I₀." : "Кінець вектора струму рухається дугою від Iк до I₀."}</p>
+      <div><span className="section-kicker">{copy.diagram.kicker}</span><h2>{copy.diagram.title}</h2></div>
+      <p>{copy.diagram.lead}</p>
     </div>
     {urlStatus === "recovered" && <p className="circle-state-notice" role="status">
-      {ru
-        ? "Ссылка содержала некорректные параметры. Восстановлены безопасные начальные значения."
-        : "Посилання містило некоректні параметри. Відновлено безпечні початкові значення."}
+      {copy.diagram.recovered}
     </p>}
     <div className="circle-lab-layout">
       <div className="circle-controls">
-        <Group title={ru ? "Ток холостого хода I₀" : "Струм холостого ходу I₀"}><Field label="Модуль, А" {...field("i0m")} step={.1}/><Field label={ru ? "Угол, °" : "Кут, °"} {...field("i0a")} step={1}/></Group>
-        <Group title={ru ? "Ток короткого замыкания Iк" : "Струм короткого замикання Iк"}><Field label="Модуль, А" {...field("ikm")} step={.1}/><Field label={ru ? "Угол, °" : "Кут, °"} {...field("ika")} step={1}/></Group>
-        <Group title={ru ? "Выход и нагрузка" : "Вихід і навантаження"}><Field label={ru ? "|Zвых|, Ом" : "|Zвих|, Ом"} {...field("zm")} step={.1}/><Field label={ru ? "∠Zвых, °" : "∠Zвих, °"} {...field("za")} step={1}/><Field label={ru ? "Угол нагрузки φ, °" : "Кут навантаження φ, °"} {...field("phi")} step={1}/></Group>
-        <label className="resistance-control"><span>{ru ? "Сопротивление нагрузки R" : "Опір навантаження R"}<strong>{Number.isFinite(model.resistance) ? `${fmt(model.resistance)} Ом` : "∞"}</strong></span><input type="range" min={CIRCULAR_DIAGRAM_LIMITS.r.min} max={CIRCULAR_DIAGRAM_LIMITS.r.max} step=".2" value={parameters.r} onChange={event => commitParameter("r", Number(event.target.value), "replace")}/><small><span>0</span><span>|Z|</span><span>∞</span></small></label>
+        <Group title={copy.diagram.idle}><Field label={copy.diagram.magnitude} {...field("i0m")} step={.1}/><Field label={copy.diagram.angle} {...field("i0a")} step={1}/></Group>
+        <Group title={copy.diagram.short}><Field label={copy.diagram.magnitude} {...field("ikm")} step={.1}/><Field label={copy.diagram.angle} {...field("ika")} step={1}/></Group>
+        <Group title={copy.diagram.output}><Field label={copy.diagram.outputMagnitude} {...field("zm")} step={.1}/><Field label={copy.diagram.outputAngle} {...field("za")} step={1}/><Field label={copy.diagram.loadAngle} {...field("phi")} step={1}/></Group>
+        <label className="resistance-control"><span>{copy.diagram.resistance}<strong>{Number.isFinite(model.resistance) ? `${fmt(model.resistance)} ${copy.units.ohm}` : "∞"}</strong></span><input type="range" min={CIRCULAR_DIAGRAM_LIMITS.r.min} max={CIRCULAR_DIAGRAM_LIMITS.r.max} step=".2" value={parameters.r} onChange={event => commitParameter("r", Number(event.target.value), "replace")}/><small><span>0</span><span>|Z|</span><span>∞</span></small></label>
       </div>
       <div className="circle-plot">
-        <svg viewBox="0 0 720 520" role="img" aria-label={ru ? "Круговая диаграмма токов" : "Колова діаграма струмів"}>
+        <svg viewBox="0 0 720 520" role="img" aria-label={copy.diagram.aria}>
           <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="12" markerHeight="7" refX="10.5" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5,.8 L11,3.5 L.5,6.2 L3,3.5 Z" className={`math-arrow arrow-head ${v.id}`}/></marker>)}</defs>
           <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{t}</text><text x="367" y={y - 6}>{t}</text></>}</g>; })}</g>
           <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">Re I, A</text><text x="370" y="38">Im I, A</text></g>
@@ -113,7 +112,7 @@ export default function CircularDiagram({ language }: { language: "ru" | "uk" })
         </svg>
         <div className="circle-readout" aria-live="polite">
           {vectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
-          {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {ru ? "идеальная резонансная точка: Zвых + Zн = 0" : "ідеальна резонансна точка: Zвих + Zн = 0"}</span>}
+          {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {copy.diagram.singularity}</span>}
         </div>
       </div>
     </div>

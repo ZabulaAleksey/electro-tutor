@@ -56,7 +56,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-04 — Реальный production-контракт RU/UK
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-27)
 
 - определить locale source of truth, fallback и production route/SEO contract;
 - инвентаризировать UI, metadata, ошибки, aria-labels и CircularDiagram;
@@ -64,6 +64,17 @@ Roadmap задаёт порядок развития, но не заменяет
 - добавить build-time parity validation, fallback tests и RU/UK E2E.
 
 Зависимость: `TUTOR-03`.
+
+### TUTOR-05 — Base-path portability и project-site artifact
+
+Статус: `PLANNED`
+
+- инвентаризировать root-absolute routes/assets/redirects и service worker paths;
+- ввести один build-time base/site URL contract и route/asset helpers;
+- проверить root и непустой project base, deep links, locale/share URLs и 404;
+- добавить artifact smoke и broken internal link/asset audit.
+
+Зависимость: `TUTOR-04`.
 
 ## ET-00 — Канонический контекст
 

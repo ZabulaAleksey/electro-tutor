@@ -4,13 +4,14 @@ import { getPublishedLessonManifest } from "../../content/published-lessons";
 import { resolveTopicPublication } from "../../curriculum-publication";
 import { curriculum } from "../../curriculum";
 import type { Language } from "../../types";
+import { formatMinutes, getLocale } from "../../i18n";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
 }
 
 const language = Astro.params.lang as Language;
-const ru = language === "ru";
+const copy = getLocale(language);
 const homeSection = curriculum.find((section) => section.id === "dc");
 if (!homeSection) {
   throw new Error('Homepage curriculum section "dc" is missing.');
@@ -21,32 +22,11 @@ const publishedTopics = homeSection.topics.map((topic) => ({
   publication: resolveTopicPublication(lessonManifest, language, homeSection.id, topic),
 }));
 const primaryPublication = publishedTopics.find(({ publication }) => publication.available)?.publication;
-const copy = ru
-  ? {
-      title: "Потенциал — электротехника понятно",
-      description: "Двуязычный интерактивный учебник по электротехнике с формулами, схемами и подробными решениями.",
-      eyebrow: "Интерактивный курс по электротехнике",
-      heading: "От формулы — к пониманию.",
-      lead: "Изучайте электрические цепи в своём темпе. Выбирайте глубину объяснения, исследуйте схемы и наблюдайте, как из законов рождается решение.",
-      primary: "Открыть пример урока",
-      secondary: "Смотреть все темы",
-      section: "Начните с основ",
-    }
-  : {
-      title: "Потенціал — електротехніка зрозуміло",
-      description: "Двомовний інтерактивний підручник з електротехніки з формулами, схемами та докладними розв’язаннями.",
-      eyebrow: "Інтерактивний курс з електротехніки",
-      heading: "Від формули — до розуміння.",
-      lead: "Вивчайте електричні кола у своєму темпі. Обирайте глибину пояснення, досліджуйте схеми та спостерігайте, як із законів народжується розв’язання.",
-      primary: "Відкрити приклад уроку",
-      secondary: "Переглянути всі теми",
-      section: "Почніть з основ",
-    };
 ---
 
 <BaseLayout
-  title={copy.title}
-  description={copy.description}
+  title={copy.home.title}
+  description={copy.home.description}
   language={language}
   active="home"
   alternatePath="/"
@@ -54,22 +34,22 @@ const copy = ru
   <section class="hero astro-home">
     <div class="hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow"><i></i>{copy.eyebrow}</span>
-        <h1>{copy.heading.split(" — ")[0]} —<br /><em>{copy.heading.split(" — ")[1]}</em></h1>
-        <p>{copy.lead}</p>
+        <span class="eyebrow"><i></i>{copy.home.eyebrow}</span>
+        <h1>{copy.home.headingStart} —<br /><em>{copy.home.headingEnd}</em></h1>
+        <p>{copy.home.lead}</p>
         <div class="hero-actions">
           <a
             class="button primary"
             href={primaryPublication?.available ? primaryPublication.href : `/${language}/topics/`}
           >
-            {copy.primary} <span>→</span>
+            {copy.home.primary} <span>→</span>
           </a>
-          <a class="button ghost" href={`/${language}/topics/`}>{copy.secondary}</a>
+          <a class="button ghost" href={`/${language}/topics/`}>{copy.home.secondary}</a>
         </div>
       </div>
       <div class="hero-visual" aria-hidden="true">
         <div class="visual-card card-formula">
-          <span>{ru ? "Закон Кирхгофа" : "Закон Кірхгофа"}</span>
+          <span>{copy.home.law}</span>
           <strong>∑ I<sub>k</sub> = 0</strong>
         </div>
         <svg viewBox="0 0 490 330">
@@ -89,26 +69,26 @@ const copy = ru
     </div>
     <div class="feature-strip">
       <span>RU / UA</span>
-      <span>3 {ru ? "уровня объяснения" : "рівні пояснення"}</span>
+      <span>3 {copy.home.levels}</span>
       <span>LaTeX</span>
-      <span>{ru ? "Наглядные схемы" : "Наочні схеми"}</span>
+      <span>{copy.home.visualSchemes}</span>
     </div>
   </section>
 
   <section class="section topic-preview">
     <div class="section-heading">
-      <div><span class="section-kicker">01 — DC</span><h2>{copy.section}</h2></div>
-      <p>{ru ? "Фундаментальные методы расчёта электрических цепей." : "Фундаментальні методи розрахунку електричних кіл."}</p>
+      <div><span class="section-kicker">01 — DC</span><h2>{copy.home.section}</h2></div>
+      <p>{copy.home.sectionLead}</p>
     </div>
     <div class="topic-grid">
       {publishedTopics.map(({ topic, publication }) => (
         <article class={`topic-card ${topic.accent}`}>
-          <div class="topic-card-top"><span>{topic.index}</span><small>{topic.duration} {ru ? "мин" : "хв"}</small></div>
+          <div class="topic-card-top"><span>{topic.index}</span><small>{formatMinutes(language, topic.duration)}</small></div>
           <h3>{topic.title[language]}</h3>
           <p>{topic.description[language]}</p>
           {publication.available
-            ? <a href={publication.href}>{ru ? "Начать изучение" : "Почати вивчення"} →</a>
-            : <span class="soon-label">{ru ? "Скоро" : "Незабаром"}</span>}
+            ? <a href={publication.href}>{copy.actions.startLearning} →</a>
+            : <span class="soon-label">{copy.actions.soon}</span>}
         </article>
       ))}
     </div>

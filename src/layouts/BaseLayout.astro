@@ -3,6 +3,7 @@ import "katex/dist/katex.min.css";
 import "../styles.css";
 import "../pwa.css";
 import type { Language } from "../types";
+import { getLocale, getOtherLanguage } from "../i18n";
 import { ClientRouter } from "astro:transitions";
 
 interface Props {
@@ -11,17 +12,19 @@ interface Props {
   alternatePath?: string; keywords?: string[];
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
-const ru = language === "ru", otherLanguage = ru ? "uk" : "ru";
+const copy = getLocale(language);
+const otherLanguage = getOtherLanguage(language);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const alternate = new URL(`/${otherLanguage}${alternatePath}`, Astro.site);
+const defaultAlternate = new URL(`/ru${alternatePath}`, Astro.site);
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const nav = [
-  { id: "home", href: `/${language}/`, ru: "Главная", uk: "Головна" },
-  { id: "topics", href: `/${language}/topics/`, ru: "Все темы", uk: "Усі теми" },
-  { id: "interactive", href: `/${language}/interactive/`, ru: "Интерактив", uk: "Інтерактив" },
-  { id: "classroom", href: `/${language}/classroom/`, ru: "Кабинет", uk: "Кабінет" },
-  { id: "services", href: `/${language}/services/`, ru: "Услуги", uk: "Послуги" },
-  { id: "contacts", href: `/${language}/contacts/`, ru: "Контакты", uk: "Контакти" },
+  { id: "home", href: `/${language}/`, label: copy.nav.home },
+  { id: "topics", href: `/${language}/topics/`, label: copy.nav.topics },
+  { id: "interactive", href: `/${language}/interactive/`, label: copy.nav.interactive },
+  { id: "classroom", href: `/${language}/classroom/`, label: copy.nav.classroom },
+  { id: "services", href: `/${language}/services/`, label: copy.nav.services },
+  { id: "contacts", href: `/${language}/contacts/`, label: copy.nav.contacts },
 ];
 ---
 <!doctype html>
@@ -33,13 +36,14 @@ const nav = [
   <meta name="description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content={ru ? "Потенциал" : "Потенціал"} />
+  <meta name="apple-mobile-web-app-title" content={copy.brand.name} />
   {keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" href="/icons/potential.svg" type="image/svg+xml" />
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={otherLanguage} href={alternate} />
   <link rel="alternate" hreflang={language} href={canonical} />
+  <link rel="alternate" hreflang="x-default" href={defaultAlternate} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href={webFontStylesheet} />
@@ -60,37 +64,37 @@ const nav = [
 </head>
 <body>
   <header class="header astro-header">
-    <a class="brand" href={`/${language}/`} aria-label={ru ? "Потенциал" : "Потенціал"}>
+    <a class="brand" href={`/${language}/`} aria-label={copy.brand.name}>
       <span class="brand-mark" aria-hidden="true">∿</span>
-      <span><strong>{ru ? "ПОТЕНЦИАЛ" : "ПОТЕНЦІАЛ"}</strong><small>{ru ? "Инженерный учебник" : "Інженерний підручник"}</small></span>
+      <span><strong>{copy.brand.display}</strong><small>{copy.brand.tagline}</small></span>
     </a>
-    <nav aria-label={ru ? "Основная навигация" : "Головна навігація"}>
-      {nav.map(item => <a class:list={{ active: active === item.id }} href={item.href}>{item[language]}</a>)}
+    <nav aria-label={copy.nav.label}>
+      {nav.map(item => <a class:list={{ active: active === item.id }} href={item.href}>{item.label}</a>)}
     </nav>
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={ru ? "Открыть меню" : "Відкрити меню"}>
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={copy.actions.openMenu}>
       <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
-    <button class="app-install-link" id="app-install" type="button" aria-label={ru ? "Установить приложение" : "Встановити застосунок"}>
-      <span class="app-install-icon" aria-hidden="true">⇩</span><span class="app-install-label">{ru ? "Приложение" : "Застосунок"}</span>
+    <button class="app-install-link" id="app-install" type="button" aria-label={copy.actions.install}>
+      <span class="app-install-icon" aria-hidden="true">⇩</span><span class="app-install-label">{copy.actions.application}</span>
     </button>
-    <button class="theme-toggle" id="theme-toggle" aria-label={ru ? "Переключить тему" : "Перемкнути тему"} title={ru ? "Светлая / тёмная тема" : "Світла / темна тема"}>
+    <button class="theme-toggle" id="theme-toggle" aria-label={copy.actions.theme} title={copy.actions.themeTitle}>
       <span class="theme-light">☾</span><span class="theme-dark">☀</span>
     </button>
-    <a class="language-link" data-language-link href={`/${otherLanguage}${alternatePath}`}>{ru ? "UA" : "RU"}</a>
+    <a class="language-link" data-language-link href={`/${otherLanguage}${alternatePath}`}>{language === "ru" ? "UA" : "RU"}</a>
   </header>
   <main><slot /></main>
-  <footer><span>© 2026 {ru ? "Потенциал" : "Потенціал"}</span><span>{ru ? "Учимся понимать, а не запоминать." : "Вчимося розуміти, а не запам’ятовувати."}</span></footer>
+  <footer><span>© 2026 {copy.brand.name}</span><span>{copy.brand.motto}</span></footer>
 
   <dialog class="install-dialog" id="install-dialog">
     <div class="install-dialog-content">
-      <h2>{ru ? "Установить приложение" : "Встановити застосунок"}</h2>
-      <p>{ru ? "Установите «Потенциал» на главный экран и открывайте учебник как обычное приложение." : "Встановіть «Потенціал» на головний екран і відкривайте підручник як звичайний застосунок."}</p>
+      <h2>{copy.install.title}</h2>
+      <p>{copy.install.description}</p>
       <ol data-ios-steps hidden>
-        <li>{ru ? "Откройте меню «Поделиться» в Safari." : "Відкрийте меню «Поділитися» у Safari."}</li>
-        <li>{ru ? "Выберите «На экран Домой»." : "Виберіть «На початковий екран»."}</li>
-        <li>{ru ? "Нажмите «Добавить»." : "Натисніть «Додати»."}</li>
+        <li>{copy.install.stepShare}</li>
+        <li>{copy.install.stepHome}</li>
+        <li>{copy.install.stepAdd}</li>
       </ol>
-      <form method="dialog"><button class="button primary">{ru ? "Понятно" : "Зрозуміло"}</button></form>
+      <form method="dialog"><button class="button primary">{copy.actions.understood}</button></form>
     </div>
   </dialog>
 

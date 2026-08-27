@@ -10,6 +10,7 @@
 | `features/context-automation.spec.md` | Действует | Project overlay и запуск следующего этапа одной командой |
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
+| `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |
 | `features/payments-and-booking.spec.md` | Черновик, заблокирован решениями | Расписание, hosted checkout и обработка подтверждений |
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,

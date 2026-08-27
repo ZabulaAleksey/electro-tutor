@@ -8,15 +8,17 @@
 - Baseline PASS: Astro check 52 files; ESLint; 38 unit/integration tests;
   production build 15 pages; lesson publication audit; 21 Chromium E2E.
 - Канонический evidence и findings: `notes/stage-0-baseline.md`.
-- Release blockers: root-absolute project-site paths, неполный RU/UK production
-  contract, placeholder canonical и deploy без обязательных quality gates.
+- Release blockers: root-absolute project-site paths, placeholder production
+  canonical и deploy без обязательных quality gates.
 - Governance finding `T0-CTX-001` закрыт в `TUTOR-01`: active operational
   ссылки указывают на `prompts/STAGES.md`, переносимый workflow находится в README.
 - `T0-APP-001` закрыт в `TUTOR-02`: Astro — единственный application build;
   orphan Vite SPA удалён, рабочий `MeshLesson` island сохранён.
 - `T0-URL-001` закрыт в `TUTOR-03`: URL-state использует schema `v=1`, единые
   limits, canonical migration/fallback и browser history contract.
-- Следующий разрешённый этап: `TUTOR-04` — production-контракт RU/UK.
+- `T0-LOC-001` закрыт в `TUTOR-04`: единый RU/UK catalog, locale-aware helpers,
+  build validator и artifact/Chromium route matrix подтверждают production contract.
+- Следующий разрешённый этап: `TUTOR-05` — base-path portability.
 
 ## Governance migration — 2026-08-24
 
@@ -37,7 +39,7 @@
 ## Текущий этап
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
-`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03` завершены.
+`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
@@ -61,6 +63,8 @@
 - Cloudflare Static Assets и GitHub Pages configuration;
 - Astro check, ESLint 9 и production build проходят; актуальный dependency audit выполняется через pnpm;
 - Vitest: unit-тесты математической модели, URL-state schema и RU/UK-публикации;
+- единый locale catalog для shell/pages/classroom/diagrams, build-time parity
+  validation и artifact audit для canonical и `ru`/`uk`/`x-default` hreflang;
 - Playwright/Chromium: RU/UK smoke, query/hash, theme persistence, keyboard,
   accessible names, live region и mobile layout 390×844;
 - неблокирующий первый рендер с системными fallback-шрифтами при зависшем или
@@ -87,7 +91,7 @@
    через разрешённый Playwright fallback только в Chromium.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
-`T0-CTX-001`, `T0-APP-001` и `T0-URL-001` закрыты; остальные findings Stage 0 остаются открытыми согласно
+`T0-CTX-001`, `T0-APP-001`, `T0-URL-001` и `T0-LOC-001` закрыты; остальные findings Stage 0 остаются открытыми согласно
 `notes/stage-0-baseline.md`.
 
 ## Входные решения для продолжения
@@ -111,6 +115,9 @@
 
 ## Последние проверки
 
+- 2026-08-27 (`TUTOR-04`): locale validator 156 paired keys, Astro check 56
+  файлов, ESLint, 62 unit/integration tests, 15-page build, locale artifact
+  audit 14 routes, lesson audit и 42 Chromium E2E — PASS;
 - 2026-08-27 (`TUTOR-03`): Astro check 49 файлов, ESLint, 56 unit/integration
   tests, 15-page build, lesson audit и 25 Chromium E2E — PASS;
   valid/legacy/invalid URL, canonicalization и history navigation подтверждены;

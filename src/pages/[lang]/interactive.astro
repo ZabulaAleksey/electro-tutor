@@ -4,25 +4,26 @@ import CircularDiagram from "../../components/CircularDiagram";
 import "../../components/CircularDiagram.css";
 import "../../components/CircularDiagramMath.css";
 import type { Language } from "../../types";
+import { getLocale } from "../../i18n";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
 }
 const language = Astro.params.lang as Language;
-const ru = language === "ru";
+const copy = getLocale(language);
 ---
 
 <BaseLayout
-  title={ru ? "Интерактивные схемы — Потенциал" : "Інтерактивні схеми — Потенціал"}
-  description={ru ? "Интерактивные электрические схемы, круговые и векторные диаграммы." : "Інтерактивні електричні схеми, колові та векторні діаграми."}
+  title={copy.interactive.title}
+  description={copy.interactive.description}
   language={language}
   active="interactive"
   alternatePath="/interactive/"
 >
   <section class="section info-page interactive-intro">
-    <span class="eyebrow"><i></i>{ru ? "Учебная лаборатория" : "Навчальна лабораторія"}</span>
-    <h1>{ru ? "Интерактив" : "Інтерактив"}</h1>
-    <p>{ru ? "Исследуйте режимы электрических цепей с помощью управляемых схем, векторных диаграмм и расчётных тренажёров." : "Досліджуйте режими електричних кіл за допомогою керованих схем, векторних діаграм і розрахункових тренажерів."}</p>
+    <span class="eyebrow"><i></i>{copy.interactive.eyebrow}</span>
+    <h1>{copy.interactive.heading}</h1>
+    <p>{copy.interactive.lead}</p>
   </section>
   <div class="section interactive-section">
     <CircularDiagram client:load transition:persist="circular-diagram" language={language} />

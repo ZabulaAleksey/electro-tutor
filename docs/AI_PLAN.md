@@ -1,51 +1,49 @@
 # Текущий AI-план
 
-Инфраструктурный срез: миграция npm → pnpm с clean restore, CI parity и global virtual store compatibility proof. Продуктовые требования и принятые tests не изменяются.
+## TUTOR-01 — Канонический локальный контекст
 
-Статус: `DONE`
+Статус: `PLANNED`
 
-## ET-04.3 — Service worker update и offline-контракт
+Цель: устранить подтверждённый `T0-CTX-001`, чтобы новый Codex-сеанс находил
+текущее состояние, следующий этап и команды проверки только из repository и
+глобального ДЕВ.
 
-Цель: автоматизированно подтвердить, что новая версия service worker получает
-контроль над уже открытой страницей, ранее открытый маршрут работает offline, а
-неизвестный маршрут показывает предсказуемый offline fallback.
+### Dependencies и входные предпосылки
 
-Область файлов:
+- `TUTOR-00` завершён и подтверждён локально;
+- baseline: `notes/stage-0-baseline.md`;
+- product findings `T0-APP-001..T0-DEP-001` не исправляются в этом этапе.
 
-- `specs/system.spec.md` — уточнённый `FR-008` и `AC-009`;
-- `tests/e2e/pwa-lifecycle.spec.ts` — Chromium-контракт жизненного цикла;
-- `public/sw.js` и регистрация в `BaseLayout.astro` — только если RED-тест выявит
-  нарушение контракта;
-- `docs/AI_STATUS.md`, `docs/ROADMAP.md`, при изменении границ — архитектура,
-  решения и безопасность.
+### Runnable vertical slice
 
-Критерии приёмки:
+Команда продолжения из `AGENTS.md` разрешается в существующий
+`prompts/STAGES.md`, выбирает один допустимый stage и использует актуальные
+`AI_STATUS`, `AI_PLAN`, `ROADMAP`, SPEC и compatibility matrix без внешнего
+`STAGED_PROMPTS.md`.
 
-- первая загрузка получает активный controller service worker;
-- byte-изменение по неизменному `/sw.js` приводит к `controllerchange` в текущей вкладке;
-- ранее открытая страница перезагружается без сети;
-- неизвестный offline-маршрут показывает `offline.html`;
-- 404, `Cache-Control: no-store` и зарезервированный `/api/` не попадают в кэш;
-- query-параметры кабинета/интерактива не попадают в navigation cache key;
-- активация удаляет старый `potential-pwa-*`, но сохраняет чужой cache namespace;
-- тест не игнорирует посторонние runtime/network errors;
-- unit/contract, полный Chromium E2E, Astro check, lint, build и HTML audit проходят.
+Concrete end-to-end scenario: на чистом clone/session пользователь пишет
+`Продолжай Electro Tutor`; агент по локальным относительным ссылкам определяет
+`TUTOR-02` как следующий stage, не выбирает `BLOCKED` ET-этап и получает
+канонические команды проверки.
 
-Non-goals: deploy, production-домен, кэширование внешних origin, UI-баннер
-обновления и offline-доступ к будущим приватным/auth/payment-данным.
+### Scope
 
-Откат: удалить новый E2E-контракт и вернуть уточнение `FR-008`; production-код
-меняется только при воспроизводимом нарушении.
+- semantic/link reconciliation `STAGED_PROMPTS.md` → `STAGES.md`;
+- source-of-truth matrix и cross-device continuation contract;
+- синхронизация `AGENTS.md`, README, context SPEC, decisions, compatibility,
+  status/plan/roadmap и stage protocol;
+- deterministic context/overlay validation.
 
-Результат: service worker переведён на `potential-pwa-v2`, безопасно мигрирует
-публичный кэш, изолирует чужие namespaces, не кэширует 404/private/no-store/API
-и нормализует navigation cache key без query. Контракт подтверждён Playwright.
+### Non-goals и deferred scope
 
-## Визуальная проверка
+- не исправлять Vite boundary, URL-state, RU/UK, base path, CI или deploy;
+- не добавлять hooks, MCP, agents, framework или runtime services;
+- допускается только полностью рабочая локальная документационная route; внешняя
+  страница не может быть temporary dependency.
 
-В DevTools → Application → Service Workers виден активный `/sw.js`; после
-включения Offline ранее открытая страница продолжает отображаться, а новый URL
-показывает «Нет подключения / Немає з’єднання».
+### PASS evidence и rollback
 
-Следующего неблокированного продуктового этапа нет: `ET-03/05/06/07/08`
-ожидают перечисленных в `AI_STATUS.md` решений пользователя.
+- отсутствуют active references на несуществующий `STAGED_PROMPTS.md`;
+- repository links и stage selector однозначны;
+- project overlay validator, context-specific tests и `git diff --check` проходят;
+- rollback — один documentation-only commit без product/runtime mutations.

@@ -1,5 +1,34 @@
 # Учебный журнал
 
+## 2026-08-27 — Evidence-first baseline перед стабилизацией Tutor
+
+### Что проверено
+
+- Brownfield reconciliation выполнен до mutations.
+- Production Astro отделён от legacy Vite entrypoint по imports, scripts и
+  build artifact, а не по названию каталога.
+- Известные URL/base-path/CI/context риски воспроизведены точечными `rg`, build
+  и test commands и получили стабильные finding IDs.
+- Полный baseline повторён pinned pnpm toolchain: check, lint, 38 unit/integration,
+  15-page build, lesson audit и 21 Chromium E2E.
+
+### Повторяемый вывод
+
+Успешный build доказывает сборку текущего root deployment contract, но не
+доказывает non-root base portability, безопасность недоверенного URL-state или
+наличие pre-deploy quality gates. Эти свойства требуют отдельных artifact,
+adversarial и pipeline checks.
+
+### Как повторить самостоятельно
+
+1. Выполнить `pnpm check`, `pnpm lint` и `pnpm test`.
+2. Выполнить `pnpm build` и `node scripts/audit-built-lessons.mjs`.
+3. Выполнить `pnpm test:e2e` и подтвердить 21 Chromium test. На Windows при
+   блокировке PowerShell shim использовать эквивалентный `pnpm.cmd`.
+4. Найти root-absolute paths: `rg -n 'href="/|src="/' dist`.
+5. Сверить stage references: `rg -n -e 'STAGED_PROMPTS' -e 'STAGES\.md' AGENTS.md README.md docs prompts specs`.
+6. Проверить findings и reproduction в `docs/notes/stage-0-baseline.md`.
+
 ## 2026-08-14 — Воспроизводимая browser-проверка Electro Tutor
 
 ### Что и зачем изменено

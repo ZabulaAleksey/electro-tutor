@@ -4,6 +4,49 @@
 вопрос «что должна делать система», ROADMAP — «в каком порядке», AI_PLAN — «что
 делаем сейчас».
 
+## TUTOR-00 — Полная инвентаризация и reconciliation
+
+Статус: `completed` (`validated locally`, 2026-08-27)
+
+Dependencies: отсутствуют. Entry precondition: brownfield repository доступен
+read-only, package manager и baseline commands определимы.
+
+Runnable slice: классифицировать production/legacy/experimental contours,
+routes, content, tests, CI/deploy и known risks без product mutations. Concrete
+end-to-end evidence: pinned project toolchain выполняет check, lint, unit,
+production build, lesson audit и Chromium E2E; findings имеют ID, severity,
+reproduction и target stage.
+
+PASS evidence и acceptance artifact: `docs/notes/stage-0-baseline.md`.
+Temporary implementation не требуется. Deferred scope: все исправления findings.
+Rollback: удалить только audit/status documentation commit; product artifact не
+менялся.
+
+## TUTOR-01 — Канонический локальный контекст
+
+Статус: `planned`
+
+Dependency DAG: `TUTOR-00` completed. Entry preconditions: baseline findings
+`T0-CTX-001` и brownfield reconciliation доступны локально.
+
+Runnable vertical slice: команда `Продолжай Electro Tutor` разрешается только
+через существующий `prompts/STAGES.md` и актуальные repository status/plan/SPEC,
+без удалённого или machine-local `STAGED_PROMPTS.md`.
+
+Concrete end-to-end scenario: новый session на clean clone читает `AGENTS.md`,
+находит `TUTOR-02` как следующий допустимый stage, не выбирает blocked ET-stage
+и получает воспроизводимые команды проверки.
+
+Scope: semantic/link reconciliation, source-of-truth matrix, cross-device
+continuation, context/overlay validation. Non-goals: product fixes
+`T0-APP-001..T0-DEP-001`, новые hooks/MCP/agents/runtime services. Допустимая
+temporary implementation: отсутствует — local route должна быть полностью
+рабочей. Deferred scope: production boundary и остальные findings.
+
+PASS: active links не указывают на отсутствующий stage file; selector и relative
+links однозначны; overlay/context checks и `git diff --check` проходят. Rollback:
+один documentation-only commit.
+
 ## Одна команда
 
 В новом или текущем чате Codex напиши:

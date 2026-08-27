@@ -5,6 +5,36 @@ Roadmap задаёт порядок развития, но не заменяет
 
 Статусы: `DONE`, `CURRENT`, `PLANNED`, `BLOCKED`, `OPTIONAL`.
 
+## Tutor stabilization track — 2026
+
+Этот track принят поверх существующей ET-карты для доказательной стабилизации
+нынешнего production-контура. Он не разблокирует старые product stages без их
+входных решений.
+
+### TUTOR-00 — Инвентаризация и reconciliation
+
+Статус: `DONE` (validated locally, 2026-08-27)
+
+- brownfield repository, приложения, routes, content, tests и deployment
+  entrypoints классифицированы;
+- baseline checks выполнены;
+- findings `T0-APP-001..T0-DEP-001` сохранены в
+  `notes/stage-0-baseline.md`;
+- product defects намеренно не исправлялись.
+
+### TUTOR-01 — Канонический локальный контекст
+
+Статус: `PLANNED`
+
+- устранить зависимость продолжения от отсутствующего `STAGED_PROMPTS.md`;
+- согласовать локальные status/plan/roadmap/SPEC/decisions/compatibility links;
+- зафиксировать portable continuation contract и проверить overlay.
+
+Зависимость: `TUTOR-00`.
+
+Следующий после него stage: `TUTOR-02` — решение по production boundary и Vite
+SPA. Детальный contract добавляется в `prompts/STAGES.md` до запуска stage.
+
 ## ET-00 — Канонический контекст
 
 Статус: `DONE` (2026-08-13)

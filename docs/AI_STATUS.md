@@ -1,5 +1,19 @@
 # Статус проекта для AI-сессии
 
+## Tutor Stage 0 baseline — 2026-08-27
+
+- `TUTOR-00` завершён и validated locally; product code/config не изменялись.
+- Brownfield reconciliation подтвердил Astro static production boundary,
+  единственный pnpm lockfile и существующий полный project overlay.
+- Baseline PASS: Astro check 52 files; ESLint; 38 unit/integration tests;
+  production build 15 pages; lesson publication audit; 21 Chromium E2E.
+- Канонический evidence и findings: `notes/stage-0-baseline.md`.
+- Release blockers: невалидированный URL-state CircularDiagram, root-absolute
+  project-site paths, placeholder canonical и deploy без обязательных quality
+  gates.
+- Governance blocker: active ссылки на отсутствующий `prompts/STAGED_PROMPTS.md`.
+- Следующий разрешённый этап: `TUTOR-01` — канонический локальный контекст.
+
 ## Governance migration — 2026-08-24
 
 - Единственный источник этапов: `prompts/STAGES.md`; старый `STAGED_PROMPTS.md` перенесён без потери содержания.
@@ -14,15 +28,16 @@
 - Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
 - GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
 
-Обновлено: 2026-08-14
+Обновлено: 2026-08-27
 
 ## Текущий этап
 
-Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2` и `ET-04.3` завершены.
+Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
+`TUTOR-00` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
-состоянии. Следующего неблокированного продуктового этапа нет; дальнейшая работа
-потребует входных решений пользователя.
+состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
+но approved stabilization track продолжает работу с `TUTOR-01`.
 
 ## Что реализовано
 
@@ -57,11 +72,13 @@
 
 ## Известные проблемы и ограничения
 
-1. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
-2. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
-3. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
+1. Полный реестр подтверждённых Stage 0 findings хранится в
+   `notes/stage-0-baseline.md`; product fixes отложены по этапам 2–6.
+2. Без `SITE_URL` canonical/sitemap используют `electrotutor.example`.
+3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
+4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
    через разрешённый Playwright fallback только в Chromium.
-4. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
+5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
 ## Входные решения для продолжения
 
@@ -84,12 +101,12 @@
 
 ## Последние проверки
 
-- 2026-08-14: `npm run test:e2e` — 21 Chromium-тест без skip/disable;
-- 2026-08-14: `npm test` — 4 файла, 38 тестов без skip/disable;
-- 2026-08-14: `npm run check` — 51 файл, 0 errors/warnings/hints;
-- 2026-08-14: `npm run lint` — успешно;
-- 2026-08-14: `npm run build` — 15 статических страниц и sitemap;
-- 2026-08-14: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,
+- 2026-08-27: `pnpm.cmd test:e2e` — 21 Chromium-тест без skip/disable;
+- 2026-08-27: `pnpm.cmd test` — 4 файла, 38 тестов без skip/disable;
+- 2026-08-27: `pnpm.cmd check` — 52 файла, 0 errors/warnings/hints;
+- 2026-08-27: `pnpm.cmd lint` — успешно;
+- 2026-08-27: `pnpm.cmd build` — 15 статических страниц и sitemap;
+- 2026-08-27: `node scripts/audit-built-lessons.mjs` — видимый RU/UK MDX,
   hydration marker и корректные публикационные ссылки;
-- 2026-08-14: `npm audit` — 0 известных уязвимостей;
-- 2026-08-14: `npm ci --dry-run --ignore-scripts --offline` — lockfile воспроизводим.
+- 2026-08-27: read-only framework reconciliation — `BROWNFIELD`, один
+  `pnpm-lock.yaml`, dependency drift не найден.

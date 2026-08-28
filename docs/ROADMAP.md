@@ -260,12 +260,159 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Зависимость: `TUTOR-06`; прежний внешний blocker выбора provider/domain снят
 миграцией на GitHub Pages 2026-08-28.
 
-## Optional после базовых этапов
+## AI-native platform track — после stabilization/public release
 
-- server-side прогресс и аккаунты;
-- собственная realtime-инфраструктура;
-- платные цифровые материалы;
-- дополнительные интерактивные лаборатории;
-- аналитика с отдельным privacy-решением.
+Новый track детализирует дальнейшее развитие, но не меняет текущий selector:
+сначала выполняются `TUTOR-06` и `ET-08`. `ET-03` остаётся независимым
+content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
+Канонические инварианты и открытые решения находятся в
+`../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
+contracts — в `../prompts/STAGES.md`.
 
-Optional-направления не являются утверждёнными требованиями.
+### Dependency graph
+
+```text
+TUTOR-06 → ET-08 → ET-09.1 → ET-09.2 → ET-09.3 → ET-09.4
+                                            ↓
+ET-10.1 → ET-10.2 → ET-10.3 → ET-11.1 → ET-11.2
+                                            ├→ ET-11.3 → ET-11.4 → ET-11.5
+                                            └→ ET-12.1 → ET-12.2 → ET-12.3
+                                                               → ET-12.4 → ET-12.5 → ET-12.6
+
+ET-12.2 + ET-11.1 → ET-13.1
+ET-13.1 + ET-11.4 + ET-11.5 → ET-13.2 → ET-13.3
+
+ET-10.1 + ET-09.2 → ET-14.1 → ET-14.2 → ET-14.3
+                                          └→ ET-14.4
+
+ET-10.1 + external decisions → ET-15.1 → ET-15.2 → ET-15.3 → ET-15.4
+                                                         → ET-15.5 → ET-15.6
+ET-13.3 + ET-14.1 → ET-16.1 → ET-16.2
+ET-13.3 + ET-11.2 + ET-16.1 → ET-16.3
+
+ET-12.6 + ET-10.3 → ET-17.1
+ET-13.3 → ET-17.2 → selected integration stages ET-17.3 or ET-17.4
+ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
+```
+
+Стрелка показывает prerequisite на момент запуска, а не разрешение начать
+несколько будущих stages сейчас. Перед переводом любого record в `in_progress`
+его dependencies должны иметь terminal evidence.
+
+### ET-09 — Platform foundations (`FOUNDATION_NOW`)
+
+- **ET-09.1 — Architecture/reuse audit и platform contract.** Статус:
+  `PLANNED` после `ET-08`. Полный gap/reuse/conflict audit, target modular
+  monolith, data/security/integration boundaries, ADR backlog и traceability.
+- **ET-09.2 — Backend/API/DB walking skeleton.** Статус: `PLANNED`. Один
+  reproducible client/command → versioned API → PostgreSQL path, migrations,
+  diagnostics и local/CI parity.
+- **ET-09.3 — Identity/OIDC vertical slice.** Статус: `PLANNED`. Отдельная
+  Electro Tutor identity boundary, login/session/logout и protected `/me`
+  без mutation MathMorph.
+- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PLANNED`.
+  Student/Tutor profiles, server-side capability calculation и audit критичных
+  permission changes.
+
+### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
+
+- **ET-10.1 — TutorOffer и Booking для `FREE`/`EXTERNAL`.** Статус:
+  `PLANNED`; agreed terms snapshot и real student/tutor flow без Stripe.
+- **ET-10.2 — LessonAccessGrant.** Статус: `PLANNED`; time-bounded grant,
+  authorization negatives и независимость от payment provider.
+- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `PLANNED`; рабочий
+  lesson shell с server-authoritative lifecycle/capabilities без native media.
+
+### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
+
+- **ET-11.1 — Canonical time и versioned LessonEvent.** Статус: `PLANNED`.
+- **ET-11.2 — LessonTopic, LessonAnchor и Navigator.** Статус: `PLANNED`.
+- **ET-11.3 — Persistent lesson chat.** Статус: `PLANNED`.
+- **ET-11.4 — Recoverable whiteboard collaboration.** Статус: `PLANNED`;
+  CRDT/checkpoints только после отдельного evidence/ADR.
+- **ET-11.5 — Circuit/formula semantic anchors.** Статус: `PLANNED`; текущий
+  интерактив связывается с lesson domain без MathMorph compile-time dependency.
+
+### ET-12 — Native realtime (`FEATURE_NEXT`)
+
+- **ET-12.1 — Realtime provider POC и ADR.** Статус: `PLANNED`; LiveKit —
+  кандидат, а не заранее объявленный production choice.
+- **ET-12.2 — Authorized media room.** Статус: `PLANNED`; backend-issued
+  short-lived token и real browser → API → provider path.
+- **ET-12.3 — Device management и screen share.** Статус: `PLANNED`.
+- **ET-12.4 — Reconnect и full session restoration.** Статус: `PLANNED`.
+- **ET-12.5 — TURN, adaptive media и quality telemetry.** Статус: `PLANNED`;
+  production topology/cost требует решения.
+- **ET-12.6 — Waiting room, presence и moderation.** Статус: `PLANNED`.
+
+### ET-13 — Recording, replay и search (`FEATURE_NEXT/LATER`)
+
+- **ET-13.1 — Recording consent/provider/object storage.** Статус:
+  `BLOCKED` до legal/retention/storage decisions.
+- **ET-13.2 — Synchronized replay foundation.** Статус: `PLANNED` после real
+  recording и recoverable collaboration.
+- **ET-13.3 — Transcript и searchable lesson.** Статус: `BLOCKED`; provider,
+  privacy и cost являются незакрытыми входными решениями.
+
+### ET-14 — Notifications и background jobs (`FEATURE_NEXT`)
+
+- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `PLANNED`.
+- **ET-14.2 — Preferences, timezone и reminders.** Статус: `PLANNED`.
+- **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
+  `BLOCKED` до bot/test-channel credentials и privacy decision.
+- **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый
+  channel запускается отдельным bounded slice после выбора provider.
+
+### ET-15 — Platform payments и marketplace (`FEATURE_LATER`)
+
+- **ET-15.1 — Legal/provider/funds-flow decision.** Статус: `BLOCKED`; закрывает
+  решения `ET-07`, но не имитирует их наличие.
+- **ET-15.2 — Hosted checkout, verified webhook и paid grant.** Статус:
+  `PLANNED` после `ET-15.1`.
+- **ET-15.3 — Stripe Connect, append-oriented ledger и reconciliation.**
+  Статус: `PLANNED` после basic payment evidence.
+- **ET-15.4 — Payout policy и idempotent release.** Статус: `PLANNED`.
+- **ET-15.5 — Cancellation и refund policies.** Статус: `PLANNED`.
+- **ET-15.6 — Dispute hold и resolution.** Статус: `BLOCKED` до отдельного
+  compliance/operator policy approval.
+
+### ET-16 — Post-lesson AI (`FEATURE_LATER`)
+
+- **ET-16.1 — Bounded AI context и anchored summary.** Статус: `BLOCKED` до
+  provider/privacy/cost decisions.
+- **ET-16.2 — Homework/assessment proposals.** Статус: `PLANNED`; AI не
+  переписывает authoritative state silently.
+- **ET-16.3 — Search Assistant / «покажи где».** Статус: `PLANNED`; ответ
+  приводит Navigator к transcript/timeline/anchor evidence.
+
+### ET-17 — Scale и explicit integrations (`FEATURE/INTEGRATION_LATER`)
+
+- **ET-17.1 — Group lesson и observer capabilities.** Статус: `BLOCKED` до
+  capacity/cost/moderation decisions.
+- **ET-17.2 — Versioned lesson export/Application API.** Статус: `PLANNED`.
+- **ET-17.3 — MathMorph formula interchange adapter.** Статус: `OPTIONAL`;
+  отдельные repositories/identity/database сохраняются.
+- **ET-17.4 — Shared identity integration.** Статус: `OPTIONAL`, сейчас
+  `BLOCKED` до межпроектного решения; не изменяет MathMorph realm/client автоматически.
+
+### ET-18 — Production operations (`FEATURE_LATER`)
+
+- **ET-18.1 — Core platform threat/privacy/retention hardening.** Статус:
+  `PLANNED` для первого release bundle через `ET-12.6`, `ET-13.2` и
+  `ET-14.2`; это не замена security reviews предыдущих slices.
+- **ET-18.2 — Core backend/realtime production rollout и recovery.** Статус:
+  `BLOCKED` до hosting, backup/restore, SLO, cost budget и operator decisions.
+
+## Candidate directions после planned track
+
+- Course/Module/LessonMaterial, self-study и Personal Learning Memory;
+- платные цифровые материалы, subscriptions и content commerce;
+- дополнительные интерактивные лаборатории и FieldLab/Multiphysics;
+- Chronicle, Evidence Ledger и Coursework Foundry adapters;
+- external video fallback, offline/local-first и Wi-Fi/Home Mesh;
+- local models, LangGraph/CrewAI и advanced learning orchestration;
+- product analytics только с отдельным privacy/consent contract.
+
+Эти направления классифицированы как `INTEGRATION_LATER` или `EXPERIMENTAL` и
+не являются launchable stages. Для каждого сначала нужен отдельный refinement,
+SPEC/ADR, dependency check и явное одобрение.

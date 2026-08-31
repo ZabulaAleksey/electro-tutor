@@ -1,12 +1,10 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { rm } from "node:fs/promises";
+import { resolve } from "node:path";
 
 const projectRoot = process.cwd();
-const temporaryRoot = resolve(tmpdir());
-const outputDirectory = await mkdtemp(join(temporaryRoot, "electro-tutor-root-"));
+const outputDirectory = resolve(projectRoot, "dist");
 const environment = {
   ...process.env,
   SITE_URL: "https://example.invalid",

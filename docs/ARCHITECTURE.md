@@ -265,6 +265,7 @@ git diff --check
 - `node_modules`, `.astro`, `dist` и тестовые/build caches можно пересоздавать; исходники, lesson content и локальные секреты dependency cleanup не затрагивает.
 - GitHub Pages verify job использует frozen lockfile и `pnpm run verify:full`:
   Git hygiene, workflow contract, Astro check, ESLint, Vitest, полный Chromium
-  E2E на временном root-artifact, единственная production build, project-base
-  smoke этого `dist/` и dependency audit. Только после них `dist/` загружается
-  как Pages artifact; deploy job зависит от verify и не пересобирает artifact.
+  E2E на транзитном root-artifact в `dist/` с обязательным cleanup, единственная
+  production build, project-base smoke этого `dist/` и dependency audit. Только
+  после них `dist/` загружается как Pages artifact; deploy job зависит от verify
+  и не пересобирает artifact.

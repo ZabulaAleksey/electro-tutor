@@ -14,9 +14,10 @@ Production deployment Electro Tutor допускается только для a
   hygiene, static/type checks, lint, unit/integration/component tests,
   полный live Chromium E2E, production build, production-base E2E smoke и
   dependency audit.
-- `QG-002`: полный browser suite проверяет временный root-artifact без изменения
-  принятых тестов; production artifact собирается ровно один раз и проходит
-  живой base-path smoke, а deploy не выполняет повторную сборку.
+- `QG-002`: полный browser suite проверяет транзитный root-artifact в каноническом
+  `dist/` без изменения принятых тестов; root-artifact удаляется после suite,
+  production artifact собирается ровно один раз и проходит живой base-path
+  smoke, а deploy не выполняет повторную сборку.
 - `QG-003`: upload и deploy недоступны при падении любого обязательного gate;
   retry, skip и failure suppression не используются.
 - `QG-004`: deploy job зависит от verify job и получает только Pages artifact,

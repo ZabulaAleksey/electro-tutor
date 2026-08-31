@@ -399,8 +399,9 @@ Cloudflare как действующий provider.
 Статус: принято
 
 Решение: локальный и CI entrypoint качества — `pnpm run verify:full`. Полный
-Chromium suite проверяет временный root-artifact без изменения принятых тестов;
-после него production `dist/` собирается ровно один раз с действующими
+Chromium suite проверяет транзитный root-artifact в каноническом `dist/` без
+изменения принятых тестов и удаляет его в `finally`; после него production
+`dist/` собирается ровно один раз с действующими
 `SITE_URL`/`BASE_PATH` и проходит project-base smoke. Verify job загружает этот
 artifact только после всех gates, а deploy job зависит от verify и не содержит
 checkout/install/build. Actions закреплены полными SHA, permissions разделены
@@ -408,9 +409,10 @@ checkout/install/build. Actions закреплены полными SHA, permiss
 
 Причина: прежний workflow проверял только build и давал build job избыточные
 deployment permissions. Простое включение полного root-oriented E2E при
-`BASE_PATH=/electro-tutor/` не проверяло бы корректный route contract; отдельный
-временный root-artifact сохраняет существующий suite, а production-base smoke
-подтверждает именно публикуемый `dist/`.
+`BASE_PATH=/electro-tutor/` не проверяло бы корректный route contract;
+транзитный root-artifact в ожидаемом тестами `dist/` сохраняет существующий
+suite, а cleanup и production-base smoke подтверждают именно заново собранный
+публикуемый `dist/`.
 
 Последствия: падение hygiene/static/lint/unit/full E2E/build/production smoke или
 dependency audit блокирует upload и deploy. Локальный PASS не является

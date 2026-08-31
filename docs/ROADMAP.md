@@ -251,15 +251,15 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 
 ## ET-08 — Завершение public release hardening
 
-Статус: `PLANNED` после `TUTOR-06`
+Статус: `COMPLETED` (`deployed`, 2026-08-31)
 
-- GitHub Pages выбран как production provider и live-проверен по адресу
-  `https://zabulaaleksey.github.io/electro-tutor/` с base
-  `/electro-tutor/`; evidence предоставлено оператором, URL workflow run и
-  commit SHA в repository не зафиксированы;
-- завершить обязательные pre-deploy quality gates этапа `TUTOR-06`;
-- выполнить полный quality/security/responsive/PWA checklist;
-- проверить обновление уже установленного service worker;
+- GitHub Pages verify/deploy run `33387890612` на SHA `d22b597` успешно
+  опубликовал checked artifact по адресу
+  `https://zabulaaleksey.github.io/electro-tutor/` с base `/electro-tutor/`;
+- обязательные pre-deploy quality gates этапа `TUTOR-06` выполнены локально и в CI;
+- quality/security/responsive/PWA live checklist выполнен в Chromium;
+- accepted versioned E2E подтвердил update уже контролируемого клиента, а live
+  update-check подтвердил activated production controller и cache namespace;
 - любые следующие production changes/deploy выполнять только по явной команде
   пользователя.
 
@@ -268,8 +268,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 
 ## AI-native platform track — после stabilization/public release
 
-Новый track детализирует дальнейшее развитие, но не меняет текущий selector:
-сначала выполняются `TUTOR-06` и `ET-08`. `ET-03` остаётся независимым
+Новый track детализирует дальнейшее развитие; текущий selector после закрытия
+`TUTOR-06` и `ET-08` — `ET-09.1`. `ET-03` остаётся независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage

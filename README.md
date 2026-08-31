@@ -33,8 +33,9 @@ pnpm verify:full
 `BASE_PATH=/electro-tutor/`, проверяет internal links/assets и выполняет live
 Chromium smoke; временный artifact удаляется после проверки.
 `verify:full` выполняет frozen install, Git hygiene, static check, lint, все
-unit/integration/component tests, полный Chromium E2E на временном root-artifact,
-production build, smoke именно собранного production artifact и dependency audit.
+unit/integration/component tests, полный Chromium E2E на транзитном root-artifact
+в `dist/`, удаляет его и затем выполняет production build, smoke именно
+собранного production artifact и dependency audit.
 Astro — единственный application build path; Vite используется внутри Astro и
 Vitest как инструмент и не является отдельным SPA entrypoint.
 Известные проблемы команд зафиксированы в `docs/AI_STATUS.md`.

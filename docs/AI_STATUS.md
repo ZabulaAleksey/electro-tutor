@@ -10,11 +10,12 @@
   output `dist/`.
 - Production inputs: `SITE_URL=https://zabulaaleksey.github.io` и
   `BASE_PATH=/electro-tutor/`; root redirect на `ru/` выполняет Astro.
-- GitHub Pages deployment и автоматический deploy из `main` проверены вручную
-  на live-сайте. Production-like local build и artifact audits — PASS: 14
-  localized routes, lesson publication audit, 90 files с base
-  `/electro-tutor/`. Live evidence предоставлено оператором; URL workflow run и
-  commit SHA в repository не зафиксированы.
+- GitHub Pages deployment и автоматический deploy из `main` подтверждены run
+  `33387890612` на commit `d22b597`: verify и deploy — PASS. Production-like
+  build и artifact audits — PASS: 14 localized routes, lesson publication
+  audit, 90 files с base `/electro-tutor/`. Live URL:
+  `https://zabulaaleksey.github.io/electro-tutor/`; workflow evidence:
+  `https://github.com/ZabulaAleksey/electro-tutor/actions/runs/33387890612`.
 - Cloudflare deployment выведен из эксплуатации. `wrangler`, `wrangler.jsonc`,
   `public/_redirects`, дублирующий `.github/workflows/deploy.yml` и правило
   `.wrangler/` удалены; исторические записи сохранены как history/evidence.
@@ -41,7 +42,9 @@
   helpers и root/project-base artifact/Chromium проверки подтверждают переносимость.
 - `T0-REL-001` закрыт в `TUTOR-06`: единый full-verify pipeline блокирует
   upload/deploy и передаёт только проверенный Pages artifact.
-- Следующий разрешённый этап: `ET-08` — завершение public release hardening.
+- `ET-08` завершён и deployed: checked Pages artifact, RU/UK/PWA/responsive live
+  checklist и exact workflow URL/SHA подтверждены.
+- Следующий разрешённый этап: `ET-09.1` — architecture/reuse audit и platform contract.
 
 ## Governance migration — 2026-08-24
 
@@ -65,11 +68,11 @@
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
 `TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05`,
-`TUTOR-06` завершены.
+`TUTOR-06` и `ET-08` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Product stages `ET-03/05/06/07` остаются заблокированными внешними
-решениями, а approved stabilization track продолжает работу с `ET-08`.
+решениями; следующий approved track начинается с docs-only этапа `ET-09.1`.
 
 ## Что реализовано
 
@@ -89,8 +92,9 @@
 - GitHub Pages production deployment через GitHub Actions с единственным
   workflow `.github/workflows/pages.yml`;
 - единый `pnpm run verify:full`: frozen install, hygiene, workflow contract,
-  static/lint, 81 unit/integration/component tests, 46 Chromium E2E на временном
-  root-artifact, production build, 4 project-base smoke и dependency audit;
+  static/lint, 82 unit/integration/component tests, 46 Chromium E2E на
+  транзитном root-artifact в `dist/` с cleanup, production build, 4 project-base
+  smoke и dependency audit;
 - verify/deploy permissions разделены, checkout credentials не сохраняются,
   manual path ограничен `main`, Actions закреплены immutable full SHA, deploy
   использует проверенный `dist/` без пересборки;
@@ -115,7 +119,7 @@
 - production booking integration;
 - checkout, webhook и заказы;
 - полный автоматический security suite;
-- итоговый public release hardening `ET-08`.
+- architecture/reuse audit и platform contract `ET-09.1`.
 
 ## Известные проблемы и ограничения
 
@@ -124,13 +128,14 @@
 2. Без `SITE_URL` локальные/альтернативные сборки используют
    `electrotutor.example`; production Pages workflow задаёт точный origin.
 3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
-4. Browser plugin недоступен (`No browser is available`); текущая browser-база проверена
-   через разрешённый Playwright fallback только в Chromium.
+4. Текущая browser-база проверена только в Chromium: accepted Playwright suite
+   и live Pages checklist прошли; Firefox/Safari — `NOT RUN`.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
 `T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`,
-`T0-SEO-001`, `T0-DEP-001` и `T0-REL-001` закрыты. Для `T0-REL-001` подтверждено
-local/workflow-contract evidence; GitHub run, push, merge и deploy не выполнялись.
+`T0-SEO-001`, `T0-DEP-001` и `T0-REL-001` закрыты. Для `T0-REL-001` подтверждены
+local/CI evidence, push `main` и успешный Pages deploy run `33387890612` на
+commit `d22b597`.
 
 ## Входные решения для продолжения
 
@@ -152,13 +157,20 @@ local/workflow-contract evidence; GitHub run, push, merge и deploy не вып�
 
 ## Последние проверки
 
+- 2026-08-31 (`ET-08`): GitHub Actions run `33387890612` на `d22b597` — PASS;
+  verify установил Chromium, выполнил все required gates, загрузил checked
+  `dist/`, deploy опубликовал Pages artifact. Live Chromium подтвердил root→RU,
+  RU/UK switch с query/hash/state, PWA assets `200`, activated controller/scope
+  `/electro-tutor/`, cache `potential-pwa-v2`, RU/UK mobile 390x844 без
+  horizontal overflow и отсутствие console errors. Versioned worker update и
+  offline policy подтверждены accepted 46-test root E2E; live update-check
+  подтвердил текущий activated production controller;
 - 2026-08-31 (`TUTOR-06`): workflow-equivalent
-  `pnpm.cmd run verify:full -- --skip-install` с production
-  `SITE_URL`/`BASE_PATH` — PASS; Astro check 71
-  файл, ESLint, 81 unit/integration/component tests, 46 Chromium E2E на
-  временном root-artifact, production build 15 страниц, locale audit 14 routes,
-  lesson/site audits 90 файлов, 4 project-base Chromium smoke и dependency
-  audit без известных уязвимостей; external GitHub run/deploy — NOT RUN;
+  `pnpm.cmd run verify:full` и CI run с production `SITE_URL`/`BASE_PATH` — PASS;
+  Astro check 71 файл, ESLint, 82 unit/integration/component tests, 46 Chromium
+  E2E на транзитном root-artifact в `dist/`, production build 15 страниц,
+  locale audit 14 routes, lesson/site audits 90 файлов, 4 project-base Chromium
+  smoke и dependency audit без известных уязвимостей;
 - 2026-08-28 (deployment migration): GitHub Pages production URL и
   автоматический deploy из `main` проверены оператором вручную (URL workflow
   run и commit SHA в repository не зафиксированы); production-like build с

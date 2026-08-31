@@ -1,38 +1,35 @@
 # Текущий AI-план
 
-## ET-08 — Завершение public release hardening
+## ET-09.1 — Architecture/reuse audit и platform contract
 
-- Stage ID: `ET-08`
+- Stage ID: `ET-09.1`
 
 Статус: `PLANNED`
 
-Цель: после validated-locally `TUTOR-06` подтвердить единый GitHub Pages release
-contour и закрыть public static release до backend platform track.
+Цель: превратить future vision в проверенный target contract до выбора
+backend/provider и начала code scaffolding.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-06` завершён и validated locally;
-- production inputs и Pages URL подтверждены существующим evidence;
-- любые новые live проверки, merge, push и deploy требуют отдельного разрешения.
+- `ET-08` завершён и deployed;
+- Electro Tutor и MathMorph доступны для read-only audit;
+- draft platform SPEC и current repository evidence доступны.
 
 ### Runnable slice и scenario
 
-Source change проходит full local/CI verify и создаёт checked Pages artifact;
-затем RU/UK, PWA, responsive и security release checklist подтверждает
-наблюдаемый результат без обхода красных gates.
+Repository evidence и user vision проходят audit/reuse classifier; результат —
+согласованные SPEC/architecture/ADR/DAG/traceability, после которых context
+validator однозначно выбирает `ET-09.2`.
 
 ### Scope и PASS evidence
 
-- выполнить release checklist и installed service-worker update verification;
-- сопоставить workflow run URL, commit SHA и artifact scope, если пользователь
-  разрешит внешний запуск;
-- повторить unit/integration/component, full Chromium E2E, production-like build
-  и artifact audits;
-- синхронизировать только изменившиеся repository facts.
+- зафиксировать current/target maps, gap/reuse/conflict audit и first release slice;
+- определить domain/data/provider/security/privacy/integration boundaries;
+- классифицировать features и подготовить executable contract `ET-09.2`;
+- синхронизировать только изменившиеся canonical planning/architecture sources.
 
 ### Non-goals и blocker
 
-- backend, auth, native media, payments и AI deferred к будущим stages;
-- production deploy не входит в автоматическое продолжение;
-- без явного разрешения external live evidence остаётся `NOT RUN`, а stage не
-  повышается до released/deployed.
+- product/backend/provider implementation и mutation MathMorph запрещены;
+- data model и migration policy допускаются только как docs contract;
+- недоступное cross-project evidence маркируется `NOT VERIFIED`, не угадывается.

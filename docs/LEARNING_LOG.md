@@ -1,5 +1,29 @@
 # Учебный журнал
 
+## 2026-08-31 — Clean CI выявляет скрытую зависимость от локального artifact
+
+### Что проверено
+
+- GitHub runner сначала подтвердил fail-closed deploy при отсутствии Chromium,
+  затем выявил PWA E2E, читавший канонический `dist/sw.js`.
+- Workflow теперь явно устанавливает Chromium, а root E2E строит транзитный
+  artifact в ожидаемом `dist/` и гарантированно удаляет его перед production build.
+- Тот же полный pipeline прошёл локально и в GitHub Actions до Pages deploy.
+
+### Повторяемый вывод
+
+Зелёный локальный E2E может случайно использовать оставшийся `dist` и скрыть
+неполный setup чистого runner. Проверка должна сама создавать все читаемые
+artifacts, а browser runtime должен устанавливаться явным шагом до gate.
+
+### Как повторить самостоятельно
+
+1. Начать с clean checkout без `dist` и browser cache assumptions.
+2. Выполнить `pnpm install --frozen-lockfile` и установить Chromium.
+3. Запустить `pnpm run verify:full` и убедиться, что root suite создаёт свой `dist`.
+4. Проверить, что после root suite production build создаёт новый Pages artifact.
+5. Убедиться, что deploy зависит от green verify и не пересобирает artifact.
+
 ## 2026-08-27 — Общий content store не означает global virtual store
 
 ### Что изменено

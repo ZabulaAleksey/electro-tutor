@@ -200,7 +200,7 @@ artifact audit 91 files, 4 project-base Chromium E2E и полный root Chromi
 
 ## TUTOR-06 — Обязательные quality gates перед публикацией
 
-Статус: `completed` (`validated locally`, 2026-08-31)
+Статус: `completed` (`deployed`, 2026-08-31)
 
 Dependency DAG: `TUTOR-05` completed. Entry preconditions: единый Astro artifact,
 root/non-empty-base contracts и frozen pnpm install подтверждены.
@@ -225,12 +225,14 @@ PASS: negative gate probes блокируют deploy; green pipeline перед�
 checked artifact; local/CI gates совпадают; permissions/cache/concurrency
 проверены. Rollback: один Stage 6 commit без deploy.
 
-Acceptance evidence: `pnpm run verify:full` и workflow-equivalent прогон с
-production `SITE_URL`/`BASE_PATH` прошли; 81 unit/integration/component tests,
-46 Chromium E2E на временном root-artifact, 4 project-base smoke по production
-`dist/`, artifact audits и dependency audit — PASS. Workflow contract tests
+Acceptance evidence: `pnpm run verify:full` и GitHub Actions run `33387890612`
+на commit `d22b597` с production `SITE_URL`/`BASE_PATH` прошли; 82
+unit/integration/component tests, 46 Chromium E2E на транзитном root-artifact
+в `dist/`, 4 project-base smoke по production `dist/`, artifact audits и
+dependency audit — PASS. Workflow contract tests
 проверяют удаление обязательных gates, bypass full verify, deploy dependency и
-deploy-side rebuild. External GitHub run, push, merge и deploy не выполнялись.
+deploy-side rebuild. Verify и Pages deploy завершились успешно:
+`https://github.com/ZabulaAleksey/electro-tutor/actions/runs/33387890612`.
 
 ## Контракт будущего AI-native platform track
 
@@ -251,12 +253,12 @@ gate оставляет `blocked`, `partial` или `implemented_unverified`.
 
 ## ET-08 — Завершение public release hardening
 
-Статус: `planned`.
+Статус: `completed` (`deployed`, 2026-08-31).
 
 - **Goal / why now:** после `TUTOR-06` подтвердить единый GitHub Pages release
   contour и закрыть public static release до начала backend platform track.
 - **Dependencies / entry:** `TUTOR-06` completed; production inputs и Pages URL
-  подтверждены; operator разрешил только требуемые live checks, не новый deploy.
+  подтверждены; operator явно разрешил push `main` и Pages deploy.
 - **Runnable slice / E2E:** source change → full local/CI verify → checked Pages
   artifact → RU/UK/PWA/responsive/security live checklist с наблюдаемым PASS.
 - **Scope / non-goals:** release checklist, installed service-worker update,
@@ -277,6 +279,14 @@ gate оставляет `blocked`, `partial` или `implemented_unverified`.
   может впервые сделать этот static release проверяемым.
 - **DoD / deferred:** общий DoD + closed `T0-REL-001`; все AI-native capabilities
   deferred to `ET-09.1+`.
+
+Completion evidence: local `pnpm run verify:full`, GitHub Actions verify/deploy
+run `33387890612` на SHA `d22b597`, checked Pages artifact и live Chromium
+checklist — PASS. Live подтверждены RU/UK state-preserving switch, PWA assets,
+active controller/scope `/electro-tutor/`, cache `potential-pwa-v2`, mobile
+390x844 без horizontal overflow и отсутствие console errors. Смена активного
+worker и offline policy доказаны accepted versioned Playwright E2E; live
+`registration.update()` подтвердил актуальный activated production controller.
 
 ## ET-09.1 — Architecture/reuse audit и platform contract
 

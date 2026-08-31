@@ -39,7 +39,9 @@
   build validator и artifact/Chromium route matrix подтверждают production contract.
 - `T0-BASE-001` закрыт в `TUTOR-05`: единый base/site contract, route/asset
   helpers и root/project-base artifact/Chromium проверки подтверждают переносимость.
-- Следующий разрешённый этап: `TUTOR-06` — обязательные pre-deploy quality gates.
+- `T0-REL-001` закрыт в `TUTOR-06`: единый full-verify pipeline блокирует
+  upload/deploy и передаёт только проверенный Pages artifact.
+- Следующий разрешённый этап: `ET-08` — завершение public release hardening.
 
 ## Governance migration — 2026-08-24
 
@@ -57,16 +59,17 @@
 - Clean restore из lock-файла, Astro check, ESLint, 38 unit/integration tests, production build, 21 Chromium E2E и прямой ESM-import Vite — PASS.
 - GitHub Actions переведён на `pnpm/setup@v1`, Node 22 и frozen install.
 
-Обновлено: 2026-08-28
+Обновлено: 2026-08-31
 
 ## Текущий этап
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
-`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05` завершены.
+`TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05`,
+`TUTOR-06` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
-состоянии. Старые product stages `ET-03/05/06/07/08` остаются заблокированными,
-но approved stabilization track продолжает работу с `TUTOR-06`.
+состоянии. Product stages `ET-03/05/06/07` остаются заблокированными внешними
+решениями, а approved stabilization track продолжает работу с `ET-08`.
 
 ## Что реализовано
 
@@ -85,6 +88,12 @@
 - MVP кабинета на публичном Jitsi и условная внешняя ссылка Cal.com;
 - GitHub Pages production deployment через GitHub Actions с единственным
   workflow `.github/workflows/pages.yml`;
+- единый `pnpm run verify:full`: frozen install, hygiene, workflow contract,
+  static/lint, 81 unit/integration/component tests, 46 Chromium E2E на временном
+  root-artifact, production build, 4 project-base smoke и dependency audit;
+- verify/deploy permissions разделены, checkout credentials не сохраняются,
+  manual path ограничен `main`, Actions закреплены immutable full SHA, deploy
+  использует проверенный `dist/` без пересборки;
 - единый нормализованный `SITE_URL`/`BASE_PATH` contract, base-aware routes,
   assets, manifest и service worker scope для root и project-site artifact;
 - post-build audit внутренних HTML/CSS/manifest targets и запрет machine-local URL;
@@ -106,13 +115,12 @@
 - production booking integration;
 - checkout, webhook и заказы;
 - полный автоматический security suite;
-- полный обязательный pre-deploy quality pipeline и итоговый release-hardening.
+- итоговый public release hardening `ET-08`.
 
 ## Известные проблемы и ограничения
 
 1. Полный реестр подтверждённых Stage 0 findings хранится в
-   `notes/stage-0-baseline.md`; оставшийся release finding `T0-REL-001` назначен
-   этапу `TUTOR-06`.
+   `notes/stage-0-baseline.md`; все findings `T0-*` закрыты локальным evidence.
 2. Без `SITE_URL` локальные/альтернативные сборки используют
    `electrotutor.example`; production Pages workflow задаёт точный origin.
 3. Публичный Jitsi не даёт проекту собственного контроля доступа, retention и SLA.
@@ -121,8 +129,8 @@
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
 
 `T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`,
-`T0-SEO-001` и `T0-DEP-001` закрыты; `T0-REL-001` остаётся открытым согласно
-`notes/stage-0-baseline.md`.
+`T0-SEO-001`, `T0-DEP-001` и `T0-REL-001` закрыты. Для `T0-REL-001` подтверждено
+local/workflow-contract evidence; GitHub run, push, merge и deploy не выполнялись.
 
 ## Входные решения для продолжения
 
@@ -144,6 +152,13 @@
 
 ## Последние проверки
 
+- 2026-08-31 (`TUTOR-06`): workflow-equivalent
+  `pnpm.cmd run verify:full -- --skip-install` с production
+  `SITE_URL`/`BASE_PATH` — PASS; Astro check 71
+  файл, ESLint, 81 unit/integration/component tests, 46 Chromium E2E на
+  временном root-artifact, production build 15 страниц, locale audit 14 routes,
+  lesson/site audits 90 файлов, 4 project-base Chromium smoke и dependency
+  audit без известных уязвимостей; external GitHub run/deploy — NOT RUN;
 - 2026-08-28 (deployment migration): GitHub Pages production URL и
   автоматический deploy из `main` проверены оператором вручную (URL workflow
   run и commit SHA в repository не зафиксированы); production-like build с

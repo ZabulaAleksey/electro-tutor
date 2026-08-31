@@ -25,12 +25,16 @@ pnpm check
 pnpm lint
 pnpm build
 pnpm check:base-path
+pnpm verify:full
 ```
 
 Результат production-сборки находится в `dist/` и вручную не редактируется.
 `check:base-path` дополнительно собирает artifact во временный каталог с
 `BASE_PATH=/electro-tutor/`, проверяет internal links/assets и выполняет live
 Chromium smoke; временный artifact удаляется после проверки.
+`verify:full` выполняет frozen install, Git hygiene, static check, lint, все
+unit/integration/component tests, полный Chromium E2E на временном root-artifact,
+production build, smoke именно собранного production artifact и dependency audit.
 Astro — единственный application build path; Vite используется внутри Astro и
 Vitest как инструмент и не является отдельным SPA entrypoint.
 Известные проблемы команд зафиксированы в `docs/AI_STATUS.md`.
@@ -109,8 +113,11 @@ PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
 
 - Production URL: <https://zabulaaleksey.github.io/electro-tutor/>.
 - Единственный активный deployment workflow — `.github/workflows/pages.yml`:
-  push в `main` запускает frozen pnpm install, `pnpm run build`, загрузку
-  `dist/` как Pages artifact и публикацию через GitHub Pages.
+  push в `main` запускает frozen pnpm install и `pnpm run verify:full`, после
+  чего загружает проверенный `dist/` как Pages artifact. Deploy job зависит от
+  verify job и не пересобирает artifact.
+- `workflow_dispatch` и deploy явно ограничены `main`; локальная успешная
+  проверка сама по себе не разрешает merge, push или production deploy.
 - Production artifact собирается с project base `/electro-tutor/`.
 - `src/pages/index.astro` выполняет base-aware redirect с
   `/electro-tutor/` на `/electro-tutor/ru/` внутри Astro static build;

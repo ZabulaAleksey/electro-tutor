@@ -12,10 +12,16 @@
         "lint": "eslint .",
         "check": "astro check",
         "check:context": "node scripts/validate-context-route.mjs",
+        "check:ci-workflow": "node scripts/ci-workflow-contract.mjs",
+        "check:hygiene": "node scripts/check-git-hygiene.mjs",
         "check:locales": "node scripts/validate-locales.mjs",
         "test": "vitest run",
         "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
-        "test:e2e:install": "playwright install chromium"
+        "test:e2e:built": "node scripts/run-e2e.mjs",
+        "test:e2e:production-smoke": "node scripts/run-production-e2e-smoke.mjs",
+        "test:e2e:root": "node scripts/check-root-e2e.mjs",
+        "test:e2e:install": "playwright install chromium",
+        "verify:full": "node scripts/full-verify.mjs"
     },
     "dependencies": {
         "@astrojs/mdx": "^7.0.3",

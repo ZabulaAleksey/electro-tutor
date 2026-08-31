@@ -1,62 +1,38 @@
 # Текущий AI-план
 
-## TUTOR-06 — Обязательные quality gates перед публикацией
+## ET-08 — Завершение public release hardening
 
-- Stage ID: `TUTOR-06`
+- Stage ID: `ET-08`
 
 Статус: `PLANNED`
 
-Цель: закрыть `T0-REL-001` — deploy не должен запускаться и публиковать
-артефакт, пока единый воспроизводимый quality pipeline не подтвердил исходный
-код и именно этот production artifact.
+Цель: после validated-locally `TUTOR-06` подтвердить единый GitHub Pages release
+contour и закрыть public static release до backend platform track.
 
 ### Dependencies и входные предпосылки
 
-- `TUTOR-00..TUTOR-05` завершены и validated locally;
-- Astro является единственной production boundary;
-- root и non-empty-base artifact contracts подтверждены;
-- GitHub Pages workflow использует frozen pnpm install и явно задаёт
-  `SITE_URL=https://zabulaaleksey.github.io` и
-  `BASE_PATH=/electro-tutor/` в workflow/build environment.
+- `TUTOR-06` завершён и validated locally;
+- production inputs и Pages URL подтверждены существующим evidence;
+- любые новые live проверки, merge, push и deploy требуют отдельного разрешения.
 
-### Runnable vertical slice и scenario
+### Runnable slice и scenario
 
-Одна локальная команда и эквивалентный CI job выполняют frozen install,
-format/diff hygiene, static checks, lint, unit/integration/component tests,
-production build, live E2E smoke и доступные dependency/security checks.
-Deploy job зависит от успешного verify job и публикует проверенный artifact.
+Source change проходит full local/CI verify и создаёт checked Pages artifact;
+затем RU/UK, PWA, responsive и security release checklist подтверждает
+наблюдаемый результат без обхода красных gates.
 
-Concrete end-to-end scenario: намеренно сломанный type, unit test или E2E smoke
-останавливает workflow до upload/deploy; исправленная версия проходит тот же
-pipeline и передаёт единственный проверенный artifact в GitHub Pages deploy.
+### Scope и PASS evidence
 
-### Scope
+- выполнить release checklist и installed service-worker update verification;
+- сопоставить workflow run URL, commit SHA и artifact scope, если пользователь
+  разрешит внешний запуск;
+- повторить unit/integration/component, full Chromium E2E, production-like build
+  и artifact audits;
+- синхронизировать только изменившиеся repository facts.
 
-- нормализовать локальную full-verify command и CI parity;
-- установить явный порядок gates без retry, скрывающего flaky tests;
-- сделать deploy зависимым от обязательного verify и checked artifact;
-- сохранить безопасный cache, concurrency cancellation и минимальные permissions;
-- ограничить manual deployment production-веткой либо подтверждённой
-  environment policy, сузить permissions до job scope и не сохранять checkout
-  credentials без необходимости;
-- закрепить все referenced GitHub Actions immutable commit SHA;
-- документировать одну команду полной локальной проверки.
+### Non-goals и blocker
 
-### Non-goals и deferred scope
-
-- фактический deploy, production-домен, DNS или merge в `main`;
-- изменение product behavior, locale/content/URL-state schemas;
-- добавление нового security scanner без оценки необходимости и контракта;
-- обход красного gate через skip, retry или параллельную пересборку artifact.
-
-### PASS evidence и rollback
-
-- broken type, unit и live E2E fixtures в контролируемой проверке блокируют deploy DAG;
-- успешный pipeline публикует ровно artifact, созданный обязательным verify job;
-- локальная full-verify command повторяет CI gates в том же существенном порядке;
-- manual deploy ограничен `main` либо подтверждённой environment policy;
-- build/deploy permissions разделены по job, checkout credentials не
-  сохраняются без необходимости, все referenced Actions закреплены full SHA;
-- workflow cache и concurrency проверены;
-- static, unit/integration/component, build, E2E и configured security checks PASS;
-- rollback — единый Stage 6 commit без deploy/production configuration write.
+- backend, auth, native media, payments и AI deferred к будущим stages;
+- production deploy не входит в автоматическое продолжение;
+- без явного разрешения external live evidence остаётся `NOT RUN`, а stage не
+  повышается до released/deployed.

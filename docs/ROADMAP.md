@@ -78,7 +78,7 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ### TUTOR-06 — Обязательные quality gates перед публикацией
 
-Статус: `PLANNED`
+Статус: `DONE` (validated locally, 2026-08-31)
 
 - свести локальную full-verify command и CI к одному существенному порядку gates;
 - блокировать upload/deploy при ошибке static, unit/integration/component, build
@@ -86,6 +86,12 @@ Roadmap задаёт порядок развития, но не заменяет
 - передавать deploy job именно проверенный artifact без повторной сборки;
 - проверить frozen install, cache, concurrency cancellation, permissions и
   доступные dependency/security checks.
+
+Результат: `pnpm run verify:full` объединяет frozen install, hygiene, static,
+lint, unit/integration/component, полный root-artifact Chromium E2E, production
+build, project-base smoke и dependency audit. Verify передаёт deploy только
+проверенный `dist/`; job permissions разделены, manual path ограничен `main`,
+Actions закреплены full SHA. Push/merge/deploy не выполнялись.
 
 Зависимость: `TUTOR-05`.
 

@@ -391,3 +391,27 @@ Base-aware locale redirect выполняет `src/pages/index.astro`, поэт�
 redirect не требуется. Исторические Cloudflare ADR и baseline evidence
 сохраняются, но current architecture/security/status больше не описывают
 Cloudflare как действующий provider.
+
+## ADR-018 — Проверенный artifact как единственный deploy input
+
+Дата: 2026-08-31
+
+Статус: принято
+
+Решение: локальный и CI entrypoint качества — `pnpm run verify:full`. Полный
+Chromium suite проверяет временный root-artifact без изменения принятых тестов;
+после него production `dist/` собирается ровно один раз с действующими
+`SITE_URL`/`BASE_PATH` и проходит project-base smoke. Verify job загружает этот
+artifact только после всех gates, а deploy job зависит от verify и не содержит
+checkout/install/build. Actions закреплены полными SHA, permissions разделены
+по job, credentials checkout не сохраняются, manual deploy ограничен `main`.
+
+Причина: прежний workflow проверял только build и давал build job избыточные
+deployment permissions. Простое включение полного root-oriented E2E при
+`BASE_PATH=/electro-tutor/` не проверяло бы корректный route contract; отдельный
+временный root-artifact сохраняет существующий suite, а production-base smoke
+подтверждает именно публикуемый `dist/`.
+
+Последствия: падение hygiene/static/lint/unit/full E2E/build/production smoke или
+dependency audit блокирует upload и deploy. Локальный PASS не является
+разрешением на merge, push или production deployment.

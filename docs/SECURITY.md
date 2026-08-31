@@ -15,7 +15,7 @@
 | Браузер storage | тема, уровень, имя, позиция/параметры | локальное/session storage |
 | URL query → CircularDiagram | восемь публичных числовых параметров | schema `v=1`, size/duplicate/type/range validation до модели |
 | GitHub repository ↔ GitHub Actions ↔ GitHub Pages | исходники и `dist/` artifact | CI/deploy через `.github/workflows/pages.yml` |
-| GitHub-hosted Actions и package registry ↔ build job | исполняемый action/dependency code | Actions по major tags, dependencies из frozen pnpm lockfile |
+| GitHub-hosted Actions и package registry ↔ verify job | исполняемый action/dependency code | Actions закреплены полными commit SHA, dependencies из frozen pnpm lockfile |
 
 Backend, база данных, аккаунты и платёжные endpoints сейчас отсутствуют.
 
@@ -36,20 +36,21 @@ Production trust boundary проходит от GitHub repository через Git
 GitHub Pages. Автоматический путь запускается только при push в `main`;
 `workflow_dispatch` остаётся отдельной ручной operator surface.
 
-Workflow имеет ровно объявленные в repository permissions:
+Workflow разделяет permissions по job:
 
-- `contents: read` для checkout исходников;
-- `pages: write` для публикации Pages;
-- `id-token: write` для OIDC, используемого Pages deployment action.
+- verify: только `contents: read`, checkout использует
+  `persist-credentials: false`;
+- deploy: `actions: read`, `pages: write` и `id-token: write` для получения
+  Pages artifact и OIDC-публикации.
 
-Permissions объявлены на уровне всего workflow, поэтому build job сейчас также
-наследует `pages: write` и `id-token: write`; это избыточная область доступа, а
-не подтверждённый защитный control. `actions/checkout` не отключает сохранение
-credentials явно.
+Все referenced Actions закреплены immutable full SHA с release-version comment.
+Verify и deploy имеют явный guard `github.ref == 'refs/heads/main'`, поэтому
+ручной запуск с другого ref не получает upload/deploy path.
 
-После frozen pnpm install workflow создаёт Astro artifact командой
-`pnpm run build`, загружает только `dist/` и передаёт его deploy job для
-environment `github-pages`. Дополнительные branch protection, environment
+После frozen pnpm install workflow запускает `pnpm run verify:full`: полный
+root E2E выполняется на временном artifact, затем единственный production
+`dist/` проходит project-base smoke и dependency audit. Только этот `dist/`
+загружается и передаётся deploy job без повторной сборки. Дополнительные branch protection, environment
 approval или security controls не считаются настроенными без отдельного
 repository evidence.
 
@@ -135,14 +136,6 @@ targets вне `BASE_PATH` и случайные localhost/machine-local URL.
 3. Зависимости внешнего Jitsi script не закреплены локальным integrity hash.
 4. Шрифты загружаются с внешних Google origins; self-hosting/privacy-решение не
    принято.
-5. GitHub Pages workflow пока не блокирует upload/deploy полным набором
-   `check`, `lint`, unit/integration/component и live E2E gates; это открытый
-   `T0-REL-001`, назначенный `TUTOR-06`.
-6. `workflow_dispatch` может собрать выбранный вручную ref, а workflow не
-   содержит явного deploy guard `github.ref == 'refs/heads/main'`; наличие
-   внешней environment branch policy из repository не подтверждено.
-7. `pages: write` и `id-token: write` выданы workflow-wide, включая build job;
-   checkout credentials сохраняются по default.
-8. GitHub Actions подключены по изменяемым major tags, а не по immutable commit
-   SHA, поэтому Actions являются отдельной supply-chain границей.
-9. Автоматические security-тесты отсутствуют.
+5. Полный специализированный security suite отсутствует; обязательный pipeline
+   включает dependency audit с порогом `high`, workflow contract tests и review
+   минимальных permissions/immutable Action refs.

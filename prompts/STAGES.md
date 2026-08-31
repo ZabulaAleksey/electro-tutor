@@ -200,7 +200,7 @@ artifact audit 91 files, 4 project-base Chromium E2E и полный root Chromi
 
 ## TUTOR-06 — Обязательные quality gates перед публикацией
 
-Статус: `planned`
+Статус: `completed` (`validated locally`, 2026-08-31)
 
 Dependency DAG: `TUTOR-05` completed. Entry preconditions: единый Astro artifact,
 root/non-empty-base contracts и frozen pnpm install подтверждены.
@@ -224,6 +224,13 @@ Non-goals: фактический deploy, production domain/DNS, product behavio
 PASS: negative gate probes блокируют deploy; green pipeline передаёт ровно один
 checked artifact; local/CI gates совпадают; permissions/cache/concurrency
 проверены. Rollback: один Stage 6 commit без deploy.
+
+Acceptance evidence: `pnpm run verify:full` и workflow-equivalent прогон с
+production `SITE_URL`/`BASE_PATH` прошли; 81 unit/integration/component tests,
+46 Chromium E2E на временном root-artifact, 4 project-base smoke по production
+`dist/`, artifact audits и dependency audit — PASS. Workflow contract tests
+проверяют удаление обязательных gates, bypass full verify, deploy dependency и
+deploy-side rebuild. External GitHub run, push, merge и deploy не выполнялись.
 
 ## Контракт будущего AI-native platform track
 

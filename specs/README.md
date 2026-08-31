@@ -12,6 +12,7 @@
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |
 | `features/base-path-portability.spec.md` | Действует | Единый site/base URL contract для root и project-site artifacts |
+| `features/pre-deploy-quality-gates.spec.md` | Действует | Единый full-verify pipeline и безопасная передача проверенного artifact в GitHub Pages deploy |
 | `features/payments-and-booking.spec.md` | Черновик, заблокирован решениями | Расписание, hosted checkout и обработка подтверждений |
 | `features/ai-native-tutoring-platform.spec.md` | Черновик будущего track | Инварианты и границы развития к AI-native tutoring platform; каждый implementation stage требует уточнённой feature-SPEC |
 

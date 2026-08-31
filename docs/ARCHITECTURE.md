@@ -204,8 +204,11 @@ GitHub repository
   → push в main
   → GitHub Actions
   → pnpm install --frozen-lockfile
-  → pnpm run build
-  → dist/
+  → pnpm run verify:full
+  → full root-artifact E2E
+  → production build + project-base smoke
+  → checked dist/
+  → Pages artifact hand-off
   → GitHub Pages
 ```
 
@@ -260,7 +263,8 @@ git diff --check
   Astro/Rolldown virtual modules должны разрешаться одинаково в clean Linux CI.
   `allowBuilds` ограничен `esbuild` и `workerd`.
 - `node_modules`, `.astro`, `dist` и тестовые/build caches можно пересоздавать; исходники, lesson content и локальные секреты dependency cleanup не затрагивает.
-- GitHub Pages workflow использует тот же frozen lockfile, но сейчас выполняет
-  только `pnpm run build` перед upload/deploy. `pnpm check`, `pnpm lint`,
-  `pnpm test` и live `pnpm test:e2e` являются целевыми обязательными gates
-  `TUTOR-06`, а не действующими CI gates.
+- GitHub Pages verify job использует frozen lockfile и `pnpm run verify:full`:
+  Git hygiene, workflow contract, Astro check, ESLint, Vitest, полный Chromium
+  E2E на временном root-artifact, единственная production build, project-base
+  smoke этого `dist/` и dependency audit. Только после них `dist/` загружается
+  как Pages artifact; deploy job зависит от verify и не пересобирает artifact.

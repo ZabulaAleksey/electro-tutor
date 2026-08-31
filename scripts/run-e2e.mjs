@@ -6,7 +6,7 @@ import { setTimeout as delay } from "node:timers/promises";
 const host = "127.0.0.1";
 const port = 4322;
 const baseURL = `http://${host}:${port}`;
-const readinessPath = process.env.E2E_BASE_PATH || "/";
+const readinessPath = process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/";
 const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
 const selectedSpec = process.env.E2E_SPEC;
@@ -84,7 +84,11 @@ try {
   await waitUntilReady(preview);
   const playwrightArgs = selectedSpec ? ["test", selectedSpec] : ["test"];
   const playwright = spawnNode("node_modules/@playwright/test/cli.js", playwrightArgs, {
-    env: { ...process.env, E2E_EXTERNAL_SERVER: "1" },
+    env: {
+      ...process.env,
+      E2E_EXTERNAL_SERVER: "1",
+      E2E_BASE_PATH: process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/",
+    },
   });
   const result = await waitForExit(playwright);
   exitCode = result.code ?? 1;

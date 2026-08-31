@@ -6,6 +6,7 @@ import { fullVerifySteps } from "./full-verify.mjs";
 const fullSha = /^[0-9a-f]{40}$/;
 const requiredRuns = [
   "pnpm install --frozen-lockfile",
+  "pnpm exec playwright install --with-deps chromium",
   "pnpm run verify:full -- --skip-install",
 ];
 const requiredActions = [
@@ -72,8 +73,14 @@ export function validatePagesWorkflow(source, fullVerificationSteps = fullVerify
   const deploySteps = deploy.steps ?? [];
   const allSteps = [...verifySteps, ...deploySteps];
   const runs = verifySteps.map((step) => step.run).filter(Boolean);
-  for (const command of requiredRuns) {
+  for (const [index, command] of requiredRuns.entries()) {
     assert(runs.includes(command), `Verify is missing required command: ${command}`);
+    if (index > 0) {
+      assert(
+        runs.indexOf(requiredRuns[index - 1]) < runs.indexOf(command),
+        "Verify prerequisite commands must preserve the required order.",
+      );
+    }
   }
 
   const checkout = verifySteps.find((step) => actionRef(step)?.action === "actions/checkout");

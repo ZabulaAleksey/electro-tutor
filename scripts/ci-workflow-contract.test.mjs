@@ -48,6 +48,15 @@ describe("GitHub Pages pre-deploy contract", () => {
     expect(() => validatePagesWorkflow(broken)).toThrow(/depend directly on verify/);
   });
 
+  it("blocks CI when the Playwright Chromium prerequisite is removed", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.jobs.verify.steps = workflow.jobs.verify.steps.filter(
+        (step) => step.run !== "pnpm exec playwright install --with-deps chromium",
+      );
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/playwright install/);
+  });
+
   it("blocks deploy-side rebuilds", () => {
     const broken = mutateWorkflow((workflow) => {
       workflow.jobs.deploy.steps.unshift({ name: "Rebuild", run: "pnpm run build" });

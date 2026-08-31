@@ -24,6 +24,8 @@ workflow и правила качества наследуются и здесь
    - UI — `docs/DESIGN.md`;
    - уроки — `docs/CONTENT_GUIDE.md`;
    - внешние сервисы, недоверенный ввод, PWA и платежи — `docs/SECURITY.md`;
+   - backend workflow, API, database и migrations — `docs/project-context.md`,
+     `docs/API.md`, `docs/DATA_MODEL.md`, `docs/TESTING.md`;
    - порядок этапов — `docs/ROADMAP.md`.
 4. Не загружай весь roadmap, prompts, legacy-код и все SPEC, если задача их не
    затрагивает.
@@ -50,6 +52,8 @@ workflow и правила качества наследуются и здесь
 - Публичный Jitsi — только MVP без собственного контроля доступа.
 - Платежи не реализуются до закрытия предусловий feature-SPEC и security review.
 - Production URL, merge, push, PR и deploy требуют явного решения пользователя.
+- Backend workflow наследует `~/.codex/rules/backend-dx.md`; project-specific
+  commands, profiles и evidence находятся в `docs/project-context.md`.
 
 ## Команды
 
@@ -58,6 +62,7 @@ pnpm dev
 pnpm check
 pnpm lint
 pnpm build
+pnpm backend:check
 ```
 
 Канонический package manager — `pnpm@11.23.0`; используй `pnpm install

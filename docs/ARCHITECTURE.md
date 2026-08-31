@@ -29,11 +29,11 @@ Astro генерирует индексируемый HTML. React использ
 
 ## Current → target platform map
 
-`ET-09.1` утверждает целевую границу, но не добавляет runtime. Текущий Astro/MDX/PWA
-сайт и GitHub Pages остаются без изменений:
+`ET-09.2` реализовал local/CI backend boundary. Текущий Astro/MDX/PWA сайт и
+GitHub Pages остаются без изменений и пока не вызывают API:
 
 ```text
-CURRENT                                  TARGET (начиная с ET-09.2)
+PUBLIC FRONTEND                          LOCAL/CI BACKEND (ET-09.2)
 Astro/MDX/React islands                  тот же public static frontend
   → checked dist/ → GitHub Pages           → /api/v1 (отдельный origin/ingress TBD)
 Browser storage + Jitsi + Cal.com            → Electro Tutor modular monolith
@@ -42,7 +42,7 @@ Browser storage + Jitsi + Cal.com            → Electro Tutor modular monolith
                                                 → Electro Tutor PostgreSQL
 ```
 
-Первый target slice — только local/CI walking skeleton. Production backend host,
+Реализованный первый slice — только local/CI walking skeleton. Production backend host,
 DNS/ingress, CORS/cookie topology и provider deployment не выбраны и не входят в
 `ET-09.2`; существующая Pages-публикация не зависит от них.
 
@@ -149,6 +149,9 @@ src/
 └─ pwa.css                   UI установки PWA
 
 public/                      статические файлы и service worker
+services/api/                FastAPI modular monolith, Alembic, uv lock, tests
+compose.yaml                 loopback-only API + PostgreSQL local orchestration
+scripts/backend.mjs          canonical cross-platform backend command surface
 specs/                       канонические требования
 docs/                        архитектура, решения и состояние
 prompts/                     протокол поэтапного продолжения

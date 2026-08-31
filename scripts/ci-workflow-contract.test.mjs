@@ -57,6 +57,15 @@ describe("GitHub Pages pre-deploy contract", () => {
     expect(() => validatePagesWorkflow(broken)).toThrow(/playwright install/);
   });
 
+  it("blocks deploy when the real backend gate is removed", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.jobs.verify.steps = workflow.jobs.verify.steps.filter(
+        (step) => step.run !== "pnpm run backend:check",
+      );
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/backend:check/);
+  });
+
   it("blocks deploy-side rebuilds", () => {
     const broken = mutateWorkflow((workflow) => {
       workflow.jobs.deploy.steps.unshift({ name: "Rebuild", run: "pnpm run build" });

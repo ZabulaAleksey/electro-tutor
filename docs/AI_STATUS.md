@@ -19,6 +19,26 @@
 - Cloudflare deployment выведен из эксплуатации. `wrangler`, `wrangler.jsonc`,
   `public/_redirects`, дублирующий `.github/workflows/deploy.yml` и правило
   `.wrangler/` удалены; исторические записи сохранены как history/evidence.
+- После публикации `ET-09.1` Pages workflow run `33393255208` на commit
+  `67cd1bc` завершился успешно. ET-09.2 пока находится только в feature branch;
+  production backend deployment не выполнялся.
+
+## Backend foundation ET-09.2 — 2026-08-31
+
+- FastAPI modular monolith в `services/api/`, PostgreSQL 17 и reversible Alembic
+  lineage `20260831_0001` → hardening head `20260831_0002` реализованы для
+  local/CI.
+- Root `pnpm backend:*` покрывает frozen restore, Docker lifecycle, diagnostics,
+  migrations, fast/integration tests, smoke и guarded local reset; достигнут
+  `BDX-L2`.
+- API/PostgreSQL опубликованы только на loopback; config fail-fast, docs/debug
+  только local, stable error/request-ID/no-store/body-limit/default-deny CORS.
+- Migration/runtime roles разделены. Разрешённый lifecycle выполнен только на
+  `electro_tutor_test`: upgrade→downgrade→upgrade; runtime DDL отклонён.
+- `backend:check` — PASS: lock drift отсутствует, `pip-audit` не нашёл известных
+  уязвимостей, Ruff/mypy, 19 fast и 6 real-PostgreSQL integration tests,
+  Docker build, Alembic current/check и live/ready HTTP smoke прошли; containers
+  остановлены без удаления volume.
 
 ## Tutor Stage 0 baseline — 2026-08-27
 
@@ -47,7 +67,8 @@
 - `ET-09.1` завершён и validated locally: выбран modular-monolith foundation
   (`services/api/`, Python/FastAPI/SQLAlchemy/Alembic/PostgreSQL), зафиксированы
   независимость MathMorph, provider-neutral identity и executable `ET-09.2` contract.
-- Следующий разрешённый этап: `ET-09.2` — backend/API/DB walking skeleton.
+- Следующий этап `ET-09.3` заблокирован до отдельного Electro Tutor IdP
+  client/config и approved test account.
 
 ## Governance migration — 2026-08-24
 
@@ -71,11 +92,11 @@
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
 `TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05`,
-`TUTOR-06`, `ET-08` и docs-only `ET-09.1` завершены.
+`TUTOR-06`, `ET-08`, docs-only `ET-09.1` и local/CI `ET-09.2` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Product stages `ET-03/05/06/07` остаются заблокированными внешними
-решениями; следующий approved stage — local/CI foundation `ET-09.2`.
+решениями; `ET-09.3` выбран следующим, но имеет явный внешний blocker.
 
 ## Что реализовано
 
@@ -95,7 +116,7 @@
 - GitHub Pages production deployment через GitHub Actions с единственным
   workflow `.github/workflows/pages.yml`;
 - единый `pnpm run verify:full`: frozen install, hygiene, workflow contract,
-  static/lint, 82 unit/integration/component tests, 46 Chromium E2E на
+  static/lint, 90 unit/integration/component tests, 46 Chromium E2E на
   транзитном root-artifact в `dist/` с cleanup, production build, 4 project-base
   smoke и dependency audit;
 - verify/deploy permissions разделены, checkout credentials не сохраняются,
@@ -116,15 +137,17 @@
 - аудит собранного HTML для MDX, hydration marker и локализованных ссылок.
 - platform contract `ET-09.1`: current→target map, reuse classifier, ADR-019/020/021,
   threat/privacy/cost atlas, traceability и executable acceptance `ET-09.2`.
+- backend foundation `ET-09.2`: versioned health API → real PostgreSQL/schema
+  head, separate DB roles, reproducible root commands, diagnostics и CI gate.
 
 ## Что не реализовано
 
 - новые уроки кроме парного `mesh-current-method`;
-- аккаунты, backend, база данных и собственный контроль доступа/хранения кабинета;
+- аккаунты, production backend hosting и собственный контроль доступа/хранения кабинета;
 - production booking integration;
 - checkout, webhook и заказы;
 - полный автоматический security suite;
-- backend/API/PostgreSQL runtime `ET-09.2` и все последующие platform slices.
+- identity/OIDC `ET-09.3` и все последующие platform slices.
 
 ## Известные проблемы и ограничения
 
@@ -136,8 +159,19 @@
 4. Текущая browser-база проверена только в Chromium: accepted Playwright suite
    и live Pages checklist прошли; Firefox/Safari — `NOT RUN`.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
-6. Production backend host/ingress, CORS/cookie topology и provider deployment
-   не выбраны; это не блокирует local/CI `ET-09.2`, но блокирует live API rollout.
+6. Production backend host/ingress, browser CORS/cookie topology и provider
+   deployment не выбраны; это блокирует live API rollout.
+7. `ET-09.3` не может начаться без отдельного Electro Tutor IdP client/config и
+   approved test account; MathMorph identity resources не переиспользуются.
+8. Container base images закреплены точными version tags, но пока не digest;
+   отдельный container-image vulnerability scan и production image policy
+   остаются частью deployment hardening до live backend rollout.
+9. Uvicorn слушает container interface `0.0.0.0`; поддерживаемый Compose path
+   публикует API только на loopback. Прямой `docker run -p` не является
+   поддерживаемым exposure path без отдельного production ingress guard.
+10. Текущие backend logs не содержат credentials/payload, но root logs command
+    не имеет отдельного redaction filter; он потребуется до подключения новых
+    adapters/providers, способных писать сторонние error details.
 
 `T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`,
 `T0-SEO-001`, `T0-DEP-001` и `T0-REL-001` закрыты. Для `T0-REL-001` подтверждены
@@ -164,6 +198,13 @@ commit `d22b597`.
 
 ## Последние проверки
 
+- 2026-08-31 (`ET-09.2`): `backend:check` — PASS; Ruff, strict mypy, 19 fast и
+  6 real-PostgreSQL integration tests; `pip-audit` без известных уязвимостей;
+  Docker image, Alembic current/check, disposable migration lifecycle,
+  least-privilege DDL denial и live/ready smoke — PASS; cleanup сохранил volume.
+  `verify:full` также PASS: Astro check 73 файла, ESLint, 90 root tests,
+  46 Chromium E2E, 15-page production build, 4 production-artifact smoke и
+  pnpm audit без известных уязвимостей;
 - 2026-08-31 (`ET-09.1`): read-only MathMorph audit по immutable commit `0fa90c7`;
   SPEC/architecture/ADR/security/traceability/DAG синхронизированы. Context,
   project overlay и `git diff --check` — PASS; новых Markdown links нет (gate

@@ -311,10 +311,12 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   `COMPLETED (validated locally, 2026-08-31)`. Gap/reuse/conflict audit, target
   modular monolith, data/security/integration boundaries, ADR-019/020/021 и
   traceability зафиксированы; backend не реализован.
-- **ET-09.2 — Backend/API/DB walking skeleton.** Статус: `PLANNED`. Один
+- **ET-09.2 — Backend/API/DB walking skeleton.** Статус:
+  `COMPLETED (validated locally, 2026-08-31)`. Один
   reproducible client/command → `/api/v1` → PostgreSQL 17 path, Alembic,
   separate roles, diagnostics и local/CI parity по ADR-019.
-- **ET-09.3 — Identity/OIDC vertical slice.** Статус: `PLANNED`. Отдельная
+- **ET-09.3 — Identity/OIDC vertical slice.** Статус: `BLOCKED` до отдельного
+  Electro Tutor IdP client/config и approved test account. Отдельная
   Electro Tutor identity boundary, login/session/logout и protected `/me`
   без mutation MathMorph.
 - **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PLANNED`.

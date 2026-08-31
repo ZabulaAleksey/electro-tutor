@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .astro/
+.venv/
+services/api/.venv/
 .env
 .env.*
 !.env.example
@@ -9,3 +11,7 @@ test-results/
 playwright-report/
 blob-report/
 pnpm-debug.log*
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]

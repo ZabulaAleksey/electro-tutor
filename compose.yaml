@@ -1,0 +1,69 @@
+name: electro-tutor-local
+
+services:
+  postgres:
+    image: postgres:17.6
+    environment:
+      POSTGRES_DB: electro_tutor
+      POSTGRES_USER: electro_tutor_bootstrap
+      POSTGRES_PASSWORD: local-bootstrap-only
+      ET_DB_MIGRATOR_PASSWORD: local-migration-only
+      ET_DB_RUNTIME_PASSWORD: local-runtime-only
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - electro-tutor-postgres:/var/lib/postgresql/data
+      - ./services/api/docker/init-db.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U electro_tutor_bootstrap -d electro_tutor"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    restart: "no"
+
+  api:
+    image: electro-tutor-local-api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      ET_ENVIRONMENT: local
+      ET_HOST: 127.0.0.1
+      ET_PORT: 8000
+      ET_DOCS_ENABLED: "true"
+      ET_DATABASE_URL: postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@postgres:5432/electro_tutor
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=2)
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: "no"
+
+  migrate:
+    image: electro-tutor-local-api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      ET_ENVIRONMENT: local
+      ET_MIGRATION_DATABASE_URL: postgresql+asyncpg://electro_tutor_migrator:local-migration-only@postgres:5432/electro_tutor
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "electro_tutor_api.cli", "db-migrate"]
+    restart: "no"
+
+volumes:
+  electro-tutor-postgres:
+    name: electro-tutor-local-postgres

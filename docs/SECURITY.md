@@ -101,9 +101,8 @@ targets вне `BASE_PATH` и случайные localhost/machine-local URL.
 
 ## Target platform threat, privacy и cost atlas
 
-Этот раздел задаёт contract для будущего backend, но не утверждает, что он уже
-существует. `ET-09.2` разрешает только local/CI API + отдельный Electro Tutor
-PostgreSQL; production hosting и внешние providers не выбраны.
+`ET-09.2` реализовал этот baseline для local/CI API и отдельного Electro Tutor
+PostgreSQL. Production hosting и внешние providers не выбраны.
 
 | Asset / boundary | Основная угроза | Fail-closed contract | Privacy/cost boundary |
 |---|---|---|---|
@@ -122,11 +121,19 @@ Sentry/OTel vendor в `ET-09.2` не выбирается. PWA по-прежне
 
 Local/CI profile по умолчанию bind-ит API только к loopback, не публикует
 PostgreSQL на LAN и не включает FastAPI debug/docs вне явного local profile.
-Negative test отклоняет non-loopback exposure. Migrate/reset/cleanup deny by
+Negative tests отклоняют non-loopback exposure и подтверждают default-deny CORS,
+body limit, request-ID replacement и redacted failures. Migrate/reset/cleanup deny by
 default, пока target не доказан как disposable local/test; production-like
 connection string и неизвестный profile не допускают destructive action.
 Python `uv.lock` проходит lock-drift и vulnerability audit тем же local/CI gate,
 что и runtime tests; исключение требует owner, причины и срока пересмотра.
+Base images используют точные version tags, но digest pinning и отдельный image
+vulnerability scan ещё не являются gate: это явно отложенный production
+hardening, который должен быть закрыт до live backend rollout.
+
+Long-running API container не получает `ET_MIGRATION_DATABASE_URL`; migrator
+credential доступен только one-shot migration service. Runtime role может читать
+`alembic_version` для readiness, но `UPDATE` и DDL подтверждённо запрещены.
 
 Data minimization применяется до schema design: новый field обязан иметь owner,
 purpose, access rule и retention/deletion contract. Неутверждённые Keycloak,
@@ -175,3 +182,9 @@ production provider или бессрочное хранение.
 5. Полный специализированный security suite отсутствует; обязательный pipeline
    включает dependency audit с порогом `high`, workflow contract tests и review
    минимальных permissions/immutable Action refs.
+6. Uvicorn слушает все interfaces внутри container; только поддерживаемый Compose
+   path ограничивает host publish loopback. Прямой `docker run -p` требует
+   отдельного exposure/ingress решения и не является approved deployment path.
+7. Root logs command полагается на текущий запрет credentials/payload в logs;
+   централизованный redaction filter обязателен до добавления adapters/providers,
+   способных передать сторонние error details.

@@ -21,17 +21,82 @@ Project overlay хранит только project-specific delta. Hooks, MCP, ge
 agents, Skills и Git workflow наследуются; локальные копии без подтверждённого
 пробела не создаются.
 
-## Планируемая backend developer workflow applicability
+## Backend DX Delta
 
-Backend DX policy пока неприменима к фактическому static runtime: backend и его
-команды ещё не реализованы. Утверждённая цель `ET-09.2` — минимум `BDX-L2`:
-discoverable root
-commands `backend:bootstrap/build/check/dev/stop/logs/status/doctor/smoke`,
-`backend:test:fast`, `backend:test:integration` и guarded `backend:db:*`,
-service-local reproducible `uv`
-restore, реальный PostgreSQL в local/CI и одинаковые diagnostics. Фактические
-команды и полный `Backend DX Delta` добавляются только вместе с working slice;
-этот docs-stage не выдаёт target за реализованный workflow.
+- Applicability level: `BDX-L2` — stateful FastAPI + PostgreSQL local/CI slice.
+- Supported local environments: Windows 11 PowerShell и CI Linux; Docker engine
+  обязателен для integration/full gates.
+- Canonical working directory: repository root `~/codex-workspace/electro-tutor`.
+- Toolchain/runtime versions: Node `>=22.12.0` (validated `22.23.1`), Python
+  `3.12` (image `3.12.5`), uv `0.12.3`, Docker `29.7.2`, Compose `5.4.0`,
+  PostgreSQL `17.6`.
+- Package manager and lockfile: root `pnpm@11.23.0` + `pnpm-lock.yaml`; backend
+  `uv` + `services/api/uv.lock`; competing lockfiles запрещены.
+- Canonical commands:
+  - bootstrap: `pnpm backend:bootstrap`.
+  - doctor: `pnpm backend:doctor`.
+  - dev: `pnpm backend:dev`.
+  - stop: `pnpm backend:stop`.
+  - check: `pnpm backend:check`.
+  - test-fast: `pnpm backend:test:fast`.
+  - test-integration: `pnpm backend:test:integration`.
+  - build: `pnpm backend:build`.
+  - logs: `pnpm backend:logs`.
+- Required local services: Docker Compose `api` и `postgres`; integration tier
+  поднимает только PostgreSQL, full gate — оба service.
+- Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
+  `pnpm backend:smoke`; API `/live` отделён от DB/schema `/ready`.
+- Ports and collision policy: API `127.0.0.1:8000`, PostgreSQL
+  `127.0.0.1:55432`; non-loopback DB bind отклоняется preflight, occupied port
+  приводит к visible Compose failure без fallback.
+- Config source, profiles and required variables: safe local defaults закреплены
+  в `scripts/backend.mjs`/`compose.yaml`; `.env.example` перечисляет names как
+  reference, а не поддерживаемый override surface;
+  profiles `local`, `test`, `ci`; API получает только `ET_DATABASE_URL`, one-shot
+  migrator — только `ET_MIGRATION_DATABASE_URL`; unknown `ET_*` forbidden.
+- Secret redaction/effective-config diagnostics: `pnpm backend:doctor` печатает
+  profile/host/port и DB host/path без user/password; responses/log tests
+  проверяют sentinel redaction.
+- API docs/spec and generated-contract drift command: check via `pnpm backend:test:fast`
+  проверяет generated OpenAPI component shape; versioned generated artifact
+  `N/A — schema генерируется FastAPI и не хранится вторым source`; owner — `docs/API.md`.
+  отдельный generated artifact не versioned.
+- DB migration/status/seed/reset-local commands: `pnpm backend:db:migrate`,
+  `pnpm backend:db:status`, seed `N/A — ET-09.2 не имеет product tables/data`,
+  `pnpm backend:db:reset-local`.
+- Destructive command guard: reset требует exact
+  `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет только named local
+  volume; migration lifecycle требует exact consent и database
+  `electro_tutor_test`.
+- Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
+- External sandbox/stub/fallback modes: `N/A — external providers отсутствуют;
+  DB outage fail-closed как redacted 503 без in-memory fallback`.
+- Clean-room smoke command or documented manual scenario: `pnpm backend:check`;
+  затем `pnpm backend:dev`, `pnpm backend:doctor`, `pnpm backend:smoke`,
+  `pnpm backend:stop` для ручного inspection.
+- Project-specific quality gates: frozen uv lock, Ruff format/lint, strict mypy,
+  fast и real-PostgreSQL tests, pip-audit, Compose config/image, Alembic current/check,
+  live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
+- Known limitations: production backend hosting/ingress/CORS allowlist не выбран;
+  current CORS default-deny, auth/jobs/providers отсутствуют.
+- Explicit deviations from global Backend DX Policy: `none`.
+
+### Backend DX gate status
+
+| Gate | Status и evidence |
+|---|---|
+| `BDX-GATE-01 Context integrity` | `PASS` — context/overlay validators |
+| `BDX-GATE-02 Command discoverability` | `PASS` — root catalog contract test |
+| `BDX-GATE-03 Clean bootstrap` | `PASS` — frozen pnpm/uv restore и build-on-dev |
+| `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
+| `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
+| `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
+| `BDX-GATE-07 Database lifecycle` | `PASS` — current/check, disposable lifecycle, grants |
+| `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
+| `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
+| `BDX-GATE-10 CI parity` | `PASS` — Pages workflow вызывает `backend:check` |
+| `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
+| `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 
 ## Переносимое продолжение
 

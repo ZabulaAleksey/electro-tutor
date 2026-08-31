@@ -34,8 +34,16 @@ jobs:
           cache: true
           install: false
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: 0.12.3
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Run backend API and PostgreSQL gates
+        run: pnpm run backend:check
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium

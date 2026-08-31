@@ -1,36 +1,34 @@
 # Текущий AI-план
 
-## ET-09.2 — Backend/API/DB walking skeleton
+## ET-09.3 — Identity/OIDC vertical slice
 
-- Stage ID: `ET-09.2`
+- Stage ID: `ET-09.3`
 
-Статус: `PLANNED`
+Статус: `BLOCKED`
 
-Цель: реализовать минимальный modular-monolith runtime с реальным
-client/command → versioned API → PostgreSQL path.
+Цель после разблокировки: реализовать provider-neutral browser OIDC Authorization
+Code + PKCE, server-side session и защищённый `/api/v1/me`.
 
 ### Dependencies и входные предпосылки
 
-- `ET-09.1` завершён и validated locally;
-- ADR-019/020/021 утверждают runtime, identity и MathMorph boundaries;
-- production backend host/provider не требуется для local/CI slice.
+- `ET-09.2` завершён и validated locally;
+- ADR-020 утверждает отдельную Electro Tutor identity boundary;
+- отсутствуют отдельный Electro Tutor IdP client/config и approved test account.
 
 ### Runnable slice и scenario
 
-Каноническая root command поднимает API и PostgreSQL; `/api/v1/health/live`
-подтверждает процесс, `/api/v1/health/ready` выполняет `SELECT 1` и проверяет
-Alembic head. DB outage/schema drift дают redacted stable `503`.
+Browser проходит Authorization Code + PKCE, callback создаёт server-side session,
+а `/api/v1/me` возвращает identity только после валидной сессии. Этот scenario
+не запускается до предоставления входных IdP resources.
 
 ### Scope и PASS evidence
 
-- `services/api/`: Python `>=3.12`, FastAPI, async SQLAlchemy, Alembic;
-- отдельные migration/runtime PostgreSQL roles и reversible initial lineage;
-- reproducible root setup/run/test/migrate/doctor surface, local/CI parity;
-- loopback/no-LAN defaults, destructive DB deny-by-default, strict request ID;
-- sentinel redaction, Python lock/vulnerability gates и required tests/evidence.
+- exact issuer/client/redirect allowlist и PKCE/state/nonce;
+- secure server-side session cookie, rotation/logout и protected `/me`;
+- real browser → IdP → callback → API scenario и negative auth tests.
 
 ### Non-goals и blocker
 
-- без auth/profiles/booking, Keycloak, Redis, RabbitMQ, workers и microservices;
-- без production backend deployment/ingress/provider choice;
-- SQLite/mock не считается primary DB evidence; MathMorph не изменяется.
+- не переиспользовать MathMorph realm/client/session/schema;
+- не выбирать provider и не создавать mock-only primary auth evidence;
+- до получения IdP client/config/test account этап остаётся `BLOCKED`.

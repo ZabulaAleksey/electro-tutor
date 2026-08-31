@@ -328,7 +328,7 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.2 — Backend/API/DB walking skeleton
 
-Статус: `planned`.
+Статус: `completed` (`validated locally`, 2026-08-31).
 
 - **Goal / why now:** создать минимальный modular-monolith runtime, на котором
   следующие domain stages получают real API/database path.
@@ -372,7 +372,8 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.3 — Identity/OIDC vertical slice
 
-Статус: `planned`.
+Статус: `blocked`: нужен отдельный Electro Tutor IdP client/config и approved
+test account.
 
 - **Goal / why now:** establish provider-neutral identity before profiles,
   permissions and private lessons.

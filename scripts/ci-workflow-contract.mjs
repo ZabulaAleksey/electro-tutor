@@ -6,12 +6,14 @@ import { fullVerifySteps } from "./full-verify.mjs";
 const fullSha = /^[0-9a-f]{40}$/;
 const requiredRuns = [
   "pnpm install --frozen-lockfile",
+  "pnpm run backend:check",
   "pnpm exec playwright install --with-deps chromium",
   "pnpm run verify:full -- --skip-install",
 ];
 const requiredActions = [
   "actions/checkout",
   "pnpm/setup",
+  "astral-sh/setup-uv",
   "actions/configure-pages",
   "actions/upload-pages-artifact",
   "actions/deploy-pages",

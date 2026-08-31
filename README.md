@@ -18,6 +18,28 @@ pnpm dev
 На Windows при запрете запуска `pnpm.ps1` используй `pnpm.cmd dev` и
 аналогично для остальных pnpm-команд.
 
+### Local backend ET-09.2
+
+Требования: Python `3.12`, `uv 0.12.3`, Docker Desktop с Compose. Backend
+работает только локально: API `http://127.0.0.1:8000`, PostgreSQL
+`127.0.0.1:55432`. Эти порты фиксированы для ET-09.2; backend-блок
+`.env.example` документирует имена config, но не поддерживаемые overrides.
+
+```bash
+pnpm backend:bootstrap
+pnpm backend:dev
+pnpm backend:doctor
+pnpm backend:smoke
+pnpm backend:stop
+```
+
+`backend:dev` применяет Alembic migrations и запускает API с PostgreSQL.
+`backend:stop` останавливает контейнеры, сохраняя named volume. Полный local/CI
+gate — `pnpm backend:check`; отдельные уровни — `backend:test:fast` и
+`backend:test:integration`. Удаление local DB разрешается только точным
+`ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и командой
+`backend:db:reset-local`.
+
 ## Проверки
 
 ```bash
@@ -48,6 +70,8 @@ Vitest как инструмент и не является отдельным S
 - дорожная карта: `docs/ROADMAP.md`;
 - устройство: `docs/ARCHITECTURE.md`;
 - дизайн и безопасность: `docs/DESIGN.md`, `docs/SECURITY.md`;
+- backend: `docs/API.md`, `docs/DATA_MODEL.md`, `docs/TESTING.md`,
+  `docs/DEPENDENCIES.md`, `docs/project-context.md`;
 - добавление уроков: `docs/CONTENT_GUIDE.md`.
 
 Чтобы из нового чата выбрать и выполнить один следующий этап, напиши:

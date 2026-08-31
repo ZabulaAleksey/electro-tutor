@@ -268,8 +268,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 
 ## AI-native platform track — после stabilization/public release
 
-Новый track детализирует дальнейшее развитие; текущий selector после закрытия
-`TUTOR-06` и `ET-08` — `ET-09.1`. `ET-03` остаётся независимым
+Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`
+и `ET-09.1` текущий selector — `ET-09.2`. `ET-03` остаётся независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
@@ -308,11 +308,12 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 ### ET-09 — Platform foundations (`FOUNDATION_NOW`)
 
 - **ET-09.1 — Architecture/reuse audit и platform contract.** Статус:
-  `PLANNED` после `ET-08`. Полный gap/reuse/conflict audit, target modular
-  monolith, data/security/integration boundaries, ADR backlog и traceability.
+  `COMPLETED (validated locally, 2026-08-31)`. Gap/reuse/conflict audit, target
+  modular monolith, data/security/integration boundaries, ADR-019/020/021 и
+  traceability зафиксированы; backend не реализован.
 - **ET-09.2 — Backend/API/DB walking skeleton.** Статус: `PLANNED`. Один
-  reproducible client/command → versioned API → PostgreSQL path, migrations,
-  diagnostics и local/CI parity.
+  reproducible client/command → `/api/v1` → PostgreSQL 17 path, Alembic,
+  separate roles, diagnostics и local/CI parity по ADR-019.
 - **ET-09.3 — Identity/OIDC vertical slice.** Статус: `PLANNED`. Отдельная
   Electro Tutor identity boundary, login/session/logout и protected `/me`
   без mutation MathMorph.

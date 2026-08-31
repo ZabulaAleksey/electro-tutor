@@ -21,6 +21,18 @@ Project overlay хранит только project-specific delta. Hooks, MCP, ge
 agents, Skills и Git workflow наследуются; локальные копии без подтверждённого
 пробела не создаются.
 
+## Планируемая backend developer workflow applicability
+
+Backend DX policy пока неприменима к фактическому static runtime: backend и его
+команды ещё не реализованы. Утверждённая цель `ET-09.2` — минимум `BDX-L2`:
+discoverable root
+commands `backend:bootstrap/build/check/dev/stop/logs/status/doctor/smoke`,
+`backend:test:fast`, `backend:test:integration` и guarded `backend:db:*`,
+service-local reproducible `uv`
+restore, реальный PostgreSQL в local/CI и одинаковые diagnostics. Фактические
+команды и полный `Backend DX Delta` добавляются только вместе с working slice;
+этот docs-stage не выдаёт target за реализованный workflow.
+
 ## Переносимое продолжение
 
 Critical context восстанавливается из Git clone/branch и глобального ДЕВ. Перед

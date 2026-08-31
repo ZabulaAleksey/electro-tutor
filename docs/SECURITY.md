@@ -48,7 +48,8 @@ Verify и deploy имеют явный guard `github.ref == 'refs/heads/main'`, 
 ручной запуск с другого ref не получает upload/deploy path.
 
 После frozen pnpm install workflow запускает `pnpm run verify:full`: полный
-root E2E выполняется на временном artifact, затем единственный production
+root E2E выполняется на транзитном artifact в каноническом `dist/` с cleanup в
+`finally`, затем единственный production
 `dist/` проходит project-base smoke и dependency audit. Только этот `dist/`
 загружается и передаётся deploy job без повторной сборки. Дополнительные branch protection, environment
 approval или security controls не считаются настроенными без отдельного
@@ -97,6 +98,41 @@ room-коды и параметры интерактива не перечисл
 Кэшировать ответы с будущими персональными или платёжными данными запрещено.
 Worker ограничен `self.registration.scope`, а build audit отклоняет внутренние
 targets вне `BASE_PATH` и случайные localhost/machine-local URL.
+
+## Target platform threat, privacy и cost atlas
+
+Этот раздел задаёт contract для будущего backend, но не утверждает, что он уже
+существует. `ET-09.2` разрешает только local/CI API + отдельный Electro Tutor
+PostgreSQL; production hosting и внешние providers не выбраны.
+
+| Asset / boundary | Основная угроза | Fail-closed contract | Privacy/cost boundary |
+|---|---|---|---|
+| API config и secrets | client leak, permissive defaults | startup fail-fast для missing/unknown config; safe `.env.example`; secrets только server-side; exact CORS allowlist | sentinel secrets отсутствуют в logs/doctor/errors; provider cost не принят |
+| API request/response | injection, oversized input, correlation/header abuse | loopback default; bounded body/timeouts; server-generated ID либо strict charset/length validation с replacement invalid/control chars; stable redacted errors; `no-store` | route template/status/duration без payload/PII |
+| PostgreSQL | privilege escalation, schema drift, silent fallback | отдельные migration/runtime roles; runtime без DDL; readiness проверяет DB + Alembic head; outage/drift → `503` | собирать только данные утверждённого domain stage; storage/backup cost TBD |
+| Identity | account confusion, cross-product privilege | exact `(issuer, subject)`; отдельные Electro Tutor client/session/schema | retention/deletion и IdP vendor решаются до `ET-09.3` |
+| MathMorph integration | foreign DB access, cascading failure | только versioned API/export adapter; no direct DB/session/config access | не дублировать MathMorph PII/artifacts без отдельной цели и срока |
+| Media/payment/AI/storage | vendor lock-in, uncontrolled spend/data transfer | provider-neutral ports; disabled until approved vertical slice | pricing, region, retention, consent и deletion — обязательные входные решения |
+
+Structured request log содержит request ID, route template, method, status и
+duration. DB diagnostics допускают latency/error class, но не SQL, URL или
+credentials. Audit, technical telemetry и product analytics — разные streams;
+Sentry/OTel vendor в `ET-09.2` не выбирается. PWA по-прежнему не кэширует
+`/api`, `/auth`, `/checkout`, `/payments`, private или `no-store` responses.
+
+Local/CI profile по умолчанию bind-ит API только к loopback, не публикует
+PostgreSQL на LAN и не включает FastAPI debug/docs вне явного local profile.
+Negative test отклоняет non-loopback exposure. Migrate/reset/cleanup deny by
+default, пока target не доказан как disposable local/test; production-like
+connection string и неизвестный profile не допускают destructive action.
+Python `uv.lock` проходит lock-drift и vulnerability audit тем же local/CI gate,
+что и runtime tests; исключение требует owner, причины и срока пересмотра.
+
+Data minimization применяется до schema design: новый field обязан иметь owner,
+purpose, access rule и retention/deletion contract. Неутверждённые Keycloak,
+LiveKit, Stripe, object storage, notification и AI vendors не создают расходов и
+не получают данные. PostgreSQL — technology boundary, а не разрешение на
+production provider или бессрочное хранение.
 
 ## Платежи
 

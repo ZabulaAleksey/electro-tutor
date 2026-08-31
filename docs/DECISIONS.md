@@ -417,3 +417,78 @@ suite, а cleanup и production-base smoke подтверждают именно
 Последствия: падение hygiene/static/lint/unit/full E2E/build/production smoke или
 dependency audit блокирует upload и deploy. Локальный PASS не является
 разрешением на merge, push или production deployment.
+
+## ADR-019 — Platform runtime, workspace и walking-skeleton boundary
+
+Дата: 2026-08-31
+
+Статус: принято для реализации начиная с `ET-09.2`
+
+Решение: развивать backend в том же product repository как modular monolith в
+`services/api/`: Python `>=3.12`, FastAPI, Pydantic Settings, async SQLAlchemy,
+asyncpg, Alembic и PostgreSQL 17. Service владеет `pyproject.toml`, `uv.lock` и
+локальной `.venv`; root pnpm сохраняет frontend ownership и предоставляет
+канонические orchestration commands. API начинается с `/api/v1`; первый slice —
+local/CI-only health/readiness path с real PostgreSQL и schema-head check.
+
+Причина: MathMorph подтвердил жизнеспособность этих patterns в соседнем продукте,
+но Electro Tutor нуждается в собственных domain, schema, config и lifecycle.
+Один modular monolith создаёт минимальный реальный API→DB seam без преждевременной
+распределённой инфраструктуры.
+
+Альтернативы: TypeScript backend сократил бы polyglot surface, но в доступных
+repositories нет проверенного ORM/migration/backend contract; отдельный repository
+усложнил бы atomic product changes и CI; копирование MathMorph смешало бы product
+ownership; microservices, Redis, RabbitMQ и workers не имеют нагрузки, которая
+оправдывает их в foundation slice.
+
+Последствия: проект получает второй язык/toolchain и обязан обеспечить clean
+restore и root command parity. Alembic — единственный schema owner; migration и
+runtime roles разделены. Production backend host/ingress/CORS-cookie topology не
+выбраны, поэтому Pages остаётся единственным production runtime. Решение и будущий
+walking skeleton откатываются одним bounded docs/code change до появления domain
+dependents; production data rollback выполняется forward-fix/restore, а не
+destructive downgrade.
+
+Local/CI не означает network exposure: API по умолчанию слушает loopback,
+PostgreSQL доступен host-only на loopback, а docs/debug требуют explicit local
+profile. Destructive DB commands deny by default без доказанного disposable
+target; Python lock drift и vulnerability audit входят в обязательный gate.
+Root pnpm scripts являются единым command surface и переиспользуются CI.
+
+## ADR-020 — Provider-neutral identity boundary
+
+Дата: 2026-08-31
+
+Статус: принято как contract; реализация отложена до `ET-09.3`
+
+Решение: Electro Tutor владеет собственными IdP client/config, sessions, schema и
+profiles. Стабильный внешний identity key — точная пара `(issuer, subject)`;
+provider выбирается отдельным решением. `ET-09.2` не добавляет auth/Keycloak.
+
+Причина: issuer-local subject недостаточен для нескольких providers, а
+переиспользование MathMorph realm/client/session создало бы скрытую cross-product
+зависимость и смешало authorization domains.
+
+Последствия: Keycloak остаётся кандидатом, не утверждённым vendor. Login/logout,
+session hardening, account linking и deletion/retention требуют отдельного
+security-reviewed vertical slice.
+
+## ADR-021 — MathMorph integration boundary
+
+Дата: 2026-08-31
+
+Статус: принято
+
+Решение: Electro Tutor не читает и не пишет MathMorph DB, не импортирует его
+runtime packages/config и не изменяет realm, sessions или migrations. Возможная
+интеграция создаётся только в отдельном stage через versioned HTTP/export contract
+и изолированный adapter; shared package сейчас не извлекается.
+
+Причина: read-only audit подтвердил полезные engineering patterns, но не общий
+product owner или стабильное дублирование. MathMorph evidence и operational
+статусы нельзя переносить в Electro Tutor.
+
+Последствия: сбой MathMorph не должен ломать primary learning path. Formula/
+document interchange и identity correlation остаются future integration, а не
+prerequisite `ET-09.2`.

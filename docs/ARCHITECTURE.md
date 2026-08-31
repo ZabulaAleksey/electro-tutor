@@ -27,6 +27,93 @@ Browser ─> Jitsi public API (только кабинет)
 Astro генерирует индексируемый HTML. React используется для состояния и
 интерактива, а не как основной маршрутизатор production-сайта.
 
+## Current → target platform map
+
+`ET-09.1` утверждает целевую границу, но не добавляет runtime. Текущий Astro/MDX/PWA
+сайт и GitHub Pages остаются без изменений:
+
+```text
+CURRENT                                  TARGET (начиная с ET-09.2)
+Astro/MDX/React islands                  тот же public static frontend
+  → checked dist/ → GitHub Pages           → /api/v1 (отдельный origin/ingress TBD)
+Browser storage + Jitsi + Cal.com            → Electro Tutor modular monolith
+                                                transport → application → domain
+                                                → repositories/ports
+                                                → Electro Tutor PostgreSQL
+```
+
+Первый target slice — только local/CI walking skeleton. Production backend host,
+DNS/ingress, CORS/cookie topology и provider deployment не выбраны и не входят в
+`ET-09.2`; существующая Pages-публикация не зависит от них.
+
+### Принятый foundation contract
+
+| Граница | Решение для `ET-09.2` |
+|---|---|
+| Repository/layout | тот же product monorepo; backend в `services/api/` |
+| Runtime | Python `>=3.12`, FastAPI, Pydantic Settings |
+| Persistence | PostgreSQL 17, async SQLAlchemy + asyncpg, Alembic как единственный schema owner |
+| Toolchains | root `pnpm@11.23.0` оркестрирует; service-local `uv.lock` и `.venv` принадлежат Python service |
+| API | `/api/v1`; generated OpenAPI; стабильные error envelope; server-generated либо strict validated request ID |
+| Layers | modular monolith: transport → application/service → domain → repositories/ports |
+| Local services | только PostgreSQL; без Keycloak, Redis, RabbitMQ, workers, object storage и realtime |
+| Deployment | local/CI only; API default bind — loopback, PostgreSQL не публикуется в LAN; docs/debug только explicit local profile |
+
+Canonical runnable path `ET-09.2`: root command запускает API и PostgreSQL;
+`GET /api/v1/health/live` подтверждает процесс, а
+`GET /api/v1/health/ready` выполняет реальный `SELECT 1` и проверяет ожидаемый
+Alembic head. DB outage или schema drift возвращают redacted stable `503`, а не
+in-memory success. Runtime role не имеет DDL; отдельный migration owner владеет
+lineage и grants. `create_all` и SQLite/mock как primary evidence запрещены.
+Non-loopback API bind, LAN-exposed PostgreSQL и production-like target требуют
+отдельного явного profile/approval; negative tests доказывают safe defaults.
+Locked Python restore сопровождается lock-drift и vulnerability gates в local/CI.
+
+`ET-09.2` реализует следующий canonical command catalog в root `package.json`;
+на Windows используется тот же script через `pnpm.cmd`:
+
+| Command | Contract |
+|---|---|
+| `pnpm backend:bootstrap` | `uv sync --frozen`, tool/version/config preflight |
+| `pnpm backend:build` / `backend:check` | reproducible build; format/lint/type/lock/security gates |
+| `pnpm backend:dev` / `backend:stop` / `backend:logs` | local API + PostgreSQL lifecycle и diagnostics |
+| `pnpm backend:status` / `backend:doctor` / `backend:smoke` | effective config без secrets, readiness и API→DB smoke |
+| `pnpm backend:test:fast` / `backend:test:integration` | isolated unit и real PostgreSQL suites |
+| `pnpm backend:db:status` / `backend:db:migrate` / `backend:db:reset-local` | Alembic state/apply и guarded disposable reset |
+
+Canonical local orchestration — root `compose.yaml`: PostgreSQL 17 доступен
+host-only на `127.0.0.1:55432`, API — на `127.0.0.1:8000`; project/profile names
+фиксированы и collision обнаруживается до старта. CI вызывает те же root scripts,
+а не параллельные shell recipes. Production-like variables запрещены local reset.
+
+### Ownership, reuse и интеграции
+
+| Класс | Граница | Решение |
+|---|---|---|
+| `ADAPT_PATTERN` | FastAPI app factory, router/service/repository, async PostgreSQL/Alembic, stable errors/request IDs | адаптировать проверенные patterns MathMorph в собственных Electro Tutor modules; код/package не копировать |
+| `ADAPT_PATTERN` | migration/runtime role separation и fail-closed config | применить с собственными role names, schema и secrets |
+| `KEEP_INDEPENDENT` | MathMorph realm/client/sessions, DB/schema/migrations/API, Rust/WASM, workers и artifact store | не импортировать, не изменять и не использовать как Electro Tutor runtime |
+| `FUTURE_INTEGRATION` | formula/document interchange и identity correlation | только отдельный versioned HTTP/export adapter в будущем approved stage |
+| `EXTRACT_SHARED` | shared package/service | не требуется: стабильное дублирование для двух consumers не доказано |
+
+Audit provenance: immutable MathMorph snapshot `0fa90c7` (2026-08-31), включая
+`services/api/pyproject.toml`, `uv.lock`, architecture и ADR. Его статусы
+`NOT_RUN_DOCKER`/`implemented_unverified` не являются evidence Electro Tutor.
+Прямой доступ к MathMorph DB, sessions, migrations, config или realm запрещён.
+Текущий MathMorph worktree не является evidence и не изменялся этим stage.
+
+### Target data и provider boundaries
+
+PostgreSQL станет authoritative product state только после реализации соответствующих
+stages. `ET-09.2` создаёт reversible initial lineage и infrastructure metadata, но
+не profile/session/booking tables. Будущие public IDs — opaque UUID, timestamps —
+UTC, money — integer minor units, extensible JSON — bounded и versioned.
+
+Identity/OIDC, realtime/media, recording, storage, payment, notifications и AI
+остаются ports/candidates без выбранного vendor. Identity будет принадлежать
+Electro Tutor и коррелироваться по `(issuer, subject)`; MathMorph client/config/
+session/schema не переиспользуются. Provider choice не может менять domain owner.
+
 ## Технологии и границы
 
 | Задача | Реализация |

@@ -44,7 +44,10 @@
   upload/deploy и передаёт только проверенный Pages artifact.
 - `ET-08` завершён и deployed: checked Pages artifact, RU/UK/PWA/responsive live
   checklist и exact workflow URL/SHA подтверждены.
-- Следующий разрешённый этап: `ET-09.1` — architecture/reuse audit и platform contract.
+- `ET-09.1` завершён и validated locally: выбран modular-monolith foundation
+  (`services/api/`, Python/FastAPI/SQLAlchemy/Alembic/PostgreSQL), зафиксированы
+  независимость MathMorph, provider-neutral identity и executable `ET-09.2` contract.
+- Следующий разрешённый этап: `ET-09.2` — backend/API/DB walking skeleton.
 
 ## Governance migration — 2026-08-24
 
@@ -68,11 +71,11 @@
 
 Этапы `ET-00`, `ET-01`, `ET-02`, `ET-04`, `ET-04.2`, `ET-04.3` и audit-stage
 `TUTOR-00`, `TUTOR-01`, `TUTOR-02`, `TUTOR-03`, `TUTOR-04`, `TUTOR-05`,
-`TUTOR-06` и `ET-08` завершены.
+`TUTOR-06`, `ET-08` и docs-only `ET-09.1` завершены.
 Инженерные проверки,
 единая модель публикации уроков и browser/e2e-контракты находятся в воспроизводимом
 состоянии. Product stages `ET-03/05/06/07` остаются заблокированными внешними
-решениями; следующий approved track начинается с docs-only этапа `ET-09.1`.
+решениями; следующий approved stage — local/CI foundation `ET-09.2`.
 
 ## Что реализовано
 
@@ -111,6 +114,8 @@
   недоступном Google Fonts; применение загруженного stylesheet выполняет
   self-hosted script без inline `onload`;
 - аудит собранного HTML для MDX, hydration marker и локализованных ссылок.
+- platform contract `ET-09.1`: current→target map, reuse classifier, ADR-019/020/021,
+  threat/privacy/cost atlas, traceability и executable acceptance `ET-09.2`.
 
 ## Что не реализовано
 
@@ -119,7 +124,7 @@
 - production booking integration;
 - checkout, webhook и заказы;
 - полный автоматический security suite;
-- architecture/reuse audit и platform contract `ET-09.1`.
+- backend/API/PostgreSQL runtime `ET-09.2` и все последующие platform slices.
 
 ## Известные проблемы и ограничения
 
@@ -131,6 +136,8 @@
 4. Текущая browser-база проверена только в Chromium: accepted Playwright suite
    и live Pages checklist прошли; Firefox/Safari — `NOT RUN`.
 5. Merge, push, PR и deploy выполняются только по явному разрешению пользователя.
+6. Production backend host/ingress, CORS/cookie topology и provider deployment
+   не выбраны; это не блокирует local/CI `ET-09.2`, но блокирует live API rollout.
 
 `T0-CTX-001`, `T0-APP-001`, `T0-URL-001`, `T0-LOC-001`, `T0-BASE-001`,
 `T0-SEO-001`, `T0-DEP-001` и `T0-REL-001` закрыты. Для `T0-REL-001` подтверждены
@@ -157,6 +164,13 @@ commit `d22b597`.
 
 ## Последние проверки
 
+- 2026-08-31 (`ET-09.1`): read-only MathMorph audit по immutable commit `0fa90c7`;
+  SPEC/architecture/ADR/security/traceability/DAG синхронизированы. Context,
+  project overlay и `git diff --check` — PASS; новых Markdown links нет (gate
+  N/A), unit/UI/DB tests неприменимы к docs-only slice. Текущий MathMorph
+  worktree имеет внешние параллельные изменения и не использовался как evidence;
+  независимые architecture/security/final reviews — PASS; backend/provider
+  implementation отсутствует;
 - 2026-08-31 (`ET-08`): GitHub Actions run `33387890612` на `d22b597` — PASS;
   verify установил Chromium, выполнил все required gates, загрузил checked
   `dist/`, deploy опубликовал Pages artifact. Live Chromium подтвердил root→RU,

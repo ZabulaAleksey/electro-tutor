@@ -290,7 +290,7 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.1 — Architecture/reuse audit и platform contract
 
-Статус: `planned`.
+Статус: `completed (validated locally, 2026-08-31)`.
 
 - **Goal / why now:** превратить future vision в проверенный target contract до
   выбора backend/provider и code scaffolding.
@@ -319,6 +319,12 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
   риск — принять vendor example за решение без ADR/evidence.
 - **DoD / deferred:** общий docs-stage DoD + approved executable `ET-09.2` contract;
   all implementations remain deferred.
+- **Completion evidence:** current/target architecture, ADR-019/020/021,
+  threat/privacy/cost atlas, `TRACEABILITY.md` и SPEC v0.2 синхронизированы;
+  read-only MathMorph audit выполнен по immutable commit `0fa90c7`; `pnpm.cmd run
+  check:context`, project overlay validator и `git diff --check` — PASS. Новых
+  Markdown links нет, поэтому link gate — N/A. Unit/UI/DB tests неприменимы к
+  docs-only slice. Независимые architecture, security и final review gates — PASS.
 
 ## ET-09.2 — Backend/API/DB walking skeleton
 
@@ -333,17 +339,29 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 - **Scope / non-goals:** app factory, config validation, stable error/request ID,
   migration/runtime roles, one repository/service path, diagnostics, local/CI
   parity; без auth, profiles, booking, queue, Redis or microservices.
-- **Modules / expected files:** backend root selected in `ET-09.1`, root workspace
-  manifests, migrations, local orchestration, CI/scripts, API/data/security/
+- **Modules / expected files:** `services/api/`, service-local `pyproject.toml`/
+  `uv.lock`, root `package.json` scripts и `compose.yaml`, migrations, local
+  orchestration, CI/scripts, API/data/security/
   Backend DX delta docs and tests.
+- **Approved foundation:** Python `>=3.12`, FastAPI, Pydantic Settings, async
+  SQLAlchemy + asyncpg, Alembic, PostgreSQL 17; modular monolith; `/api/v1`;
+  root pnpm orchestration + service-local uv; local/CI only.
+- **Canonical commands/ports:** `backend:bootstrap/build/check/dev/stop/logs/
+  status/doctor/smoke/test:fast/test:integration/db:status/db:migrate/
+  db:reset-local`; API `127.0.0.1:8000`, PostgreSQL host-only
+  `127.0.0.1:55432`; CI reuses root scripts.
 - **DB / migration:** initial reversible schema lineage; separate migration and
   least-privilege runtime roles; disposable upgrade/downgrade lifecycle evidence.
 - **Security / fallback / risks:** bounded config/body/errors; DB outage returns
-  stable `503`, never in-memory success; secrets only environment/secret store.
+  stable redacted `503`, never in-memory success; exact CORS allowlist, API
+  `no-store`; loopback/no-LAN safe defaults; strict request ID; sentinel-secret
+  redaction; destructive DB actions deny by default; secrets only environment/
+  secret store.
 - **Behavior IDs:** `PLAT-002`, `OPS-001`, `DB-001`.
 - **Tests / manual:** unit config/error tests; real PostgreSQL integration and
   migration lifecycle; API component tests; E2E canonical command → HTTP → DB;
-  manual diagnostics/readiness inspection.
+  negative network/config/redaction/destructive-action tests; Python lock-drift
+  and vulnerability gate; manual diagnostics/readiness inspection.
 - **Observability / docs:** request ID, safe DB readiness latency/error class;
   README setup, architecture, API/data/security, project-context and state.
 - **Temporary / rollback / risks:** fully working local PostgreSQL composition is

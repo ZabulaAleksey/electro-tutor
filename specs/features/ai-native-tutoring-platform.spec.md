@@ -1,10 +1,9 @@
-# Черновик спецификации AI-native tutoring platform
+# Спецификация AI-native tutoring platform
 
-Статус: Черновик будущего product track; архитектурные инварианты утверждены
-пользовательским Master Prompt, feature-specific contracts требуют уточнения
-перед реализацией соответствующего этапа.
+Статус: Действует как architecture baseline для `ET-09.1+`; feature-specific
+contracts требуют уточнения перед реализацией соответствующего этапа.
 
-Версия: 0.1
+Версия: 0.2
 
 ## 1. Назначение и граница применения
 
@@ -38,21 +37,30 @@ timeline, запись, transcript, AI и post-lesson результаты.
   retention и SLA.
 - Backend, database, accounts, authoritative booking, payments, persistent
   lesson state и native media infrastructure отсутствуют.
-- Текущий исполнимый этап остаётся `TUTOR-06`; будущий platform track не
-  разблокирует его и не снимает blockers `ET-03`, `ET-05`, `ET-06` и `ET-07`
+- `TUTOR-06`, `ET-08` и docs-only `ET-09.1` завершены; текущий исполнимый
+  этап — local/CI foundation `ET-09.2`.
+  Platform track не снимает blockers `ET-03`, `ET-05`, `ET-06` и `ET-07`
   предположениями.
 
-Read-only reuse audit MathMorph 2026-08-29 подтвердил применимые паттерны, но не
+Read-only reuse audit MathMorph, повторно проверенный 2026-08-31, подтвердил
+применимые паттерны, но не
 разрешил межпроектное копирование или mutation:
 
 | Классификация | Кандидат | Граница |
 |---|---|---|
 | `ADAPT_PATTERN` | Keycloak/OIDC, Authorization Code + PKCE, stable `(issuer, subject)` identity | отдельные Electro Tutor realm/client/config и собственная проверка contracts |
-| `ADAPT_PATTERN` | FastAPI, PostgreSQL/Alembic, request ID, stable errors, least-privilege runtime roles | выбор backend stack и schema оформляется Electro Tutor ADR; migrations не копируются |
+| `ADAPT_PATTERN` | FastAPI, PostgreSQL/Alembic, request ID, stable errors, least-privilege runtime roles | stack принят ADR-019; Electro Tutor владеет собственными modules/schema, migrations не копируются |
 | `ADAPT_PATTERN` | background jobs, idempotency, retry/reconciliation и object-storage boundaries | только после подтверждения конкретной нагрузки и stage-specific failure contract |
 | `KEEP_INDEPENDENT` | MathMorph auth sessions, realm, clients, migrations, API/database | не изменять и не использовать напрямую из Electro Tutor |
 | `FUTURE_INTEGRATION` | formula interchange и shared identity | только versioned API/export contract и отдельный integration stage |
 | `EXTRACT_SHARED` | отсутствует | общий package допустим только после доказанного стабильного дублирования |
+
+Evidence provenance: immutable MathMorph commit `0fa90c7`, прочитанный через Git
+object snapshot независимо от текущего worktree; фактические
+границы проверены по `services/api/pyproject.toml`, `services/api/uv.lock`,
+`docs/ARCHITECTURE.md`, `docs/DECISIONS.md` и `docs/AI_STATUS.md`. Статусы
+`NOT_RUN_DOCKER` и `implemented_unverified` MathMorph не повышены и не переносятся
+в evidence Electro Tutor.
 
 ## 3. Обязательные архитектурные инварианты
 
@@ -125,6 +133,26 @@ Read-only reuse audit MathMorph 2026-08-29 подтвердил применим
 
 Redis, message broker, CRDT, event bus и microservice extraction не являются
 defaults: каждый требует доказанного gap, ADR и bounded fallback.
+
+### 5.1 Принятый foundation contract для `ET-09.2`
+
+- Repository остаётся одним product monorepo: текущий Astro frontend сохраняется,
+  новый backend root — `services/api/`.
+- Backend stack: Python `>=3.12`, FastAPI, Pydantic Settings, SQLAlchemy async,
+  asyncpg, Alembic; Python dependency contract — `uv` + service-local `uv.lock`
+  и `.venv`, Node contract остаётся `pnpm@11.23.0`.
+- Persistence: PostgreSQL 17; Alembic — единственный schema owner. Migration и
+  runtime roles разделены, runtime не получает DDL и production credentials.
+- Architecture: один modular monolith с `transport → application → domain →
+  adapters`; provider SDK и MathMorph packages/database не входят в core.
+- API prefix — `/api/v1`; generated OpenAPI является projection runtime routes,
+  stable error envelope и response header несут request ID без secrets.
+- `ET-09.2` запускается только как local/CI walking skeleton. GitHub Pages и
+  production frontend не меняются; production backend host, ingress, domain и
+  CORS/cookie topology остаются отдельным открытым deployment decision.
+- Единственная обязательная local service dependency — PostgreSQL. Keycloak,
+  Redis, RabbitMQ, worker, object storage, realtime и AI providers запрещены в
+  `ET-09.2` без нового approved stage.
 
 ## 6. Требования будущего track
 
@@ -212,6 +240,35 @@ observer, self-study, course, commerce и cross-project use cases запуска
 redacted observability, recovery и cost signals. Audit, technical telemetry и
 product analytics остаются разными потоками.
 
+### AUTH-004 Cross-project identity isolation
+
+Electro Tutor не меняет MathMorph realm, clients, sessions, migrations, roles
+или API. Будущий principal использует собственную пару `(issuer, subject)`;
+shared identity требует отдельного versioned integration contract.
+
+### INT-002 No direct foreign database access
+
+Electro Tutor не читает и не пишет database/schema другого продукта. Любой
+MathMorph exchange проходит только через versioned API/export adapter; outage
+оставляет локальный Electro Tutor state доступным в явно degraded режиме.
+
+### OPS-001 Reproducible backend command surface
+
+`ET-09.2` обязан предоставить из repository root discoverable cross-platform
+commands для locked bootstrap, config/doctor, start/stop/status, check, fast и
+real-PostgreSQL integration tests, migration status/apply, API smoke и safe
+local cleanup. Default profile bind-ит API только к loopback, не публикует
+PostgreSQL в LAN и включает docs/debug только явным local switch. CI вызывает
+те же semantic implementations и проверяет `uv.lock` drift/vulnerabilities.
+
+### DB-001 PostgreSQL migration/runtime boundary
+
+Schema меняется только additive Alembic revisions. Migration и runtime roles
+разделены; test DB изолирована, destructive lifecycle разрешён только для
+доказанного disposable local/test target. Missing/unknown config и production-like
+target fail fast; reset/cleanup deny by default. Required evidence включает
+upgrade/downgrade/upgrade, head/drift, runtime grants и реальный readiness query.
+
 ## 7. Critical Behavior IDs
 
 | IDs | Проверяемый contract |
@@ -234,6 +291,45 @@ product analytics остаются разными потоками.
 
 Перед implementation stage диапазон IDs разворачивается в точные acceptance
 criteria и test levels. Диапазон сам по себе не является evidence.
+
+### 7.1 Критерии приёмки `ET-09.1`
+
+- `AC-ET091-001`: current/target map отделяет действующий static Pages contour
+  от ещё не реализованного backend target.
+- `AC-ET091-002`: reuse matrix содержит provenance и не копирует/не изменяет
+  MathMorph product-owned state.
+- `AC-ET091-003`: ADR фиксирует backend root, stack, API, DB/migration roles,
+  local/CI boundary, alternatives и rollback.
+- `AC-ET091-004`: security document содержит threat/privacy/cost atlas и
+  fail-closed boundaries для foundation.
+- `AC-ET091-005`: traceability связывает `PLAT-001`, `AUTH-004`, `INT-002` с
+  SPEC, architecture/ADR, stage и проверяемым evidence.
+- `AC-ET091-006`: context validator однозначно выбирает `ET-09.2`; project
+  overlay/DAG review проходит, а audit не создаёт MathMorph diff и читает
+  provenance из immutable snapshot.
+
+### 7.2 Исполнимый acceptance contract `ET-09.2`
+
+- `AC-ET092-001`: locked clean bootstrap создаёт service-local Python environment
+  без второго Node lockfile и без hidden global dependency.
+- `AC-ET092-002`: canonical root command поднимает API и PostgreSQL; readiness
+  возвращает stable `200` только после real `SELECT 1` и проверки schema head,
+  DB outage/schema drift возвращают redacted `503`.
+- `AC-ET092-003`: `/api/v1/health/live` и `/api/v1/health/ready` имеют generated
+  OpenAPI, bounded stable responses, error envelope и server-generated либо
+  strict charset/length-validated request ID; invalid/control input заменяется.
+- `AC-ET092-004`: Alembic upgrade/downgrade/upgrade, head/drift и least-privilege
+  runtime grants проходят на disposable PostgreSQL 17.
+- `AC-ET092-005`: local/CI-equivalent gate включает static/lint/unit, API
+  contract, real PostgreSQL integration, Python lock-drift и vulnerability audit;
+  mocks не заменяют DB evidence; исключения имеют owner/reason/expiry.
+- `AC-ET092-006`: frontend, Pages deploy, MathMorph, auth, profiles, queues и
+  product domain tables не меняются; production deployment остаётся `NOT RUN`.
+- `AC-ET092-007`: default profile допускает только loopback API и не публикует
+  PostgreSQL в LAN; non-loopback exposure и implicit docs/debug отклоняются тестом.
+- `AC-ET092-008`: safe `.env.example`, missing/unknown-config fail-fast,
+  sentinel-secret redaction в logs/doctor/errors и deny-by-default destructive
+  DB commands проверены автоматизированными negative tests.
 
 ## 8. Feature classification
 
@@ -272,7 +368,8 @@ Terminal status требует:
 
 ## 10. Открытые решения
 
-1. Backend language/framework и workspace layout после reuse/operability audit.
+1. Production backend hosting, public ingress/domain, TLS termination и
+   browser-to-API CORS/cookie/token topology.
 2. Отдельный Electro Tutor Keycloak realm/client или иной approved issuer;
    production ingress/session/token exchange.
 3. LiveKit deployment/provider, TURN topology, regions, cost и data processing.
@@ -281,7 +378,14 @@ Terminal status требует:
 6. Legal entity, countries, currencies, taxes, refunds, dispute and marketplace
    funds flow до `PLATFORM` mode.
 7. Transcript/AI providers, privacy, retention, cost budgets и user consent.
-8. Production backend hosting, backup/restore, SLO, incident and release model.
+8. Production backup/restore, SLO, incident and release model.
 
 Неизвестное решение оставляет затрагиваемый stage `blocked` или `planned`; оно
 не заполняется предположением из provider example.
+
+## 11. История изменений
+
+- 2026-08-31, v0.2 — закрыт architecture baseline `ET-09.1`: повторно проверен
+  read-only MathMorph reuse, выбран local/CI backend foundation, развёрнуты
+  `AUTH-004`, `INT-002`, `OPS-001`, `DB-001` и acceptance `ET-09.1/ET-09.2`;
+  production providers/hosting не объявлены выбранными.

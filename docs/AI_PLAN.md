@@ -1,35 +1,36 @@
 # Текущий AI-план
 
-## ET-09.1 — Architecture/reuse audit и platform contract
+## ET-09.2 — Backend/API/DB walking skeleton
 
-- Stage ID: `ET-09.1`
+- Stage ID: `ET-09.2`
 
 Статус: `PLANNED`
 
-Цель: превратить future vision в проверенный target contract до выбора
-backend/provider и начала code scaffolding.
+Цель: реализовать минимальный modular-monolith runtime с реальным
+client/command → versioned API → PostgreSQL path.
 
 ### Dependencies и входные предпосылки
 
-- `ET-08` завершён и deployed;
-- Electro Tutor и MathMorph доступны для read-only audit;
-- draft platform SPEC и current repository evidence доступны.
+- `ET-09.1` завершён и validated locally;
+- ADR-019/020/021 утверждают runtime, identity и MathMorph boundaries;
+- production backend host/provider не требуется для local/CI slice.
 
 ### Runnable slice и scenario
 
-Repository evidence и user vision проходят audit/reuse classifier; результат —
-согласованные SPEC/architecture/ADR/DAG/traceability, после которых context
-validator однозначно выбирает `ET-09.2`.
+Каноническая root command поднимает API и PostgreSQL; `/api/v1/health/live`
+подтверждает процесс, `/api/v1/health/ready` выполняет `SELECT 1` и проверяет
+Alembic head. DB outage/schema drift дают redacted stable `503`.
 
 ### Scope и PASS evidence
 
-- зафиксировать current/target maps, gap/reuse/conflict audit и first release slice;
-- определить domain/data/provider/security/privacy/integration boundaries;
-- классифицировать features и подготовить executable contract `ET-09.2`;
-- синхронизировать только изменившиеся canonical planning/architecture sources.
+- `services/api/`: Python `>=3.12`, FastAPI, async SQLAlchemy, Alembic;
+- отдельные migration/runtime PostgreSQL roles и reversible initial lineage;
+- reproducible root setup/run/test/migrate/doctor surface, local/CI parity;
+- loopback/no-LAN defaults, destructive DB deny-by-default, strict request ID;
+- sentinel redaction, Python lock/vulnerability gates и required tests/evidence.
 
 ### Non-goals и blocker
 
-- product/backend/provider implementation и mutation MathMorph запрещены;
-- data model и migration policy допускаются только как docs contract;
-- недоступное cross-project evidence маркируется `NOT VERIFIED`, не угадывается.
+- без auth/profiles/booking, Keycloak, Redis, RabbitMQ, workers и microservices;
+- без production backend deployment/ingress/provider choice;
+- SQLite/mock не считается primary DB evidence; MathMorph не изменяется.

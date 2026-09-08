@@ -481,12 +481,12 @@ durable audit/shared-transaction prerequisite. The stage-level router keeps
 
 - Status: partial
 - NEXT: ET-09.4
-- Checkpoint: atomic ET-09.4a local checkpoint (resolve by Git history)
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main
 - Blockers: none
-- Evidence: ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS
+- Evidence: ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS; local main fast-forward confirmed at 7e15571
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"atomic ET-09.4a local checkpoint (resolve by Git history)","current_stage":"ET-09.4","evidence":["ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4a commits c946a80 and 7e15571 merged into local main","current_stage":"ET-09.4","evidence":["ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS; local main fast-forward confirmed at 7e15571"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL

@@ -525,3 +525,53 @@ auth lifecycle; `ET-09.2` health/database foundation сохраняется. Mat
 realm/client/config/secrets/sessions/tokens/rows/schema не читаются и не
 изменяются. Production IAM, MFA/passkeys, profiles/roles и shared identity
 остаются отдельными решениями и stages.
+
+## ADR-023 — Application profiles, trusted tutor grants и atomic audit
+
+Дата: 2026-09-08
+
+Статус: принято как implementation contract для `ET-09.4`; runtime не реализован
+
+Решение: текущий Tutor-local `external_identities.id` является application
+account key для `ET-09.4`; новая `accounts` table не создаётся. Account имеет
+независимые relations `0..1` StudentProfile и `0..1` TutorProfile, обе personas
+могут существовать одновременно. Profile хранит только private product data и
+никогда не является role/capability/tenant/admin/entitlement source.
+
+StudentProfile create/read/update разрешаются authenticated owner. TutorProfile
+create/read/update требуют отдельный active account-scoped grant
+`TUTOR_PROFILE_MANAGE_OWN`. Stored authority принадлежит Tutor PostgreSQL;
+Application Core вычисляет решение из server-side principal, ownership, typed
+operation, active grant и versioned code/config matrix. Profile fields, public
+request, client state и mutable OIDC/Keycloak claims authority не выдают.
+
+Issue/revoke grant доступны только trusted internal provisioning adapter через
+application service и typed server-created actor; public self-grant endpoint
+запрещён. Baseline grant не разрешает lesson, tenant, student, board, billing,
+classroom или admin access. Future tenant/membership/scoped permissions остаются
+отдельными сущностями и могут дополнять evaluator без изменения account-grant
+semantics.
+
+AuditEvent является append-only redacted product-security stream. Grant/revoke и
+первое TutorProfile creation записывают domain mutation и AuditEvent одной
+PostgreSQL transaction. Audit failure откатывает mutation; log/in-memory fallback
+запрещён. Grant check и TutorProfile mutation сериализуются с concurrent revoke
+через общий unit-of-work/connection и row lock. Runtime не получает
+`UPDATE`/`DELETE` audit privileges.
+
+Причина: identity authentication из `ET-09.3` не определяет product authority, а
+создание TutorProfile без отдельного trusted grant дало бы self-escalation.
+Authority mutation без durable audit нарушила бы воспроизводимость sensitive
+actions. Audit persistence поэтому предшествует grant/profile runtime slices.
+
+Рассмотренные альтернативы: Keycloak roles/claims как authority, profile row как
+role, единая Student/Tutor role, profile как tenant, public self-grant, generic
+RBAC/ABAC engine и отдельный audit service отклонены. Они смешивают trust
+boundaries либо вводят преждевременную инфраструктуру.
+
+Последствия: detailed requirements принадлежат
+`../specs/features/profiles-capabilities-audit.spec.md`. Runtime выполняется
+последовательно: audit persistence/unit-of-work → trusted grant/evaluator →
+profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
+stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
+меняются.

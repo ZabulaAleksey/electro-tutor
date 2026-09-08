@@ -13,6 +13,24 @@ ingress и IAM topology не выбраны.
 | `GET /api/v1/me` | `200` только для действующей Tutor server-side session; иначе `401` |
 | `POST /api/v1/auth/logout?post_logout_redirect_uri=...` | требует exact DEV Origin/redirect, удаляет Tutor session/cookie и переводит на provider logout |
 
+## ET-09.4 planned profile surface (not implemented)
+
+Approved contract находится в
+`../specs/features/profiles-capabilities-audit.spec.md`; routes ниже появятся
+только в runtime slice `ET-09.4d`:
+
+| Endpoint family | Contract |
+|---|---|
+| `GET /api/v1/profiles/{student|tutor}/{identity_id}` | private owner read; foreign/nonexistent resource возвращает non-disclosing `404 profile_not_found` |
+| `PUT /api/v1/profiles/{student|tutor}/{identity_id}` | idempotent create с owner из session; body не принимает identity/role/capability; Tutor требует active `TUTOR_PROFILE_MANAGE_OWN` |
+| `PATCH /api/v1/profiles/{student|tutor}/{identity_id}` | owner update `display_name`; Tutor требует active grant; authority-like/unknown fields отклоняются |
+
+Anonymous/invalid session получает `401 authentication_required`, missing tutor
+grant — `403 capability_required`, invalid body — `422 invalid_request`, different
+payload после existing create — `409 profile_already_exists`, audit failure —
+`503 audit_unavailable`. Public grant/revoke endpoint не создаётся; trusted
+provisioning вызывает Application Core service через internal adapter.
+
 Все `/api/*` responses получают `Cache-Control: no-store` и `X-Request-ID`.
 Безопасный входной request ID принимается, invalid/control/oversized значение
 заменяется server-generated ID. Ошибка имеет стабильную форму

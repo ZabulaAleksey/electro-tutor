@@ -119,6 +119,37 @@ verifier; callback создаёт новую opaque server-side session, а raw 
 tokens отбрасываются после проверки. MathMorph client/config/session/schema не
 переиспользуются. Provider choice не может менять domain owner.
 
+### ET-09.4 profiles/authz/audit contract (runtime planned)
+
+ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` принимают
+текущий `external_identities.id` как application account key без второй Account
+entity. StudentProfile и TutorProfile — независимые private `0..1` persona
+records; одна identity может иметь обе. Profile fields не являются authority и
+TutorProfile не является tenant/membership.
+
+```text
+ET-09.3 session → Principal(identity_id)
+  → Application Core policy evaluator
+      + resource ownership
+      + typed operation
+      + active account CapabilityGrant
+  → profile/grant repository + append-only AuditEvent
+      (один PostgreSQL unit-of-work для audit-critical mutation)
+```
+
+Baseline trusted grant `TUTOR_PROFILE_MANAGE_OWN` хранится в Tutor PostgreSQL и
+может быть issued/revoked только server-created internal provisioning actor.
+Client/OIDC claims и profile existence не входят в authority inputs. Grant не
+даёт blanket lesson/tenant/board/billing/classroom access; future scoped sources
+могут дополнять evaluator, не меняя account-grant semantics.
+
+Authority mutation и первое TutorProfile creation коммитят AuditEvent в той же
+transaction; audit failure откатывает mutation. Проверка grant и profile write
+сериализуются с concurrent revoke через общий connection/unit-of-work и row lock.
+Это определяет runtime order: audit persistence → grant/evaluator → profiles →
+HTTP adapters → full RU/UK/authz E2E. Ни один runtime module/migration/endpoint в
+documentation-only contract checkpoint не реализован.
+
 ## Технологии и границы
 
 | Задача | Реализация |

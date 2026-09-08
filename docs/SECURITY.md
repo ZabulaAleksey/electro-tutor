@@ -111,6 +111,8 @@ PostgreSQL. Production hosting и внешние providers не выбраны.
 | API request/response | injection, oversized input, correlation/header abuse | loopback default; bounded body/timeouts; server-generated ID либо strict charset/length validation с replacement invalid/control chars; stable redacted errors; `no-store` | route template/status/duration без payload/PII |
 | PostgreSQL | privilege escalation, schema drift, silent fallback | отдельные migration/runtime roles; runtime без DDL; readiness проверяет DB + Alembic head; outage/drift → `503` | собирать только данные утверждённого domain stage; storage/backup cost TBD |
 | Identity | account confusion, callback/CSRF/session fixation, token leak | exact DEV issuer/client/redirects/origins; state + nonce + PKCE S256; signed ID-token issuer/audience validation; rotating opaque server-side session | production IAM/retention остаются future decision; provider tokens не сохраняются |
+| Profiles / authorization (`ET-09.4`, planned) | profile-driven role escalation, IDOR/BOLA, blanket tutor access | private owner-only profiles; profile/client/OIDC fields не authority; typed account grant + Application Core matrix; foreign resource non-disclosing deny | public directory и tenant/member data отсутствуют; минимальный private `display_name` |
+| Audit (`ET-09.4`, planned) | authority mutation без evidence, audit tampering или PII leak | grant/revoke и TutorProfile creation атомарны с append-only AuditEvent; audit failure rolls back mutation; runtime без audit UPDATE/DELETE | metadata allowlisted/bounded; tokens, secrets, email, display name и full profile body запрещены |
 | MathMorph integration | foreign DB access, cascading failure | только versioned API/export adapter; no direct DB/session/config access | не дублировать MathMorph PII/artifacts без отдельной цели и срока |
 | Media/payment/AI/storage | vendor lock-in, uncontrolled spend/data transfer | provider-neutral ports; disabled until approved vertical slice | pricing, region, retention, consent и deletion — обязательные входные решения |
 
@@ -158,6 +160,12 @@ purpose, access rule и retention/deletion contract. Неутверждённы�
 LiveKit, Stripe, object storage, notification и AI vendors не создают расходов и
 не получают данные. PostgreSQL — technology boundary, а не разрешение на
 production provider или бессрочное хранение.
+
+Для `ET-09.4` trusted grant source — только Tutor PostgreSQL; internal
+provisioning actor формируется server-side из exact allowlisted config и не
+доступен public session. Denied self-escalation/foreign access может попадать в
+redacted security observability с request/correlation ID, но без private profile
+payload. Durable audit read/export и public admin UI в baseline отсутствуют.
 
 ## Платежи
 

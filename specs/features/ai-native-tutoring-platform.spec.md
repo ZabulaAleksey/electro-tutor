@@ -3,7 +3,7 @@
 Статус: Действует как architecture baseline для `ET-09.1+`; feature-specific
 contracts требуют уточнения перед реализацией соответствующего этапа.
 
-Версия: 0.2
+Версия: 0.3
 
 ## 1. Назначение и граница применения
 
@@ -197,6 +197,10 @@ commands и локально воспроизводимый client → API → d
 Пользователь аутентифицируется через standards-based provider. Application
 профили и lesson capabilities принадлежат Electro Tutor; другой пользователь
 не может получить доступ к чужому lesson через guessed ID или client claims.
+Детальный approved contract `ET-09.4` находится в
+`profiles-capabilities-audit.spec.md` и ADR-023: profile не является authority,
+trusted grants принадлежат Application Core, а authority mutations атомарны с
+durable audit.
 
 ### PLAT-004 Booking and access
 
@@ -298,7 +302,7 @@ upgrade/downgrade/upgrade, head/drift, runtime grants и реальный readin
 | IDs | Проверяемый contract |
 |---|---|
 | `AUTH-001..004` | valid login; private lesson denies anonymous; expired token fails safely; Electro Tutor не меняет MathMorph auth |
-| `AUTHZ-001..003` | server computes capabilities; client role escalation denied; moderation action audited |
+| `AUTHZ-001..003` | server computes capabilities; client role escalation denied; critical authorization action audited, а moderation позднее переиспользует этот baseline |
 | `BOOK-001..004` | create/accept booking; agreed price snapshot; offer change не мутирует booking |
 | `ACCESS-001..004` | grants from valid platform/free/external policy; unauthorized third user denied |
 | `SESSION-001..004` | reload restores session, chat, current topic and whiteboard state |
@@ -410,6 +414,8 @@ Terminal status требует:
 
 ## 11. История изменений
 
+- 2026-09-08, v0.3 — `PLAT-003` и `AUTHZ-001..003` развёрнуты в approved
+  `profiles-capabilities-audit.spec.md`/ADR-023; runtime остаётся planned.
 - 2026-08-31, v0.2 — закрыт architecture baseline `ET-09.1`: повторно проверен
   read-only MathMorph reuse, выбран local/CI backend foundation, развёрнуты
   `AUTH-004`, `INT-002`, `OPS-001`, `DB-001` и acceptance `ET-09.1/ET-09.2`;

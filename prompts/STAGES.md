@@ -426,31 +426,55 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
-- **Dependencies / entry:** `ET-09.3` completed; profile/capability/audit SPEC and
-  role-policy decision approved.
+- **Dependencies / entry:** `ET-09.3` completed; approved implementation contract
+  `specs/features/profiles-capabilities-audit.spec.md` v0.1 and ADR-023 close the
+  profile/capability/audit and role-policy entry gate.
 - **Runnable slice / E2E:** authenticated student/tutor creates or reads own
   profile → server computes allowed application capability → forbidden role/
   foreign profile mutation returns deny → critical change creates AuditEvent.
-- **Scope / non-goals:** StudentProfile, TutorProfile minimum, typed capabilities,
-  policy service and audit event; without verification marketplace, booking,
+- **Scope / non-goals:** private minimal StudentProfile/TutorProfile, typed
+  account grant, Application Core policy service and append-only audit event;
+  without tenant/membership, public tutor directory, marketplace, booking,
   lesson capabilities, admin console or IdP role mutation.
 - **Modules / expected files:** profile/authz/audit domain/application/repository,
   API/UI slices, migrations, specs/security/data/traceability and tests.
-- **DB / migration:** profile ownership, unique identity relation, audit append
-  fields/indexes; reversible migration and no mutable tutor business fields in IdP.
+- **DB / migration:** independent `0..1` profiles per identity, active grant
+  uniqueness, append-only audit fields/indexes; reversible additive migrations,
+  exact runtime grants and no mutable tutor business fields in IdP.
 - **Security / fallback / risks:** AuthN/AuthZ independent, deny-by-default and
   IDOR/role escalation negatives; audit failure for critical mutation fails closed.
-- **Behavior IDs:** `AUTHZ-001..003`.
+- **Behavior IDs:** `PLAT-003`, `AUTHZ-001..003`, `PCA-ID-001..004`,
+  `PCA-PROFILE-001..002`, `PCA-GRANT-001..004`, `PCA-AUDIT-001..004`.
 - **Tests / manual:** unit policy matrix; real DB ownership/audit integration;
   RU/UK profile/permission component states; E2E own profile + forbidden foreign
   mutation; manual audit redaction/accessibility review.
 - **Observability / docs:** authorization denial category and audit correlation,
-  no private payload; update profile/capability SPEC, architecture/security/API/data/state.
+  no private payload; contract lives in the approved feature-SPEC/ADR-023 and is
+  projected into architecture/security/API/data/traceability/state.
 - **Temporary / rollback / risks:** minimal STUDENT/TUTOR policy allowed if fully
   working and extensible; rollback migration/data export plan; risk — hardcoded
   role checks scattered in handlers.
 - **DoD / deferred:** common DoD + server policy/audit E2E; verification/offers,
   lesson roles and moderation deferred.
+
+Ordered runtime slices and dependency edges:
+
+1. `ET-09.4a` Audit persistence/unit-of-work foundation — depends on verified
+   `ET-09.3` and this approved contract; required before any critical authority write.
+2. `ET-09.4b` Trusted account grant + deterministic evaluator — depends on
+   `ET-09.4a`, because grant/revoke must commit durable audit atomically.
+3. `ET-09.4c` Student/Tutor profile persistence/lifecycle — depends on
+   `ET-09.4b`, because TutorProfile create/read/update require trusted grant and
+   create must share the audit transaction.
+4. `ET-09.4d` Application/HTTP ownership paths — depends on `ET-09.4c`; adapters
+   consume policy/repository contracts and add anonymous, validation and IDOR/BOLA negatives.
+5. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
+   `ET-09.4d`; only this slice may close the full stage after all terminal gates.
+
+Detailed schema, authorization matrix, audit atomicity and per-slice acceptance
+gates are canonical in `specs/features/profiles-capabilities-audit.spec.md`.
+The next implementation pass selects only `ET-09.4a`; runtime is not started by
+this documentation checkpoint.
 
 - Status: planned
 - NEXT: ET-09.4

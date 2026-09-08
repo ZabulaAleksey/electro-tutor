@@ -374,14 +374,14 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.3 — Identity/OIDC vertical slice
 
-Статус: `blocked`: нужен отдельный Electro Tutor IdP client/config и approved
-test account.
+Статус: `blocked`: не утверждён единый ET-09.3 non-production IdP/environment
+contract, включающий dedicated client и owner-approved test identity.
 
 - **Goal / why now:** establish provider-neutral identity before profiles,
   permissions and private lessons.
 - **Dependencies / entry:** `ET-09.2` completed; Identity Strategy and MathMorph
-  Integration Boundary ADRs approved; separate Electro Tutor IdP client/config
-  and approved test account are available.
+  Integration Boundary ADRs approved; provider/issuer boundary, client type,
+  exact local/test URLs, required claims/test role and test-account owner are approved.
 - **Runnable slice / E2E:** browser → OIDC Authorization Code + PKCE → callback/
   server session → protected `/api/v1/me` → logout; anonymous/expired token denied.
 - **Scope / non-goals:** stable `(issuer, subject)`, exact redirects, session/token
@@ -408,11 +408,21 @@ test account.
 - Status: blocked
 - NEXT: ET-09.3
 - Checkpoint: none
-- Blockers: отсутствуют отдельный Electro Tutor IdP client/config и approved test account
+- Blockers: не утверждён единый ET-09.3 non-production IdP/client/test-identity contract: provider/exact issuer, client/session/secret-delivery type, enabled flow/PKCE, exact local/test origins и callback/logout URIs, minimum scopes/claim mappings/test role, no-wildcard/cross-product isolation, owner/approval, expiry и cleanup
+- Human checkpoint: dispatcher утверждает этот contract и единый loopback-host convention;
+  назначенный owner создаёт synthetic test-only identity без production/admin privileges и
+  возвращает digest и allowlisted non-secret summary: exact issuer host/profile, client ID/type,
+  enabled flow/PKCE, exact redirect/logout/origin lists, minimum scopes/claim mappings/test role,
+  no-wildcard и no-MathMorph-reuse подтверждение, opaque subject либо non-PII test alias,
+  approval reference, expiry/disable date и reset/delete evidence. Raw realm/client export,
+  user record или mapper dump в чат/Git не передаются. Для confidential client approval называет
+  только конкретный server-only secret delivery/storage mechanism и redaction evidence; для
+  public client явно фиксирует отсутствие client secret. Password, token, admin credential и
+  client secret в чат/Git не передаются
 - Evidence: none
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["отсутствуют отдельный Electro Tutor IdP client/config и approved test account"],"checkpoint":null,"current_stage":"ET-09.3","evidence":[],"master_id":null,"next_selector":"ET-09.3","status":"blocked"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["не утверждён единый ET-09.3 non-production IdP/client/test-identity contract: provider/exact issuer, client/session/secret-delivery type, enabled flow/PKCE, exact local/test origins и callback/logout URIs, minimum scopes/claim mappings/test role, no-wildcard/cross-product isolation, owner/approval, expiry и cleanup"],"checkpoint":null,"current_stage":"ET-09.3","evidence":[],"master_id":null,"next_selector":"ET-09.3","status":"blocked"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-09.4 — Profiles, capabilities и audit baseline

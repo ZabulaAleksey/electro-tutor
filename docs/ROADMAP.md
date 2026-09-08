@@ -268,8 +268,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 
 ## AI-native platform track — после stabilization/public release
 
-Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`
-и `ET-09.1` текущий selector — `ET-09.2`. `ET-03` остаётся независимым
+Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
+`ET-09.1` и `ET-09.2` текущий blocked selector — `ET-09.3`. `ET-03` остаётся независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage

@@ -31,6 +31,9 @@ payload после existing create — `409 profile_already_exists`, audit failu
 `503 audit_unavailable`. Public grant/revoke endpoint не создаётся; trusted
 provisioning вызывает Application Core service через internal adapter.
 
+Slice `ET-09.4a` уже регистрирует reusable redacted `503 audit_unavailable`
+handler для будущих audit-critical commands, но не добавляет profile/grant route.
+
 Все `/api/*` responses получают `Cache-Control: no-store` и `X-Request-ID`.
 Безопасный входной request ID принимается, invalid/control/oversized значение
 заменяется server-generated ID. Ошибка имеет стабильную форму

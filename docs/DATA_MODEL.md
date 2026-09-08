@@ -25,15 +25,28 @@ one-shot container, а долгоживущий API получает тольк�
 `electro_tutor_test` предназначена для разрешённого migration lifecycle и
 никогда не подменяет основную local database.
 
-## ET-09.4 planned schema contract
+## ET-09.4 partial schema contract
 
-ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` определяют
-будущие additive tables; в текущем documentation checkpoint migrations/tables
-ещё не созданы:
+Revision `20260908_0005` реализует первый additive slice:
 
-- `audit_events`: UUID event, UTC time, typed actor/subject/action/result,
-  request/correlation/operation IDs и bounded allowlisted JSON metadata;
-  append-only, runtime без `UPDATE`/`DELETE`;
+- `audit_events`: PostgreSQL-generated UUID `event_id`, fixed `schema_version=1`,
+  server UTC `occurred_at`, typed actor/subject/action/result, nullable request
+  ID, required UUID correlation/operation IDs и bounded allowlisted JSONB
+  metadata;
+- `operation_id` unique; correlation, occurrence и subject/time indexes поддерживают
+  deterministic lookup без public read API;
+- actor/subject IDs — bounded soft references без FK на `external_identities`,
+  чтобы durable evidence переживало lifecycle subject и не закрепляло
+  provider-login identity как future multi-login account aggregate;
+- actor создаётся только из current `Principal` либо exact trusted-service
+  allowlist; PostgreSQL checks повторно ограничивают actor/service identifiers,
+  metadata key count, scalar shape, action-specific keys и typed values;
+- runtime получает table `SELECT` и column-level `INSERT` только для server
+  payload; `event_id`/`schema_version`/`occurred_at` spoof и
+  `UPDATE`/`DELETE`/`TRUNCATE` запрещены PostgreSQL privileges.
+
+Оставшиеся additive tables planned:
+
 - `capability_grants`: immutable subject/capability/account-scope, issue/revoke
   actor/time/operation metadata и partial unique active grant; baseline code
   `TUTOR_PROFILE_MANAGE_OWN`;
@@ -41,11 +54,12 @@ ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` опреде�
   `external_identities.id`, private normalized `display_name`, UTC timestamps;
   один account может иметь обе независимые records.
 
-Authority grant/revoke и первое TutorProfile creation используют общий
-PostgreSQL unit-of-work и атомарный AuditEvent. Grant read блокируется от
-concurrent revoke на время TutorProfile mutation. Audit insert/commit failure
-откатывает domain mutation. Profile delete/deactivate/cascade, tenant/member
-tables и public projection не входят в baseline.
+Connection-scoped audit repository не коммитит самостоятельно; one-shot
+`PostgresUnitOfWork` владеет одной connection/transaction, коммитит один раз при
+success и откатывает при exception/audit constraint failure. Grant/profile
+repositories подключатся к этой же transaction в `ET-09.4b/c`. Grant read row
+lock, profile delete/deactivate/cascade, tenant/member tables и public projection
+не входят в реализованный slice.
 
 `backend:db:migrate` выполняет additive upgrade, `backend:db:status` проверяет
 head и autogenerate drift. `backend:db:reset-local` — destructive local-only

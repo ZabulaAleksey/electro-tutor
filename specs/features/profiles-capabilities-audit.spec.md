@@ -1,7 +1,7 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime implementation ещё не начата
+runtime partial — `ET-09.4a` completed/verified, `ET-09.4b..e` planned
 
 Версия: 0.1
 
@@ -329,8 +329,17 @@ production provider. Следующий implementation pass выбирает т�
 | `PCA-GRANT-001..004` | persisted trusted grant, issuer authority, evaluator and idempotency |
 | `PCA-AUDIT-001..004` | envelope, privacy/immutability, transaction atomicity and access |
 
-## 11. Documentation-only checkpoint
+## 11. Runtime checkpoint
 
-Эта версия утверждает requirements/architecture order, но не создаёт runtime
-model, migration, repository, endpoint, service, fixture или UI. `ET-09.4`
-остаётся `planned`, `NEXT` остаётся `ET-09.4`.
+`ET-09.4a` реализует revision `20260908_0005`, executable audit envelope/
+metadata validation, connection-scoped `PostgresAuditEventRepository`, one-shot
+`PostgresUnitOfWork`, column-level runtime `INSERT`, table `SELECT` и запрет
+`UPDATE`/`DELETE`/`TRUNCATE`. `event_id`, `schema_version` и `occurred_at`
+заполняются PostgreSQL и недоступны construction boundary/runtime INSERT grant.
+`actor_id`/`subject_id` — typed soft references без FK на provider identity,
+поэтому audit не блокирует future account linking и сохраняется независимо от
+будущего lifecycle subject.
+
+Fast gate: `71 passed`; real PostgreSQL migration/integration gate: `22 passed`.
+CapabilityGrant, evaluator, profiles, HTTP routes и UI не реализованы. Whole
+`ET-09.4` имеет truthful `partial`, а stage-level `NEXT` остаётся `ET-09.4`.

@@ -530,7 +530,8 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 
 Дата: 2026-09-08
 
-Статус: принято как implementation contract для `ET-09.4`; runtime не реализован
+Статус: принято как implementation contract для `ET-09.4`; runtime partial —
+`ET-09.4a` completed/verified, `ET-09.4b..e` planned
 
 Решение: текущий Tutor-local `external_identities.id` является application
 account key для `ET-09.4`; новая `accounts` table не создаётся. Account имеет

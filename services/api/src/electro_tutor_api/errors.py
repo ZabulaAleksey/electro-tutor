@@ -27,3 +27,14 @@ class ServiceDependencyError(RuntimeError):
         super().__init__(code)
         self.code = code
         self.dependency = dependency
+
+
+class AuditUnavailableError(RuntimeError):
+    """A critical mutation cannot complete without durable audit evidence."""
+
+    code = "audit_unavailable"
+    message = "Critical operation could not be durably audited."
+    status_code = 503
+
+    def __init__(self) -> None:
+        super().__init__(self.code)

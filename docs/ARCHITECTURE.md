@@ -119,7 +119,7 @@ verifier; callback создаёт новую opaque server-side session, а raw 
 tokens отбрасываются после проверки. MathMorph client/config/session/schema не
 переиспользуются. Provider choice не может менять domain owner.
 
-### ET-09.4 profiles/authz/audit contract (runtime planned)
+### ET-09.4 profiles/authz/audit contract (runtime partial)
 
 ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` принимают
 текущий `external_identities.id` как application account key без второй Account
@@ -147,8 +147,9 @@ Authority mutation и первое TutorProfile creation коммитят AuditE
 transaction; audit failure откатывает mutation. Проверка grant и profile write
 сериализуются с concurrent revoke через общий connection/unit-of-work и row lock.
 Это определяет runtime order: audit persistence → grant/evaluator → profiles →
-HTTP adapters → full RU/UK/authz E2E. Ни один runtime module/migration/endpoint в
-documentation-only contract checkpoint не реализован.
+HTTP adapters → full RU/UK/authz E2E. `ET-09.4a` уже предоставляет append-only
+AuditEvent repository и один PostgreSQL unit-of-work; grant/profile/HTTP/UI
+runtime остаётся planned.
 
 ## Технологии и границы
 

@@ -422,7 +422,7 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
-Статус: `planned`.
+Статус: `partial` — `ET-09.4a` completed/verified; `ET-09.4b..e` planned.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
@@ -459,8 +459,10 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 Ordered runtime slices and dependency edges:
 
-1. `ET-09.4a` Audit persistence/unit-of-work foundation — depends on verified
-   `ET-09.3` and this approved contract; required before any critical authority write.
+1. `ET-09.4a` Audit persistence/unit-of-work foundation — `completed / VERIFIED`;
+   depends on verified `ET-09.3` and this approved contract; required before any
+   critical authority write. Evidence: revision `20260908_0005`, `71` fast tests
+   and `22` real-PostgreSQL integration/migration tests PASS.
 2. `ET-09.4b` Trusted account grant + deterministic evaluator — depends on
    `ET-09.4a`, because grant/revoke must commit durable audit atomically.
 3. `ET-09.4c` Student/Tutor profile persistence/lifecycle — depends on
@@ -473,16 +475,18 @@ Ordered runtime slices and dependency edges:
 
 Detailed schema, authorization matrix, audit atomicity and per-slice acceptance
 gates are canonical in `specs/features/profiles-capabilities-audit.spec.md`.
-The next implementation pass selects only `ET-09.4a`; runtime is not started by
-this documentation checkpoint.
+The next implementation pass selects only `ET-09.4b`; `ET-09.4a` provides its
+durable audit/shared-transaction prerequisite. The stage-level router keeps
+`NEXT: ET-09.4`; no grant, evaluator, profile, HTTP or UI runtime is started.
 
-- Status: planned
+- Status: partial
 - NEXT: ET-09.4
-- Checkpoint: none
+- Checkpoint: atomic ET-09.4a local checkpoint (resolve by Git history)
 - Blockers: none
+- Evidence: ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":null,"current_stage":"ET-09.4","evidence":[],"master_id":null,"next_selector":"ET-09.4","status":"planned"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"atomic ET-09.4a local checkpoint (resolve by Git history)","current_stage":"ET-09.4","evidence":["ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL

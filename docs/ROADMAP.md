@@ -321,11 +321,12 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   client, Authorization Code + PKCE S256, opaque server session, stable
   `(issuer, subject)`, protected `/me` и logout подтверждены real Keycloak /
   PostgreSQL / Chromium evidence без mutation MathMorph.
-- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PLANNED`.
+- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PARTIAL`.
   Approved feature-SPEC/ADR-023 фиксируют private composable Student/Tutor
   profiles, trusted account grant, server-side capability calculation и atomic
   audit. Runtime order: audit foundation → grant/evaluator → profiles → HTTP →
-  RU/UK E2E; implementation ещё не начата.
+  RU/UK E2E; audit persistence/shared-UoW slice `ET-09.4a` verified, следующий
+  runtime slice — trusted grant/evaluator `ET-09.4b`.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 

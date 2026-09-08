@@ -5,7 +5,10 @@
   readiness, outage/drift redaction, upgrade→downgrade→upgrade и запрет DDL для
   runtime role; identity upsert по `(issuer, subject)`, одноразовая auth
   transaction, session invalidation и запрет runtime-mutation durable identity key
-  также проверяются real DB.
+  также проверяются real DB. `ET-09.4a` добавляет exact AuditEvent schema/
+  privileges, revision round-trip, append/read/correlation, unique IDs,
+  server-controlled columns, append-only denial и shared-transaction rollback
+  при exception/audit constraint failure.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
 - `pnpm backend:idp:cleanup`: удаляет только synthetic identity после проверки

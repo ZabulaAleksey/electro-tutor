@@ -17,7 +17,7 @@ from electro_tutor_api.adapters.oidc import OidcAdapter
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
 from electro_tutor_api.application.health import HealthService
 from electro_tutor_api.config import Settings, get_settings
-from electro_tutor_api.errors import ErrorBody, ErrorResponse
+from electro_tutor_api.errors import AuditUnavailableError, ErrorBody, ErrorResponse
 from electro_tutor_api.logging import log_request
 from electro_tutor_api.request_id import accepted_request_id
 from electro_tutor_api.transport.auth import build_auth_router
@@ -123,6 +123,10 @@ def create_app(
 
     @app.exception_handler(AuthFlowError)
     async def auth_error(request: Request, exc: AuthFlowError) -> JSONResponse:
+        return _error(request, exc.code, exc.message, exc.status_code)
+
+    @app.exception_handler(AuditUnavailableError)
+    async def audit_unavailable(request: Request, exc: AuditUnavailableError) -> JSONResponse:
         return _error(request, exc.code, exc.message, exc.status_code)
 
     @app.exception_handler(Exception)

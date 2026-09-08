@@ -11,9 +11,8 @@ Collections/MDX. Поддерживаются маршруты `ru` и `uk`.
 | Фактическая реализация | код repository и результаты проверок |
 | Архитектура и существенные решения | `ARCHITECTURE.md`, `DECISIONS.md` |
 | Порядок развития | `ROADMAP.md` |
-| Текущий ограниченный stage | `AI_PLAN.md` |
-| Подтверждённое состояние | `AI_STATUS.md` |
-| Операционный stage protocol | `../prompts/STAGES.md` |
+| Current selector, stage status, `NEXT`, blockers и routing progression | `../prompts/STAGES.md` |
+| Retained migration evidence | `AI_PLAN.md`, `AI_STATUS.md` — hash-bound legacy artifacts, не active routing inputs |
 | Глобальная методика | `~/.codex/AGENTS.md` и глобальный ДЕВ |
 | Идеи и vision | Notion; не является evidence реализации |
 
@@ -104,5 +103,7 @@ Critical context восстанавливается из Git clone/branch и г�
 командой `Продолжай Electro Tutor` исполнитель проверяет dirty/untracked work,
 явно переключается на выбранную ветку, получает её через fast-forward без
 destructive reset, выполняет `pnpm install --frozen-lockfile`, запускает
-`pnpm check:context`, валидирует project overlay и читает `AI_STATUS.md` →
-`AI_PLAN.md` → выбранный record в `prompts/STAGES.md`.
+`pnpm check:context`, валидирует project overlay, затем читает единственный
+selector и выбранный record в `prompts/STAGES.md`. Его status, `NEXT`, blockers
+и dependencies определяют дальнейшее действие; retained legacy artifacts в
+normal bootstrap не читаются.

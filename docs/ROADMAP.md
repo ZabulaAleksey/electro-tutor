@@ -1,7 +1,8 @@
 # Дорожная карта Electro Tutor
 
 Roadmap задаёт порядок развития, но не заменяет SPEC. Детали ближайшей работы
-находятся в `AI_PLAN.md`, фактическое состояние — в `AI_STATUS.md`.
+и подтверждённые status/`NEXT`/blockers находятся в выбранном record
+`../prompts/STAGES.md`.
 
 Статусы: `DONE`, `CURRENT`, `PLANNED`, `BLOCKED`, `OPTIONAL`.
 

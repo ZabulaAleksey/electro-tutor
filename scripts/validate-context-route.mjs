@@ -11,6 +11,14 @@ const activeConsumers = [
   "docs/CONTEXT_COMPATIBILITY.md",
   "docs/project-context.md",
 ];
+const activeRoutingConsumers = [
+  "AGENTS.md",
+  "README.md",
+  "specs/README.md",
+  "docs/ROADMAP.md",
+  "docs/ARCHITECTURE.md",
+  "docs/SECURITY.md",
+];
 
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const fail = (message) => {
@@ -33,18 +41,57 @@ for (const path of ["AGENTS.md", "README.md", "specs/features/context-automation
   }
 }
 
-const plan = read("docs/AI_PLAN.md");
-const stageIdMatches = [...plan.matchAll(/^- Stage ID: `([^`]+)`$/gm)];
+for (const path of activeRoutingConsumers) {
+  const content = read(path);
+  if (/\bAI_(?:PLAN|STATUS)(?:\.md)?\b/.test(content)) {
+    fail(`${path} references a detached legacy routing source`);
+  }
+}
+
+const stages = read(canonicalStagePath);
+const stageIdMatches = [
+  ...stages.matchAll(/^- Stage ID: ([A-Za-z0-9][A-Za-z0-9._-]{0,63})$/gm),
+];
 if (stageIdMatches.length !== 1) {
-  fail(`AI_PLAN must contain exactly one Stage ID, found ${stageIdMatches.length}`);
+  fail(`${canonicalStagePath} must contain exactly one Stage ID, found ${stageIdMatches.length}`);
 }
 
 const stageId = stageIdMatches[0][1];
-const matchingHeadings = read(canonicalStagePath)
-  .split(/\r?\n/)
-  .filter((line) => line === `## ${stageId}` || line.startsWith(`## ${stageId} —`));
-if (matchingHeadings.length !== 1) {
+const stageLines = stages.split(/\r?\n/);
+const matchingHeadingIndexes = stageLines
+  .map((line, index) => ({ line, index }))
+  .filter(({ line }) => line === `## ${stageId}` || line.startsWith(`## ${stageId} —`))
+  .map(({ index }) => index);
+if (matchingHeadingIndexes.length !== 1) {
   fail(`${stageId} must select exactly one heading in ${canonicalStagePath}`);
 }
 
-console.log(`Context route OK: ${stageId} -> ${canonicalStagePath}`);
+const recordStart = matchingHeadingIndexes[0];
+const nextHeadingOffset = stageLines
+  .slice(recordStart + 1)
+  .findIndex((line) => line.startsWith("## "));
+const recordEnd = nextHeadingOffset === -1
+  ? stageLines.length
+  : recordStart + 1 + nextHeadingOffset;
+const record = stageLines.slice(recordStart, recordEnd).join("\n");
+const statusMatches = [...record.matchAll(/^- Status: ([a-z_]+)$/gm)];
+const nextMatches = [...record.matchAll(/^- NEXT: ([A-Za-z0-9][A-Za-z0-9._-]{0,63})$/gm)];
+const blockerMatches = [...record.matchAll(/^- Blockers: (.+)$/gm)];
+
+if (statusMatches.length !== 1) {
+  fail(`${stageId} must contain exactly one canonical Status field`);
+}
+if (nextMatches.length !== 1 || nextMatches[0][1] !== stageId) {
+  fail(`${stageId} must contain exactly one matching canonical NEXT field`);
+}
+
+const status = statusMatches[0][1];
+if (status === "blocked") {
+  const blockers = blockerMatches.map((match) => match[1].trim());
+  if (blockers.length !== 1 || blockers[0] === "none") {
+    fail(`${stageId} is blocked but does not contain exactly one non-empty Blockers field`);
+  }
+}
+
+const routingResult = status === "blocked" ? "blocked; stage execution denied" : status;
+console.log(`Context route OK: ${stageId} (${routingResult}) -> ${canonicalStagePath}`);

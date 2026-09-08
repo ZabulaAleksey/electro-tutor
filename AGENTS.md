@@ -16,8 +16,10 @@ workflow и правила качества наследуются и здесь
 
 ## Маршрутизация контекста
 
-1. Начни с `docs/AI_STATUS.md` и `specs/README.md`.
-2. Для текущей работы прочитай `docs/AI_PLAN.md` и затрагиваемую SPEC.
+1. Начни с единственного selector в `prompts/STAGES.md` и прочитай только
+   соответствующий ему stage record. Его status, `NEXT`, blockers и dependency
+   DAG определяют допустимость продолжения; `blocked` stage не запускается.
+2. Прочитай `specs/README.md` и затрагиваемую SPEC.
 3. Подключай только релевантные разделы:
    - устройство и потоки — `docs/ARCHITECTURE.md`;
    - существенные решения — `docs/DECISIONS.md`;

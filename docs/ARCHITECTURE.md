@@ -2,7 +2,7 @@
 
 Документ описывает фактическое устройство проекта «Потенциал». Требования
 находятся в `../specs/`, а известные расхождения реализации — в
-`AI_STATUS.md`.
+выбранном record `../prompts/STAGES.md`.
 
 ## Общая модель
 
@@ -343,7 +343,8 @@ pnpm build
 git diff --check
 ```
 
-Текущее состояние команд отражено в `AI_STATUS.md`.
+Текущее execution state отражено в выбранном record `../prompts/STAGES.md`;
+command contract — в `project-context.md`.
 
 ## Контракт зависимостей
 

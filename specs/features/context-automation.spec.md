@@ -2,7 +2,7 @@
 
 Статус: Действует
 
-Версия: 1.1
+Версия: 1.2
 
 ## 1. Назначение
 
@@ -16,7 +16,8 @@
 - маршрутизация контекста через `AGENTS.md`;
 - выбор следующего незавершённого этапа;
 - выполнение одного ограниченного этапа за запуск;
-- синхронизация `AI_PLAN`, `AI_STATUS` и `ROADMAP`;
+- синхронизация canonical selector, status, blockers и `NEXT` в
+  `prompts/STAGES.md`, а также долгосрочного порядка в `ROADMAP`;
 - воспроизводимая инструкция визуальной проверки результата.
 
 ## 3. Вне области
@@ -32,22 +33,28 @@
 
 Каждая роль должна иметь один источник: требования — `specs/`, устройство —
 `docs/ARCHITECTURE.md`, решения — `docs/DECISIONS.md`, дизайн —
-`docs/DESIGN.md`, безопасность — `docs/SECURITY.md`, порядок этапов —
-`docs/ROADMAP.md`, текущая работа — `docs/AI_PLAN.md`, фактическое состояние —
-`docs/AI_STATUS.md`.
+`docs/DESIGN.md`, безопасность — `docs/SECURITY.md`, долгосрочный порядок этапов —
+`docs/ROADMAP.md`. `prompts/STAGES.md` является единственным активным владельцем
+current selector, stage status, `NEXT`, blockers и routing progression.
+
+После brownfield migration `docs/AI_PLAN.md` и `docs/AI_STATUS.md` сохраняются
+только как hash-bound retained legacy artifacts. Они не являются активными
+routing inputs и не могут переопределять canonical record.
 
 ### FR-CTX-002 Команда продолжения
 
-Команда `Продолжай Electro Tutor` должна запускать протокол из
-`prompts/STAGES.md`. Если `AI_PLAN` имеет статус `PLANNED` или `IN_PROGRESS`,
-исполнитель продолжает его; иначе выбирает первый `PLANNED` stage с завершённым
-dependency DAG. `BLOCKED` и `OPTIONAL` не выбираются автоматически.
+Команда `Продолжай Electro Tutor` должна читать единственный selector из
+`prompts/STAGES.md`, разрешать ровно один matching stage record и подчиняться
+его status, `NEXT`, blockers и dependency DAG. `BLOCKED` stage не запускается и
+не позволяет автоматически перейти к downstream stage. `OPTIONAL` не считается
+утверждённым требованием.
 
 ### FR-CTX-003 Минимальный контекст
 
-Исполнитель читает ближайшие инструкции, индекс SPEC, затрагиваемую SPEC,
-релевантные проектные документы, текущий план и компактный статус. Остальные
-источники загружаются только по необходимости.
+Исполнитель читает ближайшие инструкции, canonical selector и exact record из
+`prompts/STAGES.md`, индекс SPEC, затрагиваемую SPEC и только релевантные
+проектные документы. Остальные источники загружаются только по необходимости;
+retained legacy artifacts не входят в normal bootstrap path.
 
 ### FR-CTX-004 Один ограниченный этап
 
@@ -63,9 +70,10 @@ dependency DAG. `BLOCKED` и `OPTIONAL` не выбираются автомат
 
 ### FR-CTX-006 Завершение
 
-После этапа исполнитель обновляет только фактически изменившиеся документы,
-запускает соразмерные проверки, создаёт commit и не выполняет merge без явного
-разрешения пользователя.
+После этапа исполнитель обновляет canonical record/selector в
+`prompts/STAGES.md` и только другие документы с изменившимися фактами, запускает
+соразмерные проверки, создаёт commit и не выполняет merge без явного разрешения
+пользователя.
 
 ### FR-CTX-007 Наглядная проверка
 
@@ -99,8 +107,9 @@ frozen lockfile, валидировать context route/overlay и только 
   и закрытие одного этапа.
 - AC-CTX-005: аудит ссылок и `git diff --check` проходят без ошибок.
 - AC-CTX-006: протокол закрытия требует раздел «Как увидеть изменения воочию».
-- AC-CTX-007: новый session по repository-relative ссылкам находит текущий
-  `AI_PLAN` либо первый допустимый `PLANNED` stage и не выбирает `BLOCKED`.
+- AC-CTX-007: новый session по repository-relative ссылкам разрешает единственный
+  selector и exact record в `prompts/STAGES.md`; при `BLOCKED` сообщает blockers,
+  не запускает stage и не выбирает downstream stage.
 - AC-CTX-008: README содержит безопасный ПК ↔ ноутбук workflow с
   явным branch selection, `--ff-only`, `--frozen-lockfile`, context route и
   project overlay validation.
@@ -111,3 +120,6 @@ frozen lockfile, валидировать context route/overlay и только 
 - 2026-08-14 — добавлен обязательный наглядный handoff после каждого этапа.
 - 2026-08-27 — канонический stage source перенесён в `prompts/STAGES.md`;
   добавлены dependency-aware selector и переносимое продолжение между ПК.
+- 2026-09-08 — `prompts/STAGES.md` назначен единственным active routing owner;
+  `AI_PLAN`/`AI_STATUS` отсоединены от bootstrap и сохраняются только как
+  hash-bound retained legacy artifacts.

@@ -6,6 +6,9 @@
 
 Статус: `BLOCKED`
 
+- NEXT: `ET-09.3`
+- Blockers: отсутствуют отдельный Electro Tutor IdP client/config и approved test account
+
 Цель после разблокировки: реализовать provider-neutral browser OIDC Authorization
 Code + PKCE, server-side session и защищённый `/api/v1/me`.
 

@@ -1,4 +1,4 @@
-- Stage ID: ET-09.3
+- Stage ID: ET-09.4
 
 # Поэтапный запуск Electro Tutor
 
@@ -374,8 +374,7 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.3 — Identity/OIDC vertical slice
 
-Статус: `blocked`: не утверждён единый ET-09.3 non-production IdP/environment
-contract, включающий dedicated client и owner-approved test identity.
+Статус: `completed` (`validated locally`, 2026-09-08).
 
 - **Goal / why now:** establish provider-neutral identity before profiles,
   permissions and private lessons.
@@ -405,25 +404,21 @@ contract, включающий dedicated client и owner-approved test identity.
 - **DoD / deferred:** common DoD + real IdP and protected API evidence; profiles,
   MFA/passkeys and shared identity deferred.
 
-- Status: blocked
-- NEXT: ET-09.3
-- Checkpoint: none
-- Blockers: не утверждён единый ET-09.3 non-production IdP/client/test-identity contract: provider/exact issuer, client/session/secret-delivery type, enabled flow/PKCE, exact local/test origins и callback/logout URIs, minimum scopes/claim mappings/test role, no-wildcard/cross-product isolation, owner/approval, expiry и cleanup
-- Human checkpoint: dispatcher утверждает этот contract и единый loopback-host convention;
-  назначенный owner создаёт synthetic test-only identity без production/admin privileges и
-  возвращает digest и allowlisted non-secret summary: exact issuer host/profile, client ID/type,
-  enabled flow/PKCE, exact redirect/logout/origin lists, minimum scopes/claim mappings/test role,
-  no-wildcard и no-MathMorph-reuse подтверждение, opaque subject либо non-PII test alias,
-  approval reference, expiry/disable date и reset/delete evidence. Raw realm/client export,
-  user record или mapper dump в чат/Git не передаются. Для confidential client approval называет
-  только конкретный server-only secret delivery/storage mechanism и redaction evidence; для
-  public client явно фиксирует отсутствие client secret. Password, token, admin credential и
-  client secret в чат/Git не передаются
-- Evidence: none
-
-```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["не утверждён единый ET-09.3 non-production IdP/client/test-identity contract: provider/exact issuer, client/session/secret-delivery type, enabled flow/PKCE, exact local/test origins и callback/logout URIs, minimum scopes/claim mappings/test role, no-wildcard/cross-product isolation, owner/approval, expiry и cleanup"],"checkpoint":null,"current_stage":"ET-09.3","evidence":[],"master_id":null,"next_selector":"ET-09.3","status":"blocked"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
-```
+- Status: completed
+- NEXT: ET-09.4
+- Checkpoint: atomic ET-09.3 local checkpoint (resolve by Git history)
+- Blockers: none
+- Human checkpoint: DEV identity contract принят пользователем 2026-09-08; synthetic
+  test-only identity создаётся idempotent provisioner только из local environment,
+  не имеет production/admin privileges и не переиспользует MathMorph resources.
+- Evidence: contract digest `44d07b73319658835bc9ffd7bae022bc7e86473c6f62d883b60e21fe6e7286ed`;
+  Vitest `95 passed`; backend fast gate `42 passed, 9 deselected`; real PostgreSQL
+  migration/integration `9 passed`, head `20260908_0004`; real Chromium → Keycloak
+  → callback → `/api/v1/me` → logout plus invalid redirect `2 passed`; Astro check,
+  ESLint, production build and artifact audits PASS; DB evidence: one-time auth
+  transactions consumed, only `application_sessions.token_digest` is token-like;
+  managed identity cleanup digest
+  `e590cfd8949da3697abc57f67b6dd2da3e19151898866b25a5929156c1fae5dc`.
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
@@ -456,6 +451,15 @@ contract, включающий dedicated client и owner-approved test identity.
   role checks scattered in handlers.
 - **DoD / deferred:** common DoD + server policy/audit E2E; verification/offers,
   lesson roles and moderation deferred.
+
+- Status: planned
+- NEXT: ET-09.4
+- Checkpoint: none
+- Blockers: none
+
+```stage-compatibility
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":null,"current_stage":"ET-09.4","evidence":[],"master_id":null,"next_selector":"ET-09.4","status":"planned"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 

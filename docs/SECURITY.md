@@ -17,7 +17,8 @@
 | GitHub repository ↔ GitHub Actions ↔ GitHub Pages | исходники и `dist/` artifact | CI/deploy через `.github/workflows/pages.yml` |
 | GitHub-hosted Actions и package registry ↔ verify job | исполняемый action/dependency code | Actions закреплены полными commit SHA, dependencies из frozen pnpm lockfile |
 
-Backend, база данных, аккаунты и платёжные endpoints сейчас отсутствуют.
+Local/CI backend, PostgreSQL и отдельная DEV OIDC identity/session boundary
+реализованы; production backend/IAM и платёжные endpoints отсутствуют.
 
 ## Секреты и конфигурация
 
@@ -109,7 +110,7 @@ PostgreSQL. Production hosting и внешние providers не выбраны.
 | API config и secrets | client leak, permissive defaults | startup fail-fast для missing/unknown config; safe `.env.example`; secrets только server-side; exact CORS allowlist | sentinel secrets отсутствуют в logs/doctor/errors; provider cost не принят |
 | API request/response | injection, oversized input, correlation/header abuse | loopback default; bounded body/timeouts; server-generated ID либо strict charset/length validation с replacement invalid/control chars; stable redacted errors; `no-store` | route template/status/duration без payload/PII |
 | PostgreSQL | privilege escalation, schema drift, silent fallback | отдельные migration/runtime roles; runtime без DDL; readiness проверяет DB + Alembic head; outage/drift → `503` | собирать только данные утверждённого domain stage; storage/backup cost TBD |
-| Identity | account confusion, cross-product privilege | exact `(issuer, subject)`; отдельные Electro Tutor client/session/schema | retention/deletion и IdP vendor решаются до `ET-09.3` |
+| Identity | account confusion, callback/CSRF/session fixation, token leak | exact DEV issuer/client/redirects/origins; state + nonce + PKCE S256; signed ID-token issuer/audience validation; rotating opaque server-side session | production IAM/retention остаются future decision; provider tokens не сохраняются |
 | MathMorph integration | foreign DB access, cascading failure | только versioned API/export adapter; no direct DB/session/config access | не дублировать MathMorph PII/artifacts без отдельной цели и срока |
 | Media/payment/AI/storage | vendor lock-in, uncontrolled spend/data transfer | provider-neutral ports; disabled until approved vertical slice | pricing, region, retention, consent и deletion — обязательные входные решения |
 
@@ -130,6 +131,23 @@ Python `uv.lock` проходит lock-drift и vulnerability audit тем же 
 Base images используют точные version tags, но digest pinning и отдельный image
 vulnerability scan ещё не являются gate: это явно отложенный production
 hardening, который должен быть закрыт до live backend rollout.
+
+ET-09.3 Keycloak публикуется только на `127.0.0.1:58081` и использует отдельные
+realm/client Tutor. Client public, client secret отсутствует, implicit/direct
+grant выключены, redirect/origin/post-logout lists не имеют wildcard. Bootstrap
+admin и synthetic test passwords требуются только из local environment,
+provisioner принимает только exact loopback admin URL, pin-ит synthetic username,
+проверяет ownership group и отсутствие `realm-management` roles до завершения,
+имеет bounded HTTP timeout и не выводит credentials. Весь named realm является
+disposable project-owned DEV state; cleanup удаляет только managed identity.
+OIDC backchannel
+игнорирует ambient proxy variables и принимает только exact local container/host
+origins. Callback атомарно consume-ит transaction только при совпавших id/state;
+invalid/missing state, invalid nonce/issuer/audience/authorized-party и foreign endpoint fail
+closed. Session cookie `HttpOnly`, `SameSite=Lax`, path `/api/v1`; logout требует
+exact Origin и удаляет local session до provider confirmation. Uvicorn access log
+отключён, чтобы query `code`/`state` не попадал в logs; auth Playwright suite не
+сохраняет trace/screenshot/video с credential или session material.
 
 Long-running API container не получает `ET_MIGRATION_DATABASE_URL`; migrator
 credential доступен только one-shot migration service. Runtime role может читать

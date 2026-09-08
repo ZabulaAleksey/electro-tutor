@@ -492,3 +492,36 @@ product owner или стабильное дублирование. MathMorph ev
 Последствия: сбой MathMorph не должен ломать primary learning path. Formula/
 document interchange и identity correlation остаются future integration, а не
 prerequisite `ET-09.2`.
+
+## ADR-022 — Isolated Keycloak contract for ET-09.3 DEV evidence
+
+Дата: 2026-09-08
+
+Статус: принято для local DEV и automated acceptance; production IAM не выбран
+
+Решение: `ET-09.3` использует отдельные Keycloak realm `electro-tutor-dev` и
+public client `electro-tutor-web-dev` без client secret. Issuer —
+`http://127.0.0.1:58081/realms/electro-tutor-dev`; flow — Authorization Code с
+обязательным PKCE `S256`, scopes `openid profile email`. Единственный callback —
+`http://127.0.0.1:8000/api/v1/auth/callback`; exact web/post-logout origins
+принадлежат существующим DEV/E2E endpoints `127.0.0.1:4321` и `127.0.0.1:4322`.
+
+Tutor хранит собственные opaque server-side sessions и разрешает identity по
+точной паре `(issuer, subject)`. Email остаётся изменяемым атрибутом; raw provider
+tokens не становятся долговременным application state. Transient login требует
+одноразовые `state`, `nonce` и PKCE data. Synthetic DEV identity provisioning
+идемпотентен, а password/bootstrap credential поступают только через ignored
+local environment и не выводятся в evidence. Named realm целиком считается
+disposable project-owned DEV state; managed test identity отмечена ownership
+group, не должна иметь `realm-management` roles и имеет bounded cleanup command.
+
+Причина: stage требует real browser → IdP → callback → API evidence, но не имеет
+права зависеть от MathMorph либо преждевременно выбирать production federation.
+Единая numeric loopback convention сохраняет существующие ports и позволяет
+проверить cookie/CORS semantics без wildcard origins.
+
+Последствия: Keycloak становится обязательной local DEV dependency только для
+auth lifecycle; `ET-09.2` health/database foundation сохраняется. MathMorph
+realm/client/config/secrets/sessions/tokens/rows/schema не читаются и не
+изменяются. Production IAM, MFA/passkeys, profiles/roles и shared identity
+остаются отдельными решениями и stages.

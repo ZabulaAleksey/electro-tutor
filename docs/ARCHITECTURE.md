@@ -56,7 +56,7 @@ DNS/ingress, CORS/cookie topology и provider deployment не выбраны и 
 | Toolchains | root `pnpm@11.23.0` оркестрирует; service-local `uv.lock` и `.venv` принадлежат Python service |
 | API | `/api/v1`; generated OpenAPI; стабильные error envelope; server-generated либо strict validated request ID |
 | Layers | modular monolith: transport → application/service → domain → repositories/ports |
-| Local services | только PostgreSQL; без Keycloak, Redis, RabbitMQ, workers, object storage и realtime |
+| Local services | ET-09.2: PostgreSQL; ET-09.3: isolated DEV Keycloak; без Redis, RabbitMQ, workers, object storage и realtime |
 | Deployment | local/CI only; API default bind — loopback, PostgreSQL не публикуется в LAN; docs/debug только explicit local profile |
 
 Canonical runnable path `ET-09.2`: root command запускает API и PostgreSQL;
@@ -80,6 +80,7 @@ Locked Python restore сопровождается lock-drift и vulnerability g
 | `pnpm backend:status` / `backend:doctor` / `backend:smoke` | effective config без secrets, readiness и API→DB smoke |
 | `pnpm backend:test:fast` / `backend:test:integration` | isolated unit и real PostgreSQL suites |
 | `pnpm backend:db:status` / `backend:db:migrate` / `backend:db:reset-local` | Alembic state/apply и guarded disposable reset |
+| `pnpm backend:idp:dev` / `backend:idp:provision` / `test:e2e:auth` | isolated Keycloak lifecycle/reconciliation и real browser auth evidence |
 
 Canonical local orchestration — root `compose.yaml`: PostgreSQL 17 доступен
 host-only на `127.0.0.1:55432`, API — на `127.0.0.1:8000`; project/profile names
@@ -110,9 +111,13 @@ stages. `ET-09.2` создаёт reversible initial lineage и infrastructure me
 UTC, money — integer minor units, extensible JSON — bounded и versioned.
 
 Identity/OIDC, realtime/media, recording, storage, payment, notifications и AI
-остаются ports/candidates без выбранного vendor. Identity будет принадлежать
-Electro Tutor и коррелироваться по `(issuer, subject)`; MathMorph client/config/
-session/schema не переиспользуются. Provider choice не может менять domain owner.
+разделены provider-neutral ports. Для ET-09.3 принят только isolated local DEV
+Keycloak на `127.0.0.1:58081`; production provider/topology не выбраны. Identity
+принадлежит Electro Tutor и коррелируется по `(issuer, subject)`; email не
+является ключом. Одноразовая auth transaction хранит state digest, nonce и PKCE
+verifier; callback создаёт новую opaque server-side session, а raw provider
+tokens отбрасываются после проверки. MathMorph client/config/session/schema не
+переиспользуются. Provider choice не может менять domain owner.
 
 ## Технологии и границы
 
@@ -150,7 +155,7 @@ src/
 
 public/                      статические файлы и service worker
 services/api/                FastAPI modular monolith, Alembic, uv lock, tests
-compose.yaml                 loopback-only API + PostgreSQL local orchestration
+compose.yaml                 loopback-only API + PostgreSQL + DEV Keycloak orchestration
 scripts/backend.mjs          canonical cross-platform backend command surface
 specs/                       канонические требования
 docs/                        архитектура, решения и состояние

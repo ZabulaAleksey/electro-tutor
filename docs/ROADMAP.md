@@ -270,7 +270,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 ## AI-native platform track — после stabilization/public release
 
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
-`ET-09.1` и `ET-09.2` текущий blocked selector — `ET-09.3`. `ET-03` остаётся независимым
+`ET-09.1`, `ET-09.2` и `ET-09.3` завершены; текущий selector — `ET-09.4`. `ET-03` остаётся независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
@@ -316,10 +316,11 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   `COMPLETED (validated locally, 2026-08-31)`. Один
   reproducible client/command → `/api/v1` → PostgreSQL 17 path, Alembic,
   separate roles, diagnostics и local/CI parity по ADR-019.
-- **ET-09.3 — Identity/OIDC vertical slice.** Статус: `BLOCKED` до отдельного
-  Electro Tutor IdP client/config и approved test account. Отдельная
-  Electro Tutor identity boundary, login/session/logout и protected `/me`
-  без mutation MathMorph.
+- **ET-09.3 — Identity/OIDC vertical slice.** Статус:
+  `COMPLETED (validated locally, 2026-09-08)`. Отдельные Tutor DEV realm/public
+  client, Authorization Code + PKCE S256, opaque server session, stable
+  `(issuer, subject)`, protected `/me` и logout подтверждены real Keycloak /
+  PostgreSQL / Chromium evidence без mutation MathMorph.
 - **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PLANNED`.
   Student/Tutor profiles, server-side capability calculation и audit критичных
   permission changes.

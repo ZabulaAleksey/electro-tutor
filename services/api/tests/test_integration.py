@@ -1,5 +1,8 @@
 import asyncio
+import hashlib
 import os
+from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -8,17 +11,20 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import command
+from electro_tutor_api.adapters.auth_repository import AuthRepository
 from electro_tutor_api.adapters.database import expected_revision
 from electro_tutor_api.cli import alembic_config, db_status
 from electro_tutor_api.config import MigrationSettings, Settings
+from electro_tutor_api.domain.identity import AuthTransaction, ExternalIdentity
 from electro_tutor_api.main import create_app
 
+LOCAL_POSTGRES_PORT = int(os.getenv("ET_TEST_POSTGRES_PORT", "55432"))
 LOCAL_RUNTIME = (
-    "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/"
+    f"postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:{LOCAL_POSTGRES_PORT}/"
     "electro_tutor_test"
 )
 LOCAL_MIGRATION = (
-    "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/"
+    f"postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:{LOCAL_POSTGRES_PORT}/"
     "electro_tutor_test"
 )
 
@@ -151,3 +157,141 @@ async def test_runtime_role_cannot_change_schema_revision() -> None:
                 )
     finally:
         await engine.dispose()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_identity_is_stable_by_issuer_subject_when_email_changes() -> None:
+    repository = AuthRepository(
+        create_async_engine(disposable_runtime_settings().runtime_database_url)
+    )
+    try:
+        first = await repository.resolve_identity(
+            ExternalIdentity(
+                issuer="http://127.0.0.1:58081/realms/electro-tutor-dev",
+                subject="et-integration-stable-subject",
+                email="first@invalid.example",
+            )
+        )
+        second = await repository.resolve_identity(
+            ExternalIdentity(
+                issuer="http://127.0.0.1:58081/realms/electro-tutor-dev",
+                subject="et-integration-stable-subject",
+                email="changed@invalid.example",
+            )
+        )
+        assert first == second
+        engine = repository.engine
+        async with engine.connect() as connection:
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT count(*) AS count, max(email) AS email "
+                            "FROM external_identities WHERE issuer = :issuer AND subject = :subject"
+                        ),
+                        {
+                            "issuer": "http://127.0.0.1:58081/realms/electro-tutor-dev",
+                            "subject": "et-integration-stable-subject",
+                        },
+                    )
+                )
+                .mappings()
+                .one()
+            )
+        assert row["count"] == 1
+        assert row["email"] == "changed@invalid.example"
+    finally:
+        await repository.engine.dispose()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_runtime_role_cannot_mutate_durable_external_identity_key() -> None:
+    repository = AuthRepository(
+        create_async_engine(disposable_runtime_settings().runtime_database_url)
+    )
+    issuer = "http://127.0.0.1:58081/realms/electro-tutor-dev"
+    try:
+        identity_id = await repository.resolve_identity(
+            ExternalIdentity(
+                issuer=issuer,
+                subject="et-integration-immutable-subject",
+                email="immutable@invalid.example",
+            )
+        )
+        async with repository.engine.connect() as connection:
+            transaction = await connection.begin()
+            try:
+                with pytest.raises(SQLAlchemyError):
+                    await connection.execute(
+                        text("UPDATE external_identities SET subject = :subject WHERE id = :id"),
+                        {"subject": "mutated-subject", "id": identity_id},
+                    )
+            finally:
+                await transaction.rollback()
+        async with repository.engine.connect() as connection:
+            subject = await connection.scalar(
+                text("SELECT subject FROM external_identities WHERE id = :id"),
+                {"id": identity_id},
+            )
+        assert subject == "et-integration-immutable-subject"
+    finally:
+        await repository.engine.dispose()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_auth_transaction_is_one_time_and_session_can_be_invalidated() -> None:
+    repository = AuthRepository(
+        create_async_engine(disposable_runtime_settings().runtime_database_url)
+    )
+    transaction = AuthTransaction(
+        transaction_id=UUID("33333333-3333-4333-8333-333333333333"),
+        state_digest=hashlib.sha256(b"integration-state").hexdigest(),
+        pkce_verifier="v" * 64,
+        nonce="integration-nonce",
+        return_to="http://127.0.0.1:4322/ru/account/",
+    )
+    try:
+        await repository.create_transaction(
+            transaction, expires_at=datetime.now(UTC) + timedelta(minutes=5)
+        )
+        assert (
+            await repository.consume_transaction(
+                transaction.transaction_id, transaction.state_digest
+            )
+            == transaction
+        )
+        assert (
+            await repository.consume_transaction(
+                transaction.transaction_id, transaction.state_digest
+            )
+            is None
+        )
+
+        identity_id = await repository.resolve_identity(
+            ExternalIdentity(
+                issuer="http://127.0.0.1:58081/realms/electro-tutor-dev",
+                subject="et-integration-session-subject",
+                email=None,
+            )
+        )
+        token_digest = hashlib.sha256(b"integration-session").hexdigest()
+        await repository.create_session(
+            token_digest=token_digest,
+            identity_id=identity_id,
+            expires_at=datetime.now(UTC) + timedelta(minutes=5),
+        )
+        assert await repository.principal_for_session(token_digest) is not None
+        expired_digest = hashlib.sha256(b"expired-integration-session").hexdigest()
+        await repository.create_session(
+            token_digest=expired_digest,
+            identity_id=identity_id,
+            expires_at=datetime.now(UTC) - timedelta(seconds=1),
+        )
+        assert await repository.principal_for_session(expired_digest) is None
+        await repository.delete_session(token_digest)
+        assert await repository.principal_for_session(token_digest) is None
+    finally:
+        await repository.engine.dispose()

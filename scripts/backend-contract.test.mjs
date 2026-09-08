@@ -18,6 +18,9 @@ describe("ET-09.2 backend command contract", () => {
       "status",
       "doctor",
       "smoke",
+      "idp:provision",
+      "idp:dev",
+      "idp:cleanup",
       "test-fast",
       "test-integration",
       "db-status",
@@ -49,6 +52,20 @@ describe("ET-09.2 backend command contract", () => {
     expect(backendSource).toContain("AbortSignal.timeout(diagnosticTimeoutMs)");
   });
 
+  it("keeps OIDC callback query values out of the default access log", async () => {
+    const dockerfile = await readFile("services/api/Dockerfile", "utf8");
+    expect(dockerfile).toContain('"--no-access-log"');
+  });
+
+  it("fails the dedicated real auth command closed when credentials are absent", async () => {
+    const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+    const runner = await readFile("scripts/run-auth-e2e.mjs", "utf8");
+    expect(packageJson.scripts["test:e2e:auth"]).toBe("node scripts/run-auth-e2e.mjs");
+    expect(runner).toContain('"ET_KEYCLOAK_ADMIN_PASSWORD"');
+    expect(runner).toContain('"ET_DEV_TEST_PASSWORD"');
+    expect(runner).toContain('process.env.E2E_SPEC = "tests/e2e/auth-flow.spec.ts"');
+  });
+
   it("does not expose secret values through the command catalog", () => {
     expect(JSON.stringify(backendCommands)).not.toMatch(/password|database_url|secret/i);
   });
@@ -67,5 +84,11 @@ describe("ET-09.2 backend command contract", () => {
       if (previous === undefined) delete process.env.ET_CONFIRM_RESET_LOCAL;
       else process.env.ET_CONFIRM_RESET_LOCAL = previous;
     }
+  });
+
+  it("keeps the local Keycloak volume outside the PostgreSQL reset boundary", async () => {
+    const backendSource = await readFile("scripts/backend.mjs", "utf8");
+    expect(backendSource).toContain('docker(["volume", "rm", localPostgresVolume])');
+    expect(backendSource).not.toContain('compose(["down", "--volumes"');
   });
 });

@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 const root = resolve(import.meta.dirname, "..");
 const apiRoot = join(root, "services", "api");
 const composeFile = join(root, "compose.yaml");
+const localPostgresVolume = "electro-tutor-local-postgres";
 const localRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor";
 const localMigrationUrl =
@@ -27,6 +28,9 @@ export const backendCommands = {
   status: "show local service state",
   doctor: "check toolchain, config, database, and schema readiness",
   smoke: "call live and ready endpoints through the real API",
+  "idp:provision": "reconcile local DEV Keycloak realm, client, and acceptance user",
+  "idp:dev": "start local Keycloak and provision Tutor DEV identity",
+  "idp:cleanup": "delete only the managed synthetic Tutor DEV identity",
   "test-fast": "run isolated backend unit/component tests",
   "test-integration": "run real PostgreSQL integration and migration tests",
   "db-status": "show Alembic status and drift",
@@ -192,6 +196,22 @@ async function smoke() {
   }
 }
 
+async function idpProvision() {
+  if (!process.env.ET_KEYCLOAK_ADMIN_PASSWORD || !process.env.ET_DEV_TEST_PASSWORD) {
+    throw new Error("Auth DEV requires ET_KEYCLOAK_ADMIN_PASSWORD and ET_DEV_TEST_PASSWORD; secrets are never printed.");
+  }
+  await compose(["up", "-d", "--wait", "keycloak"]);
+  await run(executable("node"), [join(root, "scripts", "keycloak-provision.mjs")], { env: { ET_KEYCLOAK_URL: "http://127.0.0.1:58081" } });
+}
+
+async function idpCleanup() {
+  if (!process.env.ET_KEYCLOAK_ADMIN_PASSWORD) {
+    throw new Error("Auth DEV cleanup requires ET_KEYCLOAK_ADMIN_PASSWORD; secrets are never printed.");
+  }
+  await compose(["up", "-d", "--wait", "keycloak"]);
+  await run(executable("node"), [join(root, "scripts", "keycloak-provision.mjs"), "cleanup"], { env: { ET_KEYCLOAK_URL: "http://127.0.0.1:58081" } });
+}
+
 async function check() {
   try {
     await bootstrap();
@@ -224,6 +244,9 @@ export async function main(operation = "help") {
     case "status": return compose(["ps"]);
     case "doctor": return doctor();
     case "smoke": return smoke();
+    case "idp:provision": return idpProvision();
+    case "idp:dev": return idpProvision();
+    case "idp:cleanup": return idpCleanup();
     case "test-fast": return testFast();
     case "test-integration": return testIntegration();
     case "db-status": return dbStatus();
@@ -234,7 +257,8 @@ export async function main(operation = "help") {
           "Refusing local DB reset. Set ET_CONFIRM_RESET_LOCAL=electro-tutor-local for this disposable project volume.",
         );
       }
-      return compose(["down", "--volumes", "--remove-orphans"]);
+      await compose(["down", "--remove-orphans"]);
+      return docker(["volume", "rm", localPostgresVolume]);
     default:
       throw new Error(`Unknown backend command: ${operation}`);
   }

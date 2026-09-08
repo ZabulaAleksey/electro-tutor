@@ -13,7 +13,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Локальный сайт: `http://localhost:4321`.
+Локальный сайт: `http://127.0.0.1:4321`.
 
 На Windows при запрете запуска `pnpm.ps1` используй `pnpm.cmd dev` и
 аналогично для остальных pnpm-команд.
@@ -39,6 +39,33 @@ gate — `pnpm backend:check`; отдельные уровни — `backend:test
 `backend:test:integration`. Удаление local DB разрешается только точным
 `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и командой
 `backend:db:reset-local`.
+
+### Local authentication ET-09.3
+
+DEV authentication использует только отдельные Keycloak realm
+`electro-tutor-dev` и public client `electro-tutor-web-dev` на
+`http://127.0.0.1:58081`. Client secret отсутствует; callback API —
+`http://127.0.0.1:8000/api/v1/auth/callback`. Пароли bootstrap admin и synthetic
+test identity не входят в repository: перед provisioning задай
+`ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` в текущем shell или local
+secret manager; optional non-secret names — `ET_KEYCLOAK_ADMIN_USERNAME`,
+`ET_DEV_TEST_EMAIL`. Имя synthetic identity фиксировано как
+`ET_DEV_TEST_USERNAME=et-dev-acceptance`; другое значение fail closed.
+
+```bash
+pnpm backend:idp:dev
+pnpm backend:dev
+pnpm build
+pnpm test:e2e:auth
+pnpm backend:idp:cleanup
+```
+
+`backend:idp:dev` idempotently создаёт/сверяет realm, exact redirects/origins,
+PKCE `S256` client и DEV identity. Команда fail closed без обоих password env и
+не печатает их. Страница `/ru/account/` или `/uk/account/` доступна только в
+local DEV/E2E runtime; production IAM остаётся не выбран.
+`backend:idp:cleanup` удаляет только synthetic identity после проверки
+ownership group; realm/client остаются для следующего idempotent запуска.
 
 ## Проверки
 

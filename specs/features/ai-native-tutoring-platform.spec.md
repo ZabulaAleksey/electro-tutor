@@ -154,6 +154,30 @@ defaults: каждый требует доказанного gap, ADR и bounded
   Redis, RabbitMQ, worker, object storage, realtime и AI providers запрещены в
   `ET-09.2` без нового approved stage.
 
+### 5.2 Принятый DEV identity contract для `ET-09.3`
+
+- Local DEV provider — Keycloak с отдельным realm `electro-tutor-dev` и
+  public client `electro-tutor-web-dev`; client secret отсутствует.
+- Issuer — `http://127.0.0.1:58081/realms/electro-tutor-dev`; Authorization Code
+  flow включён только с обязательным PKCE `S256`, implicit и Resource Owner
+  Password flows отключены. Scopes: `openid profile email`.
+- Единственный callback —
+  `http://127.0.0.1:8000/api/v1/auth/callback`. Разрешённые DEV web origins —
+  `http://127.0.0.1:4321` и E2E origin `http://127.0.0.1:4322`; post-logout
+  redirects используют только соответствующие root URLs с завершающим `/`.
+- External identity разрешается по точной паре `(issuer, subject)`; email —
+  изменяемый атрибут. Provider tokens не являются application identity и не
+  сохраняются как долговременное состояние Tutor.
+- Synthetic DEV identity создаётся idempotent provisioner-ом. Пароль и
+  bootstrap admin credential поступают только из ignored local environment,
+  не фиксируются в Git, output, logs или evidence; application role/profile
+  остаются вне `ET-09.3`.
+- Tutor владеет opaque server-side sessions и auth transactions. Callback
+  требует исходную одноразовую transaction, проверенные `state`, `nonce`,
+  issuer, audience и PKCE; logout инвалидирует local session fail closed.
+- Realm, client, credentials, cookies, tokens, identity rows, schema и sessions
+  MathMorph не читаются, не переиспользуются и не изменяются.
+
 ## 6. Требования будущего track
 
 ### PLAT-001 Architecture and specification baseline
@@ -370,8 +394,9 @@ Terminal status требует:
 
 1. Production backend hosting, public ingress/domain, TLS termination и
    browser-to-API CORS/cookie/token topology.
-2. Отдельный Electro Tutor Keycloak realm/client или иной approved issuer;
-   production ingress/session/token exchange.
+2. Production IdP/realm/client, public ingress/session/token exchange. DEV-only
+   Keycloak contract для `ET-09.3` принят в разделе 5.2 и не выбирает production
+   IAM topology.
 3. LiveKit deployment/provider, TURN topology, regions, cost и data processing.
 4. Collaborative state transport/storage и необходимость CRDT.
 5. Recording consent/legal basis, retention и storage region.

@@ -1,6 +1,26 @@
 name: electro-tutor-local
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.2
+    command: ["start-dev", "--http-port=8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${ET_KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ET_KEYCLOAK_ADMIN_PASSWORD:-}
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: http://127.0.0.1:58081
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    ports:
+      - "127.0.0.1:58081:8080"
+    volumes:
+      - electro-tutor-keycloak:/opt/keycloak/data
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200' <&3"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: "no"
+
   postgres:
     image: postgres:17.6
     environment:
@@ -32,6 +52,7 @@ services:
       ET_PORT: 8000
       ET_DOCS_ENABLED: "true"
       ET_DATABASE_URL: postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@postgres:5432/electro_tutor
+      ET_OIDC_BACKCHANNEL_BASE_URL: http://keycloak:8080
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,3 +88,5 @@ services:
 volumes:
   electro-tutor-postgres:
     name: electro-tutor-local-postgres
+  electro-tutor-keycloak:
+    name: electro-tutor-local-keycloak

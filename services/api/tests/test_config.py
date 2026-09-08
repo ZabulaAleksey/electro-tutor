@@ -13,6 +13,40 @@ def test_config_redacts_database_password() -> None:
     summary = Settings(**BASE).redacted_summary()
     assert "password" not in str(summary)
     assert summary["host"] == "127.0.0.1"
+    assert summary["oidc_client_id"] == "electro-tutor-web-dev"
+
+
+def test_config_pins_exact_tutor_dev_identity_contract() -> None:
+    settings = Settings(**BASE)
+    assert settings.oidc_issuer == "http://127.0.0.1:58081/realms/electro-tutor-dev"
+    assert settings.oidc_client_id == "electro-tutor-web-dev"
+    assert settings.allowed_web_origins == (
+        "http://127.0.0.1:4321",
+        "http://127.0.0.1:4322",
+    )
+    assert settings.allowed_post_logout_urls == frozenset(
+        {"http://127.0.0.1:4321/", "http://127.0.0.1:4322/"}
+    )
+
+
+def test_config_rejects_foreign_identity_realm_or_client() -> None:
+    with pytest.raises(ValidationError, match="Tutor DEV realm"):
+        Settings(**BASE, oidc_issuer="http://127.0.0.1:58081/realms/mathmorph")
+    with pytest.raises(ValidationError, match="dedicated Tutor DEV"):
+        Settings(**BASE, oidc_client_id="mathmorph-web")
+
+
+@pytest.mark.parametrize(
+    "backchannel",
+    [
+        "http://127.0.0.1:9999",
+        "http://keycloak:9999",
+        "http://user:password@127.0.0.1:58081",
+    ],
+)
+def test_config_rejects_unapproved_oidc_backchannel(backchannel: str) -> None:
+    with pytest.raises(ValidationError, match="inside local DEV"):
+        Settings(**BASE, oidc_backchannel_base_url=backchannel)
 
 
 def test_config_rejects_non_loopback() -> None:

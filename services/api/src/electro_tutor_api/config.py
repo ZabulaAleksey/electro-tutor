@@ -29,7 +29,33 @@ _KNOWN_ENV = {
     "ET_POSTGRES_PORT",
     "ET_CONFIRM_RESET_LOCAL",
     "ET_CONFIRM_MIGRATION_LIFECYCLE",
+    "ET_OIDC_ISSUER",
+    "ET_OIDC_BACKCHANNEL_BASE_URL",
+    "ET_OIDC_CLIENT_ID",
+    "ET_OIDC_REDIRECT_URI",
+    "ET_OIDC_ALLOWED_RETURN_URLS",
+    "ET_OIDC_ALLOWED_POST_LOGOUT_URLS",
+    "ET_WEB_ORIGINS",
+    "ET_SESSION_COOKIE_NAME",
+    "ET_SESSION_TTL_SECONDS",
+    "ET_AUTH_TRANSACTION_TTL_SECONDS",
+    "ET_COOKIE_SECURE",
+    "ET_KEYCLOAK_URL",
+    "ET_KEYCLOAK_ADMIN_USERNAME",
+    "ET_KEYCLOAK_ADMIN_PASSWORD",
+    "ET_DEV_TEST_USERNAME",
+    "ET_DEV_TEST_PASSWORD",
+    "ET_DEV_TEST_EMAIL",
+    "ET_TEST_POSTGRES_PORT",
 }
+
+_LOCAL_ORIGINS = "http://127.0.0.1:4321,http://127.0.0.1:4322"
+_LOCAL_RETURN_URLS = ",".join(
+    f"http://127.0.0.1:{port}/{language}/account/"
+    for port in (4321, 4322)
+    for language in ("ru", "uk")
+)
+_LOCAL_LOGOUT_URLS = "http://127.0.0.1:4321/,http://127.0.0.1:4322/"
 
 
 class Settings(BaseSettings):
@@ -65,6 +91,33 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         "INFO", validation_alias="ET_LOG_LEVEL"
     )
+    oidc_issuer: str = Field(
+        "http://127.0.0.1:58081/realms/electro-tutor-dev",
+        validation_alias="ET_OIDC_ISSUER",
+    )
+    oidc_backchannel_base_url: str = Field(
+        "http://127.0.0.1:58081", validation_alias="ET_OIDC_BACKCHANNEL_BASE_URL"
+    )
+    oidc_client_id: str = Field("electro-tutor-web-dev", validation_alias="ET_OIDC_CLIENT_ID")
+    oidc_redirect_uri: str = Field(
+        "http://127.0.0.1:8000/api/v1/auth/callback",
+        validation_alias="ET_OIDC_REDIRECT_URI",
+    )
+    oidc_allowed_return_urls: str = Field(
+        _LOCAL_RETURN_URLS, validation_alias="ET_OIDC_ALLOWED_RETURN_URLS"
+    )
+    oidc_allowed_post_logout_urls: str = Field(
+        _LOCAL_LOGOUT_URLS, validation_alias="ET_OIDC_ALLOWED_POST_LOGOUT_URLS"
+    )
+    web_origins: str = Field(_LOCAL_ORIGINS, validation_alias="ET_WEB_ORIGINS")
+    session_cookie_name: str = Field("et_session", validation_alias="ET_SESSION_COOKIE_NAME")
+    session_ttl_seconds: Annotated[int, Field(ge=300, le=86_400)] = Field(
+        3_600, validation_alias="ET_SESSION_TTL_SECONDS"
+    )
+    auth_transaction_ttl_seconds: Annotated[int, Field(ge=60, le=900)] = Field(
+        300, validation_alias="ET_AUTH_TRANSACTION_TTL_SECONDS"
+    )
+    cookie_secure: bool = Field(False, validation_alias="ET_COOKIE_SECURE")
 
     @model_validator(mode="before")
     @classmethod
@@ -111,7 +164,58 @@ class Settings(BaseSettings):
             raise ValueError("local/test/ci database name is not approved")
         if parsed_runtime.username != "electro_tutor_runtime":
             raise ValueError("API database URL must use the runtime role")
+        self._validate_identity_contract()
         return self
+
+    def _validate_identity_contract(self) -> None:
+        issuer = urlsplit(self.oidc_issuer)
+        if (
+            issuer.scheme != "http"
+            or issuer.hostname != "127.0.0.1"
+            or issuer.port != 58081
+            or issuer.path != "/realms/electro-tutor-dev"
+            or issuer.query
+            or issuer.fragment
+        ):
+            raise ValueError("ET_OIDC_ISSUER must be the approved Tutor DEV realm issuer")
+        backchannel = urlsplit(self.oidc_backchannel_base_url)
+        if (
+            backchannel.scheme != "http"
+            or (backchannel.hostname, backchannel.port)
+            not in {("127.0.0.1", 58081), ("keycloak", 8080)}
+            or backchannel.username is not None
+            or backchannel.password is not None
+            or backchannel.path not in {"", "/"}
+            or backchannel.query
+            or backchannel.fragment
+        ):
+            raise ValueError("ET_OIDC_BACKCHANNEL_BASE_URL must remain inside local DEV")
+        if self.oidc_client_id != "electro-tutor-web-dev":
+            raise ValueError("ET_OIDC_CLIENT_ID must be the dedicated Tutor DEV public client")
+        if self.oidc_redirect_uri != "http://127.0.0.1:8000/api/v1/auth/callback":
+            raise ValueError("ET_OIDC_REDIRECT_URI must match the approved exact callback")
+        if self.allowed_return_urls != frozenset(_LOCAL_RETURN_URLS.split(",")):
+            raise ValueError("ET_OIDC_ALLOWED_RETURN_URLS must match the approved exact URLs")
+        if self.allowed_post_logout_urls != frozenset(_LOCAL_LOGOUT_URLS.split(",")):
+            raise ValueError("ET_OIDC_ALLOWED_POST_LOGOUT_URLS must match the approved exact URLs")
+        if self.allowed_web_origins != tuple(_LOCAL_ORIGINS.split(",")):
+            raise ValueError("ET_WEB_ORIGINS must match the approved exact origins")
+        if self.cookie_secure:
+            raise ValueError("ET_COOKIE_SECURE is false for the approved HTTP-only local profile")
+
+    @property
+    def allowed_return_urls(self) -> frozenset[str]:
+        return frozenset(item.strip() for item in self.oidc_allowed_return_urls.split(",") if item)
+
+    @property
+    def allowed_post_logout_urls(self) -> frozenset[str]:
+        return frozenset(
+            item.strip() for item in self.oidc_allowed_post_logout_urls.split(",") if item
+        )
+
+    @property
+    def allowed_web_origins(self) -> tuple[str, ...]:
+        return tuple(item.strip() for item in self.web_origins.split(",") if item)
 
     def redacted_summary(self) -> dict[str, object]:
         def safe_db_url(value: str) -> str:
@@ -125,6 +229,8 @@ class Settings(BaseSettings):
             "docs_enabled": self.docs_enabled,
             "debug": self.debug,
             "runtime_database": safe_db_url(self.runtime_database_url),
+            "oidc_issuer": self.oidc_issuer,
+            "oidc_client_id": self.oidc_client_id,
         }
 
 

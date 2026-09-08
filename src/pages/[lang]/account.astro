@@ -1,0 +1,29 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Language } from "../../types";
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+---
+<BaseLayout title={ru ? "Аккаунт" : "Обліковий запис"} description={ru ? "Аккаунт Electro Tutor" : "Обліковий запис Electro Tutor"} language={language} alternatePath="/account/">
+  <section class="section info-page" data-account>
+    <span class="eyebrow"><i></i>{ru ? "АККАУНТ" : "ОБЛІКОВИЙ ЗАПИС"}</span>
+    <h1>{ru ? "Ваш аккаунт" : "Ваш обліковий запис"}</h1>
+    <p data-status>{ru ? "Проверяем сессию…" : "Перевіряємо сесію…"}</p>
+    <div data-identity hidden></div>
+    <a class="button primary" data-login href="#">{ru ? "Войти" : "Увійти"}</a>
+    <form data-logout-form action="#" method="post" hidden><button class="button" type="submit">{ru ? "Выйти" : "Вийти"}</button></form>
+  </section>
+  <script is:inline define:vars={{ language }}>
+    const root = document.querySelector("[data-account]"); const status = root?.querySelector("[data-status]"); const identity = root?.querySelector("[data-identity]"); const login = root?.querySelector("[data-login]"); const logoutForm = root?.querySelector("[data-logout-form]");
+    const copy = language === "ru" ? {in: "Войти", out: "Выйти", error: "Не удалось проверить сессию"} : {in: "Увійти", out: "Вийти", error: "Не вдалося перевірити сесію"};
+    const devPort = location.port === "4321" || location.port === "4322";
+    if (!devPort) { status.textContent = copy.error; login.hidden = true; }
+    else {
+      const apiOrigin = new URL(location.origin); apiOrigin.port = "8000";
+      if (login instanceof HTMLAnchorElement) login.href = `${apiOrigin}api/v1/auth/login?return_to=${encodeURIComponent(location.href)}`;
+      if (logoutForm instanceof HTMLFormElement) logoutForm.action = `${apiOrigin}api/v1/auth/logout?post_logout_redirect_uri=${encodeURIComponent(`${location.origin}/`)}`;
+      fetch(new URL("api/v1/me", apiOrigin), {credentials: "include"}).then(async (response) => { if (!response.ok) throw new Error(); const value = await response.json(); status.textContent = value.email || value.subject || "Authenticated"; identity.hidden = false; login.hidden = true; logoutForm.hidden = false; }).catch(() => { status.textContent = copy.in; });
+    }
+  </script>
+</BaseLayout>

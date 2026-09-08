@@ -22,4 +22,4 @@ RUN groupadd --system --gid 10001 electro \
     && chown -R electro:electro /app /tmp/uv-cache
 USER 10001:10001
 EXPOSE 8000
-CMD ["uvicorn", "electro_tutor_api.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "electro_tutor_api.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]

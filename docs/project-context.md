@@ -41,18 +41,21 @@ agents, Skills и Git workflow наследуются; локальные коп
   - test-integration: `pnpm backend:test:integration`.
   - build: `pnpm backend:build`.
   - logs: `pnpm backend:logs`.
-- Required local services: Docker Compose `api` и `postgres`; integration tier
-  поднимает только PostgreSQL, full gate — оба service.
+  - IdP dev/provision: `pnpm backend:idp:dev`, `pnpm backend:idp:provision`.
+  - auth browser E2E: `pnpm test:e2e:auth`.
+- Required local services: Docker Compose `api` и `postgres`; ET-09.3 auth gate
+  дополнительно поднимает isolated `keycloak` и выполняет idempotent provision.
 - Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
   `pnpm backend:smoke`; API `/live` отделён от DB/schema `/ready`.
 - Ports and collision policy: API `127.0.0.1:8000`, PostgreSQL
-  `127.0.0.1:55432`; non-loopback DB bind отклоняется preflight, occupied port
+  `127.0.0.1:55432`, Tutor DEV Keycloak `127.0.0.1:58081`; non-loopback bind отклоняется preflight, occupied port
   приводит к visible Compose failure без fallback.
 - Config source, profiles and required variables: safe local defaults закреплены
   в `scripts/backend.mjs`/`compose.yaml`; `.env.example` перечисляет names как
   reference, а не поддерживаемый override surface;
-  profiles `local`, `test`, `ci`; API получает только `ET_DATABASE_URL`, one-shot
-  migrator — только `ET_MIGRATION_DATABASE_URL`; unknown `ET_*` forbidden.
+  profiles `local`, `test`, `ci`; API получает runtime DB и non-secret exact OIDC
+  contract, one-shot migrator — migration DB credential; Keycloak/test passwords
+  передаются только через local environment; unknown `ET_*` forbidden.
 - Secret redaction/effective-config diagnostics: `pnpm backend:doctor` печатает
   profile/host/port и DB host/path без user/password; responses/log tests
   проверяют sentinel redaction.
@@ -68,16 +71,17 @@ agents, Skills и Git workflow наследуются; локальные коп
   volume; migration lifecycle требует exact consent и database
   `electro_tutor_test`.
 - Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
-- External sandbox/stub/fallback modes: `N/A — external providers отсутствуют;
-  DB outage fail-closed как redacted 503 без in-memory fallback`.
+- External sandbox/stub/fallback modes: isolated Keycloak DEV — real provider
+  evidence, не mock и не production; IdP/DB outage fail closed без local identity
+  fallback.
 - Clean-room smoke command or documented manual scenario: `pnpm backend:check`;
   затем `pnpm backend:dev`, `pnpm backend:doctor`, `pnpm backend:smoke`,
   `pnpm backend:stop` для ручного inspection.
 - Project-specific quality gates: frozen uv lock, Ruff format/lint, strict mypy,
   fast и real-PostgreSQL tests, pip-audit, Compose config/image, Alembic current/check,
   live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
-- Known limitations: production backend hosting/ingress/CORS allowlist не выбран;
-  current CORS default-deny, auth/jobs/providers отсутствуют.
+- Known limitations: production backend hosting/ingress/IAM/cookie topology не
+  выбраны; exact credentialed CORS действует только для DEV/E2E, jobs отсутствуют.
 - Explicit deviations from global Backend DX Policy: `none`.
 
 ### Backend DX gate status

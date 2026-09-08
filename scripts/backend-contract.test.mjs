@@ -73,6 +73,18 @@ describe("ET-09.2 backend command contract", () => {
   it("keeps the migrator credential out of the long-running API", () => {
     expect(compose.services.api.environment).not.toHaveProperty("ET_MIGRATION_DATABASE_URL");
     expect(compose.services.migrate.environment).toHaveProperty("ET_MIGRATION_DATABASE_URL");
+    expect(compose.services["db-role-bootstrap"].environment).toHaveProperty(
+      "ET_DB_PROVISIONER_PASSWORD",
+    );
+    expect(compose.services.api.environment).not.toHaveProperty("ET_DB_PROVISIONER_PASSWORD");
+  });
+
+  it("reconciles the provisioner role before every migration and integration run", async () => {
+    const backendSource = await readFile("scripts/backend.mjs", "utf8");
+    expect(backendSource).toContain('compose(["run", "--rm", "db-role-bootstrap"])');
+    expect(backendSource).toMatch(
+      /async function dbMigrate\(\)[\s\S]*reconcileDatabaseRoles\(\)[\s\S]*compose\(\["run", "--rm", "--build", "migrate"\]\)/,
+    );
   });
 
   it("denies destructive local reset without the exact confirmation", async () => {

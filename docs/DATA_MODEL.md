@@ -60,11 +60,24 @@ Revision `20260909_0006` реализует internal owner boundary:
 - public/email linking отсутствует; controlled migrator/test fixture может
   доказать несколько external identities на одном Account.
 
+Revision `20260909_0007` реализует trusted authority baseline:
+
+- `capability_grants`: immutable UUID, `subject_account_id`/account scope,
+  exact `TUTOR_PROFILE_MANAGE_OWN`, server timestamps/actor, one-way revoke и
+  partial unique active scope;
+- оба account references имеют `ON DELETE RESTRICT`; capability/scope/subject
+  нельзя менять, а completed revoke защищён DB trigger;
+- `capability_grant_operations`: append-only global issue/revoke operation-ID
+  namespace с normalized intent digest и deferrable grant reference для exact
+  retry/concurrent reconciliation;
+- `electro_tutor_provisioner` имеет только column-scoped issue/revoke/audit
+  privileges; `electro_tutor_runtime` может только читать grants и вызывать
+  narrow active-row lock function;
+- issue/revoke и AuditEvent используют один connection-scoped repository set и
+  одну transaction existing `PostgresUnitOfWork`.
+
 Оставшиеся additive tables planned:
 
-- `capability_grants`: immutable subject/capability/account-scope, issue/revoke
-  actor/time/operation metadata и partial unique active grant; baseline code
-  `TUTOR_PROFILE_MANAGE_OWN`;
 - `student_profiles` и `tutor_profiles`: `account_id` одновременно PK/FK на
   `accounts.id`, private normalized `display_name`, UTC timestamps;
   один account может иметь обе независимые records.
@@ -72,9 +85,10 @@ Revision `20260909_0006` реализует internal owner boundary:
 Connection-scoped audit repository не коммитит самостоятельно; one-shot
 `PostgresUnitOfWork` владеет одной connection/transaction, коммитит один раз при
 success и откатывает при exception/audit constraint failure. Grant/profile
-repositories подключатся к этой же transaction в `ET-09.4b/c`. Grant read row
-lock, profile delete/deactivate/cascade, tenant/member tables и public projection
-не входят в реализованный slice.
+grant repository уже подключён к этой же transaction. Active grant read lock
+реализован narrow fixed-search-path function и остаётся удержан до завершения
+UoW; profile repository подключится в `ET-09.4c`. Profile delete/deactivate/
+cascade, tenant/member tables и public projection не входят в реализованный slice.
 
 `backend:db:migrate` выполняет additive upgrade, `backend:db:status` проверяет
 head и autogenerate drift. `backend:db:reset-local` — destructive local-only

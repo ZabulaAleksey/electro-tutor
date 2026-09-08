@@ -7,7 +7,7 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from electro_tutor_api.config import Settings
+from electro_tutor_api.config import ProvisioningSettings, Settings
 from electro_tutor_api.errors import ServiceDependencyError
 
 ALEMBIC_DIR = Path(__file__).resolve().parents[3] / "alembic"
@@ -41,4 +41,12 @@ def create_runtime_engine(settings: Settings) -> AsyncEngine:
         settings.runtime_database_url,
         pool_pre_ping=True,
         connect_args={"timeout": settings.db_connect_timeout},
+    )
+
+
+def create_provisioning_engine(settings: ProvisioningSettings) -> AsyncEngine:
+    return create_async_engine(
+        settings.provisioning_database_url,
+        pool_pre_ping=True,
+        connect_args={"timeout": 5},
     )

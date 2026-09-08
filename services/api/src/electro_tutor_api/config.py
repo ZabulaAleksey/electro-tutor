@@ -16,6 +16,7 @@ _KNOWN_ENV = {
     "ET_PORT",
     "ET_RUNTIME_DATABASE_URL",
     "ET_MIGRATION_DATABASE_URL",
+    "ET_PROVISIONING_DATABASE_URL",
     "ET_DATABASE_URL",
     "ET_TEST_DATABASE_URL",
     "ET_ENVIRONMENT",
@@ -262,6 +263,38 @@ class MigrationSettings(BaseSettings):
             raise ValueError("local/test/ci migration database is not approved")
         if parsed.username != "electro_tutor_migrator":
             raise ValueError("migration URL must use the migrator role")
+        return value
+
+
+class ProvisioningSettings(BaseSettings):
+    """Trusted authority-writer configuration; never loaded by the public API."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="ET_",
+        env_file=None,
+        extra="forbid",
+        case_sensitive=True,
+        validate_default=True,
+        populate_by_name=True,
+        hide_input_in_errors=True,
+    )
+
+    profile: Profile = Field("local", validation_alias=AliasChoices("ET_PROFILE", "ET_ENVIRONMENT"))
+    provisioning_database_url: str = Field(validation_alias="ET_PROVISIONING_DATABASE_URL")
+    authority_actor_id: Literal["tutor-provisioner"] = "tutor-provisioner"
+
+    @field_validator("provisioning_database_url")
+    @classmethod
+    def validate_provisioning_target(cls, value: str) -> str:
+        parsed = urlsplit(value)
+        if parsed.scheme != "postgresql+asyncpg" or not parsed.username or not parsed.password:
+            raise ValueError("provisioning URL must use postgresql+asyncpg with credentials")
+        if parsed.hostname not in {"127.0.0.1", "localhost", "postgres"}:
+            raise ValueError("local/test/ci provisioning host must be local PostgreSQL")
+        if parsed.path.removeprefix("/") not in {"electro_tutor", "electro_tutor_test"}:
+            raise ValueError("local/test/ci provisioning database is not approved")
+        if parsed.username != "electro_tutor_provisioner":
+            raise ValueError("provisioning URL must use the provisioner role")
         return value
 
 

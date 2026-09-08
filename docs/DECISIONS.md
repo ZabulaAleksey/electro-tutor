@@ -531,7 +531,7 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 Дата: 2026-09-08
 
 Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a` и `ET-09.4b0` completed/verified, `ET-09.4b..e` planned
+`ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified, `ET-09.4c..e` planned
 
 Решение: application owner key — `accounts.id`; конкретная provider-login запись
 остаётся `external_identities.id` и ссылается на Account через immutable required
@@ -563,6 +563,14 @@ application service и typed server-created actor; public self-grant endpoint
 classroom или admin access. Future tenant/membership/scoped permissions остаются
 отдельными сущностями и могут дополнять evaluator без изменения account-grant
 semantics.
+
+Runtime authority writer использует отдельную least-privilege PostgreSQL role
+`electro_tutor_provisioner`; public API role имеет только grant read. Один
+append-only operation ledger задаёт общий issue/revoke idempotency namespace и
+detects changed/cross-action intent как `409 idempotency_conflict` до audit
+mapping. Account transaction lock упорядочивает absence/issue/revoke races;
+active grant row lock выдаётся runtime через узкую fixed-search-path function,
+не предоставляя table UPDATE.
 
 AuditEvent является append-only redacted product-security stream. Grant/revoke и
 первое TutorProfile creation записывают domain mutation и AuditEvent одной

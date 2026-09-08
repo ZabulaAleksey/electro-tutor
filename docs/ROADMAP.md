@@ -326,8 +326,8 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   profiles, trusted account grant, server-side capability calculation и atomic
   audit. Runtime order: audit foundation → internal Account boundary →
   grant/evaluator → profiles → HTTP → RU/UK E2E; `ET-09.4a` и prerequisite
-  `ET-09.4b0` verified, следующий runtime slice — trusted grant/evaluator
-  `ET-09.4b`.
+  `ET-09.4b0` и trusted grant/evaluator `ET-09.4b` verified; следующий
+  dependency-ready runtime slice — profiles `ET-09.4c`.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 

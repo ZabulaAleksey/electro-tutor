@@ -37,6 +37,10 @@ Slice `ET-09.4b0` не добавляет route: existing `/me` сохраняе
 provenance, а internal `account_id` остаётся server-side owner key. Public
 account-linking endpoint отсутствует.
 
+Slice `ET-09.4b` также не добавляет route: trusted grant/revoke доступны только
+internal provisioning adapter с отдельным DB credential; public/self endpoint
+и transport mapping остаются отсутствующими.
+
 Все `/api/*` responses получают `Cache-Control: no-store` и `X-Request-ID`.
 Безопасный входной request ID принимается, invalid/control/oversized значение
 заменяется server-generated ID. Ошибка имеет стабильную форму

@@ -54,7 +54,9 @@ agents, Skills и Git workflow наследуются; локальные коп
   в `scripts/backend.mjs`/`compose.yaml`; `.env.example` перечисляет names как
   reference, а не поддерживаемый override surface;
   profiles `local`, `test`, `ci`; API получает runtime DB и non-secret exact OIDC
-  contract, one-shot migrator — migration DB credential; Keycloak/test passwords
+  contract; one-shot cluster-admin role reconciliation precedes migration and
+  получает только local bootstrap/provisioner credentials; one-shot migrator —
+  migration DB credential; Keycloak/test passwords
   передаются только через local environment; unknown `ET_*` forbidden.
 - Secret redaction/effective-config diagnostics: `pnpm backend:doctor` печатает
   profile/host/port и DB host/path без user/password; responses/log tests
@@ -94,7 +96,7 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `PASS` — current/check, disposable lifecycle, grants |
+| `BDX-GATE-07 Database lifecycle` | `PASS` — current, disposable lifecycle, grants and existing-volume role reconciliation; handwritten-metadata `alembic check` remains a known repository-wide limitation |
 | `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
 | `BDX-GATE-10 CI parity` | `PASS` — Pages workflow вызывает `backend:check` |

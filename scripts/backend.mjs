@@ -16,6 +16,8 @@ const localTestRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestMigrationUrl =
   "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/electro_tutor_test";
+const localTestProvisioningUrl =
+  "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor_test";
 const diagnosticTimeoutMs = 5_000;
 
 export const backendCommands = {
@@ -132,8 +134,13 @@ async function startPostgres() {
   await compose(["up", "-d", "--wait", "postgres"]);
 }
 
+async function reconcileDatabaseRoles() {
+  await compose(["run", "--rm", "db-role-bootstrap"]);
+}
+
 async function dbMigrate() {
   await startPostgres();
+  await reconcileDatabaseRoles();
   await compose(["run", "--rm", "--build", "migrate"]);
 }
 
@@ -163,11 +170,13 @@ async function doctor() {
 
 async function testIntegration({ ensureServices = true } = {}) {
   if (ensureServices) await startPostgres();
+  await reconcileDatabaseRoles();
   const testEnv = {
     ...backendEnv("test"),
     ET_DATABASE_URL: localTestRuntimeUrl,
     ET_TEST_DATABASE_URL: localTestRuntimeUrl,
     ET_MIGRATION_DATABASE_URL: localTestMigrationUrl,
+    ET_PROVISIONING_DATABASE_URL: localTestProvisioningUrl,
     ET_CONFIRM_MIGRATION_LIFECYCLE: "electro-tutor-local",
   };
   await uv(["run", "--project", apiRoot, "alembic", "upgrade", "head"], {

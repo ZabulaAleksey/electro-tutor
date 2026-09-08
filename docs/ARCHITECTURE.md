@@ -151,8 +151,10 @@ transaction; audit failure откатывает mutation. Проверка grant
 grant/evaluator → profiles →
 HTTP adapters → full RU/UK/authz E2E. `ET-09.4a` уже предоставляет append-only
 AuditEvent repository и один PostgreSQL unit-of-work. `ET-09.4b0` предоставляет
-Account ownership boundary с atomic first-login; grant/profile/HTTP/UI runtime
-остаётся planned.
+Account ownership boundary с atomic first-login. `ET-09.4b` добавляет separate
+provisioner DB role, account-scoped grant repository, durable operation ledger,
+typed evaluator и atomic grant/revoke audit; profile/HTTP/UI runtime остаётся
+planned.
 
 ## Технологии и границы
 

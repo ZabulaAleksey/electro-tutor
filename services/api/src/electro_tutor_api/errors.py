@@ -38,3 +38,39 @@ class AuditUnavailableError(RuntimeError):
 
     def __init__(self) -> None:
         super().__init__(self.code)
+
+
+class AuthorityDeniedError(RuntimeError):
+    code = "authority_denied"
+    message = "Trusted provisioning authority is required."
+    status_code = 403
+
+
+class IdempotencyConflictError(RuntimeError):
+    code = "idempotency_conflict"
+    message = "The operation identifier was already used for a different intent."
+    status_code = 409
+
+
+class AuthorityOperationReservationConflict(RuntimeError):
+    """Internal retry signal raised after a concurrent operation-id winner."""
+
+
+class CapabilityGrantNotFoundError(RuntimeError):
+    code = "capability_grant_not_found"
+    status_code = 404
+
+
+class CapabilityAlreadyGrantedError(RuntimeError):
+    code = "capability_already_granted"
+    status_code = 409
+
+
+class CapabilityAlreadyRevokedError(RuntimeError):
+    code = "capability_already_revoked"
+    status_code = 409
+
+
+class AccountNotFoundError(RuntimeError):
+    code = "account_not_found"
+    status_code = 404

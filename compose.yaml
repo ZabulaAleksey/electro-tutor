@@ -29,6 +29,7 @@ services:
       POSTGRES_PASSWORD: local-bootstrap-only
       ET_DB_MIGRATOR_PASSWORD: local-migration-only
       ET_DB_RUNTIME_PASSWORD: local-runtime-only
+      ET_DB_PROVISIONER_PASSWORD: local-provisioner-only
     ports:
       - "127.0.0.1:55432:5432"
     volumes:
@@ -83,6 +84,28 @@ services:
       postgres:
         condition: service_healthy
     command: ["python", "-m", "electro_tutor_api.cli", "db-migrate"]
+    restart: "no"
+
+  db-role-bootstrap:
+    image: postgres:17.6
+    environment:
+      PGPASSWORD: local-bootstrap-only
+      ET_DB_PROVISIONER_PASSWORD: local-provisioner-only
+    volumes:
+      - ./services/api/docker/reconcile-provisioner-role.sql:/opt/electro-tutor/reconcile-provisioner-role.sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - psql
+      - -h
+      - postgres
+      - -U
+      - electro_tutor_bootstrap
+      - -d
+      - postgres
+      - -f
+      - /opt/electro-tutor/reconcile-provisioner-role.sql
     restart: "no"
 
 volumes:

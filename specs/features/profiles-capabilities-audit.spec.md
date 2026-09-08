@@ -1,10 +1,10 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a` и `ET-09.4b0` completed/verified,
-`ET-09.4b..e` planned
+runtime partial — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified,
+`ET-09.4c..e` planned
 
-Версия: 0.2
+Версия: 0.3
 
 Связи: `PLAT-003`, `AUTHZ-001..003`, `ET-09.4`, ADR-020, ADR-022, ADR-023.
 
@@ -134,6 +134,8 @@ allowlisted service identity/config; end-user session и mutable OIDC claim не
 могут создать такого actor. Controlled tests используют тот же service contract
 с отдельным test actor и disposable test DB.
 
+Controlled tests используют тот же exact `tutor-provisioner` actor contract в
+отдельной disposable test DB; test-only production actor ID не добавляется.
 Public self-grant endpoint отсутствует. Future admin UI или admin identity требует
 отдельного approved authority contract; admin right не выводится из
 `TUTOR_PROFILE_MANAGE_OWN`.
@@ -162,6 +164,12 @@ Exact repeat `issue_operation_id`/`revoke_operation_id` возвращает п�
 результат без второго mutation/AuditEvent. Повтор с тем же operation ID, но
 другим intent, возвращает `409 idempotency_conflict`. Revoke действует немедленно
 для следующего evaluation; cache не является authority source.
+
+Один append-only `capability_grant_operations` ledger задаёт общий namespace
+issue/revoke operation IDs и хранит action, SHA-256 normalized intent и grant
+reference в той же transaction. Он не является отдельным authority source:
+grant state остаётся в `CapabilityGrant`, а ledger нужен только для durable
+retry/reconciliation и cross-action conflict.
 
 ## 5. Authorization matrix
 
@@ -258,7 +266,7 @@ deletion semantics и cascade-delete identity не вводятся этим sta
 ## 8. Dependency DAG и ordered runtime slices
 
 ```text
-ET-09.3 verified + SPEC v0.2 + ADR-023
+ET-09.3 verified + SPEC v0.3 + ADR-023
     → ET-09.4a Audit persistence foundation
         → ET-09.4b0 Internal Account boundary
             → ET-09.4b Trusted grant + policy evaluator
@@ -372,6 +380,19 @@ Account/identity; узкая `SECURITY DEFINER` creation function генерир
 Новые audit actors используют `account_id`; backfill сохраняет attribution
 existing append-only events.
 
-Fast gate: `72 passed`; real PostgreSQL migration/integration gate: `28 passed`.
-CapabilityGrant, evaluator, profiles, HTTP routes и UI не реализованы. Whole
+`ET-09.4b` добавляет revision `20260909_0007`: immutable account-scoped
+`capability_grants`, global append-only operation ledger, partial unique active
+scope, one-way revoke trigger и separate least-privilege
+`electro_tutor_provisioner` role. Local/CI migration workflow idempotently
+reconciles this role before Alembic, включая upgrade существующего revision
+`20260909_0006` volume; production deployment предоставляет equivalent
+cluster-IAM prerequisite. `CapabilityGrantService` атомарно записывает
+grant/revoke + AuditEvent через existing `PostgresUnitOfWork`; evaluator читает
+только exact active `TUTOR_PROFILE_MANAGE_OWN` по `Principal.account_id`.
+Account advisory transaction lock упорядочивает issue/revoke, а узкая
+`lock_active_capability_grant` function держит grant-row `FOR UPDATE` lock для
+будущей profile mutation без выдачи runtime table UPDATE.
+
+Fast gate: `85 passed`; real PostgreSQL migration/integration gate: `39 passed`.
+Profiles, новые HTTP routes и UI не реализованы. Whole
 `ET-09.4` имеет truthful `partial`, а stage-level `NEXT` остаётся `ET-09.4`.

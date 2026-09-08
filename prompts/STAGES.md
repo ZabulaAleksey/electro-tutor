@@ -1,3 +1,5 @@
+- Stage ID: ET-09.3
+
 # Поэтапный запуск Electro Tutor
 
 Этот файл — операционный протокол, а не источник требований. SPEC отвечает на
@@ -402,6 +404,16 @@ test account.
   risk — accidental coupling to MathMorph realm or email as primary ID.
 - **DoD / deferred:** common DoD + real IdP and protected API evidence; profiles,
   MFA/passkeys and shared identity deferred.
+
+- Status: blocked
+- NEXT: ET-09.3
+- Checkpoint: none
+- Blockers: отсутствуют отдельный Electro Tutor IdP client/config и approved test account
+- Evidence: none
+
+```stage-compatibility
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["отсутствуют отдельный Electro Tutor IdP client/config и approved test account"],"checkpoint":null,"current_stage":"ET-09.3","evidence":[],"master_id":null,"next_selector":"ET-09.3","status":"blocked"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+```
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 

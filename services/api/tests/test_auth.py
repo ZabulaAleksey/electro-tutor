@@ -15,6 +15,7 @@ class FakeRepository:
     def __init__(self) -> None:
         self.transactions: dict[UUID, AuthTransaction] = {}
         self.identities: dict[tuple[str, str], tuple[UUID, str | None]] = {}
+        self.account_ids: dict[tuple[str, str], UUID] = {}
         self.sessions: dict[str, UUID] = {}
         self.deleted_sessions: list[str] = []
 
@@ -35,6 +36,7 @@ class FakeRepository:
     async def resolve_identity(self, identity: ExternalIdentity) -> UUID:
         key = (identity.issuer, identity.subject)
         identity_id = self.identities.get(key, (uuid4(), None))[0]
+        self.account_ids.setdefault(key, uuid4())
         self.identities[key] = (identity_id, identity.email)
         return identity_id
 
@@ -52,6 +54,7 @@ class FakeRepository:
             item for item in self.identities.items() if item[1][0] == identity_id
         )
         return Principal(
+            account_id=self.account_ids[(issuer, subject)],
             identity_id=identity_id,
             issuer=issuer,
             subject=subject,
@@ -202,6 +205,20 @@ async def test_same_subject_updates_email_without_new_identity_and_rotates_sessi
     )
     assert len(repository.identities) == 1
     assert next(iter(repository.identities.values())) == (first_id, "changed@invalid.example")
+
+
+@pytest.mark.asyncio
+async def test_same_email_does_not_link_distinct_provider_identities() -> None:
+    repository = FakeRepository()
+    shared_email = "shared@invalid.example"
+    await repository.resolve_identity(
+        ExternalIdentity(issuer="https://issuer-a.invalid", subject="subject-a", email=shared_email)
+    )
+    await repository.resolve_identity(
+        ExternalIdentity(issuer="https://issuer-b.invalid", subject="subject-b", email=shared_email)
+    )
+    assert len(repository.identities) == 2
+    assert len(set(repository.account_ids.values())) == 2
 
 
 @pytest.mark.asyncio

@@ -21,9 +21,9 @@ Approved contract находится в
 
 | Endpoint family | Contract |
 |---|---|
-| `GET /api/v1/profiles/{student|tutor}/{identity_id}` | private owner read; foreign/nonexistent resource возвращает non-disclosing `404 profile_not_found` |
-| `PUT /api/v1/profiles/{student|tutor}/{identity_id}` | idempotent create с owner из session; body не принимает identity/role/capability; Tutor требует active `TUTOR_PROFILE_MANAGE_OWN` |
-| `PATCH /api/v1/profiles/{student|tutor}/{identity_id}` | owner update `display_name`; Tutor требует active grant; authority-like/unknown fields отклоняются |
+| `GET /api/v1/profiles/{student|tutor}/{account_id}` | private owner read; foreign/nonexistent resource возвращает non-disclosing `404 profile_not_found` |
+| `PUT /api/v1/profiles/{student|tutor}/{account_id}` | idempotent create с owner из session; body не принимает account/identity/role/capability; Tutor требует active `TUTOR_PROFILE_MANAGE_OWN` |
+| `PATCH /api/v1/profiles/{student|tutor}/{account_id}` | owner update `display_name`; Tutor требует active grant; authority-like/unknown fields отклоняются |
 
 Anonymous/invalid session получает `401 authentication_required`, missing tutor
 grant — `403 capability_required`, invalid body — `422 invalid_request`, different
@@ -33,6 +33,9 @@ provisioning вызывает Application Core service через internal adapt
 
 Slice `ET-09.4a` уже регистрирует reusable redacted `503 audit_unavailable`
 handler для будущих audit-critical commands, но не добавляет profile/grant route.
+Slice `ET-09.4b0` не добавляет route: existing `/me` сохраняет provider identity
+provenance, а internal `account_id` остаётся server-side owner key. Public
+account-linking endpoint отсутствует.
 
 Все `/api/*` responses получают `Cache-Control: no-store` и `X-Request-ID`.
 Безопасный входной request ID принимается, invalid/control/oversized значение

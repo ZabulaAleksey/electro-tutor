@@ -121,14 +121,15 @@ tokens отбрасываются после проверки. MathMorph client/
 
 ### ET-09.4 profiles/authz/audit contract (runtime partial)
 
-ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` принимают
-текущий `external_identities.id` как application account key без второй Account
-entity. StudentProfile и TutorProfile — независимые private `0..1` persona
-records; одна identity может иметь обе. Profile fields не являются authority и
+ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` отделяют
+stable product owner `accounts.id` от provider-login `external_identities.id`.
+Один Account может иметь несколько external identities; email не является
+linking key. StudentProfile и TutorProfile — независимые private `0..1` persona
+records на Account; один Account может иметь обе. Profile fields не являются authority и
 TutorProfile не является tenant/membership.
 
 ```text
-ET-09.3 session → Principal(identity_id)
+ET-09.3 session → external identity → Principal(account_id, identity_id, provenance)
   → Application Core policy evaluator
       + resource ownership
       + typed operation
@@ -146,10 +147,12 @@ Client/OIDC claims и profile existence не входят в authority inputs. G
 Authority mutation и первое TutorProfile creation коммитят AuditEvent в той же
 transaction; audit failure откатывает mutation. Проверка grant и profile write
 сериализуются с concurrent revoke через общий connection/unit-of-work и row lock.
-Это определяет runtime order: audit persistence → grant/evaluator → profiles →
+Это определяет runtime order: audit persistence → internal Account boundary →
+grant/evaluator → profiles →
 HTTP adapters → full RU/UK/authz E2E. `ET-09.4a` уже предоставляет append-only
-AuditEvent repository и один PostgreSQL unit-of-work; grant/profile/HTTP/UI
-runtime остаётся planned.
+AuditEvent repository и один PostgreSQL unit-of-work. `ET-09.4b0` предоставляет
+Account ownership boundary с atomic first-login; grant/profile/HTTP/UI runtime
+остаётся planned.
 
 ## Технологии и границы
 

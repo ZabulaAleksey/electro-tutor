@@ -422,12 +422,13 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
-Статус: `partial` — `ET-09.4a` completed/verified; `ET-09.4b..e` planned.
+Статус: `partial` — `ET-09.4a` и `ET-09.4b0` completed/verified;
+`ET-09.4b..e` planned.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
 - **Dependencies / entry:** `ET-09.3` completed; approved implementation contract
-  `specs/features/profiles-capabilities-audit.spec.md` v0.1 and ADR-023 close the
+  `specs/features/profiles-capabilities-audit.spec.md` v0.2 and ADR-023 close the
   profile/capability/audit and role-policy entry gate.
 - **Runnable slice / E2E:** authenticated student/tutor creates or reads own
   profile → server computes allowed application capability → forbidden role/
@@ -438,7 +439,8 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
   lesson capabilities, admin console or IdP role mutation.
 - **Modules / expected files:** profile/authz/audit domain/application/repository,
   API/UI slices, migrations, specs/security/data/traceability and tests.
-- **DB / migration:** independent `0..1` profiles per identity, active grant
+- **DB / migration:** stable internal Account with `1..*` provider identities,
+  independent `0..1` profiles per Account, active grant
   uniqueness, append-only audit fields/indexes; reversible additive migrations,
   exact runtime grants and no mutable tutor business fields in IdP.
 - **Security / fallback / risks:** AuthN/AuthZ independent, deny-by-default and
@@ -463,30 +465,36 @@ Ordered runtime slices and dependency edges:
    depends on verified `ET-09.3` and this approved contract; required before any
    critical authority write. Evidence: revision `20260908_0005`, `71` fast tests
    and `22` real-PostgreSQL integration/migration tests PASS.
-2. `ET-09.4b` Trusted account grant + deterministic evaluator — depends on
-   `ET-09.4a`, because grant/revoke must commit durable audit atomically.
-3. `ET-09.4c` Student/Tutor profile persistence/lifecycle — depends on
+2. `ET-09.4b0` Internal Account boundary — `completed / VERIFIED`; depends on
+   `ET-09.4a`, because existing immutable account audit attribution must survive
+   separation from provider-login identity. Evidence: revision `20260909_0006`,
+   `72` fast tests and `28` real-PostgreSQL integration/migration tests PASS.
+3. `ET-09.4b` Trusted account grant + deterministic evaluator — depends on
+   `ET-09.4b0`, because account-scoped authority must reference stable
+   `accounts.id`, not a provider-specific login identity.
+4. `ET-09.4c` Student/Tutor profile persistence/lifecycle — depends on
    `ET-09.4b`, because TutorProfile create/read/update require trusted grant and
    create must share the audit transaction.
-4. `ET-09.4d` Application/HTTP ownership paths — depends on `ET-09.4c`; adapters
+5. `ET-09.4d` Application/HTTP ownership paths — depends on `ET-09.4c`; adapters
    consume policy/repository contracts and add anonymous, validation and IDOR/BOLA negatives.
-5. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
+6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
    `ET-09.4d`; only this slice may close the full stage after all terminal gates.
 
 Detailed schema, authorization matrix, audit atomicity and per-slice acceptance
 gates are canonical in `specs/features/profiles-capabilities-audit.spec.md`.
 The next implementation pass selects only `ET-09.4b`; `ET-09.4a` provides its
-durable audit/shared-transaction prerequisite. The stage-level router keeps
+durable audit/shared-transaction prerequisite and `ET-09.4b0` its stable Account
+owner key. The stage-level router keeps
 `NEXT: ET-09.4`; no grant, evaluator, profile, HTTP or UI runtime is started.
 
 - Status: partial
 - NEXT: ET-09.4
-- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; atomic ET-09.4b0 local checkpoint on feature branch (resolve by Git history)
 - Blockers: none
-- Evidence: ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS; local main fast-forward confirmed at 7e15571
+- Evidence: ET-09.4b0 revision 20260909_0006; backend fast 72 passed; real PostgreSQL 28 passed; populated backfill/round-trip, concurrent first-login, no orphan/email-linking, immutable owner and two-identities-to-one-Account PASS; CapabilityGrant/evaluator not started
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4a commits c946a80 and 7e15571 merged into local main","current_stage":"ET-09.4","evidence":["ET-09.4a revision 20260908_0005; backend fast 71 passed; real PostgreSQL 22 passed; audit append-only privileges and transaction rollback PASS; local main fast-forward confirmed at 7e15571"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4a commits c946a80 and 7e15571 merged into local main; atomic ET-09.4b0 local checkpoint on feature branch (resolve by Git history)","current_stage":"ET-09.4","evidence":["ET-09.4b0 revision 20260909_0006; backend fast 72 passed; real PostgreSQL 28 passed; populated backfill/round-trip, concurrent first-login, no orphan/email-linking, immutable owner and two-identities-to-one-Account PASS; CapabilityGrant/evaluator not started"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL

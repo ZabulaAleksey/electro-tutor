@@ -324,9 +324,10 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 - **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PARTIAL`.
   Approved feature-SPEC/ADR-023 фиксируют private composable Student/Tutor
   profiles, trusted account grant, server-side capability calculation и atomic
-  audit. Runtime order: audit foundation → grant/evaluator → profiles → HTTP →
-  RU/UK E2E; audit persistence/shared-UoW slice `ET-09.4a` verified, следующий
-  runtime slice — trusted grant/evaluator `ET-09.4b`.
+  audit. Runtime order: audit foundation → internal Account boundary →
+  grant/evaluator → profiles → HTTP → RU/UK E2E; `ET-09.4a` и prerequisite
+  `ET-09.4b0` verified, следующий runtime slice — trusted grant/evaluator
+  `ET-09.4b`.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 

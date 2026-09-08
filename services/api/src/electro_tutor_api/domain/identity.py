@@ -14,6 +14,7 @@ class ExternalIdentity:
 
 @dataclass(frozen=True)
 class Principal:
+    account_id: UUID
     identity_id: UUID
     issuer: str
     subject: str

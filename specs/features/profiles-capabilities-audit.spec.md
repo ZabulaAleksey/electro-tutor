@@ -1,9 +1,10 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a` completed/verified, `ET-09.4b..e` planned
+runtime partial — `ET-09.4a` и `ET-09.4b0` completed/verified,
+`ET-09.4b..e` planned
 
-Версия: 0.1
+Версия: 0.2
 
 Связи: `PLAT-003`, `AUTHZ-001..003`, `ET-09.4`, ADR-020, ADR-022, ADR-023.
 
@@ -24,14 +25,17 @@ billing, marketplace, AI, MFA/passkeys, moderation UI и production IdP topology
 
 ### PCA-ID-001 Canonical application account key
 
-Текущий canonical application account/principal key — server-derived
-`Principal.identity_id`, то есть opaque UUID `external_identities.id`. Stable
-provider identity остаётся точной парой `(issuer, subject)` по `ET-09.3`;
-email — изменяемый identity attribute, а не account key и не authority input.
+Canonical application owner key — server-derived `Principal.account_id`, то есть
+opaque UUID `accounts.id`. `Principal.identity_id` остаётся UUID конкретной
+provider-login записи `external_identities.id`; stable provider identity — точная
+пара `(issuer, subject)` по `ET-09.3`. Один Account может владеть несколькими
+external identities. Email — изменяемый identity attribute, не linking key, не
+account key и не authority input.
 
 Profile owner всегда берётся из действующей server-side session. Request body не
-принимает и не переопределяет `identity_id`, issuer, subject или owner; path
-`identity_id` является только resource selector и должен совпасть с principal.
+принимает и не переопределяет `account_id`, `identity_id`, issuer, subject или
+owner; future path `account_id` является только resource selector и должен
+совпасть с principal. Public account-linking endpoint отсутствует.
 
 ### PCA-ID-002 Composable personas и cardinality
 
@@ -54,21 +58,21 @@ Client-writable `role`, `is_tutor`, `is_admin`, capability и entitlement
 ### PCA-ID-004 Privacy и ownership
 
 StudentProfile и TutorProfile private по умолчанию. Baseline API принимает opaque
-`identity_id`, но разрешает только совпадение с current principal; selector не
+`account_id`, но разрешает только совпадение с current principal; selector не
 меняет owner. Foreign read/mutation deny-by-default и не раскрывает существование
 записи. Public tutor projection требует отдельной SPEC.
 
 ## 3. Минимальные profile contracts
 
-Обе таблицы используют server-derived `identity_id` как UUID primary key и FK на
-`external_identities.id`, а также содержат `display_name`, `created_at` и
+Обе таблицы используют server-derived `account_id` как UUID primary key и FK на
+`accounts.id`, а также содержат `display_name`, `created_at` и
 `updated_at`. Это задаёт ровно одну запись каждого profile type на account без
 второго публичного profile identifier.
 `display_name` не копируется в identity/IdP и не является authority field.
 
 | Поле | Обязательность | Validation / normalization | Visibility / uniqueness |
 |---|---|---|---|
-| `identity_id` | required, server-only | только текущий principal; immutable | private owner PK/FK; unique per profile type |
+| `account_id` | required, server-only | только текущий principal; immutable | private owner PK/FK; unique per profile type |
 | `display_name` | required | Unicode NFC; trim краёв; внутренние whitespace runs сводятся к одному пробелу; после normalization 1..80 code points; control characters запрещены | private; не unique; не authority input |
 | `created_at` | required, server-only | UTC, immutable | private |
 | `updated_at` | required, server-only | UTC, меняется только при effective update | private |
@@ -108,17 +112,17 @@ state не являются authority. Baseline grant code — `TUTOR_PROFILE_MA
 Минимальный persisted contract:
 
 - `id`: immutable UUID;
-- `subject_identity_id`: target account FK;
+- `subject_account_id`: target `accounts.id` FK;
 - `capability_code`: allowlisted typed code, baseline only `TUTOR_PROFILE_MANAGE_OWN`;
 - `scope_kind`: baseline only `account`;
-- `scope_id`: target `identity_id`; для account scope обязан совпадать с subject;
+- `scope_id`: target `account_id`; для account scope обязан совпадать с subject;
 - `issued_at`, `issued_by_actor_type`, `issued_by_actor_id`;
 - nullable `revoked_at`, `revoked_by_actor_type`, `revoked_by_actor_id`;
 - `issue_operation_id` и nullable `revoke_operation_id` для idempotent commands.
 
 Grant scope/capability/subject immutable. Изменение означает audited revoke старой
 записи и audited issue новой. Partial unique index запрещает более одного active
-grant для `(subject_identity_id, capability_code, scope_kind, scope_id)`.
+grant для `(subject_account_id, capability_code, scope_kind, scope_id)`.
 Existing `account` semantics не меняются при будущем добавлении `tenant` или
 `resource` scopes; такие scopes требуют отдельной SPEC/migration/policy.
 
@@ -138,7 +142,7 @@ Public self-grant endpoint отсутствует. Future admin UI или admin 
 
 Application Core policy evaluator принимает только:
 
-1. validated `Principal.identity_id`;
+1. validated `Principal.account_id`;
 2. typed requested operation;
 3. server-loaded resource owner/scope;
 4. active, non-revoked grants из repository;
@@ -240,8 +244,10 @@ approved operational access; public profile owner не получает audit br
 ## 7. Data и migration contract
 
 Runtime implementation создаёт additive reversible Alembic revisions для
-`audit_events`, `capability_grants`, `student_profiles`, `tutor_profiles` в порядке
-dependency DAG. Public IDs — UUID; timestamps — UTC; constraints и indexes
+`audit_events`, `accounts`, `capability_grants`, `student_profiles`,
+`tutor_profiles` в порядке dependency DAG. `external_identities.account_id` —
+required FK с `ON DELETE RESTRICT`; runtime не может переназначить owner. Public
+IDs — UUID; timestamps — UTC; constraints и indexes
 проверяются real PostgreSQL integration tests. Runtime role получает только
 минимальные table/column privileges, migration role остаётся schema owner.
 
@@ -252,15 +258,19 @@ deletion semantics и cascade-delete identity не вводятся этим sta
 ## 8. Dependency DAG и ordered runtime slices
 
 ```text
-ET-09.3 verified + SPEC v0.1 + ADR-023
+ET-09.3 verified + SPEC v0.2 + ADR-023
     → ET-09.4a Audit persistence foundation
-        → ET-09.4b Trusted grant + policy evaluator
-            → ET-09.4c Student/Tutor profile persistence + lifecycle
-                → ET-09.4d Application/HTTP ownership paths
-                    → ET-09.4e RU/UK UI + complete AUTHZ E2E verification
+        → ET-09.4b0 Internal Account boundary
+            → ET-09.4b Trusted grant + policy evaluator
+                → ET-09.4c Student/Tutor profile persistence + lifecycle
+                    → ET-09.4d Application/HTTP ownership paths
+                        → ET-09.4e RU/UK UI + complete AUTHZ E2E verification
 ```
 
-- `ET-09.4a → ET-09.4b`: authority mutation запрещена без durable atomic audit.
+- `ET-09.4a → ET-09.4b0`: existing audit evidence must remain attributable while
+  the provider-login key is separated from the future product owner key.
+- `ET-09.4b0 → ET-09.4b`: account-scoped grants must reference stable
+  `accounts.id`, not one provider-specific login identity.
 - `ET-09.4b → ET-09.4c`: TutorProfile create нельзя безопасно реализовать до
   trusted grant source и evaluator; Student/Tutor persistence остаётся одним
   coherent profile slice.
@@ -269,8 +279,7 @@ ET-09.3 verified + SPEC v0.1 + ADR-023
 - `ET-09.4d → ET-09.4e`: browser/component E2E требует реальный protected API.
 
 Ни один slice не зависит от tenant, admin UI, future lesson authorization или
-production provider. Следующий implementation pass выбирает только
-`ET-09.4a`.
+production provider. Следующий implementation pass выбирает только `ET-09.4b`.
 
 ## 9. Acceptance и evidence по slices
 
@@ -281,6 +290,19 @@ production provider. Следующий implementation pass выбирает т�
 - envelope validation, bounds/redaction unit tests;
 - real DB append/read/correlation integration;
 - transaction rollback test при audit failure.
+
+### ET-09.4b0 — Internal Account boundary
+
+- reversible populated migration создаёт `accounts`, backfill и required
+  `external_identities.account_id` FK/index без изменения identity/session IDs;
+- existing rows получают `account_id = external_identities.id`, сохраняя смысл
+  ранее записанных account audit actor IDs без rewrite append-only history;
+- new first login атомарно создаёт Account + external identity; repeat/concurrent
+  login даёт ровно одну пару, а failure не оставляет orphan Account;
+- одинаковый email не связывает identities; trusted fixture подтверждает
+  many-identities-to-one-account без public linking path;
+- Principal одновременно несёт internal `account_id` и provider `identity_id`;
+  `/me` сохраняет ET-09.3 provider provenance contract.
 
 ### ET-09.4b — Trusted grant и evaluator
 
@@ -324,7 +346,7 @@ production provider. Следующий implementation pass выбирает т�
 | `AUTHZ-001` | Application Core deterministically computes effective operations from principal, ownership, typed active grants and code/config matrix |
 | `AUTHZ-002` | Anonymous, self-grant, revoked-grant, client-role and foreign-profile attempts fail closed with stable non-leaking errors |
 | `AUTHZ-003` | Authority grant/revoke and authorized TutorProfile creation emit redacted durable AuditEvent atomically; moderation later reuses this baseline |
-| `PCA-ID-001..004` | account key, composable persona cardinality, profile/authority separation and privacy |
+| `PCA-ID-001..004` | internal account key, provider-login separation, composable persona cardinality, profile/authority separation and privacy |
 | `PCA-PROFILE-001..002` | minimal Student/Tutor lifecycle and idempotent ownership behavior |
 | `PCA-GRANT-001..004` | persisted trusted grant, issuer authority, evaluator and idempotency |
 | `PCA-AUDIT-001..004` | envelope, privacy/immutability, transaction atomicity and access |
@@ -340,6 +362,16 @@ metadata validation, connection-scoped `PostgresAuditEventRepository`, one-shot
 поэтому audit не блокирует future account linking и сохраняется независимо от
 будущего lifecycle subject.
 
-Fast gate: `71 passed`; real PostgreSQL migration/integration gate: `22 passed`.
+`ET-09.4b0` добавляет revision `20260909_0006`: minimal `accounts(id,
+created_at)`, required indexed `external_identities.account_id`, backfill
+`account_id = identity_id`, Account+identity atomic first-login и distinct
+`Principal.account_id`/`identity_id`. Runtime не имеет direct table INSERT для
+Account/identity; узкая `SECURITY DEFINER` creation function генерирует оба UUID
+и создаёт только новую пару. Runtime не читает/изменяет Account table и не может
+задать или переназначить identity owner.
+Новые audit actors используют `account_id`; backfill сохраняет attribution
+existing append-only events.
+
+Fast gate: `72 passed`; real PostgreSQL migration/integration gate: `28 passed`.
 CapabilityGrant, evaluator, profiles, HTTP routes и UI не реализованы. Whole
 `ET-09.4` имеет truthful `partial`, а stage-level `NEXT` остаётся `ET-09.4`.

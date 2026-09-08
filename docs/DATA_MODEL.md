@@ -45,13 +45,28 @@ Revision `20260908_0005` реализует первый additive slice:
   payload; `event_id`/`schema_version`/`occurred_at` spoof и
   `UPDATE`/`DELETE`/`TRUNCATE` запрещены PostgreSQL privileges.
 
+Revision `20260909_0006` реализует internal owner boundary:
+
+- `accounts`: только server UUID `id` и UTC `created_at`; role, email, provider,
+  capability и entitlement отсутствуют;
+- `external_identities.account_id`: required indexed FK на `accounts.id` с
+  `ON DELETE RESTRICT`; runtime не может изменять owner после INSERT;
+- populated backfill создаёт один Account на existing external identity с тем же
+  UUID, сохраняя session FK/identity provenance и historical audit attribution;
+- new first-login вызывает узкую `SECURITY DEFINER` function: она генерирует оба
+  UUID и создаёт Account + external identity одной transaction; runtime не имеет
+  direct table INSERT, а `(issuer, subject)` conflict откатывает candidate
+  Account и читает winner;
+- public/email linking отсутствует; controlled migrator/test fixture может
+  доказать несколько external identities на одном Account.
+
 Оставшиеся additive tables planned:
 
 - `capability_grants`: immutable subject/capability/account-scope, issue/revoke
   actor/time/operation metadata и partial unique active grant; baseline code
   `TUTOR_PROFILE_MANAGE_OWN`;
-- `student_profiles` и `tutor_profiles`: `identity_id` одновременно PK/FK на
-  `external_identities.id`, private normalized `display_name`, UTC timestamps;
+- `student_profiles` и `tutor_profiles`: `account_id` одновременно PK/FK на
+  `accounts.id`, private normalized `display_name`, UTC timestamps;
   один account может иметь обе независимые records.
 
 Connection-scoped audit repository не коммитит самостоятельно; one-shot

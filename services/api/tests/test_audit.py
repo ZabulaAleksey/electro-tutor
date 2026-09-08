@@ -68,6 +68,7 @@ def test_server_controlled_fields_are_absent_from_construction_boundary() -> Non
 
 def test_actor_can_only_be_derived_from_principal_or_allowlisted_service() -> None:
     principal = Principal(
+        account_id=uuid4(),
         identity_id=uuid4(),
         issuer="https://provider.invalid/realm",
         subject="provider-subject",
@@ -76,7 +77,7 @@ def test_actor_can_only_be_derived_from_principal_or_allowlisted_service() -> No
     )
     account_actor = AuditActor.from_principal(principal)
     assert account_actor.actor_type is AuditActorType.ACCOUNT
-    assert account_actor.actor_id == str(principal.identity_id)
+    assert account_actor.actor_id == str(principal.account_id)
     with pytest.raises(AuditValidationError, match="allowlisted"):
         AuditActor.from_trusted_service("client-service")  # type: ignore[arg-type]
     with pytest.raises(AuditValidationError, match="factory"):

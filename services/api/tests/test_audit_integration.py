@@ -388,8 +388,10 @@ async def test_exception_after_append_rolls_back_without_repository_autocommit()
 @pytest.mark.asyncio
 async def test_audit_constraint_failure_rolls_back_surrounding_mutation() -> None:
     engine = create_async_engine(runtime_settings().runtime_database_url)
+    inspection_engine = create_async_engine(migration_settings().migration_database_url)
     duplicate_operation_id = uuid4()
-    identity_id = uuid4()
+    account_id: UUID | None = None
+    identity_id: UUID | None = None
     issuer = "http://127.0.0.1:58081/realms/electro-tutor-dev"
     subject = f"et-audit-rollback-{uuid4()}"
     try:
@@ -397,16 +399,22 @@ async def test_audit_constraint_failure_rolls_back_surrounding_mutation() -> Non
             await unit.audit_events.append(event(operation_id=duplicate_operation_id))
         with pytest.raises(AuditUnavailableError) as raised:
             async with PostgresUnitOfWork(engine) as unit:
-                await unit.connection.execute(
+                identity_id = await unit.connection.scalar(
                     text(
-                        "INSERT INTO external_identities (id, issuer, subject, email) "
-                        "VALUES (:id, :issuer, :subject, NULL)"
+                        "SELECT public.create_external_identity("
+                        "CAST(:issuer AS text), CAST(:subject AS text), NULL::text)"
                     ),
-                    {"id": identity_id, "issuer": issuer, "subject": subject},
+                    {"issuer": issuer, "subject": subject},
+                )
+                account_id = await unit.connection.scalar(
+                    text("SELECT account_id FROM external_identities WHERE id = :id"),
+                    {"id": identity_id},
                 )
                 await unit.audit_events.append(event(operation_id=duplicate_operation_id))
         assert raised.value.code == "audit_unavailable"
         assert raised.value.status_code == 503
+        assert identity_id is not None
+        assert account_id is not None
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(
@@ -415,8 +423,17 @@ async def test_audit_constraint_failure_rolls_back_surrounding_mutation() -> Non
                 )
                 == 0
             )
+        async with inspection_engine.connect() as connection:
+            assert (
+                await connection.scalar(
+                    text("SELECT count(*) FROM accounts WHERE id = :id"),
+                    {"id": account_id},
+                )
+                == 0
+            )
     finally:
         await engine.dispose()
+        await inspection_engine.dispose()
 
 
 @pytest.mark.integration

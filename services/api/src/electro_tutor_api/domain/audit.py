@@ -31,7 +31,7 @@ class AuditActor:
     def from_principal(cls, principal: Principal) -> AuditActor:
         if not isinstance(principal, Principal):
             raise AuditValidationError("account audit actor must come from Principal")
-        return cls._create(AuditActorType.ACCOUNT, str(principal.identity_id))
+        return cls._create(AuditActorType.ACCOUNT, str(principal.account_id))
 
     @classmethod
     def from_trusted_service(cls, service: TrustedAuditService) -> AuditActor:

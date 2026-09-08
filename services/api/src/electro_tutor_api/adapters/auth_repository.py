@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import cast
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from electro_tutor_api.domain.identity import AuthTransaction, ExternalIdentity, Principal
@@ -71,25 +72,72 @@ class AuthRepository:
         )
 
     async def resolve_identity(self, identity: ExternalIdentity) -> UUID:
+        identity_conflict: IntegrityError | None = None
+        try:
+            async with self.engine.begin() as connection:
+                existing = await connection.execute(
+                    text(
+                        """
+                        UPDATE external_identities
+                        SET email = :email, updated_at = CURRENT_TIMESTAMP
+                        WHERE issuer = :issuer AND subject = :subject
+                        RETURNING id
+                        """
+                    ),
+                    {
+                        "issuer": identity.issuer,
+                        "subject": identity.subject,
+                        "email": identity.email,
+                    },
+                )
+                existing_id = existing.scalar_one_or_none()
+                if existing_id is not None:
+                    return cast(UUID, existing_id)
+
+                created = await connection.execute(
+                    text(
+                        """
+                        SELECT public.create_external_identity(
+                            CAST(:issuer AS text),
+                            CAST(:subject AS text),
+                            CAST(:email AS text)
+                        )
+                        """
+                    ),
+                    {
+                        "issuer": identity.issuer,
+                        "subject": identity.subject,
+                        "email": identity.email,
+                    },
+                )
+                return cast(UUID, created.scalar_one())
+        except IntegrityError as exc:
+            if not _is_external_identity_conflict(exc):
+                raise
+            identity_conflict = exc
+
+        # The failed transaction rolled back its candidate Account. Resolve the
+        # concurrent winner in a new PostgreSQL transaction.
         async with self.engine.begin() as connection:
-            result = await connection.execute(
+            resolved = await connection.execute(
                 text(
                     """
-                    INSERT INTO external_identities (id, issuer, subject, email)
-                    VALUES (:id, :issuer, :subject, :email)
-                    ON CONFLICT (issuer, subject) DO UPDATE
-                    SET email = EXCLUDED.email, updated_at = CURRENT_TIMESTAMP
+                    UPDATE external_identities
+                    SET email = :email, updated_at = CURRENT_TIMESTAMP
+                    WHERE issuer = :issuer AND subject = :subject
                     RETURNING id
                     """
                 ),
                 {
-                    "id": uuid4(),
                     "issuer": identity.issuer,
                     "subject": identity.subject,
                     "email": identity.email,
                 },
             )
-            return cast(UUID, result.scalar_one())
+            resolved_id = resolved.scalar_one_or_none()
+        if resolved_id is None:
+            raise identity_conflict
+        return cast(UUID, resolved_id)
 
     async def create_session(
         self,
@@ -121,7 +169,7 @@ class AuthRepository:
             result = await connection.execute(
                 text(
                     """
-                    SELECT i.id, i.issuer, i.subject, i.email, s.expires_at
+                    SELECT i.id, i.account_id, i.issuer, i.subject, i.email, s.expires_at
                     FROM application_sessions AS s
                     JOIN external_identities AS i ON i.id = s.identity_id
                     WHERE s.token_digest = :token_digest
@@ -134,6 +182,7 @@ class AuthRepository:
         if row is None:
             return None
         return Principal(
+            account_id=row["account_id"],
             identity_id=row["id"],
             issuer=row["issuer"],
             subject=row["subject"],
@@ -147,3 +196,18 @@ class AuthRepository:
                 text("DELETE FROM application_sessions WHERE token_digest = :token_digest"),
                 {"token_digest": token_digest},
             )
+
+
+def _is_external_identity_conflict(error: IntegrityError) -> bool:
+    current: BaseException | None = error
+    for _ in range(5):
+        if current is None:
+            return False
+        if getattr(current, "constraint_name", None) == "uq_external_identities_issuer_subject":
+            return True
+        if getattr(
+            current, "sqlstate", None
+        ) == "23505" and "uq_external_identities_issuer_subject" in str(current):
+            return True
+        current = current.__cause__ or current.__context__
+    return False

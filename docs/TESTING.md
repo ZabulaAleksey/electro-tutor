@@ -8,7 +8,10 @@
   также проверяются real DB. `ET-09.4a` добавляет exact AuditEvent schema/
   privileges, revision round-trip, append/read/correlation, unique IDs,
   server-controlled columns, append-only denial и shared-transaction rollback
-  при exception/audit constraint failure.
+  при exception/audit constraint failure. `ET-09.4b0` добавляет populated
+  Account backfill/round-trip, exact FK/index/privileges, atomic first-login,
+  repeat и concurrent winner, orphan rollback, no-email-linking, immutable owner
+  и controlled two-identities-to-one-account evidence.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
 - `pnpm backend:idp:cleanup`: удаляет только synthetic identity после проверки

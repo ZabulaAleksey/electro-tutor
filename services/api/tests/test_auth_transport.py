@@ -39,6 +39,7 @@ class FakeAuthService:
         if session_token != "valid-session":
             return None
         return Principal(
+            account_id=UUID("11111111-1111-4111-8111-111111111111"),
             identity_id=UUID("22222222-2222-4222-8222-222222222222"),
             issuer="http://127.0.0.1:58081/realms/electro-tutor-dev",
             subject="stable-subject",
@@ -101,6 +102,7 @@ async def test_me_requires_valid_tutor_session(app) -> None:
     assert anonymous.status_code == 401
     assert authenticated.status_code == 200
     assert authenticated.json()["subject"] == "stable-subject"
+    assert "account_id" not in authenticated.json()
 
 
 @pytest.mark.asyncio

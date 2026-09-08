@@ -531,13 +531,24 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 Дата: 2026-09-08
 
 Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a` completed/verified, `ET-09.4b..e` planned
+`ET-09.4a` и `ET-09.4b0` completed/verified, `ET-09.4b..e` planned
 
-Решение: текущий Tutor-local `external_identities.id` является application
-account key для `ET-09.4`; новая `accounts` table не создаётся. Account имеет
+Решение: application owner key — `accounts.id`; конкретная provider-login запись
+остаётся `external_identities.id` и ссылается на Account через immutable required
+`account_id`. Один Account может владеть несколькими external identities без
+email auto-linking или public linking API. Existing identity rows получают
+`account_id = id`: это сохраняет смысл уже записанных immutable AuditEvent actor
+IDs без rewrite history, тогда как новые логины получают отдельные random
+Account/identity UUID. Account имеет
 независимые relations `0..1` StudentProfile и `0..1` TutorProfile, обе personas
 могут существовать одновременно. Profile хранит только private product data и
 никогда не является role/capability/tenant/admin/entitlement source.
+
+Runtime role не получает direct INSERT в `accounts` или `external_identities`.
+First-login использует узкую `SECURITY DEFINER` function с fixed search path:
+она генерирует оба UUID и создаёт только новую Account+identity пару. Связывание
+additional identity с existing Account остаётся отдельной trusted operation и
+не доступно public/runtime path.
 
 StudentProfile create/read/update разрешаются authenticated owner. TutorProfile
 create/read/update требуют отдельный active account-scoped grant
@@ -570,9 +581,11 @@ role, единая Student/Tutor role, profile как tenant, public self-grant,
 RBAC/ABAC engine и отдельный audit service отклонены. Они смешивают trust
 boundaries либо вводят преждевременную инфраструктуру.
 
-Последствия: detailed requirements принадлежат
+Последствия: `Principal` несёт оба ключа: `account_id` для product ownership и
+authority, `identity_id`/issuer/subject для ET-09.3 provider provenance и session
+resolution. `/me` не обязан раскрывать internal account key. Detailed requirements принадлежат
 `../specs/features/profiles-capabilities-audit.spec.md`. Runtime выполняется
-последовательно: audit persistence/unit-of-work → trusted grant/evaluator →
-profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
+последовательно: audit persistence/unit-of-work → internal Account boundary →
+trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
 stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
 меняются.

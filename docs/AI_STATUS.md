@@ -74,7 +74,7 @@
 
 - Единственный источник этапов: `prompts/STAGES.md`; старый `STAGED_PROMPTS.md` перенесён без потери содержания.
 - Project overlay, 38 unit/integration tests, ESLint, Astro check и production build — PASS.
-- Репозиторий находится в `~/codex-workspace/electro-tutor`; dependency-manager migration локально интегрирована в `main`, push не выполнялся.
+- Репозиторий находится в `${PROJECTS_ROOT}/electro-tutor` (локальный default: `~/electro-tutor`); dependency-manager и актуальная backend-ветка интегрированы и опубликованы в `main`.
 
 ## Dependency manager migration — 2026-08-24
 

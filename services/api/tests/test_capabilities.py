@@ -222,6 +222,10 @@ def test_no_public_capability_grant_or_revoke_route_exists() -> None:
             runtime_database_url=(
                 "postgresql+asyncpg://electro_tutor_runtime:password@127.0.0.1:55432/electro_tutor"
             ),
+            auth_database_url=(
+                "postgresql+asyncpg://electro_tutor_auth_runtime:password@"
+                "127.0.0.1:55432/electro_tutor"
+            ),
         )
     )
     paths = [getattr(route, "path", "") for route in app.routes]

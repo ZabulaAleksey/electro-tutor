@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 from electro_tutor_api.adapters.auth_repository import AuthRepository
 from electro_tutor_api.adapters.oidc import OidcAdapter, OidcDiscovery, OidcValidationError
-from electro_tutor_api.domain.identity import AuthTransaction, Principal
+from electro_tutor_api.domain.identity import AuthTransaction, Principal, SessionCredential
 
 
 class AuthFlowError(Exception):
@@ -142,6 +142,12 @@ class AuthService:
         if not session_token:
             return None
         return await self.repository.principal_for_session(digest_secret(session_token))
+
+    @staticmethod
+    def session_credential(session_token: str | None) -> SessionCredential | None:
+        if not session_token:
+            return None
+        return SessionCredential.from_token(session_token)
 
     async def logout(self, session_token: str | None, post_logout_redirect_uri: str) -> str:
         if post_logout_redirect_uri not in self.allowed_post_logout_urls:

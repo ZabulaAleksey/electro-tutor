@@ -21,6 +21,10 @@ LOCAL_RUNTIME = (
     "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@"
     f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
 )
+LOCAL_AUTH = (
+    "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
+    f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
+)
 LOCAL_MIGRATION = (
     "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@"
     f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
@@ -31,7 +35,10 @@ def disposable_runtime_settings() -> Settings:
     runtime = os.getenv("ET_TEST_DATABASE_URL") or os.getenv("ET_RUNTIME_DATABASE_URL")
     if runtime != LOCAL_RUNTIME:
         pytest.skip("integration mutation tests require the exact electro_tutor_test database")
-    return Settings(profile="test", runtime_database_url=runtime)
+    auth = os.getenv("ET_AUTH_DATABASE_URL")
+    if auth != LOCAL_AUTH:
+        pytest.skip("integration auth tests require the exact auth runtime role")
+    return Settings(profile="test", runtime_database_url=runtime, auth_database_url=auth)
 
 
 def disposable_migration_settings() -> MigrationSettings:
@@ -253,11 +260,11 @@ def test_populated_account_migration_backfill_catalog_and_round_trip() -> None:
             }
             assert runtime_account_insert is False
             assert runtime_identity_insert is False
-            assert runtime_creation_execute is True
+            assert runtime_creation_execute is False
         finally:
             await migration_engine.dispose()
 
-        repository = AuthRepository(create_async_engine(runtime_settings.runtime_database_url))
+        repository = AuthRepository(create_async_engine(runtime_settings.auth_database_url))
         try:
             principal = await repository.principal_for_session(session_digest)
             assert principal is not None
@@ -321,7 +328,7 @@ def test_populated_account_migration_backfill_catalog_and_round_trip() -> None:
             )
         )
         command.upgrade(config, "head")
-        assert expected_revision() == "20260912_0008"
+        assert expected_revision() == "20260912_0009"
         asyncio.run(verify_upgrade())
         command.downgrade(config, "20260908_0005")
         asyncio.run(verify_downgrade())
@@ -334,7 +341,7 @@ def test_populated_account_migration_backfill_catalog_and_round_trip() -> None:
 async def test_first_login_reuses_account_and_email_never_links_accounts() -> None:
     migration_settings = disposable_migration_settings()
     repository = AuthRepository(
-        create_async_engine(disposable_runtime_settings().runtime_database_url)
+        create_async_engine(disposable_runtime_settings().auth_database_url)
     )
     inspection_engine = create_async_engine(migration_settings.migration_database_url)
     issuer = f"https://login-{uuid4()}.invalid"
@@ -388,7 +395,7 @@ async def test_first_login_reuses_account_and_email_never_links_accounts() -> No
 @pytest.mark.asyncio
 async def test_concurrent_first_login_has_one_identity_account_and_no_orphan() -> None:
     migration_settings = disposable_migration_settings()
-    engine = create_async_engine(disposable_runtime_settings().runtime_database_url)
+    engine = create_async_engine(disposable_runtime_settings().auth_database_url)
     inspection_engine = create_async_engine(migration_settings.migration_database_url)
     repository = AuthRepository(engine)
     identity = ExternalIdentity(
@@ -437,7 +444,7 @@ async def test_concurrent_first_login_has_one_identity_account_and_no_orphan() -
 @pytest.mark.asyncio
 async def test_failed_identity_insert_rolls_back_candidate_account() -> None:
     migration_settings = disposable_migration_settings()
-    engine = create_async_engine(disposable_runtime_settings().runtime_database_url)
+    engine = create_async_engine(disposable_runtime_settings().auth_database_url)
     inspection_engine = create_async_engine(migration_settings.migration_database_url)
     repository = AuthRepository(engine)
     try:
@@ -458,7 +465,7 @@ async def test_failed_identity_insert_rolls_back_candidate_account() -> None:
 @pytest.mark.asyncio
 async def test_runtime_cannot_create_or_reassign_account_ownership_directly() -> None:
     migration_settings = disposable_migration_settings()
-    engine = create_async_engine(disposable_runtime_settings().runtime_database_url)
+    engine = create_async_engine(disposable_runtime_settings().auth_database_url)
     inspection_engine = create_async_engine(migration_settings.migration_database_url)
     repository = AuthRepository(engine)
     identity = ExternalIdentity(
@@ -577,7 +584,7 @@ async def test_trusted_fixture_maps_two_login_identities_to_one_account() -> Non
     finally:
         await migration_engine.dispose()
 
-    repository = AuthRepository(create_async_engine(runtime_settings.runtime_database_url))
+    repository = AuthRepository(create_async_engine(runtime_settings.auth_database_url))
     try:
         principals = [await repository.principal_for_session(digest) for digest in digests]
         assert all(principal is not None for principal in principals)

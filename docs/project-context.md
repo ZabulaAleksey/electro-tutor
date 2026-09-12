@@ -53,9 +53,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 - Config source, profiles and required variables: safe local defaults закреплены
   в `scripts/backend.mjs`/`compose.yaml`; `.env.example` перечисляет names как
   reference, а не поддерживаемый override surface;
-  profiles `local`, `test`, `ci`; API получает runtime DB и non-secret exact OIDC
-  contract; one-shot cluster-admin role reconciliation precedes migration and
-  получает только local bootstrap/provisioner credentials; one-shot migrator —
+  profiles `local`, `test`, `ci`; API получает раздельные обязательные
+  `electro_tutor_runtime` и `electro_tutor_auth_runtime` DB URLs и non-secret
+  exact OIDC contract; one-shot cluster-admin role reconciliation precedes migration and
+  получает только local bootstrap/auth/provisioner credentials; one-shot migrator —
   migration DB credential; Keycloak/test passwords
   передаются только через local environment; unknown `ET_*` forbidden.
 - Secret redaction/effective-config diagnostics: `pnpm backend:doctor` печатает

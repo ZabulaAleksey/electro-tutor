@@ -19,9 +19,8 @@ Approved contract находится в
 `../specs/features/profiles-capabilities-audit.spec.md`; routes ниже появятся
 только в runtime slice `ET-09.4d`:
 
-Profile persistence/application lifecycle from `ET-09.4c` exists locally but is
-`implemented_unverified`; no profile route is registered, and session-bound DB
-ownership remains a security blocker before this HTTP slice.
+Profile persistence/application lifecycle from `ET-09.4c` is verified locally;
+no profile route is registered. `ET-09.4d` is the next runtime slice.
 
 | Endpoint family | Contract |
 |---|---|

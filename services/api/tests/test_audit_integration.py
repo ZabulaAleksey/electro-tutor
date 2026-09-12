@@ -21,12 +21,17 @@ from electro_tutor_api.domain.audit import (
     NewAuditEvent,
     TrustedAuditService,
 )
+from electro_tutor_api.domain.identity import SessionCredential
 from electro_tutor_api.errors import AuditUnavailableError
 
 LOCAL_POSTGRES_PORT = int(os.getenv("ET_TEST_POSTGRES_PORT", "55432"))
 LOCAL_RUNTIME = (
     f"postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:"
     f"{LOCAL_POSTGRES_PORT}/electro_tutor_test"
+)
+LOCAL_AUTH = (
+    "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
+    f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
 )
 LOCAL_MIGRATION = (
     f"postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:"
@@ -38,7 +43,10 @@ def runtime_settings() -> Settings:
     runtime = os.getenv("ET_TEST_DATABASE_URL") or os.getenv("ET_RUNTIME_DATABASE_URL")
     if runtime != LOCAL_RUNTIME:
         pytest.skip("audit integration tests require the exact electro_tutor_test database")
-    return Settings(profile="test", runtime_database_url=runtime)
+    auth = os.getenv("ET_AUTH_DATABASE_URL")
+    if auth != LOCAL_AUTH:
+        pytest.skip("audit integration requires exact auth runtime role")
+    return Settings(profile="test", runtime_database_url=runtime, auth_database_url=auth)
 
 
 def migration_settings() -> MigrationSettings:
@@ -390,43 +398,47 @@ async def test_audit_constraint_failure_rolls_back_surrounding_mutation() -> Non
     engine = create_async_engine(runtime_settings().runtime_database_url)
     inspection_engine = create_async_engine(migration_settings().migration_database_url)
     duplicate_operation_id = uuid4()
-    account_id: UUID | None = None
-    identity_id: UUID | None = None
+    account_id = uuid4()
+    identity_id = uuid4()
     issuer = "http://127.0.0.1:58081/realms/electro-tutor-dev"
     subject = f"et-audit-rollback-{uuid4()}"
+    credential = SessionCredential.from_token(f"audit-rollback-{uuid4()}")
     try:
+        async with inspection_engine.begin() as connection:
+            await connection.execute(
+                text("INSERT INTO accounts(id) VALUES (:id)"), {"id": account_id}
+            )
+            await connection.execute(
+                text(
+                    "INSERT INTO external_identities(id,account_id,issuer,subject,email) "
+                    "VALUES (:id,:account_id,:issuer,:subject,NULL)"
+                ),
+                {
+                    "id": identity_id,
+                    "account_id": account_id,
+                    "issuer": issuer,
+                    "subject": subject,
+                },
+            )
+            await connection.execute(
+                text(
+                    "INSERT INTO application_sessions(token_digest,identity_id,expires_at) "
+                    "VALUES (:digest,:identity_id,CURRENT_TIMESTAMP + interval '5 minutes')"
+                ),
+                {"digest": credential.digest, "identity_id": identity_id},
+            )
         async with PostgresUnitOfWork(engine) as unit:
             await unit.audit_events.append(event(operation_id=duplicate_operation_id))
         with pytest.raises(AuditUnavailableError) as raised:
-            async with PostgresUnitOfWork(engine) as unit:
-                identity_id = await unit.connection.scalar(
-                    text(
-                        "SELECT public.create_external_identity("
-                        "CAST(:issuer AS text), CAST(:subject AS text), NULL::text)"
-                    ),
-                    {"issuer": issuer, "subject": subject},
-                )
-                account_id = await unit.connection.scalar(
-                    text("SELECT account_id FROM external_identities WHERE id = :id"),
-                    {"id": identity_id},
-                )
+            async with PostgresUnitOfWork(engine, credential) as unit:
+                await unit.profiles.create_student("Rollback Student")
                 await unit.audit_events.append(event(operation_id=duplicate_operation_id))
         assert raised.value.code == "audit_unavailable"
         assert raised.value.status_code == 503
-        assert identity_id is not None
-        assert account_id is not None
-        async with engine.connect() as connection:
-            assert (
-                await connection.scalar(
-                    text("SELECT count(*) FROM external_identities WHERE id = :id"),
-                    {"id": identity_id},
-                )
-                == 0
-            )
         async with inspection_engine.connect() as connection:
             assert (
                 await connection.scalar(
-                    text("SELECT count(*) FROM accounts WHERE id = :id"),
+                    text("SELECT count(*) FROM student_profiles WHERE account_id = :id"),
                     {"id": account_id},
                 )
                 == 0

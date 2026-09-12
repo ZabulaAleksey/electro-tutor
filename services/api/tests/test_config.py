@@ -6,6 +6,7 @@ from electro_tutor_api.config import MigrationSettings, Settings
 
 BASE = {
     "runtime_database_url": "postgresql+asyncpg://electro_tutor_runtime:runtime-password@127.0.0.1:55432/electro_tutor",
+    "auth_database_url": "postgresql+asyncpg://electro_tutor_auth_runtime:auth-password@127.0.0.1:55432/electro_tutor",
 }
 
 
@@ -57,9 +58,10 @@ def test_config_rejects_non_loopback() -> None:
 def test_config_requires_exact_database_roles() -> None:
     with pytest.raises(ValidationError, match="runtime role"):
         Settings(
+            auth_database_url=BASE["auth_database_url"],
             runtime_database_url=(
                 "postgresql+asyncpg://electro_tutor_migrator:password@127.0.0.1:55432/electro_tutor"
-            )
+            ),
         )
     with pytest.raises(ValidationError, match="migrator role"):
         MigrationSettings(
@@ -88,9 +90,10 @@ def test_config_rejects_unknown_environment(monkeypatch: pytest.MonkeyPatch) -> 
 def test_config_rejects_remote_database_target() -> None:
     with pytest.raises(ValidationError, match="local PostgreSQL"):
         Settings(
+            auth_database_url=BASE["auth_database_url"],
             runtime_database_url=(
                 "postgresql+asyncpg://electro_tutor_runtime:sentinel-password@db.example/electro_tutor"
-            )
+            ),
         )
 
 

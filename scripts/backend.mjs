@@ -12,10 +12,14 @@ const localRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor";
 const localMigrationUrl =
   "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/electro_tutor";
+const localAuthUrl =
+  "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor";
 const localTestRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestMigrationUrl =
   "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/electro_tutor_test";
+const localTestAuthUrl =
+  "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestProvisioningUrl =
   "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor_test";
 const diagnosticTimeoutMs = 5_000;
@@ -82,6 +86,7 @@ export function backendEnv(environment = "local") {
     ET_PORT: "8000",
     ET_DOCS_ENABLED: environment === "local" ? "true" : "false",
     ET_DATABASE_URL: localRuntimeUrl,
+    ET_AUTH_DATABASE_URL: localAuthUrl,
     ET_MIGRATION_DATABASE_URL: localMigrationUrl,
   };
 }
@@ -174,6 +179,7 @@ async function testIntegration({ ensureServices = true } = {}) {
   const testEnv = {
     ...backendEnv("test"),
     ET_DATABASE_URL: localTestRuntimeUrl,
+    ET_AUTH_DATABASE_URL: localTestAuthUrl,
     ET_TEST_DATABASE_URL: localTestRuntimeUrl,
     ET_MIGRATION_DATABASE_URL: localTestMigrationUrl,
     ET_PROVISIONING_DATABASE_URL: localTestProvisioningUrl,

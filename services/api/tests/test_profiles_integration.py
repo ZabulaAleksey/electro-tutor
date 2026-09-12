@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
@@ -25,7 +25,7 @@ from electro_tutor_api.domain.capability import (
     RevokeCapabilityCommand,
     TutorProfileOperation,
 )
-from electro_tutor_api.domain.identity import Principal
+from electro_tutor_api.domain.identity import Principal, SessionCredential
 from electro_tutor_api.errors import (
     AuditUnavailableError,
     CapabilityRequiredError,
@@ -35,6 +35,10 @@ from electro_tutor_api.errors import (
 LOCAL_POSTGRES_PORT = int(os.getenv("ET_TEST_POSTGRES_PORT", "55432"))
 LOCAL_RUNTIME = (
     "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@"
+    f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
+)
+LOCAL_AUTH = (
+    "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
     f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
 )
 LOCAL_MIGRATION = (
@@ -51,14 +55,16 @@ def integration_settings() -> tuple[Settings, MigrationSettings, ProvisioningSet
     runtime = os.getenv("ET_TEST_DATABASE_URL") or os.getenv("ET_RUNTIME_DATABASE_URL")
     migration = os.getenv("ET_MIGRATION_DATABASE_URL")
     provisioning = os.getenv("ET_PROVISIONING_DATABASE_URL")
-    if (runtime, migration, provisioning) != (
+    auth = os.getenv("ET_AUTH_DATABASE_URL")
+    if (runtime, auth, migration, provisioning) != (
         LOCAL_RUNTIME,
+        LOCAL_AUTH,
         LOCAL_MIGRATION,
         LOCAL_PROVISIONING,
     ):
         pytest.skip("profile tests require exact disposable Tutor PostgreSQL roles/database")
     return (
-        Settings(profile="test", runtime_database_url=runtime),
+        Settings(profile="test", runtime_database_url=runtime, auth_database_url=auth),
         MigrationSettings(profile="test", migration_database_url=migration),
         ProvisioningSettings(profile="test", provisioning_database_url=provisioning),
     )
@@ -99,6 +105,50 @@ def principal(account_id: UUID) -> Principal:
         email=None,
         session_expires_at=datetime.now(UTC),
     )
+
+
+async def create_authenticated_account(
+    migration_engine: AsyncEngine, *, expires_at: datetime | None = None
+) -> tuple[Principal, SessionCredential]:
+    account_id = uuid4()
+    identity_id = uuid4()
+    token = f"profile-session-{uuid4()}"
+    credential = SessionCredential.from_token(token)
+    session_expires_at = expires_at or (datetime.now(UTC) + timedelta(minutes=10))
+    actor = Principal(
+        account_id=account_id,
+        identity_id=identity_id,
+        issuer="https://profile-test.invalid",
+        subject=str(uuid4()),
+        email=None,
+        session_expires_at=session_expires_at,
+    )
+    async with migration_engine.begin() as connection:
+        await connection.execute(text("INSERT INTO accounts(id) VALUES (:id)"), {"id": account_id})
+        await connection.execute(
+            text(
+                "INSERT INTO external_identities(id,account_id,issuer,subject,email) "
+                "VALUES (:id,:account_id,:issuer,:subject,NULL)"
+            ),
+            {
+                "id": identity_id,
+                "account_id": account_id,
+                "issuer": actor.issuer,
+                "subject": actor.subject,
+            },
+        )
+        await connection.execute(
+            text(
+                "INSERT INTO application_sessions(token_digest,identity_id,expires_at) "
+                "VALUES (:digest,:identity_id,:expires_at)"
+            ),
+            {
+                "digest": credential.digest,
+                "identity_id": identity_id,
+                "expires_at": session_expires_at,
+            },
+        )
+    return actor, credential
 
 
 def issue_command(account_id: UUID) -> IssueCapabilityCommand:
@@ -317,7 +367,8 @@ async def test_profile_schema_constraints_and_runtime_least_privileges() -> None
                 assert function["runtime_execute"] is True
                 assert function["public_execute"] == 0
 
-        account_id = await create_account(runtime_engine)
+        actor, credential = await create_authenticated_account(inspection_engine)
+        account_id = actor.account_id
         for statement in (
             "SELECT * FROM student_profiles WHERE account_id=:account_id",
             "INSERT INTO student_profiles (account_id, display_name) "
@@ -341,10 +392,17 @@ async def test_profile_schema_constraints_and_runtime_least_privileges() -> None
                 async with runtime_engine.begin() as connection:
                     await connection.execute(
                         text(
-                            "SELECT * FROM public.create_student_profile("
-                            "CAST(:account_id AS uuid), CAST(:display_name AS text))"
+                            "SELECT pg_catalog.set_config("
+                            "'electro_tutor.session_digest', :digest, true)"
                         ),
-                        {"account_id": account_id, "display_name": invalid_name},
+                        {"digest": credential.digest},
+                    )
+                    await connection.execute(
+                        text(
+                            "SELECT * FROM public.create_student_profile("
+                            "CAST(:display_name AS text))"
+                        ),
+                        {"display_name": invalid_name},
                     )
 
         for function_call in (
@@ -369,27 +427,27 @@ async def test_account_can_own_both_profiles_and_create_is_exactly_idempotent() 
     inspection_engine = create_async_engine(migration_settings.migration_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
-        actor = principal(account_id)
-        service = ProfileService(lambda: PostgresUnitOfWork(runtime_engine))
+        actor, credential = await create_authenticated_account(inspection_engine)
+        account_id = actor.account_id
+        service = ProfileService(lambda proof: PostgresUnitOfWork(runtime_engine, proof))
         grant = await provisioning_adapter(authority_engine, provisioning_settings).issue(
             issue_command(account_id)
         )
 
-        student = await service.create_student_profile(actor, " Student   Name ")
-        student_replay = await service.create_student_profile(actor, "Student Name")
+        student = await service.create_student_profile(actor, credential, " Student   Name ")
+        student_replay = await service.create_student_profile(actor, credential, "Student Name")
         tutor, tutor_replay = await asyncio.gather(
-            service.create_tutor_profile(actor, " Tutor   Name "),
-            service.create_tutor_profile(actor, "Tutor Name"),
+            service.create_tutor_profile(actor, credential, " Tutor   Name "),
+            service.create_tutor_profile(actor, credential, "Tutor Name"),
         )
         assert student == student_replay
         assert tutor == tutor_replay
         assert student.account_id == tutor.account_id == account_id
 
         with pytest.raises(ProfileAlreadyExistsError):
-            await service.create_student_profile(actor, "Different")
+            await service.create_student_profile(actor, credential, "Different")
         with pytest.raises(ProfileAlreadyExistsError):
-            await service.create_tutor_profile(actor, "Different")
+            await service.create_tutor_profile(actor, credential, "Different")
 
         async with inspection_engine.connect() as connection:
             profile_counts = (
@@ -434,7 +492,8 @@ async def test_tutor_profile_audit_failure_rolls_back_creation() -> None:
     authority_engine = create_provisioning_engine(provisioning_settings)
     trigger_created = False
     try:
-        account_id = await create_account(runtime_engine)
+        actor, credential = await create_authenticated_account(inspection_engine)
+        account_id = actor.account_id
         await provisioning_adapter(authority_engine, provisioning_settings).issue(
             issue_command(account_id)
         )
@@ -464,9 +523,9 @@ async def test_tutor_profile_audit_failure_rolls_back_creation() -> None:
                 )
             )
         trigger_created = True
-        service = ProfileService(lambda: PostgresUnitOfWork(runtime_engine))
+        service = ProfileService(lambda proof: PostgresUnitOfWork(runtime_engine, proof))
         with pytest.raises(AuditUnavailableError):
-            await service.create_tutor_profile(principal(account_id), "Tutor")
+            await service.create_tutor_profile(actor, credential, "Tutor")
         async with inspection_engine.connect() as connection:
             assert (
                 await connection.scalar(
@@ -492,19 +551,20 @@ async def test_tutor_profile_audit_failure_rolls_back_creation() -> None:
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_tutor_update_serializes_with_revoke_and_revoke_removes_access() -> None:
-    runtime_settings, _, provisioning_settings = integration_settings()
+    runtime_settings, migration_settings, provisioning_settings = integration_settings()
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
+    inspection_engine = create_async_engine(migration_settings.migration_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
-        actor = principal(account_id)
+        actor, credential = await create_authenticated_account(inspection_engine)
+        account_id = actor.account_id
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         grant = await adapter.issue(issue_command(account_id))
-        service = ProfileService(lambda: PostgresUnitOfWork(runtime_engine))
-        student = await service.create_student_profile(actor, "Student")
-        await service.create_tutor_profile(actor, "Tutor")
+        service = ProfileService(lambda proof: PostgresUnitOfWork(runtime_engine, proof))
+        student = await service.create_student_profile(actor, credential, "Student")
+        await service.create_tutor_profile(actor, credential, "Tutor")
 
-        async with PostgresUnitOfWork(runtime_engine) as unit:
+        async with PostgresUnitOfWork(runtime_engine, credential) as unit:
             assert await service._capability_evaluator.authorize_in(  # noqa: SLF001
                 unit,
                 actor,
@@ -512,7 +572,7 @@ async def test_tutor_update_serializes_with_revoke_and_revoke_removes_access() -
                 resource_owner_account_id=account_id,
                 for_update=True,
             )
-            updated = await unit.profiles.update_tutor(account_id, "Updated Tutor")
+            updated = await unit.profiles.update_tutor("Updated Tutor")
             assert updated is not None
             revoke_task = asyncio.create_task(adapter.revoke(revoke_command(account_id, grant.id)))
             await asyncio.sleep(0.1)
@@ -520,10 +580,11 @@ async def test_tutor_update_serializes_with_revoke_and_revoke_removes_access() -
         await asyncio.wait_for(revoke_task, timeout=2)
 
         with pytest.raises(CapabilityRequiredError):
-            await service.read_tutor_profile(actor)
+            await service.read_tutor_profile(actor, credential)
         with pytest.raises(CapabilityRequiredError):
-            await service.update_tutor_profile(actor, "Denied")
-        assert await service.read_student_profile(actor) == student
+            await service.update_tutor_profile(actor, credential, "Denied")
+        assert await service.read_student_profile(actor, credential) == student
     finally:
         await runtime_engine.dispose()
+        await inspection_engine.dispose()
         await authority_engine.dispose()

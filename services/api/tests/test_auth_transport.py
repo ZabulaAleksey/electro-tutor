@@ -15,6 +15,9 @@ BASE = {
     "runtime_database_url": (
         "postgresql+asyncpg://electro_tutor_runtime:runtime-password@127.0.0.1:55432/electro_tutor"
     ),
+    "auth_database_url": (
+        "postgresql+asyncpg://electro_tutor_auth_runtime:auth-password@127.0.0.1:55432/electro_tutor"
+    ),
 }
 
 

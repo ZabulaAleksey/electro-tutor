@@ -12,7 +12,11 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
 from electro_tutor_api.adapters.auth_repository import AuthRepository
-from electro_tutor_api.adapters.database import DatabaseHealth, create_runtime_engine
+from electro_tutor_api.adapters.database import (
+    DatabaseHealth,
+    create_auth_engine,
+    create_runtime_engine,
+)
 from electro_tutor_api.adapters.oidc import OidcAdapter
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
 from electro_tutor_api.application.health import HealthService
@@ -42,8 +46,9 @@ def create_app(
 ) -> FastAPI:
     resolved = settings or get_settings()
     engine = create_runtime_engine(resolved)
+    auth_engine = create_auth_engine(resolved)
     resolved_auth_service = auth_service or AuthService(
-        repository=AuthRepository(engine),
+        repository=AuthRepository(auth_engine),
         oidc=OidcAdapter(
             issuer=resolved.oidc_issuer,
             backchannel_base_url=resolved.oidc_backchannel_base_url,
@@ -62,6 +67,7 @@ def create_app(
         app.state.health_service = HealthService(check_database or DatabaseHealth(engine).check)
         yield
         await engine.dispose()
+        await auth_engine.dispose()
 
     app = FastAPI(
         title="Electro Tutor API",

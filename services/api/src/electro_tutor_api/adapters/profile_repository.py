@@ -17,44 +17,32 @@ class PostgresProfileRepository:
     def __init__(self, connection: AsyncConnection) -> None:
         self._connection = connection
 
-    async def create_student(
-        self, account_id: UUID, display_name: str
-    ) -> tuple[StudentProfile, bool]:
+    async def create_student(self, display_name: str) -> tuple[StudentProfile, bool]:
         result = await self._connection.execute(
-            text(
-                "SELECT * FROM public.create_student_profile("
-                "CAST(:account_id AS uuid), CAST(:display_name AS text))"
-            ),
-            {"account_id": account_id, "display_name": display_name},
+            text("SELECT * FROM public.create_student_profile(CAST(:display_name AS text))"),
+            {"display_name": display_name},
         )
         row = result.mappings().one()
         return _student_from_row(row), row["created"]
 
-    async def get_student(
-        self, account_id: UUID, *, for_update: bool = False
-    ) -> StudentProfile | None:
+    async def get_student(self, *, for_update: bool = False) -> StudentProfile | None:
         del for_update
         result = await self._connection.execute(
-            text("SELECT * FROM public.read_student_profile(CAST(:account_id AS uuid))"),
-            {"account_id": account_id},
+            text("SELECT * FROM public.read_student_profile()"),
         )
         row = result.mappings().one_or_none()
         return None if row is None else _student_from_row(row)
 
-    async def update_student(self, account_id: UUID, display_name: str) -> StudentProfile | None:
+    async def update_student(self, display_name: str) -> StudentProfile | None:
         result = await self._connection.execute(
-            text(
-                "SELECT * FROM public.update_student_profile("
-                "CAST(:account_id AS uuid), CAST(:display_name AS text))"
-            ),
-            {"account_id": account_id, "display_name": display_name},
+            text("SELECT * FROM public.update_student_profile(CAST(:display_name AS text))"),
+            {"display_name": display_name},
         )
         row = result.mappings().one_or_none()
         return None if row is None else _student_from_row(row)
 
     async def create_tutor(
         self,
-        account_id: UUID,
         display_name: str,
         *,
         correlation_id: UUID | None,
@@ -64,11 +52,10 @@ class PostgresProfileRepository:
             result = await self._connection.execute(
                 text(
                     "SELECT * FROM public.create_tutor_profile("
-                    "CAST(:account_id AS uuid), CAST(:display_name AS text), "
+                    "CAST(:display_name AS text), "
                     "CAST(:correlation_id AS uuid), CAST(:request_id AS text))"
                 ),
                 {
-                    "account_id": account_id,
                     "display_name": display_name,
                     "correlation_id": correlation_id,
                     "request_id": request_id,
@@ -79,22 +66,18 @@ class PostgresProfileRepository:
         row = result.mappings().one()
         return _tutor_from_row(row), row["created"]
 
-    async def get_tutor(self, account_id: UUID, *, for_update: bool = False) -> TutorProfile | None:
+    async def get_tutor(self, *, for_update: bool = False) -> TutorProfile | None:
         del for_update
         result = await self._connection.execute(
-            text("SELECT * FROM public.read_tutor_profile(CAST(:account_id AS uuid))"),
-            {"account_id": account_id},
+            text("SELECT * FROM public.read_tutor_profile()"),
         )
         row = result.mappings().one_or_none()
         return None if row is None else _tutor_from_row(row)
 
-    async def update_tutor(self, account_id: UUID, display_name: str) -> TutorProfile | None:
+    async def update_tutor(self, display_name: str) -> TutorProfile | None:
         result = await self._connection.execute(
-            text(
-                "SELECT * FROM public.update_tutor_profile("
-                "CAST(:account_id AS uuid), CAST(:display_name AS text))"
-            ),
-            {"account_id": account_id, "display_name": display_name},
+            text("SELECT * FROM public.update_tutor_profile(CAST(:display_name AS text))"),
+            {"display_name": display_name},
         )
         row = result.mappings().one_or_none()
         return None if row is None else _tutor_from_row(row)

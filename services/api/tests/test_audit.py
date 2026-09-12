@@ -173,6 +173,10 @@ async def test_audit_unavailable_handler_is_redacted_503_without_probe_endpoint(
             "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@"
             "127.0.0.1:55432/electro_tutor_test"
         ),
+        auth_database_url=(
+            "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
+            "127.0.0.1:55432/electro_tutor_test"
+        ),
     )
     app = create_app(settings)
     request = Request({"type": "http", "method": "POST", "path": "/internal"})

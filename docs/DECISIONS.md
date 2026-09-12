@@ -531,8 +531,8 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 Дата: 2026-09-08
 
 Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified, `ET-09.4c`
-implemented/unverified, `ET-09.4d..e` planned
+`ET-09.4a`, `ET-09.4b0`, `ET-09.4b` и `ET-09.4c` completed/verified,
+`ET-09.4d..e` planned
 
 Решение: application owner key — `accounts.id`; конкретная provider-login запись
 остаётся `external_identities.id` и ссылается на Account через immutable required
@@ -595,8 +595,42 @@ authority, `identity_id`/issuer/subject для ET-09.3 provider provenance и se
 resolution. `/me` не обязан раскрывать internal account key. Detailed requirements принадлежат
 `../specs/features/profiles-capabilities-audit.spec.md`. Runtime выполняется
 последовательно: audit persistence/unit-of-work → internal Account boundary →
-trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
+trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E.
+Session-bound extension ET-09.3 для profile persistence зафиксирован ADR-024;
 stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
-меняются. `ET-09.4c` не меняет этот identity contract и поэтому не притворяется,
-что caller-selected `account_id` в shared-runtime DB functions уже связан с
-unforgeable session context; выбор такой привязки остаётся отдельным решением.
+меняются.
+
+## ADR-024 — Session-bound DB principal и разделение auth/profile runtime
+
+Дата: 2026-09-12
+
+Статус: принято и validated locally для `ET-09.4c`
+
+Решение: private profile operation получает отдельный redacted
+`SessionCredential`, а не доверяет caller-selected `account_id`. Profile
+unit-of-work устанавливает только SHA-256 digest opaque application session через
+transaction-local `set_config(..., true)`. Fixed-search-path PostgreSQL resolver
+повторно проверяет session expiry, блокирует session row `FOR KEY SHARE` и выводит
+Account owner, grant scope и AuditEvent actor из session → identity → Account.
+Произвольный account GUC не является authority input.
+
+PostgreSQL roles разделены: `electro_tutor_auth_runtime` владеет только
+auth transaction, external identity и application session path, а
+`electro_tutor_runtime` не может читать или выпускать session и выполняет только
+session-bound profile functions. Auth role не имеет profile/grant/audit access;
+обе роли `NOINHERIT`, membership/`SET ROLE` escalation запрещены. Database URLs
+обязательны раздельно, fallback между credentials отсутствует, bind-параметры
+скрыты.
+
+Причина: application-derived Principal достаточен для обычного ownership check,
+но shared runtime function с переданным `account_id` оставляла прямой DB IDOR
+путь. Одна GUC с account ID или session digest при доступной runtime session
+таблице оставалась бы подделываемой. Role split и DB re-resolution дают узкую,
+проверяемую границу без нового HMAC secret/rotation contract.
+
+Последствия: logout сериализуется с profile transaction session-row lock;
+malformed, random, expired и logged-out digest fail closed. Transaction cleanup
+проверяется для commit, rollback и cancellation на повторно используемом pooled
+backend. Revision `20260912_0009` сохраняет exact disposable downgrade semantics
+`0009 → 0008 → 0009`; production downgrade по-прежнему запрещён. Полный process
+RCE остаётся отдельной trust boundary и не решается PostgreSQL ACL.

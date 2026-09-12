@@ -11,7 +11,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from alembic import command
-from electro_tutor_api.adapters.database import create_provisioning_engine
+from electro_tutor_api.adapters.auth_repository import AuthRepository
+from electro_tutor_api.adapters.database import create_auth_engine, create_provisioning_engine
 from electro_tutor_api.adapters.provisioning import TrustedProvisioningAdapter
 from electro_tutor_api.adapters.unit_of_work import PostgresUnitOfWork
 from electro_tutor_api.application.capabilities import CapabilityEvaluator, CapabilityGrantService
@@ -24,7 +25,7 @@ from electro_tutor_api.domain.capability import (
     RevokeCapabilityCommand,
     TutorProfileOperation,
 )
-from electro_tutor_api.domain.identity import Principal
+from electro_tutor_api.domain.identity import ExternalIdentity, Principal
 from electro_tutor_api.errors import (
     AccountNotFoundError,
     AuditUnavailableError,
@@ -35,6 +36,10 @@ from electro_tutor_api.errors import (
 LOCAL_POSTGRES_PORT = int(os.getenv("ET_TEST_POSTGRES_PORT", "55432"))
 LOCAL_RUNTIME = (
     "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@"
+    f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
+)
+LOCAL_AUTH = (
+    "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
     f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
 )
 LOCAL_MIGRATION = (
@@ -51,14 +56,16 @@ def integration_settings() -> tuple[Settings, MigrationSettings, ProvisioningSet
     runtime = os.getenv("ET_TEST_DATABASE_URL") or os.getenv("ET_RUNTIME_DATABASE_URL")
     migration = os.getenv("ET_MIGRATION_DATABASE_URL")
     provisioning = os.getenv("ET_PROVISIONING_DATABASE_URL")
-    if (runtime, migration, provisioning) != (
+    auth = os.getenv("ET_AUTH_DATABASE_URL")
+    if (runtime, auth, migration, provisioning) != (
         LOCAL_RUNTIME,
+        LOCAL_AUTH,
         LOCAL_MIGRATION,
         LOCAL_PROVISIONING,
     ):
         pytest.skip("capability tests require exact disposable Tutor PostgreSQL roles/database")
     return (
-        Settings(profile="test", runtime_database_url=runtime),
+        Settings(profile="test", runtime_database_url=runtime, auth_database_url=auth),
         MigrationSettings(profile="test", migration_database_url=migration),
         ProvisioningSettings(profile="test", provisioning_database_url=provisioning),
     )
@@ -69,25 +76,25 @@ def require_migration_consent() -> None:
         pytest.skip("capability migration lifecycle requires exact disposable DB consent")
 
 
-async def create_account(runtime_engine: AsyncEngine, *, email: str | None = None) -> UUID:
-    async with runtime_engine.begin() as connection:
-        identity_id = await connection.scalar(
-            text(
-                "SELECT public.create_external_identity(CAST(:issuer AS text), "
-                "CAST(:subject AS text), CAST(:email AS text))"
-            ),
-            {
-                "issuer": "https://capability-test.invalid",
-                "subject": str(uuid4()),
-                "email": email or f"{uuid4()}@invalid.example",
-            },
+async def create_account(settings: Settings, *, email: str | None = None) -> UUID:
+    repository = AuthRepository(create_auth_engine(settings))
+    try:
+        identity_id = await repository.resolve_identity(
+            ExternalIdentity(
+                issuer="https://capability-test.invalid",
+                subject=str(uuid4()),
+                email=email or f"{uuid4()}@invalid.example",
+            )
         )
-        account_id = await connection.scalar(
-            text("SELECT account_id FROM external_identities WHERE id = :identity_id"),
-            {"identity_id": identity_id},
-        )
-    assert isinstance(account_id, UUID)
-    return account_id
+        async with repository.engine.connect() as connection:
+            account_id = await connection.scalar(
+                text("SELECT account_id FROM external_identities WHERE id=:identity_id"),
+                {"identity_id": identity_id},
+            )
+        assert isinstance(account_id, UUID)
+        return account_id
+    finally:
+        await repository.engine.dispose()
 
 
 def provisioning_adapter(
@@ -138,11 +145,28 @@ def test_capability_migration_empty_and_populated_round_trip() -> None:
     command.downgrade(config, "20260909_0006")
 
     async def seed() -> UUID:
-        runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
+        migration_engine = create_async_engine(migration_settings.migration_database_url)
         try:
-            return await create_account(runtime_engine)
+            async with migration_engine.begin() as connection:
+                identity_id = await connection.scalar(
+                    text(
+                        "SELECT public.create_external_identity(CAST(:issuer AS text), "
+                        "CAST(:subject AS text), CAST(:email AS text))"
+                    ),
+                    {
+                        "issuer": "https://capability-migration.invalid",
+                        "subject": str(uuid4()),
+                        "email": None,
+                    },
+                )
+                account_id = await connection.scalar(
+                    text("SELECT account_id FROM external_identities WHERE id=:id"),
+                    {"id": identity_id},
+                )
+            assert isinstance(account_id, UUID)
+            return account_id
         finally:
-            await runtime_engine.dispose()
+            await migration_engine.dispose()
 
     account_id = asyncio.run(seed())
     command.upgrade(config, "head")
@@ -348,7 +372,7 @@ async def test_issue_retry_evaluate_revoke_and_audit_are_exactly_once() -> None:
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
+        account_id = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         evaluator = CapabilityEvaluator(lambda: PostgresUnitOfWork(runtime_engine))
         issue = issue_command(account_id)
@@ -421,8 +445,8 @@ async def test_operation_id_conflict_detects_changed_and_cross_action_intent() -
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        first_account = await create_account(runtime_engine)
-        second_account = await create_account(runtime_engine)
+        first_account = await create_account(runtime_settings)
+        second_account = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         operation_id = uuid4()
         grant = await adapter.issue(issue_command(first_account, operation_id=operation_id))
@@ -468,13 +492,13 @@ async def test_concurrent_same_and_distinct_issue_is_database_serialized() -> No
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        same_account = await create_account(runtime_engine)
+        same_account = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         repeated = issue_command(same_account)
         same_results = await asyncio.gather(adapter.issue(repeated), adapter.issue(repeated))
         assert same_results[0].id == same_results[1].id
 
-        other_account = await create_account(runtime_engine)
+        other_account = await create_account(runtime_settings)
         distinct = await asyncio.gather(
             adapter.issue(issue_command(other_account)),
             adapter.issue(issue_command(other_account)),
@@ -505,7 +529,7 @@ async def test_concurrent_revoke_and_grant_race_has_no_unaudited_authority() -> 
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
+        account_id = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         original = await adapter.issue(issue_command(account_id))
 
@@ -559,7 +583,7 @@ async def test_for_update_evaluation_serializes_with_revoke() -> None:
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
+        account_id = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         grant = await adapter.issue(issue_command(account_id))
         evaluator = CapabilityEvaluator(lambda: PostgresUnitOfWork(runtime_engine))
@@ -629,7 +653,7 @@ async def test_real_database_audit_failure_rolls_back_issue_and_revoke() -> None
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
+        account_id = await create_account(runtime_settings)
         good = provisioning_adapter(authority_engine, provisioning_settings)
         failing = TrustedProvisioningAdapter(
             provisioning_settings,
@@ -702,7 +726,7 @@ async def test_runtime_cannot_mutate_grants_and_revoked_rows_are_database_immuta
     runtime_engine = create_async_engine(runtime_settings.runtime_database_url)
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
-        account_id = await create_account(runtime_engine)
+        account_id = await create_account(runtime_settings)
         adapter = provisioning_adapter(authority_engine, provisioning_settings)
         grant = await adapter.issue(issue_command(account_id))
         revoked = await adapter.revoke(revoke_command(account_id, grant.id))
@@ -744,8 +768,8 @@ async def test_account_scope_does_not_follow_email_or_provider_identity() -> Non
     authority_engine = create_provisioning_engine(provisioning_settings)
     try:
         shared_email = "same-email@invalid.example"
-        first_account = await create_account(runtime_engine, email=shared_email)
-        second_account = await create_account(runtime_engine, email=shared_email)
+        first_account = await create_account(runtime_settings, email=shared_email)
+        second_account = await create_account(runtime_settings, email=shared_email)
         assert first_account != second_account
         async with migration_engine.begin() as connection:
             await connection.execute(

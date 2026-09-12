@@ -81,8 +81,9 @@ Revision `20260912_0008` добавляет `student_profiles` и `tutor_profile
 `display_name`, UTC timestamps; один account может иметь обе независимые records.
 Runtime не получает прямых table privileges и вызывает fixed-search-path
 functions. Tutor functions повторно проверяют/блокируют active grant и первое
-create пишут вместе с AuditEvent. Их `account_id` пока задаётся application
-boundary; unforgeable session-bound DB principal остаётся security blocker.
+create пишут вместе с AuditEvent. Revision `20260912_0009` убирает
+caller-selected owner: profile functions выводят `account_id` из active session,
+а отдельная auth role изолирует session storage/issuance от profile runtime.
 
 Connection-scoped audit repository не коммитит самостоятельно; one-shot
 `PostgresUnitOfWork` владеет одной connection/transaction, коммитит один раз при

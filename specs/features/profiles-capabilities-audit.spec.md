@@ -1,10 +1,10 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified,
-`ET-09.4c` implemented/unverified, `ET-09.4d..e` planned
+runtime partial — `ET-09.4a`, `ET-09.4b0`, `ET-09.4b` и `ET-09.4c`
+completed/verified, `ET-09.4d..e` planned
 
-Версия: 0.3
+Версия: 0.4
 
 Связи: `PLAT-003`, `AUTHZ-001..003`, `ET-09.4`, ADR-020, ADR-022, ADR-023.
 
@@ -36,6 +36,29 @@ Profile owner всегда берётся из действующей server-sid
 принимает и не переопределяет `account_id`, `identity_id`, issuer, subject или
 owner; future path `account_id` является только resource selector и должен
 совпасть с principal. Public account-linking endpoint отсутствует.
+
+DB ownership boundary также session-derived. Profile runtime не передаёт
+`account_id` в PostgreSQL profile functions: он передаёт только SHA-256 digest
+активной opaque application session, а `SECURITY DEFINER` function внутри одной
+statement разрешает digest через `application_sessions → external_identities →
+accounts`, повторно проверяет expiry и использует найденный account как actor,
+owner и Tutor grant scope. Digest является server-only credential material: он
+не сериализуется, не логируется и не попадает в audit.
+
+Auth/session writes и profile runtime разделены разными `NOINHERIT` login roles.
+`electro_tutor_auth_runtime` управляет auth transactions, external identities и
+application sessions, но не имеет profile table/function access;
+`electro_tutor_runtime` выполняет session-bound profile functions, но не может
+читать, создавать, изменять или удалять application sessions и auth
+transactions. Недействительный, истёкший или отсутствующий digest всегда
+завершает profile operation fail closed. Transaction-local GUC без проверки
+session row и caller-selected `account_id` не являются допустимой границей.
+Digest передаётся отдельным `SessionCredential` с redacted representation, а не
+полем `Principal`; session-bound unit-of-work устанавливает его только через
+transaction-local `set_config(..., true)`. DB resolver повторно разрешает
+Principal и держит session row lock до конца profile transaction, поэтому logout
+и profile mutation имеют определённый порядок. Все SQLAlchemy engines, которым
+может передаваться credential, используют parameter hiding.
 
 ### PCA-ID-002 Composable personas и cardinality
 
@@ -287,8 +310,7 @@ ET-09.3 verified + SPEC v0.3 + ADR-023
 - `ET-09.4d → ET-09.4e`: browser/component E2E требует реальный protected API.
 
 Ни один slice не зависит от tenant, admin UI, future lesson authorization или
-production provider. `ET-09.4c` реализован, но остаётся unverified до решения
-session-bound DB-principal boundary; `ET-09.4d` до этого не dependency-ready.
+production provider. `ET-09.4c` verified; `ET-09.4d` dependency-ready.
 
 ## 9. Acceptance и evidence по slices
 
@@ -328,6 +350,12 @@ session-bound DB-principal boundary; `ET-09.4d` до этого не dependency-
 - authenticated own StudentProfile positive path;
 - TutorProfile create without/with grant deny/allow;
 - TutorProfile create and AuditEvent atomicity; no authority from profile row.
+- profile functions принимают только active session digest и сами разрешают
+  owner; direct runtime вызов с foreign `account_id` невозможен по signature;
+- runtime/auth role separation запрещает profile runtime читать или выпускать
+  application session, а auth runtime — выполнять profile functions;
+- random/expired digest и digest User A для ресурса User B fail closed; session
+  digest не появляется в response, exception, log или AuditEvent.
 
 ### ET-09.4d — Application/HTTP
 
@@ -399,10 +427,13 @@ Account advisory transaction lock упорядочивает issue/revoke, а у
 connection-scoped repository и application lifecycle. Runtime не имеет прямых
 table privileges; fixed-search-path functions повторно проверяют Tutor grant,
 сериализуют mutation с revoke и атомарно добавляют `tutor_profile.created` при
-первом create. Fast gate: `91 passed`; real PostgreSQL gate: `44 passed`.
-Security verification остаётся заблокированной: shared runtime EXECUTE принимает
-caller-selected `account_id`; надёжная привязка требует отдельно утверждённого
-session-bound DB principal и изменения ET-09.3 boundary. Profile delete/deactivate,
+первом create.
+Revision `20260912_0009` расширяет ET-09.3 boundary: отдельный
+`electro_tutor_auth_runtime` изолирует session issuance/storage, отдельный
+redacted `SessionCredential` привязывает profile unit-of-work, а profile
+functions сами разрешают owner из active session без caller-selected
+`account_id`. Exact `0009 → 0008 → 0009`, ACL/role isolation, cross-account,
+same-PID pool cleanup, cancellation и logout serialization gates подтверждены;
+fast gate: `94 passed`, real PostgreSQL gate: `51 passed`. Profile delete/deactivate,
 HTTP routes и UI не реализованы. Whole `ET-09.4` имеет truthful `partial`,
-stage-level `NEXT` остаётся `ET-09.4`, а `ET-09.4c` не повышается выше
-`implemented_unverified`.
+stage-level `NEXT` — `ET-09.4d`; HTTP routes и UI ещё не реализованы.

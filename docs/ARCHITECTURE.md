@@ -153,8 +153,13 @@ HTTP adapters → full RU/UK/authz E2E. `ET-09.4a` уже предоставля
 AuditEvent repository и один PostgreSQL unit-of-work. `ET-09.4b0` предоставляет
 Account ownership boundary с atomic first-login. `ET-09.4b` добавляет separate
 provisioner DB role, account-scoped grant repository, durable operation ledger,
-typed evaluator и atomic grant/revoke audit; profile/HTTP/UI runtime остаётся
-planned.
+typed evaluator и atomic grant/revoke audit. `ET-09.4c` добавляет profile domain,
+две независимые private tables, connection-scoped repository и fixed-search-path
+functions без прямых runtime table privileges; Tutor mutation повторно проверяет
+и блокирует grant, а первое create атомарно пишет AuditEvent. Slice остаётся
+`implemented_unverified`: shared runtime EXECUTE принимает caller-selected
+`account_id`, а session-bound DB principal требует отдельного изменения ET-09.3.
+HTTP/UI runtime остаётся planned.
 
 ## Технологии и границы
 

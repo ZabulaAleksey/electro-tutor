@@ -2,7 +2,7 @@
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
 runtime partial — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified,
-`ET-09.4c..e` planned
+`ET-09.4c` implemented/unverified, `ET-09.4d..e` planned
 
 Версия: 0.3
 
@@ -287,7 +287,8 @@ ET-09.3 verified + SPEC v0.3 + ADR-023
 - `ET-09.4d → ET-09.4e`: browser/component E2E требует реальный protected API.
 
 Ни один slice не зависит от tenant, admin UI, future lesson authorization или
-production provider. Следующий implementation pass выбирает только `ET-09.4b`.
+production provider. `ET-09.4c` реализован, но остаётся unverified до решения
+session-bound DB-principal boundary; `ET-09.4d` до этого не dependency-ready.
 
 ## 9. Acceptance и evidence по slices
 
@@ -393,6 +394,15 @@ Account advisory transaction lock упорядочивает issue/revoke, а у
 `lock_active_capability_grant` function держит grant-row `FOR UPDATE` lock для
 будущей profile mutation без выдачи runtime table UPDATE.
 
-Fast gate: `85 passed`; real PostgreSQL migration/integration gate: `39 passed`.
-Profiles, новые HTTP routes и UI не реализованы. Whole
-`ET-09.4` имеет truthful `partial`, а stage-level `NEXT` остаётся `ET-09.4`.
+`ET-09.4c` добавляет revision `20260912_0008`, независимые private
+`student_profiles`/`tutor_profiles`, canonical display-name normalization,
+connection-scoped repository и application lifecycle. Runtime не имеет прямых
+table privileges; fixed-search-path functions повторно проверяют Tutor grant,
+сериализуют mutation с revoke и атомарно добавляют `tutor_profile.created` при
+первом create. Fast gate: `91 passed`; real PostgreSQL gate: `44 passed`.
+Security verification остаётся заблокированной: shared runtime EXECUTE принимает
+caller-selected `account_id`; надёжная привязка требует отдельно утверждённого
+session-bound DB principal и изменения ET-09.3 boundary. Profile delete/deactivate,
+HTTP routes и UI не реализованы. Whole `ET-09.4` имеет truthful `partial`,
+stage-level `NEXT` остаётся `ET-09.4`, а `ET-09.4c` не повышается выше
+`implemented_unverified`.

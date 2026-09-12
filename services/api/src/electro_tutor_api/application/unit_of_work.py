@@ -12,6 +12,7 @@ from electro_tutor_api.domain.capability import (
     CapabilityOperationKind,
     CapabilityOperationRecord,
 )
+from electro_tutor_api.domain.profile import StudentProfile, TutorProfile
 
 
 class AuditEventRepository(Protocol):
@@ -63,9 +64,39 @@ class CapabilityGrantRepository(Protocol):
     ) -> CapabilityGrant: ...
 
 
+class ProfileRepository(Protocol):
+    async def create_student(
+        self, account_id: UUID, display_name: str
+    ) -> tuple[StudentProfile, bool]: ...
+
+    async def get_student(
+        self, account_id: UUID, *, for_update: bool = False
+    ) -> StudentProfile | None: ...
+
+    async def update_student(
+        self, account_id: UUID, display_name: str
+    ) -> StudentProfile | None: ...
+
+    async def create_tutor(
+        self,
+        account_id: UUID,
+        display_name: str,
+        *,
+        correlation_id: UUID | None,
+        request_id: str | None,
+    ) -> tuple[TutorProfile, bool]: ...
+
+    async def get_tutor(
+        self, account_id: UUID, *, for_update: bool = False
+    ) -> TutorProfile | None: ...
+
+    async def update_tutor(self, account_id: UUID, display_name: str) -> TutorProfile | None: ...
+
+
 class AuditUnitOfWork(Protocol):
     audit_events: AuditEventRepository
     capability_grants: CapabilityGrantRepository
+    profiles: ProfileRepository
 
     async def __aenter__(self) -> Self: ...
 

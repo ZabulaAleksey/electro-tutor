@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncTransactio
 
 from electro_tutor_api.adapters.audit_repository import PostgresAuditEventRepository
 from electro_tutor_api.adapters.capability_repository import PostgresCapabilityGrantRepository
+from electro_tutor_api.adapters.profile_repository import PostgresProfileRepository
 from electro_tutor_api.errors import AuditUnavailableError
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ class PostgresUnitOfWork:
         self._closed = False
         self.audit_events: PostgresAuditEventRepository
         self.capability_grants: PostgresCapabilityGrantRepository
+        self.profiles: PostgresProfileRepository
 
     @property
     def connection(self) -> AsyncConnection:
@@ -45,6 +47,7 @@ class PostgresUnitOfWork:
             raise AuditUnavailableError() from exc
         self.audit_events = PostgresAuditEventRepository(self._connection)
         self.capability_grants = PostgresCapabilityGrantRepository(self._connection)
+        self.profiles = PostgresProfileRepository(self._connection)
         return self
 
     async def __aexit__(

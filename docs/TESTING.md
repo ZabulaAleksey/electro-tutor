@@ -11,7 +11,12 @@
   при exception/audit constraint failure. `ET-09.4b0` добавляет populated
   Account backfill/round-trip, exact FK/index/privileges, atomic first-login,
   repeat и concurrent winner, orphan rollback, no-email-linking, immutable owner
-  и controlled two-identities-to-one-account evidence.
+  и controlled two-identities-to-one-account evidence. `ET-09.4c` добавляет
+  revision `20260912_0008` round-trip/schema/function/privilege checks, dual
+  Student/Tutor profile cardinality, normalization/idempotency, Tutor grant/revoke
+  serialization, direct table denial и atomic create+AuditEvent rollback.
+  Последний evidence: `91` fast и `44` real PostgreSQL tests PASS; session-bound
+  DB ownership negative остаётся blocked до отдельного auth-boundary решения.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
 - `pnpm backend:idp:cleanup`: удаляет только synthetic identity после проверки

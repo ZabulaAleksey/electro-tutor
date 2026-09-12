@@ -531,7 +531,8 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 Дата: 2026-09-08
 
 Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified, `ET-09.4c..e` planned
+`ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified, `ET-09.4c`
+implemented/unverified, `ET-09.4d..e` planned
 
 Решение: application owner key — `accounts.id`; конкретная provider-login запись
 остаётся `external_identities.id` и ссылается на Account через immutable required
@@ -596,4 +597,6 @@ resolution. `/me` не обязан раскрывать internal account key. D
 последовательно: audit persistence/unit-of-work → internal Account boundary →
 trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
 stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
-меняются.
+меняются. `ET-09.4c` не меняет этот identity contract и поэтому не притворяется,
+что caller-selected `account_id` в shared-runtime DB functions уже связан с
+unforgeable session context; выбор такой привязки остаётся отдельным решением.

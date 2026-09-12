@@ -13,11 +13,15 @@ ingress и IAM topology не выбраны.
 | `GET /api/v1/me` | `200` только для действующей Tutor server-side session; иначе `401` |
 | `POST /api/v1/auth/logout?post_logout_redirect_uri=...` | требует exact DEV Origin/redirect, удаляет Tutor session/cookie и переводит на provider logout |
 
-## ET-09.4 planned profile surface (not implemented)
+## ET-09.4 planned profile HTTP surface (not implemented)
 
 Approved contract находится в
 `../specs/features/profiles-capabilities-audit.spec.md`; routes ниже появятся
 только в runtime slice `ET-09.4d`:
+
+Profile persistence/application lifecycle from `ET-09.4c` exists locally but is
+`implemented_unverified`; no profile route is registered, and session-bound DB
+ownership remains a security blocker before this HTTP slice.
 
 | Endpoint family | Contract |
 |---|---|

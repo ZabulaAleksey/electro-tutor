@@ -76,18 +76,20 @@ Revision `20260909_0007` реализует trusted authority baseline:
 - issue/revoke и AuditEvent используют один connection-scoped repository set и
   одну transaction existing `PostgresUnitOfWork`.
 
-Оставшиеся additive tables planned:
-
-- `student_profiles` и `tutor_profiles`: `account_id` одновременно PK/FK на
-  `accounts.id`, private normalized `display_name`, UTC timestamps;
-  один account может иметь обе независимые records.
+Revision `20260912_0008` добавляет `student_profiles` и `tutor_profiles`:
+`account_id` одновременно PK/FK на `accounts.id`, private normalized
+`display_name`, UTC timestamps; один account может иметь обе независимые records.
+Runtime не получает прямых table privileges и вызывает fixed-search-path
+functions. Tutor functions повторно проверяют/блокируют active grant и первое
+create пишут вместе с AuditEvent. Их `account_id` пока задаётся application
+boundary; unforgeable session-bound DB principal остаётся security blocker.
 
 Connection-scoped audit repository не коммитит самостоятельно; one-shot
 `PostgresUnitOfWork` владеет одной connection/transaction, коммитит один раз при
 success и откатывает при exception/audit constraint failure. Grant/profile
-grant repository уже подключён к этой же transaction. Active grant read lock
+grant и profile repositories подключены к этой же transaction. Active grant read lock
 реализован narrow fixed-search-path function и остаётся удержан до завершения
-UoW; profile repository подключится в `ET-09.4c`. Profile delete/deactivate/
+UoW. Profile delete/deactivate/
 cascade, tenant/member tables и public projection не входят в реализованный slice.
 
 `backend:db:migrate` выполняет additive upgrade, `backend:db:status` проверяет

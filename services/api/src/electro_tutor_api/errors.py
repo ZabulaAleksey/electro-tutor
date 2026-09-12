@@ -74,3 +74,23 @@ class CapabilityAlreadyRevokedError(RuntimeError):
 class AccountNotFoundError(RuntimeError):
     code = "account_not_found"
     status_code = 404
+
+
+class AuthenticationRequiredError(RuntimeError):
+    code = "authentication_required"
+    status_code = 401
+
+
+class CapabilityRequiredError(RuntimeError):
+    code = "capability_required"
+    status_code = 403
+
+
+class ProfileNotFoundError(RuntimeError):
+    code = "profile_not_found"
+    status_code = 404
+
+
+class ProfileAlreadyExistsError(RuntimeError):
+    code = "profile_already_exists"
+    status_code = 409

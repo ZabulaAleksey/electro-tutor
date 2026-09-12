@@ -423,7 +423,8 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
 Статус: `partial` — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b`
-completed/verified; `ET-09.4c` и `ET-09.4d` completed/verified; `ET-09.4e` planned.
+completed/verified; `ET-09.4c` и `ET-09.4d` completed/verified; `ET-09.4e`
+implemented_unverified до live two-user Keycloak terminal E2E.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
@@ -480,22 +481,24 @@ Ordered runtime slices and dependency edges:
    adapters consume policy/repository contracts and add anonymous, validation,
    malformed-body precedence and IDOR/BOLA negatives. Evidence: fast `110`,
    real-PostgreSQL `52`, security review `GO`.
-6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
-   `ET-09.4d`; only this slice may close the full stage after all terminal gates.
+6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E —
+   `implemented_unverified`; RU/UK UI, literal `/me`, two managed Keycloak
+   identities, trusted grant/audit CLI and serial browser scenario implemented.
+   Live terminal run remains required to close the full stage.
 
 Detailed contracts/gates are canonical in
-`specs/features/profiles-capabilities-audit.spec.md`. `ET-09.4c` implementation
-through HTTP ownership paths. The next runnable slice is `ET-09.4e` RU/UK UI and
-terminal AUTHZ E2E. Stage-level `NEXT: ET-09.4`; UI runtime is not started.
+`specs/features/profiles-capabilities-audit.spec.md`. Implementation reaches
+RU/UK UI and an exact two-user terminal harness. The next runnable action is the
+live terminal AUTHZ E2E with local credentials. Stage-level `NEXT: ET-09.4`.
 
 - Status: partial
 - NEXT: ET-09.4
-- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; ET-09.4b commit 5de59514; ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d implemented on local feature/et-09-4c-profiles-lifecycle
-- Blockers: none for ET-09.4e entry; real Keycloak/browser UI E2E remains the terminal slice
-- Evidence: ET-09.4c revisions 20260912_0008/0009; ET-09.4d profile HTTP 401/403/404/409/422/503 and API→Application→PostgreSQL component path; backend fast 110 passed; real PostgreSQL 52 passed; malformed-body auth/owner precedence review GO; root Vitest 96 and build audits PASS
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; ET-09.4b commit 5de59514; ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d commit b729290; ET-09.4e implemented locally on feature/et-09-4c-profiles-lifecycle
+- Blockers: terminal `pnpm test:e2e:auth` requires local `ET_KEYCLOAK_ADMIN_PASSWORD` and `ET_DEV_TEST_PASSWORD`, which are absent; without this run AUTHZ-001..003 and whole ET-09.4 cannot become verified
+- Evidence: backend fast 131 passed; real PostgreSQL 54 passed; root Vitest 112; Astro check 82 files/0 diagnostics; ESLint PASS with inaccessible pytest cache excluded; RU/UK/mobile Chromium 21 PASS; terminal support 3 PASS/3 live phase tests skipped; 17-page build and artifact audits PASS; security review cycle 2 GO; exact live Keycloak path NOT RUN
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d implemented on local feature/et-09-4c-profiles-lifecycle","current_stage":"ET-09.4","evidence":["ET-09.4d backend fast 110 passed; real PostgreSQL 52 passed; HTTP error/ownership matrix and malformed-body precedence security review GO; root Vitest 96 and build audits PASS"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["live ET-09.4e two-user Keycloak E2E requires absent local credentials"],"checkpoint":"ET-09.4e implemented locally on feature/et-09-4c-profiles-lifecycle; ET-09.4d commit b729290","current_stage":"ET-09.4","evidence":["backend fast 131 and PostgreSQL 54 PASS; root Vitest 112, Astro check, ESLint, RU/UK/mobile Chromium and build audits PASS; security review GO; live Keycloak terminal path NOT RUN"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL

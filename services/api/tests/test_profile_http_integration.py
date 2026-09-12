@@ -258,3 +258,129 @@ async def test_profile_http_owner_lifecycle_idor_grant_and_audit_component_path(
         assert isinstance(audit["correlation_id"], UUID)
     finally:
         await inspector.dispose()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_self_profile_http_path_uses_db_session_owner_and_preserves_denials() -> None:
+    settings = integration_settings()
+    inspector = create_async_engine(MIGRATION_URL)
+    token_a = f"http-self-a-{uuid4()}"
+    token_b = f"http-self-b-{uuid4()}"
+    request_id = f"self-tutor-{uuid4()}"
+    try:
+        account_a = await seed_session(inspector, token_a)
+        account_b = await seed_session(inspector, token_b)
+        app = create_app(settings)
+        async with app.router.lifespan_context(app):
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                anonymous = await client.put(
+                    "/api/v1/profiles/student/me",
+                    content=b'{"display_name":',
+                    headers={"Content-Type": "application/json"},
+                )
+                assert_code(anonymous, 401, "authentication_required")
+
+                client.cookies.set(settings.session_cookie_name, "invalid-session", path="/api/v1")
+                invalid_session = await client.get("/api/v1/profiles/student/me")
+                assert_code(invalid_session, 401, "authentication_required")
+
+                client.cookies.set(settings.session_cookie_name, token_a, path="/api/v1")
+                created = await client.put(
+                    "/api/v1/profiles/student/me",
+                    json={"display_name": " Self   Student A "},
+                )
+                replay = await client.put(
+                    "/api/v1/profiles/student/me",
+                    json={"display_name": "Self Student A"},
+                )
+                conflict = await client.put(
+                    "/api/v1/profiles/student/me",
+                    json={"display_name": "Different"},
+                )
+                read = await client.get("/api/v1/profiles/student/me")
+                updated = await client.patch(
+                    "/api/v1/profiles/student/me",
+                    json={"display_name": "Updated Self A"},
+                )
+                assert created.status_code == replay.status_code == read.status_code == 200
+                assert created.json() == replay.json()
+                assert "account_id" not in created.json()
+                assert "account_id" not in replay.json()
+                assert "account_id" not in read.json()
+                assert "account_id" not in updated.json()
+                assert updated.status_code == 200
+                assert updated.json()["display_name"] == "Updated Self A"
+                assert_code(conflict, 409, "profile_already_exists")
+
+                for payload in (
+                    {"display_name": "Override", "account_id": str(account_b)},
+                    {"display_name": "Escalate", "role": "tutor"},
+                    {"display_name": "Escalate", "capability": "TUTOR_PROFILE_MANAGE_OWN"},
+                ):
+                    rejected = await client.patch("/api/v1/profiles/student/me", json=payload)
+                    assert_code(rejected, 422, "invalid_request")
+
+                foreign = await client.get(f"/api/v1/profiles/student/{account_b}")
+                assert_code(foreign, 404, "profile_not_found")
+
+                missing_grant = await client.put(
+                    "/api/v1/profiles/tutor/me",
+                    json={"display_name": "Tutor A"},
+                )
+                assert_code(missing_grant, 403, "capability_required")
+
+                grant_id = await issue_tutor_grant(inspector, account_a)
+                tutor_created = await client.put(
+                    "/api/v1/profiles/tutor/me",
+                    json={"display_name": " Self   Tutor A "},
+                    headers={"X-Request-ID": request_id},
+                )
+                tutor_read = await client.get("/api/v1/profiles/tutor/me")
+                tutor_updated = await client.patch(
+                    "/api/v1/profiles/tutor/me",
+                    json={"display_name": "Updated Self Tutor A"},
+                )
+                assert tutor_created.status_code == tutor_read.status_code == 200
+                assert "account_id" not in tutor_created.json()
+                assert "account_id" not in tutor_read.json()
+                assert "account_id" not in tutor_updated.json()
+                assert tutor_updated.status_code == 200
+                assert tutor_updated.json()["display_name"] == "Updated Self Tutor A"
+
+                await revoke_tutor_grant(inspector, grant_id)
+                revoked = await client.get("/api/v1/profiles/tutor/me")
+                assert_code(revoked, 403, "capability_required")
+
+                async with inspector.begin() as connection:
+                    await connection.execute(
+                        text("DELETE FROM application_sessions WHERE token_digest=:digest"),
+                        {"digest": SessionCredential.from_token(token_a).digest},
+                    )
+                logged_out = await client.get("/api/v1/profiles/student/me")
+                assert_code(logged_out, 401, "authentication_required")
+
+        async with inspector.connect() as connection:
+            audit = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT actor_id,subject_id,request_id,correlation_id,metadata "
+                            "FROM audit_events WHERE action='tutor_profile.created' "
+                            "AND subject_id=:account AND request_id=:request"
+                        ),
+                        {"account": str(account_a), "request": request_id},
+                    )
+                )
+                .mappings()
+                .one()
+            )
+        assert audit["actor_id"] == audit["subject_id"] == str(account_a)
+        assert audit["request_id"] == request_id
+        assert isinstance(audit["correlation_id"], UUID)
+        assert token_a not in str(audit["metadata"])
+        assert SessionCredential.from_token(token_a).digest not in str(audit["metadata"])
+    finally:
+        await inspector.dispose()

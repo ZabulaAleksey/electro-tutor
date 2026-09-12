@@ -21,12 +21,21 @@
   real PostgreSQL tests PASS. `ET-09.4d` добавляет transport/error matrix,
   malformed-body auth/owner precedence и live API → Application → PostgreSQL
   component path; последний backend evidence: `110` fast и `52` integration PASS.
+- `ET-09.4e`: backend fast `131` и real PostgreSQL `54` PASS; root Vitest `112`,
+  Astro check, RU/UK/mobile Chromium support checks, 17-page build и audits PASS.
+  `pnpm test:e2e:auth` теперь запускает exact two-user Keycloak flow, trusted
+  Tutor grant/audit CLI, foreign UUID и self-escalation negatives. Без
+  `ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` command fail fast до
+  service mutation; privileged CLI принимает только ровно два canonical subject
+  текущих managed identities; такой run не является terminal evidence.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
-- `pnpm backend:idp:cleanup`: удаляет только synthetic identity после проверки
-  ownership group; foreign user fail closed.
-- `pnpm test:e2e:auth`: real Chromium → Keycloak → callback → `/me` → logout;
-  включает invalid redirect и changed-email/same-subject сценарии. Canonical
+- `pnpm backend:idp:cleanup`: после общего ownership preflight удаляет только
+  `et-dev-acceptance` и `et-dev-acceptance-b`; foreign user fail closed без
+  partial delete.
+- `pnpm test:e2e:auth`: real Chromium → two Keycloak identities → callback →
+  Student/Tutor `/profiles/*/me` → foreign/self-escalation denial → durable audit
+  → logout; включает invalid redirect и changed-email/same-subject сценарии. Canonical
   command без admin/test password fail closed до Playwright; при прямом запуске
   общего suite auth tests skipped и не являются terminal evidence.
   Для real auth suite trace/screenshot/video отключены, чтобы credential, code и

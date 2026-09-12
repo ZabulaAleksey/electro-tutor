@@ -161,7 +161,11 @@ functions без прямых runtime table privileges; Tutor mutation повт�
 session digest только transaction-local и выводит owner/audit actor из active
 session внутри PostgreSQL. `ET-09.4c` verified. `ET-09.4d` добавляет thin private
 GET/PUT/PATCH adapters с auth → owner → validation precedence и живым
-API → Application → PostgreSQL path; UI остаётся planned.
+API → Application → PostgreSQL path. `ET-09.4e` добавляет RU/UK browser UI
+поверх literal `/profiles/{kind}/me`, который не возвращает internal
+`account_id`, а также local-only двухпользовательский Keycloak/trusted-CLI
+terminal harness. UI и harness реализованы; live terminal evidence остаётся
+обязательным и не получено без local credentials.
 
 ## Технологии и границы
 

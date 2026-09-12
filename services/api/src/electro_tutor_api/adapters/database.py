@@ -58,5 +58,6 @@ def create_provisioning_engine(settings: ProvisioningSettings) -> AsyncEngine:
     return create_async_engine(
         settings.provisioning_database_url,
         pool_pre_ping=True,
+        hide_parameters=True,
         connect_args={"timeout": 5},
     )

@@ -10,6 +10,10 @@ const readinessPath = process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/";
 const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
 const selectedSpec = process.env.E2E_SPEC;
+const playwrightEnvironment = { ...process.env };
+delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD;
+const previewEnvironment = { ...playwrightEnvironment };
+delete previewEnvironment.ET_DEV_TEST_PASSWORD;
 
 function spawnNode(modulePath, args, options = {}) {
   return spawn(process.execPath, [resolve(projectRoot, modulePath), ...args], {
@@ -76,7 +80,7 @@ const preview = spawnNode("node_modules/astro/bin/astro.mjs", [
   "--port",
   String(port),
   "--strictPort",
-]);
+], { env: previewEnvironment });
 
 let exitCode = 1;
 
@@ -85,7 +89,7 @@ try {
   const playwrightArgs = selectedSpec ? ["test", selectedSpec] : ["test"];
   const playwright = spawnNode("node_modules/@playwright/test/cli.js", playwrightArgs, {
     env: {
-      ...process.env,
+      ...playwrightEnvironment,
       E2E_EXTERNAL_SERVER: "1",
       E2E_BASE_PATH: process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/",
     },

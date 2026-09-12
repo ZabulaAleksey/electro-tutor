@@ -49,23 +49,28 @@ DEV authentication использует только отдельные Keycloak
 test identity не входят в repository: перед provisioning задай
 `ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` в текущем shell или local
 secret manager; optional non-secret names — `ET_KEYCLOAK_ADMIN_USERNAME`,
-`ET_DEV_TEST_EMAIL`. Имя synthetic identity фиксировано как
-`ET_DEV_TEST_USERNAME=et-dev-acceptance`; другое значение fail closed.
+`ET_DEV_TEST_EMAIL`. Имена двух synthetic identities фиксированы как
+`et-dev-acceptance` и `et-dev-acceptance-b`; optional
+`ET_DEV_TEST_USERNAME` допускает только primary `et-dev-acceptance`, другое
+значение fail closed. Обе identity используют один local test password.
 
 ```bash
 pnpm backend:idp:dev
 pnpm backend:dev
-pnpm build
 pnpm test:e2e:auth
 pnpm backend:idp:cleanup
 ```
 
 `backend:idp:dev` idempotently создаёт/сверяет realm, exact redirects/origins,
-PKCE `S256` client и DEV identity. Команда fail closed без обоих password env и
+PKCE `S256` client и две DEV identities. Команда fail closed без обоих password env и
 не печатает их. Страница `/ru/account/` или `/uk/account/` доступна только в
 local DEV/E2E runtime; production IAM остаётся не выбран.
-`backend:idp:cleanup` удаляет только synthetic identity после проверки
-ownership group; realm/client остаются для следующего idempotent запуска.
+`backend:idp:cleanup` удаляет только обе named synthetic identities после
+ownership preflight для каждой; если хотя бы одна не принадлежит managed group,
+удаление не начинается. Realm/client остаются для следующего idempotent запуска.
+`test:e2e:auth` сам собирает текущий source и перед run безопасно пересоздаёт эти
+две identity, чтобы immutable subjects и application Accounts не зависели от
+прошлого запуска; local services после проверки остаются запущенными.
 
 ## Проверки
 

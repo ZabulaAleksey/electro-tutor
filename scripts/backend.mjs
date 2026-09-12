@@ -34,9 +34,10 @@ export const backendCommands = {
   status: "show local service state",
   doctor: "check toolchain, config, database, and schema readiness",
   smoke: "call live and ready endpoints through the real API",
-  "idp:provision": "reconcile local DEV Keycloak realm, client, and acceptance user",
-  "idp:dev": "start local Keycloak and provision Tutor DEV identity",
-  "idp:cleanup": "delete only the managed synthetic Tutor DEV identity",
+  "idp:provision": "reconcile local DEV Keycloak realm, client, and acceptance identities",
+  "idp:dev": "start local Keycloak and provision Tutor DEV identities",
+  "idp:e2e": "provision two managed E2E identities and emit their safe subjects",
+  "idp:cleanup": "delete only the two managed synthetic Tutor DEV identities",
   "test-fast": "run isolated backend unit/component tests",
   "test-integration": "run real PostgreSQL integration and migration tests",
   "db-status": "show Alembic status and drift",
@@ -261,6 +262,7 @@ export async function main(operation = "help") {
     case "smoke": return smoke();
     case "idp:provision": return idpProvision();
     case "idp:dev": return idpProvision();
+    case "idp:e2e": return idpProvision();
     case "idp:cleanup": return idpCleanup();
     case "test-fast": return testFast();
     case "test-integration": return testIntegration();

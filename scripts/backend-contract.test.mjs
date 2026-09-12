@@ -20,6 +20,7 @@ describe("ET-09.2 backend command contract", () => {
       "smoke",
       "idp:provision",
       "idp:dev",
+      "idp:e2e",
       "idp:cleanup",
       "test-fast",
       "test-integration",
@@ -60,14 +61,29 @@ describe("ET-09.2 backend command contract", () => {
   it("fails the dedicated real auth command closed when credentials are absent", async () => {
     const packageJson = JSON.parse(await readFile("package.json", "utf8"));
     const runner = await readFile("scripts/run-auth-e2e.mjs", "utf8");
+    const browserRunner = await readFile("scripts/run-e2e.mjs", "utf8");
     expect(packageJson.scripts["test:e2e:auth"]).toBe("node scripts/run-auth-e2e.mjs");
+    expect(runner).toContain('"node_modules", "astro", "bin", "astro.mjs"');
+    expect(runner).toContain('"audit-built-site.mjs"');
     expect(runner).toContain('"ET_KEYCLOAK_ADMIN_PASSWORD"');
     expect(runner).toContain('"ET_DEV_TEST_PASSWORD"');
-    expect(runner).toContain('process.env.E2E_SPEC = "tests/e2e/auth-flow.spec.ts"');
+    expect(runner).toContain('E2E_SPEC: "tests/e2e/auth-flow.spec.ts"');
+    expect(runner).toContain("environmentWithoutSecrets");
+    expect(runner).toContain('runBackendCommand("dev", environmentWithoutSecrets)');
+    expect(runner).toContain('runBrowserPhase("profiles")');
+    expect(browserRunner).toContain("delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD");
+    expect(browserRunner).toContain("delete previewEnvironment.ET_DEV_TEST_PASSWORD");
   });
 
   it("does not expose secret values through the command catalog", () => {
     expect(JSON.stringify(backendCommands)).not.toMatch(/password|database_url|secret/i);
+  });
+
+  it("routes the E2E identity setup through the existing safe provisioner", async () => {
+    const backendSource = await readFile("scripts/backend.mjs", "utf8");
+    expect(backendCommands["idp:e2e"]).toMatch(/two managed E2E identities/);
+    expect(backendSource).toContain('case "idp:e2e": return idpProvision();');
+    expect(backendSource).not.toContain("ET_DEV_TEST_PASSWORD=");
   });
 
   it("keeps the migrator credential out of the long-running API", () => {

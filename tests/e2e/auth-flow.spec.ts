@@ -1,62 +1,387 @@
-import { expect, test } from "@playwright/test";
-import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import process from "node:process";
+import { expect, test, type Page, type Route } from "@playwright/test";
+import {
+  isCanonicalUuid,
+  parseProvisionerSummary,
+  parseTrustedCliSummary,
+  requireAuthE2ESecrets,
+  runTrustedProfileCli,
+  trustedCliEnvironment,
+} from "../../scripts/profile-e2e-support.mjs";
 
 const api = "http://127.0.0.1:8000";
 const idp = "http://127.0.0.1:58081";
 const web = process.env.E2E_WEB_ORIGIN || "http://127.0.0.1:4322";
-const username = process.env.ET_DEV_TEST_USERNAME || "et-dev-acceptance";
+const primaryUsername = "et-dev-acceptance";
+const secondaryUsername = "et-dev-acceptance-b";
 const password = process.env.ET_DEV_TEST_PASSWORD;
+const primarySubject = process.env.E2E_PRIMARY_SUBJECT;
+const secondarySubject = process.env.E2E_SECONDARY_SUBJECT;
+const authPhase = process.env.E2E_AUTH_PHASE;
+
+const grantOperationId = randomUUID();
+const grantCorrelationId = randomUUID();
+const grantRequestId = `et-09-4e-tutor-grant-${randomUUID()}`;
+const tutorProfileRequestId = `et-09-4e-tutor-profile-${randomUUID()}`;
 
 test.use({ trace: "off", screenshot: "off", video: "off" });
 
-test.describe("ET-09.3 real DEV authentication", () => {
-  test.skip(!password, "ET_DEV_TEST_PASSWORD is required for live Keycloak acceptance");
+function errorCode(value: unknown) {
+  return (value as { error?: { code?: string } })?.error?.code;
+}
 
-  test("authorizes, resolves /me, and logs out", async ({ page }) => {
-    const account = `${web}/ru/account/`;
+async function login(page: Page, username: string, language = "ru") {
+  const copy = language === "ru"
+    ? { checking: "Проверяем сессию…", signedOut: "Войдите, чтобы открыть приватные профили." }
+    : { checking: "Перевіряємо сесію…", signedOut: "Увійдіть, щоб відкрити приватні профілі." };
+  const meUrl = `${api}/api/v1/me`;
+  let delayed = false;
+  const delayInitialSession = async (route: Route) => {
+    if (!delayed) {
+      delayed = true;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+    await route.continue();
+  };
+  await page.route(meUrl, delayInitialSession);
+  await page.goto(`${web}/${language}/account/`);
+  await expect(page.locator("[data-session-status]")).toHaveText(copy.checking);
+  const loginLink = page.getByRole("link", { name: /Войти|Увійти/ });
+  await expect(loginLink).toBeVisible();
+  await expect(page.locator("[data-session-status]")).toHaveText(copy.signedOut);
+  await page.unroute(meUrl, delayInitialSession);
+  await loginLink.click();
+  await page.getByLabel("Username or email").fill(username);
+  await page.getByLabel("Password", { exact: true }).fill(password!);
+  await page.getByRole("button", { name: /Sign In|Войти/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/${language}/account/$`));
+}
+
+async function logout(page: Page) {
+  await page.locator("[data-logout-form] button").click();
+  await page.getByRole("button", { name: "Logout", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`^${web.replaceAll(".", "\\.")}/`));
+}
+
+async function saveStudent(page: Page, displayName: string, language: "ru" | "uk" = "ru") {
+  const copy = language === "ru"
+    ? { region: "Профиль ученика", label: "Отображаемое имя", saved: "Изменения сохранены." }
+    : { region: "Профіль учня", label: "Відображуване ім’я", saved: "Зміни збережено." };
+  const student = page.getByRole("region", { name: copy.region });
+  const input = student.getByLabel(copy.label);
+  await expect(input).toBeVisible();
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().endsWith("/api/v1/profiles/student/me")
+    && ["PUT", "PATCH"].includes(response.request().method()),
+  );
+  await input.fill(displayName);
+  await input.focus();
+  await page.keyboard.press("Enter");
+  const response = await responsePromise;
+  expect(response.ok()).toBe(true);
+  await expect(student.getByRole("status")).toHaveText(copy.saved);
+  return response.request().method();
+}
+
+function resolveAccount(subject: string) {
+  const summary = runTrustedProfileCli(
+    ["e2e-resolve-account", "--subject", subject],
+    "account_resolved",
+  );
+  expect(isCanonicalUuid(summary.account_id)).toBe(true);
+  return summary.account_id as string;
+}
+
+test.describe("ET-09.4e terminal support contracts", () => {
+  test("fails fast without either live secret and never reports a value", () => {
+    expect(() => requireAuthE2ESecrets({})).toThrow(
+      "ET_KEYCLOAK_ADMIN_PASSWORD and ET_DEV_TEST_PASSWORD required",
+    );
+    expect(() => requireAuthE2ESecrets({ ET_KEYCLOAK_ADMIN_PASSWORD: "present" })).toThrow(
+      "ET_DEV_TEST_PASSWORD required",
+    );
+  });
+
+  test("parses only the two canonical managed subjects from safe provisioner output", () => {
+    const parsed = parseProvisionerSummary([
+      "> node scripts/keycloak-provision.mjs",
+      JSON.stringify({
+        realm: "electro-tutor-dev",
+        testIdentities: [
+          { name: primaryUsername, subject: "11111111-1111-4111-8111-111111111111" },
+          { name: secondaryUsername, subject: "22222222-2222-4222-8222-222222222222" },
+        ],
+      }),
+      "contract_sha256=opaque",
+    ].join("\n"));
+    expect(parsed).toEqual({
+      primarySubject: "11111111-1111-4111-8111-111111111111",
+      secondarySubject: "22222222-2222-4222-8222-222222222222",
+    });
+    expect(() => parseProvisionerSummary('{"testIdentities":[]}')).toThrow(/identity count/);
+    expect(() => parseProvisionerSummary(JSON.stringify({
+      testIdentities: [
+        { name: primaryUsername, subject: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA" },
+        { name: secondaryUsername, subject: "22222222-2222-2222-2222-222222222222" },
+      ],
+    }))).toThrow(/summary is invalid/);
+  });
+
+  test("uses the exact local production-shaped CLI target and rejects an unsafe summary", () => {
+    const environment = trustedCliEnvironment({
+      PATH: process.env.PATH,
+      ET_TEST_DATABASE_URL: "must-not-survive",
+      ET_E2E_FOREIGN_KEY: "must-not-survive",
+    });
+    expect(environment.ET_DATABASE_URL).toContain("/electro_tutor");
+    expect(environment.ET_DATABASE_URL).not.toContain("electro_tutor_test");
+    expect(environment.ET_PROVISIONING_DATABASE_URL).toContain("electro_tutor_provisioner");
+    expect(environment).not.toHaveProperty("ET_TEST_DATABASE_URL");
+    expect(environment).not.toHaveProperty("ET_E2E_FOREIGN_KEY");
+    expect(() => parseTrustedCliSummary('{"status":"error"}', "audit_verified")).toThrow(
+      /expected safe summary/,
+    );
+  });
+});
+
+test.describe("ET-09.3 / ET-09.4e real DEV authentication and profiles", () => {
+  test.describe.configure({ mode: "serial" });
+
+  test("keeps auth stable and enforces two-user own-profile authorization with durable audit", async ({ browser }) => {
+    test.skip(
+      authPhase !== "profiles" || !password || !primarySubject || !secondarySubject,
+      "profile phase requires runner-provided password and two safe Keycloak subjects",
+    );
+    test.setTimeout(180_000);
+    const primaryContext = await browser.newContext();
+    const secondaryContext = await browser.newContext();
+    const primaryPage = await primaryContext.newPage();
+    const secondaryPage = await secondaryContext.newPage();
     const originalEmail = process.env.ET_DEV_TEST_EMAIL || "et-dev-acceptance@invalid.example";
-    try {
-      await page.goto(account);
-      await page.getByRole("link", { name: /Войти|Увійти/ }).click();
-      await page.getByLabel("Username or email").fill(username);
-      await page.getByLabel("Password", { exact: true }).fill(password!);
-      await page.getByRole("button", { name: /Sign In|Войти/ }).click();
-      await expect(page).toHaveURL(/\/ru\/account\//);
-      const me = await page.evaluate(async (url) => (await fetch(`${url}/api/v1/me`, { credentials: "include" })).json(), api);
-      expect(me.email).toBe(originalEmail);
-      await page.locator("[data-logout-form] button").click();
-      await page.getByRole("button", { name: "Logout", exact: true }).click();
-      await expect(page).toHaveURL(new RegExp(`^${web.replaceAll(".", "\\.")}/`));
-      const afterLogout = await page.evaluate(async (url) => (await fetch(`${url}/api/v1/me`, { credentials: "include" })).status, api);
-      expect(afterLogout).toBe(401);
+    const profileRequests: string[] = [];
+    for (const page of [primaryPage, secondaryPage]) {
+      page.on("request", (request) => {
+        if (request.url().includes("/api/v1/profiles/")) profileRequests.push(request.url());
+      });
+    }
 
-      const changedEmail = "et-dev-acceptance-changed@invalid.example";
-      execFileSync(process.execPath, ["scripts/keycloak-provision.mjs"], {
-        cwd: process.cwd(),
-        env: { ...process.env, ET_DEV_TEST_EMAIL: changedEmail },
-        stdio: "ignore",
+    try {
+      await login(primaryPage, primaryUsername);
+      const primaryMe = await primaryPage.evaluate(async (url) => (
+        await fetch(`${url}/api/v1/me`, { credentials: "include" })
+      ).json(), api);
+      expect(primaryMe.email).toBe(originalEmail);
+      expect(primaryMe).not.toHaveProperty("account_id");
+
+      const student = primaryPage.getByRole("region", { name: "Профиль ученика" });
+      const studentName = student.getByLabel("Отображаемое имя");
+      await expect(studentName).toBeVisible();
+      await studentName.fill("   ");
+      await student.getByRole("button", { name: /Создать профиль|Сохранить изменения/ }).click();
+      await expect(student.getByRole("alert")).toHaveText("Введите отображаемое имя.");
+      await saveStudent(primaryPage, "  Тестовый   ученик A  ");
+      await saveStudent(primaryPage, "Тестовый ученик A updated");
+      await expect(studentName).toHaveValue("Тестовый ученик A updated");
+      const primaryStudent = await primaryPage.evaluate(async (url) => (
+        await fetch(`${url}/api/v1/profiles/student/me`, { credentials: "include" })
+      ).json(), api);
+      expect(primaryStudent.display_name).toBe("Тестовый ученик A updated");
+
+      const primaryAccountId = resolveAccount(primarySubject!);
+      const escalation = await primaryPage.evaluate(async ({ apiUrl, accountId }) => {
+        const response = await fetch(`${apiUrl}/api/v1/profiles/tutor/me`, {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json", "X-Request-ID": "e2e-self-escalation" },
+          body: JSON.stringify({
+            display_name: "Escalated tutor",
+            account_id: accountId,
+            role: "tutor",
+            capability: "TUTOR_PROFILE_MANAGE_OWN",
+          }),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { apiUrl: api, accountId: primaryAccountId });
+      expect(escalation.status).toBe(422);
+      expect(errorCode(escalation.body)).toBe("invalid_request");
+      const primaryTutor = primaryPage.getByRole("region", { name: "Профиль преподавателя" });
+      await expect(primaryTutor.getByText("Нужно разрешение преподавателя", { exact: true }).first()).toBeVisible();
+      await expect(primaryTutor.locator("[data-profile-form]")).toBeHidden();
+
+      await login(secondaryPage, secondaryUsername, "uk");
+      const secondaryMe = await secondaryPage.evaluate(async (url) => (
+        await fetch(`${url}/api/v1/me`, { credentials: "include" })
+      ).json(), api);
+      expect(secondaryMe).not.toHaveProperty("account_id");
+      const secondaryStudentRegion = secondaryPage.getByRole("region", { name: "Профіль учня" });
+      const secondaryStudentName = secondaryStudentRegion.getByLabel("Відображуване ім’я");
+      await secondaryStudentName.fill("   ");
+      await secondaryStudentRegion.getByRole("button", {
+        name: /Створити профіль|Зберегти зміни/,
+      }).click();
+      await expect(secondaryStudentRegion.getByRole("alert")).toHaveText(
+        "Введіть відображуване ім’я.",
+      );
+      expect(await saveStudent(secondaryPage, "Тестовий учень B", "uk")).toBe("PUT");
+      expect(await saveStudent(secondaryPage, "Тестовий учень B updated", "uk")).toBe("PATCH");
+      const secondaryStudent = await secondaryPage.evaluate(async (url) => (
+        await fetch(`${url}/api/v1/profiles/student/me`, { credentials: "include" })
+      ).json(), api);
+      expect(secondaryStudent.display_name).toBe("Тестовий учень B updated");
+      const secondaryAccountId = resolveAccount(secondarySubject!);
+      const secondaryTutorBeforeGrant = secondaryPage.getByRole("region", {
+        name: "Профіль викладача",
       });
-      await page.goto(account);
-      await page.getByRole("link", { name: /Войти|Увійти/ }).click();
-      await page.getByLabel("Username or email").fill(username);
-      await page.getByLabel("Password", { exact: true }).fill(password!);
-      await page.getByRole("button", { name: /Sign In|Войти/ }).click();
-      await expect(page).toHaveURL(/\/ru\/account\//);
-      const changed = await page.evaluate(async (url) => (await fetch(`${url}/api/v1/me`, { credentials: "include" })).json(), api);
-      expect(changed.identity_id).toBe(me.identity_id);
-      expect(changed.email).toBe(changedEmail);
+      await expect(
+        secondaryTutorBeforeGrant.getByText("Потрібен дозвіл викладача", { exact: true }).first(),
+        "The freshly recreated managed identity must start without Tutor capability.",
+      ).toBeVisible();
+
+      const accountOverride = await primaryPage.evaluate(async ({ apiUrl, accountId }) => {
+        const response = await fetch(`${apiUrl}/api/v1/profiles/student/me`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json", "X-Request-ID": "e2e-account-override" },
+          body: JSON.stringify({ display_name: "Override", account_id: accountId }),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { apiUrl: api, accountId: secondaryAccountId });
+      expect(accountOverride.status).toBe(422);
+      expect(errorCode(accountOverride.body)).toBe("invalid_request");
+
+      const foreignRead = await primaryPage.evaluate(async ({ apiUrl, accountId }) => {
+        const response = await fetch(`${apiUrl}/api/v1/profiles/student/${accountId}`, {
+          credentials: "include",
+          headers: { "X-Request-ID": "e2e-foreign-read" },
+        });
+        return { status: response.status, body: await response.json() };
+      }, { apiUrl: api, accountId: secondaryAccountId });
+      expect(foreignRead.status).toBe(404);
+      expect(errorCode(foreignRead.body)).toBe("profile_not_found");
+      expect(JSON.stringify(foreignRead.body)).not.toContain("Тестовий учень B updated");
+
+      const foreignMutation = await primaryPage.evaluate(async ({ apiUrl, accountId }) => {
+        const response = await fetch(`${apiUrl}/api/v1/profiles/student/${accountId}`, {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json", "X-Request-ID": "e2e-foreign-write" },
+          body: JSON.stringify({ display_name: "Foreign overwrite" }),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { apiUrl: api, accountId: secondaryAccountId });
+      expect(foreignMutation.status).toBe(404);
+      expect(errorCode(foreignMutation.body)).toBe("profile_not_found");
+
+      const grant = runTrustedProfileCli([
+        "e2e-issue-tutor-grant",
+        "--subject", secondarySubject!,
+        "--operation-id", grantOperationId,
+        "--correlation-id", grantCorrelationId,
+        "--request-id", grantRequestId,
+      ], "tutor_grant_issued");
+      expect(grant.account_id).toBe(secondaryAccountId);
+      expect(grant.capability_code).toBe("TUTOR_PROFILE_MANAGE_OWN");
+      expect(grant.request_id).toBe(grantRequestId);
+
+      const grantAudit = runTrustedProfileCli([
+        "e2e-verify-audit",
+        "--subject", secondarySubject!,
+        "--action", "tutor_capability.granted",
+        "--request-id", grantRequestId,
+        "--correlation-id", grantCorrelationId,
+        "--operation-id", grantOperationId,
+      ], "audit_verified");
+      expect(grantAudit.account_id).toBe(secondaryAccountId);
+
+      await secondaryPage.setExtraHTTPHeaders({ "X-Request-ID": tutorProfileRequestId });
+      await secondaryPage.reload();
+      const tutor = secondaryPage.getByRole("region", { name: "Профіль викладача" });
+      const tutorName = tutor.getByLabel("Відображуване ім’я");
+      await expect(tutorName).toBeVisible();
+      await expect(
+        tutor.getByRole("button", { name: "Створити профіль" }),
+        "The freshly recreated managed identity must not have a pre-existing TutorProfile.",
+      ).toBeVisible();
+      const tutorResponsePromise = secondaryPage.waitForResponse((response) =>
+        response.url().endsWith("/api/v1/profiles/tutor/me")
+        && response.request().method() === "PUT",
+      );
+      await tutorName.fill("  Перевірений   викладач  ");
+      await tutorName.focus();
+      await secondaryPage.keyboard.press("Enter");
+      const tutorResponse = await tutorResponsePromise;
+      expect(tutorResponse.ok()).toBe(true);
+      expect(tutorResponse.headers()["x-request-id"]).toBe(tutorProfileRequestId);
+      await expect(tutor.getByRole("status")).toHaveText("Зміни збережено.");
+      await expect(tutorName).toHaveValue("Перевірений викладач");
+
+      const profileAudit = runTrustedProfileCli([
+        "e2e-verify-audit",
+        "--subject", secondarySubject!,
+        "--action", "tutor_profile.created",
+        "--request-id", tutorProfileRequestId,
+      ], "audit_verified");
+      expect(profileAudit.account_id).toBe(secondaryAccountId);
+      expect(profileAudit.request_id).toBe(tutorProfileRequestId);
+      expect(isCanonicalUuid(profileAudit.correlation_id)).toBe(true);
+
+      await expect(primaryPage.locator('input[name="role"], input[name="account_id"], input[name="capability"]')).toHaveCount(0);
+      expect(profileRequests.some((url) => url.endsWith("/api/v1/profiles/student/me"))).toBe(true);
+      expect(profileRequests.some((url) => url.endsWith("/api/v1/profiles/tutor/me"))).toBe(true);
+
+      await primaryPage.setViewportSize({ width: 390, height: 844 });
+      const dimensions = await primaryPage.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+        localKeys: Object.keys(localStorage),
+        sessionKeys: Object.keys(sessionStorage),
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+      expect(dimensions.localKeys.filter((key) => /auth|session|token|profile/i.test(key))).toEqual([]);
+      expect(dimensions.sessionKeys).toEqual([]);
+
+      await logout(primaryPage);
+      const afterLogout = await primaryPage.evaluate(async (url) => (
+        await fetch(`${url}/api/v1/me`, { credentials: "include" })
+      ).status, api);
+      expect(afterLogout).toBe(401);
+      await primaryPage.goto(`${web}/ru/account/`);
+      await expect(primaryPage.getByRole("link", { name: "Войти" })).toBeVisible();
+      await expect(primaryPage.locator("[data-session-status]")).toHaveText(
+        "Войдите, чтобы открыть приватные профили.",
+      );
+
+      await logout(secondaryPage);
     } finally {
-      execFileSync(process.execPath, ["scripts/keycloak-provision.mjs"], {
-        cwd: process.cwd(),
-        env: { ...process.env, ET_DEV_TEST_EMAIL: originalEmail },
-        stdio: "ignore",
-      });
+      await primaryContext.close();
+      await secondaryContext.close();
     }
   });
 
+  test("keeps the immutable identity after trusted provider email reconciliation", async ({ page }) => {
+    test.skip(
+      authPhase !== "identity-change" || !password || !primarySubject,
+      "identity-change phase requires runner-provided password and safe primary subject",
+    );
+    const changedEmail = process.env.ET_DEV_TEST_EMAIL;
+    expect(changedEmail).toBe("et-dev-acceptance-changed@invalid.example");
+    await login(page, primaryUsername);
+    const changed = await page.evaluate(async (url) => (
+      await fetch(`${url}/api/v1/me`, { credentials: "include" })
+    ).json(), api);
+    expect(changed.subject).toBe(primarySubject);
+    expect(changed.email).toBe(changedEmail);
+    expect(changed).not.toHaveProperty("account_id");
+    await logout(page);
+  });
+
   test("Keycloak rejects an unregistered redirect URI", async ({ request }) => {
-    const response = await request.get(`${idp}/realms/electro-tutor-dev/protocol/openid-connect/auth?client_id=electro-tutor-web-dev&response_type=code&redirect_uri=${encodeURIComponent("http://127.0.0.1:9999/evil")}&scope=openid&state=invalid`, { maxRedirects: 0 });
+    test.skip(authPhase !== "profiles", "redirect rejection runs in the primary live phase");
+    const response = await request.get(
+      `${idp}/realms/electro-tutor-dev/protocol/openid-connect/auth?client_id=electro-tutor-web-dev&response_type=code&redirect_uri=${encodeURIComponent("http://127.0.0.1:9999/evil")}&scope=openid&state=${randomUUID()}`,
+      { maxRedirects: 0 },
+    );
     expect([400, 403]).toContain(response.status());
   });
 });

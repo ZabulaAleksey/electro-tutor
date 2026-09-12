@@ -210,6 +210,84 @@ async def test_profile_routes_create_read_update_and_forward_tutor_correlation()
 
 
 @pytest.mark.asyncio
+async def test_self_profile_routes_use_authenticated_owner_without_uuid_selector() -> None:
+    service = FakeProfileService()
+    async with AsyncClient(
+        transport=ASGITransport(app=app_for(service)), base_url="http://test"
+    ) as client:
+        client.cookies.set("et_session", "valid-session", path="/api/v1")
+        student = await client.put(
+            "/api/v1/profiles/student/me",
+            json={"display_name": " Self   Student "},
+        )
+        student_read = await client.get("/api/v1/profiles/student/me")
+        student_update = await client.patch(
+            "/api/v1/profiles/student/me",
+            json={"display_name": "Updated Self"},
+        )
+        tutor = await client.put(
+            "/api/v1/profiles/tutor/me",
+            json={"display_name": "Self Tutor"},
+            headers={"X-Request-ID": "self-tutor-create"},
+        )
+        tutor_read = await client.get("/api/v1/profiles/tutor/me")
+        tutor_update = await client.patch(
+            "/api/v1/profiles/tutor/me",
+            json={"display_name": "Updated Self Tutor"},
+        )
+
+    assert student.status_code == student_read.status_code == student_update.status_code == 200
+    assert "account_id" not in student.json()
+    assert "account_id" not in student_read.json()
+    assert "account_id" not in student_update.json()
+    assert student.json()["display_name"] == "Self Student"
+    assert student_update.json()["display_name"] == "Updated Self"
+    assert tutor.status_code == tutor_read.status_code == tutor_update.status_code == 200
+    assert "account_id" not in tutor.json()
+    assert "account_id" not in tutor_read.json()
+    assert "account_id" not in tutor_update.json()
+    assert tutor_update.json()["display_name"] == "Updated Self Tutor"
+    assert service.tutor_request_id == "self-tutor-create"
+    assert isinstance(service.tutor_correlation_id, UUID)
+
+
+@pytest.mark.asyncio
+async def test_self_profile_routes_preserve_auth_before_body_validation() -> None:
+    service = FakeProfileService()
+    async with AsyncClient(
+        transport=ASGITransport(app=app_for(service)), base_url="http://test"
+    ) as client:
+        anonymous_malformed = await client.put(
+            "/api/v1/profiles/student/me",
+            content=b'{"display_name":',
+            headers={"Content-Type": "application/json", "X-Request-ID": "self-anonymous"},
+        )
+        client.cookies.set("et_session", "invalid-session", path="/api/v1")
+        invalid_authority = await client.patch(
+            "/api/v1/profiles/tutor/me",
+            json={"display_name": "Tutor", "role": "admin"},
+            headers={"X-Request-ID": "self-invalid-session"},
+        )
+        client.cookies.set("et_session", "valid-session", path="/api/v1")
+        own_malformed = await client.patch(
+            "/api/v1/profiles/student/me",
+            content=b'{"display_name":',
+            headers={"Content-Type": "application/json", "X-Request-ID": "self-malformed"},
+        )
+        own_authority = await client.put(
+            "/api/v1/profiles/tutor/me",
+            json={"display_name": "Tutor", "capability": "TUTOR_PROFILE_MANAGE_OWN"},
+            headers={"X-Request-ID": "self-authority"},
+        )
+
+    assert_error(anonymous_malformed, 401, "authentication_required", "self-anonymous")
+    assert_error(invalid_authority, 401, "authentication_required", "self-invalid-session")
+    assert_error(own_malformed, 422, "invalid_request", "self-malformed")
+    assert_error(own_authority, 422, "invalid_request", "self-authority")
+    assert service.calls == []
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("operation", "error", "status", "code"),
     (
@@ -396,6 +474,21 @@ async def test_default_app_attempts_to_dispose_both_owned_engines(monkeypatch) -
 def test_openapi_registers_only_private_profile_routes() -> None:
     schema = app_for(FakeProfileService()).openapi()
     assert {
+        "/api/v1/profiles/{profile_kind}/me",
         "/api/v1/profiles/{profile_kind}/{account_id}",
     } <= set(schema["paths"])
+    self_path = schema["paths"]["/api/v1/profiles/{profile_kind}/me"]
+    assert set(self_path) == {"get", "put", "patch"}
+    assert all(
+        parameter["name"] != "account_id"
+        for operation in self_path.values()
+        for parameter in operation.get("parameters", [])
+    )
+    for method in ("put", "patch"):
+        assert self_path[method]["requestBody"]["required"] is True
+        assert "application/json" in self_path[method]["requestBody"]["content"]
+    own_response = schema["components"]["schemas"]["OwnProfileResponse"]
+    assert "account_id" not in own_response["properties"]
+    selected_response = schema["components"]["schemas"]["ProfileResponse"]
+    assert "account_id" in selected_response["properties"]
     assert not any("grant" in path or "capabilit" in path for path in schema["paths"])

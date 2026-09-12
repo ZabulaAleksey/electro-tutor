@@ -328,7 +328,8 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   grant/evaluator → profiles → HTTP → RU/UK E2E; `ET-09.4a` и prerequisite
   `ET-09.4b0` и trusted grant/evaluator `ET-09.4b` verified. Profiles
   `ET-09.4c` session-bound DB principal и `ET-09.4d` Application/HTTP ownership
-  paths completed/verified; `ET-09.4e` RU/UK UI + AUTHZ E2E dependency-ready.
+  paths completed/verified; `ET-09.4e` RU/UK UI + exact two-user AUTHZ E2E
+  harness implemented_unverified до запуска с local Keycloak credentials.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 

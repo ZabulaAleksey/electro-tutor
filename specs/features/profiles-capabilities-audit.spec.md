@@ -1,9 +1,10 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a..d` completed/verified, `ET-09.4e` planned
+runtime partial — `ET-09.4a..d` completed/verified, `ET-09.4e`
+implemented_unverified до live two-user Keycloak terminal E2E
 
-Версия: 0.4
+Версия: 0.5
 
 Связи: `PLAT-003`, `AUTHZ-001..003`, `ET-09.4`, ADR-020, ADR-022, ADR-023.
 
@@ -82,7 +83,11 @@ Client-writable `role`, `is_tutor`, `is_admin`, capability и entitlement
 StudentProfile и TutorProfile private по умолчанию. Baseline API принимает opaque
 `account_id`, но разрешает только совпадение с current principal; selector не
 меняет owner. Foreign read/mutation deny-by-default и не раскрывает существование
-записи. Public tutor projection требует отдельной SPEC.
+записи. Browser UI использует только canonical literal selector `/me`, который
+server-side разрешается в owner текущей session; client не получает, не хранит и
+не выводит internal `account_id`. UUID selector сохраняется для explicit API
+consumers и IDOR/BOLA negative verification. Public tutor projection требует
+отдельной SPEC.
 
 ## 3. Минимальные profile contracts
 
@@ -359,6 +364,8 @@ production provider. `ET-09.4c` verified; `ET-09.4d` dependency-ready.
 ### ET-09.4d — Application/HTTP
 
 - stable 401/403/404/409/422/503 envelope tests;
+- literal own-resource `GET/PUT/PATCH /api/v1/profiles/{student|tutor}/me`,
+  server-side разрешённый из active session без client-visible `account_id`;
 - anonymous/invalid-session rejection;
 - own profile positive paths and foreign IDOR/BOLA read/mutation negatives;
 - handlers delegate to Application Core policy; no scattered client role checks;
@@ -440,6 +447,18 @@ HTTP routes и UI не реализованы. Whole `ET-09.4` имеет truthf
 `ET-09.4d` добавляет private GET/PUT/PATCH profile routes с порядком
 authentication → owner selector → payload validation, stable
 401/403/404/409/422/503 envelope и живым API → Application → PostgreSQL path.
+UUID selector остаётся explicit API surface для ownership/IDOR checks, а browser
+использует literal `/me`, разрешаемый только из active session.
 Fast gate: `110 passed`; real PostgreSQL gate: `52 passed`; malformed JSON и
 foreign-selector precedence security review: `GO`. UI и browser E2E остаются
 `ET-09.4e`; stage-level `NEXT` остаётся `ET-09.4` до terminal verification.
+
+`ET-09.4e` реализует RU/UK own-profile UI, literal `/me` без client-visible
+`account_id`, две allowlisted synthetic Keycloak identity, local/test-only
+trusted grant/audit CLI и serial browser acceptance для Student/Tutor lifecycle,
+foreign UUID denial и self-escalation rejection. Local evidence: backend fast
+`131 passed`, real PostgreSQL `54 passed`, root Vitest `112 passed`, Astro check
+без diagnostics, 17-page build и artifact audits PASS; security review cycle 2
+`GO`. Live two-user Keycloak/browser path не запускался, потому что
+`ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` отсутствуют; поэтому slice
+остаётся `implemented_unverified`, whole stage — `partial`, `NEXT: ET-09.4`.

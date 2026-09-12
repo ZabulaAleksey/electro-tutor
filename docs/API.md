@@ -21,6 +21,7 @@ Approved contract находится в
 
 | Endpoint family | Contract |
 |---|---|
+| `GET/PUT/PATCH /api/v1/profiles/{student|tutor}/me` | canonical browser own-resource route; owner разрешается server-side из active session, internal `account_id` не требуется client-у |
 | `GET /api/v1/profiles/{student|tutor}/{account_id}` | private owner read; foreign/nonexistent resource возвращает non-disclosing `404 profile_not_found` |
 | `PUT /api/v1/profiles/{student|tutor}/{account_id}` | idempotent create с owner из session; body не принимает account/identity/role/capability; Tutor требует active `TUTOR_PROFILE_MANAGE_OWN` |
 | `PATCH /api/v1/profiles/{student|tutor}/{account_id}` | owner update `display_name`; Tutor требует active grant; authority-like/unknown fields отклоняются |
@@ -36,6 +37,10 @@ Slice `ET-09.4a` регистрирует reusable redacted `503 audit_unavailab
 Slice `ET-09.4b0` не добавляет route: existing `/me` сохраняет provider identity
 provenance, а internal `account_id` остаётся server-side owner key. Public
 account-linking endpoint отсутствует.
+
+Profile literal `/me` responses намеренно не содержат `account_id`; UUID-selector
+responses сохраняют owner key только для explicit API consumers и negative
+IDOR tests.
 
 Slice `ET-09.4b` также не добавляет route: trusted grant/revoke доступны только
 internal provisioning adapter с отдельным DB credential; public/self endpoint

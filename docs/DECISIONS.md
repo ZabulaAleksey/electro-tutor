@@ -531,7 +531,8 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 Дата: 2026-09-08
 
 Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a..d` completed/verified, `ET-09.4e` planned
+`ET-09.4a..d` completed/verified, `ET-09.4e` implemented_unverified до live
+two-user Keycloak terminal E2E
 
 Решение: application owner key — `accounts.id`; конкретная provider-login запись
 остаётся `external_identities.id` и ссылается на Account через immutable required

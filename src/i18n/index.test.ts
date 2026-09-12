@@ -30,4 +30,10 @@ describe("localization runtime contract", () => {
     expect(formatTopicCount("uk", 2)).toBe("2 теми");
     expect(formatTopicCount("ru", 5)).toBe("5 тем");
   });
+
+  it("keeps account profile states localized in both supported languages", () => {
+    expect(getLocale("ru").account.permissionTitle).toBe("Нужно разрешение преподавателя");
+    expect(getLocale("uk").account.permissionTitle).toBe("Потрібен дозвіл викладача");
+    expect(getLocale("ru").account.validationRequired).not.toBe(getLocale("uk").account.validationRequired);
+  });
 });

@@ -46,6 +46,14 @@ class ProfileResponse(BaseModel):
     updated_at: datetime
 
 
+class OwnProfileResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    display_name: str
+    created_at: datetime
+    updated_at: datetime
+
+
 @dataclass(frozen=True)
 class ProfileRequestContext:
     principal: Principal
@@ -90,29 +98,18 @@ def build_profile_router(
         except ValidationError as exc:
             raise ProfileValidationError("profile request body is invalid") from exc
 
-    @router.get(
-        "/profiles/{profile_kind}/{account_id}",
-        response_model=ProfileResponse,
-    )
-    async def read_profile(
+    async def read_for_kind(
         profile_kind: ProfileKind,
-        account_id: UUID,
-        context: ProfileRequestContext = owner_dependency,
+        context: ProfileRequestContext,
     ) -> StudentProfile | TutorProfile:
         if profile_kind is ProfileKind.STUDENT:
             return await profile_service.read_student_profile(context.principal, context.credential)
         return await profile_service.read_tutor_profile(context.principal, context.credential)
 
-    @router.put(
-        "/profiles/{profile_kind}/{account_id}",
-        response_model=ProfileResponse,
-        openapi_extra=PROFILE_WRITE_OPENAPI,
-    )
-    async def create_profile(
+    async def create_for_kind(
         request: Request,
         profile_kind: ProfileKind,
-        account_id: UUID,
-        context: ProfileRequestContext = owner_dependency,
+        context: ProfileRequestContext,
     ) -> StudentProfile | TutorProfile:
         payload = await parse_write_request(request)
         if profile_kind is ProfileKind.STUDENT:
@@ -127,6 +124,80 @@ def build_profile_router(
             request_id=request.state.request_id,
         )
 
+    async def update_for_kind(
+        request: Request,
+        profile_kind: ProfileKind,
+        context: ProfileRequestContext,
+    ) -> StudentProfile | TutorProfile:
+        payload = await parse_write_request(request)
+        if profile_kind is ProfileKind.STUDENT:
+            return await profile_service.update_student_profile(
+                context.principal, context.credential, payload.display_name
+            )
+        return await profile_service.update_tutor_profile(
+            context.principal, context.credential, payload.display_name
+        )
+
+    # Keep the literal self routes before the UUID selector routes. The UI can use
+    # these without exposing the internal account key through the authentication API.
+    @router.get(
+        "/profiles/{profile_kind}/me",
+        response_model=OwnProfileResponse,
+    )
+    async def read_own_profile(
+        profile_kind: ProfileKind,
+        context: ProfileRequestContext = authenticated_dependency,
+    ) -> StudentProfile | TutorProfile:
+        return await read_for_kind(profile_kind, context)
+
+    @router.put(
+        "/profiles/{profile_kind}/me",
+        response_model=OwnProfileResponse,
+        openapi_extra=PROFILE_WRITE_OPENAPI,
+    )
+    async def create_own_profile(
+        request: Request,
+        profile_kind: ProfileKind,
+        context: ProfileRequestContext = authenticated_dependency,
+    ) -> StudentProfile | TutorProfile:
+        return await create_for_kind(request, profile_kind, context)
+
+    @router.patch(
+        "/profiles/{profile_kind}/me",
+        response_model=OwnProfileResponse,
+        openapi_extra=PROFILE_WRITE_OPENAPI,
+    )
+    async def update_own_profile(
+        request: Request,
+        profile_kind: ProfileKind,
+        context: ProfileRequestContext = authenticated_dependency,
+    ) -> StudentProfile | TutorProfile:
+        return await update_for_kind(request, profile_kind, context)
+
+    @router.get(
+        "/profiles/{profile_kind}/{account_id}",
+        response_model=ProfileResponse,
+    )
+    async def read_profile(
+        profile_kind: ProfileKind,
+        account_id: UUID,
+        context: ProfileRequestContext = owner_dependency,
+    ) -> StudentProfile | TutorProfile:
+        return await read_for_kind(profile_kind, context)
+
+    @router.put(
+        "/profiles/{profile_kind}/{account_id}",
+        response_model=ProfileResponse,
+        openapi_extra=PROFILE_WRITE_OPENAPI,
+    )
+    async def create_profile(
+        request: Request,
+        profile_kind: ProfileKind,
+        account_id: UUID,
+        context: ProfileRequestContext = owner_dependency,
+    ) -> StudentProfile | TutorProfile:
+        return await create_for_kind(request, profile_kind, context)
+
     @router.patch(
         "/profiles/{profile_kind}/{account_id}",
         response_model=ProfileResponse,
@@ -138,13 +209,6 @@ def build_profile_router(
         account_id: UUID,
         context: ProfileRequestContext = owner_dependency,
     ) -> StudentProfile | TutorProfile:
-        payload = await parse_write_request(request)
-        if profile_kind is ProfileKind.STUDENT:
-            return await profile_service.update_student_profile(
-                context.principal, context.credential, payload.display_name
-            )
-        return await profile_service.update_tutor_profile(
-            context.principal, context.credential, payload.display_name
-        )
+        return await update_for_kind(request, profile_kind, context)
 
     return router

@@ -423,7 +423,7 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
 Статус: `partial` — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b`
-completed/verified; `ET-09.4c` completed/verified; `ET-09.4d..e` planned.
+completed/verified; `ET-09.4c` и `ET-09.4d` completed/verified; `ET-09.4e` planned.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
@@ -476,24 +476,26 @@ Ordered runtime slices and dependency edges:
    real-PostgreSQL `51` tests PASS. Separate auth/runtime roles, transaction-local
    redacted session credential, DB-derived owner, exact downgrade semantics,
    cancellation cleanup and cross-account/role negative gates are verified.
-5. `ET-09.4d` Application/HTTP ownership paths — depends on `ET-09.4c`; adapters
-   consume policy/repository contracts and add anonymous, validation and IDOR/BOLA negatives.
+5. `ET-09.4d` Application/HTTP ownership paths — `completed / VERIFIED`;
+   adapters consume policy/repository contracts and add anonymous, validation,
+   malformed-body precedence and IDOR/BOLA negatives. Evidence: fast `110`,
+   real-PostgreSQL `52`, security review `GO`.
 6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
    `ET-09.4d`; only this slice may close the full stage after all terminal gates.
 
 Detailed contracts/gates are canonical in
 `specs/features/profiles-capabilities-audit.spec.md`. `ET-09.4c` implementation
-is dependency-complete. The next runnable slice is `ET-09.4d` Application/HTTP
-ownership paths. Stage-level `NEXT: ET-09.4`; HTTP/UI runtime is not started.
+through HTTP ownership paths. The next runnable slice is `ET-09.4e` RU/UK UI and
+terminal AUTHZ E2E. Stage-level `NEXT: ET-09.4`; UI runtime is not started.
 
 - Status: partial
 - NEXT: ET-09.4
-- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; ET-09.4b commit 5de59514; ET-09.4c base commit 9741e55 plus session-bound remediation on local feature/et-09-4c-profiles-lifecycle
-- Blockers: none for ET-09.4d entry; HTTP/UI/E2E remain future slices
-- Evidence: ET-09.4c revisions 20260912_0008 and 20260912_0009; backend fast 94 passed; real PostgreSQL 51 passed; session-bound cross-account, ACL/role, downgrade, pool cleanup, cancellation and logout serialization gates PASS; root Vitest 96, ESLint/Astro check/build artifact audits PASS
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; ET-09.4b commit 5de59514; ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d implemented on local feature/et-09-4c-profiles-lifecycle
+- Blockers: none for ET-09.4e entry; real Keycloak/browser UI E2E remains the terminal slice
+- Evidence: ET-09.4c revisions 20260912_0008/0009; ET-09.4d profile HTTP 401/403/404/409/422/503 and API→Application→PostgreSQL component path; backend fast 110 passed; real PostgreSQL 52 passed; malformed-body auth/owner precedence review GO; root Vitest 96 and build audits PASS
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4b commit 5de59514; ET-09.4c base commit 9741e55 plus session-bound remediation on local feature/et-09-4c-profiles-lifecycle","current_stage":"ET-09.4","evidence":["ET-09.4c revisions 20260912_0008 and 20260912_0009; backend fast 94 passed; real PostgreSQL 51 passed; root Vitest 96 and build audits PASS; session-bound security findings remediated"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d implemented on local feature/et-09-4c-profiles-lifecycle","current_stage":"ET-09.4","evidence":["ET-09.4d backend fast 110 passed; real PostgreSQL 52 passed; HTTP error/ownership matrix and malformed-body precedence security review GO; root Vitest 96 and build audits PASS"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL

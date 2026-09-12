@@ -18,7 +18,9 @@
   Session-bound gates дополнительно проверяют separate auth/runtime roles,
   cross-account denial, exact downgrade semantics, same-PID pool cleanup,
   cancellation и logout serialization. Последний evidence: `94` fast и `51`
-  real PostgreSQL tests PASS.
+  real PostgreSQL tests PASS. `ET-09.4d` добавляет transport/error matrix,
+  malformed-body auth/owner precedence и live API → Application → PostgreSQL
+  component path; последний backend evidence: `110` fast и `52` integration PASS.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
 - `pnpm backend:idp:cleanup`: удаляет только synthetic identity после проверки

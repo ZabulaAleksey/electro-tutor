@@ -1,8 +1,7 @@
 # Спецификация profiles, capabilities и audit baseline
 
 Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a`, `ET-09.4b0`, `ET-09.4b` и `ET-09.4c`
-completed/verified, `ET-09.4d..e` planned
+runtime partial — `ET-09.4a..d` completed/verified, `ET-09.4e` planned
 
 Версия: 0.4
 
@@ -436,4 +435,11 @@ functions сами разрешают owner из active session без caller-se
 same-PID pool cleanup, cancellation и logout serialization gates подтверждены;
 fast gate: `94 passed`, real PostgreSQL gate: `51 passed`. Profile delete/deactivate,
 HTTP routes и UI не реализованы. Whole `ET-09.4` имеет truthful `partial`,
-stage-level `NEXT` — `ET-09.4d`; HTTP routes и UI ещё не реализованы.
+На checkpoint `ET-09.4c` stage-level `NEXT` оставался `ET-09.4`.
+
+`ET-09.4d` добавляет private GET/PUT/PATCH profile routes с порядком
+authentication → owner selector → payload validation, stable
+401/403/404/409/422/503 envelope и живым API → Application → PostgreSQL path.
+Fast gate: `110 passed`; real PostgreSQL gate: `52 passed`; malformed JSON и
+foreign-selector precedence security review: `GO`. UI и browser E2E остаются
+`ET-09.4e`; stage-level `NEXT` остаётся `ET-09.4` до terminal verification.

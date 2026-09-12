@@ -13,14 +13,11 @@ ingress и IAM topology не выбраны.
 | `GET /api/v1/me` | `200` только для действующей Tutor server-side session; иначе `401` |
 | `POST /api/v1/auth/logout?post_logout_redirect_uri=...` | требует exact DEV Origin/redirect, удаляет Tutor session/cookie и переводит на provider logout |
 
-## ET-09.4 planned profile HTTP surface (not implemented)
+## ET-09.4 private profile HTTP surface
 
 Approved contract находится в
-`../specs/features/profiles-capabilities-audit.spec.md`; routes ниже появятся
-только в runtime slice `ET-09.4d`:
-
-Profile persistence/application lifecycle from `ET-09.4c` is verified locally;
-no profile route is registered. `ET-09.4d` is the next runtime slice.
+`../specs/features/profiles-capabilities-audit.spec.md`; routes ниже реализованы
+и verified locally в `ET-09.4d`:
 
 | Endpoint family | Contract |
 |---|---|
@@ -34,8 +31,8 @@ payload после existing create — `409 profile_already_exists`, audit failu
 `503 audit_unavailable`. Public grant/revoke endpoint не создаётся; trusted
 provisioning вызывает Application Core service через internal adapter.
 
-Slice `ET-09.4a` уже регистрирует reusable redacted `503 audit_unavailable`
-handler для будущих audit-critical commands, но не добавляет profile/grant route.
+Slice `ET-09.4a` регистрирует reusable redacted `503 audit_unavailable` handler;
+`ET-09.4d` переиспользует его для audit-critical Tutor create.
 Slice `ET-09.4b0` не добавляет route: existing `/me` сохраняет provider identity
 provenance, а internal `account_id` остаётся server-side owner key. Public
 account-linking endpoint отсутствует.

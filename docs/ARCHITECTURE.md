@@ -159,7 +159,9 @@ functions без прямых runtime table privileges; Tutor mutation повт�
 и блокирует grant, а первое create атомарно пишет AuditEvent. Revision `0009`
 разделяет `electro_tutor_auth_runtime` и profile runtime, передаёт redacted
 session digest только transaction-local и выводит owner/audit actor из active
-session внутри PostgreSQL. `ET-09.4c` verified; HTTP/UI runtime остаётся planned.
+session внутри PostgreSQL. `ET-09.4c` verified. `ET-09.4d` добавляет thin private
+GET/PUT/PATCH adapters с auth → owner → validation precedence и живым
+API → Application → PostgreSQL path; UI остаётся planned.
 
 ## Технологии и границы
 

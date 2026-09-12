@@ -4,10 +4,12 @@ import logging
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from typing import cast
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
@@ -18,14 +20,46 @@ from electro_tutor_api.adapters.database import (
     create_runtime_engine,
 )
 from electro_tutor_api.adapters.oidc import OidcAdapter
+from electro_tutor_api.adapters.unit_of_work import PostgresUnitOfWork
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
 from electro_tutor_api.application.health import HealthService
+from electro_tutor_api.application.profiles import ProfileService, UnitOfWorkFactory
 from electro_tutor_api.config import Settings, get_settings
-from electro_tutor_api.errors import AuditUnavailableError, ErrorBody, ErrorResponse
+from electro_tutor_api.domain.profile import ProfileValidationError
+from electro_tutor_api.errors import (
+    AuditUnavailableError,
+    AuthenticationRequiredError,
+    CapabilityRequiredError,
+    ErrorBody,
+    ErrorResponse,
+    ProfileAlreadyExistsError,
+    ProfileNotFoundError,
+)
 from electro_tutor_api.logging import log_request
 from electro_tutor_api.request_id import accepted_request_id
 from electro_tutor_api.transport.auth import build_auth_router
 from electro_tutor_api.transport.health import router as health_router
+from electro_tutor_api.transport.profiles import build_profile_router
+
+PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
+    AuthenticationRequiredError: (
+        "authentication_required",
+        "Authentication is required.",
+        401,
+    ),
+    CapabilityRequiredError: (
+        "capability_required",
+        "The required capability is not active.",
+        403,
+    ),
+    ProfileNotFoundError: ("profile_not_found", "Profile was not found.", 404),
+    ProfileAlreadyExistsError: (
+        "profile_already_exists",
+        "Profile already exists with different data.",
+        409,
+    ),
+    ProfileValidationError: ("invalid_request", "Request validation failed.", 422),
+}
 
 
 def _error(request: Request, code: str, message: str, status_code: int) -> JSONResponse:
@@ -43,31 +77,62 @@ def create_app(
     settings: Settings | None = None,
     check_database: Callable[[], Awaitable[str]] | None = None,
     auth_service: AuthService | None = None,
+    profile_service: ProfileService | None = None,
 ) -> FastAPI:
     resolved = settings or get_settings()
-    engine = create_runtime_engine(resolved)
-    auth_engine = create_auth_engine(resolved)
-    resolved_auth_service = auth_service or AuthService(
-        repository=AuthRepository(auth_engine),
-        oidc=OidcAdapter(
-            issuer=resolved.oidc_issuer,
-            backchannel_base_url=resolved.oidc_backchannel_base_url,
+    owned_engines: list[AsyncEngine] = []
+    runtime_engine = None
+    if profile_service is None or check_database is None:
+        runtime_engine = create_runtime_engine(resolved)
+        owned_engines.append(runtime_engine)
+    auth_engine = None
+    if auth_service is None:
+        auth_engine = create_auth_engine(resolved)
+        owned_engines.append(auth_engine)
+    resolved_auth_service = auth_service
+    if resolved_auth_service is None:
+        assert auth_engine is not None
+        resolved_auth_service = AuthService(
+            repository=AuthRepository(auth_engine),
+            oidc=OidcAdapter(
+                issuer=resolved.oidc_issuer,
+                backchannel_base_url=resolved.oidc_backchannel_base_url,
+                client_id=resolved.oidc_client_id,
+            ),
             client_id=resolved.oidc_client_id,
-        ),
-        client_id=resolved.oidc_client_id,
-        redirect_uri=resolved.oidc_redirect_uri,
-        allowed_return_urls=resolved.allowed_return_urls,
-        allowed_post_logout_urls=resolved.allowed_post_logout_urls,
-        transaction_ttl_seconds=resolved.auth_transaction_ttl_seconds,
-        session_ttl_seconds=resolved.session_ttl_seconds,
-    )
+            redirect_uri=resolved.oidc_redirect_uri,
+            allowed_return_urls=resolved.allowed_return_urls,
+            allowed_post_logout_urls=resolved.allowed_post_logout_urls,
+            transaction_ttl_seconds=resolved.auth_transaction_ttl_seconds,
+            session_ttl_seconds=resolved.session_ttl_seconds,
+        )
+    resolved_profile_service = profile_service
+    if resolved_profile_service is None:
+        assert runtime_engine is not None
+        resolved_profile_service = ProfileService(
+            cast(
+                UnitOfWorkFactory,
+                lambda credential: PostgresUnitOfWork(runtime_engine, credential),
+            )
+        )
+    resolved_database_check = check_database
+    if resolved_database_check is None:
+        assert runtime_engine is not None
+        resolved_database_check = DatabaseHealth(runtime_engine).check
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        app.state.health_service = HealthService(check_database or DatabaseHealth(engine).check)
-        yield
-        await engine.dispose()
-        await auth_engine.dispose()
+        app.state.health_service = HealthService(resolved_database_check)
+        try:
+            yield
+        finally:
+            for owned_engine in owned_engines:
+                try:
+                    await owned_engine.dispose()
+                except Exception as exc:  # noqa: BLE001 - continue disposing all engines
+                    logging.getLogger("electro_tutor_api").error(
+                        "database engine disposal failed: %s", type(exc).__name__
+                    )
 
     app = FastAPI(
         title="Electro Tutor API",
@@ -78,12 +143,12 @@ def create_app(
         debug=resolved.debug,
         lifespan=lifespan,
     )
-    app.state.health_service = HealthService(check_database or DatabaseHealth(engine).check)
+    app.state.health_service = HealthService(resolved_database_check)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(resolved.allowed_web_origins),
         allow_credentials=True,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "PATCH"],
         allow_headers=["Content-Type", "X-Request-ID"],
     )
 
@@ -135,6 +200,13 @@ def create_app(
     async def audit_unavailable(request: Request, exc: AuditUnavailableError) -> JSONResponse:
         return _error(request, exc.code, exc.message, exc.status_code)
 
+    async def profile_error(request: Request, exc: Exception) -> JSONResponse:
+        code, message, status_code = PROFILE_ERROR_CONTRACT[type(exc)]
+        return _error(request, code, message, status_code)
+
+    for profile_error_type in PROFILE_ERROR_CONTRACT:
+        app.add_exception_handler(profile_error_type, profile_error)
+
     @app.exception_handler(Exception)
     async def internal_error(request: Request, exc: Exception) -> JSONResponse:
         logging.getLogger("electro_tutor_api").error(
@@ -144,4 +216,8 @@ def create_app(
 
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(build_auth_router(resolved_auth_service, resolved), prefix="/api/v1")
+    app.include_router(
+        build_profile_router(resolved_auth_service, resolved_profile_service, resolved),
+        prefix="/api/v1",
+    )
     return app

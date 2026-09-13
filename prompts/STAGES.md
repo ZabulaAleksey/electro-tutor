@@ -8,7 +8,7 @@
 
 ## ET-RTC-001 — Replaceable RTC/Jitsi provider boundary
 
-Статус: `running`
+Статус: `completed` (`validated locally`, 2026-09-13)
 
 - **Approval / source:** прямое разрешение пользователя 2026-09-13 после global DEV
   Replaceable Modules audit; feature-SPEC `specs/features/rtc-provider-boundary.spec.md` v1.0.
@@ -28,10 +28,17 @@
   state-bearing docs updated and atomic checkpoint committed.
 - **Stop conditions:** accepted-test regression, unavailable dependency restore, canonical contract
   conflict, destructive/integration action or external provider live-evidence requirement.
-- **Checkpoint before:** `2c63e2862490eeaac8ce625852b2ae4bb0a9c84d`; after: pending.
-- **NEXT:** implement the complete bounded slice, verify, review and checkpoint; integration remains
-  separately approval-gated.
-- Status: running
+- **Checkpoint before:** `2c63e2862490eeaac8ce625852b2ae4bb0a9c84d`; implementation:
+  `9a91884` (`feat(classroom): isolate rtc provider boundary`).
+- **Evidence:** focused RTC 14/14 PASS; full Vitest 15 files / 110 tests PASS; Astro check
+  0 errors/warnings/hints; ESLint PASS; production build 17 pages plus locale/lesson/site artifact
+  audits PASS; built Chromium 46 PASS / 2 expected auth skips; context, hygiene and CI workflow
+  contracts PASS; final correctness and security reviews — no findings.
+- **Docs synchronized:** `specs/system.spec.md`, feature SPEC/index, architecture, ADR-024,
+  security, testing, roadmap and this selected record; no deploy/release claim made.
+- **NEXT:** integration remains separately approval-gated; after merge restore the main selector to
+  partial `ET-09.4` / next dependency-ready slice `ET-09.4c`.
+- Status: completed
 - NEXT: ET-RTC-001
 - Blockers: none
 

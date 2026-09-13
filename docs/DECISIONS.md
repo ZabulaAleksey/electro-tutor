@@ -3,6 +3,24 @@
 Здесь фиксируются только существенные технические и продуктовые решения. Новое
 решение дополняет журнал; исторические записи не переписываются задним числом.
 
+## ADR-024 — Jitsi локализован за system-owned meeting port
+
+Дата: 2026-09-13
+
+Статус: принято
+
+Решение: сохранить публичный Jitsi как MVP implementation из ADR-004, но вынести его SDK/script,
+domain, options и command translation из React UI в один adapter. `Classroom.tsx` потребляет только
+`MeetingProvider`/`MeetingSession`; provider выбирается одним composition root.
+
+Причина: текущий прямой SDK lifecycle в UI делал замену provider переписыванием consumer и нарушал
+global Replaceable Module Contract. Локальная граница сохраняет пользовательское поведение и не
+создаёт ложной собственной RTC/auth implementation.
+
+Последствия: adapter и fake проходят общий contract suite, UI показывает whiteboard только по
+capability, failures нормализованы. Смена provider, доступ, privacy/SLA и production deploy остаются
+отдельными решениями.
+
 ## ADR-000 — pnpm и shared dependency stores
 
 Дата: 2026-08-24

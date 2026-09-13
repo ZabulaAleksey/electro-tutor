@@ -2,7 +2,7 @@
 
 Статус: Действует
 
-Версия: 1.1
+Версия: 1.2
 
 ## 1. Назначение
 
@@ -96,7 +96,9 @@ offline-страницу. Новая версия service worker должна а
 
 MVP кабинета создаёт или принимает безопасно нормализованный код комнаты,
 формирует ссылку-приглашение и подключает публичный Jitsi только после явного
-действия пользователя. Камера и микрофон по умолчанию выключены.
+действия пользователя. Камера и микрофон по умолчанию выключены. UI зависит от
+system-owned meeting port; provider-specific SDK, types, domain, commands и script loading
+локализованы в adapter согласно `features/rtc-provider-boundary.spec.md`.
 
 ### FR-010 Расписание
 
@@ -159,6 +161,9 @@ canonical и `hreflang`. Production-сборка должна получать �
 - AC-009: browser-тест подтверждает смену активного service worker, offline-reload
   ранее открытого публичного маршрута, fallback для неизвестного маршрута,
   отказ от кэширования 404/private/no-store/query и сохранность чужого cache namespace.
+- AC-010: кабинет сохраняет текущий explicit-join/muted-defaults consumer path через
+  provider-neutral meeting port; Jitsi детали остаются в одном adapter, fake и adapter проходят
+  общий contract suite, а structural guard исключает vendor leakage в React UI.
 
 ## 9. Связь с проверками
 
@@ -171,6 +176,7 @@ canonical и `hreflang`. Production-сборка должна получать �
 | NFR-004 | review diff и `docs/SECURITY.md` |
 | NFR-006 | Playwright E2E с удерживаемым запросом Google Fonts |
 | FR-008 | Playwright E2E жизненного цикла service worker и offline-навигации |
+| FR-009 | `src/classroom/meeting.test.ts`, `pnpm test`, `pnpm check`, `pnpm lint`, `pnpm build` |
 
 ## 10. Открытые вопросы
 

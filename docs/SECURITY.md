@@ -74,6 +74,14 @@ repository evidence.
 занятия. Имя в `localStorage` считать пользовательским вводом и не включать в
 логи.
 
+Jitsi SDK, script URL и global constructor принадлежат infrastructure adapter. UI не принимает
+vendor objects и получает только canonical meeting session/errors без raw vendor cause. Invite URL
+пересобирается только с allowlisted `room`; остальные query/hash не копируются, а display name
+очищается от control characters и ограничивается 80 символами. Late-session/unmount cleanup имеет
+bounded retry, а Jitsi adapter удаляет provider DOM/iframe из host при vendor dispose failure; UI
+не подтверждает выход, если системный teardown всё же не завершён. Эта граница уменьшает leakage,
+но не добавляет аутентификацию, waiting room, SLA или privacy-гарантии публичного provider.
+
 ## Недоверенный ввод и внешние URL
 
 - значения query и формы валидируются и ограничиваются до использования;

@@ -1,10 +1,39 @@
-- Stage ID: ET-09.4
+- Stage ID: ET-RTC-001
 
 # Поэтапный запуск Electro Tutor
 
 Этот файл — операционный протокол, а не источник требований. SPEC отвечает на
 вопрос «что должна делать система», ROADMAP — «в каком долгосрочном порядке», а
 единственный selector и выбранный record ниже — «что делаем сейчас».
+
+## ET-RTC-001 — Replaceable RTC/Jitsi provider boundary
+
+Статус: `running`
+
+- **Approval / source:** прямое разрешение пользователя 2026-09-13 после global DEV
+  Replaceable Modules audit; feature-SPEC `specs/features/rtc-provider-boundary.spec.md` v1.0.
+- **Dependencies / entry:** GitHub `main=2c63e2862490eeaac8ce625852b2ae4bb0a9c84d` получен как
+  exact `origin/main`; isolated `feature/et-rtc-provider-boundary` clean at that checkpoint.
+- **Runnable slice:** explicit user join → `MeetingProvider.join` → Jitsi adapter loads SDK and
+  creates session → UI uses declared whiteboard capability → leave/unmount disposes session.
+- **Scope:** system-owned port/DTO/error, one composition root, Jitsi adapter, fake+adapter contract
+  tests, structural vendor-leak guard and documentation synchronization.
+- **Non-goals:** provider switch, own RTC backend, access-control claims, backend/profile changes,
+  migration, deploy, merge or push.
+- **Security/fallback:** script only after explicit join; canonical provider-neutral failures;
+  room normalization and muted defaults preserved; public Jitsi remains unauthenticated MVP.
+- **Evidence required:** L1 unit/contract + structural tests; L2 TypeScript/lint/build; L3 built
+  classroom consumer path if existing E2E is runnable without external provider credentials.
+- **DoD:** `AC-RTC-A..G` PASS, no vendor token in `Classroom.tsx`, full frontend regression green,
+  state-bearing docs updated and atomic checkpoint committed.
+- **Stop conditions:** accepted-test regression, unavailable dependency restore, canonical contract
+  conflict, destructive/integration action or external provider live-evidence requirement.
+- **Checkpoint before:** `2c63e2862490eeaac8ce625852b2ae4bb0a9c84d`; after: pending.
+- **NEXT:** implement the complete bounded slice, verify, review and checkpoint; integration remains
+  separately approval-gated.
+- Status: running
+- NEXT: ET-RTC-001
+- Blockers: none
 
 ## TUTOR-00 — Полная инвентаризация и reconciliation
 

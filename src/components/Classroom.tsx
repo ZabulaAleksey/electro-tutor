@@ -2,17 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import "./Classroom.css";
 import type { Language } from "../types";
 import { getLocale } from "../i18n";
-
-type JitsiApi = {
-  executeCommand: (command: string, ...args: unknown[]) => void;
-  dispose: () => void;
-};
-
-declare global {
-  interface Window {
-    JitsiMeetExternalAPI?: new (domain: string, options: Record<string, unknown>) => JitsiApi;
-  }
-}
+import { createMeetingProvider } from "../classroom/create-meeting-provider";
+import {
+  canonicalMeetingUrl,
+  disposeMeetingSession,
+  hasWhiteboard as sessionHasWhiteboard,
+  MEETING_DISPLAY_NAME_MAX_LENGTH,
+  MeetingError,
+  MeetingJoinGate,
+  normalizeMeetingDisplayName,
+  type MeetingSession,
+} from "../classroom/meeting";
 
 function safeRoom(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 48);
@@ -22,32 +22,17 @@ function newRoom() {
   return `lesson-${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
 }
 
-function loadJitsi() {
-  return new Promise<void>((resolve, reject) => {
-    if (window.JitsiMeetExternalAPI) return resolve();
-    const previous = document.querySelector<HTMLScriptElement>("script[data-jitsi-api]");
-    if (previous) {
-      previous.addEventListener("load", () => resolve(), { once: true });
-      previous.addEventListener("error", () => reject(), { once: true });
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://meet.jit.si/external_api.js";
-    script.async = true;
-    script.dataset.jitsiApi = "true";
-    script.onload = () => resolve();
-    script.onerror = () => reject();
-    document.head.append(script);
-  });
-}
-
 export default function Classroom({ language }: { language: Language }) {
   const t = getLocale(language).classroom;
   const host = useRef<HTMLDivElement>(null);
-  const api = useRef<JitsiApi | null>(null);
+  const provider = useRef<ReturnType<typeof createMeetingProvider> | null>(null);
+  const session = useRef<MeetingSession | null>(null);
+  const joinGate = useRef<MeetingJoinGate | null>(null);
+  joinGate.current ??= new MeetingJoinGate();
   const [room, setRoom] = useState("");
   const [name, setName] = useState("");
   const [joined, setJoined] = useState(false);
+  const [hasWhiteboard, setHasWhiteboard] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("");
 
@@ -55,18 +40,21 @@ export default function Classroom({ language }: { language: Language }) {
     const params = new URLSearchParams(location.search);
     const initialRoom = safeRoom(params.get("room") || "") || newRoom();
     setRoom(initialRoom);
-    setName(localStorage.getItem("potential-classroom-name") || "");
-    if (!params.get("room")) {
-      params.set("room", initialRoom);
-      history.replaceState(null, "", `${location.pathname}?${params}`);
+    try {
+      setName(normalizeMeetingDisplayName(localStorage.getItem("potential-classroom-name") || ""));
+    } catch {
+      setName("");
     }
-    return () => api.current?.dispose();
+    const canonicalUrl = canonicalMeetingUrl(location.href, initialRoom);
+    history.replaceState(null, "", `${canonicalUrl.pathname}${canonicalUrl.search}`);
+    return () => {
+      joinGate.current?.invalidate();
+      if (session.current) disposeMeetingSession(session.current);
+    };
   }, []);
 
   const roomUrl = () => {
-    const url = new URL(location.href);
-    url.searchParams.set("room", room);
-    return url.toString();
+    return canonicalMeetingUrl(location.href, room).toString();
   };
 
   async function copyInvite() {
@@ -81,40 +69,54 @@ export default function Classroom({ language }: { language: Language }) {
 
   async function join() {
     if (!host.current || !room || loading) return;
+    const generation = joinGate.current!.begin();
     setLoading(true);
     setNotice("");
-    localStorage.setItem("potential-classroom-name", name);
-    const params = new URLSearchParams(location.search);
-    params.set("room", room);
-    history.replaceState(null, "", `${location.pathname}?${params}`);
     try {
-      await loadJitsi();
-      if (!window.JitsiMeetExternalAPI) throw new Error("Jitsi API unavailable");
-      api.current?.dispose();
-      api.current = new window.JitsiMeetExternalAPI("meet.jit.si", {
-        roomName: `potential-${room}`,
-        parentNode: host.current,
-        width: "100%",
-        height: "100%",
-        userInfo: { displayName: name.trim() || undefined },
-        configOverwrite: {
-          prejoinPageEnabled: true,
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
-        },
+      const displayName = normalizeMeetingDisplayName(name);
+      localStorage.setItem("potential-classroom-name", displayName);
+      setName(displayName);
+      const canonicalUrl = canonicalMeetingUrl(location.href, room);
+      history.replaceState(null, "", `${canonicalUrl.pathname}${canonicalUrl.search}`);
+      if (session.current && !disposeMeetingSession(session.current)) {
+        throw new MeetingError("dispose-failed");
+      }
+      session.current = null;
+      provider.current ??= createMeetingProvider();
+      const joinedSession = await provider.current.join({
+        room,
+        displayName,
+        host: host.current,
       });
+      if (!joinGate.current!.accept(generation, joinedSession)) return;
+      session.current = joinedSession;
+      setHasWhiteboard(sessionHasWhiteboard(joinedSession));
       setJoined(true);
     } catch {
-      setNotice(t.error);
+      if (joinGate.current!.isCurrent(generation)) setNotice(t.error);
     } finally {
-      setLoading(false);
+      if (joinGate.current!.isCurrent(generation)) setLoading(false);
     }
   }
 
   function leave() {
-    api.current?.dispose();
-    api.current = null;
+    joinGate.current!.invalidate();
+    if (session.current && !disposeMeetingSession(session.current)) {
+      setNotice(t.error);
+      return;
+    }
+    session.current = null;
+    setHasWhiteboard(false);
     setJoined(false);
+    setLoading(false);
+  }
+
+  function openWhiteboard() {
+    try {
+      session.current?.openWhiteboard();
+    } catch {
+      setNotice(t.error);
+    }
   }
 
   return (
@@ -126,13 +128,13 @@ export default function Classroom({ language }: { language: Language }) {
       </div>
       <div className="classroom-panel">
         <div className="classroom-controls">
-          <label><span>{t.name}</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.namePlaceholder} /></label>
+          <label><span>{t.name}</span><input value={name} maxLength={MEETING_DISPLAY_NAME_MAX_LENGTH} onChange={(e) => setName(e.target.value.slice(0, MEETING_DISPLAY_NAME_MAX_LENGTH))} placeholder={t.namePlaceholder} /></label>
           <label><span>{t.room}</span><input value={room} onChange={(e) => setRoom(safeRoom(e.target.value))} /></label>
           {!joined ? (
             <button className="button primary" type="button" onClick={join} disabled={!room || loading}>{loading ? t.loading : t.start}</button>
           ) : (
             <>
-              <button className="button primary" type="button" onClick={() => api.current?.executeCommand("toggleWhiteboard")}>✎ {t.board}</button>
+              {hasWhiteboard && <button className="button primary" type="button" onClick={openWhiteboard}>✎ {t.board}</button>}
               <button className="button ghost" type="button" onClick={leave}>{t.leave}</button>
             </>
           )}

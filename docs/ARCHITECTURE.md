@@ -283,11 +283,12 @@ share-ссылки без `v` мигрируют; повреждённые сс�
 
 ## Кабинет занятия
 
-`Classroom.tsx` нормализует код комнаты, создаёт приглашение и по действию
-пользователя загружает `https://meet.jit.si/external_api.js`. Имя сохраняется в
-`localStorage`; сервер проекта данные кабинета не хранит. Комната не имеет
-собственной авторизации или серверной политики доступа. Ограничения описаны в
-`SECURITY.md`.
+`Classroom.tsx` нормализует код комнаты, создаёт приглашение и после явного действия пользователя
+вызывает provider-neutral `MeetingProvider`. Composition root выбирает текущий Jitsi adapter;
+только adapter знает `meet.jit.si`, external script/constructor, options и command names. UI
+получает `MeetingSession`, capability whiteboard и canonical errors. Имя сохраняется в
+`localStorage`; сервер проекта данные кабинета не хранит. Комната не имеет собственной
+авторизации или серверной политики доступа. Ограничения описаны в `SECURITY.md`.
 
 ## Расписание и платежи
 
@@ -370,7 +371,7 @@ Wrangler и edge redirect больше не являются компонент�
 | URL/state schema и limits | `src/models/circular-diagram-state.ts` |
 | Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |
-| Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css` |
+| Кабинет | `src/components/Classroom.tsx`, `src/components/Classroom.css`, `src/classroom/meeting.ts`, `src/classroom/create-meeting-provider.ts`, `src/classroom/jitsi-meeting-adapter.ts` |
 | PWA cache/offline | `public/sw.js`, `public/offline.html` |
 | GitHub Pages deploy | `.github/workflows/pages.yml` |
 

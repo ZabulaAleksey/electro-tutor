@@ -27,6 +27,9 @@
   suite и live HTTP smoke; cleanup сохраняет volume.
 - `pnpm test`, `pnpm check`, `pnpm lint`, `pnpm verify:full`: неизменённый
   frontend/Pages regression contract.
+- `src/classroom/meeting.test.ts`: единый lifecycle/capability/error contract для fake и injected
+  Jitsi adapter; timeout/retry, bounded stale-session cleanup, display-name bounds и invite URL
+  allowlist; structural guard запрещает vendor SDK/domain/commands в `Classroom.tsx`.
 
 Migration lifecycle меняет только явно названную disposable database
 `electro_tutor_test` и требует exact consent marker. Local PASS не является

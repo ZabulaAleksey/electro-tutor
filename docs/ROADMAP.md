@@ -270,8 +270,11 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 ## AI-native platform track — после stabilization/public release
 
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
-`ET-09.1`, `ET-09.2` и `ET-09.3` завершены; текущий selector — `ET-09.4`. `ET-03` остаётся независимым
-content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
+`ET-09.1`, `ET-09.2` и `ET-09.3` завершены; основной platform-track остаётся на partial
+`ET-09.4`. По прямому разрешению пользователя текущий операционный selector временно переключён
+на bounded sidecar `ET-RTC-001`, который изолирует существующий public Jitsi за сменной границей,
+не закрывая и не переупорядочивая `ET-09.4`. `ET-03` остаётся независимым content-потоком, а
+внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
 contracts — в `../prompts/STAGES.md`.
@@ -280,6 +283,7 @@ contracts — в `../prompts/STAGES.md`.
 
 ```text
 TUTOR-06 → ET-08 → ET-09.1 → ET-09.2 → ET-09.3 → ET-09.4
+                     └→ ET-RTC-001 (bounded replaceability sidecar)
                                             ↓
 ET-10.1 → ET-10.2 → ET-10.3 → ET-11.1 → ET-11.2
                                             ├→ ET-11.3 → ET-11.4 → ET-11.5

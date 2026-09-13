@@ -14,6 +14,7 @@
 | `features/base-path-portability.spec.md` | Действует | Единый site/base URL contract для root и project-site artifacts |
 | `features/pre-deploy-quality-gates.spec.md` | Действует | Единый full-verify pipeline и безопасная передача проверенного artifact в GitHub Pages deploy |
 | `features/profiles-capabilities-audit.spec.md` | Действует; runtime partial | Утверждённый `ET-09.4` contract: private Student/Tutor profiles, stable Account owner, trusted capability grants, authorization matrix, atomic audit и ordered slices |
+| `features/rtc-provider-boundary.spec.md` | Утверждено; implementation active | Изоляция публичного Jitsi за system-owned meeting port, adapter/fake contract tests и запрет vendor leakage в UI |
 | `features/payments-and-booking.spec.md` | Черновик, заблокирован решениями | Расписание, hosted checkout и обработка подтверждений |
 | `features/ai-native-tutoring-platform.spec.md` | Черновик будущего track | Инварианты и границы развития к AI-native tutoring platform; каждый implementation stage требует уточнённой feature-SPEC |
 

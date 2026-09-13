@@ -1,4 +1,4 @@
-- Stage ID: ET-RTC-001
+- Stage ID: ET-09.4
 
 # Поэтапный запуск Electro Tutor
 
@@ -8,7 +8,7 @@
 
 ## ET-RTC-001 — Replaceable RTC/Jitsi provider boundary
 
-Статус: `completed` (`validated locally`, 2026-09-13)
+Статус: `completed` (`merged and validated locally`, 2026-09-13)
 
 - **Approval / source:** прямое разрешение пользователя 2026-09-13 после global DEV
   Replaceable Modules audit; feature-SPEC `specs/features/rtc-provider-boundary.spec.md` v1.0.
@@ -19,7 +19,7 @@
 - **Scope:** system-owned port/DTO/error, one composition root, Jitsi adapter, fake+adapter contract
   tests, structural vendor-leak guard and documentation synchronization.
 - **Non-goals:** provider switch, own RTC backend, access-control claims, backend/profile changes,
-  migration, deploy, merge or push.
+  migration, deploy or push.
 - **Security/fallback:** script only after explicit join; canonical provider-neutral failures;
   room normalization and muted defaults preserved; public Jitsi remains unauthenticated MVP.
 - **Evidence required:** L1 unit/contract + structural tests; L2 TypeScript/lint/build; L3 built
@@ -33,13 +33,16 @@
 - **Evidence:** focused RTC 14/14 PASS; full Vitest 15 files / 110 tests PASS; Astro check
   0 errors/warnings/hints; ESLint PASS; production build 17 pages plus locale/lesson/site artifact
   audits PASS; built Chromium 46 PASS / 2 expected auth skips; context, hygiene and CI workflow
-  contracts PASS; final correctness and security reviews — no findings.
+  contracts PASS; final correctness and security reviews — no findings. Local `main` was
+  fast-forwarded from `2c63e2862490eeaac8ce625852b2ae4bb0a9c84d` to `c3481ed30b512ae4bf5456a0c0bc1575160f4f04`;
+  the full unit/check/lint/build/E2E set passed again on the integrated target with Node 24 and
+  pnpm 11.23.0.
 - **Docs synchronized:** `specs/system.spec.md`, feature SPEC/index, architecture, ADR-024,
   security, testing, roadmap and this selected record; no deploy/release claim made.
-- **NEXT:** integration remains separately approval-gated; after merge restore the main selector to
-  partial `ET-09.4` / next dependency-ready slice `ET-09.4c`.
+- **NEXT:** local integration is complete; continue partial `ET-09.4` at its next
+  dependency-ready slice `ET-09.4c`. Remote push and deploy remain separately approval-gated.
 - Status: completed
-- NEXT: ET-RTC-001
+- NEXT: ET-09.4
 - Blockers: none
 
 ## TUTOR-00 — Полная инвентаризация и reconciliation

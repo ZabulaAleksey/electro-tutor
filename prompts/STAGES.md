@@ -614,7 +614,7 @@ Ordered slices:
 Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` implemented_unverified.
 
 - Status: in_progress
-- NEXT: ET-10.2b validation
+- NEXT: ET-10.2
 - Blockers: real PostgreSQL rerun is required after the final evidence additions;
   current sandbox cannot access Docker Engine. Terminal three-identity browser
   evidence will later require a local secret-bearing run.
@@ -641,7 +641,7 @@ Ordered slices:
   evidence: exit `0`, all integration tests passed (including ET-10.2 ACL,
   DB-time, audit rollback, no-grant/PLATFORM and check-vs-revoke cases), then
   run `pnpm backend:stop` without deleting data and report both exit codes.
-- **NEXT:** after UA-02 PASS, review/commit ET-10.2b and implement `ET-10.2c`
+- After UA-02 PASS: review/commit ET-10.2b and implement `ET-10.2c`
   private HTTP authorization check.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable

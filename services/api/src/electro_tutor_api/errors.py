@@ -56,6 +56,10 @@ class AuthorityOperationReservationConflict(RuntimeError):
     """Internal retry signal raised after a concurrent operation-id winner."""
 
 
+class BookingOperationReservationConflict(RuntimeError):
+    """Internal retry signal raised after a concurrent booking-operation winner."""
+
+
 class CapabilityGrantNotFoundError(RuntimeError):
     code = "capability_grant_not_found"
     status_code = 404
@@ -93,4 +97,49 @@ class ProfileNotFoundError(RuntimeError):
 
 class ProfileAlreadyExistsError(RuntimeError):
     code = "profile_already_exists"
+    status_code = 409
+
+
+class TutorOfferNotFoundError(RuntimeError):
+    code = "tutor_offer_not_found"
+    status_code = 404
+
+
+class BookingNotFoundError(RuntimeError):
+    code = "booking_not_found"
+    status_code = 404
+
+
+class OfferChangedError(RuntimeError):
+    code = "offer_changed"
+    status_code = 409
+
+
+class VersionConflictError(RuntimeError):
+    code = "version_conflict"
+    status_code = 409
+
+
+class InvalidBookingTransitionError(RuntimeError):
+    code = "invalid_booking_transition"
+    status_code = 409
+
+
+class BookingTimeElapsedError(RuntimeError):
+    code = "booking_time_elapsed"
+    status_code = 409
+
+
+class BookingOverlapError(RuntimeError):
+    code = "booking_overlap"
+    status_code = 409
+
+
+class SelfBookingForbiddenError(RuntimeError):
+    code = "self_booking_forbidden"
+    status_code = 409
+
+
+class OfferUnavailableError(RuntimeError):
+    code = "offer_unavailable"
     status_code = 409

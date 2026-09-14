@@ -49,13 +49,23 @@ class AuditActor:
 
 class AuditSubjectType(StrEnum):
     ACCOUNT = "account"
+    BOOKING = "booking"
     CAPABILITY_GRANT = "capability_grant"
     TUTOR_PROFILE = "tutor_profile"
+    TUTOR_OFFER = "tutor_offer"
 
 
 class AuditAction(StrEnum):
+    BOOKING_ACCEPTED = "booking.accepted"
+    BOOKING_CANCELLED = "booking.cancelled"
+    BOOKING_DECLINED = "booking.declined"
+    BOOKING_REQUESTED = "booking.requested"
     TUTOR_CAPABILITY_GRANTED = "tutor_capability.granted"
     TUTOR_CAPABILITY_REVOKED = "tutor_capability.revoked"
+    TUTOR_OFFER_CREATED = "tutor_offer.created"
+    TUTOR_OFFER_PUBLISHED = "tutor_offer.published"
+    TUTOR_OFFER_RETIRED = "tutor_offer.retired"
+    TUTOR_OFFER_REVISED = "tutor_offer.revised"
     TUTOR_PROFILE_CREATED = "tutor_profile.created"
 
 
@@ -69,12 +79,20 @@ type AuditMetadataScalar = str
 type AuditMetadata = Mapping[str, AuditMetadataScalar]
 
 _METADATA_KEYS_BY_ACTION: dict[AuditAction, frozenset[str]] = {
+    AuditAction.BOOKING_ACCEPTED: frozenset({"operation_action", "result_version"}),
+    AuditAction.BOOKING_CANCELLED: frozenset({"operation_action", "result_version"}),
+    AuditAction.BOOKING_DECLINED: frozenset({"operation_action", "result_version"}),
+    AuditAction.BOOKING_REQUESTED: frozenset({"operation_action", "result_version"}),
     AuditAction.TUTOR_CAPABILITY_GRANTED: frozenset(
         {"capability_code", "grant_id", "reason_category", "scope_id", "scope_kind"}
     ),
     AuditAction.TUTOR_CAPABILITY_REVOKED: frozenset(
         {"capability_code", "grant_id", "reason_category", "scope_id", "scope_kind"}
     ),
+    AuditAction.TUTOR_OFFER_CREATED: frozenset({"operation_action", "result_version"}),
+    AuditAction.TUTOR_OFFER_PUBLISHED: frozenset({"operation_action", "result_version"}),
+    AuditAction.TUTOR_OFFER_RETIRED: frozenset({"operation_action", "result_version"}),
+    AuditAction.TUTOR_OFFER_REVISED: frozenset({"operation_action", "result_version"}),
     AuditAction.TUTOR_PROFILE_CREATED: frozenset({"profile_type", "reason_category"}),
 }
 _MAX_METADATA_KEYS = 16
@@ -82,6 +100,28 @@ _MAX_METADATA_BYTES = 4096
 _MAX_IDENTIFIER_LENGTH = 128
 _UUID_METADATA_KEYS = frozenset({"grant_id", "scope_id"})
 _REASON_CATEGORIES = frozenset({"profile_created", "provisioned", "reconciled", "revoked", "test"})
+_BOOKING_OPERATION_ACTIONS = frozenset(
+    {
+        "tutor_offer.create",
+        "tutor_offer.revise",
+        "tutor_offer.publish",
+        "tutor_offer.retire",
+        "booking.request",
+        "booking.accept",
+        "booking.decline",
+        "booking.cancel",
+    }
+)
+_BOOKING_AUDIT_CONTRACT: dict[AuditAction, tuple[AuditSubjectType, str]] = {
+    AuditAction.TUTOR_OFFER_CREATED: (AuditSubjectType.TUTOR_OFFER, "tutor_offer.create"),
+    AuditAction.TUTOR_OFFER_REVISED: (AuditSubjectType.TUTOR_OFFER, "tutor_offer.revise"),
+    AuditAction.TUTOR_OFFER_PUBLISHED: (AuditSubjectType.TUTOR_OFFER, "tutor_offer.publish"),
+    AuditAction.TUTOR_OFFER_RETIRED: (AuditSubjectType.TUTOR_OFFER, "tutor_offer.retire"),
+    AuditAction.BOOKING_REQUESTED: (AuditSubjectType.BOOKING, "booking.request"),
+    AuditAction.BOOKING_ACCEPTED: (AuditSubjectType.BOOKING, "booking.accept"),
+    AuditAction.BOOKING_DECLINED: (AuditSubjectType.BOOKING, "booking.decline"),
+    AuditAction.BOOKING_CANCELLED: (AuditSubjectType.BOOKING, "booking.cancel"),
+}
 
 
 class AuditValidationError(ValueError):
@@ -125,7 +165,10 @@ def _validated_metadata(
     for key, value in copied.items():
         if not isinstance(value, str):
             raise AuditValidationError(f"metadata value for {key!r} must be a typed string")
-        if key == "capability_code" and value != "TUTOR_PROFILE_MANAGE_OWN":
+        if key == "capability_code" and value not in {
+            "TUTOR_PROFILE_MANAGE_OWN",
+            "TUTOR_BOOKING_MANAGE_OWN",
+        }:
             raise AuditValidationError("capability_code is not allowlisted")
         if key == "scope_kind" and value != "account":
             raise AuditValidationError("scope_kind is not allowlisted")
@@ -133,6 +176,15 @@ def _validated_metadata(
             raise AuditValidationError("profile_type is not allowlisted")
         if key == "reason_category" and value not in _REASON_CATEGORIES:
             raise AuditValidationError("reason_category is not allowlisted")
+        if key == "operation_action" and value not in _BOOKING_OPERATION_ACTIONS:
+            raise AuditValidationError("operation_action is not allowlisted")
+        contract = _BOOKING_AUDIT_CONTRACT.get(action)
+        if key == "operation_action" and contract is not None and value != contract[1]:
+            raise AuditValidationError("operation_action does not match audit action")
+        if key == "result_version" and (
+            not value.isascii() or not value.isdecimal() or int(value) < 1
+        ):
+            raise AuditValidationError("result_version must be a positive decimal integer")
         if key in _UUID_METADATA_KEYS:
             try:
                 parsed = UUID(value)
@@ -164,6 +216,9 @@ class NewAuditEvent:
             raise AuditValidationError("subject_type must be an AuditSubjectType")
         if not isinstance(self.action, AuditAction):
             raise AuditValidationError("action must be an AuditAction")
+        contract = _BOOKING_AUDIT_CONTRACT.get(self.action)
+        if contract is not None and self.subject_type is not contract[0]:
+            raise AuditValidationError("booking audit action has an invalid subject_type")
         if not isinstance(self.result, AuditResult):
             raise AuditValidationError("result must be an AuditResult")
         if not isinstance(self.correlation_id, UUID) or not isinstance(self.operation_id, UUID):

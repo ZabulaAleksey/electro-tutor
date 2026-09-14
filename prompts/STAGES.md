@@ -517,21 +517,30 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `partial` — `ET-10.1a` architecture/specification contract approved;
-runtime slices not implemented.
+Статус: `partial` — `ET-10.1a` contract и `ET-10.1b` domain/PostgreSQL slice
+completed; HTTP и RU/UK browser slices остаются.
 
 - Status: partial
 - NEXT: ET-10.1
 - Blockers: none. PLATFORM payment/legal/provider decisions remain deferred and
   do not block the complete FREE/EXTERNAL slice.
 
-- **Checkpoint / evidence:** `ET-10.1a` completed locally: architecture and repo
-  reviews found no external blocker; `payments-and-booking.spec.md` v0.2,
-  ADR-025 and architecture/API/data/security/testing/design/traceability
-  projections define the executable contract. Canonical capability route chose
-  `dev-karkas`, `plan-stage` and `implement-stage` with no route gaps.
-- **NEXT:** `ET-10.1b` domain + additive PostgreSQL persistence, exact booking
-  capability/audit, idempotency and real concurrency/ACL evidence.
+- **Checkpoint / evidence:** `ET-10.1a` approved `payments-and-booking.spec.md`
+  v0.2, ADR-025 and architecture/API/data/security/testing/design projections.
+  `ET-10.1b` implements validated domain/application ports, exact
+  `TUTOR_BOOKING_MANAGE_OWN`, additive revision `20260914_0010`, session-bound
+  function-only repositories, immutable snapshots, append-only operation/audit,
+  wall-clock boundaries and deterministic concurrency locks. Canonical
+  `backend:test:fast` passed `163` tests; real disposable PostgreSQL lifecycle,
+  ACL, exact concurrent retries, overlap and lock-boundary suite passed `57`
+  tests. Correctness/security re-review has no remaining findings.
+- **NEXT:** `ET-10.1c` FastAPI transport/error precedence/OpenAPI/CORS and live
+  API → disposable PostgreSQL evidence.
+- **Environment note:** local main database `electro_tutor` applied an early
+  uncommitted draft of revision `0010`. Do not treat it as final-schema evidence
+  or destructively reset it implicitly. `ET-10.1c` must use freshly migrated
+  disposable `electro_tutor_test`, unless an exact local-main reset is separately
+  authorized and its post-reset schema-head evidence recorded.
 - **User action `ET-10.1-UA-01`: `DONE`** — reasoning level was switched to high
   and continuation supplied; the architecture entry gate is closed.
 
@@ -568,8 +577,8 @@ Ordered slices:
 
 1. `ET-10.1a` SPEC/ADR/data/API/security/testing contract — `completed`.
 2. `ET-10.1b` domain/capability/audit/migration/repositories/application and real
-   PostgreSQL concurrency/ACL — `planned`, next.
-3. `ET-10.1c` HTTP transport/error matrix/live API — `planned`.
+   PostgreSQL concurrency/ACL — `completed`.
+3. `ET-10.1c` HTTP transport/error matrix/live API — `planned`, next.
 4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance — `planned`.
 
 ## ET-10.2 — LessonAccessGrant

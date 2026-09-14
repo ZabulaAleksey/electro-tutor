@@ -153,6 +153,50 @@ def test_unknown_action_or_untyped_envelope_values_are_rejected() -> None:
         valid_event(subject_id=123)
 
 
+@pytest.mark.parametrize(
+    ("action", "subject_type", "operation_action"),
+    [
+        (AuditAction.TUTOR_OFFER_CREATED, AuditSubjectType.TUTOR_OFFER, "tutor_offer.create"),
+        (AuditAction.TUTOR_OFFER_REVISED, AuditSubjectType.TUTOR_OFFER, "tutor_offer.revise"),
+        (
+            AuditAction.TUTOR_OFFER_PUBLISHED,
+            AuditSubjectType.TUTOR_OFFER,
+            "tutor_offer.publish",
+        ),
+        (AuditAction.TUTOR_OFFER_RETIRED, AuditSubjectType.TUTOR_OFFER, "tutor_offer.retire"),
+        (AuditAction.BOOKING_REQUESTED, AuditSubjectType.BOOKING, "booking.request"),
+        (AuditAction.BOOKING_ACCEPTED, AuditSubjectType.BOOKING, "booking.accept"),
+        (AuditAction.BOOKING_DECLINED, AuditSubjectType.BOOKING, "booking.decline"),
+        (AuditAction.BOOKING_CANCELLED, AuditSubjectType.BOOKING, "booking.cancel"),
+    ],
+)
+def test_booking_audit_actions_accept_only_redacted_operation_metadata(
+    action: AuditAction, subject_type: AuditSubjectType, operation_action: str
+) -> None:
+    event = valid_event(
+        action=action,
+        subject_type=subject_type,
+        metadata={"operation_action": operation_action, "result_version": "2"},
+    )
+    assert event.metadata == {"operation_action": operation_action, "result_version": "2"}
+    with pytest.raises(AuditValidationError):
+        valid_event(
+            action=action,
+            subject_type=subject_type,
+            metadata={"operation_action": operation_action, "title": "private"},
+        )
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "+1", "1.0", "١"])
+def test_booking_audit_result_version_is_canonical_positive_decimal(value: str) -> None:
+    with pytest.raises(AuditValidationError, match="result_version"):
+        valid_event(
+            action=AuditAction.BOOKING_ACCEPTED,
+            subject_type=AuditSubjectType.BOOKING,
+            metadata={"operation_action": "booking.accept", "result_version": value},
+        )
+
+
 def test_audit_repository_has_no_product_update_or_delete_path() -> None:
     assert not hasattr(PostgresAuditEventRepository, "update")
     assert not hasattr(PostgresAuditEventRepository, "delete")

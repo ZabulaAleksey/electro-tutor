@@ -9,6 +9,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncTransaction
 
 from electro_tutor_api.adapters.audit_repository import PostgresAuditEventRepository
+from electro_tutor_api.adapters.booking_repository import (
+    PostgresBookingOperationRepository,
+    PostgresBookingRepository,
+    PostgresTutorOfferRepository,
+)
 from electro_tutor_api.adapters.capability_repository import PostgresCapabilityGrantRepository
 from electro_tutor_api.adapters.profile_repository import PostgresProfileRepository
 from electro_tutor_api.domain.identity import Principal, SessionCredential
@@ -29,8 +34,11 @@ class PostgresUnitOfWork:
         self._credential = credential
         self.session_principal: Principal | None = None
         self.audit_events: PostgresAuditEventRepository
+        self.booking_operations: PostgresBookingOperationRepository
+        self.bookings: PostgresBookingRepository
         self.capability_grants: PostgresCapabilityGrantRepository
         self.profiles: PostgresProfileRepository
+        self.tutor_offers: PostgresTutorOfferRepository
 
     @property
     def connection(self) -> AsyncConnection:
@@ -79,8 +87,11 @@ class PostgresUnitOfWork:
                 raise AuditUnavailableError() from exc
             raise
         self.audit_events = PostgresAuditEventRepository(self._connection)
+        self.booking_operations = PostgresBookingOperationRepository(self._connection)
+        self.bookings = PostgresBookingRepository(self._connection, self.booking_operations)
         self.capability_grants = PostgresCapabilityGrantRepository(self._connection)
         self.profiles = PostgresProfileRepository(self._connection)
+        self.tutor_offers = PostgresTutorOfferRepository(self._connection, self.booking_operations)
         return self
 
     async def _cleanup_failed_enter(self) -> BaseException | None:

@@ -31,26 +31,55 @@ function errorCode(value: unknown) {
   return (value as { error?: { code?: string } })?.error?.code;
 }
 
-async function login(page: Page, username: string, language = "ru") {
+async function expectInitialSignedOutSession(
+  page: Page,
+  language = "ru",
+  responseAfterRelease: "continue" | "signed-out" = "continue",
+) {
   const copy = language === "ru"
     ? { checking: "Проверяем сессию…", signedOut: "Войдите, чтобы открыть приватные профили." }
     : { checking: "Перевіряємо сесію…", signedOut: "Увійдіть, щоб відкрити приватні профілі." };
   const meUrl = `${api}/api/v1/me`;
-  let delayed = false;
-  const delayInitialSession = async (route: Route) => {
-    if (!delayed) {
-      delayed = true;
-      await new Promise((resolve) => setTimeout(resolve, 200));
+  let releaseInitialSession = () => {};
+  const initialSessionGate = new Promise<void>((resolve) => {
+    releaseInitialSession = resolve;
+  });
+  let held = false;
+  const holdInitialSession = async (route: Route) => {
+    if (!held) {
+      held = true;
+      await initialSessionGate;
     }
-    await route.continue();
+    if (responseAfterRelease === "signed-out") {
+      await route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ error: { code: "authentication_required" } }),
+      });
+    } else {
+      await route.continue();
+    }
   };
-  await page.route(meUrl, delayInitialSession);
-  await page.goto(`${web}/${language}/account/`);
-  await expect(page.locator("[data-session-status]")).toHaveText(copy.checking);
+  await page.route(meUrl, holdInitialSession);
+  const initialSessionRequest = page.waitForRequest((request) => request.url() === meUrl);
   const loginLink = page.getByRole("link", { name: /Войти|Увійти/ });
-  await expect(loginLink).toBeVisible();
-  await expect(page.locator("[data-session-status]")).toHaveText(copy.signedOut);
-  await page.unroute(meUrl, delayInitialSession);
+  try {
+    await page.goto(`${web}/${language}/account/`);
+    const request = await initialSessionRequest;
+    expect(request.method()).toBe("GET");
+    await expect(page.locator("[data-session-status]")).toHaveText(copy.checking);
+    releaseInitialSession();
+    await expect(loginLink).toBeVisible();
+    await expect(page.locator("[data-session-status]")).toHaveText(copy.signedOut);
+  } finally {
+    releaseInitialSession();
+    await page.unroute(meUrl, holdInitialSession);
+  }
+}
+
+async function login(page: Page, username: string, language = "ru") {
+  await expectInitialSignedOutSession(page, language);
+  const loginLink = page.getByRole("link", { name: /Войти|Увійти/ });
   await loginLink.click();
   await page.getByLabel("Username or email").fill(username);
   await page.getByLabel("Password", { exact: true }).fill(password!);
@@ -94,6 +123,10 @@ function resolveAccount(subject: string) {
 }
 
 test.describe("ET-09.4e terminal support contracts", () => {
+  test("holds the exact session request while rendering the initial checking state", async ({ page }) => {
+    await expectInitialSignedOutSession(page, "ru", "signed-out");
+  });
+
   test("fails fast without either live secret and never reports a value", () => {
     expect(() => requireAuthE2ESecrets({})).toThrow(
       "ET_KEYCLOAK_ADMIN_PASSWORD and ET_DEV_TEST_PASSWORD required",

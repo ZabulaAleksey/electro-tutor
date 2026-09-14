@@ -38,6 +38,12 @@
   → logout; включает invalid redirect и changed-email/same-subject сценарии. Canonical
   command без admin/test password fail closed до Playwright; при прямом запуске
   общего suite auth tests skipped и не являются terminal evidence.
+  Initial session loading проверяется детерминированно: Playwright удерживает
+  exact `GET /api/v1/me`, подтверждает локализованный `checkingSession`, затем
+  явно освобождает запрос. Standalone support gate отвечает контролируемым `401`
+  без зависимости от запущенного API; live login продолжает exact request в
+  реальный backend. Оба пути проверяют переход без fixed sleep или
+  timeout-dependent presentation assertion.
   Для real auth suite trace/screenshot/video отключены, чтобы credential, code и
   session material не сохранялись в Playwright artifacts.
 - `pnpm backend:check`: frozen restore, lock drift, `pip-audit`, fast tests,

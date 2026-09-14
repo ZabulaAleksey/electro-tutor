@@ -666,7 +666,8 @@ async def test_nonaccepted_booking_states_never_issue_and_platform_is_rejected()
                     await connection.execute(
                         text(
                             "SELECT booking_id,count(*) grant_count FROM "
-                            "(VALUES (:requested),(:declined),(:cancelled)) ids(booking_id) "
+                            "(VALUES (CAST(:requested AS uuid)),"
+                            "(CAST(:declined AS uuid)),(CAST(:cancelled AS uuid))) ids(booking_id) "
                             "LEFT JOIN lesson_access_grants USING (booking_id) GROUP BY booking_id"
                         ),
                         {

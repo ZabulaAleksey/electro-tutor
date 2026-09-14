@@ -636,6 +636,11 @@ Ordered slices:
   access/booking unit — `14 passed`, exit `0`; `git diff --check` — exit `0`.
   Earlier integration evidence was `61 passed`, exit `0`; after the final ACL,
   boundary, rollback and concurrency additions a fresh rerun is still required.
+  Manual rerun on 2026-09-14 reached the real database and exposed one
+  test-query typing defect (`VALUES` parameters inferred as `text`, causing
+  `text = uuid`); the query now casts all three IDs to `uuid`. That run ended
+  with one failed test and exit `1`; `pnpm backend:stop` completed with exit
+  `0`, preserving data.
 - **User action `ET-10.2-UA-02`: `REQUIRED`** — from the repository root, with
   local Docker Engine available, run `pnpm backend:test:integration`. Expected
   evidence: exit `0`, all integration tests passed (including ET-10.2 ACL,

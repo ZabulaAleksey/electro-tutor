@@ -22,22 +22,35 @@ from electro_tutor_api.adapters.database import (
 from electro_tutor_api.adapters.oidc import OidcAdapter
 from electro_tutor_api.adapters.unit_of_work import PostgresUnitOfWork
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
+from electro_tutor_api.application.bookings import BookingService
 from electro_tutor_api.application.health import HealthService
 from electro_tutor_api.application.profiles import ProfileService, UnitOfWorkFactory
 from electro_tutor_api.config import Settings, get_settings
+from electro_tutor_api.domain.booking import BookingValidationError
 from electro_tutor_api.domain.profile import ProfileValidationError
 from electro_tutor_api.errors import (
     AuditUnavailableError,
     AuthenticationRequiredError,
+    BookingNotFoundError,
+    BookingOverlapError,
+    BookingTimeElapsedError,
     CapabilityRequiredError,
     ErrorBody,
     ErrorResponse,
+    IdempotencyConflictError,
+    InvalidBookingTransitionError,
+    OfferChangedError,
+    OfferUnavailableError,
     ProfileAlreadyExistsError,
     ProfileNotFoundError,
+    SelfBookingForbiddenError,
+    TutorOfferNotFoundError,
+    VersionConflictError,
 )
 from electro_tutor_api.logging import log_request
 from electro_tutor_api.request_id import accepted_request_id
 from electro_tutor_api.transport.auth import build_auth_router
+from electro_tutor_api.transport.bookings import build_booking_router
 from electro_tutor_api.transport.health import router as health_router
 from electro_tutor_api.transport.profiles import build_profile_router
 
@@ -61,6 +74,36 @@ PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
     ProfileValidationError: ("invalid_request", "Request validation failed.", 422),
 }
 
+BOOKING_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
+    BookingValidationError: ("invalid_request", "Request validation failed.", 422),
+    TutorOfferNotFoundError: ("tutor_offer_not_found", "Tutor offer was not found.", 404),
+    BookingNotFoundError: ("booking_not_found", "Booking was not found.", 404),
+    IdempotencyConflictError: (
+        "idempotency_conflict",
+        "The idempotency key conflicts with an earlier operation.",
+        409,
+    ),
+    OfferChangedError: ("offer_changed", "Tutor offer has changed.", 409),
+    VersionConflictError: ("version_conflict", "Resource version has changed.", 409),
+    InvalidBookingTransitionError: (
+        "invalid_booking_transition",
+        "Booking transition is not allowed.",
+        409,
+    ),
+    BookingTimeElapsedError: (
+        "booking_time_elapsed",
+        "Booking time boundary has elapsed.",
+        409,
+    ),
+    BookingOverlapError: ("booking_overlap", "Booking overlaps an accepted booking.", 409),
+    SelfBookingForbiddenError: (
+        "self_booking_forbidden",
+        "Tutor and student must be different accounts.",
+        409,
+    ),
+    OfferUnavailableError: ("offer_unavailable", "Tutor offer is unavailable.", 409),
+}
+
 
 def _error(request: Request, code: str, message: str, status_code: int) -> JSONResponse:
     return JSONResponse(
@@ -78,6 +121,7 @@ def create_app(
     check_database: Callable[[], Awaitable[str]] | None = None,
     auth_service: AuthService | None = None,
     profile_service: ProfileService | None = None,
+    booking_service: BookingService | None = None,
 ) -> FastAPI:
     resolved = settings or get_settings()
     owned_engines: list[AsyncEngine] = []
@@ -110,6 +154,14 @@ def create_app(
     if resolved_profile_service is None:
         assert runtime_engine is not None
         resolved_profile_service = ProfileService(
+            cast(
+                UnitOfWorkFactory,
+                lambda credential: PostgresUnitOfWork(runtime_engine, credential),
+            )
+        )
+    resolved_booking_service = booking_service
+    if resolved_booking_service is None and runtime_engine is not None:
+        resolved_booking_service = BookingService(
             cast(
                 UnitOfWorkFactory,
                 lambda credential: PostgresUnitOfWork(runtime_engine, credential),
@@ -149,7 +201,7 @@ def create_app(
         allow_origins=list(resolved.allowed_web_origins),
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH"],
-        allow_headers=["Content-Type", "X-Request-ID"],
+        allow_headers=["Content-Type", "X-Request-ID", "Idempotency-Key"],
     )
 
     @app.middleware("http")
@@ -207,6 +259,13 @@ def create_app(
     for profile_error_type in PROFILE_ERROR_CONTRACT:
         app.add_exception_handler(profile_error_type, profile_error)
 
+    async def booking_error(request: Request, exc: Exception) -> JSONResponse:
+        code, message, status_code = BOOKING_ERROR_CONTRACT[type(exc)]
+        return _error(request, code, message, status_code)
+
+    for booking_error_type in BOOKING_ERROR_CONTRACT:
+        app.add_exception_handler(booking_error_type, booking_error)
+
     @app.exception_handler(Exception)
     async def internal_error(request: Request, exc: Exception) -> JSONResponse:
         logging.getLogger("electro_tutor_api").error(
@@ -220,4 +279,9 @@ def create_app(
         build_profile_router(resolved_auth_service, resolved_profile_service, resolved),
         prefix="/api/v1",
     )
+    if resolved_booking_service is not None:
+        app.include_router(
+            build_booking_router(resolved_auth_service, resolved_booking_service, resolved),
+            prefix="/api/v1",
+        )
     return app

@@ -517,8 +517,8 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `partial` — `ET-10.1a` contract и `ET-10.1b` domain/PostgreSQL slice
-completed; HTTP и RU/UK browser slices остаются.
+Статус: `partial` — `ET-10.1a..c` contract, domain/PostgreSQL и HTTP slices
+completed; RU/UK browser slice остаётся.
 
 - Status: partial
 - NEXT: ET-10.1
@@ -534,8 +534,15 @@ completed; HTTP и RU/UK browser slices остаются.
   `backend:test:fast` passed `163` tests; real disposable PostgreSQL lifecycle,
   ACL, exact concurrent retries, overlap and lock-boundary suite passed `57`
   tests. Correctness/security re-review has no remaining findings.
-- **NEXT:** `ET-10.1c` FastAPI transport/error precedence/OpenAPI/CORS and live
-  API → disposable PostgreSQL evidence.
+- **Checkpoint / evidence:** `ET-10.1c` FastAPI transport/error precedence/OpenAPI/CORS and live
+  API → disposable PostgreSQL evidence — completed: all 12 private routes,
+  strict offset-bearing RFC3339 input, server-only participants/snapshot,
+  canonical `Idempotency-Key`, resolvable OpenAPI, exact error precedence and
+  no-store/CORS contracts. Canonical fast suite passed `171`; disposable
+  migration + real HTTP/PostgreSQL suite passed `58`, including three-account
+  IDOR, exact replay after offer retirement and post-revoke read/cancel paths.
+- **NEXT:** `ET-10.1d` RU/UK account/booking UI, component states and exact
+  two-user live browser terminal acceptance.
 - **Environment note:** local main database `electro_tutor` applied an early
   uncommitted draft of revision `0010`. Do not treat it as final-schema evidence
   or destructively reset it implicitly. `ET-10.1c` must use freshly migrated
@@ -578,8 +585,8 @@ Ordered slices:
 1. `ET-10.1a` SPEC/ADR/data/API/security/testing contract — `completed`.
 2. `ET-10.1b` domain/capability/audit/migration/repositories/application and real
    PostgreSQL concurrency/ACL — `completed`.
-3. `ET-10.1c` HTTP transport/error matrix/live API — `planned`, next.
-4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance — `planned`.
+3. `ET-10.1c` HTTP transport/error matrix/live API — `completed`.
+4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance — `planned`, next.
 
 ## ET-10.2 — LessonAccessGrant
 

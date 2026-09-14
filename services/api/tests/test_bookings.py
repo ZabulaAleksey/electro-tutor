@@ -513,7 +513,7 @@ async def test_request_is_session_bound_and_delegates_offer_lock_without_capabil
         operation=operation(),
     )
     assert returned == stored
-    assert calls == ["booking-request-offer-lock"]
+    assert calls == ["operation-read", "booking-request-offer-lock"]
     assert isinstance(bookings.last_command, RequestBookingCommand)
     assert bookings.last_command.booking_id != stored.id
 
@@ -534,6 +534,102 @@ async def test_tutor_transition_checks_visibility_then_capability_then_repositor
     with pytest.raises(BookingNotFoundError):
         await missing.accept_booking(tutor, credential(), command)
     assert missing_calls == ["booking-read"]
+
+    student = principal(stored.student_account_id)
+    for active_accounts in (set(), {student.account_id}):
+        student_service, _, _, student_calls = service(
+            student,
+            active_accounts=active_accounts,
+            stored_booking=stored,
+        )
+        with pytest.raises(CapabilityRequiredError):
+            await student_service.accept_booking(student, credential(), command)
+        assert student_calls == ["booking-read"]
+
+
+@pytest.mark.asyncio
+async def test_transport_preflights_preserve_auth_resource_action_capability_order() -> None:
+    tutor = principal()
+    source = replace(
+        offer(tutor.account_id),
+        status=TutorOfferStatus.ACTIVE,
+        published_at=datetime.now(UTC),
+    )
+    stored = booking(tutor.account_id, uuid4(), source)
+    booking_service, _, _, calls = service(
+        tutor,
+        active_accounts={tutor.account_id},
+        stored_offer=source,
+        stored_booking=stored,
+    )
+    await booking_service.preflight_create_tutor_offer(tutor, credential())
+    await booking_service.preflight_mutate_tutor_offer(tutor, credential(), source.id)
+    await booking_service.preflight_request_booking(tutor, credential(), source.id)
+    await booking_service.preflight_mutate_booking_as_tutor(tutor, credential(), stored.id)
+    await booking_service.preflight_cancel_booking(tutor, credential(), stored.id)
+    assert calls == [
+        "grant-lock",
+        "offer-read",
+        "grant-lock",
+        "offer-read",
+        "booking-read",
+        "grant-lock",
+        "booking-read",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_request_preflight_allows_own_historical_replay_after_offer_retirement() -> None:
+    student = principal()
+    source = replace(
+        offer(uuid4()),
+        status=TutorOfferStatus.RETIRED,
+        published_at=datetime.now(UTC),
+        retired_at=datetime.now(UTC),
+    )
+    stored = booking(source.tutor_account_id, student.account_id, source)
+    context = operation()
+    request_command = RequestBookingCommand(uuid4(), source.id, source.version, "UTC", context)
+    record = BookingOperationRecord(
+        operation_id=context.operation_id,
+        actor_account_id=student.account_id,
+        action=BookingOperationAction.BOOKING_REQUEST,
+        target_type=BookingOperationTargetType.BOOKING,
+        target_id=stored.id,
+        intent_digest=operation_intent_digest(
+            BookingOperationAction.BOOKING_REQUEST, request_command
+        ),
+        result_version=stored.version,
+        completed_at=datetime.now(UTC),
+        result=stored,
+    )
+    booking_service, _, _, calls = service(
+        student,
+        stored_offer=source,
+        stored_booking=stored,
+        operation_record=record,
+    )
+
+    await booking_service.preflight_request_booking(
+        student, credential(), source.id, context.operation_id
+    )
+    assert calls == ["offer-read", "operation-read"]
+
+    assert (
+        await booking_service.request_booking(
+            student,
+            credential(),
+            offer_id=source.id,
+            observed_offer_version=source.version,
+            student_time_zone="UTC",
+            operation=context,
+        )
+        == stored
+    )
+    assert calls == ["offer-read", "operation-read", "operation-read"]
+
+    with pytest.raises(TutorOfferNotFoundError):
+        await booking_service.preflight_request_booking(student, credential(), source.id, uuid4())
 
 
 @pytest.mark.asyncio

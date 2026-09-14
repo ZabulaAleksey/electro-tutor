@@ -17,6 +17,7 @@ from electro_tutor_api.domain.booking import (
     RequestBookingCommand,
     ReviseTutorOfferCommand,
     TutorOffer,
+    TutorOfferStatus,
     TutorOfferTerms,
     TutorOfferTransitionCommand,
     operation_intent_digest,
@@ -45,6 +46,84 @@ class BookingService:
         self._capability_evaluator = capability_evaluator or CapabilityEvaluator(
             cast(Any, unit_of_work)
         )
+
+    async def preflight_create_tutor_offer(
+        self,
+        principal: Principal | None,
+        credential: SessionCredential,
+    ) -> None:
+        actor = _require_principal(principal)
+        async with self._unit_of_work(credential) as unit:
+            _require_bound_principal(unit, actor)
+            await self._require_tutor_capability(unit, actor)
+
+    async def preflight_mutate_tutor_offer(
+        self,
+        principal: Principal | None,
+        credential: SessionCredential,
+        offer_id: UUID,
+    ) -> None:
+        actor = _require_principal(principal)
+        async with self._unit_of_work(credential) as unit:
+            _require_bound_principal(unit, actor)
+            offer = await unit.tutor_offers.get(offer_id)
+            if offer is None or offer.tutor_account_id != actor.account_id:
+                raise TutorOfferNotFoundError()
+            await self._require_tutor_capability(unit, actor)
+
+    async def preflight_request_booking(
+        self,
+        principal: Principal | None,
+        credential: SessionCredential,
+        offer_id: UUID,
+        operation_id: UUID | None = None,
+    ) -> None:
+        actor = _require_principal(principal)
+        async with self._unit_of_work(credential) as unit:
+            _require_bound_principal(unit, actor)
+            offer = await unit.tutor_offers.get(offer_id)
+            if offer is not None and offer.status is TutorOfferStatus.ACTIVE:
+                return
+            if operation_id is not None:
+                record = await unit.booking_operations.get(operation_id)
+                if (
+                    record is not None
+                    and record.actor_account_id == actor.account_id
+                    and record.action is BookingOperationAction.BOOKING_REQUEST
+                    and record.target_type is BookingOperationTargetType.BOOKING
+                    and isinstance(record.result, Booking)
+                    and record.result.offer_id == offer_id
+                ):
+                    return
+            raise TutorOfferNotFoundError()
+
+    async def preflight_mutate_booking_as_tutor(
+        self,
+        principal: Principal | None,
+        credential: SessionCredential,
+        booking_id: UUID,
+    ) -> None:
+        actor = _require_principal(principal)
+        async with self._unit_of_work(credential) as unit:
+            _require_bound_principal(unit, actor)
+            booking = await unit.bookings.get(booking_id)
+            if booking is None:
+                raise BookingNotFoundError()
+            if booking.tutor_account_id != actor.account_id:
+                raise CapabilityRequiredError()
+            await self._require_tutor_capability(unit, actor)
+
+    async def preflight_cancel_booking(
+        self,
+        principal: Principal | None,
+        credential: SessionCredential,
+        booking_id: UUID,
+    ) -> None:
+        actor = _require_principal(principal)
+        async with self._unit_of_work(credential) as unit:
+            _require_bound_principal(unit, actor)
+            if await unit.bookings.get(booking_id) is None:
+                raise BookingNotFoundError()
 
     async def create_tutor_offer(
         self,
@@ -142,13 +221,22 @@ class BookingService:
         command = RequestBookingCommand(
             uuid4(), offer_id, observed_offer_version, student_time_zone, operation
         )
+        digest = operation_intent_digest(BookingOperationAction.BOOKING_REQUEST, command)
         try:
             async with self._unit_of_work(credential) as unit:
                 _require_bound_principal(unit, actor)
-                return await unit.bookings.request(
-                    command,
-                    operation_intent_digest(BookingOperationAction.BOOKING_REQUEST, command),
-                )
+                record = await unit.booking_operations.get(operation.operation_id)
+                if (
+                    record is not None
+                    and record.actor_account_id == actor.account_id
+                    and record.action is BookingOperationAction.BOOKING_REQUEST
+                    and record.target_type is BookingOperationTargetType.BOOKING
+                    and record.intent_digest == digest
+                    and isinstance(record.result, Booking)
+                    and record.result.offer_id == offer_id
+                ):
+                    return record.result
+                return await unit.bookings.request(command, digest)
         except BookingOperationReservationConflict:
             result = await self._reconcile_operation(
                 actor, credential, BookingOperationAction.BOOKING_REQUEST, command
@@ -260,8 +348,11 @@ class BookingService:
         try:
             async with self._unit_of_work(credential) as unit:
                 _require_bound_principal(unit, actor)
-                if await unit.bookings.get(command.booking_id) is None:
+                booking = await unit.bookings.get(command.booking_id)
+                if booking is None:
                     raise BookingNotFoundError()
+                if booking.tutor_account_id != actor.account_id:
+                    raise CapabilityRequiredError()
                 await self._require_tutor_capability(unit, actor)
                 digest = operation_intent_digest(action, command)
                 if action is BookingOperationAction.BOOKING_ACCEPT:

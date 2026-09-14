@@ -336,8 +336,8 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 
 - **ET-10.1 — TutorOffer и Booking для `FREE`/`EXTERNAL`.** Статус:
-  `IN PROGRESS`; provider-independent SPEC/ADR-025 и domain/PostgreSQL slice
-  verified, HTTP и RU/UK two-user browser slices выполняются далее.
+  `IN PROGRESS`; provider-independent SPEC/ADR-025, domain/PostgreSQL и private
+  HTTP slices verified; RU/UK two-user browser slice выполняется далее.
 - **ET-10.2 — LessonAccessGrant.** Статус: `PLANNED`; time-bounded grant,
   authorization negatives и независимость от payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус: `PLANNED`; рабочий

@@ -97,9 +97,9 @@ cascade, tenant/member tables и public projection не входят в реал
 head и autogenerate drift. `backend:db:reset-local` — destructive local-only
 operation с exact confirmation; production-like target этим stage не поддержан.
 
-## ET-10.1 planned additive schema
+## ET-10.1 implemented additive schema
 
-Next revision after `20260912_0009` adds:
+Revision `20260914_0010` adds:
 
 - `tutor_offers`: UUID, session-derived tutor Account FK, DRAFT/ACTIVE/RETIRED,
   optimistic version, normalized title, UTC interval, IANA zone, notice,
@@ -123,3 +123,31 @@ FREE requires zero/no currency. EXTERNAL uses positive minor units and v1
 allowlist `UAH/EUR/USD` with exponent `2`. No Payment/provider/settlement row is
 created. Operational rollback preserves rows; destructive downgrade remains
 disposable local/test-only.
+
+## ET-10.2 approved additive schema
+
+Revision `20260914_0011` adds one `lesson_access_grants` row per accepted
+Booking. The grant keeps a server UUID, unique restricted `booking_id`, exact
+`BOOKING_FREE|BOOKING_EXTERNAL` source, `policy_version=1`, half-open
+`[valid_from, valid_until)`, exact `LESSON_SHELL_V1` capability-set code,
+issue timestamp/operation and an all-null-or-complete one-way revoke tuple.
+Participants remain authoritative in the immutable Booking and are not copied
+into the grant.
+
+Policy v1 derives `valid_from = starts_at - 15 minutes` and
+`valid_until = ends_at`. Effective `NOT_YET_VALID|ACTIVE|EXPIRED|REVOKED`
+status is calculated from PostgreSQL time; mutable status is not stored.
+Booking accept atomically issues the grant, and accepted-booking cancellation
+atomically revokes it. Random server-generated UUIDv4 issue/revoke operation IDs
+are stored on the grant and reused for the corresponding AuditEvents. They are
+never accepted or derived from client Booking operation keys; exact replay
+returns the persisted result. `revoke_reason` is the fixed server enum
+`BOOKING_CANCELLED`.
+
+Exact fixed-search-path functions provide session-bound authorization and
+booking-integrated issue/revoke. Runtime receives no direct table DML; auth
+runtime receives no Access privileges. Existing accepted FREE/EXTERNAL rows are
+backfilled atomically with collision-safe random operation IDs and exact
+`service/lesson-access-migration` / `migration_backfill` audit provenance in the
+migration transaction. Operational rollback
+retains rows; destructive downgrade remains disposable local/test-only.

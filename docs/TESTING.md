@@ -93,3 +93,27 @@ terminal live acceptance that closed ET-10.1.
 Migration lifecycle меняет только явно названную disposable database
 `electro_tutor_test` и требует exact consent marker. Local PASS не является
 production backend deployment evidence.
+
+## ET-10.2 required evidence
+
+- Domain/unit: exact FREE/EXTERNAL source mapping, fixed policy-v1 window,
+  half-open start/end, role/capability derivation and effective statuses.
+- Real PostgreSQL: `0010 → 0011 → 0010 → 0011`, accepted-row backfill,
+  constraints/triggers/functions/ACL, atomic accept-issue and cancel-revoke,
+  duplicate/concurrent retry and check-vs-revoke linearization. Both live
+  issue/revoke and backfill must survive adversarial pre-reservation of a
+  client-chosen Booking operation UUID in the global audit namespace; backfill
+  asserts exact `service/lesson-access-migration` actor,
+  `migration_backfill` reason, null request ID and bounded correlation metadata.
+- HTTP: session/UUID/resource/state/invariant precedence, masked third-account
+  denial, OpenAPI, no-store and redacted `503` paths.
+- RU/UK/component/browser: signed-out/loading/active/not-yet-valid/expired/
+  revoked/not-found/dependency states, session-generation invalidation,
+  keyboard/mobile/theme/text-expansion checks and no Jitsi/media claim.
+- Terminal E2E: tutor and student accept an eligible Booking, both enter the
+  protected media-less shell, an unrelated third managed identity is denied,
+  and cancellation blocks a new entry. Secret-bearing artifacts remain
+  disabled and services must stop on success or failure.
+
+Mocks and direct fixtures cannot replace the real PostgreSQL authorization
+negatives or the authenticated three-identity terminal path.

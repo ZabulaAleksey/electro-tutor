@@ -83,3 +83,32 @@ Stable conflicts: `idempotency_conflict`, `offer_changed`, `version_conflict`,
 `self_booking_forbidden`, `offer_unavailable`. Foreign resources use
 `tutor_offer_not_found`/`booking_not_found`; audit failure stays
 `503 audit_unavailable`. Full schemas and precedence belong to the feature SPEC.
+
+## ET-10.2 LessonAccessGrant private surface
+
+`GET /api/v1/bookings/{booking_id}/lesson-access` is an authorization check,
+not a public grant-management endpoint. It returns `200` only for a current
+participant whose server-issued grant is `ACTIVE`:
+
+```json
+{
+  "grant_id": "uuid",
+  "booking_id": "uuid",
+  "status": "ACTIVE",
+  "participant_role": "student",
+  "valid_from": "2026-09-14T10:45:00Z",
+  "valid_until": "2026-09-14T12:00:00Z",
+  "capabilities": ["LESSON_SHELL_ENTER"]
+}
+```
+
+Precedence is session `401`, malformed UUID `422`, missing/foreign Booking as
+non-disclosing `404 booking_not_found`, then participant grant state as `403
+lesson_access_not_yet_valid|expired|revoked|unavailable`. An accepted eligible
+Booking with a missing or inconsistent mandatory grant fails closed as `503
+lesson_access_policy_unavailable`; database/audit failures retain redacted
+`503` contracts. All responses are private and `no-store`.
+
+Issue and revoke are policy consequences of Booking accept/cancel inside the
+same transaction. No public issue/revoke route, Account ID, arbitrary
+capability input, payment claim or media token is exposed in ET-10.2.

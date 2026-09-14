@@ -611,16 +611,25 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `planned`.
+Статус: `in_progress` — `ET-10.2a` contract approved; implementation pending.
 
-- Status: planned
+- Status: in_progress
 - NEXT: ET-10.2
-- Blockers: security-critical LessonAccessGrant SPEC/architecture entry gate
-  requires high reasoning before implementation.
-- **User action `ET-10.2-UA-01`: `REQUIRED`** — switch the main reasoning level
-  to high and reply `Продолжай`. Expected evidence: continuation arrives at
-  high reasoning; this unblocks the LessonAccessGrant SPEC/architecture entry
-  gate. No secret or external access is required.
+- Blockers: none for `ET-10.2b`; terminal three-identity browser evidence will
+  later require a local secret-bearing run.
+- **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
+  and continuation supplied; the architecture entry gate is closed.
+- **Checkpoint / evidence:** `ET-10.2a` approved
+  `lesson-access-grants.spec.md` v0.1 and ADR-026. One Booking-scoped grant,
+  exact FREE/EXTERNAL sources, policy-v1 half-open window, derived role and
+  `LESSON_SHELL_ENTER`, atomic issue/revoke/audit, private check API, DB/ACL,
+  RU/UK media-less shell, three-identity E2E and rollback contracts are fixed.
+  Security re-review: `GO`; `pnpm check:context`: PASS; `git diff --check`:
+  PASS. Global overlay validator remains separately blocked by the pre-existing
+  missing `.codex/dev-project.toml` / bridge marker and legacy stage-state
+  cleanup; this is not ET-10.2 product evidence.
+- **NEXT:** implement `ET-10.2b` domain/UoW/migration/repository and real
+  PostgreSQL evidence.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -643,10 +652,27 @@ Ordered slices:
 - **Observability / docs:** grant source/status decision and denial reason code,
   no sensitive token; update access SPEC, architecture/API/data/security/state.
 - **Temporary / rollback / risks:** FREE/EXTERNAL grant sources are complete;
-  no fake paid source. Rollback revokes/export grants before schema reversal;
-  risk — long-lived or over-broad capabilities.
+  no fake paid source. Operational rollback disables the consumer while
+  retaining additive schema/grants; it never revokes or exports production
+  grants as a rollback step. Destructive downgrade is limited to an exact
+  disposable local/test database with explicit consent; risk — long-lived or
+  over-broad capabilities.
 - **DoD / deferred:** common DoD + real authorization negatives; PLATFORM grant
   and native media token deferred.
+
+Ordered slices:
+
+1. `ET-10.2a` dedicated SPEC/ADR/API/data/security/testing/UI contract —
+   `completed`.
+2. `ET-10.2b` domain/UoW/migration/repository, atomic accept→issue and
+   accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
+   `planned / NEXT`.
+3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
+   `planned`.
+4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
+   acceptance — `planned`.
+
+Whole stage remains non-terminal until `ET-10.2d` terminal acceptance.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 

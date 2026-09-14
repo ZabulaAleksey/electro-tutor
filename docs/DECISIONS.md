@@ -685,3 +685,50 @@ private profile boundary; generic operation ledger отложен до трет�
 destructive downgrade разрешён только disposable local/test DB. Detailed
 requirements и HTTP/data contracts принадлежат
 `../specs/features/payments-and-booking.spec.md`.
+
+## ADR-026 — Booking-derived LessonAccessGrant boundary
+
+Дата: 2026-09-14
+
+Статус: принято как implementation contract для `ET-10.2`
+
+Решение: Access остаётся отдельным domain aggregate, а не account CapabilityGrant
+и не LessonSession. Один accepted `FREE`/`EXTERNAL` Booking атомарно создаёт
+один grant с source `BOOKING_FREE|BOOKING_EXTERNAL`, policy/capability set v1 и
+half-open window от `starts_at - 15 minutes` до `ends_at`. Status выводится по
+PostgreSQL time; client не передаёт Account, role, source, window или capability.
+
+Capability set v1 разрешает только `LESSON_SHELL_ENTER`; participant role
+выводится из immutable Booking. Accepted Booking cancellation atomically revokes
+grant. Public issue/revoke, admin grant authority, bearer invite, PLATFORM,
+payment/provider state, LessonSession и media token отсутствуют.
+
+Booking accept/cancel, grant issue/revoke and exact redacted AuditEvents share
+one transaction. Separate random server-generated UUIDv4 operation IDs are
+persisted on the grant and used by AuditEvents; client Booking idempotency keys
+cannot predict or reserve them. Exact replay returns the persisted result. Lock order
+is Booking then grant; check uses shared locks, revoke uses update locks. Missing
+or inconsistent eligible grant fails closed and is never rebuilt from client,
+IdP, provider or cache.
+
+Private `GET /api/v1/bookings/{booking_id}/lesson-access` returns only active
+participant access. Foreign/nonexistent Booking is masked as the existing 404;
+not-yet-valid/expired/revoked are participant-only 403 states. A new static
+RU/UK media-less shell consumes this check. Existing public Jitsi `/classroom`
+remains unchanged and is not presented as protected.
+
+Альтернативы: reuse account capability grants rejected because their scope and
+lifecycle differ; one grant per participant rejected because Booking already
+owns immutable participants; arbitrary capability JSON rejected fail-closed;
+lazy issue on GET rejected because acceptance must be atomic; generic operation
+ledger/cache/policy engine rejected as premature; extending the accepted
+two-user runner in place rejected in favour of a separate access-specific
+three-identity terminal path.
+
+Последствия: additive revision `20260914_0011` owns grant schema, collision-safe
+eligible backfill with allowlisted `service/lesson-access-migration` actor and
+`migration_backfill` provenance, audit allowlist and function-only runtime ACL. Operational
+rollback preserves rows and removes the consumer; destructive downgrade remains
+disposable-test only. Future policy/window or PLATFORM support requires a new
+versioned contract. Detailed requirements belong to
+`../specs/features/lesson-access-grants.spec.md`.

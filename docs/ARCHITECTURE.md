@@ -196,6 +196,42 @@ responses не кэшируются; Account IDs в browser contract не поп
 форматируется через `Intl` из UTC instant + explicit IANA zone. Existing Cal.com
 link не синхронизирован с authoritative Booking.
 
+### ET-10.2 LessonAccessGrant contract
+
+ADR-026 и `../specs/features/lesson-access-grants.spec.md` add a separate Access
+module without introducing LessonSession or media:
+
+```text
+Booking accept/cancel application path
+  → existing Booking locks/idempotency
+  → one booking-scoped LessonAccessGrant + redacted audit in the same UoW
+
+private session + opaque booking UUID
+  → Access application service
+  → session-bound participant + grant check using PostgreSQL time
+  → ACTIVE media-less shell or stable fail-closed error
+```
+
+One grant references one immutable Booking and stores no copied participants.
+Allowed sources are only `BOOKING_FREE|BOOKING_EXTERNAL`; policy v1 is the
+half-open interval `[starts_at - 15 minutes, ends_at)`. Effective status is
+derived, and capability set v1 resolves only `LESSON_SHELL_ENTER` plus the
+Booking-derived tutor/student role.
+
+Accept atomically issues; accepted cancellation atomically revokes. Random
+server-generated UUIDv4 issue/revoke operation IDs are persisted on the grant
+and reused by AuditEvents; client Booking keys cannot pre-reserve their audit
+identity. Exact replay returns the persisted result. Lock order is Booking→grant, runtime uses narrow
+fixed-search-path functions and has no Access table DML. Check has no cache or
+provider fallback; foreign resource is masked and inconsistent policy data
+fails closed.
+
+The consumer is a new static RU/UK protected shell with no private build-time
+data. Existing public Jitsi classroom remains a separate legacy MVP and is not
+loaded or reclassified by ET-10.2. A separate exact three-identity terminal
+harness proves the foreign-account denial without changing ET-10.1 accepted
+two-user phase counts.
+
 ## Технологии и границы
 
 | Задача | Реализация |

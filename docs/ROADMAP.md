@@ -340,7 +340,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   SPEC/ADR-025, domain/PostgreSQL, private HTTP и RU/UK browser UI verified.
   Exact two-user Keycloak → API → PostgreSQL terminal phases passed with
   cleanup confirmation and exit `0`.
-- **ET-10.2 — LessonAccessGrant.** Статус: `PLANNED / NEXT`; time-bounded grant,
+- **ET-10.2 — LessonAccessGrant.** Статус: `IN PROGRESS / NEXT`; time-bounded grant,
   authorization negatives и независимость от payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус: `PLANNED`; рабочий
   lesson shell с server-authoritative lifecycle/capabilities без native media.

@@ -214,6 +214,12 @@ snapshot, exact tutor capability, participant cancellation before start and
 server-authoritative overlap/idempotency. `EXTERNAL` не создаёт Payment и не
 подтверждает settlement; `PLATFORM` остаётся отдельным blocked track.
 
+Approved `ET-10.2` delta находится в `lesson-access-grants.spec.md` и ADR-026:
+one Booking-scoped grant, exact FREE/EXTERNAL sources, versioned half-open
+access window, participant-only `LESSON_SHELL_ENTER`, atomic accept/cancel
+issue/revoke and a protected media-less shell. `ACCESS-001` paid source remains
+deferred to `ET-15.2`; LessonSession и native media остаются separate stages.
+
 ### PLAT-005 LessonSession continuity
 
 Authorized user может создать/войти в LessonSession, а reload/reconnect

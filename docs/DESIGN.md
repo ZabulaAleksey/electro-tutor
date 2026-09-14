@@ -109,6 +109,22 @@ through `Intl` in selected locale with an explicit IANA zone. Mobile layout,
 keyboard focus, field labels, status announcement and text expansion remain
 required browser checks.
 
+### ET-10.2 Protected lesson entry states
+
+A new localized static lesson shell reads an opaque Booking UUID only from the
+`#booking=` URL fragment, clears it from the visible address after bootstrap and
+reveals no private data before its API authorization check. The identifier is
+not placed in a query string or referrer. It is deliberately
+separate from the existing public Jitsi classroom and does not load media.
+Accepted Booking cards may link to this shell.
+
+Required RU/UK states are signed out, loading, active access, not yet valid,
+expired, revoked/unavailable, not found/foreign and retryable dependency error.
+Only `ACTIVE` exposes the media-less lesson entry region. Status changes use an
+appropriate live region; late private responses after logout or session expiry
+must not restore access. Mobile, keyboard, text-expansion and both-theme checks
+remain required.
+
 ## Темы и сохраняемое состояние
 
 Светлая и тёмная темы должны иметь достаточный контраст. Выбор темы хранится в

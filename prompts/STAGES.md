@@ -615,8 +615,12 @@ Ordered slices:
 
 - Status: planned
 - NEXT: ET-10.2
-- Blockers: none for planning; implementation starts only after the
-  LessonAccessGrant SPEC/architecture entry contract is approved.
+- Blockers: security-critical LessonAccessGrant SPEC/architecture entry gate
+  requires high reasoning before implementation.
+- **User action `ET-10.2-UA-01`: `REQUIRED`** — switch the main reasoning level
+  to high and reply `Продолжай`. Expected evidence: continuation arrives at
+  high reasoning; this unblocks the LessonAccessGrant SPEC/architecture entry
+  gate. No secret or external access is required.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.

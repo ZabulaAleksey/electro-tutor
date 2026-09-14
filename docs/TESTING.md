@@ -55,9 +55,9 @@
 - `pnpm test`, `pnpm check`, `pnpm lint`, `pnpm verify:full`: неизменённый
   frontend/Pages regression contract.
 
-## ET-10.1 required evidence
+## ET-10.1 completed evidence
 
-Current `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`
+Completed `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`
 files / zero diagnostics, ESLint, build/localization/publication/site audits
 (`95` artifacts), focused booking browser matrix `7`, full Chromium
 `62 passed / 4` expected live-phase skips, backend fast `171` and real
@@ -66,6 +66,10 @@ the isolated `electro_tutor_test`, fails fast when preview port `4322` is
 occupied and stops local Compose services after success or failure. Astro
 `7.3.2` plus targeted transitive security overrides produce
 `pnpm audit --audit-level high` exit `0` with two moderate advisories remaining.
+Manual secret-bearing `pnpm test:e2e:auth` then completed the terminal live
+acceptance: profiles `7 passed / 2 skipped`, booking `6 passed / 3 skipped`,
+identity-change `6 passed / 3 skipped`; cleanup confirmed and terminal exit
+`0`. Secret values were neither transferred nor persisted.
 
 - Domain/unit: state transitions, normalization, FREE/EXTERNAL money, IANA
   zone/offset/DST, notice/cancel boundaries, immutable snapshot and exact
@@ -83,7 +87,8 @@ occupied and stops local Compose services after success or failure. Astro
 - Terminal completion: exact two managed Keycloak identities execute the real
   browser → API → PostgreSQL path with no skipped booking phase and exit `0`.
 
-Mocks/support routes remain lower-level evidence and cannot close ET-10.1.
+Mocks/support routes remain lower-level evidence and did not substitute for the
+terminal live acceptance that closed ET-10.1.
 
 Migration lifecycle меняет только явно названную disposable database
 `electro_tutor_test` и требует exact consent marker. Local PASS не является

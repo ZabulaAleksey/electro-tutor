@@ -460,4 +460,4 @@ foreign UUID denial и self-escalation rejection. Local evidence: backend fast
 без diagnostics, 17-page build и artifact audits PASS; security review cycle 2
 `GO`. Manual secret-bearing live two-user Keycloak/browser run завершён с exit
 `0`: profiles phase `6 passed / 1` expected phase skip, identity-change phase
-`5 passed / 2` expected phase skips. Whole stage verified; `NEXT: ET-10.1`.
+`5 passed / 2` expected phase skips. Whole stage verified.

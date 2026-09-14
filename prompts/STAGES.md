@@ -1,4 +1,4 @@
-- Stage ID: ET-10.1
+- Stage ID: ET-10.2
 
 # Поэтапный запуск Electro Tutor
 
@@ -489,10 +489,11 @@ Ordered runtime slices and dependency edges:
 
 Detailed contracts/gates are canonical in
 `specs/features/profiles-capabilities-audit.spec.md`. Implementation reaches
-RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
+RU/UK UI and an exact two-user terminal harness. Successor `ET-10.1` is now
+completed; the current selector is `ET-10.2`.
 
 - Status: completed
-- NEXT: ET-10.1
+- NEXT: completed; successor ET-10.1 is completed, current selector ET-10.2
 - Checkpoint: ET-09.4a commits c946a80 and 7e15571; ET-09.4b commit 5de59514;
   ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d commit b729290; ET-09.4e
   deterministic session-gate fix commit 3912a8a and successful manual live
@@ -517,15 +518,14 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `partial` — `ET-10.1a..c` completed; `ET-10.1d` RU/UK UI и
-non-secret browser gates реализованы и verified, но обязательный live
-Keycloak → API → PostgreSQL terminal run ожидает ручного secret-bearing запуска.
+Статус: `completed` (`validated locally`, 2026-09-14) — `ET-10.1a..d`
+закрыты, включая обязательный live Keycloak → API → PostgreSQL terminal run.
 
-- Status: partial
-- NEXT: ET-10.1
-- Blockers: terminal live browser evidence требует локальных secret values,
-  которые не передаются агенту. PLATFORM payment/legal/provider decisions
-  remain deferred and do not block the complete FREE/EXTERNAL slice.
+- Status: completed
+- NEXT: ET-10.2
+- Blockers: отсутствуют для FREE/EXTERNAL slice. PLATFORM
+  payment/legal/provider decisions remain deferred и не влияют на completion
+  ET-10.1.
 
 - **Checkpoint / evidence:** `ET-10.1a` approved `payments-and-booking.spec.md`
   v0.2, ADR-025 and architecture/API/data/security/testing/design projections.
@@ -554,9 +554,12 @@ Keycloak → API → PostgreSQL terminal run ожидает ручного secre
   Compose services after live success/failure. Dependency security gate upgraded
   Astro to `7.3.2`, pins three patched transitive versions and passes
   `pnpm audit --audit-level high` (only two moderate advisories remain).
-- **NEXT:** execute `ET-10.1-UA-02`; close `ET-10.1d` and whole `ET-10.1` only
-  after exact two-user live browser terminal acceptance exits `0` without a
-  skipped booking phase.
+- **Terminal evidence:** manual secret-bearing `pnpm test:e2e:auth` completed
+  the exact live browser path on 2026-09-14: profiles `7 passed / 2 skipped`,
+  booking `6 passed / 3 skipped`, identity-change `6 passed / 3 skipped`;
+  authenticated API, PostgreSQL and Keycloak cleanup confirmed, terminal exit
+  `0`. No secret values were transferred or persisted.
+- **NEXT:** begin `ET-10.2` LessonAccessGrant after its SPEC/Stage entry gate.
 - **Environment note:** local main database `electro_tutor` applied an early
   uncommitted draft of revision `0010`. Do not treat it as final-schema evidence
   or destructively reset it implicitly. `ET-10.1c` must use freshly migrated
@@ -564,14 +567,9 @@ Keycloak → API → PostgreSQL terminal run ожидает ручного secre
   authorized and its post-reset schema-head evidence recorded.
 - **User action `ET-10.1-UA-01`: `DONE`** — reasoning level was switched to high
   and continuation supplied; the architecture entry gate is closed.
-- **User action `ET-10.1-UA-02`: `REQUIRED / BLOCKED_BY_LOCAL_SECRETS`** — in
-  the repository, keep the real values only in the local shell and run
-  `pnpm test:e2e:auth`; do not paste or persist secret values. Expected evidence:
-  profiles phase `7 passed / 2 skipped`, booking phase `6 passed / 3 skipped`,
-  identity-change phase `6 passed / 3 skipped`, no skipped live test in its
-  selected phase, cleanup confirmation and terminal exit `0`. This evidence
-  unblocks closure of `ET-10.1`; the agent-side no-secret attempt correctly
-  failed before service mutation and is not acceptance evidence.
+- **User action `ET-10.1-UA-02`: `DONE`** — local secret-bearing
+  `pnpm test:e2e:auth` produced the required three phase counts, cleanup
+  confirmation and terminal exit `0`; secret values were not shared.
 
 - **Goal / why now:** deliver booking value without blocking on Stripe/legal
   platform-payment decisions.
@@ -609,11 +607,16 @@ Ordered slices:
    PostgreSQL concurrency/ACL — `completed`.
 3. `ET-10.1c` HTTP transport/error matrix/live API — `completed`.
 4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance —
-   `implemented_unverified`; all non-secret gates PASS, live terminal gate pending.
+   `completed`; live terminal gate passed with cleanup confirmation and exit `0`.
 
 ## ET-10.2 — LessonAccessGrant
 
 Статус: `planned`.
+
+- Status: planned
+- NEXT: ET-10.2
+- Blockers: none for planning; implementation starts only after the
+  LessonAccessGrant SPEC/architecture entry contract is approved.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.

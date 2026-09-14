@@ -611,13 +611,13 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` implemented_unverified.
+Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` completed; `ET-10.2c` implementing.
 
 - Status: in_progress
 - NEXT: ET-10.2
-- Blockers: real PostgreSQL rerun is required after the final evidence additions;
-  current sandbox cannot access Docker Engine. Terminal three-identity browser
-  evidence will later require a local secret-bearing run.
+- Blockers: ET-10.2c live HTTP→PostgreSQL integration rerun is required after
+  the new transport scenario; terminal three-identity browser evidence will
+  later require a local secret-bearing run.
 - **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
   and continuation supplied; the architecture entry gate is closed.
 - **Checkpoint / evidence:** `ET-10.2a` approved
@@ -643,15 +643,20 @@ Ordered slices:
   `pnpm backend:stop` completed with exit
   `0`, preserving data. A second real rerun then exposed the same test's
   `count(*)` null-extended-row assertion (`grant_count=1` for no grant); it
-  now counts `grants.booking_id` explicitly. A fresh integration rerun remains
-  required after this correction.
-- **User action `ET-10.2-UA-02`: `REQUIRED`** — from the repository root, with
-  local Docker Engine available, run `pnpm backend:test:integration`. Expected
-  evidence: exit `0`, all integration tests passed (including ET-10.2 ACL,
-  DB-time, audit rollback, no-grant/PLATFORM and check-vs-revoke cases), then
-  run `pnpm backend:stop` without deleting data and report both exit codes.
-- After UA-02 PASS: review/commit ET-10.2b and implement `ET-10.2c`
-  private HTTP authorization check.
+  now counts `grants.booking_id` explicitly. **UA-02 result:** completed on 2026-09-14
+  after the correction — `65 passed, 179 deselected`, exit `0`;
+  `pnpm backend:stop`, exit `0`, data preserved.
+- **User action `ET-10.2-UA-02`: `DONE`** — real PostgreSQL migration/ACL,
+  DB-time, audit rollback, no-grant/PLATFORM and check-vs-revoke integration
+  evidence is recorded above.
+- ET-10.2b is now `completed`; continue with `ET-10.2c` private HTTP
+  authorization check.
+- **ET-10.2c evidence in progress:** private GET transport, canonical UUID and
+  stable error mapping are covered by `test_lesson_access_transport.py`;
+  `test_lesson_access_http_integration.py` covers real session-cookie → API →
+  PostgreSQL participant/foreign/anonymous/malformed/revoked behavior and is
+  marked integration. A fresh `pnpm backend:test:integration` rerun is still
+  required for this new scenario.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -687,10 +692,10 @@ Ordered slices:
 1. `ET-10.2a` dedicated SPEC/ADR/API/data/security/testing/UI contract —
    `completed`.
 2. `ET-10.2b` domain/UoW/migration/repository, atomic accept→issue and
-   accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
-   `implemented_unverified / blocked on ET-10.2-UA-02 integration rerun`.
+  accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
+  `completed`.
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
-   `planned`.
+  `implementing`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
    acceptance — `planned`.
 

@@ -24,9 +24,11 @@ from electro_tutor_api.adapters.unit_of_work import PostgresUnitOfWork
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
 from electro_tutor_api.application.bookings import BookingService
 from electro_tutor_api.application.health import HealthService
+from electro_tutor_api.application.lesson_access import LessonAccessGrantService
 from electro_tutor_api.application.profiles import ProfileService, UnitOfWorkFactory
 from electro_tutor_api.config import Settings, get_settings
 from electro_tutor_api.domain.booking import BookingValidationError
+from electro_tutor_api.domain.lesson_access import LessonAccessValidationError
 from electro_tutor_api.domain.profile import ProfileValidationError
 from electro_tutor_api.errors import (
     AuditUnavailableError,
@@ -39,7 +41,11 @@ from electro_tutor_api.errors import (
     ErrorResponse,
     IdempotencyConflictError,
     InvalidBookingTransitionError,
+    LessonAccessExpiredError,
+    LessonAccessNotYetValidError,
     LessonAccessPolicyUnavailableError,
+    LessonAccessRevokedError,
+    LessonAccessUnavailableError,
     OfferChangedError,
     OfferUnavailableError,
     ProfileAlreadyExistsError,
@@ -53,6 +59,7 @@ from electro_tutor_api.request_id import accepted_request_id
 from electro_tutor_api.transport.auth import build_auth_router
 from electro_tutor_api.transport.bookings import build_booking_router
 from electro_tutor_api.transport.health import router as health_router
+from electro_tutor_api.transport.lesson_access import build_lesson_access_router
 from electro_tutor_api.transport.profiles import build_profile_router
 
 PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
@@ -77,6 +84,7 @@ PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
 
 BOOKING_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
     BookingValidationError: ("invalid_request", "Request validation failed.", 422),
+    LessonAccessValidationError: ("invalid_request", "Request validation failed.", 422),
     TutorOfferNotFoundError: ("tutor_offer_not_found", "Tutor offer was not found.", 404),
     BookingNotFoundError: ("booking_not_found", "Booking was not found.", 404),
     IdempotencyConflictError: (
@@ -108,6 +116,26 @@ BOOKING_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
         "Lesson access policy is temporarily unavailable.",
         503,
     ),
+    LessonAccessNotYetValidError: (
+        "lesson_access_not_yet_valid",
+        "Lesson access is not yet valid.",
+        403,
+    ),
+    LessonAccessExpiredError: (
+        "lesson_access_expired",
+        "Lesson access has expired.",
+        403,
+    ),
+    LessonAccessRevokedError: (
+        "lesson_access_revoked",
+        "Lesson access has been revoked.",
+        403,
+    ),
+    LessonAccessUnavailableError: (
+        "lesson_access_unavailable",
+        "Lesson access is unavailable.",
+        403,
+    ),
 }
 
 
@@ -128,6 +156,7 @@ def create_app(
     auth_service: AuthService | None = None,
     profile_service: ProfileService | None = None,
     booking_service: BookingService | None = None,
+    lesson_access_service: LessonAccessGrantService | None = None,
 ) -> FastAPI:
     resolved = settings or get_settings()
     owned_engines: list[AsyncEngine] = []
@@ -168,6 +197,14 @@ def create_app(
     resolved_booking_service = booking_service
     if resolved_booking_service is None and runtime_engine is not None:
         resolved_booking_service = BookingService(
+            cast(
+                UnitOfWorkFactory,
+                lambda credential: PostgresUnitOfWork(runtime_engine, credential),
+            )
+        )
+    resolved_lesson_access_service = lesson_access_service
+    if resolved_lesson_access_service is None and runtime_engine is not None:
+        resolved_lesson_access_service = LessonAccessGrantService(
             cast(
                 UnitOfWorkFactory,
                 lambda credential: PostgresUnitOfWork(runtime_engine, credential),
@@ -285,6 +322,13 @@ def create_app(
         build_profile_router(resolved_auth_service, resolved_profile_service, resolved),
         prefix="/api/v1",
     )
+    if resolved_lesson_access_service is not None:
+        app.include_router(
+            build_lesson_access_router(
+                resolved_auth_service, resolved_lesson_access_service, resolved
+            ),
+            prefix="/api/v1",
+        )
     if resolved_booking_service is not None:
         app.include_router(
             build_booking_router(resolved_auth_service, resolved_booking_service, resolved),

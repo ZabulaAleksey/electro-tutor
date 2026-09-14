@@ -226,6 +226,12 @@ fixed-search-path functions and has no Access table DML. Check has no cache or
 provider fallback; foreign resource is masked and inconsistent policy data
 fails closed.
 
+The connection-scoped Python Access repository exposes authorization only.
+Issue/revoke are DB-private helpers called exclusively by the authorized Booking
+transition functions in the same transaction/UoW; runtime has no direct
+`EXECUTE` privilege on those helpers. This is the atomic least-privilege boundary,
+not a second application command surface.
+
 The consumer is a new static RU/UK protected shell with no private build-time
 data. Existing public Jitsi classroom remains a separate legacy MVP and is not
 loaded or reclassified by ET-10.2. A separate exact three-identity terminal

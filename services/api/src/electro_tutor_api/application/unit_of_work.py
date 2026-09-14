@@ -24,6 +24,7 @@ from electro_tutor_api.domain.capability import (
     CapabilityOperationRecord,
 )
 from electro_tutor_api.domain.identity import Principal
+from electro_tutor_api.domain.lesson_access import LessonAccessDecision
 from electro_tutor_api.domain.profile import StudentProfile, TutorProfile
 
 
@@ -146,11 +147,16 @@ class BookingOperationRepository(Protocol):
     async def get(self, operation_id: UUID) -> BookingOperationRecord | None: ...
 
 
+class LessonAccessGrantRepository(Protocol):
+    async def authorize_for_current_session(self, booking_id: UUID) -> LessonAccessDecision: ...
+
+
 class AuditUnitOfWork(Protocol):
     audit_events: AuditEventRepository
     booking_operations: BookingOperationRepository
     bookings: BookingRepository
     capability_grants: CapabilityGrantRepository
+    lesson_access_grants: LessonAccessGrantRepository
     profiles: ProfileRepository
     session_principal: Principal | None
     tutor_offers: TutorOfferRepository

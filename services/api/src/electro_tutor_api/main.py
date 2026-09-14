@@ -39,6 +39,7 @@ from electro_tutor_api.errors import (
     ErrorResponse,
     IdempotencyConflictError,
     InvalidBookingTransitionError,
+    LessonAccessPolicyUnavailableError,
     OfferChangedError,
     OfferUnavailableError,
     ProfileAlreadyExistsError,
@@ -102,6 +103,11 @@ BOOKING_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
         409,
     ),
     OfferUnavailableError: ("offer_unavailable", "Tutor offer is unavailable.", 409),
+    LessonAccessPolicyUnavailableError: (
+        "lesson_access_policy_unavailable",
+        "Lesson access policy is temporarily unavailable.",
+        503,
+    ),
 }
 
 

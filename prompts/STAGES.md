@@ -611,12 +611,13 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a` contract approved; implementation pending.
+Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` implemented_unverified.
 
 - Status: in_progress
-- NEXT: ET-10.2
-- Blockers: none for `ET-10.2b`; terminal three-identity browser evidence will
-  later require a local secret-bearing run.
+- NEXT: ET-10.2b validation
+- Blockers: real PostgreSQL rerun is required after the final evidence additions;
+  current sandbox cannot access Docker Engine. Terminal three-identity browser
+  evidence will later require a local secret-bearing run.
 - **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
   and continuation supplied; the architecture entry gate is closed.
 - **Checkpoint / evidence:** `ET-10.2a` approved
@@ -628,8 +629,20 @@ Ordered slices:
   PASS. Global overlay validator remains separately blocked by the pre-existing
   missing `.codex/dev-project.toml` / bridge marker and legacy stage-state
   cleanup; this is not ET-10.2 product evidence.
-- **NEXT:** implement `ET-10.2b` domain/UoW/migration/repository and real
-  PostgreSQL evidence.
+- **ET-10.2b checkpoint / evidence:** implementation is present in migration
+  `20260914_0011_lesson_access_grants.py`, lesson-access domain/application/
+  repository, Booking transition wiring, audit contract and UoW. Root fast gate:
+  `pnpm backend:test:fast` — `179 passed, 65 deselected`, exit `0`; focused
+  access/booking unit — `14 passed`, exit `0`; `git diff --check` — exit `0`.
+  Earlier integration evidence was `61 passed`, exit `0`; after the final ACL,
+  boundary, rollback and concurrency additions a fresh rerun is still required.
+- **User action `ET-10.2-UA-02`: `REQUIRED`** — from the repository root, with
+  local Docker Engine available, run `pnpm backend:test:integration`. Expected
+  evidence: exit `0`, all integration tests passed (including ET-10.2 ACL,
+  DB-time, audit rollback, no-grant/PLATFORM and check-vs-revoke cases), then
+  run `pnpm backend:stop` without deleting data and report both exit codes.
+- **NEXT:** after UA-02 PASS, review/commit ET-10.2b and implement `ET-10.2c`
+  private HTTP authorization check.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -666,7 +679,7 @@ Ordered slices:
    `completed`.
 2. `ET-10.2b` domain/UoW/migration/repository, atomic accept→issue and
    accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
-   `planned / NEXT`.
+   `implemented_unverified / blocked on ET-10.2-UA-02 integration rerun`.
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
    `planned`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser

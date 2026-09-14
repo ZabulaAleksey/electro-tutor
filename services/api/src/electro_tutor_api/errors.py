@@ -110,6 +110,31 @@ class BookingNotFoundError(RuntimeError):
     status_code = 404
 
 
+class LessonAccessNotYetValidError(RuntimeError):
+    code = "lesson_access_not_yet_valid"
+    status_code = 403
+
+
+class LessonAccessExpiredError(RuntimeError):
+    code = "lesson_access_expired"
+    status_code = 403
+
+
+class LessonAccessRevokedError(RuntimeError):
+    code = "lesson_access_revoked"
+    status_code = 403
+
+
+class LessonAccessUnavailableError(RuntimeError):
+    code = "lesson_access_unavailable"
+    status_code = 403
+
+
+class LessonAccessPolicyUnavailableError(RuntimeError):
+    code = "lesson_access_policy_unavailable"
+    status_code = 503
+
+
 class OfferChangedError(RuntimeError):
     code = "offer_changed"
     status_code = 409

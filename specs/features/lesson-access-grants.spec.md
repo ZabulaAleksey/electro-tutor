@@ -121,13 +121,18 @@ LessonAccessGrantService.authorize(
 ) -> LessonAccessDecision
 ```
 
-Connection-scoped repository boundary:
+Connection-scoped Python repository boundary:
 
 ```python
-issue_from_accepted_booking(booking, operation_context) -> LessonAccessGrant
-revoke_for_cancelled_booking(booking, operation_context) -> LessonAccessGrant | None
 authorize_for_current_session(booking_id) -> LessonAccessDecision
 ```
+
+Issue/revoke не являются Python repository methods. Это DB-private helpers,
+которые вызываются исключительно из `accept_booking`/`cancel_booking`
+transition function после существующих Booking authorization/locks и внутри той
+же transaction/UoW. Runtime role не имеет `EXECUTE` на helpers и не может
+вызвать issue/revoke отдельно от Booking transition; публичный HTTP/API contract
+для них отсутствует. Такая граница сохраняет atomicity и least privilege.
 
 `LessonAccessDecision` возвращает только grant/booking UUID, derived status,
 participant role, validity и exact capability set. Account/identity/provider,

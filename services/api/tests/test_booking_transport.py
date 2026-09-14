@@ -26,6 +26,7 @@ from electro_tutor_api.domain.identity import Principal, SessionCredential
 from electro_tutor_api.errors import (
     BookingNotFoundError,
     CapabilityRequiredError,
+    LessonAccessPolicyUnavailableError,
     TutorOfferNotFoundError,
     VersionConflictError,
 )
@@ -390,6 +391,29 @@ async def test_booking_strict_body_canonical_idempotency_and_conflict_mapping() 
     assert_error(numeric_start, 422, "invalid_request")
     for response in invalid_rfc3339:
         assert_error(response, 422, "invalid_request")
+
+
+@pytest.mark.asyncio
+async def test_booking_accept_maps_lesson_access_policy_failure_to_stable_503() -> None:
+    service = FakeBookingService()
+    service.failure = LessonAccessPolicyUnavailableError()
+    app = app_for(service)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        client.cookies.set("et_session", "valid-session", path="/api/v1")
+        response = await client.post(
+            f"/api/v1/bookings/{BOOKING_ID}/accept",
+            json={"expected_version": 1},
+            headers={"Idempotency-Key": OPERATION_ID},
+        )
+
+    assert_error(response, 503, "lesson_access_policy_unavailable")
+    assert response.json()["error"]["message"] == (
+        "Lesson access policy is temporarily unavailable."
+    )
+    assert response.headers["Cache-Control"] == "no-store"
+    assert response.headers["X-Request-ID"] == response.json()["error"]["request_id"]
+    assert "policy_id" not in response.text
+    assert "database" not in response.text.lower()
 
 
 @pytest.mark.asyncio

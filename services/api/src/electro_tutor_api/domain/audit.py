@@ -19,6 +19,7 @@ class AuditActorType(StrEnum):
 
 
 class TrustedAuditService(StrEnum):
+    LESSON_ACCESS_MIGRATION = "lesson-access-migration"
     TUTOR_PROVISIONER = "tutor-provisioner"
 
 
@@ -51,6 +52,7 @@ class AuditSubjectType(StrEnum):
     ACCOUNT = "account"
     BOOKING = "booking"
     CAPABILITY_GRANT = "capability_grant"
+    LESSON_ACCESS_GRANT = "lesson_access_grant"
     TUTOR_PROFILE = "tutor_profile"
     TUTOR_OFFER = "tutor_offer"
 
@@ -60,6 +62,8 @@ class AuditAction(StrEnum):
     BOOKING_CANCELLED = "booking.cancelled"
     BOOKING_DECLINED = "booking.declined"
     BOOKING_REQUESTED = "booking.requested"
+    LESSON_ACCESS_GRANT_ISSUED = "lesson_access_grant.issued"
+    LESSON_ACCESS_GRANT_REVOKED = "lesson_access_grant.revoked"
     TUTOR_CAPABILITY_GRANTED = "tutor_capability.granted"
     TUTOR_CAPABILITY_REVOKED = "tutor_capability.revoked"
     TUTOR_OFFER_CREATED = "tutor_offer.created"
@@ -83,6 +87,12 @@ _METADATA_KEYS_BY_ACTION: dict[AuditAction, frozenset[str]] = {
     AuditAction.BOOKING_CANCELLED: frozenset({"operation_action", "result_version"}),
     AuditAction.BOOKING_DECLINED: frozenset({"operation_action", "result_version"}),
     AuditAction.BOOKING_REQUESTED: frozenset({"operation_action", "result_version"}),
+    AuditAction.LESSON_ACCESS_GRANT_ISSUED: frozenset(
+        {"source", "policy_version", "capability_set_code", "issuance_reason"}
+    ),
+    AuditAction.LESSON_ACCESS_GRANT_REVOKED: frozenset(
+        {"source", "policy_version", "capability_set_code", "revoke_reason"}
+    ),
     AuditAction.TUTOR_CAPABILITY_GRANTED: frozenset(
         {"capability_code", "grant_id", "reason_category", "scope_id", "scope_kind"}
     ),
@@ -185,6 +195,19 @@ def _validated_metadata(
             not value.isascii() or not value.isdecimal() or int(value) < 1
         ):
             raise AuditValidationError("result_version must be a positive decimal integer")
+        if key == "source" and value not in {"BOOKING_FREE", "BOOKING_EXTERNAL"}:
+            raise AuditValidationError("lesson access source is not allowlisted")
+        if key == "policy_version" and value != "1":
+            raise AuditValidationError("lesson access policy version is not allowlisted")
+        if key == "capability_set_code" and value != "LESSON_SHELL_V1":
+            raise AuditValidationError("lesson access capability set is not allowlisted")
+        if key == "issuance_reason" and value not in {
+            "booking_accept",
+            "migration_backfill",
+        }:
+            raise AuditValidationError("lesson access issuance reason is not allowlisted")
+        if key == "revoke_reason" and value != "BOOKING_CANCELLED":
+            raise AuditValidationError("lesson access revoke reason is not allowlisted")
         if key in _UUID_METADATA_KEYS:
             try:
                 parsed = UUID(value)
@@ -219,6 +242,15 @@ class NewAuditEvent:
         contract = _BOOKING_AUDIT_CONTRACT.get(self.action)
         if contract is not None and self.subject_type is not contract[0]:
             raise AuditValidationError("booking audit action has an invalid subject_type")
+        if (
+            self.action
+            in {
+                AuditAction.LESSON_ACCESS_GRANT_ISSUED,
+                AuditAction.LESSON_ACCESS_GRANT_REVOKED,
+            }
+            and self.subject_type is not AuditSubjectType.LESSON_ACCESS_GRANT
+        ):
+            raise AuditValidationError("lesson access audit action has an invalid subject_type")
         if not isinstance(self.result, AuditResult):
             raise AuditValidationError("result must be an AuditResult")
         if not isinstance(self.correlation_id, UUID) or not isinstance(self.operation_id, UUID):
@@ -235,11 +267,41 @@ class NewAuditEvent:
             _validated_identifier("request_id", self.request_id)
             if REQUEST_ID_PATTERN.fullmatch(self.request_id) is None:
                 raise AuditValidationError("request_id must follow the API request ID contract")
-        object.__setattr__(
-            self,
-            "metadata",
-            MappingProxyType(_validated_metadata(self.action, self.metadata)),
+        validated_metadata = _validated_metadata(self.action, self.metadata)
+        is_migration_actor = (
+            self.actor.actor_type is AuditActorType.SERVICE
+            and self.actor.actor_id == TrustedAuditService.LESSON_ACCESS_MIGRATION.value
         )
+        if is_migration_actor and (
+            self.action is not AuditAction.LESSON_ACCESS_GRANT_ISSUED
+            or validated_metadata.get("issuance_reason") != "migration_backfill"
+            or self.request_id is not None
+        ):
+            raise AuditValidationError("lesson access migration actor provenance is invalid")
+        if self.action is AuditAction.LESSON_ACCESS_GRANT_ISSUED:
+            if set(validated_metadata) != {
+                "source",
+                "policy_version",
+                "capability_set_code",
+                "issuance_reason",
+            }:
+                raise AuditValidationError("lesson access issue metadata must be complete")
+            reason = validated_metadata.get("issuance_reason")
+            if reason == "migration_backfill" and not is_migration_actor:
+                raise AuditValidationError("migration backfill requires the migration actor")
+            if reason == "booking_accept" and self.actor.actor_type is not AuditActorType.ACCOUNT:
+                raise AuditValidationError("booking accept audit requires an account actor")
+        if self.action is AuditAction.LESSON_ACCESS_GRANT_REVOKED:
+            if set(validated_metadata) != {
+                "source",
+                "policy_version",
+                "capability_set_code",
+                "revoke_reason",
+            }:
+                raise AuditValidationError("lesson access revoke metadata must be complete")
+            if self.actor.actor_type is not AuditActorType.ACCOUNT:
+                raise AuditValidationError("lesson access revoke audit requires an account actor")
+        object.__setattr__(self, "metadata", MappingProxyType(validated_metadata))
 
 
 @dataclass(frozen=True)

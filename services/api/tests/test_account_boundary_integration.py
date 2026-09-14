@@ -328,7 +328,7 @@ def test_populated_account_migration_backfill_catalog_and_round_trip() -> None:
             )
         )
         command.upgrade(config, "head")
-        assert expected_revision() == "20260914_0010"
+        assert expected_revision() == "20260914_0011"
         asyncio.run(verify_upgrade())
         command.downgrade(config, "20260908_0005")
         asyncio.run(verify_downgrade())

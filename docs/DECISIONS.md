@@ -711,6 +711,12 @@ is Booking then grant; check uses shared locks, revoke uses update locks. Missin
 or inconsistent eligible grant fails closed and is never rebuilt from client,
 IdP, provider or cache.
 
+The Python connection-scoped Access repository exposes only the participant
+authorization check. Issue/revoke remain DB-private helpers invoked exclusively
+inside the authorized Booking transition functions in the same UoW; runtime has
+no direct `EXECUTE` on them. This least-privilege boundary prevents a separate
+grant mutation path while preserving atomic Booking/access/audit writes.
+
 Private `GET /api/v1/bookings/{booking_id}/lesson-access` returns only active
 participant access. Foreign/nonexistent Booking is masked as the existing 404;
 not-yet-valid/expired/revoked are participant-only 403 states. A new static

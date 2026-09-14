@@ -15,6 +15,9 @@ from electro_tutor_api.adapters.booking_repository import (
     PostgresTutorOfferRepository,
 )
 from electro_tutor_api.adapters.capability_repository import PostgresCapabilityGrantRepository
+from electro_tutor_api.adapters.lesson_access_repository import (
+    PostgresLessonAccessGrantRepository,
+)
 from electro_tutor_api.adapters.profile_repository import PostgresProfileRepository
 from electro_tutor_api.domain.identity import Principal, SessionCredential
 from electro_tutor_api.errors import AuditUnavailableError, AuthenticationRequiredError
@@ -37,6 +40,7 @@ class PostgresUnitOfWork:
         self.booking_operations: PostgresBookingOperationRepository
         self.bookings: PostgresBookingRepository
         self.capability_grants: PostgresCapabilityGrantRepository
+        self.lesson_access_grants: PostgresLessonAccessGrantRepository
         self.profiles: PostgresProfileRepository
         self.tutor_offers: PostgresTutorOfferRepository
 
@@ -90,6 +94,7 @@ class PostgresUnitOfWork:
         self.booking_operations = PostgresBookingOperationRepository(self._connection)
         self.bookings = PostgresBookingRepository(self._connection, self.booking_operations)
         self.capability_grants = PostgresCapabilityGrantRepository(self._connection)
+        self.lesson_access_grants = PostgresLessonAccessGrantRepository(self._connection)
         self.profiles = PostgresProfileRepository(self._connection)
         self.tutor_offers = PostgresTutorOfferRepository(self._connection, self.booking_operations)
         return self

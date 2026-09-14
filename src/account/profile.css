@@ -32,6 +32,40 @@
 .profile-retry { width: fit-content; background: transparent; }
 .profile-card :focus-visible, .account-actions :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
 .profile-card [disabled] { cursor: wait; }
+.booking-section { margin-top: 58px; padding-top: 42px; border-top: 1px solid var(--line); }
+.booking-disclaimer { display: grid; gap: 5px; max-width: 850px; margin: 0 0 22px; padding: 16px 18px; border: 1px solid color-mix(in srgb, var(--blue) 34%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--blue) 6%, var(--white)); }
+.booking-disclaimer span, .booking-panel > p { color: var(--muted); line-height: 1.55; }
+.booking-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.booking-lists { margin-top: 16px; }
+.booking-panel { min-width: 0; padding: 26px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); }
+.booking-panel h3 { margin: 0 0 8px; font-size: 23px; }
+.booking-panel > p { margin: 0 0 18px; }
+.booking-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.booking-panel-heading h3 { margin: 0; }
+.booking-panel-heading .button { flex: none; padding: 9px 12px; }
+.booking-form { display: grid; gap: 9px; margin-block: 18px; }
+.booking-form label { display: grid; gap: 6px; font-size: 13px; font-weight: 800; }
+.booking-form input, .booking-form select { width: 100%; min-width: 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--paper); font: inherit; }
+.booking-form input[readonly] { color: var(--muted); }
+.booking-form input[aria-invalid="true"] { border-color: #b63b2e; }
+.booking-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.booking-inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.booking-form[aria-busy="true"] { opacity: .72; }
+.booking-state { min-height: 24px; color: var(--muted); font-weight: 700; line-height: 1.5; }
+.booking-list { display: grid; gap: 12px; margin-top: 14px; }
+.booking-item { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.booking-item h4 { display: inline; margin: 0 8px 0 0; font-size: 18px; overflow-wrap: anywhere; }
+.booking-badge { display: inline-block; padding: 3px 8px; border-radius: 999px; color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent); font-size: 11px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.booking-terms { display: grid; grid-template-columns: minmax(90px, .6fr) minmax(0, 1.4fr); gap: 5px 10px; margin: 14px 0; font-size: 13px; line-height: 1.45; }
+.booking-terms dt { color: var(--muted); }
+.booking-terms dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.booking-id { display: block; padding: 8px; border-radius: 7px; color: var(--muted); background: var(--white); font-size: 11px; overflow-wrap: anywhere; user-select: all; }
+.booking-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.booking-actions .button { padding: 9px 12px; }
+.booking-snapshot { margin-top: 12px; padding: 13px; border-left: 3px solid var(--green); background: var(--white); }
+.booking-external-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.booking-section :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
+.booking-section [disabled] { cursor: wait; }
 [data-account] [hidden] { display: none !important; }
 
 [data-theme="dark"] .profile-error { color: #ff9b90; }
@@ -41,11 +75,19 @@
   .account-page h1 { font-size: 44px; overflow-wrap: anywhere; }
   .account-lead { font-size: 16px; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); }
+  .booking-grid, .booking-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .booking-inline { grid-template-columns: minmax(0, 1fr); }
   .profile-card { padding: 21px; }
+  .booking-panel { padding: 21px; }
+  .booking-panel-heading { align-items: flex-start; }
+  .booking-terms { grid-template-columns: minmax(0, 1fr); }
+  .booking-terms dd { margin-bottom: 5px; }
   .account-actions, .account-actions form, .account-actions .button, .profile-retry { width: 100%; }
   .account-actions .button, .profile-retry { justify-content: center; }
+  .booking-actions, .booking-actions .button, .booking-inline .button { width: 100%; }
+  .booking-actions .button, .booking-inline .button { justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .profile-card *, .account-actions * { scroll-behavior: auto; transition: none !important; }
+  .profile-card *, .account-actions *, .booking-section * { scroll-behavior: auto; transition: none !important; }
 }

@@ -136,6 +136,7 @@ export function mountAccountProfile(): void {
     login.hidden = false;
     logoutForm.hidden = true;
     profiles.hidden = true;
+    root.dispatchEvent(new CustomEvent("account:session", { detail: { authenticated: false } }));
   };
 
   const renderSessionError = (message: string) => {
@@ -148,6 +149,7 @@ export function mountAccountProfile(): void {
     login.hidden = true;
     logoutForm.hidden = true;
     profiles.hidden = true;
+    root.dispatchEvent(new CustomEvent("account:session", { detail: { authenticated: false } }));
   };
 
   if (!apiOrigin) {
@@ -206,8 +208,11 @@ export function mountAccountProfile(): void {
     logoutForm.hidden = false;
     profiles.hidden = false;
     sessionStatus.textContent = copy.manageProfiles;
+    root.dispatchEvent(new CustomEvent("account:session", { detail: { authenticated: true } }));
     await Promise.all([loadProfile("student", version), loadProfile("tutor", version)]);
   };
+
+  root.addEventListener("account:session-expired", () => renderSignedOut(copy.sessionExpired));
 
   for (const kind of ["student", "tutor"] as const) {
     const elements = cards[kind];

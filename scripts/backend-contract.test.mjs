@@ -13,6 +13,7 @@ describe("ET-09.2 backend command contract", () => {
       "build",
       "check",
       "dev",
+      "e2e-dev",
       "stop",
       "logs",
       "status",
@@ -63,14 +64,18 @@ describe("ET-09.2 backend command contract", () => {
     const runner = await readFile("scripts/run-auth-e2e.mjs", "utf8");
     const browserRunner = await readFile("scripts/run-e2e.mjs", "utf8");
     expect(packageJson.scripts["test:e2e:auth"]).toBe("node scripts/run-auth-e2e.mjs");
+    expect(packageJson.scripts["backend:e2e"]).toBe("node scripts/backend.mjs e2e-dev");
     expect(runner).toContain('"node_modules", "astro", "bin", "astro.mjs"');
     expect(runner).toContain('"audit-built-site.mjs"');
     expect(runner).toContain('"ET_KEYCLOAK_ADMIN_PASSWORD"');
     expect(runner).toContain('"ET_DEV_TEST_PASSWORD"');
     expect(runner).toContain('E2E_SPEC: "tests/e2e/auth-flow.spec.ts"');
     expect(runner).toContain("environmentWithoutSecrets");
-    expect(runner).toContain('runBackendCommand("dev", environmentWithoutSecrets)');
+    expect(runner).toContain('runBackendCommand("e2e-dev", environmentWithoutSecrets)');
+    expect(runner).toContain('runBackendCommand("stop", environmentWithoutSecrets)');
     expect(runner).toContain('runBrowserPhase("profiles")');
+    expect(runner).toContain('runBrowserPhase("booking")');
+    expect(runner).toContain("runTrustedBookingGrantCli");
     expect(browserRunner).toContain("delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD");
     expect(browserRunner).toContain("delete previewEnvironment.ET_DEV_TEST_PASSWORD");
   });
@@ -82,6 +87,7 @@ describe("ET-09.2 backend command contract", () => {
   it("routes the E2E identity setup through the existing safe provisioner", async () => {
     const backendSource = await readFile("scripts/backend.mjs", "utf8");
     expect(backendCommands["idp:e2e"]).toMatch(/two managed E2E identities/);
+    expect(backendCommands["e2e-dev"]).toMatch(/isolated local test database/);
     expect(backendSource).toContain('case "idp:e2e": return idpProvision();');
     expect(backendSource).not.toContain("ET_DEV_TEST_PASSWORD=");
   });

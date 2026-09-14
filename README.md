@@ -56,7 +56,6 @@ secret manager; optional non-secret names — `ET_KEYCLOAK_ADMIN_USERNAME`,
 
 ```bash
 pnpm backend:idp:dev
-pnpm backend:dev
 pnpm test:e2e:auth
 pnpm backend:idp:cleanup
 ```
@@ -68,9 +67,12 @@ local DEV/E2E runtime; production IAM остаётся не выбран.
 `backend:idp:cleanup` удаляет только обе named synthetic identities после
 ownership preflight для каждой; если хотя бы одна не принадлежит managed group,
 удаление не начинается. Realm/client остаются для следующего idempotent запуска.
-`test:e2e:auth` сам собирает текущий source и перед run безопасно пересоздаёт эти
-две identity, чтобы immutable subjects и application Accounts не зависели от
-прошлого запуска; local services после проверки остаются запущенными.
+`test:e2e:auth` сам собирает текущий source, применяет migrations и запускает API
+на изолированной local/test БД `electro_tutor_test`, не сбрасывая основную
+`electro_tutor`; перед run он безопасно пересоздаёт эти две identity, чтобы
+immutable subjects и application Accounts не зависели от прошлого запуска.
+После success/failure runner останавливает local API, PostgreSQL и Keycloak без
+удаления named volumes; cleanup failure возвращает non-zero и точную recovery-команду.
 
 ## Проверки
 

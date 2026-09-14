@@ -72,11 +72,16 @@ async def _run_e2e_support(
                 "operation": "account_resolved",
                 "status": "ok",
             }
-        if command_name == "e2e-issue-tutor-grant":
+        if command_name in {"e2e-issue-tutor-grant", "e2e-issue-booking-grant"}:
             operation_id = _uuid(args.operation_id)
             correlation_id = _uuid(args.correlation_id)
             request_id = _required(args.request_id)
-            account_id, grant = await support.issue_tutor_grant(
+            issue = (
+                support.issue_tutor_grant
+                if command_name == "e2e-issue-tutor-grant"
+                else support.issue_booking_grant
+            )
+            account_id, grant = await issue(
                 subject=subject,
                 managed_subjects=args.managed_subject,
                 operation_id=operation_id,
@@ -88,7 +93,11 @@ async def _run_e2e_support(
                 "capability_code": grant.capability_code.value,
                 "correlation_id": str(correlation_id),
                 "grant_id": str(grant.id),
-                "operation": "tutor_grant_issued",
+                "operation": (
+                    "tutor_grant_issued"
+                    if command_name == "e2e-issue-tutor-grant"
+                    else "booking_grant_issued"
+                ),
                 "operation_id": str(operation_id),
                 "request_id": request_id,
                 "status": "ok",
@@ -130,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
             "db-migrate",
             "e2e-resolve-account",
             "e2e-issue-tutor-grant",
+            "e2e-issue-booking-grant",
             "e2e-verify-audit",
         ],
     )
@@ -143,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     e2e_commands = {
         "e2e-resolve-account",
         "e2e-issue-tutor-grant",
+        "e2e-issue-booking-grant",
         "e2e-verify-audit",
     }
     settings_type = (

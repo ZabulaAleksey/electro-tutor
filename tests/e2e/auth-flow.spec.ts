@@ -172,9 +172,34 @@ test.describe("ET-09.4e terminal support contracts", () => {
     expect(environment.ET_PROVISIONING_DATABASE_URL).toContain("electro_tutor_provisioner");
     expect(environment).not.toHaveProperty("ET_TEST_DATABASE_URL");
     expect(environment).not.toHaveProperty("ET_E2E_FOREIGN_KEY");
+    const e2eEnvironment = trustedCliEnvironment({ ET_E2E_DATABASE_TARGET: "test" });
+    expect(e2eEnvironment.ET_ENVIRONMENT).toBe("test");
+    expect(e2eEnvironment.ET_DATABASE_URL).toContain("/electro_tutor_test");
+    expect(e2eEnvironment.ET_AUTH_DATABASE_URL).toContain("/electro_tutor_test");
+    expect(e2eEnvironment.ET_PROVISIONING_DATABASE_URL).toContain("/electro_tutor_test");
     expect(() => parseTrustedCliSummary('{"status":"error"}', "audit_verified")).toThrow(
       /expected safe summary/,
     );
+  });
+
+  test("accepts only a redacted booking-capability grant summary", () => {
+    const parsed = parseTrustedCliSummary(JSON.stringify({
+      status: "ok",
+      operation: "booking_grant_issued",
+      account_id: "11111111-1111-4111-8111-111111111111",
+      grant_id: "33333333-3333-4333-8333-333333333333",
+      correlation_id: "44444444-4444-4444-8444-444444444444",
+      operation_id: "55555555-5555-4555-8555-555555555555",
+    }), "booking_grant_issued");
+    expect(parsed.operation).toBe("booking_grant_issued");
+    expect(() => parseTrustedCliSummary(JSON.stringify({
+      status: "ok",
+      operation: "booking_grant_issued",
+      account_id: "11111111-1111-4111-8111-111111111111",
+      grant_id: "not-a-uuid",
+      correlation_id: "44444444-4444-4444-8444-444444444444",
+      operation_id: "55555555-5555-4555-8555-555555555555",
+    }), "booking_grant_issued")).toThrow(/invalid identifier/);
   });
 });
 
@@ -389,6 +414,142 @@ test.describe("ET-09.3 / ET-09.4e real DEV authentication and profiles", () => {
     } finally {
       await primaryContext.close();
       await secondaryContext.close();
+    }
+  });
+
+  test("completes a two-user FREE booking and preserves its immutable snapshot", async ({ browser }) => {
+    test.skip(
+      authPhase !== "booking" || !password || !primarySubject || !secondarySubject,
+      "booking phase requires runner-provided password and two safe Keycloak subjects",
+    );
+    test.setTimeout(180_000);
+    const tutorContext = await browser.newContext();
+    const studentContext = await browser.newContext();
+    const tutorPage = await tutorContext.newPage();
+    const studentPage = await studentContext.newPage();
+    const title = `ET-10.1d ${randomUUID()}`;
+    const startsAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
+    const localInput = [
+      startsAt.getFullYear(),
+      String(startsAt.getMonth() + 1).padStart(2, "0"),
+      String(startsAt.getDate()).padStart(2, "0"),
+    ].join("-") + `T${String(startsAt.getHours()).padStart(2, "0")}:${String(startsAt.getMinutes()).padStart(2, "0")}`;
+
+    const responseJson = async (response: import("@playwright/test").Response) => {
+      expect(response.ok()).toBe(true);
+      return response.json();
+    };
+    const readBooking = (page: Page, role: "student" | "tutor") => page.evaluate(async ({ url, role: requestedRole }) => {
+      const response = await fetch(`${url}/api/v1/bookings/me?role=${requestedRole}`, { credentials: "include" });
+      return response.json();
+    }, { url: api, role });
+
+    try {
+      await login(tutorPage, secondaryUsername, "uk");
+      const bookingRoot = tutorPage.locator("[data-booking]");
+      await expect(bookingRoot).toBeVisible();
+      await expect(bookingRoot.getByRole("note")).toContainText(
+        "Платформа не приймає, не підтверджує і не повертає оплату.",
+      );
+      const createForm = tutorPage.locator("[data-offer-create]");
+      await expect(createForm).toBeVisible();
+      await createForm.locator('[name="title"]').fill(title);
+      await createForm.locator('[name="starts-at"]').fill(localInput);
+      await createForm.locator('[name="payment-mode"]').selectOption("FREE");
+      const createResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith("/api/v1/tutor-offers") && response.request().method() === "POST",
+      );
+      await createForm.getByRole("button", { name: "Створити пропозицію" }).click();
+      const createdResponse = await createResponse;
+      const createPayload = createdResponse.request().postDataJSON() as { starts_at: string };
+      const offer = await responseJson(createdResponse);
+      expect(offer.payment_mode).toBe("FREE");
+      expect(offer.status).toBe("DRAFT");
+      const offerCard = tutorPage.locator(`[data-offer-id="${offer.id}"]`);
+      await expect(offerCard).toBeVisible();
+      const publishResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith(`/tutor-offers/${offer.id}/publish`) && response.request().method() === "POST",
+      );
+      await offerCard.getByRole("button", { name: "Опублікувати" }).click();
+      const published = await responseJson(await publishResponse);
+      expect(published.status).toBe("ACTIVE");
+
+      await login(studentPage, primaryUsername, "ru");
+      const studentOfferForm = studentPage.locator("[data-offer-lookup]");
+      await studentPage.locator("[data-offer-id]").fill(offer.id);
+      await studentOfferForm.getByRole("button", { name: "Открыть" }).click();
+      const preview = studentPage.locator(`[data-offer-preview] [data-offer-id="${offer.id}"]`);
+      await expect(preview).toBeVisible();
+      const requestResponse = studentPage.waitForResponse((response) =>
+        response.url().endsWith(`/tutor-offers/${offer.id}/bookings`) && response.request().method() === "POST",
+      );
+      await preview.getByRole("button", { name: "Запросить запись" }).click();
+      const requested = await responseJson(await requestResponse);
+      expect(requested.status).toBe("REQUESTED");
+      const studentBooking = studentPage.locator(`[data-booking-id="${requested.id}"]`);
+      await expect(studentBooking).toContainText(title);
+      await expect(studentBooking).toContainText("Ожидает ответа");
+
+      await tutorPage.reload();
+      const tutorBooking = tutorPage.locator(`[data-booking-id="${requested.id}"]`);
+      await expect(tutorBooking).toBeVisible();
+      const acceptResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith(`/bookings/${requested.id}/accept`) && response.request().method() === "POST",
+      );
+      await tutorBooking.getByRole("button", { name: "Прийняти" }).click();
+      const accepted = await responseJson(await acceptResponse);
+      expect(accepted.status).toBe("ACCEPTED");
+      await expect(tutorBooking).toContainText("Підтверджено");
+
+      await studentPage.reload();
+      const studentAccepted = studentPage.locator(`[data-booking-id="${requested.id}"]`);
+      await expect(studentAccepted).toContainText("Подтверждено");
+      await expect(studentAccepted.locator("[data-snapshot-version]")).toHaveAttribute("data-snapshot-version", "1");
+      const studentSnapshot = (await readBooking(studentPage, "student")).find((item: { id: string }) => item.id === requested.id).snapshot;
+
+      const revised = await tutorPage.evaluate(async ({ apiUrl, offerValue, originalStartsAt }) => {
+        const response = await fetch(`${apiUrl}/api/v1/tutor-offers/${offerValue.id}`, {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+          body: JSON.stringify({
+            title: `${offerValue.title} revised`,
+            starts_at: originalStartsAt,
+            time_zone: offerValue.time_zone,
+            duration_minutes: offerValue.duration_minutes,
+            minimum_notice_minutes: offerValue.minimum_notice_minutes,
+            payment_mode: offerValue.payment_mode,
+            amount_minor: offerValue.amount_minor,
+            currency: offerValue.currency,
+            expected_version: offerValue.version,
+          }),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { apiUrl: api, offerValue: published, originalStartsAt: createPayload.starts_at });
+      expect(revised.status).toBe(200);
+      expect(revised.body.title).toContain("revised");
+      await Promise.all([tutorPage.reload(), studentPage.reload()]);
+      await expect(tutorPage.locator(`[data-booking-id="${requested.id}"]`)).toContainText(title);
+      await expect(studentPage.locator(`[data-booking-id="${requested.id}"]`)).toContainText(title);
+      const tutorSnapshot = (await readBooking(tutorPage, "tutor")).find((item: { id: string }) => item.id === requested.id).snapshot;
+      expect(tutorSnapshot).toEqual(studentSnapshot);
+      expect(tutorSnapshot.offer_title).toBe(title);
+      expect(tutorSnapshot.offer_version).toBe(published.version);
+
+      await studentPage.setViewportSize({ width: 390, height: 844 });
+      const dimensions = await studentPage.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+        buttons: [...document.querySelectorAll("[data-booking-id] button")].map((button) => ({
+          text: button.textContent?.trim(),
+          accessible: button.getAttribute("aria-label"),
+        })),
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+      expect(dimensions.buttons.every(({ text, accessible }) => Boolean(text || accessible))).toBe(true);
+    } finally {
+      await tutorContext.close();
+      await studentContext.close();
     }
   });
 

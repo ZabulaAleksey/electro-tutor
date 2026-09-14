@@ -74,10 +74,79 @@ const copy = getLocale(language).account;
         </article>
       </div>
     </section>
+
+    <section class="booking-section" data-booking hidden aria-labelledby="booking-section-title">
+      <div class="profile-section-heading">
+        <span class="section-kicker">{copy.booking.kicker}</span>
+        <h2 id="booking-section-title">{copy.booking.heading}</h2>
+        <p>{copy.booking.lead}</p>
+      </div>
+
+      <aside class="booking-disclaimer" role="note">
+        <strong>{copy.booking.externalTitle}</strong>
+        <span>{copy.booking.externalDisclaimer}</span>
+      </aside>
+
+      <div class="booking-grid">
+        <article class="booking-panel" aria-labelledby="student-booking-title">
+          <h3 id="student-booking-title">{copy.booking.studentHeading}</h3>
+          <p>{copy.booking.studentLead}</p>
+          <form class="booking-form" data-offer-lookup novalidate>
+            <label for="booking-offer-id">{copy.booking.offerIdLabel}</label>
+            <div class="booking-inline">
+              <input id="booking-offer-id" data-offer-id name="offer" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="00000000-0000-4000-8000-000000000000" aria-describedby="booking-offer-help booking-offer-error" required />
+              <button class="button" type="submit">{copy.booking.openOffer}</button>
+            </div>
+            <p class="profile-help" id="booking-offer-help">{copy.booking.offerIdHelp}</p>
+            <p class="profile-error" id="booking-offer-error" data-offer-error role="alert" hidden></p>
+          </form>
+          <div class="booking-state" data-offer-state role="status" aria-live="polite"></div>
+          <div data-offer-preview></div>
+        </article>
+
+        <article class="booking-panel" data-tutor-panel aria-labelledby="tutor-offer-title">
+          <h3 id="tutor-offer-title">{copy.booking.tutorHeading}</h3>
+          <p>{copy.booking.tutorLead}</p>
+          <div class="booking-state" data-tutor-state role="status" aria-live="polite">{copy.booking.loading}</div>
+          <form class="booking-form" data-offer-create hidden novalidate>
+            <label for="offer-title">{copy.booking.titleLabel}</label>
+            <input id="offer-title" name="title" type="text" maxlength="120" required />
+            <div class="booking-form-grid">
+              <label>{copy.booking.startsAtLabel}<input name="starts-at" type="datetime-local" step="60" required /></label>
+              <label>{copy.booking.timeZoneLabel}<input name="time-zone" type="text" readonly /></label>
+              <label>{copy.booking.durationLabel}<select name="duration"><option value="30">30</option><option value="45">45</option><option value="60" selected>60</option><option value="90">90</option><option value="120">120</option></select></label>
+              <label>{copy.booking.noticeLabel}<input name="notice" type="number" min="0" max="10080" step="15" value="60" required /></label>
+              <label>{copy.booking.paymentModeLabel}<select name="payment-mode"><option value="FREE">{copy.booking.free}</option><option value="EXTERNAL">{copy.booking.external}</option></select></label>
+              <label data-external-amount hidden>{copy.booking.amountLabel}<input name="amount" type="text" inputmode="decimal" value="0.00" /></label>
+              <label data-external-currency hidden>{copy.booking.currencyLabel}<select name="currency"><option value="UAH">UAH</option><option value="EUR">EUR</option><option value="USD">USD</option></select></label>
+            </div>
+            <p class="profile-help">{copy.booking.timeZoneHelp}</p>
+            <p class="profile-error" data-create-error role="alert" hidden></p>
+            <button class="button primary" type="submit">{copy.booking.createOffer}</button>
+          </form>
+          <div class="booking-list" data-offer-list></div>
+        </article>
+      </div>
+
+      <div class="booking-grid booking-lists">
+        <section class="booking-panel" aria-labelledby="student-list-title">
+          <div class="booking-panel-heading"><h3 id="student-list-title">{copy.booking.studentBookings}</h3><button class="button ghost" data-refresh-role="student" type="button">{copy.retry}</button></div>
+          <div class="booking-state" data-booking-state="student" role="status" aria-live="polite">{copy.booking.loading}</div>
+          <div class="booking-list" data-booking-list="student"></div>
+        </section>
+        <section class="booking-panel" aria-labelledby="tutor-list-title">
+          <div class="booking-panel-heading"><h3 id="tutor-list-title">{copy.booking.tutorBookings}</h3><button class="button ghost" data-refresh-role="tutor" type="button">{copy.retry}</button></div>
+          <div class="booking-state" data-booking-state="tutor" role="status" aria-live="polite">{copy.booking.loading}</div>
+          <div class="booking-list" data-booking-list="tutor"></div>
+        </section>
+      </div>
+    </section>
   </section>
 
   <script>
     import { mountAccountProfile } from "../../account/profile-ui";
+    import { mountBooking } from "../../account/booking-ui";
+    mountBooking();
     mountAccountProfile();
   </script>
 </BaseLayout>

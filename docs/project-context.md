@@ -35,6 +35,8 @@ agents, Skills и Git workflow наследуются; локальные коп
   - bootstrap: `pnpm backend:bootstrap`.
   - doctor: `pnpm backend:doctor`.
   - dev: `pnpm backend:dev`.
+  - isolated browser-E2E runtime: `pnpm backend:e2e` (non-destructive migrate/start
+    against `electro_tutor_test`).
   - stop: `pnpm backend:stop`.
   - check: `pnpm backend:check`.
   - test-fast: `pnpm backend:test:fast`.
@@ -42,7 +44,8 @@ agents, Skills и Git workflow наследуются; локальные коп
   - build: `pnpm backend:build`.
   - logs: `pnpm backend:logs`.
   - IdP dev/provision: `pnpm backend:idp:dev`, `pnpm backend:idp:provision`.
-  - auth browser E2E: `pnpm test:e2e:auth`.
+  - auth/booking browser E2E: `pnpm test:e2e:auth`; runner always stops its
+    test-profile Compose services without deleting named volumes.
 - Required local services: Docker Compose `api` и `postgres`; ET-09.3 auth gate
   дополнительно поднимает isolated `keycloak` и выполняет idempotent provision.
 - Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
@@ -72,7 +75,8 @@ agents, Skills и Git workflow наследуются; локальные коп
 - Destructive command guard: reset требует exact
   `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет только named local
   volume; migration lifecycle требует exact consent и database
-  `electro_tutor_test`.
+  `electro_tutor_test`. Browser E2E also uses that isolated database through
+  `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
 - Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
 - External sandbox/stub/fallback modes: isolated Keycloak DEV — real provider
   evidence, не mock и не production; IdP/DB outage fail closed без local identity

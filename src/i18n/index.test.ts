@@ -36,4 +36,12 @@ describe("localization runtime contract", () => {
     expect(getLocale("uk").account.permissionTitle).toBe("Потрібен дозвіл викладача");
     expect(getLocale("ru").account.validationRequired).not.toBe(getLocale("uk").account.validationRequired);
   });
+
+  it("keeps booking lifecycle, permission and external-payment notices localized", () => {
+    expect(getLocale("ru").account.booking.statusRequested).toBe("Ожидает ответа");
+    expect(getLocale("uk").account.booking.statusRequested).toBe("Очікує відповіді");
+    expect(getLocale("ru").account.booking.externalDisclaimer).toContain("не принимает");
+    expect(getLocale("uk").account.booking.externalDisclaimer).toContain("не приймає");
+    expect(getLocale("ru").account.booking.permission).not.toBe(getLocale("uk").account.booking.permission);
+  });
 });

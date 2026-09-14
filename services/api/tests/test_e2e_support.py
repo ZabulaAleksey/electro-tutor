@@ -187,6 +187,24 @@ def test_e2e_cli_emits_stable_redacted_json(monkeypatch: pytest.MonkeyPatch, cap
                 revoke_operation_id=None,
             )
 
+        async def issue_booking_grant(self, **_kwargs: object) -> tuple[UUID, CapabilityGrant]:
+            now = datetime.now(UTC)
+            return account_id, CapabilityGrant(
+                id=grant_id,
+                subject_account_id=account_id,
+                capability_code=CapabilityCode.TUTOR_BOOKING_MANAGE_OWN,
+                scope_kind=CapabilityScopeKind.ACCOUNT,
+                scope_id=account_id,
+                issued_at=now,
+                issued_by_actor_type="service",
+                issued_by_actor_id="tutor-provisioner",
+                issue_operation_id=operation_id,
+                revoked_at=None,
+                revoked_by_actor_type=None,
+                revoked_by_actor_id=None,
+                revoke_operation_id=None,
+            )
+
         async def verify_audit(self, **_kwargs: object) -> VerifiedAuditEvent:
             return VerifiedAuditEvent(
                 event_id=event_id,
@@ -233,6 +251,30 @@ def test_e2e_cli_emits_stable_redacted_json(monkeypatch: pytest.MonkeyPatch, cap
     assert (
         cli_main(
             [
+                "e2e-issue-booking-grant",
+                "--subject",
+                str(subject),
+                "--managed-subject",
+                str(subject),
+                "--managed-subject",
+                str(second_subject),
+                "--operation-id",
+                str(operation_id),
+                "--correlation-id",
+                str(correlation_id),
+                "--request-id",
+                "booking-grant-create",
+            ]
+        )
+        == 0
+    )
+    booking_issued = capsys.readouterr()
+    assert "booking_grant_issued" in booking_issued.out
+    assert "TUTOR_BOOKING_MANAGE_OWN" in booking_issued.out
+
+    assert (
+        cli_main(
+            [
                 "e2e-verify-audit",
                 "--subject",
                 str(subject),
@@ -250,7 +292,16 @@ def test_e2e_cli_emits_stable_redacted_json(monkeypatch: pytest.MonkeyPatch, cap
     )
     verified = capsys.readouterr()
     assert "audit_verified" in verified.out
-    combined = resolved.out + issued.out + verified.out + resolved.err + issued.err + verified.err
+    combined = (
+        resolved.out
+        + issued.out
+        + booking_issued.out
+        + verified.out
+        + resolved.err
+        + issued.err
+        + booking_issued.err
+        + verified.err
+    )
     assert str(subject) not in combined
     assert "password" not in combined
     assert "token" not in combined
@@ -337,6 +388,17 @@ async def test_e2e_support_resolves_issues_idempotently_and_verifies_redacted_au
         )
         assert issued_account == replay_account == account_id
         assert grant.id == replay.id
+
+        booking_grant_operation_id = uuid4()
+        booking_account, booking_grant = await support.issue_booking_grant(
+            subject=subject,
+            managed_subjects=managed_subjects,
+            operation_id=booking_grant_operation_id,
+            correlation_id=uuid4(),
+            request_id="e2e-booking-grant-create",
+        )
+        assert booking_account == account_id
+        assert booking_grant.capability_code is CapabilityCode.TUTOR_BOOKING_MANAGE_OWN
 
         grant_audit = await support.verify_audit(
             subject=subject,

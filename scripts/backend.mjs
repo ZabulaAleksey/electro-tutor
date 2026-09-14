@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 const root = resolve(import.meta.dirname, "..");
 const apiRoot = join(root, "services", "api");
 const composeFile = join(root, "compose.yaml");
+const e2eComposeFile = join(root, "compose.e2e.yaml");
 const localPostgresVolume = "electro-tutor-local-postgres";
 const localRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor";
@@ -29,6 +30,7 @@ export const backendCommands = {
   build: "build the local API image",
   check: "run the complete local CI-equivalent backend gate",
   dev: "migrate and start API plus PostgreSQL",
+  "e2e-dev": "migrate and start API against the isolated local test database",
   stop: "stop local services without deleting data",
   logs: "show redacted local service logs",
   status: "show local service state",
@@ -78,6 +80,11 @@ export function validateLocalNetwork(environment = process.env) {
 const compose = (args, options) => {
   validateLocalNetwork();
   return docker(["compose", "-f", composeFile, ...args], options);
+};
+
+const e2eCompose = (args, options) => {
+  validateLocalNetwork();
+  return docker(["compose", "-f", composeFile, "-f", e2eComposeFile, ...args], options);
 };
 
 export function backendEnv(environment = "local") {
@@ -159,6 +166,13 @@ async function dbStatus() {
 async function dev() {
   await dbMigrate();
   await compose(["up", "-d", "--wait", "api"]);
+}
+
+async function e2eDev() {
+  await startPostgres();
+  await reconcileDatabaseRoles();
+  await e2eCompose(["run", "--rm", "--build", "migrate"]);
+  await e2eCompose(["up", "-d", "--wait", "api"]);
 }
 
 async function doctor() {
@@ -255,6 +269,7 @@ export async function main(operation = "help") {
     case "build": return compose(["build", "api"]);
     case "check": return check();
     case "dev": return dev();
+    case "e2e-dev": return e2eDev();
     case "stop": return compose(["down", "--remove-orphans"]);
     case "logs": return compose(["logs", "--tail", "200", "api", "postgres"]);
     case "status": return compose(["ps"]);

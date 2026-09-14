@@ -512,18 +512,20 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
   not requested, printed, persisted or committed.
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4 completed/verified; ET-10.1a provider-independent Booking SPEC/ADR-025 approved locally","current_stage":"ET-10.1","evidence":["ET-09.4 live terminal acceptance exit 0","ET-10.1 architecture and repository review completed; BOOK-001..004 and PAY-004 mapped to SPEC/ADR/data/API/security/testing contracts"],"master_id":null,"next_selector":"ET-10.1","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["ET-10.1-UA-02 requires a local secret-bearing live browser run"],"checkpoint":"ET-10.1a..c completed; ET-10.1d implemented with all non-secret gates verified","current_stage":"ET-10.1","evidence":["ET-09.4 live terminal acceptance exit 0","ET-10.1 backend 171 fast and 58 real PostgreSQL tests exit 0","ET-10.1d frontend 134 unit, 7 focused and 62-pass full non-secret browser tests exit 0","Node dependency audit has no high or critical advisories"],"master_id":null,"next_selector":"ET-10.1","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `partial` — `ET-10.1a..c` contract, domain/PostgreSQL и HTTP slices
-completed; RU/UK browser slice остаётся.
+Статус: `partial` — `ET-10.1a..c` completed; `ET-10.1d` RU/UK UI и
+non-secret browser gates реализованы и verified, но обязательный live
+Keycloak → API → PostgreSQL terminal run ожидает ручного secret-bearing запуска.
 
 - Status: partial
 - NEXT: ET-10.1
-- Blockers: none. PLATFORM payment/legal/provider decisions remain deferred and
-  do not block the complete FREE/EXTERNAL slice.
+- Blockers: terminal live browser evidence требует локальных secret values,
+  которые не передаются агенту. PLATFORM payment/legal/provider decisions
+  remain deferred and do not block the complete FREE/EXTERNAL slice.
 
 - **Checkpoint / evidence:** `ET-10.1a` approved `payments-and-booking.spec.md`
   v0.2, ADR-025 and architecture/API/data/security/testing/design projections.
@@ -541,8 +543,20 @@ completed; RU/UK browser slice остаётся.
   no-store/CORS contracts. Canonical fast suite passed `171`; disposable
   migration + real HTTP/PostgreSQL suite passed `58`, including three-account
   IDOR, exact replay after offer retirement and post-revoke read/cancel paths.
-- **NEXT:** `ET-10.1d` RU/UK account/booking UI, component states and exact
-  two-user live browser terminal acceptance.
+- **Checkpoint / evidence:** `ET-10.1d` implements localized RU/UK offer and
+  booking UI, exact FREE/EXTERNAL disclaimer, immutable role-localized snapshot,
+  lifecycle/conflict/retry/session-expiry states and a two-user live harness on
+  isolated `electro_tutor_test`. Verified locally: Vitest `134`, Astro `86`
+  files with zero diagnostics, ESLint, build/audits `95` artifacts, focused
+  browser matrix `7`, full non-secret Chromium `62 passed / 4` expected live
+  phase skips, backend fast `171` and real PostgreSQL `58`; all commands exit
+  `0`. Runner rejects an occupied fixed preview port and always stops its
+  Compose services after live success/failure. Dependency security gate upgraded
+  Astro to `7.3.2`, pins three patched transitive versions and passes
+  `pnpm audit --audit-level high` (only two moderate advisories remain).
+- **NEXT:** execute `ET-10.1-UA-02`; close `ET-10.1d` and whole `ET-10.1` only
+  after exact two-user live browser terminal acceptance exits `0` without a
+  skipped booking phase.
 - **Environment note:** local main database `electro_tutor` applied an early
   uncommitted draft of revision `0010`. Do not treat it as final-schema evidence
   or destructively reset it implicitly. `ET-10.1c` must use freshly migrated
@@ -550,6 +564,14 @@ completed; RU/UK browser slice остаётся.
   authorized and its post-reset schema-head evidence recorded.
 - **User action `ET-10.1-UA-01`: `DONE`** — reasoning level was switched to high
   and continuation supplied; the architecture entry gate is closed.
+- **User action `ET-10.1-UA-02`: `REQUIRED / BLOCKED_BY_LOCAL_SECRETS`** — in
+  the repository, keep the real values only in the local shell and run
+  `pnpm test:e2e:auth`; do not paste or persist secret values. Expected evidence:
+  profiles phase `7 passed / 2 skipped`, booking phase `6 passed / 3 skipped`,
+  identity-change phase `6 passed / 3 skipped`, no skipped live test in its
+  selected phase, cleanup confirmation and terminal exit `0`. This evidence
+  unblocks closure of `ET-10.1`; the agent-side no-secret attempt correctly
+  failed before service mutation and is not acceptance evidence.
 
 - **Goal / why now:** deliver booking value without blocking on Stripe/legal
   platform-payment decisions.
@@ -586,7 +608,8 @@ Ordered slices:
 2. `ET-10.1b` domain/capability/audit/migration/repositories/application and real
    PostgreSQL concurrency/ACL — `completed`.
 3. `ET-10.1c` HTTP transport/error matrix/live API — `completed`.
-4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance — `planned`, next.
+4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance —
+   `implemented_unverified`; all non-secret gates PASS, live terminal gate pending.
 
 ## ET-10.2 — LessonAccessGrant
 

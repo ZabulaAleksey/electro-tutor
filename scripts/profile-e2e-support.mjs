@@ -10,10 +10,16 @@ const requiredSecrets = ["ET_KEYCLOAK_ADMIN_PASSWORD", "ET_DEV_TEST_PASSWORD"];
 
 const localRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor";
+const localTestRuntimeUrl =
+  "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localAuthUrl =
   "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor";
+const localTestAuthUrl =
+  "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localProvisioningUrl =
   "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor";
+const localTestProvisioningUrl =
+  "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor_test";
 
 function parseJsonLines(output) {
   return String(output)
@@ -48,7 +54,7 @@ function runCaptured(executable, args, { env = process.env, label, timeout = 300
 export function requireAuthE2ESecrets(environment = process.env, names = requiredSecrets) {
   const missing = names.filter((name) => !environment[name]?.trim());
   if (missing.length > 0) {
-    throw new Error(`${missing.join(" and ")} required for real ET-09.4e browser acceptance; secrets are never printed.`);
+    throw new Error(`${missing.join(" and ")} required for real authenticated browser acceptance; secrets are never printed.`);
   }
 }
 
@@ -89,6 +95,7 @@ export function parseTrustedCliSummary(output, expectedOperation) {
   const uuidFields = {
     account_resolved: ["account_id"],
     tutor_grant_issued: ["account_id", "grant_id", "correlation_id", "operation_id"],
+    booking_grant_issued: ["account_id", "grant_id", "correlation_id", "operation_id"],
     audit_verified: ["account_id", "event_id", "correlation_id", "operation_id"],
   }[expectedOperation];
   if (!uuidFields || uuidFields.some((field) => !uuidPattern.test(summary[field] ?? ""))) {
@@ -101,15 +108,18 @@ export function trustedCliEnvironment(environment = process.env) {
   const cleanEnvironment = Object.fromEntries(
     Object.entries(environment).filter(([name]) => !name.startsWith("ET_")),
   );
+  const useTestDatabase = environment.ET_E2E_DATABASE_TARGET === "test";
   return {
     ...cleanEnvironment,
-    ET_ENVIRONMENT: "local",
+    ET_ENVIRONMENT: useTestDatabase ? "test" : "local",
     ET_HOST: "127.0.0.1",
     ET_PORT: "8000",
-    ET_DOCS_ENABLED: "true",
-    ET_DATABASE_URL: localRuntimeUrl,
-    ET_AUTH_DATABASE_URL: localAuthUrl,
-    ET_PROVISIONING_DATABASE_URL: localProvisioningUrl,
+    ET_DOCS_ENABLED: useTestDatabase ? "false" : "true",
+    ET_DATABASE_URL: useTestDatabase ? localTestRuntimeUrl : localRuntimeUrl,
+    ET_AUTH_DATABASE_URL: useTestDatabase ? localTestAuthUrl : localAuthUrl,
+    ET_PROVISIONING_DATABASE_URL: useTestDatabase
+      ? localTestProvisioningUrl
+      : localProvisioningUrl,
     ET_OIDC_ISSUER: "http://127.0.0.1:58081/realms/electro-tutor-dev",
     ET_OIDC_BACKCHANNEL_BASE_URL: "http://127.0.0.1:58081",
     ET_OIDC_CLIENT_ID: "electro-tutor-web-dev",
@@ -140,7 +150,9 @@ export function reconcileE2EIdentities(environment = process.env) {
 
 export function runTrustedProfileCli(args, expectedOperation, environment = process.env) {
   const executable = process.platform === "win32" ? "uv.exe" : "uv";
-  const privileged = expectedOperation === "tutor_grant_issued" || expectedOperation === "audit_verified";
+  const privileged = expectedOperation === "tutor_grant_issued"
+    || expectedOperation === "booking_grant_issued"
+    || expectedOperation === "audit_verified";
   const managedSubjects = [environment.E2E_PRIMARY_SUBJECT, environment.E2E_SECONDARY_SUBJECT];
   if (privileged && managedSubjects.some((subject) => !uuidPattern.test(subject ?? ""))) {
     throw new Error("Trusted profile E2E CLI requires both managed subjects.");
@@ -167,6 +179,19 @@ export function runTrustedProfileCli(args, expectedOperation, environment = proc
     },
   );
   return parseTrustedCliSummary(output, expectedOperation);
+}
+
+export function runTrustedBookingGrantCli(
+  { subject, operationId, correlationId, requestId },
+  environment = process.env,
+) {
+  return runTrustedProfileCli([
+    "e2e-issue-booking-grant",
+    "--subject", subject,
+    "--operation-id", operationId,
+    "--correlation-id", correlationId,
+    "--request-id", requestId,
+  ], "booking_grant_issued", environment);
 }
 
 export function isCanonicalUuid(value) {

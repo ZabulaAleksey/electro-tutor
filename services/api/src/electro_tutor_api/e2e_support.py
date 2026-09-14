@@ -95,13 +95,50 @@ class E2ESupport:
         correlation_id: UUID,
         request_id: str,
     ) -> tuple[UUID, CapabilityGrant]:
+        return await self._issue_managed_grant(
+            subject=subject,
+            managed_subjects=managed_subjects,
+            capability_code=CapabilityCode.TUTOR_PROFILE_MANAGE_OWN,
+            operation_id=operation_id,
+            correlation_id=correlation_id,
+            request_id=request_id,
+        )
+
+    async def issue_booking_grant(
+        self,
+        *,
+        subject: str,
+        managed_subjects: list[str],
+        operation_id: UUID,
+        correlation_id: UUID,
+        request_id: str,
+    ) -> tuple[UUID, CapabilityGrant]:
+        return await self._issue_managed_grant(
+            subject=subject,
+            managed_subjects=managed_subjects,
+            capability_code=CapabilityCode.TUTOR_BOOKING_MANAGE_OWN,
+            operation_id=operation_id,
+            correlation_id=correlation_id,
+            request_id=request_id,
+        )
+
+    async def _issue_managed_grant(
+        self,
+        *,
+        subject: str,
+        managed_subjects: list[str],
+        capability_code: CapabilityCode,
+        operation_id: UUID,
+        correlation_id: UUID,
+        request_id: str,
+    ) -> tuple[UUID, CapabilityGrant]:
         _validate_identifiers(operation_id, correlation_id, request_id)
         canonical_subject = _require_managed_subject(subject, managed_subjects)
         account_id = await self.resolve_account(canonical_subject)
         grant = await self._provisioner.issue(
             IssueCapabilityCommand(
                 subject_account_id=account_id,
-                capability_code=CapabilityCode.TUTOR_PROFILE_MANAGE_OWN,
+                capability_code=capability_code,
                 operation_id=operation_id,
                 correlation_id=correlation_id,
                 reason=CapabilityReason.TEST,

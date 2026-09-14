@@ -167,6 +167,35 @@ API → Application → PostgreSQL path. `ET-09.4e` добавляет RU/UK bro
 terminal harness. UI и harness, включая live two-user terminal path, validated
 locally 2026-09-14.
 
+### ET-10.1 TutorOffer/Booking contract
+
+ADR-025 и `../specs/features/payments-and-booking.spec.md` добавляют новый
+Scheduling/Booking module внутри того же modular monolith:
+
+```text
+active session → Principal(account_id) → booking application service
+  → exact tutor capability + participant/resource policy
+  → session-bound offer/booking repositories
+  → PostgreSQL mutation + operation ledger + AuditEvent in one UoW
+```
+
+`TutorOffer` — concrete future interval и server-owned terms. Student request
+копирует их в immutable Booking snapshot; tutor принимает этот snapshot, а не
+current mutable offer. FREE/EXTERNAL полностью работают без provider. Payment,
+calendar sync, recurrence, access grant и lesson session остаются отдельными
+boundaries.
+
+Tutor operations используют новый `TUTOR_BOOKING_MANAGE_OWN`; profile existence
+не является authority. Runtime по-прежнему передаёт только session digest,
+PostgreSQL повторно разрешает Account и допускает writes только через narrow
+fixed-search-path functions. Concurrent accept сериализуется deterministic
+participant advisory locks и half-open overlap check без нового extension.
+
+Frontend остаётся static Astro shell + bounded TypeScript module. Private API
+responses не кэшируются; Account IDs в browser contract не попадают. RU/UK time
+форматируется через `Intl` из UTC instant + explicit IANA zone. Existing Cal.com
+link не синхронизирован с authoritative Booking.
+
 ## Технологии и границы
 
 | Задача | Реализация |

@@ -56,3 +56,30 @@ internal provisioning adapter с отдельным DB credential; public/self e
 default-deny. Session cookie opaque, `HttpOnly`, `SameSite=Lax`, scoped к
 `/api/v1`; HTTP-only DEV profile не выдаётся за production cookie topology.
 OpenAPI/docs включаются только explicit local profile, в `test`/`ci` отключены.
+
+## ET-10.1 TutorOffer/Booking private surface
+
+Approved routes:
+
+| Route | Contract |
+|---|---|
+| `POST /api/v1/tutor-offers` | session-derived owner creates DRAFT; exact tutor booking capability, idempotency key and server-owned money/time validation |
+| `GET /api/v1/tutor-offers/me` | own offers without exposing Account ID |
+| `GET /api/v1/tutor-offers/{offer_id}` | owner or authenticated reader of ACTIVE offer; other private states masked as 404 |
+| `PUT /api/v1/tutor-offers/{offer_id}` | owner revision with `expected_version`; existing snapshots unchanged |
+| `POST /api/v1/tutor-offers/{offer_id}/publish|retire` | owner-only versioned transitions |
+| `POST /api/v1/tutor-offers/{offer_id}/bookings` | distinct authenticated student requests observed offer version; terms copied server-side |
+| `GET /api/v1/bookings/me?role=student|tutor` | participant lists without internal Account IDs |
+| `GET /api/v1/bookings/{booking_id}` | participant-only immutable snapshot |
+| `POST /api/v1/bookings/{booking_id}/accept|decline|cancel` | versioned participant transition under exact action policy |
+
+All mutations require canonical UUID `Idempotency-Key`; transition/update bodies
+carry `expected_version`. Transport checks session and resource visibility before
+custom body parsing. Client cannot submit owner IDs, price, end time, payment
+state or snapshot fields. Add CORS allowlist only for `Idempotency-Key`.
+
+Stable conflicts: `idempotency_conflict`, `offer_changed`, `version_conflict`,
+`invalid_booking_transition`, `booking_time_elapsed`, `booking_overlap`,
+`self_booking_forbidden`, `offer_unavailable`. Foreign resources use
+`tutor_offer_not_found`/`booking_not_found`; audit failure stays
+`503 audit_unavailable`. Full schemas and precedence belong to the feature SPEC.

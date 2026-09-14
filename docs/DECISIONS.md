@@ -633,3 +633,55 @@ malformed, random, expired и logged-out digest fail closed. Transaction cleanup
 backend. Revision `20260912_0009` сохраняет exact disposable downgrade semantics
 `0009 → 0008 → 0009`; production downgrade по-прежнему запрещён. Полный process
 RCE остаётся отдельной trust boundary и не решается PostgreSQL ACL.
+
+## ADR-025 — Provider-independent TutorOffer/Booking snapshot
+
+Дата: 2026-09-14
+
+Статус: принято как implementation contract для `ET-10.1`
+
+Решение: `FREE`/`EXTERNAL` Booking реализуется внутри existing modular monolith
+без payment/calendar provider. `TutorOffer` представляет один concrete future
+half-open interval, имеет `DRAFT → ACTIVE → RETIRED` lifecycle и optimistic
+version. Student request атомарно копирует server-owned offer terms в immutable
+Booking snapshot; tutor принимает именно этот snapshot. Offer revision/profile
+change не переписывает Booking.
+
+Offer mutation и Booking accept/decline требуют нового exact account capability
+`TUTOR_BOOKING_MANAGE_OWN`, issued/revoked existing trusted provisioner.
+StudentProfile/TutorProfile не являются prerequisite или authority. Any
+authenticated distinct Account может request active offer; participant read и
+accepted-booking cancel остаются ownership operations после revoke.
+Participant/resource ownership server-derived из active session и opaque IDs.
+
+Для concurrency все accept writers lock Booking и берут transaction advisory
+locks для tutor/student Accounts в deterministic UUID order, затем проверяют
+accepted half-open overlap. Accepted cancellation использует те же participant
+locks. Tutor mutation сначала сериализуется existing active-grant `FOR UPDATE`
+path; revoke либо выигрывает и denies mutation, либо следует после committed
+mutation+audit. Domain-specific append-only operation ledger даёт
+exact idempotent retry; audit event использует тот же operation UUID и коммитится
+в одной transaction. Operation UUID проверяется в global audit namespace;
+cross-actor/action/domain reuse conflicts. `capability_grant_operations` не переиспользуется, потому
+что его semantics принадлежат authority lifecycle.
+
+Time contract: explicit-offset RFC3339 + validated IANA zone, UTC `timestamptz`,
+server/DB time для notice/cancellation. Money v1: FREE = zero/no currency;
+EXTERNAL = informational positive minor units с server-owned exponent `2` и
+allowlist `UAH/EUR/USD`. EXTERNAL не создаёт Payment/paid/refund/provider state
+и UI прямо сообщает, что платформа не подтверждает расчёт.
+
+Cancellation v1: student отменяет REQUESTED; owning tutor declines REQUESTED;
+любой participant отменяет ACCEPTED только до `starts_at`. Reschedule — cancel +
+new Booking. Advanced policy/refund остаётся future stage.
+
+Альтернативы: recurrence/AvailabilitySlot и Cal.com sync отклонены как лишние
+для runnable slice; PostgreSQL exclusion extension отклонена в пользу bounded
+advisory locks без нового extension; public tutor directory отклонён из-за
+private profile boundary; generic operation ledger отложен до третьего consumer.
+
+Последствия: required migration additive и session-bound, runtime direct DML
+остаётся запрещён. Operational rollback отключает routes и сохраняет rows;
+destructive downgrade разрешён только disposable local/test DB. Detailed
+requirements и HTTP/data contracts принадлежат
+`../specs/features/payments-and-booking.spec.md`.

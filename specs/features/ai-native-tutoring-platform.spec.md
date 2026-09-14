@@ -208,6 +208,12 @@ Booking snapshots agreed offer/policy. Accepted `FREE`, `EXTERNAL` или valid
 `PLATFORM` booking может создать отдельный time-bounded access grant согласно
 policy; failed/absent platform payment не выдаёт paid grant.
 
+Approved provider-independent `ET-10.1` delta находится в
+`payments-and-booking.spec.md` и ADR-025: concrete TutorOffer, immutable Booking
+snapshot, exact tutor capability, participant cancellation before start and
+server-authoritative overlap/idempotency. `EXTERNAL` не создаёт Payment и не
+подтверждает settlement; `PLATFORM` остаётся отдельным blocked track.
+
 ### PLAT-005 LessonSession continuity
 
 Authorized user может создать/войти в LessonSession, а reload/reconnect

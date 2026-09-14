@@ -55,6 +55,26 @@
 - `pnpm test`, `pnpm check`, `pnpm lint`, `pnpm verify:full`: неизменённый
   frontend/Pages regression contract.
 
+## ET-10.1 required evidence
+
+- Domain/unit: state transitions, normalization, FREE/EXTERNAL money, IANA
+  zone/offset/DST, notice/cancel boundaries, immutable snapshot and exact
+  idempotent retry.
+- Transport: authentication/resource/capability/body precedence, forbidden
+  owner/price/state/snapshot fields, stable errors and OpenAPI/CORS contract.
+- Real PostgreSQL: additive `0009 → 0010 → 0009 → 0010`, ACL/function grants,
+  session-derived participants, immutable snapshot trigger, audit rollback,
+  concurrent duplicate request/overlap accept, adjacent intervals,
+  accept-vs-capability-revoke and pool/cancellation cleanup.
+- Live API: tutor offer → student request → tutor accept → both retrieve one
+  snapshot; foreign/self/stale-version negatives.
+- RU/UK/component/browser: FREE/EXTERNAL disclaimer, loading/empty/error/stale/
+  lifecycle states, locale-aware time/money and mobile/accessibility audit.
+- Terminal completion: exact two managed Keycloak identities execute the real
+  browser → API → PostgreSQL path with no skipped booking phase and exit `0`.
+
+Mocks/support routes remain lower-level evidence and cannot close ET-10.1.
+
 Migration lifecycle меняет только явно названную disposable database
 `electro_tutor_test` и требует exact consent marker. Local PASS не является
 production backend deployment evidence.

@@ -512,26 +512,28 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
   not requested, printed, persisted or committed.
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["ET-10.1 architecture/specification entry work requires high reasoning level by user policy"],"checkpoint":"ET-09.4 completed/verified on feature/et-09-4c-profiles-lifecycle; deterministic initial-session gate commit 3912a8a; manual live terminal acceptance exit 0","current_stage":"ET-10.1","evidence":["backend fast 131 and PostgreSQL 54 PASS; root Vitest 112, Astro check and tracked-file ESLint PASS; deterministic session gate and terminal support 4 PASS; ordinary Chromium 54 PASS/3 live-only skipped with API stopped; build audits PASS; live profiles phase 6 PASS/1 expected phase skip and identity-change phase 5 PASS/2 expected phase skips"],"master_id":null,"next_selector":"ET-10.1","status":"planned"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4 completed/verified; ET-10.1a provider-independent Booking SPEC/ADR-025 approved locally","current_stage":"ET-10.1","evidence":["ET-09.4 live terminal acceptance exit 0","ET-10.1 architecture and repository review completed; BOOK-001..004 and PAY-004 mapped to SPEC/ADR/data/API/security/testing contracts"],"master_id":null,"next_selector":"ET-10.1","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `planned`.
+Статус: `partial` — `ET-10.1a` architecture/specification contract approved;
+runtime slices not implemented.
 
-- Status: planned
+- Status: partial
 - NEXT: ET-10.1
-- Blockers: architecture/specification entry work requires the user-requested
-  high reasoning level; current reasoning level is medium.
+- Blockers: none. PLATFORM payment/legal/provider decisions remain deferred and
+  do not block the complete FREE/EXTERNAL slice.
 
-- **NEXT / entry action:** архитектурно-спецификационный slice должен сначала
-  утвердить lifecycle `TutorOffer`/`Booking`, timezone/currency/agreed-policy
-  snapshot, cancellation minimum и concurrency invariants. По user policy эта
-  работа ждёт переключения reasoning level с medium на high.
-- **User action `ET-10.1-UA-01`: `READY`** — переключить reasoning level на
-  высокий и дать команду продолжить. Expected evidence: approved feature-SPEC
-  и ADR/data/API/security contracts, после чего runtime implementation может
-  начаться без неявных архитектурных решений.
+- **Checkpoint / evidence:** `ET-10.1a` completed locally: architecture and repo
+  reviews found no external blocker; `payments-and-booking.spec.md` v0.2,
+  ADR-025 and architecture/API/data/security/testing/design/traceability
+  projections define the executable contract. Canonical capability route chose
+  `dev-karkas`, `plan-stage` and `implement-stage` with no route gaps.
+- **NEXT:** `ET-10.1b` domain + additive PostgreSQL persistence, exact booking
+  capability/audit, idempotency and real concurrency/ACL evidence.
+- **User action `ET-10.1-UA-01`: `DONE`** — reasoning level was switched to high
+  and continuation supplied; the architecture entry gate is closed.
 
 - **Goal / why now:** deliver booking value without blocking on Stripe/legal
   platform-payment decisions.
@@ -540,8 +542,9 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 - **Runnable slice / E2E:** tutor publishes active offer → student requests
   `FREE` or `EXTERNAL` booking → tutor accepts → immutable agreed terms snapshot
   is visible to both; offer change does not mutate booking.
-- **Scope / non-goals:** offer, availability minimum, booking lifecycle and
-  snapshot; without hosted checkout, fake settlement, grants, media or calendar sync.
+- **Scope / non-goals:** concrete-time offer, booking lifecycle and immutable
+  snapshot; without hosted checkout, fake settlement, LessonAccessGrant, media,
+  recurrence or calendar sync.
 - **Modules / expected files:** booking/offer domain, repository/API, RU/UK UI,
   migrations, specs/security/data/traceability and tests.
 - **DB / migration:** UTC instants + explicit user timezone, integer minor units,
@@ -558,8 +561,16 @@ RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 - **Temporary / rollback / risks:** exact FREE/EXTERNAL implementation is a
   permanent supported slice, not payment stub; rollback preserves/export bookings;
   risk — confusing external settlement with platform guarantee.
-- **DoD / deferred:** common DoD + real two-user booking E2E; grants, reminders,
-  platform payment and advanced cancellation deferred.
+- **DoD / deferred:** common DoD + real two-user booking E2E; access grants,
+  reminders, platform payment and advanced cancellation deferred.
+
+Ordered slices:
+
+1. `ET-10.1a` SPEC/ADR/data/API/security/testing contract — `completed`.
+2. `ET-10.1b` domain/capability/audit/migration/repositories/application and real
+   PostgreSQL concurrency/ACL — `planned`, next.
+3. `ET-10.1c` HTTP transport/error matrix/live API — `planned`.
+4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance — `planned`.
 
 ## ET-10.2 — LessonAccessGrant
 

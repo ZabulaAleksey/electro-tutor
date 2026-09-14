@@ -96,3 +96,30 @@ cascade, tenant/member tables и public projection не входят в реал
 `backend:db:migrate` выполняет additive upgrade, `backend:db:status` проверяет
 head и autogenerate drift. `backend:db:reset-local` — destructive local-only
 operation с exact confirmation; production-like target этим stage не поддержан.
+
+## ET-10.1 planned additive schema
+
+Next revision after `20260912_0009` adds:
+
+- `tutor_offers`: UUID, session-derived tutor Account FK, DRAFT/ACTIVE/RETIRED,
+  optimistic version, normalized title, UTC interval, IANA zone, notice,
+  FREE/EXTERNAL integer-minor money contract and lifecycle timestamps;
+- `bookings`: UUID, offer/tutor/student FKs, REQUESTED/ACCEPTED/DECLINED/CANCELLED,
+  optimistic version, immutable versioned offer/time/money/policy snapshot and
+  transition timestamps;
+- `booking_operations`: append-only globally unique UUID idempotency namespace,
+  actor/action/target/intent digest/result version, reconciled with global
+  AuditEvent operation uniqueness;
+- expanded exact capability and audit allowlists for
+  `TUTOR_BOOKING_MANAGE_OWN`, TutorOffer and Booking actions.
+
+All Account FKs use `ON DELETE RESTRICT`; snapshot fields are protected by DB
+trigger. Partial uniqueness prevents more than one REQUESTED/ACCEPTED row per
+offer. Accepted participant/time indexes support overlap recheck under
+deterministic transaction advisory locks; adjacent `[start,end)` ranges remain
+valid. Runtime has no direct table DML and executes only session-bound functions.
+
+FREE requires zero/no currency. EXTERNAL uses positive minor units and v1
+allowlist `UAH/EUR/USD` with exponent `2`. No Payment/provider/settlement row is
+created. Operational rollback preserves rows; destructive downgrade remains
+disposable local/test-only.

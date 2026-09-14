@@ -94,6 +94,21 @@ Breakpoint-логика фактически использует `1080px`, `900
 Новая функция должна определить loading, error, empty и disabled состояния,
 если они применимы, на RU и UK.
 
+### ET-10.1 Booking states
+
+Authenticated tutor management extends the account surface; student receives a
+static localized booking shell addressed by opaque offer UUID. UI never shows
+Account IDs. Required RU/UK states: loading, empty, draft, active, stale offer,
+requested, accepted, declined, cancelled, overlap/version conflict, permission
+denied and retryable dependency failure.
+
+FREE is labelled as free without currency. EXTERNAL formats the immutable minor
+amount/currency and always includes a visible statement that Electro Tutor does
+not process or confirm external settlement/refund. Snapshot time is formatted
+through `Intl` in selected locale with an explicit IANA zone. Mobile layout,
+keyboard focus, field labels, status announcement and text expansion remain
+required browser checks.
+
 ## Темы и сохраняемое состояние
 
 Светлая и тёмная темы должны иметь достаточный контраст. Выбор темы хранится в

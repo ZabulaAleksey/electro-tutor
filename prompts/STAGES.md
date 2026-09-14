@@ -611,7 +611,7 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` completed; `ET-10.2c` implementing.
+Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` completed; `ET-10.2c` implemented_unverified.
 
 - Status: in_progress
 - NEXT: ET-10.2
@@ -651,12 +651,16 @@ Ordered slices:
   evidence is recorded above.
 - ET-10.2b is now `completed`; continue with `ET-10.2c` private HTTP
   authorization check.
-- **ET-10.2c evidence in progress:** private GET transport, canonical UUID and
+- **ET-10.2c evidence:** private GET transport, canonical UUID and
   stable error mapping are covered by `test_lesson_access_transport.py`;
   `test_lesson_access_http_integration.py` covers real session-cookie → API →
   PostgreSQL participant/foreign/anonymous/malformed/revoked behavior and is
-  marked integration. A fresh `pnpm backend:test:integration` rerun is still
-  required for this new scenario.
+  marked integration. The new scenario still requires a fresh real integration
+  rerun before this slice can be completed.
+- **User action `ET-10.2-UA-03`: `REQUIRED`** — from the repository root run
+  `pnpm backend:test:integration`, then `pnpm backend:stop` without deleting
+  data; expected evidence is exit `0` for both and the new live HTTP access
+  scenario included among the passing integration tests.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -695,7 +699,7 @@ Ordered slices:
   accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
   `completed`.
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
-  `implementing`.
+  `implemented_unverified / blocked on ET-10.2-UA-03 integration rerun`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
    acceptance — `planned`.
 

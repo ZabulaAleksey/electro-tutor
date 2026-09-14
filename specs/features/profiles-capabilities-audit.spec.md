@@ -1,8 +1,7 @@
 # Спецификация profiles, capabilities и audit baseline
 
-Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a..d` completed/verified, `ET-09.4e`
-implemented_unverified до live two-user Keycloak terminal E2E
+Статус: Действует как утверждённый и реализованный contract для `ET-09.4`;
+`ET-09.4a..e` completed/verified, включая live two-user Keycloak terminal E2E
 
 Версия: 0.5
 
@@ -459,6 +458,6 @@ trusted grant/audit CLI и serial browser acceptance для Student/Tutor lifecy
 foreign UUID denial и self-escalation rejection. Local evidence: backend fast
 `131 passed`, real PostgreSQL `54 passed`, root Vitest `112 passed`, Astro check
 без diagnostics, 17-page build и artifact audits PASS; security review cycle 2
-`GO`. Live two-user Keycloak/browser path не запускался, потому что
-`ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` отсутствуют; поэтому slice
-остаётся `implemented_unverified`, whole stage — `partial`, `NEXT: ET-09.4`.
+`GO`. Manual secret-bearing live two-user Keycloak/browser run завершён с exit
+`0`: profiles phase `6 passed / 1` expected phase skip, identity-change phase
+`5 passed / 2` expected phase skips. Whole stage verified; `NEXT: ET-10.1`.

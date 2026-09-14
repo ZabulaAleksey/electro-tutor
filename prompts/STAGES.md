@@ -1,4 +1,4 @@
-- Stage ID: ET-09.4
+- Stage ID: ET-10.1
 
 # Поэтапный запуск Electro Tutor
 
@@ -422,9 +422,8 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
-Статус: `partial` — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b`
-completed/verified; `ET-09.4c` и `ET-09.4d` completed/verified; `ET-09.4e`
-implemented_unverified до live two-user Keycloak terminal E2E.
+Статус: `completed / VERIFIED` (validated locally, 2026-09-14) — все ordered
+slices `ET-09.4a..e`, включая live two-user Keycloak terminal E2E, подтверждены.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
@@ -482,45 +481,57 @@ Ordered runtime slices and dependency edges:
    malformed-body precedence and IDOR/BOLA negatives. Evidence: fast `110`,
    real-PostgreSQL `52`, security review `GO`.
 6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E —
-   `implemented_unverified`; RU/UK UI, literal `/me`, two managed Keycloak
+   `completed / VERIFIED`; RU/UK UI, literal `/me`, two managed Keycloak
    identities, trusted grant/audit CLI and serial browser scenario implemented.
-   Live terminal run remains required to close the full stage.
+   Manual secret-bearing `pnpm test:e2e:auth` completed with exit `0`: profiles
+   phase `6 passed / 1` phase-inapplicable skip, identity-change phase `5 passed /
+   2` phase-inapplicable skips; no required live phase was skipped.
 
 Detailed contracts/gates are canonical in
 `specs/features/profiles-capabilities-audit.spec.md`. Implementation reaches
-RU/UK UI and an exact two-user terminal harness. The next runnable action is the
-live terminal AUTHZ E2E with local credentials. Stage-level `NEXT: ET-09.4`.
+RU/UK UI and an exact two-user terminal harness. Stage-level `NEXT: ET-10.1`.
 
-- Status: partial
-- NEXT: ET-09.4
-- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; ET-09.4b commit 5de59514; ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d commit b729290; ET-09.4e implemented locally on feature/et-09-4c-profiles-lifecycle
-- Blockers: the first manual live `pnpm test:e2e:auth` reached Chromium but failed
-  because its 200 ms `/api/v1/me` interception released the request before the
-  assertion could observe the required checking state. The stale timing gate is
-  fixed locally; the exact live command must be rerun from the secret-bearing
-  local shell before AUTHZ-001..003 and whole ET-09.4 can become verified.
+- Status: completed
+- NEXT: ET-10.1
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571; ET-09.4b commit 5de59514;
+  ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d commit b729290; ET-09.4e
+  deterministic session-gate fix commit 3912a8a and successful manual live
+  terminal acceptance on feature/et-09-4c-profiles-lifecycle.
+- Blockers: none for ET-09.4. Production deployment/IAM remains outside this stage.
 - Evidence: backend fast 131 passed; real PostgreSQL 54 passed; root Vitest 112;
   Astro check 82 files/0 diagnostics; ESLint PASS for all tracked JS/TS files
   with inaccessible pytest cache excluded; deterministic exact-GET `/api/v1/me`
   checking-state gate 1 PASS; terminal support 4 PASS; full ordinary Chromium
   54 PASS/3 live-only skipped with the local API stopped; 17-page build and locale/lesson/site artifact
-  audits PASS; security review cycle 2 GO; post-fix live Keycloak terminal path
-  NOT RUN because secrets are intentionally unavailable to Codex processes.
-- User action `ET-09.4-UA-01`: `READY` — with Docker Desktop/Engine running, set
-  `ET_KEYCLOAK_ADMIN_PASSWORD` and `ET_DEV_TEST_PASSWORD` only in the local
-  shell or secret manager, then rerun `pnpm test:e2e:auth` from the repository
-  root. Expected evidence: the exact two-user Keycloak → API → PostgreSQL →
-  Chromium terminal scenario exits `0` with no skipped live phase; this
-  unblocks verification of `ET-09.4e`, completion of `ET-09.4`, and `ET-10.1`.
-  Do not paste secret values into chat, Git, logs or `STAGES.md`.
+  audits PASS; security review cycle 2 GO; manual post-fix
+  `pnpm test:e2e:auth` exit `0`, with profiles `6 passed / 1` expected phase
+  skip and identity-change `5 passed / 2` expected phase skips. Locale, lesson
+  publication and site artifact audits PASS in both live phases.
+- User action `ET-09.4-UA-01`: `DONE` — the user ran the exact secret-bearing
+  command locally and supplied non-secret terminal evidence. Secret values were
+  not requested, printed, persisted or committed.
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["post-fix live ET-09.4e two-user Keycloak E2E must be rerun from the secret-bearing local shell"],"checkpoint":"ET-09.4e deterministic initial-session gate fixed locally on feature/et-09-4c-profiles-lifecycle; ET-09.4d commit b729290","current_stage":"ET-09.4","evidence":["backend fast 131 and PostgreSQL 54 PASS; root Vitest 112, Astro check and tracked-file ESLint PASS; deterministic session gate and terminal support 4 PASS; ordinary Chromium 54 PASS/3 live-only skipped with API stopped; build audits PASS; post-fix live Keycloak terminal path NOT RUN"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["ET-10.1 architecture/specification entry work requires high reasoning level by user policy"],"checkpoint":"ET-09.4 completed/verified on feature/et-09-4c-profiles-lifecycle; deterministic initial-session gate commit 3912a8a; manual live terminal acceptance exit 0","current_stage":"ET-10.1","evidence":["backend fast 131 and PostgreSQL 54 PASS; root Vitest 112, Astro check and tracked-file ESLint PASS; deterministic session gate and terminal support 4 PASS; ordinary Chromium 54 PASS/3 live-only skipped with API stopped; build audits PASS; live profiles phase 6 PASS/1 expected phase skip and identity-change phase 5 PASS/2 expected phase skips"],"master_id":null,"next_selector":"ET-10.1","status":"planned"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
 Статус: `planned`.
+
+- Status: planned
+- NEXT: ET-10.1
+- Blockers: architecture/specification entry work requires the user-requested
+  high reasoning level; current reasoning level is medium.
+
+- **NEXT / entry action:** архитектурно-спецификационный slice должен сначала
+  утвердить lifecycle `TutorOffer`/`Booking`, timezone/currency/agreed-policy
+  snapshot, cancellation minimum и concurrency invariants. По user policy эта
+  работа ждёт переключения reasoning level с medium на high.
+- **User action `ET-10.1-UA-01`: `READY`** — переключить reasoning level на
+  высокий и дать команду продолжить. Expected evidence: approved feature-SPEC
+  и ADR/data/API/security contracts, после чего runtime implementation может
+  начаться без неявных архитектурных решений.
 
 - **Goal / why now:** deliver booking value without blocking on Stripe/legal
   platform-payment decisions.

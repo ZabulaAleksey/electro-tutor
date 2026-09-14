@@ -270,7 +270,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 ## AI-native platform track — после stabilization/public release
 
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
-`ET-09.1`, `ET-09.2` и `ET-09.3` завершены; текущий selector — `ET-09.4`. `ET-03` остаётся независимым
+`ET-09.1..4` завершены; текущий selector — `ET-10.1`. `ET-03` остаётся
+независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
@@ -321,7 +322,8 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   client, Authorization Code + PKCE S256, opaque server session, stable
   `(issuer, subject)`, protected `/me` и logout подтверждены real Keycloak /
   PostgreSQL / Chromium evidence без mutation MathMorph.
-- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PARTIAL`.
+- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус:
+  `COMPLETED (validated locally, 2026-09-14)`.
   Approved feature-SPEC/ADR-023 фиксируют private composable Student/Tutor
   profiles, trusted account grant, server-side capability calculation и atomic
   audit. Runtime order: audit foundation → internal Account boundary →
@@ -329,7 +331,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   `ET-09.4b0` и trusted grant/evaluator `ET-09.4b` verified. Profiles
   `ET-09.4c` session-bound DB principal и `ET-09.4d` Application/HTTP ownership
   paths completed/verified; `ET-09.4e` RU/UK UI + exact two-user AUTHZ E2E
-  harness implemented_unverified до запуска с local Keycloak credentials.
+  подтверждён manual secret-bearing terminal run с exit `0`.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 

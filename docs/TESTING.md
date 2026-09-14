@@ -44,6 +44,9 @@
   без зависимости от запущенного API; live login продолжает exact request в
   реальный backend. Оба пути проверяют переход без fixed sleep или
   timeout-dependent presentation assertion.
+  Terminal acceptance от 2026-09-14 завершён с exit `0`: profiles phase
+  `6 passed / 1` expected phase skip, identity-change phase `5 passed / 2`
+  expected phase skips; обязательные live-сценарии не пропущены.
   Для real auth suite trace/screenshot/video отключены, чтобы credential, code и
   session material не сохранялись в Playwright artifacts.
 - `pnpm backend:check`: frozen restore, lock drift, `pip-audit`, fast tests,

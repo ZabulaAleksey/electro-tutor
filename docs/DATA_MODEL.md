@@ -25,7 +25,7 @@ one-shot container, а долгоживущий API получает тольк�
 `electro_tutor_test` предназначена для разрешённого migration lifecycle и
 никогда не подменяет основную local database.
 
-## ET-09.4 partial schema contract
+## ET-09.4 verified schema contract
 
 Revision `20260908_0005` реализует первый additive slice:
 

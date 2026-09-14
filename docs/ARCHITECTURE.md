@@ -119,7 +119,7 @@ verifier; callback создаёт новую opaque server-side session, а raw 
 tokens отбрасываются после проверки. MathMorph client/config/session/schema не
 переиспользуются. Provider choice не может менять domain owner.
 
-### ET-09.4 profiles/authz/audit contract (runtime partial)
+### ET-09.4 profiles/authz/audit contract (verified runtime)
 
 ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` отделяют
 stable product owner `accounts.id` от provider-login `external_identities.id`.
@@ -164,8 +164,8 @@ GET/PUT/PATCH adapters с auth → owner → validation precedence и живым
 API → Application → PostgreSQL path. `ET-09.4e` добавляет RU/UK browser UI
 поверх literal `/profiles/{kind}/me`, который не возвращает internal
 `account_id`, а также local-only двухпользовательский Keycloak/trusted-CLI
-terminal harness. UI и harness реализованы; live terminal evidence остаётся
-обязательным и не получено без local credentials.
+terminal harness. UI и harness, включая live two-user terminal path, validated
+locally 2026-09-14.
 
 ## Технологии и границы
 

@@ -641,7 +641,10 @@ Ordered slices:
   `text = uuid`); the query now casts all three IDs to `uuid`. That run ended
   with `1 failed, 64 passed, 179 deselected` and exit `1`;
   `pnpm backend:stop` completed with exit
-  `0`, preserving data.
+  `0`, preserving data. A second real rerun then exposed the same test's
+  `count(*)` null-extended-row assertion (`grant_count=1` for no grant); it
+  now counts `grants.booking_id` explicitly. A fresh integration rerun remains
+  required after this correction.
 - **User action `ET-10.2-UA-02`: `REQUIRED`** — from the repository root, with
   local Docker Engine available, run `pnpm backend:test:integration`. Expected
   evidence: exit `0`, all integration tests passed (including ET-10.2 ACL,

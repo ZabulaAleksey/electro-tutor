@@ -117,6 +117,39 @@ test("a later 401 hides active access and ignores an older delayed private respo
   }
 });
 
+test("same-document hash re-entry makes a fresh access request and hides revoked content", async ({ page }) => {
+  let requests = 0;
+  await page.route(accessUrl, (route) => {
+    const sequence = ++requests;
+    return sequence === 1
+      ? mockResponse(route, 200, activeDecision)
+      : mockResponse(route, 403, { error: { code: "lesson_access_revoked" } });
+  });
+  await openShell(page, "ru");
+  await expect(page.locator("[data-access-active]")).toBeVisible();
+  const secondResponse = page.waitForResponse((response) => response.url() === accessUrl);
+  await page.goto(`/ru/lesson/#booking=${bookingId}`);
+  expect((await secondResponse).status()).toBe(403);
+  await expect(page.locator("[data-lesson-access]")).toHaveAttribute("data-state", "revoked");
+  await expect(page.locator("[data-access-active]")).toBeHidden();
+  await expect(page).toHaveURL(/\/ru\/lesson\/$/);
+  expect(requests).toBe(2);
+});
+
+test("invalid same-document re-entry closes an active shell without sending a request", async ({ page }) => {
+  let requests = 0;
+  await page.route(accessUrl, async (route) => {
+    requests += 1;
+    await mockResponse(route, 200, activeDecision);
+  });
+  await openShell(page, "uk");
+  await expect(page.locator("[data-access-active]")).toBeVisible();
+  await page.goto(`/uk/lesson/#booking=${bookingId}&booking=${bookingId}`);
+  await expect(page.locator("[data-lesson-access]")).toHaveAttribute("data-state", "notFound");
+  await expect(page.locator("[data-access-active]")).toBeHidden();
+  expect(requests).toBe(1);
+});
+
 test("rejects invalid and duplicate fragment identifiers without requesting the API", async ({ page }) => {
   let requests = 0;
   await page.route("**/api/v1/bookings/*/lesson-access", async (route) => {

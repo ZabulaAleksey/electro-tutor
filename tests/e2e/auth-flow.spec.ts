@@ -558,7 +558,7 @@ test.describe("ET-09.3 / ET-09.4e real DEV authentication and profiles", () => {
     }
   });
 
-  test("authorizes both Booking participants, masks the third identity and revokes lesson entry", async ({ browser }) => {
+  test("ET-10.2d authorizes both Booking participants, masks the third identity and revokes lesson entry", async ({ browser }) => {
     test.skip(
       authPhase !== "lesson-access" || !password || !primarySubject || !secondarySubject || !thirdSubject,
       "lesson-access phase requires runner-provided password and three managed Keycloak subjects",

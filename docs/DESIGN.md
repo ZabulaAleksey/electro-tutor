@@ -117,6 +117,9 @@ reveals no private data before its API authorization check. The identifier is
 not placed in a query string or referrer. It is deliberately
 separate from the existing public Jitsi classroom and does not load media.
 Accepted Booking cards may link to this shell.
+Same-document fragment navigation counts as a new entry check, not an inert
+hash change. The active region disappears before the new server response;
+invalid fragments close it without exposing Booking data.
 
 Required RU/UK states are signed out, loading, active access, not yet valid,
 expired, revoked/unavailable, not found/foreign and retryable dependency error.

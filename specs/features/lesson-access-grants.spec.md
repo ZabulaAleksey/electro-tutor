@@ -301,6 +301,10 @@ Static route `/{lang}/lesson/#booking=<opaque UUID>` не содержит priva
 Fragment не отправляется server/referrer и очищается из visible address после
 bootstrap. Accepted booking card может дать ссылку на этот route. Query-string
 Booking identifier не используется.
+Same-document `#booking=` re-entry on an already mounted shell is a new join:
+it hides the previous active region, clears the new fragment and makes a fresh
+server Access check. Invalid/duplicate fragments hide active content without a
+request; older responses cannot restore it.
 
 RU/UK states: signed-out, loading, active, not-yet-valid, expired, revoked/
 unavailable, foreign/not-found и dependency/network failure. Session-generation

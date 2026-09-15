@@ -129,3 +129,9 @@ The first manual run failed before the browser at `backend idp:e2e` with exit
 `1`; the child output was deliberately redacted, so its cause remains unknown.
 The safe retry diagnostic reports only fixed, allowlisted categories; never
 forward raw provisioner output or credentials as evidence.
+The subsequent live Access phase timed out after cancellation because
+same-document `#booking=` re-entry did not launch a second Access request.
+RU/UK browser component regression tests now verify a new exact request and
+immediate hiding of previous active content for valid, revoked and invalid
+hash re-entry. This lower-level PASS still requires a fresh live
+three-identity `pnpm test:e2e:auth` run to close ET-10.2.

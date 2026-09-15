@@ -14,7 +14,7 @@ export function mountLessonAccess(): void {
   const language = normalizeLanguage(document.documentElement.lang);
   const copy = getLocale(language).lessonAccess;
   const apiOrigin = resolveLocalApiOrigin(window.location);
-  const bookingId = bookingIdFromFragment(window.location.hash);
+  let bookingId = bookingIdFromFragment(window.location.hash);
   if (window.location.hash) {
     history.replaceState(history.state, "", `${window.location.pathname}${window.location.search}`);
   }
@@ -31,7 +31,6 @@ export function mountLessonAccess(): void {
     if (state !== "loading") hasEntered = false;
   };
   if (!apiOrigin) { render("localOnly"); return; }
-  if (!bookingId) { render("notFound"); return; }
   const returnTo = `${window.location.origin}/${language}/account/`;
   login.href = `${new URL("/api/v1/auth/login", apiOrigin)}?return_to=${encodeURIComponent(returnTo)}`;
 
@@ -53,12 +52,21 @@ export function mountLessonAccess(): void {
   };
   const check = async () => {
     const captured = ++generation;
+    const id = bookingId;
+    if (!id) { render("notFound"); return; }
     render("loading");
-    const decision = await readLessonAccess(window.fetch.bind(window), apiOrigin, bookingId);
+    const decision = await readLessonAccess(window.fetch.bind(window), apiOrigin, id);
     if (captured !== generation) return;
     applyDecision(decision);
   };
   retry.addEventListener("click", () => void check());
+  window.addEventListener("hashchange", () => {
+    bookingId = bookingIdFromFragment(window.location.hash);
+    if (window.location.hash) {
+      history.replaceState(history.state, "", `${window.location.pathname}${window.location.search}`);
+    }
+    void check();
+  });
   window.addEventListener("pageshow", (event) => {
     if (event.persisted && hasEntered) void check();
   });

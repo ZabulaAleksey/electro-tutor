@@ -701,6 +701,24 @@ Ordered slices:
   focused rerun passed (`1 passed`, exit `0`) and fresh full `pnpm test:e2e`
   passed (`84 passed, 5 phase-dependent skipped`, exit `0`). This did not
   exercise or close terminal Access acceptance.
+- **ET-10.2d browser failure and correction:** next manual live run passed
+  profiles (`7 passed, 3 phase-dependent skipped`) and Booking (`6 passed,
+  4 phase-dependent skipped`). The new Access phase reached participant entry,
+  third-user denial and cancellation but timed out at `180000ms` (`5 passed,
+  1 failed, 2 skipped, 2 did not run`); no final shell exit code was supplied.
+  Playwright error-context showed the tutor shell already in `revoked` state.
+  The pending student re-entry was same-document `#booking=` navigation after
+  the fragment had been cleared, so no new Access request was dispatched and
+  `waitForResponse` could not complete. This was a real same-tab UI guard gap,
+  not a slow API. The mounted shell now handles `hashchange` as a fresh join,
+  immediately hides old active content, clears the fragment and requests the
+  exact Access API; invalid/duplicate hash also hides content without a
+  request. `pnpm test:e2e:built` focused RU/UK shell states — `22 passed`,
+  exit `0`; `pnpm test:e2e` and `pnpm test:e2e:root` — each `86 passed,
+  5 phase-dependent skipped`, exit `0`; `pnpm test` — `142 passed`, exit `0`;
+  `pnpm check`, `pnpm lint` and build/audits — exit `0`. Read-only Compose
+  status after the failed live run showed no running services; data preserved.
+  Live Access phase remains red until an explicit new run exits `0`.
 - **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
   existing repository branch with real credentials present only in a local
   shell, rerun `pnpm test:e2e:auth` using the administrator password for the

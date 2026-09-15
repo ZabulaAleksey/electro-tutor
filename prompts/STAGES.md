@@ -719,10 +719,22 @@ Ordered slices:
   `pnpm check`, `pnpm lint` and build/audits — exit `0`. Read-only Compose
   status after the failed live run showed no running services; data preserved.
   Live Access phase remains red until an explicit new run exits `0`.
+- **ET-10.2d environment retry evidence:** the next manual authenticated run
+  passed locale/build/artifact audits (`18` localized routes, `99` files) but
+  failed before Keycloak or Playwright at `backend e2e-dev` (exit `1`); runner
+  cleanup also failed and the shell reported `EXIT_CODE=1`. Read-only
+  `pnpm backend:status` reproduced a missing Docker Desktop Linux Engine pipe;
+  `com.docker.service` was stopped. After Docker Desktop was started, Docker
+  Engine responded, Compose showed no running project services, and the
+  prescribed `pnpm backend:stop` exited `0` without deleting volumes. A
+  secret-free isolated `pnpm backend:e2e` rerun then exited `0`; final
+  `pnpm backend:stop` exited `0`, preserving data. This confirms local backend
+  startup recovery, not the required three-identity browser acceptance.
 - **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
   existing repository branch with real credentials present only in a local
-  shell, rerun `pnpm test:e2e:auth` using the administrator password for the
-  existing persisted local Keycloak (do not create or send a replacement
+  shell and Docker Desktop running, rerun `pnpm test:e2e:auth` using the
+  administrator password for the existing persisted local Keycloak (do not
+  create or send a replacement
   password without a separate recovery decision); do not send, print or
   persist any secret values. Provide only the safe phase counts, Access phase
   result and `EXIT_CODE=0` (or the fixed `diagnostic=<code>` and nonzero exit

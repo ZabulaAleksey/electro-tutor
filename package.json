@@ -33,6 +33,8 @@
         "backend:test:integration": "node scripts/backend.mjs test-integration",
         "backend:db:status": "node scripts/backend.mjs db-status",
         "backend:db:migrate": "node scripts/backend.mjs db-migrate",
+        "backend:db:catalog:baseline": "node scripts/backend.mjs db-migrate catalog-baseline",
+        "backend:db:catalog:diagnose": "node scripts/backend.mjs db-status catalog-diagnose",
         "backend:db:reset-local": "node scripts/backend.mjs db-reset-local",
         "test": "vitest run",
         "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",

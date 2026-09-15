@@ -269,12 +269,14 @@ Session semantics. Immutable Alembic migrations remain the source of
 historical transitions; a tooling-only SQLAlchemy Core `MetaData` declares
 the desired head schema independently of the database under test. Existing
 `alembic check` compares them. A committed versioned `pg_catalog` contract,
-derived from a separate disposable migrated baseline, covers critical SQL
-functions, triggers, `CHECK` expressions and ACL not fully compared by
+derived from a separate disposable migrated baseline, covers SQL
+functions, triggers, `CHECK` expressions, partial-index predicates and ACL
+not fully compared by
 Alembic. `backend:check` reads both contracts and fails closed on drift; it
 does not rewrite a live database. Schema metadata and catalog expectations
-must advance with future migrations. Implementation and negative-test
-evidence are pending; the gate is not yet PASS.
+must advance with future migrations. The tooling and 9 scratch rollback
+negatives pass, but the existing data-bearing dev DB genuinely diverges;
+the repository-wide gate is not yet PASS and no automatic repair occurs.
 
 ## Технологии и границы
 

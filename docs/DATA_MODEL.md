@@ -173,11 +173,12 @@ session-bound functions own authorization and mutation. Operational rollback
 preserves these rows; downgrade is destructive and only for explicitly
 consented disposable local/test PostgreSQL.
 
-ADR-028 adds a tooling-only **desired head schema** declaration for all 15
+ADR-028 implements a tooling-only **desired head schema** declaration for all 15
 product tables, independent of the inspected DB. It is not an ORM or a
 runtime replacement for Alembic migrations. A versioned catalog manifest
-from a separately freshly migrated disposable database will pin critical
-PostgreSQL functions, triggers, `CHECK` expressions and ACL. `backend:check`
-must reject unexpected drift without changing live data. This verifier is
-architecture-only so far; current empty `target_metadata` remains a failing
-gate until implementation and negative-test evidence are complete.
+from a separately freshly migrated disposable database pins PostgreSQL
+functions, triggers, `CHECK` expressions, indexes including partial
+predicates, and private-table ACL. `backend:check` rejects unexpected drift
+without changing live data. Scratch Alembic/catalog parity and 9 rollback
+negatives pass; the existing dev DB at head 0012 has catalog divergence and
+2 account rows, so data-preserving reconciliation/isolation remains open.

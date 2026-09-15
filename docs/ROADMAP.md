@@ -350,9 +350,10 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус:
   `IMPLEMENTED_UNVERIFIED / NEXT`; lifecycle/recovery/expiry SPEC/ADR-027
   approved, local Session/API/DB/RU-UK shell and non-secret tests passed.
-  `backend:check` is red on pre-existing empty Alembic target metadata;
-  ADR-028 fixes the architecture contract, but implementation and drift-negative
-  verification remain pending. Live authenticated
+  ADR-028 independent schema/catalog gate and scratch negative verification
+  pass, but the data-bearing local dev DB has genuine function/CHECK drift;
+  repository-wide `backend:check` and outbound audit remain red pending
+  data-preserving recovery and explicit network approval. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.
 

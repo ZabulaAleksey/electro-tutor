@@ -1,8 +1,9 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 
 const root = resolve(import.meta.dirname, "..");
 const apiRoot = join(root, "services", "api");
@@ -23,6 +24,9 @@ const localTestAuthUrl =
   "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestProvisioningUrl =
   "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor_test";
+const catalogBaselineName = "electro_tutor_catalog_baseline";
+const localCatalogMigrationUrl = localMigrationUrl.replace(/\/electro_tutor$/, `/${catalogBaselineName}`);
+const catalogManifestPath = join(apiRoot, "src", "electro_tutor_api", "schema_catalog_manifest.json");
 const diagnosticTimeoutMs = 5_000;
 
 export const backendCommands = {
@@ -64,6 +68,34 @@ async function run(command, args, { cwd = root, env = {}, quiet = false } = {}) 
     child.once("exit", accept);
   });
   if (code !== 0) throw new Error(`${command} ${args.join(" ")} failed with exit code ${code}`);
+}
+
+async function runCaptured(command, args, { cwd = root, env = {} } = {}) {
+  const result = await new Promise((accept, reject) => {
+    const child = spawn(command, args, {
+      cwd,
+      env: { ...process.env, ...env },
+      stdio: ["ignore", "pipe", "pipe"],
+      shell: false,
+    });
+    let output = "";
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      output += chunk;
+      if (output.length > 2_000_000) child.kill();
+    });
+    child.stderr.resume();
+    child.once("error", reject);
+    child.once("exit", (code) => accept({ code, output }));
+  });
+  if (result.code !== 0 || result.output.length > 2_000_000) {
+    throw new Error("Catalog baseline snapshot failed; child output was redacted.");
+  }
+  try {
+    return JSON.parse(result.output);
+  } catch {
+    throw new Error("Catalog baseline emitted invalid JSON; child output was redacted.");
+  }
 }
 
 const uv = (args, options) => run(executable("uv"), args, options);
@@ -139,7 +171,7 @@ async function testFast() {
     "pytest",
     "-q",
     "-m",
-    "not integration",
+    "not integration and not catalog_baseline",
   ], { cwd: apiRoot });
 }
 
@@ -161,6 +193,66 @@ async function dbStatus() {
   await startPostgres();
   await compose(["run", "--rm", "--build", "migrate", "python", "-m", "electro_tutor_api.cli", "db-status"]);
   await compose(["run", "--rm", "migrate", "uv", "run", "alembic", "check"]);
+}
+
+async function catalogBaseline(mode = "check") {
+  if (!new Set(["check", "refresh", "test"]).has(mode)) {
+    throw new Error("Catalog baseline mode must be check, refresh, or test.");
+  }
+  await startPostgres();
+  await reconcileDatabaseRoles();
+  const psql = (database, sql) => compose([
+    "exec", "-T", "postgres", "psql", "-X", "-v", "ON_ERROR_STOP=1",
+    "-U", "electro_tutor_bootstrap", "-d", database, "-c", sql,
+  ]);
+  let created = false;
+  try {
+    // CREATE fails if this exact name already exists; never overwrite or drop it.
+    await psql("postgres", `CREATE DATABASE ${catalogBaselineName} OWNER electro_tutor_migrator`);
+    created = true;
+    await psql(catalogBaselineName,
+      "REVOKE CREATE ON SCHEMA public FROM PUBLIC; " +
+      "GRANT USAGE, CREATE ON SCHEMA public TO electro_tutor_migrator; " +
+      "GRANT USAGE ON SCHEMA public TO electro_tutor_runtime, " +
+      "electro_tutor_auth_runtime, electro_tutor_provisioner");
+    const baselineEnv = {
+      ...backendEnv("test"),
+      ET_MIGRATION_DATABASE_URL: localCatalogMigrationUrl,
+    };
+    await uv(["run", "--project", apiRoot, "alembic", "upgrade", "head"], {
+      cwd: apiRoot, env: baselineEnv,
+    });
+    await uv(["run", "--project", apiRoot, "alembic", "check"], {
+      cwd: apiRoot, env: baselineEnv,
+    });
+    const snapshot = await runCaptured(executable("uv"), [
+      "run", "--project", apiRoot, "python", "-m", "electro_tutor_api.cli",
+      "db-catalog-snapshot", "--baseline-consent", "electro-tutor-catalog-baseline",
+    ], { cwd: apiRoot, env: baselineEnv });
+    if (snapshot.schema_version !== 1 || !snapshot.objects || !snapshot.revision) {
+      throw new Error("Catalog baseline snapshot shape is invalid.");
+    }
+    if (mode === "test") {
+      await uv(["run", "--project", apiRoot, "pytest", "-q", "-m", "catalog_baseline"], {
+        cwd: apiRoot, env: baselineEnv,
+      });
+    }
+    if (mode === "refresh") {
+      await writeFile(catalogManifestPath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+      console.log("Versioned catalog manifest refreshed from a new disposable migrated DB; review its diff.");
+    } else {
+      const expected = JSON.parse(await readFile(catalogManifestPath, "utf8"));
+      if (!isDeepStrictEqual(snapshot, expected)) {
+        throw new Error("Catalog manifest differs from newly migrated disposable baseline.");
+      }
+      console.log("Catalog manifest parity passed against a new disposable migrated DB.");
+    }
+  } finally {
+    if (created) {
+      // Only drop the exact database created by this invocation; no FORCE.
+      await psql("postgres", `DROP DATABASE ${catalogBaselineName}`);
+    }
+  }
 }
 
 async function dev() {
@@ -253,6 +345,7 @@ async function check() {
     await doctor();
     await dbStatus();
     await testIntegration({ ensureServices: false });
+    await catalogBaseline("test");
     await smoke();
     console.log("Backend CI-equivalent verification passed.");
   } finally {
@@ -260,7 +353,7 @@ async function check() {
   }
 }
 
-export async function main(operation = "help") {
+export async function main(operation = "help", option, detail) {
   switch (operation) {
     case "help":
       for (const [name, purpose] of Object.entries(backendCommands)) console.log(`${name.padEnd(17)} ${purpose}`);
@@ -281,8 +374,16 @@ export async function main(operation = "help") {
     case "idp:cleanup": return idpCleanup();
     case "test-fast": return testFast();
     case "test-integration": return testIntegration();
-    case "db-status": return dbStatus();
-    case "db-migrate": return dbMigrate();
+    case "db-status":
+      if (option === undefined) return dbStatus();
+      if (option !== "catalog-diagnose") throw new Error("Unknown db-status mode.");
+      await startPostgres();
+      return compose(["run", "--rm", "--build", "migrate", "python", "-m",
+        "electro_tutor_api.cli", "db-catalog-diagnose"]);
+    case "db-migrate":
+      if (option === undefined) return dbMigrate();
+      if (option !== "catalog-baseline") throw new Error("Unknown db-migrate mode.");
+      return catalogBaseline(detail ?? "check");
     case "db-reset-local":
       if (process.env.ET_CONFIRM_RESET_LOCAL !== "electro-tutor-local") {
         throw new Error(
@@ -297,5 +398,5 @@ export async function main(operation = "help") {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await main(process.argv[2]);
+  await main(process.argv[2], process.argv[3], process.argv[4]);
 }

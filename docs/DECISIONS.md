@@ -819,14 +819,17 @@ implementation entry, но не закрывает stage.
 
 Дата: 2026-09-15
 
-Статус: **принято как архитектурный контракт ремонта** `backend:check`;
-implementation и проверка ещё не выполнены.
+Статус: **принято; independent schema/catalog tooling реализованы и проверены
+на disposable DB**. Existing data-bearing dev DB has genuine drift, поэтому
+repository-wide `backend:check` остаётся FAIL до recovery decision.
 
 Контекст: существующие `0001..0012` Alembic migrations создают 15 product
 tables и рукописные PostgreSQL functions, triggers, ACL и `CHECK` constraints.
-`services/api/alembic/env.py` передаёт пустой `target_metadata`, поэтому
-`alembic check` считает все текущие таблицы удалёнными. `backend:check` и
-вызывающий его Pages CI не могут быть terminal PASS для ET-10.3. Проверять
+Ранее `services/api/alembic/env.py` передавал пустой `target_metadata`, поэтому
+`alembic check` считал все текущие таблицы удалёнными. Теперь independent
+head metadata исправляет этот false positive; catalog gate показывает
+реальное расхождение existing dev DB. `backend:check` и Pages CI не могут
+быть terminal PASS для ET-10.3 на этой БД. Проверять
 live database против metadata, отражённой из неё самой, или отключать gate
 нельзя: оба варианта скрывают drift.
 
@@ -844,20 +847,26 @@ server defaults, primary/foreign/unique keys, indexes и partial predicates.
 `backend:check` gate сверяет критичные handwritten objects, которые сравнение
 Alembic не гарантирует: сигнатуру/тело, `SECURITY DEFINER`, `search_path` и
 `EXECUTE` ACL функций; definition/enabled state триггеров; expression и
-validated state критичных `CHECK`; private table ACL. Ожидаемый versioned
+validated state `CHECK`; partial-index predicates и private table ACL.
+Ожидаемый versioned
 manifest строится из **отдельной disposable database**, заново поднятой
 immutable migrations до head, и хранится в репозитории; проверяемая live DB
 не используется как источник собственных ожиданий. Regeneration manifest
 разрешена только из этой disposable baseline и требует review diff;
-`backend:check` только читает и сравнивает, не чинит live schema. Verifier
+`backend:check` только читает и сравнивает, не чинит live schema. Scratch
+baseline создаётся/удаляется только в рамках одной операции; уже
+существующая DB с тем же точным именем не удаляется автоматически. Verifier
 не создаёт второй runtime DB и не выполняет destructive reset product data.
 
-Приёмка: чистая migrated head проходит `backend:check`; транзакционно
+Приёмка: чистая migrated head проходит Alembic/catalog parity; транзакционно
 внесённый drift column/default/index, function body/ACL, trigger enabled or
 definition и critical `CHECK` expression отвергается с безопасным
 diagnostic, после rollback чистый gate снова PASS. Тесты должны подтвердить
 manifest generation/parity с независимой baseline, а Pages CI — запуск того
 же обязательного gate. Secret-bearing output не сохраняется и не печатается.
+Девять rollback negatives и clean scratch parity прошли; полный
+repository-wide `backend:check` на existing dev DB не прошёл из-за
+настоящего catalog drift, не из-за empty metadata.
 Это remediation существующего Backend DX Delta, а не изменение Session
 product API или миграционной истории. ET-10.3 остаётся
 `implemented_unverified` до gate, live browser и manual acceptance.

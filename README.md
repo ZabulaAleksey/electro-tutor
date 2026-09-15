@@ -38,7 +38,11 @@ pnpm backend:stop
 gate — `pnpm backend:check`; отдельные уровни — `backend:test:fast` и
 `backend:test:integration`. Удаление local DB разрешается только точным
 `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и командой
-`backend:db:reset-local`.
+`backend:db:reset-local`; этот reset удаляет весь named volume, который
+может содержать данные из других checkouts, и не является способом
+исправления ET-10.3 drift. Для проверки независимой схемы без изменения
+dev-БД: `pnpm backend:db:catalog:baseline test`; для read-only диагностики
+dev-БД: `pnpm backend:db:catalog:diagnose` (exit 1 при обнаруженном drift).
 
 ### Local authentication ET-09.3
 

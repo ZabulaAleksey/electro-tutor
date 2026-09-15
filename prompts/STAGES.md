@@ -856,20 +856,25 @@ exit `0`; local `main` contains the merge. No push, PR or deployment is claimed.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `implemented_unverified` — local Session implementation and non-secret
-gates passed; repository-wide Alembic drift gate and terminal live/manual
-acceptance remain open.
+Статус: `implemented_unverified` — Session implementation and independent
+schema/catalog drift gates pass on a fresh disposable database; the existing
+dev database has genuine catalog drift. Repository-wide, live and manual gates
+remain open.
 
 - Status: implemented_unverified
 - NEXT: ET-10.3
-- Blockers: `pnpm backend:check` exits `1` at its Alembic autogenerate check
-  because pre-existing `services/api/alembic/env.py` has empty
-  `target_metadata`; all existing tables appear removed. A canonical
-  schema-metadata/drift-check architecture is now fixed by ADR-028 but its
-  code and negative tests remain pending; self-reflection or disabling the
-  gate is not accepted. Separate terminal
-  live Session browser and manual RU/UK checks are pending. ET-09.4b prompt
-  cleanup remains separately blocked by missing `.codex/dev-project.toml`.
+- Next condition: High-level data-preserving dev DB recovery/isolation decision
+  before any migration/reset, then rerun `backend:check` and terminal gates.
+- Blockers: independent ADR-028 contracts expose genuine existing local dev
+  DB drift at revision 0012: 10 expected functions missing, 3 changed, 9
+  unexpected, and 1 expected CHECK missing. `backend:db:catalog:diagnose`
+  exits `1` safely with `status=drift`; `backend:check` cannot be terminal
+  PASS on that DB. Read-only row check found 2 accounts; no reset or repair
+  was attempted. Separately `verify:full` audit requires outbound npm-registry
+  access that auto-review rejected; prior frontend/build/browser/smoke phases
+  passed. Terminal live Session browser and manual RU/UK checks are pending.
+  ET-09.4b prompt cleanup remains separately blocked by missing
+  `.codex/dev-project.toml`.
 - Architecture checkpoint: high reasoning confirmed by user's Codex UI
   screenshot and `Продолжай` (2026-09-15); owner explicitly approved
   `../specs/features/lesson-sessions.spec.md` v1/ADR-027 in this task.
@@ -908,12 +913,24 @@ acceptance remain open.
   user replied `Продолжай ET-10.3` after the High reasoning request;
   runtime UI reasoning setting was not independently inspected. This
   continuation unlocked ADR-028 design only, not `backend:check` PASS.
-- **User action `ET-10.3-UA-07`: `PENDING / MEDIUM reasoning implementation entry`** —
-  switch this task's reasoning level to Medium and reply `Продолжай ET-10.3`;
-  confirmation unlocks ordinary ADR-028 code/test remediation. No secret,
-  destructive DB action, merge or deployment is required.
+- **User action `ET-10.3-UA-07`: `DONE / MEDIUM reasoning implementation entry`** —
+  user replied `Продолжай ET-10.3`; ADR-028 code/test remediation was performed.
+  Codex UI setting was not independently inspected.
+- **User action `ET-10.3-UA-08`: `PENDING / HIGH data-recovery architecture`** —
+  switch this task's reasoning level to High and reply `Продолжай ET-10.3`.
+  Expected evidence is approval of a data-preserving reconciliation or isolated
+  replacement plan for the existing local dev DB (2 accounts), including
+  rollback/backup and ownership of unexpected catalog objects. This unlocks
+  implementation of the chosen recovery; do not run `backend:db:reset-local`.
+- **User action `ET-10.3-UA-09`: `PENDING / CONDITIONAL network audit approval`** —
+  after local DB recovery, explicitly approve an outbound `pnpm audit
+  --audit-level high` request to the npm registry from this repository;
+  the request transmits the locked dependency graph, not secrets. Expected
+  evidence is audit exit `0` or its safe diagnostic; this unlocks the
+  dependency-audit part of `verify:full`. Auto-review rejected the current
+  request; no indirect bypass was attempted.
 
-- **ADR-028 architecture decision / pending gate:** retain mandatory
+- **ADR-028 implemented independent gate:** retain mandatory
   `alembic check` with tooling-only independent SQLAlchemy Core metadata for
   all 15 head-0012 product tables; add a versioned critical PostgreSQL
   function/trigger/`CHECK`/ACL catalog contract derived only from a separate
@@ -921,8 +938,20 @@ acceptance remain open.
   target DB. `backend:check` must fail on drift and pass on clean head; negative
   column/default/index, function body/ACL, trigger and `CHECK` drift must be
   detected and rolled back. Pages CI runs the same gate. Architecture docs
-  are synchronized; implementation/evidence have not been run. This repair
-  belongs to ET-10.3 and is not deferred to ET-11.1.
+  and implementation are synchronized. On a fresh scratch DB, Alembic check,
+  catalog parity and 9 rollback negatives pass; existing dev catalog drift
+  still blocks repository-wide PASS. This repair belongs to ET-10.3 and is
+  not deferred to ET-11.1.
+- **ADR-028 verification evidence:** `pnpm backend:test:fast` 194 passed / 81
+  deselected, Ruff/mypy PASS, exit `0`; `pnpm backend:test:integration` 72
+  passed / 201 deselected, exit `0`; `pnpm backend:db:catalog:baseline test`
+  Alembic clean + manifest parity + 9 catalog negatives, exit `0`, scratch
+  DB created and dropped in the same run. `pnpm
+  backend:db:catalog:diagnose` on preserved dev DB exits `1` with redacted
+  safe object-name/count differences. `pnpm verify:full` ran frozen restore,
+  code/context/unit, 92 root browser passes with 5 expected phase skips,
+  build and 4 production smokes, then exited `1` only at network-blocked
+  `pnpm audit --audit-level high`; it is not terminal PASS.
 
 - **Local implementation/evidence:** additive revision `20260915_0012` and
   private Session domain/application/repository/API, Booking cancellation

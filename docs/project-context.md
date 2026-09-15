@@ -70,11 +70,16 @@ agents, Skills и Git workflow наследуются; локальные коп
   `N/A — schema генерируется FastAPI и не хранится вторым source`; owner — `docs/API.md`.
   отдельный generated artifact не versioned.
 - DB migration/status/seed/reset-local commands: `pnpm backend:db:migrate`,
-  `pnpm backend:db:status`, seed `N/A — ET-09.2 не имеет product tables/data`,
-  `pnpm backend:db:reset-local`.
+  `pnpm backend:db:status`, seed `N/A — supported canonical seed command is
+  not defined`, `pnpm backend:db:reset-local`; ADR-028 adds
+  `pnpm backend:db:catalog:baseline test` on an owned disposable scratch DB
+  and read-only `pnpm backend:db:catalog:diagnose` for a target DB.
 - Destructive command guard: reset требует exact
-  `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет только named local
-  volume; migration lifecycle требует exact consent и database
+  `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет весь named local
+  volume, potentially shared across checkouts and containing product data;
+  it is not an ET-10.3 drift recovery path. The observed dev DB has 2
+  account rows. Do not reset without a separately approved backup/recovery
+  decision. Migration lifecycle требует exact consent и database
   `electro_tutor_test`. Browser E2E also uses that isolated database through
   `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
 - Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
@@ -89,14 +94,19 @@ agents, Skills и Git workflow наследуются; локальные коп
   live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
 - Known limitations: production backend hosting/ingress/IAM/cookie topology не
   выбраны; exact credentialed CORS действует только для DEV/E2E, jobs отсутствуют.
-  Existing `services/api/alembic/env.py` registers an empty `target_metadata`:
-  `pnpm backend:check` reaches `alembic check` after successful restore, build,
-  doctor and current-head validation, then exits nonzero because autogenerate
-  interprets every existing table as removed. This repository-wide DB drift
-  gate has an architecture contract in ADR-028: independent Core head metadata
-  plus a versioned `pg_catalog` manifest for critical handwritten objects,
-  with negative drift tests. Implementation is pending; reflecting the live DB
-  into itself or disabling the check would not validate drift.
+  ADR-028 now provides independent Core head metadata for 15 tables and a
+  committed `pg_catalog` manifest for functions, triggers, CHECKs, indexes
+  and private ACL. A newly migrated scratch DB passes Alembic check, catalog
+  parity and 9 transactional drift negatives. The existing dev DB at head
+  0012 genuinely diverges (10 expected functions missing, 3 changed, 9
+  unexpected and 1 CHECK missing), so `backend:db:catalog:diagnose` exits 1.
+  A scratch DB left by interrupted execution is never auto-dropped on the next
+  run: first inspect exact `electro_tutor_catalog_baseline` existence/owner
+  read-only via `docker compose exec -T postgres psql -X -U
+  electro_tutor_bootstrap -d postgres -c "SELECT datname, pg_get_userbyid(datdba)
+  FROM pg_database WHERE datname = 'electro_tutor_catalog_baseline'"`; resolve
+  ownership and recovery before any manual drop. No live DB self-reflection,
+  reset or automatic repair is allowed.
 - Explicit deviations from global Backend DX Policy: `none`.
 
 ### Backend DX gate status
@@ -109,10 +119,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `FAIL` — current/disposable migration and Session constraints pass, but `backend:check`/`alembic check` fails on empty canonical target metadata; ADR-028 remediation designed, implementation and negative tests pending |
+| `BDX-GATE-07 Database lifecycle` | `FAIL` — independent scratch Alembic/catalog parity and 9 negatives PASS, but genuine data-bearing dev catalog drift blocks `backend:check`; data-preserving recovery decision pending |
 | `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `FAIL` — Pages workflow calls the same failing `backend:check`; command parity exists, ADR-028 repair/CI-equivalent PASS pending |
+| `BDX-GATE-10 CI parity` | `FAIL` — Pages workflow calls the same mandatory gate; fresh-scratch parity PASS, dev `backend:check`/CI-equivalent complete run and network audit PASS pending |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

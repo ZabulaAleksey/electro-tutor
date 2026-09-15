@@ -168,14 +168,16 @@ deselected), including Session HTTP, migration cycle/ACL, post-lock expiry,
 audit rollback and lifecycle; `backend:test:fast` passed 189 (72 integration
 deselected), both exit 0. `pnpm verify:full` final retry exited 0 with root
 browser 92/5, production smoke 4/4 and dependency audit no high findings.
-The repository-wide `backend:check` remains FAIL: Alembic `target_metadata`
-is empty, so its `alembic check` marks all existing tables removed despite
-current=expected head 0012. Do not call this DB drift gate PASS or replace it
-with live-DB self-reflection. ADR-028 now defines the remediation: complete
-tooling-only Core head metadata, a versioned `pg_catalog` contract from an
-independent migrated disposable baseline, and transactional negative tests
-for column/default/index, SQL function body/ACL, trigger and critical `CHECK`
-drift. A clean head must pass `backend:check` before and after each rolled-back
-negative; the same gate must pass in CI-equivalent validation. No remediation
-implementation or PASS evidence is claimed yet. Detailed evidence and user actions are in selected
+ADR-028 drift tooling is implemented. `pnpm backend:test:fast` passed 194/81
+(Ruff/mypy PASS), `pnpm backend:test:integration` passed 72/201, and
+`pnpm backend:db:catalog:baseline test` passed independent Alembic parity,
+catalog manifest parity and 9 rolled-back column/default/index/predicate,
+function body/ACL, trigger, CHECK and table-ACL negatives, all exit 0. The
+scratch DB was dropped in the same run. On the existing data-bearing dev DB,
+`pnpm backend:db:catalog:diagnose` correctly exits 1 with genuine function
+and CHECK drift. Thus repository-wide `backend:check` is not terminal PASS.
+`pnpm verify:full` passed restore/code/unit/root-browser/build/smoke phases
+but exited 1 at the sandbox-rejected outbound dependency audit; no audit PASS
+is claimed for this rerun. Live authenticated Session and manual acceptance
+remain NOT RUN. Detailed evidence and user actions are in selected
 `../prompts/STAGES.md`.

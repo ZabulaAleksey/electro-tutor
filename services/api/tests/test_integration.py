@@ -23,6 +23,10 @@ LOCAL_RUNTIME = (
     f"postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:{LOCAL_POSTGRES_PORT}/"
     "electro_tutor_test"
 )
+LOCAL_AUTH = (
+    "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@"
+    f"127.0.0.1:{LOCAL_POSTGRES_PORT}/electro_tutor_test"
+)
 LOCAL_MIGRATION = (
     f"postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:{LOCAL_POSTGRES_PORT}/"
     "electro_tutor_test"
@@ -33,7 +37,10 @@ def disposable_runtime_settings() -> Settings:
     runtime = os.getenv("ET_TEST_DATABASE_URL") or os.getenv("ET_RUNTIME_DATABASE_URL")
     if runtime != LOCAL_RUNTIME:
         pytest.skip("integration mutation tests require the exact electro_tutor_test database")
-    return Settings(profile="test", runtime_database_url=runtime)
+    auth = os.getenv("ET_AUTH_DATABASE_URL")
+    if auth != LOCAL_AUTH:
+        pytest.skip("integration auth tests require the exact auth runtime role")
+    return Settings(profile="test", runtime_database_url=runtime, auth_database_url=auth)
 
 
 def disposable_migration_settings() -> MigrationSettings:
@@ -68,6 +75,10 @@ async def test_real_database_outage_is_redacted_503() -> None:
         profile="ci",
         runtime_database_url=(
             "postgresql+asyncpg://electro_tutor_runtime:sentinel-password@127.0.0.1:1/electro_tutor"
+        ),
+        auth_database_url=(
+            "postgresql+asyncpg://electro_tutor_auth_runtime:sentinel-password@"
+            "127.0.0.1:1/electro_tutor"
         ),
     )
     app = create_app(settings)
@@ -163,7 +174,7 @@ async def test_runtime_role_cannot_change_schema_revision() -> None:
 @pytest.mark.asyncio
 async def test_identity_is_stable_by_issuer_subject_when_email_changes() -> None:
     repository = AuthRepository(
-        create_async_engine(disposable_runtime_settings().runtime_database_url)
+        create_async_engine(disposable_runtime_settings().auth_database_url)
     )
     try:
         first = await repository.resolve_identity(
@@ -209,7 +220,7 @@ async def test_identity_is_stable_by_issuer_subject_when_email_changes() -> None
 @pytest.mark.asyncio
 async def test_runtime_role_cannot_mutate_durable_external_identity_key() -> None:
     repository = AuthRepository(
-        create_async_engine(disposable_runtime_settings().runtime_database_url)
+        create_async_engine(disposable_runtime_settings().auth_database_url)
     )
     issuer = "http://127.0.0.1:58081/realms/electro-tutor-dev"
     try:
@@ -244,7 +255,7 @@ async def test_runtime_role_cannot_mutate_durable_external_identity_key() -> Non
 @pytest.mark.asyncio
 async def test_auth_transaction_is_one_time_and_session_can_be_invalidated() -> None:
     repository = AuthRepository(
-        create_async_engine(disposable_runtime_settings().runtime_database_url)
+        create_async_engine(disposable_runtime_settings().auth_database_url)
     )
     transaction = AuthTransaction(
         transaction_id=UUID("33333333-3333-4333-8333-333333333333"),

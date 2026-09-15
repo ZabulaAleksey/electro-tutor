@@ -7,6 +7,8 @@ const routeMatrix = [
   { path: "/classroom/", ru: "Кабинет занятия", uk: "Кабінет заняття" },
   { path: "/services/", ru: "Услуги", uk: "Послуги" },
   { path: "/contacts/", ru: "Контакты", uk: "Контакти" },
+  { path: "/account/", ru: "Ваш аккаунт", uk: "Ваш обліковий запис" },
+  { path: "/lesson/", ru: "Вход в урок", uk: "Вхід до уроку" },
   { path: "/topics/dc/mesh-current-method/", ru: "Метод контурных токов", uk: "Метод контурних струмів" },
 ] as const;
 
@@ -30,6 +32,22 @@ test("root redirects to the declared Russian default locale", async ({ page }) =
   await page.goto("/");
   await expect(page).toHaveURL(/\/ru\/$/);
 });
+
+for (const accountLocale of [
+  { language: "ru", loading: "Проверяем сессию…" },
+  { language: "uk", loading: "Перевіряємо сесію…" },
+] as const) {
+  test(`${accountLocale.language} account ships a localized loading shell without mobile overflow`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const response = await page.goto(`/${accountLocale.language}/account/`);
+    expect(await response?.text()).toContain(accountLocale.loading);
+    const dimensions = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+  });
+}
 
 test("Ukrainian diagram exposes localized controls and recovery error", async ({ page }) => {
   await page.goto("/uk/interactive/?v=99&i0m=broken");

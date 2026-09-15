@@ -119,7 +119,7 @@ verifier; callback создаёт новую opaque server-side session, а raw 
 tokens отбрасываются после проверки. MathMorph client/config/session/schema не
 переиспользуются. Provider choice не может менять domain owner.
 
-### ET-09.4 profiles/authz/audit contract (runtime partial)
+### ET-09.4 profiles/authz/audit contract (verified runtime)
 
 ADR-023 и `../specs/features/profiles-capabilities-audit.spec.md` отделяют
 stable product owner `accounts.id` от provider-login `external_identities.id`.
@@ -153,8 +153,90 @@ HTTP adapters → full RU/UK/authz E2E. `ET-09.4a` уже предоставля
 AuditEvent repository и один PostgreSQL unit-of-work. `ET-09.4b0` предоставляет
 Account ownership boundary с atomic first-login. `ET-09.4b` добавляет separate
 provisioner DB role, account-scoped grant repository, durable operation ledger,
-typed evaluator и atomic grant/revoke audit; profile/HTTP/UI runtime остаётся
-planned.
+typed evaluator и atomic grant/revoke audit. `ET-09.4c` добавляет profile domain,
+две независимые private tables, connection-scoped repository и fixed-search-path
+functions без прямых runtime table privileges; Tutor mutation повторно проверяет
+и блокирует grant, а первое create атомарно пишет AuditEvent. Revision `0009`
+разделяет `electro_tutor_auth_runtime` и profile runtime, передаёт redacted
+session digest только transaction-local и выводит owner/audit actor из active
+session внутри PostgreSQL. `ET-09.4c` verified. `ET-09.4d` добавляет thin private
+GET/PUT/PATCH adapters с auth → owner → validation precedence и живым
+API → Application → PostgreSQL path. `ET-09.4e` добавляет RU/UK browser UI
+поверх literal `/profiles/{kind}/me`, который не возвращает internal
+`account_id`, а также local-only двухпользовательский Keycloak/trusted-CLI
+terminal harness. UI и harness, включая live two-user terminal path, validated
+locally 2026-09-14.
+
+### ET-10.1 TutorOffer/Booking contract
+
+ADR-025 и `../specs/features/payments-and-booking.spec.md` добавляют новый
+Scheduling/Booking module внутри того же modular monolith:
+
+```text
+active session → Principal(account_id) → booking application service
+  → exact tutor capability + participant/resource policy
+  → session-bound offer/booking repositories
+  → PostgreSQL mutation + operation ledger + AuditEvent in one UoW
+```
+
+`TutorOffer` — concrete future interval и server-owned terms. Student request
+копирует их в immutable Booking snapshot; tutor принимает этот snapshot, а не
+current mutable offer. FREE/EXTERNAL полностью работают без provider. Payment,
+calendar sync, recurrence, access grant и lesson session остаются отдельными
+boundaries.
+
+Tutor operations используют новый `TUTOR_BOOKING_MANAGE_OWN`; profile existence
+не является authority. Runtime по-прежнему передаёт только session digest,
+PostgreSQL повторно разрешает Account и допускает writes только через narrow
+fixed-search-path functions. Concurrent accept сериализуется deterministic
+participant advisory locks и half-open overlap check без нового extension.
+
+Frontend остаётся static Astro shell + bounded TypeScript module. Private API
+responses не кэшируются; Account IDs в browser contract не попадают. RU/UK time
+форматируется через `Intl` из UTC instant + explicit IANA zone. Existing Cal.com
+link не синхронизирован с authoritative Booking.
+
+### ET-10.2 LessonAccessGrant contract
+
+ADR-026 и `../specs/features/lesson-access-grants.spec.md` add a separate Access
+module without introducing LessonSession or media:
+
+```text
+Booking accept/cancel application path
+  → existing Booking locks/idempotency
+  → one booking-scoped LessonAccessGrant + redacted audit in the same UoW
+
+private session + opaque booking UUID
+  → Access application service
+  → session-bound participant + grant check using PostgreSQL time
+  → ACTIVE media-less shell or stable fail-closed error
+```
+
+One grant references one immutable Booking and stores no copied participants.
+Allowed sources are only `BOOKING_FREE|BOOKING_EXTERNAL`; policy v1 is the
+half-open interval `[starts_at - 15 minutes, ends_at)`. Effective status is
+derived, and capability set v1 resolves only `LESSON_SHELL_ENTER` plus the
+Booking-derived tutor/student role.
+
+Accept atomically issues; accepted cancellation atomically revokes. Random
+server-generated UUIDv4 issue/revoke operation IDs are persisted on the grant
+and reused by AuditEvents; client Booking keys cannot pre-reserve their audit
+identity. Exact replay returns the persisted result. Lock order is Booking→grant, runtime uses narrow
+fixed-search-path functions and has no Access table DML. Check has no cache or
+provider fallback; foreign resource is masked and inconsistent policy data
+fails closed.
+
+The connection-scoped Python Access repository exposes authorization only.
+Issue/revoke are DB-private helpers called exclusively by the authorized Booking
+transition functions in the same transaction/UoW; runtime has no direct
+`EXECUTE` privilege on those helpers. This is the atomic least-privilege boundary,
+not a second application command surface.
+
+The consumer is a new static RU/UK protected shell with no private build-time
+data. Existing public Jitsi classroom remains a separate legacy MVP and is not
+loaded or reclassified by ET-10.2. A separate exact three-identity terminal
+harness proves the foreign-account denial without changing ET-10.1 accepted
+two-user phase counts.
 
 ## Технологии и границы
 

@@ -1,4 +1,4 @@
-- Stage ID: ET-09.4
+- Stage ID: ET-10.3
 
 # Поэтапный запуск Electro Tutor
 
@@ -461,8 +461,8 @@ worker и offline policy доказаны accepted versioned Playwright E2E; liv
 
 ## ET-09.4 — Profiles, capabilities и audit baseline
 
-Статус: `partial` — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b`
-completed/verified; `ET-09.4c..e` planned.
+Статус: `completed / VERIFIED` (validated locally, 2026-09-14) — все ordered
+slices `ET-09.4a..e`, включая live two-user Keycloak terminal E2E, подтверждены.
 
 - **Goal / why now:** separate application profiles from identity and make server
   authorization/audit reusable by Booking and LessonSession.
@@ -508,31 +508,108 @@ Ordered runtime slices and dependency edges:
    reference stable `accounts.id`, not a provider-specific login identity.
    Evidence: revision `20260909_0007`; `85` fast and `39` real-PostgreSQL tests;
    role-absent existing-volume `0006 → 0007` upgrade PASS.
-4. `ET-09.4c` Student/Tutor profile persistence/lifecycle — depends on
-   `ET-09.4b`, because TutorProfile create/read/update require trusted grant and
-   create must share the audit transaction.
-5. `ET-09.4d` Application/HTTP ownership paths — depends on `ET-09.4c`; adapters
-   consume policy/repository contracts and add anonymous, validation and IDOR/BOLA negatives.
-6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E — depends on
-   `ET-09.4d`; only this slice may close the full stage after all terminal gates.
+4. `ET-09.4c` Student/Tutor profile persistence/lifecycle — `completed /
+   VERIFIED`; depends on `ET-09.4b`, because TutorProfile create/read/update
+   require trusted grant and create must share the audit transaction. Revision
+   `20260912_0008` + session-bound revision `20260912_0009`, fast `94` and
+   real-PostgreSQL `51` tests PASS. Separate auth/runtime roles, transaction-local
+   redacted session credential, DB-derived owner, exact downgrade semantics,
+   cancellation cleanup and cross-account/role negative gates are verified.
+5. `ET-09.4d` Application/HTTP ownership paths — `completed / VERIFIED`;
+   adapters consume policy/repository contracts and add anonymous, validation,
+   malformed-body precedence and IDOR/BOLA negatives. Evidence: fast `110`,
+   real-PostgreSQL `52`, security review `GO`.
+6. `ET-09.4e` RU/UK UI + complete `AUTHZ-001..003` E2E —
+   `completed / VERIFIED`; RU/UK UI, literal `/me`, two managed Keycloak
+   identities, trusted grant/audit CLI and serial browser scenario implemented.
+   Manual secret-bearing `pnpm test:e2e:auth` completed with exit `0`: profiles
+   phase `6 passed / 1` phase-inapplicable skip, identity-change phase `5 passed /
+   2` phase-inapplicable skips; no required live phase was skipped.
 
 Detailed contracts/gates are canonical in
-`specs/features/profiles-capabilities-audit.spec.md`. Next runtime slice is only
-`ET-09.4c`; stage-level `NEXT: ET-09.4`; profile/HTTP/UI runtime is not started.
+`specs/features/profiles-capabilities-audit.spec.md`. Implementation reaches
+RU/UK UI and an exact two-user terminal harness. Successors `ET-10.1` and
+`ET-10.2` are now completed; the current selector is `ET-10.3`.
 
-- Status: partial
-- NEXT: ET-09.4
-- Checkpoint: ET-09.4a commits c946a80 and 7e15571 merged into local main; atomic ET-09.4b0 and ET-09.4b local checkpoints on feature track (resolve by Git history)
-- Blockers: none
-- Evidence: ET-09.4b revision 20260909_0007; backend fast 85 passed; real PostgreSQL 39 passed; existing-volume 0006 provisioner-role reconciliation, trusted actor/role, Account-only FK, exact/cross-action idempotency, concurrent issue/revoke, active-row lock, audit rollback and provider/email escalation negatives PASS; profiles not started
+- Status: completed
+- NEXT: completed; successors ET-10.1/ET-10.2 are completed, current selector
+  ET-10.3
+- Checkpoint: ET-09.4a commits c946a80 and 7e15571; ET-09.4b commit 5de59514;
+  ET-09.4c commits 9741e55 and 8adc38a; ET-09.4d commit b729290; ET-09.4e
+  deterministic session-gate fix commit 3912a8a and successful manual live
+  terminal acceptance on feature/et-09-4c-profiles-lifecycle.
+- Blockers: none for ET-09.4. Production deployment/IAM remains outside this stage.
+- Evidence: backend fast 131 passed; real PostgreSQL 54 passed; root Vitest 112;
+  Astro check 82 files/0 diagnostics; ESLint PASS for all tracked JS/TS files
+  with inaccessible pytest cache excluded; deterministic exact-GET `/api/v1/me`
+  checking-state gate 1 PASS; terminal support 4 PASS; full ordinary Chromium
+  54 PASS/3 live-only skipped with the local API stopped; 17-page build and locale/lesson/site artifact
+  audits PASS; security review cycle 2 GO; manual post-fix
+  `pnpm test:e2e:auth` exit `0`, with profiles `6 passed / 1` expected phase
+  skip and identity-change `5 passed / 2` expected phase skips. Locale, lesson
+  publication and site artifact audits PASS in both live phases.
+- User action `ET-09.4-UA-01`: `DONE` — the user ran the exact secret-bearing
+  command locally and supplied non-secret terminal evidence. Secret values were
+  not requested, printed, persisted or committed.
 
 ```stage-compatibility
-{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":[],"checkpoint":"ET-09.4a commits c946a80 and 7e15571 merged into local main; atomic ET-09.4b0 and ET-09.4b local checkpoints on feature track (resolve by Git history)","current_stage":"ET-09.4","evidence":["ET-09.4b revision 20260909_0007; backend fast 85 passed; real PostgreSQL 39 passed; existing-volume 0006 provisioner-role reconciliation, trusted actor/role, Account-only FK, exact/cross-action idempotency, concurrent issue/revoke, active-row lock, audit rollback and provider/email escalation negatives PASS; profiles not started"],"master_id":null,"next_selector":"ET-09.4","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
+{"legacy_sources":[{"disposition":"retained","path":"docs/AI_PLAN.md","sha256":"3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec"},{"disposition":"retained","path":"docs/AI_STATUS.md","sha256":"5ed7dd297f994633f845f8dd0605b33087aae5f356c0cf3bc90141ba5d980a71"}],"migration_id":"MIG-253bd9c4488fef66","projection":{"blockers":["ET-10.1-UA-02 requires a local secret-bearing live browser run"],"checkpoint":"ET-10.1a..c completed; ET-10.1d implemented with all non-secret gates verified","current_stage":"ET-10.1","evidence":["ET-09.4 live terminal acceptance exit 0","ET-10.1 backend 171 fast and 58 real PostgreSQL tests exit 0","ET-10.1d frontend 134 unit, 7 focused and 62-pass full non-secret browser tests exit 0","Node dependency audit has no high or critical advisories"],"master_id":null,"next_selector":"ET-10.1","status":"partial"},"schema_version":1,"state_owner":"prompts/STAGES.md"}
 ```
 
 ## ET-10.1 — TutorOffer и Booking для FREE/EXTERNAL
 
-Статус: `planned`.
+Статус: `completed` (`validated locally`, 2026-09-14) — `ET-10.1a..d`
+закрыты, включая обязательный live Keycloak → API → PostgreSQL terminal run.
+
+- Status: completed
+- NEXT: ET-10.2
+- Blockers: отсутствуют для FREE/EXTERNAL slice. PLATFORM
+  payment/legal/provider decisions remain deferred и не влияют на completion
+  ET-10.1.
+
+- **Checkpoint / evidence:** `ET-10.1a` approved `payments-and-booking.spec.md`
+  v0.2, ADR-025 and architecture/API/data/security/testing/design projections.
+  `ET-10.1b` implements validated domain/application ports, exact
+  `TUTOR_BOOKING_MANAGE_OWN`, additive revision `20260914_0010`, session-bound
+  function-only repositories, immutable snapshots, append-only operation/audit,
+  wall-clock boundaries and deterministic concurrency locks. Canonical
+  `backend:test:fast` passed `163` tests; real disposable PostgreSQL lifecycle,
+  ACL, exact concurrent retries, overlap and lock-boundary suite passed `57`
+  tests. Correctness/security re-review has no remaining findings.
+- **Checkpoint / evidence:** `ET-10.1c` FastAPI transport/error precedence/OpenAPI/CORS and live
+  API → disposable PostgreSQL evidence — completed: all 12 private routes,
+  strict offset-bearing RFC3339 input, server-only participants/snapshot,
+  canonical `Idempotency-Key`, resolvable OpenAPI, exact error precedence and
+  no-store/CORS contracts. Canonical fast suite passed `171`; disposable
+  migration + real HTTP/PostgreSQL suite passed `58`, including three-account
+  IDOR, exact replay after offer retirement and post-revoke read/cancel paths.
+- **Checkpoint / evidence:** `ET-10.1d` implements localized RU/UK offer and
+  booking UI, exact FREE/EXTERNAL disclaimer, immutable role-localized snapshot,
+  lifecycle/conflict/retry/session-expiry states and a two-user live harness on
+  isolated `electro_tutor_test`. Verified locally: Vitest `134`, Astro `86`
+  files with zero diagnostics, ESLint, build/audits `95` artifacts, focused
+  browser matrix `7`, full non-secret Chromium `62 passed / 4` expected live
+  phase skips, backend fast `171` and real PostgreSQL `58`; all commands exit
+  `0`. Runner rejects an occupied fixed preview port and always stops its
+  Compose services after live success/failure. Dependency security gate upgraded
+  Astro to `7.3.2`, pins three patched transitive versions and passes
+  `pnpm audit --audit-level high` (only two moderate advisories remain).
+- **Terminal evidence:** manual secret-bearing `pnpm test:e2e:auth` completed
+  the exact live browser path on 2026-09-14: profiles `7 passed / 2 skipped`,
+  booking `6 passed / 3 skipped`, identity-change `6 passed / 3 skipped`;
+  authenticated API, PostgreSQL and Keycloak cleanup confirmed, terminal exit
+  `0`. No secret values were transferred or persisted.
+- **NEXT:** begin `ET-10.2` LessonAccessGrant after its SPEC/Stage entry gate.
+- **Environment note:** local main database `electro_tutor` applied an early
+  uncommitted draft of revision `0010`. Do not treat it as final-schema evidence
+  or destructively reset it implicitly. `ET-10.1c` must use freshly migrated
+  disposable `electro_tutor_test`, unless an exact local-main reset is separately
+  authorized and its post-reset schema-head evidence recorded.
+- **User action `ET-10.1-UA-01`: `DONE`** — reasoning level was switched to high
+  and continuation supplied; the architecture entry gate is closed.
+- **User action `ET-10.1-UA-02`: `DONE`** — local secret-bearing
+  `pnpm test:e2e:auth` produced the required three phase counts, cleanup
+  confirmation and terminal exit `0`; secret values were not shared.
 
 - **Goal / why now:** deliver booking value without blocking on Stripe/legal
   platform-payment decisions.
@@ -541,8 +618,9 @@ Detailed contracts/gates are canonical in
 - **Runnable slice / E2E:** tutor publishes active offer → student requests
   `FREE` or `EXTERNAL` booking → tutor accepts → immutable agreed terms snapshot
   is visible to both; offer change does not mutate booking.
-- **Scope / non-goals:** offer, availability minimum, booking lifecycle and
-  snapshot; without hosted checkout, fake settlement, grants, media or calendar sync.
+- **Scope / non-goals:** concrete-time offer, booking lifecycle and immutable
+  snapshot; without hosted checkout, fake settlement, LessonAccessGrant, media,
+  recurrence or calendar sync.
 - **Modules / expected files:** booking/offer domain, repository/API, RU/UK UI,
   migrations, specs/security/data/traceability and tests.
 - **DB / migration:** UTC instants + explicit user timezone, integer minor units,
@@ -559,12 +637,172 @@ Detailed contracts/gates are canonical in
 - **Temporary / rollback / risks:** exact FREE/EXTERNAL implementation is a
   permanent supported slice, not payment stub; rollback preserves/export bookings;
   risk — confusing external settlement with platform guarantee.
-- **DoD / deferred:** common DoD + real two-user booking E2E; grants, reminders,
-  platform payment and advanced cancellation deferred.
+- **DoD / deferred:** common DoD + real two-user booking E2E; access grants,
+  reminders, platform payment and advanced cancellation deferred.
+
+Ordered slices:
+
+1. `ET-10.1a` SPEC/ADR/data/API/security/testing contract — `completed`.
+2. `ET-10.1b` domain/capability/audit/migration/repositories/application and real
+   PostgreSQL concurrency/ACL — `completed`.
+3. `ET-10.1c` HTTP transport/error matrix/live API — `completed`.
+4. `ET-10.1d` RU/UK UI + exact two-user browser terminal acceptance —
+   `completed`; live terminal gate passed with cleanup confirmation and exit `0`.
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `planned`.
+Статус: `completed` (`validated locally`, 2026-09-15) — `ET-10.2a..d` terminal gates passed.
+
+- Status: completed
+- NEXT: completed; successor `ET-10.3` requires high reasoning for its
+  architecture entry contract.
+- Blockers: none for ET-10.2; the separate legacy ET-09.4b one-shot prompt
+  cleanup remains blocked by missing `.codex/dev-project.toml` / DEV bridge.
+- **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
+  and continuation supplied; the architecture entry gate is closed.
+- **Checkpoint / evidence:** `ET-10.2a` approved
+  `lesson-access-grants.spec.md` v0.1 and ADR-026. One Booking-scoped grant,
+  exact FREE/EXTERNAL sources, policy-v1 half-open window, derived role and
+  `LESSON_SHELL_ENTER`, atomic issue/revoke/audit, private check API, DB/ACL,
+  RU/UK media-less shell, three-identity E2E and rollback contracts are fixed.
+  Security re-review: `GO`; `pnpm check:context`: PASS; `git diff --check`:
+  PASS. Global overlay validator remains separately blocked by the pre-existing
+  missing `.codex/dev-project.toml` / bridge marker and legacy stage-state
+  cleanup; this is not ET-10.2 product evidence.
+- **ET-10.2b checkpoint / evidence:** implementation is present in migration
+  `20260914_0011_lesson_access_grants.py`, lesson-access domain/application/
+  repository, Booking transition wiring, audit contract and UoW. Root fast gate:
+  `pnpm backend:test:fast` — `179 passed, 65 deselected`, exit `0`; focused
+  access/booking unit — `14 passed`, exit `0`; `git diff --check` — exit `0`.
+  Earlier integration evidence was `61 passed`, exit `0`; after the final ACL,
+  boundary, rollback and concurrency additions a fresh rerun is still required.
+  Manual rerun on 2026-09-14 reached the real database and exposed one
+  test-query typing defect (`VALUES` parameters inferred as `text`, causing
+  `text = uuid`); the query now casts all three IDs to `uuid`. That run ended
+  with `1 failed, 64 passed, 179 deselected` and exit `1`;
+  `pnpm backend:stop` completed with exit
+  `0`, preserving data. A second real rerun then exposed the same test's
+  `count(*)` null-extended-row assertion (`grant_count=1` for no grant); it
+  now counts `grants.booking_id` explicitly. **UA-02 result:** completed on 2026-09-14
+  after the correction — `65 passed, 179 deselected`, exit `0`;
+  `pnpm backend:stop`, exit `0`, data preserved.
+- **User action `ET-10.2-UA-02`: `DONE`** — real PostgreSQL migration/ACL,
+  DB-time, audit rollback, no-grant/PLATFORM and check-vs-revoke integration
+  evidence is recorded above.
+- ET-10.2b is now `completed`; continue with `ET-10.2c` private HTTP
+  authorization check.
+- **ET-10.2c evidence:** private GET transport, canonical UUID and
+  stable error mapping are covered by `test_lesson_access_transport.py`;
+  `test_lesson_access_http_integration.py` covers real session-cookie → API →
+  PostgreSQL participant/foreign/anonymous/malformed/revoked behavior and is
+  marked integration. The first live run was `1 failed, 65 passed`, exit `1`:
+  its Booking was scheduled three days ahead, so the grant correctly returned
+  participant-only `403 lesson_access_not_yet_valid`. The scenario now schedules
+  a Booking ten minutes ahead with valid zero-minute notice, inside policy-v1
+  active window. `pnpm backend:test:fast` — `188 passed, 66 deselected`, exit
+  `0`. Final real integration run on 2026-09-15 passed with the corrected HTTP
+  scenario: `66 passed, 188 deselected`, exit `0`; `pnpm backend:stop`, exit
+  `0`, data preserved.
+- **User action `ET-10.2-UA-03`: `DONE`** — real HTTP access scenario included
+  in the passing integration suite and local database stopped safely.
+- **ET-10.2d implementation/evidence:** RU/UK static `/{lang}/lesson/` shell
+  reads only `#booking=<UUID>`, clears the visible fragment, checks the exact
+  `GET /api/v1/bookings/{id}/lesson-access` with credentials/no-store and
+  reveals the media-less region only for exact `ACTIVE` +
+  `LESSON_SHELL_ENTER`. Accepted Booking cards link to it; public Jitsi stays
+  separate. The owned synthetic Keycloak group now safely provisions three
+  exact identities with one local password, ownership/admin preflight and
+  redacted summaries. The new terminal browser phase checks both participant
+  roles, masked third identity, then cancellation denial. Component browser
+  states cover RU/UK denials, held initial request, response-generation guard,
+  retry, invalid identifiers/capability and mobile/theme/keyboard/text scale.
+  `pnpm test` — `134 passed`, exit `0`; `pnpm test:e2e` — `84 passed, 5
+  phase-dependent skipped`, exit `0`; `pnpm test:e2e:root` — same counts,
+  exit `0`; `pnpm test:e2e:production-smoke` — `4 passed`, exit `0` after
+  rebuilding `dist` intentionally removed by the root E2E runner; `pnpm check`,
+  `pnpm lint`, `pnpm check:context`, hygiene and CI
+  workflow checks — exit `0`; build/audits — `18 localized routes`, `99
+  files`, exit `0`. `pnpm backend:test:fast` — `188 passed, 66 deselected`,
+  exit `0`; `pnpm backend:test:integration` — real PostgreSQL `66 passed,
+  188 deselected`, exit `0`; `pnpm backend:stop` — exit `0`, data preserved.
+  Pytest cache-access warning is non-blocking. A sandbox-only uv cache denial
+  was resolved by an approved rerun; it was not a product/test failure.
+- **ET-10.2d live retry evidence:** first manual `pnpm test:e2e:auth` reached
+  valid locale/build/artifact audits (`18` localized routes, `99` files), then
+  failed in the first `backend idp:e2e` provisioning attempt before any live
+  Playwright Access phase: exit `1`, child output redacted. The existing runner
+  hid the underlying reason, so no product/credential/ownership cause is
+  claimed. Read-only `pnpm backend:status` after the failure showed no running
+  Compose services; data was not deleted. A bounded allowlist-only provisioning
+  diagnostic now emits a fixed code (never raw stdout/stderr or secrets).
+  Its sentinel tests and backend/Keycloak contract checks passed (`24 passed`,
+  exit `0`); root `pnpm test` passed (`142 passed`, exit `0`). One unrelated
+  `FR-008` PWA browser run closed its context (`1 failed, 83 passed`, exit `1`);
+  focused rerun passed (`1 passed`, exit `0`) and fresh full `pnpm test:e2e`
+  passed (`84 passed, 5 phase-dependent skipped`, exit `0`). This did not
+  exercise or close terminal Access acceptance.
+- **ET-10.2d browser failure and correction:** next manual live run passed
+  profiles (`7 passed, 3 phase-dependent skipped`) and Booking (`6 passed,
+  4 phase-dependent skipped`). The new Access phase reached participant entry,
+  third-user denial and cancellation but timed out at `180000ms` (`5 passed,
+  1 failed, 2 skipped, 2 did not run`); no final shell exit code was supplied.
+  Playwright error-context showed the tutor shell already in `revoked` state.
+  The pending student re-entry was same-document `#booking=` navigation after
+  the fragment had been cleared, so no new Access request was dispatched and
+  `waitForResponse` could not complete. This was a real same-tab UI guard gap,
+  not a slow API. The mounted shell now handles `hashchange` as a fresh join,
+  immediately hides old active content, clears the fragment and requests the
+  exact Access API; invalid/duplicate hash also hides content without a
+  request. `pnpm test:e2e:built` focused RU/UK shell states — `22 passed`,
+  exit `0`; `pnpm test:e2e` and `pnpm test:e2e:root` — each `86 passed,
+  5 phase-dependent skipped`, exit `0`; `pnpm test` — `142 passed`, exit `0`;
+  `pnpm check`, `pnpm lint` and build/audits — exit `0`. Read-only Compose
+  status after the failed live run showed no running services; data preserved.
+  This first live Access failure was superseded by the terminal rerun below.
+- **ET-10.2d environment retry evidence:** the next manual authenticated run
+  passed locale/build/artifact audits (`18` localized routes, `99` files) but
+  failed before Keycloak or Playwright at `backend e2e-dev` (exit `1`); runner
+  cleanup also failed and the shell reported `EXIT_CODE=1`. Read-only
+  `pnpm backend:status` reproduced a missing Docker Desktop Linux Engine pipe;
+  `com.docker.service` was stopped. After Docker Desktop was started, Docker
+  Engine responded, Compose showed no running project services, and the
+  prescribed `pnpm backend:stop` exited `0` without deleting volumes. A
+  secret-free isolated `pnpm backend:e2e` rerun then exited `0`; final
+  `pnpm backend:stop` exited `0`, preserving data. This confirms local backend
+  startup recovery, not the required three-identity browser acceptance.
+- **ET-10.2d Keycloak startup retry evidence:** the following manual run again
+  passed build/audits (`18` localized routes, `99` files) but failed before
+  Playwright at `backend idp:e2e` (exit `1`, fixed
+  `diagnostic=local_service_start_failed`); runner cleanup failed and shell
+  `EXIT_CODE=1`. Subsequent Compose status found the Linux Engine pipe absent
+  and WSL `docker-desktop` stopped. After restarting Docker Desktop, API,
+  Keycloak and PostgreSQL were all found exited `255` at the same instant;
+  container `OOMKilled=false` and no container error was recorded. This points
+  to an engine-level interruption, but does not establish its underlying
+  Windows/WSL cause. `pnpm backend:stop` exited `0` without `-v`; named data
+  volumes remain. No three-identity browser evidence was produced in that run.
+- **ET-10.2d terminal evidence:** the subsequent manual `pnpm test:e2e:auth`
+  with real credentials only in the local shell passed locale/build/artifact
+  audits (`18` localized routes, `99` files) and all four real browser phases:
+  profiles `7 passed / 3 expected phase skips`, Booking `6 / 4`,
+  `lesson-access` `6 / 4`, identity-change `6 / 4`. The required three-identity
+  Access test was executed, not skipped; tutor and student entered, third
+  identity received masked denial, and cancellation revoked re-entry. Runner
+  reported successful API/PostgreSQL/Keycloak cleanup without volume deletion;
+  shell `EXIT_CODE=0`. Fresh closeout gates: `pnpm test` — `142 passed`,
+  `pnpm check`/`pnpm lint`/`pnpm build` — exit `0`; built audits `18` routes / `99`
+  files; `pnpm test:e2e` and `pnpm test:e2e:root` — each `86 passed / 5 expected
+  phase skips`, exit `0`; production smoke — `4 passed`, exit `0`;
+  `pnpm backend:test:fast` — `188 passed / 66 deselected`, exit `0`;
+  real PostgreSQL `pnpm backend:test:integration` — `66 passed / 188
+  deselected`, exit `0`; `pnpm backend:stop` — exit `0`, data volumes retained.
+  Audit issue/revoke, actor/correlation and rollback were checked by accepted
+  real-DB integration assertions. A separate read-only audit spot-check after
+  the integration suite found no remaining Booking/grant rows in the isolated
+  test DB; it is not claimed as independent PASS or production evidence.
+- **User action `ET-10.2-UA-04`: `DONE`** — local secret-bearing live browser
+  run completed with the required Access phase and terminal exit `0`; no
+  secret value was sent or stored as stage evidence.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -587,14 +825,42 @@ Detailed contracts/gates are canonical in
 - **Observability / docs:** grant source/status decision and denial reason code,
   no sensitive token; update access SPEC, architecture/API/data/security/state.
 - **Temporary / rollback / risks:** FREE/EXTERNAL grant sources are complete;
-  no fake paid source. Rollback revokes/export grants before schema reversal;
-  risk — long-lived or over-broad capabilities.
+  no fake paid source. Operational rollback disables the consumer while
+  retaining additive schema/grants; it never revokes or exports production
+  grants as a rollback step. Destructive downgrade is limited to an exact
+  disposable local/test database with explicit consent; risk — long-lived or
+  over-broad capabilities.
 - **DoD / deferred:** common DoD + real authorization negatives; PLATFORM grant
   and native media token deferred.
 
+Ordered slices:
+
+1. `ET-10.2a` dedicated SPEC/ADR/API/data/security/testing/UI contract —
+   `completed`.
+2. `ET-10.2b` domain/UoW/migration/repository, atomic accept→issue and
+  accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
+  `completed`.
+3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
+  `completed`.
+4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
+   acceptance — `completed` (`ET-10.2-UA-04` passed).
+
+Whole stage completed with real Keycloak→API→PostgreSQL→browser evidence;
+production deployment, pull and merge are separate later operations.
+
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `planned`.
+Статус: `blocked` — architecture entry requires high reasoning and approved
+LessonSession lifecycle/recovery contract; no implementation started.
+
+- Status: blocked
+- NEXT: ET-10.3
+- Blockers: main reasoning is currently medium; architecture contract for
+  LessonSession states, roles, transitions and recovery must be approved first.
+- **User action `ET-10.3-UA-01`: `PENDING / architecture entry`** — switch the
+  main task reasoning level to high and explicitly continue `ET-10.3`;
+  confirmation of high reasoning unlocks architecture/SPEC/ADR entry work,
+  not implementation before its contract is approved.
 
 - **Goal / why now:** establish central recoverable lesson runtime before media,
   whiteboard and timeline enrichments.

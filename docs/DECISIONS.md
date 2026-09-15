@@ -548,8 +548,8 @@ realm/client/config/secrets/sessions/tokens/rows/schema не читаются и
 
 Дата: 2026-09-08
 
-Статус: принято как implementation contract для `ET-09.4`; runtime partial —
-`ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified, `ET-09.4c..e` planned
+Статус: принято и validated locally для `ET-09.4`; `ET-09.4a..e`
+completed/verified, включая live two-user Keycloak terminal E2E
 
 Решение: application owner key — `accounts.id`; конкретная provider-login запись
 остаётся `external_identities.id` и ссылается на Account через immutable required
@@ -612,6 +612,147 @@ authority, `identity_id`/issuer/subject для ET-09.3 provider provenance и se
 resolution. `/me` не обязан раскрывать internal account key. Detailed requirements принадлежат
 `../specs/features/profiles-capabilities-audit.spec.md`. Runtime выполняется
 последовательно: audit persistence/unit-of-work → internal Account boundary →
-trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
+trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E.
+Session-bound extension ET-09.3 для profile persistence зафиксирован ADR-024;
 stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
 меняются.
+
+## ADR-024 — Session-bound DB principal и разделение auth/profile runtime
+
+Дата: 2026-09-12
+
+Статус: принято и validated locally для `ET-09.4c`
+
+Решение: private profile operation получает отдельный redacted
+`SessionCredential`, а не доверяет caller-selected `account_id`. Profile
+unit-of-work устанавливает только SHA-256 digest opaque application session через
+transaction-local `set_config(..., true)`. Fixed-search-path PostgreSQL resolver
+повторно проверяет session expiry, блокирует session row `FOR KEY SHARE` и выводит
+Account owner, grant scope и AuditEvent actor из session → identity → Account.
+Произвольный account GUC не является authority input.
+
+PostgreSQL roles разделены: `electro_tutor_auth_runtime` владеет только
+auth transaction, external identity и application session path, а
+`electro_tutor_runtime` не может читать или выпускать session и выполняет только
+session-bound profile functions. Auth role не имеет profile/grant/audit access;
+обе роли `NOINHERIT`, membership/`SET ROLE` escalation запрещены. Database URLs
+обязательны раздельно, fallback между credentials отсутствует, bind-параметры
+скрыты.
+
+Причина: application-derived Principal достаточен для обычного ownership check,
+но shared runtime function с переданным `account_id` оставляла прямой DB IDOR
+путь. Одна GUC с account ID или session digest при доступной runtime session
+таблице оставалась бы подделываемой. Role split и DB re-resolution дают узкую,
+проверяемую границу без нового HMAC secret/rotation contract.
+
+Последствия: logout сериализуется с profile transaction session-row lock;
+malformed, random, expired и logged-out digest fail closed. Transaction cleanup
+проверяется для commit, rollback и cancellation на повторно используемом pooled
+backend. Revision `20260912_0009` сохраняет exact disposable downgrade semantics
+`0009 → 0008 → 0009`; production downgrade по-прежнему запрещён. Полный process
+RCE остаётся отдельной trust boundary и не решается PostgreSQL ACL.
+
+## ADR-025 — Provider-independent TutorOffer/Booking snapshot
+
+Дата: 2026-09-14
+
+Статус: принято как implementation contract для `ET-10.1`
+
+Решение: `FREE`/`EXTERNAL` Booking реализуется внутри existing modular monolith
+без payment/calendar provider. `TutorOffer` представляет один concrete future
+half-open interval, имеет `DRAFT → ACTIVE → RETIRED` lifecycle и optimistic
+version. Student request атомарно копирует server-owned offer terms в immutable
+Booking snapshot; tutor принимает именно этот snapshot. Offer revision/profile
+change не переписывает Booking.
+
+Offer mutation и Booking accept/decline требуют нового exact account capability
+`TUTOR_BOOKING_MANAGE_OWN`, issued/revoked existing trusted provisioner.
+StudentProfile/TutorProfile не являются prerequisite или authority. Any
+authenticated distinct Account может request active offer; participant read и
+accepted-booking cancel остаются ownership operations после revoke.
+Participant/resource ownership server-derived из active session и opaque IDs.
+
+Для concurrency все accept writers lock Booking и берут transaction advisory
+locks для tutor/student Accounts в deterministic UUID order, затем проверяют
+accepted half-open overlap. Accepted cancellation использует те же participant
+locks. Tutor mutation сначала сериализуется existing active-grant `FOR UPDATE`
+path; revoke либо выигрывает и denies mutation, либо следует после committed
+mutation+audit. Domain-specific append-only operation ledger даёт
+exact idempotent retry; audit event использует тот же operation UUID и коммитится
+в одной transaction. Operation UUID проверяется в global audit namespace;
+cross-actor/action/domain reuse conflicts. `capability_grant_operations` не переиспользуется, потому
+что его semantics принадлежат authority lifecycle.
+
+Time contract: explicit-offset RFC3339 + validated IANA zone, UTC `timestamptz`,
+server/DB time для notice/cancellation. Money v1: FREE = zero/no currency;
+EXTERNAL = informational positive minor units с server-owned exponent `2` и
+allowlist `UAH/EUR/USD`. EXTERNAL не создаёт Payment/paid/refund/provider state
+и UI прямо сообщает, что платформа не подтверждает расчёт.
+
+Cancellation v1: student отменяет REQUESTED; owning tutor declines REQUESTED;
+любой participant отменяет ACCEPTED только до `starts_at`. Reschedule — cancel +
+new Booking. Advanced policy/refund остаётся future stage.
+
+Альтернативы: recurrence/AvailabilitySlot и Cal.com sync отклонены как лишние
+для runnable slice; PostgreSQL exclusion extension отклонена в пользу bounded
+advisory locks без нового extension; public tutor directory отклонён из-за
+private profile boundary; generic operation ledger отложен до третьего consumer.
+
+Последствия: required migration additive и session-bound, runtime direct DML
+остаётся запрещён. Operational rollback отключает routes и сохраняет rows;
+destructive downgrade разрешён только disposable local/test DB. Detailed
+requirements и HTTP/data contracts принадлежат
+`../specs/features/payments-and-booking.spec.md`.
+
+## ADR-026 — Booking-derived LessonAccessGrant boundary
+
+Дата: 2026-09-14
+
+Статус: принято как implementation contract для `ET-10.2`
+
+Решение: Access остаётся отдельным domain aggregate, а не account CapabilityGrant
+и не LessonSession. Один accepted `FREE`/`EXTERNAL` Booking атомарно создаёт
+один grant с source `BOOKING_FREE|BOOKING_EXTERNAL`, policy/capability set v1 и
+half-open window от `starts_at - 15 minutes` до `ends_at`. Status выводится по
+PostgreSQL time; client не передаёт Account, role, source, window или capability.
+
+Capability set v1 разрешает только `LESSON_SHELL_ENTER`; participant role
+выводится из immutable Booking. Accepted Booking cancellation atomically revokes
+grant. Public issue/revoke, admin grant authority, bearer invite, PLATFORM,
+payment/provider state, LessonSession и media token отсутствуют.
+
+Booking accept/cancel, grant issue/revoke and exact redacted AuditEvents share
+one transaction. Separate random server-generated UUIDv4 operation IDs are
+persisted on the grant and used by AuditEvents; client Booking idempotency keys
+cannot predict or reserve them. Exact replay returns the persisted result. Lock order
+is Booking then grant; check uses shared locks, revoke uses update locks. Missing
+or inconsistent eligible grant fails closed and is never rebuilt from client,
+IdP, provider or cache.
+
+The Python connection-scoped Access repository exposes only the participant
+authorization check. Issue/revoke remain DB-private helpers invoked exclusively
+inside the authorized Booking transition functions in the same UoW; runtime has
+no direct `EXECUTE` on them. This least-privilege boundary prevents a separate
+grant mutation path while preserving atomic Booking/access/audit writes.
+
+Private `GET /api/v1/bookings/{booking_id}/lesson-access` returns only active
+participant access. Foreign/nonexistent Booking is masked as the existing 404;
+not-yet-valid/expired/revoked are participant-only 403 states. A new static
+RU/UK media-less shell consumes this check. Existing public Jitsi `/classroom`
+remains unchanged and is not presented as protected.
+
+Альтернативы: reuse account capability grants rejected because their scope and
+lifecycle differ; one grant per participant rejected because Booking already
+owns immutable participants; arbitrary capability JSON rejected fail-closed;
+lazy issue on GET rejected because acceptance must be atomic; generic operation
+ledger/cache/policy engine rejected as premature; extending the accepted
+two-user runner in place rejected in favour of a separate access-specific
+three-identity terminal path.
+
+Последствия: additive revision `20260914_0011` owns grant schema, collision-safe
+eligible backfill with allowlisted `service/lesson-access-migration` actor and
+`migration_backfill` provenance, audit allowlist and function-only runtime ACL. Operational
+rollback preserves rows and removes the consumer; destructive downgrade remains
+disposable-test only. Future policy/window or PLATFORM support requires a new
+versioned contract. Detailed requirements belong to
+`../specs/features/lesson-access-grants.spec.md`.

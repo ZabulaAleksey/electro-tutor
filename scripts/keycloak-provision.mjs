@@ -7,6 +7,28 @@ export const KEYCLOAK_URL = process.env.ET_KEYCLOAK_URL || EXPECTED_KEYCLOAK_URL
 export const REALM = "electro-tutor-dev";
 export const CLIENT_ID = "electro-tutor-web-dev";
 export const TEST_USERNAME = "et-dev-acceptance";
+export const SECONDARY_TEST_USERNAME = "et-dev-acceptance-b";
+export const THIRD_TEST_USERNAME = "et-dev-acceptance-c";
+export const TEST_IDENTITIES = Object.freeze([
+  Object.freeze({
+    username: TEST_USERNAME,
+    defaultEmail: "et-dev-acceptance@invalid.example",
+    firstName: "Electro",
+    lastName: "Tutor",
+  }),
+  Object.freeze({
+    username: SECONDARY_TEST_USERNAME,
+    defaultEmail: "et-dev-acceptance-b@invalid.example",
+    firstName: "Electro",
+    lastName: "Tutor B",
+  }),
+  Object.freeze({
+    username: THIRD_TEST_USERNAME,
+    defaultEmail: "et-dev-acceptance-c@invalid.example",
+    firstName: "Electro",
+    lastName: "Tutor C",
+  }),
+]);
 export const TEST_IDENTITY_GROUP = "electro-tutor-et09-3-managed";
 export const PROVISION_TIMEOUT_MS = 5_000;
 export const REDIRECT_URIS = ["http://127.0.0.1:8000/api/v1/auth/callback"];
@@ -37,6 +59,13 @@ function exactValues(actual = [], expected) {
   return JSON.stringify([...actual].sort()) === JSON.stringify([...expected].sort());
 }
 
+export function validateImmutableSubject(value) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) {
+    throw new Error("Keycloak test identity subject is not a canonical UUID");
+  }
+  return value;
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${KEYCLOAK_URL}${path}`, {
     ...options,
@@ -59,6 +88,57 @@ async function adminToken() {
 
 async function admin(path, token, options = {}) {
   return request(`/admin/realms${path}`, { ...options, headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(options.headers || {}) } });
+}
+
+async function exactUser(username, token) {
+  const matches = await admin(`/${REALM}/users?username=${encodeURIComponent(username)}&exact=true`, token);
+  if (matches.length > 1) throw new Error("Keycloak reconciliation found duplicate managed identities");
+  return matches[0] ? admin(`/${REALM}/users/${matches[0].id}`, token) : null;
+}
+
+async function assertNoRealmManagementRoles(userId, realmManagementClientId, token) {
+  const roles = await admin(
+    `/${REALM}/users/${userId}/role-mappings/clients/${realmManagementClientId}/composite`,
+    token,
+  );
+  if (roles.length !== 0) {
+    throw new Error("Keycloak test identity must not have realm-management roles");
+  }
+}
+
+async function reconcileManagedIdentity(identity, existing, ownershipGroup, realmManagementClientId, token) {
+  const email = identity.username === TEST_USERNAME
+    ? process.env.ET_DEV_TEST_EMAIL || identity.defaultEmail
+    : identity.defaultEmail;
+  const representation = {
+    ...(existing || {}),
+    username: identity.username,
+    email,
+    enabled: true,
+    emailVerified: true,
+    firstName: identity.firstName,
+    lastName: identity.lastName,
+    requiredActions: [],
+    ...(existing ? {} : { groups: [`/${TEST_IDENTITY_GROUP}`] }),
+  };
+  if (existing) {
+    await admin(`/${REALM}/users/${existing.id}`, token, { method: "PUT", body: JSON.stringify(representation) });
+  } else {
+    await admin(`/${REALM}/users`, token, { method: "POST", body: JSON.stringify(representation) });
+  }
+  const reconciled = await exactUser(identity.username, token);
+  if (!reconciled) throw new Error("Keycloak test identity was not created");
+  await admin(`/${REALM}/users/${reconciled.id}/groups/${ownershipGroup.id}`, token, { method: "PUT" });
+  await admin(`/${REALM}/users/${reconciled.id}/reset-password`, token, {
+    method: "PUT",
+    body: JSON.stringify({ type: "password", value: required("ET_DEV_TEST_PASSWORD"), temporary: false }),
+  });
+  const groups = await admin(`/${REALM}/users/${reconciled.id}/groups`, token);
+  if (!groups.some((group) => group.id === ownershipGroup.id)) {
+    throw new Error("Keycloak test identity ownership group is missing");
+  }
+  await assertNoRealmManagementRoles(reconciled.id, realmManagementClientId, token);
+  return { name: identity.username, subject: validateImmutableSubject(reconciled.id) };
 }
 
 export async function provision() {
@@ -90,31 +170,6 @@ export async function provision() {
   }
   if (groups.length !== 1 || groups[0].name !== TEST_IDENTITY_GROUP) throw new Error("Keycloak test identity ownership group did not reconcile");
   const ownershipGroup = groups[0];
-  const username = TEST_USERNAME;
-  const users = await admin(`/${REALM}/users?username=${encodeURIComponent(username)}&exact=true`, token);
-  const user = users[0] ? await admin(`/${REALM}/users/${users[0].id}`, token) : null;
-  const userGroups = user ? await admin(`/${REALM}/users/${user.id}/groups`, token) : [];
-  if (user && !userGroups.some((group) => group.id === ownershipGroup.id)) {
-    throw new Error("Refusing to mutate an existing Keycloak user not owned by ET-09.3 provisioning");
-  }
-  const userRepresentation = { ...(user || {}), username, email: process.env.ET_DEV_TEST_EMAIL || "et-dev-acceptance@invalid.example", enabled: true, emailVerified: true, firstName: "Electro", lastName: "Tutor", requiredActions: [] };
-  if (user) await admin(`/${REALM}/users/${user.id}`, token, { method: "PUT", body: JSON.stringify(userRepresentation) });
-  else { await admin(`/${REALM}/users`, token, { method: "POST", body: JSON.stringify(userRepresentation) }); }
-  const refreshedMatch = (await admin(`/${REALM}/users?username=${encodeURIComponent(username)}&exact=true`, token))[0];
-  const refreshed = refreshedMatch ? await admin(`/${REALM}/users/${refreshedMatch.id}`, token) : null;
-  if (!refreshed) throw new Error("Keycloak test identity was not created");
-  await admin(`/${REALM}/users/${refreshed.id}/groups/${ownershipGroup.id}`, token, { method: "PUT" });
-  await admin(`/${REALM}/users/${refreshed.id}/reset-password`, token, { method: "PUT", body: JSON.stringify({ type: "password", value: required("ET_DEV_TEST_PASSWORD"), temporary: false }) });
-  const reconciledClients = await admin(`/${REALM}/clients?clientId=${encodeURIComponent(CLIENT_ID)}`, token);
-  const reconciledUserMatches = await admin(`/${REALM}/users?username=${encodeURIComponent(username)}&exact=true`, token);
-  const reconciledUsers = reconciledUserMatches.length === 1
-    ? [await admin(`/${REALM}/users/${reconciledUserMatches[0].id}`, token)]
-    : reconciledUserMatches;
-  if (reconciledClients.length !== 1 || reconciledUsers.length !== 1) throw new Error("Keycloak reconciliation did not produce exactly one client and test identity");
-  const reconciledUserGroups = reconciledUsers.length === 1
-    ? await admin(`/${REALM}/users/${reconciledUsers[0].id}/groups`, token)
-    : [];
-  const reconciledRealm = await admin(`/${REALM}`, token);
   const realmManagementClients = await admin(
     `/${REALM}/clients?clientId=${encodeURIComponent("realm-management")}`,
     token,
@@ -122,10 +177,36 @@ export async function provision() {
   if (realmManagementClients.length !== 1) {
     throw new Error("Keycloak realm-management boundary is unavailable");
   }
-  const testAdminRoles = await admin(
-    `/${REALM}/users/${reconciledUsers[0].id}/role-mappings/clients/${realmManagementClients[0].id}/composite`,
-    token,
-  );
+  const testIdentities = [];
+  const preflight = [];
+  for (const identity of TEST_IDENTITIES) {
+    const existing = await exactUser(identity.username, token);
+    if (existing) {
+      const existingGroups = await admin(`/${REALM}/users/${existing.id}/groups`, token);
+      if (!existingGroups.some((group) => group.id === ownershipGroup.id)) {
+        throw new Error("Refusing to mutate an existing Keycloak user not owned by ET-09.3 provisioning");
+      }
+      await assertNoRealmManagementRoles(existing.id, realmManagementClients[0].id, token);
+    }
+    preflight.push({ identity, existing });
+  }
+  // Mutate only after all exact usernames passed the read-only ownership/admin preflight.
+  for (const { identity, existing } of preflight) {
+    testIdentities.push(
+      await reconcileManagedIdentity(
+        identity,
+        existing,
+        ownershipGroup,
+        realmManagementClients[0].id,
+        token,
+      ),
+    );
+  }
+  const reconciledClients = await admin(`/${REALM}/clients?clientId=${encodeURIComponent(CLIENT_ID)}`, token);
+  if (reconciledClients.length !== 1 || testIdentities.length !== TEST_IDENTITIES.length) {
+    throw new Error("Keycloak reconciliation did not produce exactly one client and three test identities");
+  }
+  const reconciledRealm = await admin(`/${REALM}`, token);
   const reconciled = reconciledClients[0];
   const safeSummary = {
     realm: REALM,
@@ -138,7 +219,9 @@ export async function provision() {
     redirectUris: reconciled.redirectUris,
     webOrigins: reconciled.webOrigins,
     postLogoutRedirectUris: POST_LOGOUT_REDIRECT_URIS,
-    testIdentity: username,
+    testIdentity: testIdentities[0].name,
+    testIdentitySubject: testIdentities[0].subject,
+    testIdentities,
     testIdentityOwner: TEST_IDENTITY_GROUP,
   };
   const actualPostLogout = (reconciled.attributes?.["post.logout.redirect.uris"] || "").split("##").filter(Boolean);
@@ -146,43 +229,45 @@ export async function provision() {
   if (!safeSummary.publicClient || !safeSummary.standardFlowEnabled || safeSummary.implicitFlowEnabled || safeSummary.directAccessGrantsEnabled || reconciled.serviceAccountsEnabled || reconciled.fullScopeAllowed || safeSummary.pkceMethod !== "S256") throw new Error("Keycloak client security contract did not reconcile");
   if (!exactValues(reconciled.defaultClientScopes, ["profile", "email"]) || !exactValues(reconciled.optionalClientScopes, [])) throw new Error("Keycloak client scope contract did not reconcile exactly");
   if (!exactValues(reconciled.redirectUris, REDIRECT_URIS) || !exactValues(reconciled.webOrigins, WEB_ORIGINS) || !exactValues(actualPostLogout, POST_LOGOUT_REDIRECT_URIS)) throw new Error("Keycloak redirect/origin contract did not reconcile exactly");
-  if (!reconciledUserGroups.some((group) => group.id === ownershipGroup.id)) throw new Error("Keycloak test identity ownership group is missing");
-  if (testAdminRoles.length !== 0) throw new Error("Keycloak test identity must not have realm-management roles");
   emitSafeSummary(safeSummary);
 }
 
 export async function cleanupTestIdentity() {
   validateProvisioningEnvironment();
   const token = await adminToken();
-  const users = await admin(
-    `/${REALM}/users?username=${encodeURIComponent(TEST_USERNAME)}&exact=true`,
-    token,
-  );
-  if (users.length === 0) {
-    emitSafeSummary({
-      realm: REALM,
-      testIdentity: TEST_USERNAME,
-      testIdentityOwner: TEST_IDENTITY_GROUP,
-      deleted: false,
+  const managedUsers = [];
+  for (const identity of TEST_IDENTITIES) {
+    const user = await exactUser(identity.username, token);
+    if (!user) {
+      managedUsers.push({ name: identity.username, subject: null, deleted: false });
+      continue;
+    }
+    const groups = await admin(`/${REALM}/users/${user.id}/groups`, token);
+    if (!groups.some((group) => group.name === TEST_IDENTITY_GROUP)) {
+      throw new Error("Refusing to delete a Keycloak user not owned by ET-09.3 provisioning");
+    }
+    managedUsers.push({
+      name: identity.username,
+      subject: validateImmutableSubject(user.id),
+      deleted: true,
+      userId: user.id,
     });
-    return;
   }
-  if (users.length !== 1) throw new Error("Keycloak cleanup found duplicate test identities");
-  const groups = await admin(`/${REALM}/users/${users[0].id}/groups`, token);
-  if (!groups.some((group) => group.name === TEST_IDENTITY_GROUP)) {
-    throw new Error("Refusing to delete a Keycloak user not owned by ET-09.3 provisioning");
+  // Delete only after every existing user passed the ownership preflight.
+  for (const user of managedUsers) {
+    if (user.deleted) {
+      await admin(`/${REALM}/users/${user.userId}`, token, { method: "DELETE" });
+    }
   }
-  await admin(`/${REALM}/users/${users[0].id}`, token, { method: "DELETE" });
-  const remaining = await admin(
-    `/${REALM}/users?username=${encodeURIComponent(TEST_USERNAME)}&exact=true`,
-    token,
-  );
-  if (remaining.length !== 0) throw new Error("Keycloak test identity cleanup did not converge");
+  for (const identity of TEST_IDENTITIES) {
+    if (await exactUser(identity.username, token)) {
+      throw new Error("Keycloak test identity cleanup did not converge");
+    }
+  }
   emitSafeSummary({
     realm: REALM,
-    testIdentity: TEST_USERNAME,
+    testIdentities: managedUsers.map(({ name, subject, deleted }) => ({ name, subject, deleted })),
     testIdentityOwner: TEST_IDENTITY_GROUP,
-    deleted: true,
   });
 }
 

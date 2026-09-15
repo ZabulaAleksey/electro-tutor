@@ -270,11 +270,11 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 ## AI-native platform track — после stabilization/public release
 
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
-`ET-09.1`, `ET-09.2` и `ET-09.3` завершены; основной platform-track остаётся на partial
-`ET-09.4`. По прямому разрешению пользователя текущий операционный selector временно переключён
-на bounded sidecar `ET-RTC-001`, который изолирует существующий public Jitsi за сменной границей,
-не закрывая и не переупорядочивая `ET-09.4`. `ET-03` остаётся независимым content-потоком, а
-внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
+`ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
+завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
+не переупорядочивая platform-track. Текущий selector — `ET-10.3`; `ET-03`
+остаётся независимым content-потоком, а внешние решения из `ET-05`, `ET-06`
+и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
 contracts — в `../prompts/STAGES.md`.
@@ -325,22 +325,32 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   client, Authorization Code + PKCE S256, opaque server session, stable
   `(issuer, subject)`, protected `/me` и logout подтверждены real Keycloak /
   PostgreSQL / Chromium evidence без mutation MathMorph.
-- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус: `PARTIAL`.
+- **ET-09.4 — Profiles, capabilities и audit baseline.** Статус:
+  `COMPLETED (validated locally, 2026-09-14)`.
   Approved feature-SPEC/ADR-023 фиксируют private composable Student/Tutor
   profiles, trusted account grant, server-side capability calculation и atomic
   audit. Runtime order: audit foundation → internal Account boundary →
   grant/evaluator → profiles → HTTP → RU/UK E2E; `ET-09.4a` и prerequisite
-  `ET-09.4b0` и trusted grant/evaluator `ET-09.4b` verified; следующий
-  dependency-ready runtime slice — profiles `ET-09.4c`.
+  `ET-09.4b0` и trusted grant/evaluator `ET-09.4b` verified. Profiles
+  `ET-09.4c` session-bound DB principal и `ET-09.4d` Application/HTTP ownership
+  paths completed/verified; `ET-09.4e` RU/UK UI + exact two-user AUTHZ E2E
+  подтверждён manual secret-bearing terminal run с exit `0`.
 
 ### ET-10 — Booking, access и LessonSession (`FOUNDATION_NOW`)
 
 - **ET-10.1 — TutorOffer и Booking для `FREE`/`EXTERNAL`.** Статус:
-  `PLANNED`; agreed terms snapshot и real student/tutor flow без Stripe.
-- **ET-10.2 — LessonAccessGrant.** Статус: `PLANNED`; time-bounded grant,
-  authorization negatives и независимость от payment provider.
-- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `PLANNED`; рабочий
-  lesson shell с server-authoritative lifecycle/capabilities без native media.
+  `COMPLETED (validated locally, 2026-09-14)`; provider-independent
+  SPEC/ADR-025, domain/PostgreSQL, private HTTP и RU/UK browser UI verified.
+  Exact two-user Keycloak → API → PostgreSQL terminal phases passed with
+  cleanup confirmation and exit `0`.
+- **ET-10.2 — LessonAccessGrant.** Статус: `COMPLETED (validated locally,
+  2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
+  authorization negatives and RU/UK three-identity Keycloak/browser terminal
+  phase passed; runner cleanup and shell exit `0`, without payment provider.
+- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `BLOCKED / NEXT`;
+  architecture/SPEC entry requires high reasoning and approved lifecycle/
+  recovery contract before implementation of server-authoritative shell
+  state/capabilities without native media.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

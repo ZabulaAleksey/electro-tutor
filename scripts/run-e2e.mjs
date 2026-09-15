@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import { createServer } from "node:net";
 import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -10,6 +11,14 @@ const readinessPath = process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/";
 const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
 const selectedSpec = process.env.E2E_SPEC;
+const playwrightEnvironment = { ...process.env };
+delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD;
+const previewEnvironment = { ...playwrightEnvironment };
+delete previewEnvironment.ET_DEV_TEST_PASSWORD;
+// Astro 7.3 auto-backgrounds under detected agent environments. A managed
+// foreground process is required so this runner can always stop the exact
+// preview it started; --ignore-lock avoids leaving Astro runtime state behind.
+previewEnvironment.ASTRO_PREVIEW_BACKGROUND = "0";
 
 function spawnNode(modulePath, args, options = {}) {
   return spawn(process.execPath, [resolve(projectRoot, modulePath), ...args], {
@@ -26,6 +35,32 @@ async function waitForExit(child) {
 
   const [code, signal] = await once(child, "exit");
   return { code, signal };
+}
+
+async function assertPreviewPortAvailable() {
+  const probe = createServer();
+  probe.unref();
+
+  try {
+    await new Promise((resolveListen, rejectListen) => {
+      probe.once("error", rejectListen);
+      probe.listen({ host, port, exclusive: true }, resolveListen);
+    });
+  } catch (error) {
+    if (error?.code === "EADDRINUSE") {
+      throw new Error(
+        `E2E preview port ${baseURL} is already in use. Stop the existing preview before running browser acceptance.`,
+        { cause: error },
+      );
+    }
+    throw error;
+  } finally {
+    if (probe.listening) {
+      await new Promise((resolveClose, rejectClose) => {
+        probe.close((error) => (error ? rejectClose(error) : resolveClose()));
+      });
+    }
+  }
 }
 
 async function waitUntilReady(preview, timeoutMs = 30_000) {
@@ -69,14 +104,16 @@ async function stopPreview(preview) {
   if (!forced) throw new Error(`Unable to stop Astro preview process ${preview.pid}.`);
 }
 
+await assertPreviewPortAvailable();
+
 const preview = spawnNode("node_modules/astro/bin/astro.mjs", [
   "preview",
   "--host",
   host,
   "--port",
   String(port),
-  "--strictPort",
-]);
+  "--ignore-lock",
+], { env: previewEnvironment });
 
 let exitCode = 1;
 
@@ -85,7 +122,7 @@ try {
   const playwrightArgs = selectedSpec ? ["test", selectedSpec] : ["test"];
   const playwright = spawnNode("node_modules/@playwright/test/cli.js", playwrightArgs, {
     env: {
-      ...process.env,
+      ...playwrightEnvironment,
       E2E_EXTERNAL_SERVER: "1",
       E2E_BASE_PATH: process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/",
     },

@@ -15,6 +15,7 @@ _KNOWN_ENV = {
     "ET_HOST",
     "ET_PORT",
     "ET_RUNTIME_DATABASE_URL",
+    "ET_AUTH_DATABASE_URL",
     "ET_MIGRATION_DATABASE_URL",
     "ET_PROVISIONING_DATABASE_URL",
     "ET_DATABASE_URL",
@@ -78,6 +79,7 @@ class Settings(BaseSettings):
     runtime_database_url: str = Field(
         validation_alias=AliasChoices("ET_RUNTIME_DATABASE_URL", "ET_DATABASE_URL")
     )
+    auth_database_url: str = Field(validation_alias="ET_AUTH_DATABASE_URL")
     docs_enabled: bool = Field(False, validation_alias="ET_DOCS_ENABLED")
     debug: bool = Field(False, validation_alias="ET_DEBUG")
     db_connect_timeout: Annotated[int, Field(ge=1, le=60)] = Field(
@@ -144,7 +146,7 @@ class Settings(BaseSettings):
             raise ValueError("ET_HOST must be loopback; non-loopback exposure needs approval")
         return normalized
 
-    @field_validator("runtime_database_url")
+    @field_validator("runtime_database_url", "auth_database_url")
     @classmethod
     def validate_database_url(cls, value: str) -> str:
         parsed = urlsplit(value)
@@ -159,12 +161,29 @@ class Settings(BaseSettings):
         if (self.docs_enabled or self.debug) and self.profile != "local":
             raise ValueError("docs/debug are allowed only with explicit local profile")
         parsed_runtime = urlsplit(self.runtime_database_url)
+        parsed_auth = urlsplit(self.auth_database_url)
         if parsed_runtime.hostname not in {"127.0.0.1", "localhost", "postgres"}:
             raise ValueError("local/test/ci database host must be local PostgreSQL")
         if parsed_runtime.path.removeprefix("/") not in {"electro_tutor", "electro_tutor_test"}:
             raise ValueError("local/test/ci database name is not approved")
         if parsed_runtime.username != "electro_tutor_runtime":
             raise ValueError("API database URL must use the runtime role")
+        if parsed_auth.hostname not in {"127.0.0.1", "localhost", "postgres"}:
+            raise ValueError("local/test/ci auth database host must be local PostgreSQL")
+        if parsed_auth.path.removeprefix("/") not in {"electro_tutor", "electro_tutor_test"}:
+            raise ValueError("local/test/ci auth database name is not approved")
+        if parsed_auth.username != "electro_tutor_auth_runtime":
+            raise ValueError("auth database URL must use the auth runtime role")
+        if (
+            parsed_auth.hostname,
+            parsed_auth.port or 5432,
+            parsed_auth.path,
+        ) != (
+            parsed_runtime.hostname,
+            parsed_runtime.port or 5432,
+            parsed_runtime.path,
+        ):
+            raise ValueError("runtime and auth database URLs must target the same database")
         self._validate_identity_contract()
         return self
 
@@ -230,6 +249,7 @@ class Settings(BaseSettings):
             "docs_enabled": self.docs_enabled,
             "debug": self.debug,
             "runtime_database": safe_db_url(self.runtime_database_url),
+            "auth_database": safe_db_url(self.auth_database_url),
             "oidc_issuer": self.oidc_issuer,
             "oidc_client_id": self.oidc_client_id,
         }

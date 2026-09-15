@@ -10,6 +10,7 @@ from electro_tutor_api.request_id import REQUEST_ID_PATTERN
 
 class CapabilityCode(StrEnum):
     TUTOR_PROFILE_MANAGE_OWN = "TUTOR_PROFILE_MANAGE_OWN"
+    TUTOR_BOOKING_MANAGE_OWN = "TUTOR_BOOKING_MANAGE_OWN"
 
 
 class CapabilityScopeKind(StrEnum):

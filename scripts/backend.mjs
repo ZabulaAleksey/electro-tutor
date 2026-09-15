@@ -7,15 +7,20 @@ import { pathToFileURL } from "node:url";
 const root = resolve(import.meta.dirname, "..");
 const apiRoot = join(root, "services", "api");
 const composeFile = join(root, "compose.yaml");
+const e2eComposeFile = join(root, "compose.e2e.yaml");
 const localPostgresVolume = "electro-tutor-local-postgres";
 const localRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor";
 const localMigrationUrl =
   "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/electro_tutor";
+const localAuthUrl =
+  "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor";
 const localTestRuntimeUrl =
   "postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestMigrationUrl =
   "postgresql+asyncpg://electro_tutor_migrator:local-migration-only@127.0.0.1:55432/electro_tutor_test";
+const localTestAuthUrl =
+  "postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@127.0.0.1:55432/electro_tutor_test";
 const localTestProvisioningUrl =
   "postgresql+asyncpg://electro_tutor_provisioner:local-provisioner-only@127.0.0.1:55432/electro_tutor_test";
 const diagnosticTimeoutMs = 5_000;
@@ -25,14 +30,16 @@ export const backendCommands = {
   build: "build the local API image",
   check: "run the complete local CI-equivalent backend gate",
   dev: "migrate and start API plus PostgreSQL",
+  "e2e-dev": "migrate and start API against the isolated local test database",
   stop: "stop local services without deleting data",
   logs: "show redacted local service logs",
   status: "show local service state",
   doctor: "check toolchain, config, database, and schema readiness",
   smoke: "call live and ready endpoints through the real API",
-  "idp:provision": "reconcile local DEV Keycloak realm, client, and acceptance user",
-  "idp:dev": "start local Keycloak and provision Tutor DEV identity",
-  "idp:cleanup": "delete only the managed synthetic Tutor DEV identity",
+  "idp:provision": "reconcile local DEV Keycloak realm, client, and acceptance identities",
+  "idp:dev": "start local Keycloak and provision Tutor DEV identities",
+  "idp:e2e": "provision three managed E2E identities and emit their safe subjects",
+  "idp:cleanup": "delete only the three managed synthetic Tutor DEV identities",
   "test-fast": "run isolated backend unit/component tests",
   "test-integration": "run real PostgreSQL integration and migration tests",
   "db-status": "show Alembic status and drift",
@@ -75,6 +82,11 @@ const compose = (args, options) => {
   return docker(["compose", "-f", composeFile, ...args], options);
 };
 
+const e2eCompose = (args, options) => {
+  validateLocalNetwork();
+  return docker(["compose", "-f", composeFile, "-f", e2eComposeFile, ...args], options);
+};
+
 export function backendEnv(environment = "local") {
   return {
     ET_ENVIRONMENT: environment,
@@ -82,6 +94,7 @@ export function backendEnv(environment = "local") {
     ET_PORT: "8000",
     ET_DOCS_ENABLED: environment === "local" ? "true" : "false",
     ET_DATABASE_URL: localRuntimeUrl,
+    ET_AUTH_DATABASE_URL: localAuthUrl,
     ET_MIGRATION_DATABASE_URL: localMigrationUrl,
   };
 }
@@ -155,6 +168,13 @@ async function dev() {
   await compose(["up", "-d", "--wait", "api"]);
 }
 
+async function e2eDev() {
+  await startPostgres();
+  await reconcileDatabaseRoles();
+  await e2eCompose(["run", "--rm", "--build", "migrate"]);
+  await e2eCompose(["up", "-d", "--wait", "api"]);
+}
+
 async function doctor() {
   await uv(["--version"]);
   await docker(["compose", "version"]);
@@ -174,6 +194,7 @@ async function testIntegration({ ensureServices = true } = {}) {
   const testEnv = {
     ...backendEnv("test"),
     ET_DATABASE_URL: localTestRuntimeUrl,
+    ET_AUTH_DATABASE_URL: localTestAuthUrl,
     ET_TEST_DATABASE_URL: localTestRuntimeUrl,
     ET_MIGRATION_DATABASE_URL: localTestMigrationUrl,
     ET_PROVISIONING_DATABASE_URL: localTestProvisioningUrl,
@@ -248,6 +269,7 @@ export async function main(operation = "help") {
     case "build": return compose(["build", "api"]);
     case "check": return check();
     case "dev": return dev();
+    case "e2e-dev": return e2eDev();
     case "stop": return compose(["down", "--remove-orphans"]);
     case "logs": return compose(["logs", "--tail", "200", "api", "postgres"]);
     case "status": return compose(["ps"]);
@@ -255,6 +277,7 @@ export async function main(operation = "help") {
     case "smoke": return smoke();
     case "idp:provision": return idpProvision();
     case "idp:dev": return idpProvision();
+    case "idp:e2e": return idpProvision();
     case "idp:cleanup": return idpCleanup();
     case "test-fast": return testFast();
     case "test-integration": return testIntegration();

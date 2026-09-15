@@ -1,0 +1,12 @@
+services:
+  api:
+    environment:
+      ET_ENVIRONMENT: test
+      ET_DOCS_ENABLED: "false"
+      ET_DATABASE_URL: postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@postgres:5432/electro_tutor_test
+      ET_AUTH_DATABASE_URL: postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@postgres:5432/electro_tutor_test
+
+  migrate:
+    environment:
+      ET_ENVIRONMENT: test
+      ET_MIGRATION_DATABASE_URL: postgresql+asyncpg://electro_tutor_migrator:local-migration-only@postgres:5432/electro_tutor_test

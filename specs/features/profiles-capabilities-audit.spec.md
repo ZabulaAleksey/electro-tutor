@@ -1,10 +1,9 @@
 # Спецификация profiles, capabilities и audit baseline
 
-Статус: Действует как утверждённый implementation contract для `ET-09.4`;
-runtime partial — `ET-09.4a`, `ET-09.4b0` и `ET-09.4b` completed/verified,
-`ET-09.4c..e` planned
+Статус: Действует как утверждённый и реализованный contract для `ET-09.4`;
+`ET-09.4a..e` completed/verified, включая live two-user Keycloak terminal E2E
 
-Версия: 0.3
+Версия: 0.5
 
 Связи: `PLAT-003`, `AUTHZ-001..003`, `ET-09.4`, ADR-020, ADR-022, ADR-023.
 
@@ -37,6 +36,29 @@ Profile owner всегда берётся из действующей server-sid
 owner; future path `account_id` является только resource selector и должен
 совпасть с principal. Public account-linking endpoint отсутствует.
 
+DB ownership boundary также session-derived. Profile runtime не передаёт
+`account_id` в PostgreSQL profile functions: он передаёт только SHA-256 digest
+активной opaque application session, а `SECURITY DEFINER` function внутри одной
+statement разрешает digest через `application_sessions → external_identities →
+accounts`, повторно проверяет expiry и использует найденный account как actor,
+owner и Tutor grant scope. Digest является server-only credential material: он
+не сериализуется, не логируется и не попадает в audit.
+
+Auth/session writes и profile runtime разделены разными `NOINHERIT` login roles.
+`electro_tutor_auth_runtime` управляет auth transactions, external identities и
+application sessions, но не имеет profile table/function access;
+`electro_tutor_runtime` выполняет session-bound profile functions, но не может
+читать, создавать, изменять или удалять application sessions и auth
+transactions. Недействительный, истёкший или отсутствующий digest всегда
+завершает profile operation fail closed. Transaction-local GUC без проверки
+session row и caller-selected `account_id` не являются допустимой границей.
+Digest передаётся отдельным `SessionCredential` с redacted representation, а не
+полем `Principal`; session-bound unit-of-work устанавливает его только через
+transaction-local `set_config(..., true)`. DB resolver повторно разрешает
+Principal и держит session row lock до конца profile transaction, поэтому logout
+и profile mutation имеют определённый порядок. Все SQLAlchemy engines, которым
+может передаваться credential, используют parameter hiding.
+
 ### PCA-ID-002 Composable personas и cardinality
 
 Для одного account допустимы независимо:
@@ -60,7 +82,11 @@ Client-writable `role`, `is_tutor`, `is_admin`, capability и entitlement
 StudentProfile и TutorProfile private по умолчанию. Baseline API принимает opaque
 `account_id`, но разрешает только совпадение с current principal; selector не
 меняет owner. Foreign read/mutation deny-by-default и не раскрывает существование
-записи. Public tutor projection требует отдельной SPEC.
+записи. Browser UI использует только canonical literal selector `/me`, который
+server-side разрешается в owner текущей session; client не получает, не хранит и
+не выводит internal `account_id`. UUID selector сохраняется для explicit API
+consumers и IDOR/BOLA negative verification. Public tutor projection требует
+отдельной SPEC.
 
 ## 3. Минимальные profile contracts
 
@@ -287,7 +313,7 @@ ET-09.3 verified + SPEC v0.3 + ADR-023
 - `ET-09.4d → ET-09.4e`: browser/component E2E требует реальный protected API.
 
 Ни один slice не зависит от tenant, admin UI, future lesson authorization или
-production provider. Следующий implementation pass выбирает только `ET-09.4b`.
+production provider. `ET-09.4c` verified; `ET-09.4d` dependency-ready.
 
 ## 9. Acceptance и evidence по slices
 
@@ -327,10 +353,18 @@ production provider. Следующий implementation pass выбирает т�
 - authenticated own StudentProfile positive path;
 - TutorProfile create without/with grant deny/allow;
 - TutorProfile create and AuditEvent atomicity; no authority from profile row.
+- profile functions принимают только active session digest и сами разрешают
+  owner; direct runtime вызов с foreign `account_id` невозможен по signature;
+- runtime/auth role separation запрещает profile runtime читать или выпускать
+  application session, а auth runtime — выполнять profile functions;
+- random/expired digest и digest User A для ресурса User B fail closed; session
+  digest не появляется в response, exception, log или AuditEvent.
 
 ### ET-09.4d — Application/HTTP
 
 - stable 401/403/404/409/422/503 envelope tests;
+- literal own-resource `GET/PUT/PATCH /api/v1/profiles/{student|tutor}/me`,
+  server-side разрешённый из active session без client-visible `account_id`;
 - anonymous/invalid-session rejection;
 - own profile positive paths and foreign IDOR/BOLA read/mutation negatives;
 - handlers delegate to Application Core policy; no scattered client role checks;
@@ -393,6 +427,37 @@ Account advisory transaction lock упорядочивает issue/revoke, а у
 `lock_active_capability_grant` function держит grant-row `FOR UPDATE` lock для
 будущей profile mutation без выдачи runtime table UPDATE.
 
-Fast gate: `85 passed`; real PostgreSQL migration/integration gate: `39 passed`.
-Profiles, новые HTTP routes и UI не реализованы. Whole
-`ET-09.4` имеет truthful `partial`, а stage-level `NEXT` остаётся `ET-09.4`.
+`ET-09.4c` добавляет revision `20260912_0008`, независимые private
+`student_profiles`/`tutor_profiles`, canonical display-name normalization,
+connection-scoped repository и application lifecycle. Runtime не имеет прямых
+table privileges; fixed-search-path functions повторно проверяют Tutor grant,
+сериализуют mutation с revoke и атомарно добавляют `tutor_profile.created` при
+первом create.
+Revision `20260912_0009` расширяет ET-09.3 boundary: отдельный
+`electro_tutor_auth_runtime` изолирует session issuance/storage, отдельный
+redacted `SessionCredential` привязывает profile unit-of-work, а profile
+functions сами разрешают owner из active session без caller-selected
+`account_id`. Exact `0009 → 0008 → 0009`, ACL/role isolation, cross-account,
+same-PID pool cleanup, cancellation и logout serialization gates подтверждены;
+fast gate: `94 passed`, real PostgreSQL gate: `51 passed`. Profile delete/deactivate,
+На checkpoint `ET-09.4c` HTTP routes и UI ещё не были реализованы, whole
+`ET-09.4` имел truthful `partial`, а stage-level `NEXT` оставался `ET-09.4`.
+
+`ET-09.4d` добавляет private GET/PUT/PATCH profile routes с порядком
+authentication → owner selector → payload validation, stable
+401/403/404/409/422/503 envelope и живым API → Application → PostgreSQL path.
+UUID selector остаётся explicit API surface для ownership/IDOR checks, а browser
+использует literal `/me`, разрешаемый только из active session.
+Fast gate: `110 passed`; real PostgreSQL gate: `52 passed`; malformed JSON и
+foreign-selector precedence security review: `GO`. UI и browser E2E остаются
+`ET-09.4e`; stage-level `NEXT` остаётся `ET-09.4` до terminal verification.
+
+`ET-09.4e` реализует RU/UK own-profile UI, literal `/me` без client-visible
+`account_id`, две allowlisted synthetic Keycloak identity, local/test-only
+trusted grant/audit CLI и serial browser acceptance для Student/Tutor lifecycle,
+foreign UUID denial и self-escalation rejection. Local evidence: backend fast
+`131 passed`, real PostgreSQL `54 passed`, root Vitest `112 passed`, Astro check
+без diagnostics, 17-page build и artifact audits PASS; security review cycle 2
+`GO`. Manual secret-bearing live two-user Keycloak/browser run завершён с exit
+`0`: profiles phase `6 passed / 1` expected phase skip, identity-change phase
+`5 passed / 2` expected phase skips. Whole stage verified.

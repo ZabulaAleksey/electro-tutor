@@ -15,6 +15,8 @@ export default defineConfig(
       'playwright-report/**',
       'test-results/**',
       '**/.venv/**',
+      '**/.pytest_cache/**',
+      '**/.ruff_cache/**',
       '**/*.tsbuildinfo',
     ],
   },

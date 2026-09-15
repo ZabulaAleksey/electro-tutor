@@ -189,6 +189,17 @@ def test_capability_commands_and_authority_actor_reject_untyped_client_values() 
         AuthorityActor()  # type: ignore[call-arg]
 
 
+def test_booking_capability_is_an_exact_independent_allowlisted_code() -> None:
+    command = IssueCapabilityCommand(
+        subject_account_id=uuid4(),
+        capability_code=CapabilityCode.TUTOR_BOOKING_MANAGE_OWN,
+        operation_id=uuid4(),
+        correlation_id=uuid4(),
+    )
+    assert command.capability_code.value == "TUTOR_BOOKING_MANAGE_OWN"
+    assert command.capability_code is not CapabilityCode.TUTOR_PROFILE_MANAGE_OWN
+
+
 @pytest.mark.asyncio
 async def test_grant_service_rejects_non_authority_actor_before_uow() -> None:
     service = CapabilityGrantService(lambda: cast(Any, None))
@@ -221,6 +232,10 @@ def test_no_public_capability_grant_or_revoke_route_exists() -> None:
             profile="test",
             runtime_database_url=(
                 "postgresql+asyncpg://electro_tutor_runtime:password@127.0.0.1:55432/electro_tutor"
+            ),
+            auth_database_url=(
+                "postgresql+asyncpg://electro_tutor_auth_runtime:password@"
+                "127.0.0.1:55432/electro_tutor"
             ),
         )
     )

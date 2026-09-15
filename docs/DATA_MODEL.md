@@ -25,7 +25,7 @@ one-shot container, а долгоживущий API получает тольк�
 `electro_tutor_test` предназначена для разрешённого migration lifecycle и
 никогда не подменяет основную local database.
 
-## ET-09.4 partial schema contract
+## ET-09.4 verified schema contract
 
 Revision `20260908_0005` реализует первый additive slice:
 
@@ -76,20 +76,78 @@ Revision `20260909_0007` реализует trusted authority baseline:
 - issue/revoke и AuditEvent используют один connection-scoped repository set и
   одну transaction existing `PostgresUnitOfWork`.
 
-Оставшиеся additive tables planned:
-
-- `student_profiles` и `tutor_profiles`: `account_id` одновременно PK/FK на
-  `accounts.id`, private normalized `display_name`, UTC timestamps;
-  один account может иметь обе независимые records.
+Revision `20260912_0008` добавляет `student_profiles` и `tutor_profiles`:
+`account_id` одновременно PK/FK на `accounts.id`, private normalized
+`display_name`, UTC timestamps; один account может иметь обе независимые records.
+Runtime не получает прямых table privileges и вызывает fixed-search-path
+functions. Tutor functions повторно проверяют/блокируют active grant и первое
+create пишут вместе с AuditEvent. Revision `20260912_0009` убирает
+caller-selected owner: profile functions выводят `account_id` из active session,
+а отдельная auth role изолирует session storage/issuance от profile runtime.
 
 Connection-scoped audit repository не коммитит самостоятельно; one-shot
 `PostgresUnitOfWork` владеет одной connection/transaction, коммитит один раз при
 success и откатывает при exception/audit constraint failure. Grant/profile
-grant repository уже подключён к этой же transaction. Active grant read lock
+grant и profile repositories подключены к этой же transaction. Active grant read lock
 реализован narrow fixed-search-path function и остаётся удержан до завершения
-UoW; profile repository подключится в `ET-09.4c`. Profile delete/deactivate/
+UoW. Profile delete/deactivate/
 cascade, tenant/member tables и public projection не входят в реализованный slice.
 
 `backend:db:migrate` выполняет additive upgrade, `backend:db:status` проверяет
 head и autogenerate drift. `backend:db:reset-local` — destructive local-only
 operation с exact confirmation; production-like target этим stage не поддержан.
+
+## ET-10.1 implemented additive schema
+
+Revision `20260914_0010` adds:
+
+- `tutor_offers`: UUID, session-derived tutor Account FK, DRAFT/ACTIVE/RETIRED,
+  optimistic version, normalized title, UTC interval, IANA zone, notice,
+  FREE/EXTERNAL integer-minor money contract and lifecycle timestamps;
+- `bookings`: UUID, offer/tutor/student FKs, REQUESTED/ACCEPTED/DECLINED/CANCELLED,
+  optimistic version, immutable versioned offer/time/money/policy snapshot and
+  transition timestamps;
+- `booking_operations`: append-only globally unique UUID idempotency namespace,
+  actor/action/target/intent digest/result version, reconciled with global
+  AuditEvent operation uniqueness;
+- expanded exact capability and audit allowlists for
+  `TUTOR_BOOKING_MANAGE_OWN`, TutorOffer and Booking actions.
+
+All Account FKs use `ON DELETE RESTRICT`; snapshot fields are protected by DB
+trigger. Partial uniqueness prevents more than one REQUESTED/ACCEPTED row per
+offer. Accepted participant/time indexes support overlap recheck under
+deterministic transaction advisory locks; adjacent `[start,end)` ranges remain
+valid. Runtime has no direct table DML and executes only session-bound functions.
+
+FREE requires zero/no currency. EXTERNAL uses positive minor units and v1
+allowlist `UAH/EUR/USD` with exponent `2`. No Payment/provider/settlement row is
+created. Operational rollback preserves rows; destructive downgrade remains
+disposable local/test-only.
+
+## ET-10.2 approved additive schema
+
+Revision `20260914_0011` adds one `lesson_access_grants` row per accepted
+Booking. The grant keeps a server UUID, unique restricted `booking_id`, exact
+`BOOKING_FREE|BOOKING_EXTERNAL` source, `policy_version=1`, half-open
+`[valid_from, valid_until)`, exact `LESSON_SHELL_V1` capability-set code,
+issue timestamp/operation and an all-null-or-complete one-way revoke tuple.
+Participants remain authoritative in the immutable Booking and are not copied
+into the grant.
+
+Policy v1 derives `valid_from = starts_at - 15 minutes` and
+`valid_until = ends_at`. Effective `NOT_YET_VALID|ACTIVE|EXPIRED|REVOKED`
+status is calculated from PostgreSQL time; mutable status is not stored.
+Booking accept atomically issues the grant, and accepted-booking cancellation
+atomically revokes it. Random server-generated UUIDv4 issue/revoke operation IDs
+are stored on the grant and reused for the corresponding AuditEvents. They are
+never accepted or derived from client Booking operation keys; exact replay
+returns the persisted result. `revoke_reason` is the fixed server enum
+`BOOKING_CANCELLED`.
+
+Exact fixed-search-path functions provide session-bound authorization and
+booking-integrated issue/revoke. Runtime receives no direct table DML; auth
+runtime receives no Access privileges. Existing accepted FREE/EXTERNAL rows are
+backfilled atomically with collision-safe random operation IDs and exact
+`service/lesson-access-migration` / `migration_backfill` audit provenance in the
+migration transaction. Operational rollback
+retains rows; destructive downgrade remains disposable local/test-only.

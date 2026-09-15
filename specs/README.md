@@ -13,9 +13,10 @@
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |
 | `features/base-path-portability.spec.md` | Действует | Единый site/base URL contract для root и project-site artifacts |
 | `features/pre-deploy-quality-gates.spec.md` | Действует | Единый full-verify pipeline и безопасная передача проверенного artifact в GitHub Pages deploy |
-| `features/profiles-capabilities-audit.spec.md` | Действует; runtime partial | Утверждённый `ET-09.4` contract: private Student/Tutor profiles, stable Account owner, trusted capability grants, authorization matrix, atomic audit и ordered slices |
-| `features/rtc-provider-boundary.spec.md` | Утверждено; implementation active | Изоляция публичного Jitsi за system-owned meeting port, adapter/fake contract tests и запрет vendor leakage в UI |
-| `features/payments-and-booking.spec.md` | Черновик, заблокирован решениями | Расписание, hosted checkout и обработка подтверждений |
+| `features/profiles-capabilities-audit.spec.md` | Действует; runtime verified | Реализованный `ET-09.4` contract: private Student/Tutor profiles, stable Account owner, trusted capability grants, authorization matrix и atomic audit |
+| `features/rtc-provider-boundary.spec.md` | Действует; runtime verified | Изоляция публичного Jitsi за system-owned meeting port, adapter/fake contract tests и запрет vendor leakage в UI; `ET-RTC-001` completed locally |
+| `features/payments-and-booking.spec.md` | Действует для `FREE`/`EXTERNAL`; `PLATFORM` blocked | Утверждённый `ET-10.1` TutorOffer/Booking snapshot contract и отдельно отложенный hosted-payment path |
+| `features/lesson-access-grants.spec.md` | Действует для `ET-10.2`; `PLATFORM` source deferred | Утверждённый time-bounded LessonAccessGrant, atomic Booking issue/revoke, participant authorization и protected media-less shell |
 | `features/ai-native-tutoring-platform.spec.md` | Черновик будущего track | Инварианты и границы развития к AI-native tutoring platform; каждый implementation stage требует уточнённой feature-SPEC |
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,

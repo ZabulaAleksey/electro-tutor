@@ -40,6 +40,16 @@ def create_runtime_engine(settings: Settings) -> AsyncEngine:
     return create_async_engine(
         settings.runtime_database_url,
         pool_pre_ping=True,
+        hide_parameters=True,
+        connect_args={"timeout": settings.db_connect_timeout},
+    )
+
+
+def create_auth_engine(settings: Settings) -> AsyncEngine:
+    return create_async_engine(
+        settings.auth_database_url,
+        pool_pre_ping=True,
+        hide_parameters=True,
         connect_args={"timeout": settings.db_connect_timeout},
     )
 
@@ -48,5 +58,6 @@ def create_provisioning_engine(settings: ProvisioningSettings) -> AsyncEngine:
     return create_async_engine(
         settings.provisioning_database_url,
         pool_pre_ping=True,
+        hide_parameters=True,
         connect_args={"timeout": 5},
     )

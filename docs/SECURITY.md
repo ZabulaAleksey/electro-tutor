@@ -204,7 +204,7 @@ payload. Durable audit read/export и public admin UI в baseline отсутст
 - проверка обновления service worker, изоляции cache namespace и запрета
   кэширования приватных/ошибочных ответов;
 - для webhook — поддельная подпись, replay и повтор события;
-- фиксация оставшегося риска в выбранном record `../prompts/STAGES.md`.
+- фиксация оставшегося риска в выбранном record `STAGES.md`.
 
 ## Известные риски
 

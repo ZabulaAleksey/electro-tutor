@@ -11,8 +11,8 @@ Collections/MDX. Поддерживаются маршруты `ru` и `uk`.
 | Фактическая реализация | код repository и результаты проверок |
 | Архитектура и существенные решения | `ARCHITECTURE.md`, `DECISIONS.md` |
 | Порядок развития | `ROADMAP.md` |
-| Current selector, stage status, `NEXT`, blockers и routing progression | `../prompts/STAGES.md` |
-| Retained migration evidence | `AI_PLAN.md`, `AI_STATUS.md` — hash-bound legacy artifacts, не active routing inputs |
+| Current selector, stage status, `NEXT`, blockers и routing progression | `STAGES.md` |
+| Retained migration evidence | `notes/legacy-ai-state-evidence.md` и Git parent — SHA-bound исторические факты, не active routing inputs |
 | Глобальная методика | `~/.codex/AGENTS.md` и глобальный ДЕВ |
 | Идеи и vision | Notion; не является evidence реализации |
 
@@ -110,6 +110,6 @@ Critical context восстанавливается из Git clone/branch и г�
 явно переключается на выбранную ветку, получает её через fast-forward без
 destructive reset, выполняет `pnpm install --frozen-lockfile`, запускает
 `pnpm check:context`, валидирует project overlay, затем читает единственный
-selector и выбранный record в `prompts/STAGES.md`. Его status, `NEXT`, blockers
+selector и выбранный record в `docs/STAGES.md`. Его status, `NEXT`, blockers
 и dependencies определяют дальнейшее действие; retained legacy artifacts в
 normal bootstrap не читаются.

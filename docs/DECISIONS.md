@@ -615,3 +615,7 @@ resolution. `/me` не обязан раскрывать internal account key. D
 trusted grant/evaluator → profiles → HTTP/application paths → RU/UK E2E. ET-09.3 OIDC/session contract,
 stable `(issuer, subject)`, provider isolation и будущие tenant semantics не
 меняются.
+
+## ADR-029 — Единственный owner execution state
+
+Статус: принято 2026-09-15 по прямому правилу пользователя. Текущий selector, plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`. Старый catalog и AI pair сохраняются через `docs/notes/` и Git parent; активная локальная ET-10.3 feature требует отдельной интеграции после remote docs merge.

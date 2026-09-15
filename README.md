@@ -88,12 +88,12 @@ unit/integration/component tests, полный Chromium E2E на транзит�
 Astro — единственный application build path; Vite используется внутри Astro и
 Vitest как инструмент и не является отдельным SPA entrypoint.
 Известные проблемы текущего stage фиксируются в выбранном record
-`prompts/STAGES.md`.
+`docs/STAGES.md`.
 
 ## Контекст проекта
 
 - требования и критерии приёмки: `specs/README.md`;
-- current selector, stage status, `NEXT` и blockers: `prompts/STAGES.md`;
+- current selector, stage status, `NEXT` и blockers: `docs/STAGES.md`;
 - дорожная карта: `docs/ROADMAP.md`;
 - устройство: `docs/ARCHITECTURE.md`;
 - дизайн и безопасность: `docs/DESIGN.md`, `docs/SECURITY.md`;
@@ -107,7 +107,7 @@ Vitest как инструмент и не является отдельным S
 Продолжай Electro Tutor
 ```
 
-Полный протокол находится в `prompts/STAGES.md`.
+Полный протокол находится в `docs/STAGES.md`.
 
 ### Продолжение на другом компьютере
 
@@ -137,7 +137,7 @@ Vitest как инструмент и не является отдельным S
    py -3 -B "$HOME/.codex/tools/validate_project_overlay.py" .
    ```
 
-6. Прочитай selector и соответствующий record в `prompts/STAGES.md`, затем
+6. Прочитай selector и соответствующий record в `docs/STAGES.md`, затем
    затрагиваемую SPEC и напиши `Продолжай Electro Tutor`. Canonical record
    определит status, `NEXT`, blockers и dependencies; `blocked` stage не
    запускается и не пропускается ради downstream stage.

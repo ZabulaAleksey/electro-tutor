@@ -1,3 +1,7 @@
+# Исторический stage catalog
+
+Исходный `prompts/STAGES.md` сохранён ниже. SHA-256 source worktree: `d8ca32252255c9943291225e8899b97fd8306a13b9488f0851d382a28971b89d`. Исторические selectors и fenced adapter state ниже не являются live execution state.
+
 - Stage ID: ET-09.4
 
 # Поэтапный запуск Electro Tutor

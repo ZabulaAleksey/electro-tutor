@@ -2,7 +2,7 @@
 
 Roadmap задаёт порядок развития, но не заменяет SPEC. Детали ближайшей работы
 и подтверждённые status/`NEXT`/blockers находятся в выбранном record
-`../prompts/STAGES.md`.
+`STAGES.md`.
 
 Статусы: `DONE`, `CURRENT`, `PLANNED`, `BLOCKED`, `OPTIONAL`.
 
@@ -277,7 +277,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
-contracts — в `../prompts/STAGES.md`.
+contracts — в `STAGES.md`.
 
 ### Dependency graph
 

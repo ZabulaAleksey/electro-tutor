@@ -611,13 +611,12 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a` approved; `ET-10.2b` completed; `ET-10.2c` implemented_unverified.
+Статус: `in_progress` — `ET-10.2a..c` completed; `ET-10.2d` implementing.
 
 - Status: in_progress
 - NEXT: ET-10.2
-- Blockers: ET-10.2c live HTTP→PostgreSQL integration rerun is required after
-  the new transport scenario; terminal three-identity browser evidence will
-  later require a local secret-bearing run.
+- Blockers: ET-10.2d terminal three-identity browser evidence will require a
+  local secret-bearing run after the RU/UK protected shell is implemented.
 - **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
   and continuation supplied; the architecture entry gate is closed.
 - **Checkpoint / evidence:** `ET-10.2a` approved
@@ -655,12 +654,16 @@ Ordered slices:
   stable error mapping are covered by `test_lesson_access_transport.py`;
   `test_lesson_access_http_integration.py` covers real session-cookie → API →
   PostgreSQL participant/foreign/anonymous/malformed/revoked behavior and is
-  marked integration. The new scenario still requires a fresh real integration
-  rerun before this slice can be completed.
-- **User action `ET-10.2-UA-03`: `REQUIRED`** — from the repository root run
-  `pnpm backend:test:integration`, then `pnpm backend:stop` without deleting
-  data; expected evidence is exit `0` for both and the new live HTTP access
-  scenario included among the passing integration tests.
+  marked integration. The first live run was `1 failed, 65 passed`, exit `1`:
+  its Booking was scheduled three days ahead, so the grant correctly returned
+  participant-only `403 lesson_access_not_yet_valid`. The scenario now schedules
+  a Booking ten minutes ahead with valid zero-minute notice, inside policy-v1
+  active window. `pnpm backend:test:fast` — `188 passed, 66 deselected`, exit
+  `0`. Final real integration run on 2026-09-15 passed with the corrected HTTP
+  scenario: `66 passed, 188 deselected`, exit `0`; `pnpm backend:stop`, exit
+  `0`, data preserved.
+- **User action `ET-10.2-UA-03`: `DONE`** — real HTTP access scenario included
+  in the passing integration suite and local database stopped safely.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -699,9 +702,9 @@ Ordered slices:
   accepted-cancel→revoke, real PostgreSQL migration/ACL/race evidence —
   `completed`.
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
-  `implemented_unverified / blocked on ET-10.2-UA-03 integration rerun`.
+  `completed`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
-   acceptance — `planned`.
+   acceptance — `implementing`.
 
 Whole stage remains non-terminal until `ET-10.2d` terminal acceptance.
 

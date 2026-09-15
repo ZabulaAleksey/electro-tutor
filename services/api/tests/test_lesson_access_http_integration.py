@@ -57,7 +57,9 @@ async def test_lesson_access_http_real_participants_foreign_and_revoked() -> Non
         await seed_session(inspector, token_foreign)
         await issue_booking_grant(inspector, tutor_id)
         app = create_app(settings)
-        starts_at = (datetime.now(UTC) + timedelta(days=3)).astimezone(ZoneInfo("Europe/Kyiv"))
+        starts_at = (datetime.now(UTC) + timedelta(minutes=10)).astimezone(ZoneInfo("Europe/Kyiv"))
+        offer_payload = terms_payload(starts_at, title="Access HTTP")
+        offer_payload["minimum_notice_minutes"] = 0
         async with app.router.lifespan_context(app):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -65,7 +67,7 @@ async def test_lesson_access_http_real_participants_foreign_and_revoked() -> Non
                 client.cookies.set(settings.session_cookie_name, token_tutor, path="/api/v1")
                 created = await client.post(
                     "/api/v1/tutor-offers",
-                    json=terms_payload(starts_at, title="Access HTTP"),
+                    json=offer_payload,
                     headers={"Idempotency-Key": str(uuid4())},
                 )
                 assert created.status_code == 201, created.text

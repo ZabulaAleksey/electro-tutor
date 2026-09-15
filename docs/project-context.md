@@ -93,8 +93,10 @@ agents, Skills и Git workflow наследуются; локальные коп
   `pnpm backend:check` reaches `alembic check` after successful restore, build,
   doctor and current-head validation, then exits nonzero because autogenerate
   interprets every existing table as removed. This repository-wide DB drift
-  gate needs an approved canonical schema-metadata design; reflecting the live
-  DB into itself or disabling the check would not validate drift.
+  gate has an architecture contract in ADR-028: independent Core head metadata
+  plus a versioned `pg_catalog` manifest for critical handwritten objects,
+  with negative drift tests. Implementation is pending; reflecting the live DB
+  into itself or disabling the check would not validate drift.
 - Explicit deviations from global Backend DX Policy: `none`.
 
 ### Backend DX gate status
@@ -107,10 +109,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `FAIL` — current/disposable migration and Session constraints pass, but `backend:check`/`alembic check` fails on empty canonical target metadata; architecture remediation pending |
+| `BDX-GATE-07 Database lifecycle` | `FAIL` — current/disposable migration and Session constraints pass, but `backend:check`/`alembic check` fails on empty canonical target metadata; ADR-028 remediation designed, implementation and negative tests pending |
 | `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `FAIL` — Pages workflow calls the same failing `backend:check`; command parity exists, CI-equivalent gate is not green |
+| `BDX-GATE-10 CI parity` | `FAIL` — Pages workflow calls the same failing `backend:check`; command parity exists, ADR-028 repair/CI-equivalent PASS pending |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

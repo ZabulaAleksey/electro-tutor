@@ -351,7 +351,8 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   `IMPLEMENTED_UNVERIFIED / NEXT`; lifecycle/recovery/expiry SPEC/ADR-027
   approved, local Session/API/DB/RU-UK shell and non-secret tests passed.
   `backend:check` is red on pre-existing empty Alembic target metadata;
-  canonical drift architecture requires High reasoning. Live authenticated
+  ADR-028 fixes the architecture contract, but implementation and drift-negative
+  verification remain pending. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.
 

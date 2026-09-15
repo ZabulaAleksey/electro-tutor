@@ -865,8 +865,9 @@ acceptance remain open.
 - Blockers: `pnpm backend:check` exits `1` at its Alembic autogenerate check
   because pre-existing `services/api/alembic/env.py` has empty
   `target_metadata`; all existing tables appear removed. A canonical
-  schema-metadata/drift-check architecture decision requires High reasoning;
-  self-reflection or disabling the gate is not accepted. Separate terminal
+  schema-metadata/drift-check architecture is now fixed by ADR-028 but its
+  code and negative tests remain pending; self-reflection or disabling the
+  gate is not accepted. Separate terminal
   live Session browser and manual RU/UK checks are pending. ET-09.4b prompt
   cleanup remains separately blocked by missing `.codex/dev-project.toml`.
 - Architecture checkpoint: high reasoning confirmed by user's Codex UI
@@ -903,11 +904,25 @@ acceptance remain open.
   tutor start/end and student reload must not leak private state or duplicate
   Session. A concise pass/fail confirmation with any observed issue is
   expected evidence and unlocks the manual UX gate; no secret values needed.
-- **User action `ET-10.3-UA-06`: `PENDING / HIGH reasoning architecture entry`** —
-  switch this task's reasoning level from Medium to High and reply
-  `Продолжай ET-10.3`; confirmation unlocks the canonical Alembic
-  schema-metadata/drift-check design and its non-weakening repair. No secrets,
-  DB reset, merge or deployment are required for this action.
+- **User action `ET-10.3-UA-06`: `DONE / architecture continuation`** —
+  user replied `Продолжай ET-10.3` after the High reasoning request;
+  runtime UI reasoning setting was not independently inspected. This
+  continuation unlocked ADR-028 design only, not `backend:check` PASS.
+- **User action `ET-10.3-UA-07`: `PENDING / MEDIUM reasoning implementation entry`** —
+  switch this task's reasoning level to Medium and reply `Продолжай ET-10.3`;
+  confirmation unlocks ordinary ADR-028 code/test remediation. No secret,
+  destructive DB action, merge or deployment is required.
+
+- **ADR-028 architecture decision / pending gate:** retain mandatory
+  `alembic check` with tooling-only independent SQLAlchemy Core metadata for
+  all 15 head-0012 product tables; add a versioned critical PostgreSQL
+  function/trigger/`CHECK`/ACL catalog contract derived only from a separate
+  freshly migrated disposable baseline and checked read-only against the
+  target DB. `backend:check` must fail on drift and pass on clean head; negative
+  column/default/index, function body/ACL, trigger and `CHECK` drift must be
+  detected and rolled back. Pages CI runs the same gate. Architecture docs
+  are synchronized; implementation/evidence have not been run. This repair
+  belongs to ET-10.3 and is not deferred to ET-11.1.
 
 - **Local implementation/evidence:** additive revision `20260915_0012` and
   private Session domain/application/repository/API, Booking cancellation

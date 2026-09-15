@@ -262,6 +262,20 @@ future Topic stage. The static RU/UK lesson shell keeps only an opaque
 `#session=` ID for reload and re-reads the API; the public Jitsi classroom is
 unchanged. ET-10.3 terminal live browser/manual acceptance is still pending.
 
+### ET-10.3 database drift-check boundary
+
+ADR-028 repairs a repository-wide Backend DX gate without changing runtime
+Session semantics. Immutable Alembic migrations remain the source of
+historical transitions; a tooling-only SQLAlchemy Core `MetaData` declares
+the desired head schema independently of the database under test. Existing
+`alembic check` compares them. A committed versioned `pg_catalog` contract,
+derived from a separate disposable migrated baseline, covers critical SQL
+functions, triggers, `CHECK` expressions and ACL not fully compared by
+Alembic. `backend:check` reads both contracts and fails closed on drift; it
+does not rewrite a live database. Schema metadata and catalog expectations
+must advance with future migrations. Implementation and negative-test
+evidence are pending; the gate is not yet PASS.
+
 ## Технологии и границы
 
 | Задача | Реализация |

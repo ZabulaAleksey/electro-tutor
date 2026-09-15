@@ -171,6 +171,11 @@ browser 92/5, production smoke 4/4 and dependency audit no high findings.
 The repository-wide `backend:check` remains FAIL: Alembic `target_metadata`
 is empty, so its `alembic check` marks all existing tables removed despite
 current=expected head 0012. Do not call this DB drift gate PASS or replace it
-with live-DB self-reflection; the canonical remediation is pending architecture
-review. Detailed evidence and user actions are in selected
+with live-DB self-reflection. ADR-028 now defines the remediation: complete
+tooling-only Core head metadata, a versioned `pg_catalog` contract from an
+independent migrated disposable baseline, and transactional negative tests
+for column/default/index, SQL function body/ACL, trigger and critical `CHECK`
+drift. A clean head must pass `backend:check` before and after each rolled-back
+negative; the same gate must pass in CI-equivalent validation. No remediation
+implementation or PASS evidence is claimed yet. Detailed evidence and user actions are in selected
 `../prompts/STAGES.md`.

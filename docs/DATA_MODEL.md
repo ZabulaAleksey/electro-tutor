@@ -172,3 +172,12 @@ auth and public roles have no direct Session/ledger table access; narrow
 session-bound functions own authorization and mutation. Operational rollback
 preserves these rows; downgrade is destructive and only for explicitly
 consented disposable local/test PostgreSQL.
+
+ADR-028 adds a tooling-only **desired head schema** declaration for all 15
+product tables, independent of the inspected DB. It is not an ORM or a
+runtime replacement for Alembic migrations. A versioned catalog manifest
+from a separately freshly migrated disposable database will pin critical
+PostgreSQL functions, triggers, `CHECK` expressions and ACL. `backend:check`
+must reject unexpected drift without changing live data. This verifier is
+architecture-only so far; current empty `target_metadata` remains a failing
+gate until implementation and negative-test evidence are complete.

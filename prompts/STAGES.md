@@ -730,9 +730,22 @@ Ordered slices:
   secret-free isolated `pnpm backend:e2e` rerun then exited `0`; final
   `pnpm backend:stop` exited `0`, preserving data. This confirms local backend
   startup recovery, not the required three-identity browser acceptance.
+- **ET-10.2d Keycloak startup retry evidence:** the following manual run again
+  passed build/audits (`18` localized routes, `99` files) but failed before
+  Playwright at `backend idp:e2e` (exit `1`, fixed
+  `diagnostic=local_service_start_failed`); runner cleanup failed and shell
+  `EXIT_CODE=1`. Subsequent Compose status found the Linux Engine pipe absent
+  and WSL `docker-desktop` stopped. After restarting Docker Desktop, API,
+  Keycloak and PostgreSQL were all found exited `255` at the same instant;
+  container `OOMKilled=false` and no container error was recorded. This points
+  to an engine-level interruption, but does not establish its underlying
+  Windows/WSL cause. `pnpm backend:stop` exited `0` without `-v`; named data
+  volumes remain. No three-identity browser evidence was produced.
 - **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
   existing repository branch with real credentials present only in a local
-  shell and Docker Desktop running, rerun `pnpm test:e2e:auth` using the
+  shell, open Docker Desktop interactively in Windows and keep it running;
+  confirm `docker info --format '{{.ServerVersion}}'` exits `0` immediately
+  before rerunning `pnpm test:e2e:auth` using the
   administrator password for the existing persisted local Keycloak (do not
   create or send a replacement
   password without a separate recovery decision); do not send, print or
@@ -742,7 +755,10 @@ Ordered slices:
   execute its real `lesson-access` browser phase through Keycloak→API→
   PostgreSQL with three distinct managed identities and stop local services
   without deleting data. If cleanup does not complete, run `pnpm backend:stop`
-  and report its exit code. This evidence unlocks ET-10.2 completion,
+  after confirming Docker Engine is available and report its exit code. If
+  startup/cleanup fails again, report only whether the same `docker info`
+  check still exits `0`, the fixed diagnostic and shell exit code. This
+  evidence unlocks ET-10.2 completion,
   canonical status sync and only then the requested GitHub pull/merge.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable

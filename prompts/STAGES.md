@@ -651,7 +651,8 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `completed` (`validated locally`, 2026-09-15) — `ET-10.2a..d` terminal gates passed.
+Статус: `completed` (`validated locally; merged into local main`, 2026-09-15)
+— `ET-10.2a..d` terminal gates passed.
 
 - Status: completed
 - NEXT: completed; successor `ET-10.3` requires high reasoning for its
@@ -845,8 +846,13 @@ Ordered slices:
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
    acceptance — `completed` (`ET-10.2-UA-04` passed).
 
-Whole stage completed with real Keycloak→API→PostgreSQL→browser evidence;
-production deployment, pull and merge are separate later operations.
+Whole stage completed with real Keycloak→API→PostgreSQL→browser evidence.
+The absent root `~/electro-tutor` was cloned from GitHub `origin/main`
+`e1527e6`, then local feature `7fd6fce` was merged with retained RTC main
+changes and two resolved documentation conflicts as `aedd63b`. Local merged
+clone passed `pnpm verify:full` (156 unit, 86 root browser, 4 production smoke,
+dependency audit) and backend fast/real PostgreSQL integration (188/66), all
+exit `0`; local `main` contains the merge. No push, PR or deployment is claimed.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 

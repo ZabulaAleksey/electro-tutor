@@ -8,6 +8,7 @@ export const REALM = "electro-tutor-dev";
 export const CLIENT_ID = "electro-tutor-web-dev";
 export const TEST_USERNAME = "et-dev-acceptance";
 export const SECONDARY_TEST_USERNAME = "et-dev-acceptance-b";
+export const THIRD_TEST_USERNAME = "et-dev-acceptance-c";
 export const TEST_IDENTITIES = Object.freeze([
   Object.freeze({
     username: TEST_USERNAME,
@@ -20,6 +21,12 @@ export const TEST_IDENTITIES = Object.freeze([
     defaultEmail: "et-dev-acceptance-b@invalid.example",
     firstName: "Electro",
     lastName: "Tutor B",
+  }),
+  Object.freeze({
+    username: THIRD_TEST_USERNAME,
+    defaultEmail: "et-dev-acceptance-c@invalid.example",
+    firstName: "Electro",
+    lastName: "Tutor C",
   }),
 ]);
 export const TEST_IDENTITY_GROUP = "electro-tutor-et09-3-managed";
@@ -183,7 +190,7 @@ export async function provision() {
     }
     preflight.push({ identity, existing });
   }
-  // Mutate only after both exact usernames passed the read-only ownership/admin preflight.
+  // Mutate only after all exact usernames passed the read-only ownership/admin preflight.
   for (const { identity, existing } of preflight) {
     testIdentities.push(
       await reconcileManagedIdentity(
@@ -197,7 +204,7 @@ export async function provision() {
   }
   const reconciledClients = await admin(`/${REALM}/clients?clientId=${encodeURIComponent(CLIENT_ID)}`, token);
   if (reconciledClients.length !== 1 || testIdentities.length !== TEST_IDENTITIES.length) {
-    throw new Error("Keycloak reconciliation did not produce exactly one client and two test identities");
+    throw new Error("Keycloak reconciliation did not produce exactly one client and three test identities");
   }
   const reconciledRealm = await admin(`/${REALM}`, token);
   const reconciled = reconciledClients[0];

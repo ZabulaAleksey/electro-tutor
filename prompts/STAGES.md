@@ -611,12 +611,13 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a..c` completed; `ET-10.2d` implementing.
+Статус: `in_progress` — `ET-10.2a..c` completed; `ET-10.2d` implemented_unverified pending terminal live browser evidence.
 
 - Status: in_progress
 - NEXT: ET-10.2
-- Blockers: ET-10.2d terminal three-identity browser evidence will require a
-  local secret-bearing run after the RU/UK protected shell is implemented.
+- Blockers: ET-10.2d terminal three-identity browser evidence requires the
+  local secret-bearing run `ET-10.2-UA-04` below. Lower-level UI/backend/root
+  gates are green; no completion, GitHub pull or merge is claimed yet.
 - **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
   and continuation supplied; the architecture entry gate is closed.
 - **Checkpoint / evidence:** `ET-10.2a` approved
@@ -664,6 +665,38 @@ Ordered slices:
   `0`, data preserved.
 - **User action `ET-10.2-UA-03`: `DONE`** — real HTTP access scenario included
   in the passing integration suite and local database stopped safely.
+- **ET-10.2d implementation/evidence:** RU/UK static `/{lang}/lesson/` shell
+  reads only `#booking=<UUID>`, clears the visible fragment, checks the exact
+  `GET /api/v1/bookings/{id}/lesson-access` with credentials/no-store and
+  reveals the media-less region only for exact `ACTIVE` +
+  `LESSON_SHELL_ENTER`. Accepted Booking cards link to it; public Jitsi stays
+  separate. The owned synthetic Keycloak group now safely provisions three
+  exact identities with one local password, ownership/admin preflight and
+  redacted summaries. The new terminal browser phase checks both participant
+  roles, masked third identity, then cancellation denial. Component browser
+  states cover RU/UK denials, held initial request, response-generation guard,
+  retry, invalid identifiers/capability and mobile/theme/keyboard/text scale.
+  `pnpm test` — `134 passed`, exit `0`; `pnpm test:e2e` — `84 passed, 5
+  phase-dependent skipped`, exit `0`; `pnpm test:e2e:root` — same counts,
+  exit `0`; `pnpm test:e2e:production-smoke` — `4 passed`, exit `0` after
+  rebuilding `dist` intentionally removed by the root E2E runner; `pnpm check`,
+  `pnpm lint`, `pnpm check:context`, hygiene and CI
+  workflow checks — exit `0`; build/audits — `18 localized routes`, `99
+  files`, exit `0`. `pnpm backend:test:fast` — `188 passed, 66 deselected`,
+  exit `0`; `pnpm backend:test:integration` — real PostgreSQL `66 passed,
+  188 deselected`, exit `0`; `pnpm backend:stop` — exit `0`, data preserved.
+  Pytest cache-access warning is non-blocking. A sandbox-only uv cache denial
+  was resolved by an approved rerun; it was not a product/test failure.
+- **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
+  existing repository branch with real credentials present only in a local
+  shell, run `pnpm test:e2e:auth`; do not send, print or persist any secret
+  values. Provide only the safe phase counts, Access phase result and
+  `EXIT_CODE=0` (or the redacted error and nonzero exit code). The runner must
+  execute its real `lesson-access` browser phase through Keycloak→API→
+  PostgreSQL with three distinct managed identities and stop local services
+  without deleting data. If cleanup does not complete, run `pnpm backend:stop`
+  and report its exit code. This evidence unlocks ET-10.2 completion,
+  canonical status sync and only then the requested GitHub pull/merge.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -704,7 +737,7 @@ Ordered slices:
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
   `completed`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
-   acceptance — `implementing`.
+   acceptance — `implemented_unverified` pending `ET-10.2-UA-04`.
 
 Whole stage remains non-terminal until `ET-10.2d` terminal acceptance.
 

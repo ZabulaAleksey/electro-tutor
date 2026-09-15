@@ -231,6 +231,14 @@ export function mountBooking(): void {
     if ((role === "student" && booking.status === "REQUESTED") || booking.status === "ACCEPTED") {
       actions.append(actionButton(copy.cancel, run("cancel")));
     }
+    if (booking.status === "ACCEPTED") {
+      const enter = document.createElement("a");
+      enter.className = "button primary";
+      enter.dataset.lessonEnter = "";
+      enter.href = `/${language}/lesson/#booking=${booking.id}`;
+      enter.textContent = copy.enterLesson;
+      actions.append(enter);
+    }
     card.append(actions);
     return card;
   };

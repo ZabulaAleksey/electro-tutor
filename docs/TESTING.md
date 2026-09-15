@@ -117,3 +117,8 @@ production backend deployment evidence.
 
 Mocks and direct fixtures cannot replace the real PostgreSQL authorization
 negatives or the authenticated three-identity terminal path.
+
+Current ET-10.2d lower-level evidence: RU/UK protected-shell browser state
+tests, three-identity provisioner contract and root/browser suites pass. The
+new `lesson-access` phase in `pnpm test:e2e:auth` is the still-pending terminal
+browser gate; passing mocked/component E2E does not close the stage.

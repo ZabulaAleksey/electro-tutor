@@ -150,12 +150,18 @@ test.describe("ET-10.1d booking UI state matrix", () => {
     for (const text of ["Ожидает ответа", "Подтверждено", "Отклонено", "Отменено"]) {
       await expect(page.locator('[data-booking-list="student"]')).toContainText(text);
     }
+    await expect(page.locator('[data-booking-list="student"] [data-status="ACCEPTED"] [data-lesson-enter]'))
+      .toHaveAttribute("href", `/ru/lesson/#booking=${bookingId}`);
+    await expect(page.locator('[data-booking-list="student"] [data-status="REQUESTED"] [data-lesson-enter]'))
+      .toHaveCount(0);
     await expect(page.locator("[role=note]")).toContainText("Платформа не принимает, не подтверждает и не возвращает оплату.");
 
     await page.unrouteAll({ behavior: "ignoreErrors" });
     await mockAccount(page, { studentBookings: [booking("ACCEPTED", "EXTERNAL")] }, "uk");
     await expect(page.locator('[data-booking-list="student"]')).toContainText("125,00 грн");
     await expect(page.locator('[data-booking-list="student"]')).toContainText("Платформа не приймає");
+    await expect(page.locator('[data-booking-list="student"] [data-lesson-enter]'))
+      .toHaveAttribute("href", `/uk/lesson/#booking=${bookingId}`);
   });
 
   test("surfaces a tutor version conflict without changing the REQUESTED booking", async ({ page }) => {

@@ -1,0 +1,47 @@
+---
+import "../../../account/profile.css";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getLocale } from "../../../i18n";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang as Language;
+const copy = getLocale(language).lessonAccess;
+---
+
+<BaseLayout title={copy.title} description={copy.description} language={language} alternatePath="/lesson/">
+  <section class="section account-page" data-lesson-access data-state="loading" aria-busy="true">
+    <span class="eyebrow"><i></i>{copy.eyebrow}</span>
+    <h1>{copy.heading}</h1>
+    <p class="account-lead">{copy.lead}</p>
+    <p class="account-status" data-access-status role="status" aria-live="polite" aria-atomic="true">{copy.loading}</p>
+    <div class="account-actions">
+      <a class="button primary" data-access-login href="#" hidden>{copy.signIn}</a>
+      <button class="button" data-access-retry type="button" hidden>{copy.retry}</button>
+      <a class="button ghost" href={`/${language}/account/`}>{copy.backToAccount}</a>
+    </div>
+    <section class="booking-panel lesson-access-active" data-access-active aria-label={copy.activeRegion} hidden>
+      <h2>{copy.activeHeading}</h2>
+      <p>{copy.activeLead}</p>
+      <p>{copy.participantLabel} <span data-access-role></span></p>
+      <p class="booking-disclaimer">{copy.mediaDeferred}</p>
+    </section>
+  </section>
+</BaseLayout>
+
+<script>
+  import { mountLessonAccess } from "../../../account/lesson-access-ui";
+  mountLessonAccess();
+</script>
+
+<style>
+  .lesson-access-active { max-width: 760px; margin-top: 24px; }
+  .lesson-access-active h2 { margin-top: 0; }
+  .lesson-access-active p { line-height: 1.6; }
+  .lesson-access-active .booking-disclaimer { color: var(--muted); }
+  [data-lesson-access] [hidden] { display: none !important; }
+  [data-lesson-access] :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
+</style>

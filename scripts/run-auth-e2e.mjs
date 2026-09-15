@@ -41,7 +41,7 @@ for (const audit of ["audit-built-locales.mjs", "audit-built-lessons.mjs", "audi
 let acceptanceFailure;
 try {
 runBackendCommand("e2e-dev", environmentWithoutSecrets);
-// Recreate only the two ownership-group-guarded synthetic identities. Fresh
+// Recreate only the three ownership-group-guarded synthetic identities. Fresh
 // immutable subjects make each run independent from profiles/grants left by a
 // previous run without resetting or deleting application data.
 reconcileE2EIdentities(adminEnvironment);
@@ -52,6 +52,7 @@ const baseBrowserEnvironment = {
   ...browserEnvironment,
   E2E_PRIMARY_SUBJECT: identities.primarySubject,
   E2E_SECONDARY_SUBJECT: identities.secondarySubject,
+  E2E_THIRD_SUBJECT: identities.thirdSubject,
   E2E_SPEC: "tests/e2e/auth-flow.spec.ts",
 };
 const runBrowserPhase = (phase, extra = {}) => runNode(
@@ -67,6 +68,7 @@ runTrustedBookingGrantCli({
   requestId: `et-10-1d-booking-grant-${randomUUID()}`,
 }, baseBrowserEnvironment);
 runBrowserPhase("booking");
+runBrowserPhase("lesson-access");
 const accountBeforeEmailChange = runTrustedProfileCli(
   ["e2e-resolve-account", "--subject", identities.primarySubject],
   "account_resolved",
@@ -83,6 +85,7 @@ try {
   if (
     changedSubjects.primarySubject !== identities.primarySubject
     || changedSubjects.secondarySubject !== identities.secondarySubject
+    || changedSubjects.thirdSubject !== identities.thirdSubject
   ) {
     throw new Error("Keycloak immutable subjects changed during email reconciliation.");
   }

@@ -7,6 +7,7 @@ import {
   REALM,
   REDIRECT_URIS,
   SECONDARY_TEST_USERNAME,
+  THIRD_TEST_USERNAME,
   TEST_IDENTITIES,
   TEST_IDENTITY_GROUP,
   TEST_USERNAME,
@@ -30,13 +31,16 @@ describe("ET-09.3 local Keycloak contract", () => {
     expect(EXPECTED_KEYCLOAK_URL).toBe("http://127.0.0.1:58081");
     expect(TEST_USERNAME).toBe("et-dev-acceptance");
     expect(SECONDARY_TEST_USERNAME).toBe("et-dev-acceptance-b");
+    expect(THIRD_TEST_USERNAME).toBe("et-dev-acceptance-c");
     expect(TEST_IDENTITIES.map(({ username }) => username)).toEqual([
       "et-dev-acceptance",
       "et-dev-acceptance-b",
+      "et-dev-acceptance-c",
     ]);
     expect(TEST_IDENTITIES.map(({ defaultEmail }) => defaultEmail)).toEqual([
       "et-dev-acceptance@invalid.example",
       "et-dev-acceptance-b@invalid.example",
+      "et-dev-acceptance-c@invalid.example",
     ]);
     expect(Object.isFrozen(TEST_IDENTITIES)).toBe(true);
     expect(TEST_IDENTITIES.every(Object.isFrozen)).toBe(true);
@@ -51,7 +55,7 @@ describe("ET-09.3 local Keycloak contract", () => {
     expect(() => validateImmutableSubject("provider-email@example.test")).toThrow(/canonical UUID/);
   });
 
-  it("keeps the two-user lifecycle on one shared secret and ownership preflight", async () => {
+  it("keeps the three-user lifecycle on one shared secret and ownership preflight", async () => {
     const source = await import("node:fs/promises").then(({ readFile }) =>
       readFile("scripts/keycloak-provision.mjs", "utf8"),
     );

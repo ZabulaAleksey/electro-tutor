@@ -15,9 +15,11 @@ const idp = "http://127.0.0.1:58081";
 const web = process.env.E2E_WEB_ORIGIN || "http://127.0.0.1:4322";
 const primaryUsername = "et-dev-acceptance";
 const secondaryUsername = "et-dev-acceptance-b";
+const thirdUsername = "et-dev-acceptance-c";
 const password = process.env.ET_DEV_TEST_PASSWORD;
 const primarySubject = process.env.E2E_PRIMARY_SUBJECT;
 const secondarySubject = process.env.E2E_SECONDARY_SUBJECT;
+const thirdSubject = process.env.E2E_THIRD_SUBJECT;
 const authPhase = process.env.E2E_AUTH_PHASE;
 
 const grantOperationId = randomUUID();
@@ -136,7 +138,7 @@ test.describe("ET-09.4e terminal support contracts", () => {
     );
   });
 
-  test("parses only the two canonical managed subjects from safe provisioner output", () => {
+  test("parses only the three canonical managed subjects from safe provisioner output", () => {
     const parsed = parseProvisionerSummary([
       "> node scripts/keycloak-provision.mjs",
       JSON.stringify({
@@ -144,6 +146,7 @@ test.describe("ET-09.4e terminal support contracts", () => {
         testIdentities: [
           { name: primaryUsername, subject: "11111111-1111-4111-8111-111111111111" },
           { name: secondaryUsername, subject: "22222222-2222-4222-8222-222222222222" },
+          { name: thirdUsername, subject: "33333333-3333-4333-8333-333333333333" },
         ],
       }),
       "contract_sha256=opaque",
@@ -151,12 +154,14 @@ test.describe("ET-09.4e terminal support contracts", () => {
     expect(parsed).toEqual({
       primarySubject: "11111111-1111-4111-8111-111111111111",
       secondarySubject: "22222222-2222-4222-8222-222222222222",
+      thirdSubject: "33333333-3333-4333-8333-333333333333",
     });
     expect(() => parseProvisionerSummary('{"testIdentities":[]}')).toThrow(/identity count/);
     expect(() => parseProvisionerSummary(JSON.stringify({
       testIdentities: [
         { name: primaryUsername, subject: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA" },
         { name: secondaryUsername, subject: "22222222-2222-2222-2222-222222222222" },
+        { name: thirdUsername, subject: "33333333-3333-4333-8333-333333333333" },
       ],
     }))).toThrow(/summary is invalid/);
   });
@@ -550,6 +555,123 @@ test.describe("ET-09.3 / ET-09.4e real DEV authentication and profiles", () => {
     } finally {
       await tutorContext.close();
       await studentContext.close();
+    }
+  });
+
+  test("authorizes both Booking participants, masks the third identity and revokes lesson entry", async ({ browser }) => {
+    test.skip(
+      authPhase !== "lesson-access" || !password || !primarySubject || !secondarySubject || !thirdSubject,
+      "lesson-access phase requires runner-provided password and three managed Keycloak subjects",
+    );
+    test.setTimeout(180_000);
+    const tutorContext = await browser.newContext();
+    const studentContext = await browser.newContext();
+    const thirdContext = await browser.newContext();
+    const tutorPage = await tutorContext.newPage();
+    const studentPage = await studentContext.newPage();
+    const thirdPage = await thirdContext.newPage();
+    const title = `ET-10.2d ${randomUUID()}`;
+    const startsAt = new Date(Date.now() + 10 * 60_000);
+    const localInput = [
+      startsAt.getFullYear(),
+      String(startsAt.getMonth() + 1).padStart(2, "0"),
+      String(startsAt.getDate()).padStart(2, "0"),
+    ].join("-") + `T${String(startsAt.getHours()).padStart(2, "0")}:${String(startsAt.getMinutes()).padStart(2, "0")}`;
+    const accessPath = (id: string) => `/api/v1/bookings/${id}/lesson-access`;
+    const responseJson = async (response: import("@playwright/test").Response) => {
+      expect(response.ok()).toBe(true);
+      return response.json();
+    };
+    try {
+      await login(tutorPage, secondaryUsername, "uk");
+      const form = tutorPage.locator("[data-offer-create]");
+      await expect(form).toBeVisible();
+      await form.locator('[name="title"]').fill(title);
+      await form.locator('[name="starts-at"]').fill(localInput);
+      await form.locator('[name="notice"]').fill("0");
+      await form.locator('[name="payment-mode"]').selectOption("FREE");
+      const createResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith("/api/v1/tutor-offers") && response.request().method() === "POST",
+      );
+      await form.getByRole("button", { name: "Створити пропозицію" }).click();
+      const offer = await responseJson(await createResponse);
+      expect(offer.minimum_notice_minutes).toBe(0);
+      const offerCard = tutorPage.locator(`[data-offer-id="${offer.id}"]`);
+      await expect(offerCard).toBeVisible();
+      const publishResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith(`/tutor-offers/${offer.id}/publish`) && response.request().method() === "POST",
+      );
+      await offerCard.getByRole("button", { name: "Опублікувати" }).click();
+      expect((await responseJson(await publishResponse)).status).toBe("ACTIVE");
+
+      await login(studentPage, primaryUsername, "ru");
+      await studentPage.locator("[data-offer-id]").fill(offer.id);
+      await studentPage.locator("[data-offer-lookup]").getByRole("button", { name: "Открыть" }).click();
+      const preview = studentPage.locator(`[data-offer-preview] [data-offer-id="${offer.id}"]`);
+      await expect(preview).toBeVisible();
+      const requestResponse = studentPage.waitForResponse((response) =>
+        response.url().endsWith(`/tutor-offers/${offer.id}/bookings`) && response.request().method() === "POST",
+      );
+      await preview.getByRole("button", { name: "Запросить запись" }).click();
+      const booking = await responseJson(await requestResponse);
+      expect(booking.status).toBe("REQUESTED");
+      await tutorPage.reload();
+      const tutorBooking = tutorPage.locator(`[data-booking-id="${booking.id}"]`);
+      await expect(tutorBooking).toBeVisible();
+      const acceptResponse = tutorPage.waitForResponse((response) =>
+        response.url().endsWith(`/bookings/${booking.id}/accept`) && response.request().method() === "POST",
+      );
+      await tutorBooking.getByRole("button", { name: "Прийняти" }).click();
+      expect((await responseJson(await acceptResponse)).status).toBe("ACCEPTED");
+      await studentPage.reload();
+      const studentBooking = studentPage.locator(`[data-booking-id="${booking.id}"]`);
+      await expect(studentBooking).toBeVisible();
+      await expect(studentBooking.locator("[data-lesson-enter]")).toHaveAttribute(
+        "href", `/ru/lesson/#booking=${booking.id}`,
+      );
+
+      for (const [page, expectedRole] of [[tutorPage, "tutor"], [studentPage, "student"]] as const) {
+        const lang = expectedRole === "tutor" ? "uk" : "ru";
+        const accessResponse = page.waitForResponse((response) => response.url().endsWith(accessPath(booking.id)));
+        await page.goto(`${web}/${lang}/lesson/#booking=${booking.id}`);
+        const decision = await responseJson(await accessResponse);
+        expect(decision).toMatchObject({ booking_id: booking.id, status: "ACTIVE", participant_role: expectedRole });
+        expect(decision.capabilities).toEqual(["LESSON_SHELL_ENTER"]);
+        await expect(page.locator("[data-access-active]")).toBeVisible();
+        await expect(page).toHaveURL(new RegExp(`/${lang}/lesson/$`));
+      }
+
+      await login(thirdPage, thirdUsername, "ru");
+      const thirdResponse = thirdPage.waitForResponse((response) => response.url().endsWith(accessPath(booking.id)));
+      await thirdPage.goto(`${web}/ru/lesson/#booking=${booking.id}`);
+      const denied = await thirdResponse;
+      expect(denied.status()).toBe(404);
+      expect(errorCode(await denied.json())).toBe("booking_not_found");
+      await expect(thirdPage.locator("[data-lesson-access]")).toHaveAttribute("data-state", "notFound");
+      await expect(thirdPage.locator("[data-access-active]")).toBeHidden();
+      await expect(thirdPage).toHaveURL(new RegExp("/ru/lesson/$"));
+
+      const cancellation = tutorPage.waitForResponse((response) =>
+        response.url().endsWith(`/bookings/${booking.id}/cancel`) && response.request().method() === "POST",
+      );
+      await tutorPage.goto(`${web}/uk/account/`);
+      const acceptedCard = tutorPage.locator(`[data-booking-id="${booking.id}"]`);
+      await expect(acceptedCard).toBeVisible();
+      await acceptedCard.getByRole("button", { name: "Скасувати" }).click();
+      expect((await responseJson(await cancellation)).status).toBe("CANCELLED");
+      for (const [page, lang] of [[tutorPage, "uk"], [studentPage, "ru"]] as const) {
+        const responsePromise = page.waitForResponse((response) => response.url().endsWith(accessPath(booking.id)));
+        await page.goto(`${web}/${lang}/lesson/#booking=${booking.id}`);
+        const revoked = await responsePromise;
+        expect(revoked.status()).toBe(403);
+        expect(errorCode(await revoked.json())).toBe("lesson_access_revoked");
+        await expect(page.locator("[data-access-active]")).toBeHidden();
+        await expect(page.locator("[data-lesson-access]")).toHaveAttribute("data-state", "revoked");
+      }
+    } finally {
+      await tutorContext.close();
+      await studentContext.close();
+      await thirdContext.close();
     }
   });
 

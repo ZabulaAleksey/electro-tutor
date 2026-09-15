@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const managedIdentities = ["et-dev-acceptance", "et-dev-acceptance-b"];
+const managedIdentities = ["et-dev-acceptance", "et-dev-acceptance-b", "et-dev-acceptance-c"];
 const requiredSecrets = ["ET_KEYCLOAK_ADMIN_PASSWORD", "ET_DEV_TEST_PASSWORD"];
 
 const localRuntimeUrl =
@@ -83,6 +83,7 @@ export function parseProvisionerSummary(output) {
   return {
     primarySubject: subjects.get(managedIdentities[0]),
     secondarySubject: subjects.get(managedIdentities[1]),
+    thirdSubject: subjects.get(managedIdentities[2]),
   };
 }
 

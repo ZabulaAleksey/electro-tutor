@@ -8,6 +8,7 @@ const routeMatrix = [
   { path: "/services/", ru: "Услуги", uk: "Послуги" },
   { path: "/contacts/", ru: "Контакты", uk: "Контакти" },
   { path: "/account/", ru: "Ваш аккаунт", uk: "Ваш обліковий запис" },
+  { path: "/lesson/", ru: "Вход в урок", uk: "Вхід до уроку" },
   { path: "/topics/dc/mesh-current-method/", ru: "Метод контурных токов", uk: "Метод контурних струмів" },
 ] as const;
 

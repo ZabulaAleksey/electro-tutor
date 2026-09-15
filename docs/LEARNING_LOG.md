@@ -155,15 +155,15 @@ repository file.
 
 ### Как повторить самостоятельно
 
-1. Проверить `Test-Path prompts/STAGES.md` в PowerShell или `test -f prompts/STAGES.md`.
+1. Проверить `Test-Path docs/STAGES.md` и отсутствие `prompts/STAGES.md`,
+   `docs/AI_PLAN.md`, `docs/AI_STATUS.md`.
 2. Выполнить `pnpm check:context`: script проверит active references, ровно один
-   `Stage ID` в `AI_PLAN.md` и уникальный heading в `prompts/STAGES.md`.
+   `Stage ID` и уникальный heading в `docs/STAGES.md`.
 3. Запустить `python ~/.codex/tools/validate_project_overlay.py .` в POSIX-shell
    либо `py -3 -B "$HOME/.codex/tools/validate_project_overlay.py" .` в Windows
    PowerShell.
-4. Прочитать `docs/AI_STATUS.md` → `docs/AI_PLAN.md` → выбранный heading в
-   `prompts/STAGES.md`; следующим должен быть `TUTOR-02`, blocked ET-stages не
-   должны выбираться.
+4. Прочитать выбранный heading в `docs/STAGES.md` и его `Status`/`Evidence`/`NEXT`;
+   blocked ET-stages не должны выбираться как завершённые.
 
 ## 2026-08-27 — Evidence-first baseline перед стабилизацией Tutor
 

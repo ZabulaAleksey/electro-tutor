@@ -25,6 +25,7 @@ from electro_tutor_api.domain.capability import (
 )
 from electro_tutor_api.domain.identity import Principal
 from electro_tutor_api.domain.lesson_access import LessonAccessDecision
+from electro_tutor_api.domain.lesson_session import LessonSession
 from electro_tutor_api.domain.profile import StudentProfile, TutorProfile
 
 
@@ -151,12 +152,30 @@ class LessonAccessGrantRepository(Protocol):
     async def authorize_for_current_session(self, booking_id: UUID) -> LessonAccessDecision: ...
 
 
+class LessonSessionRepository(Protocol):
+    async def read(self, session_id: UUID) -> LessonSession: ...
+
+    async def mutate(
+        self,
+        *,
+        booking_id: UUID | None,
+        session_id: UUID | None,
+        action: str,
+        expected_version: int | None,
+        key: UUID,
+        digest: str,
+        correlation_id: UUID,
+        request_id: str | None,
+    ) -> LessonSession: ...
+
+
 class AuditUnitOfWork(Protocol):
     audit_events: AuditEventRepository
     booking_operations: BookingOperationRepository
     bookings: BookingRepository
     capability_grants: CapabilityGrantRepository
     lesson_access_grants: LessonAccessGrantRepository
+    lesson_sessions: LessonSessionRepository
     profiles: ProfileRepository
     session_principal: Principal | None
     tutor_offers: TutorOfferRepository

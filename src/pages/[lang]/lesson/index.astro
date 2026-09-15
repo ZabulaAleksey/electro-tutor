@@ -18,6 +18,7 @@ const copy = getLocale(language).lessonAccess;
     <h1>{copy.heading}</h1>
     <p class="account-lead">{copy.lead}</p>
     <p class="account-status" data-access-status role="status" aria-live="polite" aria-atomic="true">{copy.loading}</p>
+    <p class="account-status" data-session-message role="status" aria-live="polite" aria-atomic="true" hidden></p>
     <div class="account-actions">
       <a class="button primary" data-access-login href="#" hidden>{copy.signIn}</a>
       <button class="button" data-access-retry type="button" hidden>{copy.retry}</button>
@@ -29,6 +30,16 @@ const copy = getLocale(language).lessonAccess;
       <p>{copy.participantLabel} <span data-access-role></span></p>
       <p class="booking-disclaimer">{copy.mediaDeferred}</p>
     </section>
+    <section class="booking-panel lesson-session-panel" data-lesson-session aria-label={language === "ru" ? "Состояние урока" : "Стан уроку"} hidden>
+      <h2>{language === "ru" ? "Занятие" : "Заняття"}</h2>
+      <p data-session-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <p data-session-role></p>
+      <p data-session-topic></p>
+      <div class="account-actions">
+        <button class="button primary" data-session-start type="button" hidden>{language === "ru" ? "Начать урок" : "Розпочати урок"}</button>
+        <button class="button" data-session-end type="button" hidden>{language === "ru" ? "Завершить урок" : "Завершити урок"}</button>
+      </div>
+    </section>
   </section>
 </BaseLayout>
 
@@ -39,6 +50,7 @@ const copy = getLocale(language).lessonAccess;
 
 <style>
   .lesson-access-active { max-width: 760px; margin-top: 24px; }
+  .lesson-session-panel { max-width: 760px; margin-top: 24px; }
   .lesson-access-active h2 { margin-top: 0; }
   .lesson-access-active p { line-height: 1.6; }
   .lesson-access-active .booking-disclaimer { color: var(--muted); }

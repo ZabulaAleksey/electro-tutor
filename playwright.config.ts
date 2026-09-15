@@ -3,9 +3,15 @@ import { defineConfig, devices } from "@playwright/test";
 const host = "127.0.0.1";
 const port = 4322;
 const baseURL = `http://${host}:${port}`;
+const liveLessonSessionPhase =
+  process.env.E2E_AUTH_PHASE === "lesson-session" &&
+  process.env.E2E_SPEC === "tests/e2e/auth-lesson-session.spec.ts";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // The secret-bearing Session scenario is selected only by the authenticated
+  // runner's required phase. Ordinary static/root E2E must not execute it.
+  testIgnore: liveLessonSessionPhase ? [] : ["**/auth-lesson-session.spec.ts"],
   outputDir: "./test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

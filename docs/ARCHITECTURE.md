@@ -238,6 +238,30 @@ loaded or reclassified by ET-10.2. A separate exact three-identity terminal
 harness proves the foreign-account denial without changing ET-10.1 accepted
 two-user phase counts.
 
+### ET-10.3 LessonSession local implementation
+
+ADR-027 and `../specs/features/lesson-sessions.spec.md` define a separate
+server-authoritative lifecycle, without coupling Session existence to browser
+tabs, Jitsi or a future media room:
+
+```text
+active application session + Booking participant + active Access grant
+  → Session application service / connection-scoped repository
+  → Booking → grant → Session locks in PostgreSQL
+  → one READY row per Booking; tutor-only versioned START/END
+  → redacted AuditEvent and operation ledger in the same transaction
+```
+
+The first tutor or student join creates READY. Only the tutor may start at/after
+the Booking start instant and end ACTIVE. Before start, accepted Booking
+cancellation atomically closes READY and revokes Access. Grant expiry closes
+private reads/writes; unfinished READY/ACTIVE is never falsely persisted as
+ENDED. Participant role comes from immutable Booking, Session capabilities
+from server policy, and `current_topic_id` remains transport `null` until a
+future Topic stage. The static RU/UK lesson shell keeps only an opaque
+`#session=` ID for reload and re-reads the API; the public Jitsi classroom is
+unchanged. ET-10.3 terminal live browser/manual acceptance is still pending.
+
 ## Технологии и границы
 
 | Задача | Реализация |

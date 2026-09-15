@@ -1,13 +1,15 @@
 # Спецификация LessonSession lifecycle и reload
 
 Статус: **утверждённый implementation contract** ET-10.3. Владелец продукта
-явно подтвердил правила v1 в текущей задаче 2026-09-15; Session code/live
-evidence пока не получены.
+явно подтвердил правила v1 в текущей задаче 2026-09-15. Local Session code,
+real-PostgreSQL/HTTP and frontend non-secret evidence прошли; security
+findings закрыты. Repository-wide Alembic drift gate, обязательный live
+Session E2E и ручная UX-проверка пока не пройдены.
 
 Версия: 0.1
 
 Связи: `PLAT-005`, `SESSION-001`, `ACCESS-004`, `ET-10.3`,
-`lesson-access-grants.spec.md`, ADR-025/026 и предложенный ADR-027.
+`lesson-access-grants.spec.md`, ADR-025/026/027.
 
 ## 1. Назначение и самостоятельный slice
 

@@ -112,3 +112,26 @@ lesson_access_policy_unavailable`; database/audit failures retain redacted
 Issue and revoke are policy consequences of Booking accept/cancel inside the
 same transaction. No public issue/revoke route, Account ID, arbitrary
 capability input, payment claim or media token is exposed in ET-10.2.
+
+## ET-10.3 LessonSession private surface
+
+| Route | Contract |
+|---|---|
+| `POST /api/v1/bookings/{booking_id}/lesson-session` | Empty JSON `{}` creates or returns the single READY Session for an accepted Booking; tutor or student may join |
+| `GET /api/v1/lesson-sessions/{session_id}` | Re-authorized participant read for reload within the active grant window |
+| `POST /api/v1/lesson-sessions/{session_id}/start` | Tutor-only READY→ACTIVE at/after Booking `starts_at`; JSON `{"expected_version":1}` |
+| `POST /api/v1/lesson-sessions/{session_id}/end` | Tutor-only ACTIVE→ENDED; JSON bounded `expected_version` |
+
+All POSTs require exact allowed `Origin`, `application/json`, canonical UUID
+`Idempotency-Key` and no extra body fields. The server derives role and
+`SESSION_VIEW|SESSION_START|SESSION_END`; Access `LESSON_SHELL_ENTER` does not
+authorize a transition by itself. Responses contain opaque Session/Booking
+IDs, persisted/effective status, version, role, capabilities, transition
+timestamps and `current_topic_id: null`, with no Account IDs or media token.
+Every read/write/replay rechecks the current application session, immutable
+Booking participant and active grant. Missing/foreign resource is masked 404,
+expired/revoked participant grant is 403, malformed request 422, version/key
+conflict 409, and unavailable policy/DB/audit is redacted 503. All private
+responses remain `no-store`. After `ends_at`, unfinished Session is not
+represented as a persisted ENDED or readable history in v1. Live Session
+browser acceptance is pending; routes are local/CI, not deployed.

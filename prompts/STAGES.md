@@ -856,23 +856,26 @@ exit `0`; local `main` contains the merge. No push, PR or deployment is claimed.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `blocked` — LessonSession lifecycle/recovery contract approved;
-implementation entry awaits main task reasoning switch to medium as directed
-by user; no implementation started.
+Статус: `implemented_unverified` — local Session implementation and non-secret
+gates passed; repository-wide Alembic drift gate and terminal live/manual
+acceptance remain open.
 
-- Status: blocked
+- Status: implemented_unverified
 - NEXT: ET-10.3
-- Blockers: user-requested main reasoning switch from high (architecture)
-  to medium (ordinary implementation) before code. Approved implementation
-  must also repair transaction-start `CURRENT_TIMESTAMP` in existing
-  Access/application-session authorization and prove post-lock DB expiry
-  race behavior; this is in-scope engineering work, not passed evidence.
+- Blockers: `pnpm backend:check` exits `1` at its Alembic autogenerate check
+  because pre-existing `services/api/alembic/env.py` has empty
+  `target_metadata`; all existing tables appear removed. A canonical
+  schema-metadata/drift-check architecture decision requires High reasoning;
+  self-reflection or disabling the gate is not accepted. Separate terminal
+  live Session browser and manual RU/UK checks are pending. ET-09.4b prompt
+  cleanup remains separately blocked by missing `.codex/dev-project.toml`.
 - Architecture checkpoint: high reasoning confirmed by user's Codex UI
   screenshot and `Продолжай` (2026-09-15); owner explicitly approved
   `../specs/features/lesson-sessions.spec.md` v1/ADR-027 in this task.
-  Independent media-less slice and terminal PASS criteria are fixed;
-  read-only reviewer/security review had no remaining contract findings.
-  No code or live Session evidence is claimed.
+  Independent media-less slice and terminal PASS criteria are fixed. Security
+  review findings on post-Session-lock expiry and fabricated audit identity
+  were corrected and covered in real PostgreSQL. Live Session evidence is
+  not claimed.
 - **User action `ET-10.3-UA-01`: `DONE / architecture entry`** — user switched
   main task reasoning to high and explicitly continued `ET-10.3`;
   screenshot confirmation unlocked architecture/SPEC/ADR proposal work.
@@ -881,10 +884,57 @@ by user; no implementation started.
   (2026-09-15), approving student-first `READY`/tutor-only start after
   `starts_at`, atomic `READY→CANCELLED`, and no terminal/history read
   after grant expiry. Approved SPEC/ADR unlock implementation entry.
-- **User action `ET-10.3-UA-03`: `READY / implementation reasoning entry`** —
-  switch main task reasoning level from high to medium and explicitly send
-  `Продолжай ET-10.3`; Codex UI confirmation is expected evidence and
-  unlocks ordinary code/tests work on the approved contract.
+- **User action `ET-10.3-UA-03`: `DONE / implementation reasoning entry`** —
+  user explicitly sent `Продолжай ET-10.3` after the request to return to
+  medium; this continuation is treated as implementation entry confirmation.
+  Codex UI state was not independently inspected; it does not claim runtime
+  verification.
+- **User action `ET-10.3-UA-04`: `PENDING / CONDITIONAL live acceptance`** —
+  after `backend:check` architecture repair and all local gates pass, run
+  `pnpm test:e2e:auth` from the
+  project root in a personal local shell with required secret environment
+  variables supplied ephemerally and removed afterward; do not paste values
+  or secret-bearing child output. Expected evidence is build/audit results,
+  an unskipped LessonSession real browser phase, runner cleanup result and
+  shell `EXIT_CODE=0`; this unlocks the terminal E2E gate, not deployment.
+- **User action `ET-10.3-UA-05`: `PENDING / CONDITIONAL manual UX check`** —
+  after the live Session path is available, check RU/UK lesson shell in two
+  tabs and with keyboard/screen reader or equivalent accessibility workflow:
+  tutor start/end and student reload must not leak private state or duplicate
+  Session. A concise pass/fail confirmation with any observed issue is
+  expected evidence and unlocks the manual UX gate; no secret values needed.
+- **User action `ET-10.3-UA-06`: `PENDING / HIGH reasoning architecture entry`** —
+  switch this task's reasoning level from Medium to High and reply
+  `Продолжай ET-10.3`; confirmation unlocks the canonical Alembic
+  schema-metadata/drift-check design and its non-weakening repair. No secrets,
+  DB reset, merge or deployment are required for this action.
+
+- **Local implementation/evidence:** additive revision `20260915_0012` and
+  private Session domain/application/repository/API, Booking cancellation
+  hook and RU/UK reload shell are present. Real disposable PostgreSQL
+  `pnpm backend:test:integration`: `72 passed / 189 deselected`, exit `0`;
+  migration head→0005→head, Session constraints/ACL including PUBLIC, exact
+  HTTP cookie→API→PostgreSQL, concurrent join, tutor START/END, replay,
+  post-Session-lock grant/app-session expiry and Session cancellation audit
+  fault rollback are covered. `pnpm backend:test:fast`: `189 passed / 72
+  deselected`, Ruff/mypy PASS, exit `0`. `pnpm backend:check` reached
+  dependency audit, image build, doctor and `db-status` current=expected 0012,
+  then failed only at the known empty-target-metadata Alembic check (exit
+  `1`; inner check `255`); its cleanup stopped containers without deleting
+  volumes/data. This failure is not Session migration test failure and is not
+  terminal PASS.
+- **Local frontend/evidence:** `pnpm test` `156 passed`, `pnpm check` 0
+  diagnostics, `pnpm lint`/build/audits exit `0`; focused Session UI browser
+  `6 passed`, exit `0`; ordinary `pnpm test:e2e` and root-artifact
+  `pnpm test:e2e:root` each `92 passed / 5 expected phase skips`, exit `0`;
+  production smoke `4 passed`, exit `0`; `pnpm verify:full` terminal rerun
+  exit `0` (frozen install, hygiene, workflow, check, lint, unit, root E2E,
+  build, smoke, dependency audit). Audit reported 2 moderate and no high.
+  An earlier full-verify retry exposed one benign aborted catalog navigation
+  request and a later stale local preview-port collision; narrow theme rerun
+  passed and the final complete run passed without weakening an accepted test.
+  No authenticated Session browser phase was run by Codex without user-held
+  local secrets.
 
 - **Goal / why now:** establish central recoverable lesson runtime before media,
   whiteboard and timeline enrichments.

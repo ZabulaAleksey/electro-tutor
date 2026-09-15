@@ -146,3 +146,31 @@ issue/revoke audit rows, actor/correlation and rollback on audit failure. A
 separate read-only post-integration audit spot-check found no remaining
 Booking/grant rows in the isolated test DB and is not claimed as independent
 PASS or production evidence.
+
+## ET-10.3 Session gates
+
+The approved `../specs/features/lesson-sessions.spec.md` requires unit state
+and DTO/transport checks; real disposable PostgreSQL migration/ACL,
+participant/replay/clock-lock/audit-rollback checks; RU/UK component/browser
+states; and a mandatory unskipped live `lesson-session` phase in
+`pnpm test:e2e:auth`. The live phase must traverse browser → Keycloak → API →
+PostgreSQL and observe student-first READY, tutor START at the scheduled DB
+boundary, reload, END and foreign-account masking. A static/mock Playwright
+pass or root-artifact run is lower-level evidence, not terminal acceptance.
+
+Current local frontend evidence: `pnpm test` 156 passed, `pnpm check` 0
+diagnostics, `pnpm lint` and build/audits exit 0; Session mocked browser states
+6 passed; `pnpm test:e2e` and `pnpm test:e2e:root` each 92 passed with 5
+expected phase-dependent skips, exit 0. The authenticated Session phase and
+RU/UK multi-tab/accessibility manual check have not yet been run or confirmed
+by the user. Real PostgreSQL `backend:test:integration` passed 72 (189 fast
+deselected), including Session HTTP, migration cycle/ACL, post-lock expiry,
+audit rollback and lifecycle; `backend:test:fast` passed 189 (72 integration
+deselected), both exit 0. `pnpm verify:full` final retry exited 0 with root
+browser 92/5, production smoke 4/4 and dependency audit no high findings.
+The repository-wide `backend:check` remains FAIL: Alembic `target_metadata`
+is empty, so its `alembic check` marks all existing tables removed despite
+current=expected head 0012. Do not call this DB drift gate PASS or replace it
+with live-DB self-reflection; the canonical remediation is pending architecture
+review. Detailed evidence and user actions are in selected
+`../prompts/STAGES.md`.

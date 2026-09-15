@@ -19,16 +19,22 @@ from electro_tutor_api.adapters.database import (
     create_auth_engine,
     create_runtime_engine,
 )
+from electro_tutor_api.adapters.lesson_session_repository import (
+    InvalidLessonSessionTransitionError,
+    LessonSessionNotFoundError,
+)
 from electro_tutor_api.adapters.oidc import OidcAdapter
 from electro_tutor_api.adapters.unit_of_work import PostgresUnitOfWork
 from electro_tutor_api.application.auth import AuthFlowError, AuthService
 from electro_tutor_api.application.bookings import BookingService
 from electro_tutor_api.application.health import HealthService
 from electro_tutor_api.application.lesson_access import LessonAccessGrantService
+from electro_tutor_api.application.lesson_sessions import LessonSessionService
 from electro_tutor_api.application.profiles import ProfileService, UnitOfWorkFactory
 from electro_tutor_api.config import Settings, get_settings
 from electro_tutor_api.domain.booking import BookingValidationError
 from electro_tutor_api.domain.lesson_access import LessonAccessValidationError
+from electro_tutor_api.domain.lesson_session import LessonSessionValidationError
 from electro_tutor_api.domain.profile import ProfileValidationError
 from electro_tutor_api.errors import (
     AuditUnavailableError,
@@ -60,6 +66,10 @@ from electro_tutor_api.transport.auth import build_auth_router
 from electro_tutor_api.transport.bookings import build_booking_router
 from electro_tutor_api.transport.health import router as health_router
 from electro_tutor_api.transport.lesson_access import build_lesson_access_router
+from electro_tutor_api.transport.lesson_sessions import (
+    SessionOriginDeniedError,
+    build_lesson_session_router,
+)
 from electro_tutor_api.transport.profiles import build_profile_router
 
 PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
@@ -157,6 +167,7 @@ def create_app(
     profile_service: ProfileService | None = None,
     booking_service: BookingService | None = None,
     lesson_access_service: LessonAccessGrantService | None = None,
+    lesson_session_service: LessonSessionService | None = None,
 ) -> FastAPI:
     resolved = settings or get_settings()
     owned_engines: list[AsyncEngine] = []
@@ -208,6 +219,13 @@ def create_app(
             cast(
                 UnitOfWorkFactory,
                 lambda credential: PostgresUnitOfWork(runtime_engine, credential),
+            )
+        )
+    resolved_lesson_session_service = lesson_session_service
+    if resolved_lesson_session_service is None and runtime_engine is not None:
+        resolved_lesson_session_service = LessonSessionService(
+            cast(
+                UnitOfWorkFactory, lambda credential: PostgresUnitOfWork(runtime_engine, credential)
             )
         )
     resolved_database_check = check_database
@@ -309,6 +327,28 @@ def create_app(
     for booking_error_type in BOOKING_ERROR_CONTRACT:
         app.add_exception_handler(booking_error_type, booking_error)
 
+    session_errors: dict[type[Exception], tuple[str, str, int]] = {
+        LessonSessionValidationError: ("invalid_request", "Request validation failed.", 422),
+        SessionOriginDeniedError: ("origin_denied", "Request origin is not allowed.", 403),
+        LessonSessionNotFoundError: (
+            "lesson_session_not_found",
+            "Lesson session was not found.",
+            404,
+        ),
+        InvalidLessonSessionTransitionError: (
+            "invalid_lesson_session_transition",
+            "Lesson session transition is not allowed.",
+            409,
+        ),
+    }
+
+    async def session_error(request: Request, exc: Exception) -> JSONResponse:
+        code, message, status_code = session_errors[type(exc)]
+        return _error(request, code, message, status_code)
+
+    for error_type in session_errors:
+        app.add_exception_handler(error_type, session_error)
+
     @app.exception_handler(Exception)
     async def internal_error(request: Request, exc: Exception) -> JSONResponse:
         logging.getLogger("electro_tutor_api").error(
@@ -332,6 +372,15 @@ def create_app(
     if resolved_booking_service is not None:
         app.include_router(
             build_booking_router(resolved_auth_service, resolved_booking_service, resolved),
+            prefix="/api/v1",
+        )
+    if resolved_lesson_session_service is not None:
+        app.include_router(
+            build_lesson_session_router(
+                resolved_auth_service,
+                resolved_lesson_session_service,
+                resolved,
+            ),
             prefix="/api/v1",
         )
     return app

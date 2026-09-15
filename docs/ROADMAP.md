@@ -347,10 +347,13 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
   phase passed; runner cleanup and shell exit `0`, without payment provider.
-- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `BLOCKED / NEXT`;
-  lifecycle/recovery/expiry SPEC/ADR-027 approved; user-requested return to
-  medium reasoning remains required before ordinary implementation of
-  server-authoritative shell state/capabilities without native media.
+- **ET-10.3 — LessonSession lifecycle и reload.** Статус:
+  `IMPLEMENTED_UNVERIFIED / NEXT`; lifecycle/recovery/expiry SPEC/ADR-027
+  approved, local Session/API/DB/RU-UK shell and non-secret tests passed.
+  `backend:check` is red on pre-existing empty Alembic target metadata;
+  canonical drift architecture requires High reasoning. Live authenticated
+  Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
+  dependency-ready.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

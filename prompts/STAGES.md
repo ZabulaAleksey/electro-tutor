@@ -856,17 +856,35 @@ exit `0`; local `main` contains the merge. No push, PR or deployment is claimed.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `blocked` — architecture entry requires high reasoning and approved
-LessonSession lifecycle/recovery contract; no implementation started.
+Статус: `blocked` — LessonSession lifecycle/recovery contract approved;
+implementation entry awaits main task reasoning switch to medium as directed
+by user; no implementation started.
 
 - Status: blocked
 - NEXT: ET-10.3
-- Blockers: main reasoning is currently medium; architecture contract for
-  LessonSession states, roles, transitions and recovery must be approved first.
-- **User action `ET-10.3-UA-01`: `PENDING / architecture entry`** — switch the
-  main task reasoning level to high and explicitly continue `ET-10.3`;
-  confirmation of high reasoning unlocks architecture/SPEC/ADR entry work,
-  not implementation before its contract is approved.
+- Blockers: user-requested main reasoning switch from high (architecture)
+  to medium (ordinary implementation) before code. Approved implementation
+  must also repair transaction-start `CURRENT_TIMESTAMP` in existing
+  Access/application-session authorization and prove post-lock DB expiry
+  race behavior; this is in-scope engineering work, not passed evidence.
+- Architecture checkpoint: high reasoning confirmed by user's Codex UI
+  screenshot and `Продолжай` (2026-09-15); owner explicitly approved
+  `../specs/features/lesson-sessions.spec.md` v1/ADR-027 in this task.
+  Independent media-less slice and terminal PASS criteria are fixed;
+  read-only reviewer/security review had no remaining contract findings.
+  No code or live Session evidence is claimed.
+- **User action `ET-10.3-UA-01`: `DONE / architecture entry`** — user switched
+  main task reasoning to high and explicitly continued `ET-10.3`;
+  screenshot confirmation unlocked architecture/SPEC/ADR proposal work.
+- **User action `ET-10.3-UA-02`: `DONE / product contract approval`** —
+  owner answered `Да, утверждаю предложенный v1-контракт` in this task
+  (2026-09-15), approving student-first `READY`/tutor-only start after
+  `starts_at`, atomic `READY→CANCELLED`, and no terminal/history read
+  after grant expiry. Approved SPEC/ADR unlock implementation entry.
+- **User action `ET-10.3-UA-03`: `READY / implementation reasoning entry`** —
+  switch main task reasoning level from high to medium and explicitly send
+  `Продолжай ET-10.3`; Codex UI confirmation is expected evidence and
+  unlocks ordinary code/tests work on the approved contract.
 
 - **Goal / why now:** establish central recoverable lesson runtime before media,
   whiteboard and timeline enrichments.
@@ -880,8 +898,10 @@ LessonSession lifecycle/recovery contract; no implementation started.
   board, booking completion or AI.
 - **Modules / expected files:** lesson domain/repository/API, session shell/state,
   migration, specs/security/data/traceability and tests.
-- **DB / migration:** opaque public ID, booking relation, timestamps/status,
-  participants and concurrency/version guard; reversible migration.
+- **DB / migration:** opaque public ID, booking relation, timestamps/status
+  and concurrency/version guard; v1 participant role is derived from immutable
+  Booking without copied authority; additive migration, destructive downgrade
+  only on exact disposable local/test PostgreSQL with separate consent.
 - **Security / fallback / risks:** active grant required; client cannot set owner,
   status or capabilities; DB unavailable shows explicit unavailable/retry state,
   never creates browser-only session truth.

@@ -348,9 +348,9 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
   phase passed; runner cleanup and shell exit `0`, without payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус: `BLOCKED / NEXT`;
-  architecture/SPEC entry requires high reasoning and approved lifecycle/
-  recovery contract before implementation of server-authoritative shell
-  state/capabilities without native media.
+  lifecycle/recovery/expiry SPEC/ADR-027 approved; user-requested return to
+  medium reasoning remains required before ordinary implementation of
+  server-authoritative shell state/capabilities without native media.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

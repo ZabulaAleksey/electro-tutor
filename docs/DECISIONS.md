@@ -756,3 +756,60 @@ rollback preserves rows and removes the consumer; destructive downgrade remains
 disposable-test only. Future policy/window or PLATFORM support requires a new
 versioned contract. Detailed requirements belong to
 `../specs/features/lesson-access-grants.spec.md`.
+
+## ADR-027 — Booking-bound LessonSession lifecycle and reload
+
+Дата: 2026-09-15
+
+Статус: **принято как implementation contract** для `ET-10.3`;
+владелец продукта явно утвердил v1 rules в текущей задаче 2026-09-15.
+Runtime implementation/evidence пока отсутствуют.
+
+Контекст: approved Booking v1 допускает accepted cancellation только до
+`starts_at`; grant v1 позволяет открыть shell в
+`[starts_at - 15 minutes, ends_at)`, но `LESSON_SHELL_ENTER` не даёт Session
+mutations. Нынешний static shell удаляет `#booking`, поэтому обычный reload
+теряет join context. Media/timeline/chat не должны быть prerequisite lifecycle.
+
+Решение: ровно одна Session на Booking, первый tutor или student
+join создаёт `READY`; только tutor после scheduled start делает
+`READY→ACTIVE→ENDED`. Booking cancellation до start атомарно закрывает
+существующую `READY` как `CANCELLED` вместе с grant revoke и audit.
+PostgreSQL time после `ends_at` даёт derived `WINDOW_CLOSED`, а не ложный
+persisted `ENDED`. Все private reads/mutations требуют текущей server
+session, exact Booking participant и active grant; отдельная Session policy
+вычисляет role-specific operation capabilities, не меняя смысл grant v1.
+
+Session ID — opaque server UUID; immutable participants остаются в Booking, а
+transport возвращает `current_topic_id: null` до реального Topic contract.
+Transaction/ACL boundary переиспользует session-bound PostgreSQL functions,
+lock order Booking→grant→Session, narrow runtime `EXECUTE` and no direct
+Session/operation-ledger `SELECT` or DML for runtime/auth/public, optimistic version,
+exact idempotency ledger и server-generated independent audit operation IDs.
+Session client operation keys сохраняют Booking cross-domain namespace и
+race-safe 409 для чужого ledger; exact replay вновь проходит текущую
+session/participant/active-grant policy до persisted response.
+Create/start/end POST сохраняют JSON + canonical `Idempotency-Key` и
+новую request-side exact configured DEV `Origin` check (absent/null/foreign
+denied): simple form/cross-origin POST не создаёт Session/audit.
+Existing CORS filtering не считается CSRF-защитой, production topology
+не выбирается этим ADR.
+Grant/start/end time policy и active application session используют fresh
+PostgreSQL `clock_timestamp()` после lock wait; transaction-start
+`CURRENT_TIMESTAMP` в текущих Access/session authorization functions
+требует исправления и real-DB regression evidence до Session implementation.
+После одноразового `#booking` join shell держит `#session` fragment для
+reload, но fragment никогда не является authority. Operational rollback
+убирает consumers, не удаляя Session history и cancellation integrity.
+
+Отклоняемые альтернативы: auto-start при student join (client/role confusion);
+browser storage или Jitsi room как Session truth; изменение значения
+`LESSON_SHELL_V1` задним числом; copied Booking participants как конкурирующая
+authority; lazy worker/end при grant expiry, который создаёт фиктивный audit;
+запуск media/topic/chat framework ради пустого lifecycle.
+
+Подтверждены: student-first `READY` и tutor-only start после
+`starts_at`; atomic `READY→CANCELLED`; отсутствие terminal/history read после
+grant expiry в v1. Последствия, ошибки, миграция и exact acceptance описаны
+в `../specs/features/lesson-sessions.spec.md`. Approval разрешает
+implementation entry, но не закрывает stage.

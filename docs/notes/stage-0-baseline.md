@@ -17,7 +17,9 @@ Stage 0 evidence ниже сохранено в исходном историч�
 существовали одновременно. Позднее Cloudflare deployment был выведен из
 эксплуатации, `wrangler.jsonc`, `public/_redirects` и дублирующий
 `.github/workflows/deploy.yml` удалены, а GitHub Pages выбран и live-проверен
-как production path. Current state находится в `../AI_STATUS.md`; пути и
+как production path. Current state после миграции 2026-09-15 находится в
+`../STAGES.md`; прежний `../AI_STATUS.md` сохранён через
+`legacy-ai-state-evidence.md` и Git parent. Пути и
 reproduction commands ниже относятся к состоянию repository на дату baseline.
 
 ## Назначение и границы
@@ -25,7 +27,7 @@ reproduction commands ниже относятся к состоянию reposito
 Документ фиксирует проверяемое brownfield-состояние перед дальнейшим развитием
 Tutor. Он не является SPEC, архитектурным решением или разрешением исправлять
 найденные дефекты. Требования принадлежат `specs/`, фактический статус —
-`docs/AI_STATUS.md`, порядок устранения разрывов — `docs/ROADMAP.md`.
+`docs/STAGES.md`, порядок устранения разрывов — `docs/ROADMAP.md`.
 
 В scope вошли приложения и entrypoints, маршруты, package/workspace boundary,
 deployment, тесты, локализация, assets, content, интерактивы и project overlay.

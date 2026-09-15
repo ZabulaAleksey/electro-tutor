@@ -49,10 +49,10 @@ DEV authentication использует только отдельные Keycloak
 test identity не входят в repository: перед provisioning задай
 `ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` в текущем shell или local
 secret manager; optional non-secret names — `ET_KEYCLOAK_ADMIN_USERNAME`,
-`ET_DEV_TEST_EMAIL`. Имена двух synthetic identities фиксированы как
-`et-dev-acceptance` и `et-dev-acceptance-b`; optional
+`ET_DEV_TEST_EMAIL`. Имена трёх synthetic identities фиксированы как
+`et-dev-acceptance`, `et-dev-acceptance-b` и `et-dev-acceptance-c`; optional
 `ET_DEV_TEST_USERNAME` допускает только primary `et-dev-acceptance`, другое
-значение fail closed. Обе identity используют один local test password.
+значение fail closed. Все три identity используют один local test password.
 
 ```bash
 pnpm backend:idp:dev
@@ -61,15 +61,15 @@ pnpm backend:idp:cleanup
 ```
 
 `backend:idp:dev` idempotently создаёт/сверяет realm, exact redirects/origins,
-PKCE `S256` client и две DEV identities. Команда fail closed без обоих password env и
+PKCE `S256` client и три DEV identities. Команда fail closed без обоих password env и
 не печатает их. Страница `/ru/account/` или `/uk/account/` доступна только в
 local DEV/E2E runtime; production IAM остаётся не выбран.
-`backend:idp:cleanup` удаляет только обе named synthetic identities после
+`backend:idp:cleanup` удаляет только три named synthetic identities после
 ownership preflight для каждой; если хотя бы одна не принадлежит managed group,
 удаление не начинается. Realm/client остаются для следующего idempotent запуска.
 `test:e2e:auth` сам собирает текущий source, применяет migrations и запускает API
 на изолированной local/test БД `electro_tutor_test`, не сбрасывая основную
-`electro_tutor`; перед run он безопасно пересоздаёт эти две identity, чтобы
+`electro_tutor`; перед run он безопасно пересоздаёт эти три identity, чтобы
 immutable subjects и application Accounts не зависели от прошлого запуска.
 После success/failure runner останавливает local API, PostgreSQL и Keycloak без
 удаления named volumes; cleanup failure возвращает non-zero и точную recovery-команду.

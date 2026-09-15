@@ -35,6 +35,40 @@ function parseJsonLines(output) {
     });
 }
 
+// Never forward child stdout/stderr: provisioning failures may contain runtime
+// configuration. Only fixed diagnostic codes derived from allowlisted markers
+// can cross the local secret-bearing runner boundary.
+export function classifyProvisioningFailure(stderr) {
+  const output = String(stderr ?? "");
+  if (/Keycloak POST \/realms\/master\/protocol\/openid-connect\/token returned (?:400|401|403)/u.test(output)) {
+    return "keycloak_admin_auth_rejected";
+  }
+  if (output.includes("Refusing to mutate an existing Keycloak user not owned")) {
+    return "managed_identity_ownership_conflict";
+  }
+  if (output.includes("Keycloak test identity must not have realm-management roles")) {
+    return "managed_identity_privilege_conflict";
+  }
+  if (output.includes("Keycloak test identity ownership group") || output.includes("Keycloak test identity ownership group is missing")) {
+    return "managed_identity_group_conflict";
+  }
+  if (/Keycloak (?:GET|POST|PUT|DELETE) \/admin\/realms/u.test(output)) {
+    return "keycloak_admin_api_rejected";
+  }
+  if (/docker(?:\.exe)? compose .* failed with exit code/u.test(output)) {
+    return "local_service_start_failed";
+  }
+  return "unclassified";
+}
+
+export function redactedE2ECommandError({ label, status, stderr }) {
+  const safeLabel = label ?? "E2E command";
+  const exitCode = typeof status === "number" ? ` (exit ${status})` : "";
+  const diagnostic = safeLabel === "backend idp:e2e"
+    ? `; diagnostic=${classifyProvisioningFailure(stderr)}` : "";
+  return new Error(`${safeLabel} failed${exitCode}${diagnostic}; output was redacted.`);
+}
+
 function runCaptured(executable, args, { env = process.env, label, timeout = 300_000 } = {}) {
   try {
     return execFileSync(executable, args, {
@@ -46,8 +80,7 @@ function runCaptured(executable, args, { env = process.env, label, timeout = 300
       timeout,
     });
   } catch (error) {
-    const exitCode = typeof error?.status === "number" ? ` (exit ${error.status})` : "";
-    throw new Error(`${label ?? "E2E command"} failed${exitCode}; output was redacted.`);
+    throw redactedE2ECommandError({ label, status: error?.status, stderr: error?.stderr });
   }
 }
 

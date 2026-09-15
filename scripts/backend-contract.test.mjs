@@ -86,7 +86,7 @@ describe("ET-09.2 backend command contract", () => {
 
   it("routes the E2E identity setup through the existing safe provisioner", async () => {
     const backendSource = await readFile("scripts/backend.mjs", "utf8");
-    expect(backendCommands["idp:e2e"]).toMatch(/two managed E2E identities/);
+    expect(backendCommands["idp:e2e"]).toMatch(/three managed E2E identities/);
     expect(backendCommands["e2e-dev"]).toMatch(/isolated local test database/);
     expect(backendSource).toContain('case "idp:e2e": return idpProvision();');
     expect(backendSource).not.toContain("ET_DEV_TEST_PASSWORD=");

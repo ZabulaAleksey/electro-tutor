@@ -687,11 +687,28 @@ Ordered slices:
   188 deselected`, exit `0`; `pnpm backend:stop` — exit `0`, data preserved.
   Pytest cache-access warning is non-blocking. A sandbox-only uv cache denial
   was resolved by an approved rerun; it was not a product/test failure.
+- **ET-10.2d live retry evidence:** first manual `pnpm test:e2e:auth` reached
+  valid locale/build/artifact audits (`18` localized routes, `99` files), then
+  failed in the first `backend idp:e2e` provisioning attempt before any live
+  Playwright Access phase: exit `1`, child output redacted. The existing runner
+  hid the underlying reason, so no product/credential/ownership cause is
+  claimed. Read-only `pnpm backend:status` after the failure showed no running
+  Compose services; data was not deleted. A bounded allowlist-only provisioning
+  diagnostic now emits a fixed code (never raw stdout/stderr or secrets).
+  Its sentinel tests and backend/Keycloak contract checks passed (`24 passed`,
+  exit `0`); root `pnpm test` passed (`142 passed`, exit `0`). One unrelated
+  `FR-008` PWA browser run closed its context (`1 failed, 83 passed`, exit `1`);
+  focused rerun passed (`1 passed`, exit `0`) and fresh full `pnpm test:e2e`
+  passed (`84 passed, 5 phase-dependent skipped`, exit `0`). This did not
+  exercise or close terminal Access acceptance.
 - **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
   existing repository branch with real credentials present only in a local
-  shell, run `pnpm test:e2e:auth`; do not send, print or persist any secret
-  values. Provide only the safe phase counts, Access phase result and
-  `EXIT_CODE=0` (or the redacted error and nonzero exit code). The runner must
+  shell, rerun `pnpm test:e2e:auth` using the administrator password for the
+  existing persisted local Keycloak (do not create or send a replacement
+  password without a separate recovery decision); do not send, print or
+  persist any secret values. Provide only the safe phase counts, Access phase
+  result and `EXIT_CODE=0` (or the fixed `diagnostic=<code>` and nonzero exit
+  code, never raw child output). The runner must
   execute its real `lesson-access` browser phase through Keycloak→API→
   PostgreSQL with three distinct managed identities and stop local services
   without deleting data. If cleanup does not complete, run `pnpm backend:stop`

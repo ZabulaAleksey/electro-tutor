@@ -23,19 +23,22 @@
   component path; последний backend evidence: `110` fast и `52` integration PASS.
 - `ET-09.4e`: backend fast `131` и real PostgreSQL `54` PASS; root Vitest `112`,
   Astro check, RU/UK/mobile Chromium support checks, 17-page build и audits PASS.
-  `pnpm test:e2e:auth` теперь запускает exact two-user Keycloak flow, trusted
+  `ET-09.4e` accepted an exact two-user Keycloak flow, trusted
   Tutor grant/audit CLI, foreign UUID и self-escalation negatives. Без
   `ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` command fail fast до
-  service mutation; privileged CLI принимает только ровно два canonical subject
-  текущих managed identities; такой run не является terminal evidence.
+  service mutation; privileged profile/Booking CLI принимает только ровно два
+  canonical subject участников, не третьего Access-negative аккаунта; такой
+  secret-free run не является terminal evidence.
 - `pnpm backend:idp:provision`: idempotent live Keycloak reconciliation с safe
   non-secret contract digest; требует credentials только из local environment.
 - `pnpm backend:idp:cleanup`: после общего ownership preflight удаляет только
-  `et-dev-acceptance` и `et-dev-acceptance-b`; foreign user fail closed без
+  `et-dev-acceptance`, `et-dev-acceptance-b` и `et-dev-acceptance-c`; foreign user fail closed без
   partial delete.
-- `pnpm test:e2e:auth`: real Chromium → two Keycloak identities → callback →
+- `pnpm test:e2e:auth`: real Chromium → three managed Keycloak identities;
+  existing two-user phases still cover callback →
   Student/Tutor `/profiles/*/me` → foreign/self-escalation denial → durable audit
   → logout; включает invalid redirect и changed-email/same-subject сценарии. Canonical
+  ET-10.2 adds a separate three-identity `lesson-access` phase. Canonical
   command без admin/test password fail closed до Playwright; при прямом запуске
   общего suite auth tests skipped и не являются terminal evidence.
   Initial session loading проверяется детерминированно: Playwright удерживает
@@ -122,3 +125,7 @@ Current ET-10.2d lower-level evidence: RU/UK protected-shell browser state
 tests, three-identity provisioner contract and root/browser suites pass. The
 new `lesson-access` phase in `pnpm test:e2e:auth` is the still-pending terminal
 browser gate; passing mocked/component E2E does not close the stage.
+The first manual run failed before the browser at `backend idp:e2e` with exit
+`1`; the child output was deliberately redacted, so its cause remains unknown.
+The safe retry diagnostic reports only fixed, allowlisted categories; never
+forward raw provisioner output or credentials as evidence.

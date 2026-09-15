@@ -270,7 +270,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 ## AI-native platform track — после stabilization/public release
 
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
-`ET-09.1..4` и `ET-10.1` завершены; текущий selector — `ET-10.2`. `ET-03` остаётся
+`ET-09.1..4` и `ET-10.1..2` завершены; текущий selector — `ET-10.3`. `ET-03` остаётся
 независимым
 content-потоком, а внешние решения из `ET-05`, `ET-06` и `ET-07` не считаются закрытыми.
 Канонические инварианты и открытые решения находятся в
@@ -340,10 +340,14 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   SPEC/ADR-025, domain/PostgreSQL, private HTTP и RU/UK browser UI verified.
   Exact two-user Keycloak → API → PostgreSQL terminal phases passed with
   cleanup confirmation and exit `0`.
-- **ET-10.2 — LessonAccessGrant.** Статус: `IN PROGRESS / NEXT`; time-bounded grant,
-  authorization negatives и независимость от payment provider.
-- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `PLANNED`; рабочий
-  lesson shell с server-authoritative lifecycle/capabilities без native media.
+- **ET-10.2 — LessonAccessGrant.** Статус: `COMPLETED (validated locally,
+  2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
+  authorization negatives and RU/UK three-identity Keycloak/browser terminal
+  phase passed; runner cleanup and shell exit `0`, without payment provider.
+- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `BLOCKED / NEXT`;
+  architecture/SPEC entry requires high reasoning and approved lifecycle/
+  recovery contract before implementation of server-authoritative shell
+  state/capabilities without native media.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

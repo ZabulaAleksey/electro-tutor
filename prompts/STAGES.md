@@ -1,4 +1,4 @@
-- Stage ID: ET-10.2
+- Stage ID: ET-10.3
 
 # Поэтапный запуск Electro Tutor
 
@@ -611,13 +611,13 @@ Ordered slices:
 
 ## ET-10.2 — LessonAccessGrant
 
-Статус: `in_progress` — `ET-10.2a..c` completed; `ET-10.2d` implemented_unverified pending terminal live browser evidence.
+Статус: `completed` (`validated locally`, 2026-09-15) — `ET-10.2a..d` terminal gates passed.
 
-- Status: in_progress
-- NEXT: ET-10.2
-- Blockers: ET-10.2d terminal three-identity browser evidence requires the
-  local secret-bearing run `ET-10.2-UA-04` below. Lower-level UI/backend/root
-  gates are green; no completion, GitHub pull or merge is claimed yet.
+- Status: completed
+- NEXT: completed; successor `ET-10.3` requires high reasoning for its
+  architecture entry contract.
+- Blockers: none for ET-10.2; the separate legacy ET-09.4b one-shot prompt
+  cleanup remains blocked by missing `.codex/dev-project.toml` / DEV bridge.
 - **User action `ET-10.2-UA-01`: `DONE`** — main reasoning was switched to high
   and continuation supplied; the architecture entry gate is closed.
 - **Checkpoint / evidence:** `ET-10.2a` approved
@@ -718,7 +718,7 @@ Ordered slices:
   5 phase-dependent skipped`, exit `0`; `pnpm test` — `142 passed`, exit `0`;
   `pnpm check`, `pnpm lint` and build/audits — exit `0`. Read-only Compose
   status after the failed live run showed no running services; data preserved.
-  Live Access phase remains red until an explicit new run exits `0`.
+  This first live Access failure was superseded by the terminal rerun below.
 - **ET-10.2d environment retry evidence:** the next manual authenticated run
   passed locale/build/artifact audits (`18` localized routes, `99` files) but
   failed before Keycloak or Playwright at `backend e2e-dev` (exit `1`); runner
@@ -740,26 +740,29 @@ Ordered slices:
   container `OOMKilled=false` and no container error was recorded. This points
   to an engine-level interruption, but does not establish its underlying
   Windows/WSL cause. `pnpm backend:stop` exited `0` without `-v`; named data
-  volumes remain. No three-identity browser evidence was produced.
-- **User action `ET-10.2-UA-04`: `PENDING / terminal acceptance`** — in the
-  existing repository branch with real credentials present only in a local
-  shell, open Docker Desktop interactively in Windows and keep it running;
-  confirm `docker info --format '{{.ServerVersion}}'` exits `0` immediately
-  before rerunning `pnpm test:e2e:auth` using the
-  administrator password for the existing persisted local Keycloak (do not
-  create or send a replacement
-  password without a separate recovery decision); do not send, print or
-  persist any secret values. Provide only the safe phase counts, Access phase
-  result and `EXIT_CODE=0` (or the fixed `diagnostic=<code>` and nonzero exit
-  code, never raw child output). The runner must
-  execute its real `lesson-access` browser phase through Keycloak→API→
-  PostgreSQL with three distinct managed identities and stop local services
-  without deleting data. If cleanup does not complete, run `pnpm backend:stop`
-  after confirming Docker Engine is available and report its exit code. If
-  startup/cleanup fails again, report only whether the same `docker info`
-  check still exits `0`, the fixed diagnostic and shell exit code. This
-  evidence unlocks ET-10.2 completion,
-  canonical status sync and only then the requested GitHub pull/merge.
+  volumes remain. No three-identity browser evidence was produced in that run.
+- **ET-10.2d terminal evidence:** the subsequent manual `pnpm test:e2e:auth`
+  with real credentials only in the local shell passed locale/build/artifact
+  audits (`18` localized routes, `99` files) and all four real browser phases:
+  profiles `7 passed / 3 expected phase skips`, Booking `6 / 4`,
+  `lesson-access` `6 / 4`, identity-change `6 / 4`. The required three-identity
+  Access test was executed, not skipped; tutor and student entered, third
+  identity received masked denial, and cancellation revoked re-entry. Runner
+  reported successful API/PostgreSQL/Keycloak cleanup without volume deletion;
+  shell `EXIT_CODE=0`. Fresh closeout gates: `pnpm test` — `142 passed`,
+  `pnpm check`/`pnpm lint`/`pnpm build` — exit `0`; built audits `18` routes / `99`
+  files; `pnpm test:e2e` and `pnpm test:e2e:root` — each `86 passed / 5 expected
+  phase skips`, exit `0`; production smoke — `4 passed`, exit `0`;
+  `pnpm backend:test:fast` — `188 passed / 66 deselected`, exit `0`;
+  real PostgreSQL `pnpm backend:test:integration` — `66 passed / 188
+  deselected`, exit `0`; `pnpm backend:stop` — exit `0`, data volumes retained.
+  Audit issue/revoke, actor/correlation and rollback were checked by accepted
+  real-DB integration assertions. A separate read-only audit spot-check after
+  the integration suite found no remaining Booking/grant rows in the isolated
+  test DB; it is not claimed as independent PASS or production evidence.
+- **User action `ET-10.2-UA-04`: `DONE`** — local secret-bearing live browser
+  run completed with the required Access phase and terminal exit `0`; no
+  secret value was sent or stored as stage evidence.
 
 - **Goal / why now:** turn accepted booking policy into explicit, auditable
   lesson access without querying Stripe or trusting client state on every join.
@@ -800,13 +803,24 @@ Ordered slices:
 3. `ET-10.2c` private HTTP authorization check and live API→PostgreSQL evidence —
   `completed`.
 4. `ET-10.2d` RU/UK protected shell, exact third identity and terminal browser
-   acceptance — `implemented_unverified` pending `ET-10.2-UA-04`.
+   acceptance — `completed` (`ET-10.2-UA-04` passed).
 
-Whole stage remains non-terminal until `ET-10.2d` terminal acceptance.
+Whole stage completed with real Keycloak→API→PostgreSQL→browser evidence;
+production deployment, pull and merge are separate later operations.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `planned`.
+Статус: `blocked` — architecture entry requires high reasoning and approved
+LessonSession lifecycle/recovery contract; no implementation started.
+
+- Status: blocked
+- NEXT: ET-10.3
+- Blockers: main reasoning is currently medium; architecture contract for
+  LessonSession states, roles, transitions and recovery must be approved first.
+- **User action `ET-10.3-UA-01`: `PENDING / architecture entry`** — switch the
+  main task reasoning level to high and explicitly continue `ET-10.3`;
+  confirmation of high reasoning unlocks architecture/SPEC/ADR entry work,
+  not implementation before its contract is approved.
 
 - **Goal / why now:** establish central recoverable lesson runtime before media,
   whiteboard and timeline enrichments.

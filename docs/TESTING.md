@@ -121,17 +121,25 @@ production backend deployment evidence.
 Mocks and direct fixtures cannot replace the real PostgreSQL authorization
 negatives or the authenticated three-identity terminal path.
 
-Current ET-10.2d lower-level evidence: RU/UK protected-shell browser state
-tests, three-identity provisioner contract and root/browser suites pass. The
-new `lesson-access` phase in `pnpm test:e2e:auth` is the still-pending terminal
-browser gate; passing mocked/component E2E does not close the stage.
-The first manual run failed before the browser at `backend idp:e2e` with exit
-`1`; the child output was deliberately redacted, so its cause remains unknown.
-The safe retry diagnostic reports only fixed, allowlisted categories; never
-forward raw provisioner output or credentials as evidence.
-The subsequent live Access phase timed out after cancellation because
-same-document `#booking=` re-entry did not launch a second Access request.
-RU/UK browser component regression tests now verify a new exact request and
-immediate hiding of previous active content for valid, revoked and invalid
-hash re-entry. This lower-level PASS still requires a fresh live
-three-identity `pnpm test:e2e:auth` run to close ET-10.2.
+ET-10.2 terminal evidence: manual `pnpm test:e2e:auth` with credentials only in
+the local shell executed all four real phases: profiles `7 passed / 3 expected
+phase skips`, Booking `6 / 4`, `lesson-access` `6 / 4`, identity-change `6 / 4`.
+The required three-identity Access test was not skipped; both Booking
+participants entered the protected media-less shell, the unrelated identity
+received masked denial, and cancellation blocked a new entry. Build/audits
+passed (`18` localized routes, `99` files), runner stopped local services
+without deleting volumes, and shell `EXIT_CODE=0`. Prior first-provisioning,
+same-document hash re-entry and transient Docker Engine failures were resolved
+before this terminal rerun; child output and credentials were never used as
+evidence. Accepted RU/UK component states verify exact re-entry requests and
+immediate hiding of previous active content.
+
+Fresh closeout: `pnpm test` `142 passed`; `pnpm check`, `pnpm lint`, `pnpm build`
+exit `0`; `pnpm test:e2e` and `pnpm test:e2e:root` each `86 passed / 5 expected
+phase skips`; production smoke `4 passed`; backend fast `188 passed / 66
+deselected`; real PostgreSQL integration `66 passed / 188 deselected`; all
+exit `0`, followed by `pnpm backend:stop` exit `0`. Real-DB tests assert grant
+issue/revoke audit rows, actor/correlation and rollback on audit failure. A
+separate read-only post-integration audit spot-check found no remaining
+Booking/grant rows in the isolated test DB and is not claimed as independent
+PASS or production evidence.

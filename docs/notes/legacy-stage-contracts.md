@@ -1,3 +1,7 @@
+# Исторический каталог этапов active ET-10.3 track
+
+Старый `prompts/STAGES.md` сохранён ниже; SHA-256 source worktree `9a5d80449ebbc57c6fcd285260e9a9ae74f889ba9e6b711e859eb2d74788d5f1`. Его selected ET-10.3 facts сведены в новый `docs/STAGES.md`; остальные records остаются историческим контрактом, Git parent — rollback.
+
 - Stage ID: ET-10.3
 
 # Поэтапный запуск Electro Tutor

@@ -875,3 +875,7 @@ product API или миграционной истории. ET-10.3 остаёт
 drift); отключение или игнорирование Alembic result; только Core metadata
 без PostgreSQL catalog contract; runtime reflection из второй baseline DB
 при каждой проверке (лишний DB lifecycle и concurrency surface).
+
+## ADR-029 — Канонический owner локального execution state
+
+Статус: принято 2026-09-15 по прямому правилу пользователя. Selected ET-10.3 plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`; старый catalog/AI pair сохраняются через SHA/facts в `docs/notes/` и Git parent. Protected dev DB recovery остаётся отдельным data-preserving decision gate.

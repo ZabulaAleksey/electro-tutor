@@ -1,0 +1,6 @@
+# Сохранённые факты прежнего AI pair active ET-10.3
+
+- `docs/AI_PLAN.md` SHA-256 source worktree `3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec`; исходник recoverable из Git parent.
+- `docs/AI_STATUS.md` SHA-256 source worktree `5dedfb95c42d1c6074bfa536c18678232881697a152e66610ad7ce2b03df4c94`; исходник recoverable из Git parent.
+
+Active local branch `feature/et-10-3-lesson-session` at `1722d16` clean, содержит ET-09.4/ET-10.1/ET-10.2 и ET-10.3 checkpoints, опережает GitHub main. Старый AI_PLAN всё ещё описывает ET-09.3 BLOCKED, что противоречит выбранному ET-10.3; не является вторым active owner. ET-10.3 код/approved `specs/features/lesson-sessions.spec.md` v1/ADR-027 и ADR-028 независимые schema/catalog gates уже реализованы, Stage `implemented_unverified`: существующая dev DB revision 0012 имеет 10 missing, 3 changed, 9 unexpected functions и 1 missing CHECK; read-only row check нашёл 2 accounts; reset/repair запрещён до data-preserving решения и rollback. Существующие frontend/fast/integration checks и scratch DB negative tests исторически прошли; live authenticated Session browser и manual RU/UK gates не закрыты. Network-bound pnpm audit ранее отклонён auto-review, прямого bypass не было. GitHub Pages/CI и ранние Tutor evidence остаются в Git parent, production backend deployment не заявлен.

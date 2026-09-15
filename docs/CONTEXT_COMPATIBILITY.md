@@ -14,7 +14,7 @@
 | Hooks | workspace/global | специальный hook не нужен | `INHERITED` | новых hooks нет |
 | MCP/apps | доступны из активной конфигурации | только по фактической интеграции | `INHERITED` | локальные MCP не добавлять |
 | Codex config | глобальная конфигурация | проектных параметров нет | `INHERITED` | второй config не создавать |
-| Маршрут одной команды | `prompts/STAGES.md` и router в `AGENTS.md` | выбрать и выполнить один dependency-valid stage | `PROJECT_ONLY` | один локальный stage source без alias/remote dependency |
+| Маршрут одной команды | `docs/STAGES.md` и router в `AGENTS.md` | выбрать и выполнить один dependency-valid stage | `PROJECT_ONLY` | один локальный stage source без alias/remote dependency |
 
 ## TUTOR-00 — brownfield reconciliation
 
@@ -47,3 +47,7 @@ Read-only `reconcile_project_framework.py` классифицировал reposi
 Проект хранит только собственную delta: SPEC, архитектуру, решения, дизайн,
 безопасность, состояние, roadmap и stage protocol. Новые hooks, MCP, config,
 Skill или subagent не добавлены: подтверждённого пробела для них нет.
+
+## Brownfield active ET-10.3 STAGES reconciliation 2026-09-15
+
+Old prompt stage catalog and AI pair — MERGE; `docs/STAGES.md` — ADD. Selected local ET-10.3 implemented_unverified with protected dev DB (2 accounts, drift); remote ET-09.4 snapshot must not overwrite this state. Product code/tests/locks/DB/upstream assets — FORBIDDEN_TO_OVERWRITE. Source SHA/facts in `docs/notes/` and Git parent rollback.

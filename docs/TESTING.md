@@ -180,4 +180,4 @@ and CHECK drift. Thus repository-wide `backend:check` is not terminal PASS.
 but exited 1 at the sandbox-rejected outbound dependency audit; no audit PASS
 is claimed for this rerun. Live authenticated Session and manual acceptance
 remain NOT RUN. Detailed evidence and user actions are in selected
-`../prompts/STAGES.md`.
+`STAGES.md`.

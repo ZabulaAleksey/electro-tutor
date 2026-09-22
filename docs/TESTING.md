@@ -119,6 +119,60 @@
   orchestration; использовать его как есть означало бы затронуть source или
   MathMorph. Решение по девяти функциям — `ET-10.3-UA-12` в `docs/STAGES.md`.
 
+### ET-10.3-FUNCTION-DRIFT-DECISION — clone-only continuation
+
+- Before: catalog `drift` — 10 missing expected, 3 changed expected, 9
+  unexpected public functions; Alembic revision `20260915_0012`, accounts 2,
+  booking_operations 0. Все 9 точных `public` signatures перечислены выше.
+  Protected full inventory `legacy-before.json` (definitions, exact signatures,
+  owner, raw ACL, expanded grants, comments, config and tracked dependents):
+  33,080 bytes, SHA-256
+  `db208bac294e7e7be59793af5a4742a99fe4b5d69931c1d13c7836eec20829d0`.
+  Filesystem ACL ограничен owner/SYSTEM/Administrators; SQL bodies и PII не
+  опубликованы в repository.
+- Clone `electro-tutor-et103-clone-20260922` на `127.0.0.1:55433`:
+  транзакционно перенесены ровно эти 9 signatures в
+  `et103_legacy_archive_20260922`. Schema owner `electro_tutor_migrator`, ACL
+  только `{electro_tutor_migrator=UC/electro_tutor_migrator}`; function DROP не
+  выполнялся. Первый обратный `SET SCHEMA public` для всех 9 прошёл; full
+  `legacy-after-rollback.json` побайтово равен before (те же 33,080 bytes и
+  SHA-256). Следовательно definitions, owner, ACL/grants, comments и signatures
+  восстановлены точно. Отсутствие tracked PostgreSQL dependencies не доказывает
+  отсутствие внешних callers.
+- После второго переноса 9 функций catalog показывал 10 missing, 3 changed,
+  `unexpected_count=0`. Изолированная пустая
+  `electro_tutor_catalog_baseline` создана только внутри clone и успешно
+  мигрирована штатным Alembic до `20260915_0012`; запрещённое config guard
+  произвольное имя `et103_migration_reference_20260922` оставлено пустым и не
+  использовалось. До изменения существующих canonical functions сохранён
+  `changed-canonical-before.json` (3 definitions/owner/ACL/comments): 11,638
+  bytes, SHA-256
+  `9e57ab20e8301cf460be52d27b48d3bf600e91f899167df37ce556a948890354`.
+- New blocker: у существующей `public.read_booking_operation(uuid)` return
+  table заканчивается `result_version integer, completed_at timestamptz`, а
+  canonical migration baseline содержит дополнительный
+  `result_payload jsonb` перед `completed_at`. Совместимые return types у
+  существующих `accept_booking` и `cancel_booking` подтверждены, но для
+  `read_booking_operation` PostgreSQL `CREATE OR REPLACE` не может изменить
+  return type. Потребовался бы отдельный перенос/удаление десятой функции;
+  такое действие не входит в утверждённый список девяти. Canonical repair SQL
+  не применялся, функция не DROP и не перемещалась. Это новый human checkpoint
+  `ET-10.3-UA-13`.
+- Fail-closed rollback: все 9 повторно возвращены в `public`; финальный
+  `legacy-after-abort.json` снова побайтово совпадает с before и reverse
+  inventory (SHA-256 выше). Archive schema сохранена закрытой и пустой.
+  Final catalog `drift`: 10 missing, 3 changed, 9 unexpected; clone
+  `alembic check` PASS (`No new upgrade operations detected`), accounts 2,
+  booking_operations 0, revision `20260915_0012`. Full `backend:check`,
+  ET-10.3 integration/security и live Keycloak/API/browser не запускались:
+  catalog prerequisite не восстановлен.
+- Protected evidence directory outside Git:
+  `ET-10.3-20260922T204420Z-function-rehearsal` (четыре JSON inventories).
+  Original backup по-прежнему 99,788,800 bytes и SHA-256
+  `aa5d1fa75a53d94f09181347b3c70e627abefbb53d99f85bbe0265e7a78f8bc1`;
+  read-only `tar --compare` подтвердил byte-equal original volume после
+  function rehearsal. MathMorph не изменён и остаётся на `55432`.
+
 ## ET-10.1 completed evidence
 
 Completed `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`

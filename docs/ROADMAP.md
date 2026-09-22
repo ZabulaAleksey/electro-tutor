@@ -354,8 +354,10 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   pass, but the data-bearing local dev DB has genuine function/CHECK drift;
   data-preserving recovery decision approved 2026-09-22: protected backup and
   isolated clone verified, missing column/CHECK repaired only on clone with
-  Alembic PASS. Nine legacy function overloads require the selected
-  `ET-10.3-FUNCTION-DRIFT-DECISION` before clone catalog parity. Repository-wide
+  Alembic PASS. Nine legacy function overloads passed clone-only archive and
+  exact reverse rehearsal; canonical repair stopped on incompatible return
+  type of tenth `read_booking_operation(uuid)` function. New checkpoint
+  `ET-10.3-RETURN-CONTRACT-DECISION` precedes clone catalog parity. Repository-wide
   `backend:check` and outbound audit remain red. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.

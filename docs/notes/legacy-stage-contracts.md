@@ -1,5 +1,10 @@
 # Исторический каталог этапов active ET-10.3 track
 
+Примечание к неизменяемому snapshot: ссылка на Jitsi `ADR-024` в retained
+`ET-RTC-001` соответствует `ADR-030`; номер исправлен в canonical
+`docs/DECISIONS.md` 2026-09-22 из-за collision с session-bound `ADR-024`, а
+исторический текст ниже сохранён verbatim.
+
 Старый `prompts/STAGES.md` сохранён ниже; SHA-256 source worktree `9a5d80449ebbc57c6fcd285260e9a9ae74f889ba9e6b711e859eb2d74788d5f1`. Его selected ET-10.3 facts сведены в новый `docs/STAGES.md`; остальные records остаются историческим контрактом, Git parent — rollback.
 
 - Stage ID: ET-10.3

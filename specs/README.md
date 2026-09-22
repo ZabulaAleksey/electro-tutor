@@ -4,6 +4,15 @@
 исполнения фиксируется в выбранном record `../docs/STAGES.md`, а порядок
 работ — в `../docs/ROADMAP.md`.
 
+Текущий requirement scope — объединение `system.spec.md` и всех feature-SPEC со
+статусом `Действует` или `Утверждённый contract` ниже. Machine-readable ledger
+`../docs/requirements-ledger.json` дополнительно учитывает stable IDs из mixed
+architecture baseline и классифицирует каждый как уже реализованный architecture
+baseline либо non-binding future backlog. Все они входят в full-corpus coverage
+denominator, но только binding SPEC создаёт обязательство текущего runtime/stage. Feature-SPEC имеет
+приоритет только для своего явно ограниченного slice; historical stage claim не
+заменяет evidence.
+
 | SPEC | Статус | Назначение |
 |---|---|---|
 | `system.spec.md` | Действует | Границы и требования платформы «Потенциал» |
@@ -18,7 +27,7 @@
 | `features/payments-and-booking.spec.md` | Действует для `FREE`/`EXTERNAL`; `PLATFORM` blocked | Утверждённый `ET-10.1` TutorOffer/Booking snapshot contract и отдельно отложенный hosted-payment path |
 | `features/lesson-access-grants.spec.md` | Действует для `ET-10.2`; `PLATFORM` source deferred | Утверждённый time-bounded LessonAccessGrant, atomic Booking issue/revoke, participant authorization и protected media-less shell |
 | `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; local DB/HTTP/frontend прошли, drift/live/manual gates открыты | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
-| `features/ai-native-tutoring-platform.spec.md` | Черновик будущего track | Инварианты и границы развития к AI-native tutoring platform; каждый implementation stage требует уточнённой feature-SPEC |
+| `features/ai-native-tutoring-platform.spec.md` | Действующий mixed architecture baseline | Реализованные architecture IDs и non-binding future backlog классифицируются per-ID; каждый новый runtime implementation stage требует утверждённой feature-SPEC |
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,
 затем архитектуру/план и только после этого код и тесты.

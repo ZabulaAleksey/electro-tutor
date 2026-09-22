@@ -1,8 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
 const canonicalStagePath = "docs/STAGES.md";
+const canonicalDecisionsPath = "docs/DECISIONS.md";
+const requirementLedgerPath = "docs/requirements-ledger.json";
 const activeConsumers = [
   "AGENTS.md",
   "README.md",
@@ -51,6 +53,233 @@ for (const path of activeRoutingConsumers) {
   if (/\bAI_(?:PLAN|STATUS)(?:\.md)?\b/.test(content)) {
     fail(`${path} references a detached legacy routing source`);
   }
+}
+
+const decisionIds = [
+  ...read(canonicalDecisionsPath).matchAll(/^## (ADR-[0-9]{3})\b/gm),
+].map((match) => match[1]);
+const duplicateDecisionIds = decisionIds.filter(
+  (id, index) => decisionIds.indexOf(id) !== index,
+);
+if (duplicateDecisionIds.length > 0) {
+  fail(`${canonicalDecisionsPath} contains duplicate decision IDs: ${[
+    ...new Set(duplicateDecisionIds),
+  ].join(", ")}`);
+}
+
+let requirementLedger;
+try {
+  requirementLedger = JSON.parse(read(requirementLedgerPath));
+} catch (error) {
+  fail(`${requirementLedgerPath} is not valid JSON: ${error.message}`);
+}
+const allowedLedgerStatuses = new Set([
+  "VERIFIED",
+  "IMPLEMENTED",
+  "PARTIAL",
+  "PLANNED",
+  "BLOCKED",
+  "UNAVAILABLE",
+]);
+const ledgerArrayFields = ["requirement_ids", "code", "unit", "integration", "e2e"];
+const ledgerTextFields = [
+  "domain",
+  "runtime",
+  "security",
+  "a11y",
+  "observability",
+  "gap",
+  "action",
+];
+const requirementIdPrefixes = [
+  "ET10.2-AC",
+  "ET10.3-AC",
+  "AC-ET091",
+  "AC-ET092",
+  "ACCESS-SEC",
+  "PCA-PROFILE",
+  "PCA-GRANT",
+  "PCA-AUDIT",
+  "PCA-ID",
+  "FR-CTX",
+  "NFR-CTX",
+  "AC-CTX",
+  "AC-RTC",
+  "AC-QG",
+  "LP-FR",
+  "LP-NFR",
+  "LP-AC",
+  "CDS-FR",
+  "CDS-NFR",
+  "CDS-AC",
+  "L10N",
+  "BASE",
+  "AUTHZ",
+  "ACCESS",
+  "SESSION",
+  "PAYOUT",
+  "NOTIF",
+  "BOARD",
+  "BOOK",
+  "PLAT",
+  "AUTH",
+  "TIME",
+  "CHAT",
+  "REC",
+  "PAY",
+  "AI",
+  "INT",
+  "OPS",
+  "DB",
+  "RTC",
+  "QG",
+  "NFR",
+  "FR",
+  "AC",
+];
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const requirementTokenPattern = new RegExp(
+  `\\b(${requirementIdPrefixes.map(escapeRegExp).join("|")})-`
+  + "([0-9]{2,3}|[A-Z])([a-z]?)(?:\\.\\.([0-9]{2,3}|[A-Z])([a-z]?))?\\b",
+  "g",
+);
+const specFiles = readdirSync(resolve(root, "specs"), {
+  recursive: true,
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isFile() && entry.name.endsWith(".spec.md"))
+  .map((entry) => resolve(entry.parentPath, entry.name));
+const specRequirementIds = new Set();
+for (const specFile of specFiles) {
+  const addRequirementId = (requirementId) => {
+    specRequirementIds.add(requirementId);
+  };
+  for (const match of readFileSync(specFile, "utf8").matchAll(requirementTokenPattern)) {
+    const [, prefix, first, firstSuffix, last] = match;
+    if (!last) {
+      addRequirementId(`${prefix}-${first}${firstSuffix}`);
+      continue;
+    }
+    if (/^\d+$/.test(first) && /^\d+$/.test(last)) {
+      for (let value = Number(first); value <= Number(last); value += 1) {
+        addRequirementId(`${prefix}-${String(value).padStart(first.length, "0")}`);
+      }
+      continue;
+    }
+    if (/^[A-Z]$/.test(first) && /^[A-Z]$/.test(last)) {
+      for (let value = first.charCodeAt(0); value <= last.charCodeAt(0); value += 1) {
+        addRequirementId(`${prefix}-${String.fromCharCode(value)}`);
+      }
+    }
+  }
+}
+if (
+  requirementLedger?.schema_version !== 1
+  || !Array.isArray(requirementLedger.rows)
+  || requirementLedger.rows.length === 0
+  || requirementLedger.coverage_scope?.denominator !== "all_stable_requirements"
+  || !Array.isArray(requirementLedger.coverage_scope?.binding_spec_files)
+  || !Array.isArray(requirementLedger.coverage_scope?.mixed_spec_files)
+  || !Array.isArray(requirementLedger.coverage_scope?.backlog_spec_files)
+  || !Array.isArray(requirementLedger.coverage_scope?.architecture_baseline_requirement_ids)
+  || !Array.isArray(requirementLedger.coverage_scope?.future_backlog_requirement_ids)
+) {
+  fail(`${requirementLedgerPath} must contain non-empty schema v1 rows and classified coverage scope`);
+}
+const classifiedSpecFiles = new Set([
+  ...requirementLedger.coverage_scope.binding_spec_files,
+  ...requirementLedger.coverage_scope.mixed_spec_files,
+  ...requirementLedger.coverage_scope.backlog_spec_files,
+]);
+const relativeSpecFiles = specFiles
+  .map((specFile) => specFile.slice(root.length + 1).replaceAll("\\", "/"))
+  .sort();
+const allClassifiedSpecFiles = [
+  ...requirementLedger.coverage_scope.binding_spec_files,
+  ...requirementLedger.coverage_scope.mixed_spec_files,
+  ...requirementLedger.coverage_scope.backlog_spec_files,
+];
+const duplicateClassifiedSpecFiles = allClassifiedSpecFiles
+  .filter((specFile, index) => allClassifiedSpecFiles.indexOf(specFile) !== index);
+if (
+  duplicateClassifiedSpecFiles.length > 0
+  || relativeSpecFiles.some((specFile) => !classifiedSpecFiles.has(specFile))
+  || [...classifiedSpecFiles].some((specFile) => !relativeSpecFiles.includes(specFile))
+) {
+  fail(`${requirementLedgerPath} must classify every SPEC exactly once as binding, mixed or backlog`);
+}
+const seenRequirementIds = new Set();
+const requirementStatusById = new Map();
+for (const [index, row] of requirementLedger.rows.entries()) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) {
+    fail(`${requirementLedgerPath} row ${index} must be an object`);
+  }
+  if (!allowedLedgerStatuses.has(row.status)) {
+    fail(`${requirementLedgerPath} row ${index} has unsupported status ${row.status}`);
+  }
+  for (const field of ledgerArrayFields) {
+    if (!Array.isArray(row[field]) || (field === "requirement_ids" && row[field].length === 0)) {
+      fail(`${requirementLedgerPath} row ${index} field ${field} must be an array`);
+    }
+  }
+  for (const field of ledgerTextFields) {
+    if (typeof row[field] !== "string" || row[field].trim() === "") {
+      fail(`${requirementLedgerPath} row ${index} field ${field} must be non-empty text`);
+    }
+  }
+  if (
+    row.status === "VERIFIED"
+    && ["code", "unit", "integration", "e2e"].some((field) => row[field].length === 0)
+  ) {
+    fail(`${requirementLedgerPath} row ${index} is VERIFIED without code/unit/integration/e2e evidence`);
+  }
+  for (const requirementId of row.requirement_ids) {
+    if (typeof requirementId !== "string" || !/^[A-Z][A-Za-z0-9.-]*$/.test(requirementId)) {
+      fail(`${requirementLedgerPath} row ${index} has invalid requirement ID ${requirementId}`);
+    }
+    if (seenRequirementIds.has(requirementId)) {
+      fail(`${requirementLedgerPath} repeats requirement ID ${requirementId}`);
+    }
+    seenRequirementIds.add(requirementId);
+    requirementStatusById.set(requirementId, row.status);
+  }
+}
+const missingRequirementIds = [...specRequirementIds]
+  .filter((requirementId) => !seenRequirementIds.has(requirementId))
+  .sort();
+const unknownRequirementIds = [...seenRequirementIds]
+  .filter((requirementId) => !specRequirementIds.has(requirementId))
+  .sort();
+if (missingRequirementIds.length > 0 || unknownRequirementIds.length > 0) {
+  fail(
+    `${requirementLedgerPath} does not match the SPEC corpus; missing: ${missingRequirementIds.join(", ") || "none"}; unknown: ${unknownRequirementIds.join(", ") || "none"}`,
+  );
+}
+const architectureBaselineRequirementIds = new Set(
+  requirementLedger.coverage_scope.architecture_baseline_requirement_ids,
+);
+const futureBacklogRequirementIds = new Set(
+  requirementLedger.coverage_scope.future_backlog_requirement_ids,
+);
+const duplicatedMixedRequirementIds = [...architectureBaselineRequirementIds]
+  .filter((requirementId) => futureBacklogRequirementIds.has(requirementId));
+const invalidMixedRequirementIds = [
+  ...architectureBaselineRequirementIds,
+  ...futureBacklogRequirementIds,
+].filter((requirementId) => !specRequirementIds.has(requirementId));
+if (
+  duplicatedMixedRequirementIds.length > 0
+  || invalidMixedRequirementIds.length > 0
+) {
+  fail(
+    `${requirementLedgerPath} has invalid per-ID scope classification; duplicated: ${duplicatedMixedRequirementIds.join(", ") || "none"}; invalid: ${invalidMixedRequirementIds.join(", ") || "none"}`,
+  );
+}
+const allowedFutureBacklogStatuses = new Set(["PLANNED", "BLOCKED", "UNAVAILABLE"]);
+const promotedFutureBacklogIds = [...futureBacklogRequirementIds]
+  .filter((requirementId) => !allowedFutureBacklogStatuses.has(requirementStatusById.get(requirementId)));
+if (promotedFutureBacklogIds.length > 0) {
+  fail(`${requirementLedgerPath} promotes future backlog IDs without a binding SPEC: ${promotedFutureBacklogIds.join(", ")}`);
 }
 
 const stages = read(canonicalStagePath);

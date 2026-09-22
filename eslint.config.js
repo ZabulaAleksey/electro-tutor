@@ -14,6 +14,7 @@ export default defineConfig(
       'node_modules/**',
       'playwright-report/**',
       'test-results/**',
+      'worktrees/**',
       '**/.venv/**',
       '**/.pytest_cache/**',
       '**/.ruff_cache/**',

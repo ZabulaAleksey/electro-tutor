@@ -3,11 +3,16 @@
 Здесь фиксируются только существенные технические и продуктовые решения. Новое
 решение дополняет журнал; исторические записи не переписываются задним числом.
 
-## ADR-024 — Jitsi локализован за system-owned meeting port
+## ADR-030 — Jitsi локализован за system-owned meeting port
 
 Дата: 2026-09-13
 
 Статус: принято
+
+Коррекция идентификатора от 2026-09-22: исходный heading этой записи использовал
+`ADR-024` и конфликтовал с более поздним принятым `ADR-024` про session-bound DB
+principal. Исторические ссылки на Jitsi `ADR-024` в immutable stage snapshot означают
+эту запись `ADR-030`; содержание и дата решения не менялись.
 
 Решение: сохранить публичный Jitsi как MVP implementation из ADR-004, но вынести его SDK/script,
 domain, options и command translation из React UI в один adapter. `Classroom.tsx` потребляет только

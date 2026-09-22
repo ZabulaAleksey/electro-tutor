@@ -1,5 +1,31 @@
 # Учебный журнал
 
+## 2026-09-22 — Registered worktree вышел за границу canonical validation
+
+- Problem: root validation commands рекурсивно читали отдельный registered Git
+  worktree, размещённый под `worktrees/` внутри project root.
+- Symptom: `pnpm test` импортировал вторую копию Playwright suites как Vitest и
+  дал 13 ложных failures; `astro check` обработал nested `dist` и вырос с 98 до
+  208 files с мегабайтами diagnostics.
+- Root cause: local `.git/info/exclude` скрывал worktree только от Git status;
+  Vitest, ESLint и TypeScript/Astro discovery не наследуют этот ignore contract.
+- Failed attempts: первый baseline был ошибочно запущен параллельно и вызвал
+  конкурентную materialization общего `node_modules`; процессы остановлены,
+  затем выполнен один serial frozen restore. Source и lockfile не менялись.
+- Fix: `worktrees/**` исключён в `vitest.config.ts` и `eslint.config.js`, а
+  `worktrees` — в `tsconfig.json`; canonical tests и source paths не исключались.
+- Verification: `pnpm install --frozen-lockfile` PASS из shared store без
+  downloads; `pnpm test` 156 PASS; `pnpm lint` PASS; `pnpm check` 98 files,
+  0 errors/warnings/hints; `pnpm build` 19 pages и три artifact audits PASS;
+  `pnpm test:e2e:built` 92 PASS/5 expected auth skips. Environment caveat:
+  backend integration не стартовал, потому что unrelated MathMorph container
+  владеет fixed port `127.0.0.1:55432`.
+- Prevention: любой tool с recursive discovery должен иметь versioned ignore
+  boundary для project-local registered worktrees; Git ignore не считается
+  test/typecheck/lint boundary.
+- Links: `vitest.config.ts`, `eslint.config.js`, `tsconfig.json`,
+  `docs/STAGES.md` action `ET-10.3-UA-10`.
+
 ## 2026-08-31 — Clean CI выявляет скрытую зависимость от локального artifact
 
 ### Что проверено

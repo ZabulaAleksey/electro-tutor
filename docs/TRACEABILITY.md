@@ -3,6 +3,12 @@
 Этот файл связывает требования с architecture decisions, stages и evidence, но
 не заменяет SPEC и не является вторым status source.
 
+Machine-checkable full-scope projection находится в
+`requirements-ledger.json`; `pnpm check:context` проверяет его schema, допустимые
+statuses, обязательные evidence-поля, полное совпадение stable IDs со всем
+SPEC-корпусом, binding/architecture-baseline/future-backlog classification и
+отсутствие повторов.
+
 | Behavior ID | Канонический contract | Architecture / decision | Stage и required evidence | Состояние |
 |---|---|---|---|---|
 | `PLAT-001` | current/target map, выбранный walking-skeleton stack и executable DAG определены до кода | `ARCHITECTURE.md`, ADR-019 | `ET-09.1`: spec/link/context/overlay validators и semantic DAG review | contracted; validated locally |

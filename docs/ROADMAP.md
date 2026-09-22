@@ -355,9 +355,10 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   data-preserving recovery decision approved 2026-09-22: protected backup and
   isolated clone verified, missing column/CHECK repaired only on clone with
   Alembic PASS. Nine legacy function overloads passed clone-only archive and
-  exact reverse rehearsal; canonical repair stopped on incompatible return
-  type of tenth `read_booking_operation(uuid)` function. New checkpoint
-  `ET-10.3-RETURN-CONTRACT-DECISION` precedes clone catalog parity. Repository-wide
+  exact reverse rehearsal; UA-13 confirmed the tenth `read_booking_operation(uuid)`
+  is an active replay contract whose legacy body differs from canonical payload
+  and participant rehydration semantics. Fail-closed before tenth transfer or
+  repair; `ET-10.3-REPLAY-SEMANTICS-DECISION` precedes clone catalog parity. Repository-wide
   `backend:check` and outbound audit remain red. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.

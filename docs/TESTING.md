@@ -173,6 +173,76 @@
   read-only `tar --compare` подтвердил byte-equal original volume после
   function rehearsal. MathMorph не изменён и остаётся на `55432`.
 
+### ET-10.3-UA-13 — active replay contract, fail-closed before transfer
+
+- Clone ownership verified: `electro-tutor-et103-clone-20260922` mounted only
+  its own volume on `127.0.0.1:55433`; preserved container remained `Created`,
+  MathMorph stayed healthy on `55432`. Protected evidence directory outside Git:
+  `ET-10.3-UA-13-20260923T002526`, ACL owner/SYSTEM/Administrators only.
+  `functions-before.json` inventories all 10 exact signatures with complete
+  definitions, owners, raw/expanded ACL, comments, OUT arguments, volatility,
+  security settings and tracked dependency counts: SHA-256
+  `e03cdd1a5cbef1ad6c02e12221125715479316111a1b286f11d68ed6de5b62e5`.
+  Full `schema-before.sql` (schema-only `pg_dump` with owner/grants/comments):
+  152,937 bytes, SHA-256
+  `5f533d00ab3f003f8e76ac055cc756d2f0d7ef0d98c041341bca7e767064370b`.
+- Exact current `public.read_booking_operation(uuid)`: owner
+  `electro_tutor_migrator`; EXECUTE only for migrator/runtime; `LANGUAGE sql`,
+  `STABLE SECURITY DEFINER`, `search_path=pg_catalog`, no comment. Return has
+  8 OUT columns ending `result_version integer, completed_at timestamptz`.
+  Its protected definition SHA-256 is
+  `6bbe2da7f079892950e3ef5b820a5e3342494fc1670761df555bbb825ac78211`.
+  Migration-built canonical reference adds `result_payload jsonb` before
+  `completed_at` and LEFT JOINs TutorOffer/Booking to rehydrate participant IDs;
+  definition SHA-256
+  `4bf9db3efce71d225d317d917cacf8fda4af2d1a47c178dee92a773e904d2d55`.
+  Reference definition/attributes saved as `read-canonical-reference.json`.
+- PostgreSQL `pg_depend` graph: 0 tracked inbound, 1 outbound namespace edge
+  to `public`; `dependencies.json` SHA-256
+  `e7252b7dd5f82e1b10275e32948acb89f5bfdf34e33b52193cd6a87943575ae6`.
+  Clone user-defined SQL/PLpgSQL body scan found no literal target reference
+  or simple `EXECUTE`/`format(`/`quote_ident` marker; saved as
+  `db-callers.json`. First regex attempt exited 1 on an invalid pattern;
+  corrected literal scan exited 0. Neither catalog dependencies nor body search
+  proves absence of external/dynamically constructed callers.
+- Repository-wide tracked search found one active production call in
+  `services/api/src/electro_tutor_api/adapters/booking_repository.py`:
+  `_operation_from_row` requires `result_payload` for TutorOffer/Booking
+  idempotent replay; `application/bookings.py` invokes this replay path.
+  Dynamic transition-name construction targets an explicit different function
+  set. Migration `20260914_0010` (introduced by `ce650ea`) defines the
+  9-column canonical function and runtime grant; no tracked migration defines
+  the clone's 8-column variant. Booking SPEC and integration/HTTP tests require
+  exact historical retry. Therefore this function is an active runtime contract,
+  not catalog residue. `booking_operations=0` in clone does not remove future
+  replay incompatibility; `pg_stat_statements` is absent, so historical external
+  SQL callers cannot be established.
+- Fail-closed trigger: legacy function returns metadata only; canonical
+  function returns payload and participant rehydration. This is a data-semantic
+  difference for an existing consumer, explicitly requiring stop under UA-13.
+  The tenth function was **not moved**; none of the first nine was moved in
+  this continuation. No canonical repair or rollback mutation occurred. Archive
+  schema remains empty, public function count 45, accounts 2, operation rows 0,
+  revision `20260915_0012`. Redacted `db-catalog-diagnose` exited 1 with the
+  unchanged 10 missing / 3 changed / 9 unexpected function drift.
+- Evidence commands/results: `pg_isready`, ten-function inventory, schema-only
+  `pg_dump` and corrected dependency/caller scans exited 0; before/after
+  ten-function JSON SHA-256 matched exactly. Two `pg_dump` files differ only in
+  the generated `\restrict`/`\unrestrict` markers; after excluding these
+  two lines, both 2,472-line snapshots have SHA-256
+  `9e2b82794bd87e251279887b0bb3b5ff74100fed01582197a0b96d8664fb0279`.
+  Exact redacted command/SQL transcript with exit codes is protected beside
+  the inventories as `command-transcript.md`, SHA-256
+  `86d7b0e74c0e99166f968e4a1f3edb6044eee5ec0ed9a3b7ce4c84aad81019d3`.
+  Full `backend:check`, ET-10.3 integration/security, authenticated E2E and
+  post-repair catalog/Alembic gates were **NOT RUN**: repair prerequisite was
+  deliberately not met. This is not a successful repair/rollback rehearsal.
+- Preserved source volume again matched the original protected archive via
+  read-only `tar --compare` (exit 0); backup remains 99,788,800 bytes and
+  SHA-256 `aa5d1fa75a53d94f09181347b3c70e627abefbb53d99f85bbe0265e7a78f8bc1`.
+  Clone volume retained and its container stopped cleanly; MathMorph was not
+  stopped/reconfigured. New decision owner: `ET-10.3-UA-14` in `docs/STAGES.md`.
+
 ## ET-10.1 completed evidence
 
 Completed `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`

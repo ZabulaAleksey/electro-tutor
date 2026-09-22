@@ -243,6 +243,142 @@
   Clone volume retained and its container stopped cleanly; MathMorph was not
   stopped/reconfigured. New decision owner: `ET-10.3-UA-14` in `docs/STAGES.md`.
 
+### ET-10.3-UA-14 — replay contract decision, no catalog repair
+
+- Scope/environment: branch `feature/et-10-3-lesson-session`, starting HEAD
+  `2af236a`; only the saved clone container/volume on `127.0.0.1:55433` was
+  started. The preserved source container remained `Created`; MathMorph stayed
+  on `55432`. The runtime clone database `electro_tutor` was queried only in
+  read-only transactions; integration tests wrote only to its separate
+  disposable `electro_tutor_test` database. No function was moved or replaced.
+- Consumer inventory (`git grep` across tracked Python, SQL, tests, scripts,
+  E2E support, and docs): the sole direct runtime call is
+  `adapters/booking_repository.py:54-60`, `SELECT * FROM
+  public.read_booking_operation(CAST(:operation_id AS uuid))`, decoded at
+  `:406-424`. The decoder requires `result_payload` and builds a historical
+  `TutorOffer` or `Booking` with participant IDs. Indirect callers are
+  `_offer_replay` for create/revise/publish/retire, `_booking_replay` for
+  request/accept/decline/cancel, and `application/bookings.py` preflight,
+  request and reservation-conflict reconciliation. Missing operation returns
+  `None`; an existing same-actor/same-intent operation returns the persisted
+  result, while mismatched action/target/digest conflicts. HTTP, browser and
+  tests reach this path through the service, not direct SQL. Migration `0010`
+  is the only tracked function definition; no tracked script, maintenance
+  command, documented external SQL interface, or other stored SQL/PLpgSQL
+  caller was found. UA-13's `pg_depend`/body scan found no tracked inbound
+  dependency, but that does **not** establish absence of external/dynamic SQL
+  callers; `pg_stat_statements` is unavailable.
+
+  | Consumer | Call shape and required semantics |
+  |---|---|
+  | `booking_repository.py:54-60,406-424` | One UUID → zero/one mapping; requires all eight metadata fields plus `result_payload`, reconstructs participant IDs and historical domain result; zero rows → `None`. |
+  | `booking_repository.py:71,106,150,170-189` | Offer create/revise/publish/retire `_offer_replay` reads operation first; exact action/digest/target → persisted `TutorOffer`; different intent → conflict; missing → new mutation. |
+  | `booking_repository.py:209,272,295-315` | Booking request/transition `_booking_replay` similarly requires persisted `Booking` and its tutor/student IDs, including exact retry. |
+  | `application/bookings.py:88,228,380` | Request preflight, request retry and reservation-conflict reconciliation invoke `booking_operations.get`; missing result follows normal rejection/mutation path, exact replay uses original result. |
+  | `test_bookings_integration.py`, `test_booking_http_integration.py`, `tests/e2e/auth-flow.spec.ts` | Indirect service/HTTP/browser contract; none calls the SQL function directly. |
+- Provenance: `git log --all --follow` shows `0010` introduced in `ce650ea`
+  already with the nine-column function. `git log -S/-G`, migration file
+  history, reflog and unreachable-commit inspection found no eight-column
+  revision or tracked migration deletion/squash. Physical backup and UA-13
+  schema dumps prove only observed catalog state. Origin/author/time of the
+  clone eight-column body are **UNKNOWN**; out-of-band DDL is an inference,
+  not an established fact.
+- Semantic diff: both functions take one UUID, return the same seven leading
+  metadata fields and `completed_at`, are SQL `STABLE SECURITY DEFINER`,
+  owner `electro_tutor_migrator`, `search_path=pg_catalog`, with EXECUTE only
+  for migrator/runtime and no comment. Both filter operation UUID and
+  `actor_account_id=current_session_account_id()`; absent/foreign operation
+  yields no row and no function-specific exception. Clone returns eight
+  metadata-only columns with no JOIN. Canonical `0010` returns nine columns,
+  inserting `result_payload jsonb` before `completed_at`; it merges the
+  stored payload with current `tutor_offers`/`bookings` participant IDs via
+  `LEFT JOIN`. A missing target leaves joined IDs null, not an omitted row;
+  the adapter requires a decodable object/participant fields. These are
+  materially different replay semantics despite identical owner/ACL/security.
+  The current Python adapter cannot handle an existing operation on the
+  eight-column function: `_operation_from_row` indexes the missing key before
+  checking action/intent, producing `KeyError`; only absent-operation calls
+  avoid that decoder.
+- Test-first evidence: new
+  `test_booking_operation_contract_integration.py` asserts the ordered nine
+  fields, `result_payload jsonb` return type, absent operation, owner,
+  volatility, SECURITY DEFINER and `search_path`. Its second test creates an
+  operation in disposable DB, verifies the stored payload excludes participant
+  IDs, then verifies the function rehydrates the exact tutor/student IDs,
+  returns historical `REQUESTED` after target transition to `ACCEPTED`, and
+  returns no row to a foreign actor or for an absent UUID. Against
+  `electro_tutor` on clone the read-only projection test **FAILS** (exit 1):
+  index 7 is `completed_at`, not `result_payload`. Direct read-only
+  `SELECT result_payload FROM public.read_booking_operation(...)` likewise
+  fails `column does not exist`; absent-operation count is 0. Both new tests
+  on canonical disposable `electro_tutor_test` passed `2/2` (exit 0). An
+  earlier run of projection + existing historical replay integration passed
+  `2/2` (exit 0); existing two-account HTTP snapshot/authorization passed
+  `1/1` (exit 0), including exact booking retry. Ruff and mypy on the new
+  test passed. Final combined run of both new tests plus the historical
+  booking and two-account HTTP tests passed `4/4` (exit 0) on the disposable
+  database; the final clone-runtime projection probe still failed exactly at
+  missing `result_payload` (pytest exit 1, `1 failed / 1 deselected`).
+  A first test run failed only because PostgreSQL `provolatile` is delivered
+  as `bytes`; that assertion was corrected before the reported passing run.
+  One immediate test attempt after restarting PostgreSQL failed
+  `CannotConnectNowError` during startup; rerun after `pg_isready` passed.
+- Reproduction commands (connection passwords omitted): set
+  `ET_BOOKING_OPERATION_CONTRACT_URL=postgresql+asyncpg://<migrator>@127.0.0.1:55433/electro_tutor`,
+  then `python -m pytest services/api/tests/test_booking_operation_contract_integration.py -q -k matches_repository_projection --tb=short`
+  → expected exit 1, `1 failed / 1 deselected`. The test rejects any override
+  except the exact loopback clone host/port/database/migrator role. For the
+  positive path, set `ET_TEST_POSTGRES_PORT=55433` and the three existing
+  `ET_TEST_DATABASE_URL`, `ET_AUTH_DATABASE_URL`, `ET_MIGRATION_DATABASE_URL`
+  variables to their role-specific `electro_tutor_test` URLs; run
+  `python -m pytest services/api/tests/test_booking_operation_contract_integration.py -q`
+  → exit 0, `2 passed`. Additional exact nodes run with exit 0:
+  `test_bookings_integration.py::test_real_booking_snapshot_and_historical_idempotent_result`
+  and `test_booking_http_integration.py::test_booking_http_real_two_account_snapshot_and_authorization`.
+  The latter requires `ET_CONFIRM_MIGRATION_LIFECYCLE=electro-tutor-local`.
+  No test above targets preserved dev DB.
+- Compatibility decision: **CASE C / fail closed**. Exact canonical replacement
+  fixes the current adapter but PostgreSQL cannot `CREATE OR REPLACE` an
+  eight-column `RETURNS TABLE` with nine columns; archiving the old function
+  and creating the new one under the same signature changes `SELECT *` row
+  shape and may invalidate unknown SQL clients/prepared plans. Moving both
+  functions transactionally can be rolled back before commit; post-commit
+  reverse is a separate DDL deployment with caller exposure. A wrapper or
+  compatibility view cannot simultaneously return both shapes at the same
+  name and UUID signature. A versioned `read_booking_operation_v2(uuid)` plus
+  application-first switch can retain the old public function for unknown
+  callers, but needs a new approved migration/manifest contract and eventual
+  deprecation; app rollback to the eight-column path would still break
+  persisted replay. Coexistence deliberately leaves ADR-028 catalog parity
+  FAIL until a separately approved retirement/replacement of the original
+  signature. DB-first exact replacement risks legacy SQL callers;
+  application-first fallback cannot reconstruct an immutable persisted result
+  from metadata alone. Dual-compatible rollout is possible only with two
+  explicit names and coordinated app/DB deployment, not transparent for an
+  unknown one-argument SQL consumer. None is proven safe for existing external
+  callers, so no tenth-function transfer, canonical repair or catalog gate
+  rerun occurred. Prior catalog result remains FAIL: 10 missing / 3 changed /
+  9 unexpected. Full `backend:check`, ET-10.3 security suite and authenticated
+  live E2E were **NOT RUN** after repair because no repair occurred.
+- NEXT human checkpoint: choose an external-caller compatibility policy with
+  evidence (inventory of runtime-role SQL clients/logged calls or explicit
+  acceptance of their potential breakage), then approve an exact clone-only
+  versioned/dual-compatible or replacement rehearsal with pre/post inventory,
+  transactional reverse and full tests. This does not authorize any action on
+  the preserved dev DB.
+- Final safety check: `docker inspect` confirmed the saved clone mounts only
+  `electro-tutor-et103-clone-20260922` at `127.0.0.1:55433`; original
+  `electro-tutor-local-postgres-1` remained `Created`, MathMorph `api-postgres-1`
+  remained healthy on `127.0.0.1:55432`. After tests, only the clone was
+  stopped. Read-only `tar -C /source -dpf /backup/preserved-pgdata.tar` with
+  source volume and protected backup mounted read-only returned exit 0
+  (`source_unchanged=yes`); original backup remains 99,788,800 bytes, SHA-256
+  `aa5d1fa75a53d94f09181347b3c70e627abefbb53d99f85bbe0265e7a78f8bc1`.
+  Clone runtime DB still had accounts 2, booking operations 0, empty archive,
+  and the original eight-column signature. The clone volume itself changed
+  during PostgreSQL startup and disposable test-DB writes; no claim of
+  byte-equal clone volume is made.
+
 ## ET-10.1 completed evidence
 
 Completed `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`

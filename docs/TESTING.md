@@ -61,6 +61,64 @@
   Jitsi adapter; timeout/retry, bounded stale-session cleanup, display-name bounds и invite URL
   allowlist; structural guard запрещает vendor SDK/domain/commands в `Classroom.tsx`.
 
+## ET-10.3 isolated data-preserving recovery rehearsal — 2026-09-22
+
+- Source ownership: Docker labels связывают `electro-tutor-local-postgres` и
+  `electro-tutor-local-postgres-1` с `electro-tutor-local`/`compose.yaml`. Container
+  был только `created`; running writer volume не обнаружен. `pg_controldata`
+  показывал `in production`, то есть source остановился нештатно. MathMorph
+  продолжал работать на `127.0.0.1:55432` и не изменялся.
+- Backup до clone/repair: protected external artifact
+  `ET-10.3-20260922T202618Z/preserved-pgdata.tar`, 99,788,800 bytes, SHA-256
+  `aa5d1fa75a53d94f09181347b3c70e627abefbb53d99f85bbe0265e7a78f8bc1`.
+  Archive integrity, независимый host/container digest и ACL только для owner,
+  SYSTEM, Administrators проверены. Его восстановление в новый volume
+  `electro-tutor-et103-clone-20260922` прошло: PostgreSQL 17.6 завершил WAL
+  recovery (`redo done`, ready), прочитал Alembic `20260915_0012` и значимые
+  row counts. После всех действий source byte-for-byte совпал с archive по
+  `tar --compare`; source DB не запускалась и не менялась. Clone привязан только
+  к `127.0.0.1:55433`, после rehearsal container остановлен штатно и volume
+  сохранён.
+- Redacted inventory: 15 product tables + `alembic_version`, 45 public
+  functions. Rows: accounts 2; external_identities 2; student_profiles 2;
+  tutor_profiles 1; capability_grants 1; capability_grant_operations 1;
+  audit_events 2. В application_sessions, auth_transactions, tutor_offers,
+  bookings, booking_operations, lesson_access_grants, lesson_sessions и
+  lesson_session_operations — 0. Идентификаторы, emails, token values, SQL
+  function bodies и private payload не выводились.
+- Reproduced drift: начальный `alembic check` обнаружил отсутствующие
+  `booking_operations.result_payload` и
+  `ck_booking_operations_result_payload`; redacted catalog diagnose показал
+  1 missing CHECK, 10 missing expected functions, 3 changed expected
+  functions, 9 unexpected functions. Revision stamp `0012` сам по себе не
+  доказывает parity. Источник точного исторического изменения function bodies
+  не установлен; по сигнатурам это старые варианты Booking API, а не часть
+  текущего migration manifest.
+- Safe repair/rollback на clone: транзакционно добавлены ровно отсутствующие
+  JSONB NOT NULL column и CHECK из migration `0010`, внутри транзакции column
+  виден, после `ROLLBACK` снова отсутствует. Повторное добавление с `COMMIT`
+  прошло при `booking_operations=0`; `alembic check` теперь PASS (`No new upgrade
+  operations detected`). Catalog diagnose после этого показывает только
+  function drift: 10 missing, 3 changed, 9 unexpected.
+- Девять unexpected migrator-owned overloads, все без tracked inbound
+  PostgreSQL dependencies: `accept_booking(uuid,integer,uuid,text)`,
+  `cancel_booking(uuid,integer,uuid,text)`,
+  `create_tutor_offer(uuid,text,timestamptz,timestamptz,text,integer,text,bigint,text,smallint,uuid,text)`,
+  `decline_booking(uuid,integer,uuid,text)`,
+  `publish_tutor_offer(uuid,integer,uuid,text)`,
+  `request_booking(uuid,uuid,integer,text,uuid,text)`,
+  `reserve_booking_operation(uuid,uuid,text,text,uuid,text,integer)`,
+  `retire_tutor_offer(uuid,integer,uuid,text)`,
+  `revise_tutor_offer(uuid,integer,text,timestamptz,timestamptz,text,integer,text,bigint,text,smallint,uuid,text)`.
+  Нулевые tracked dependencies не исключают вызовы извне или из PL/pgSQL.
+- Fail-closed result: вывод этих функций из `public`/удаление и замена
+  canonical functions не выполнялись. Поэтому полный clone repair/rollback,
+  `backend:check`, ET-10.3 integration/security и live Keycloak/API/browser
+  gates не запускались и не засчитаны. Стандартный `backend:check` жёстко
+  использует `55432`, поэтому следующий запуск требует отдельной изоляции
+  orchestration; использовать его как есть означало бы затронуть source или
+  MathMorph. Решение по девяти функциям — `ET-10.3-UA-12` в `docs/STAGES.md`.
+
 ## ET-10.1 completed evidence
 
 Completed `ET-10.1d` non-secret evidence: root Vitest `134`, Astro check `86`

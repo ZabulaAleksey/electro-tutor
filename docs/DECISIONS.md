@@ -826,7 +826,14 @@ implementation entry, но не закрывает stage.
 
 Статус: **принято; independent schema/catalog tooling реализованы и проверены
 на disposable DB**. Existing data-bearing dev DB has genuine drift, поэтому
-repository-wide `backend:check` остаётся FAIL до recovery decision.
+repository-wide `backend:check` остаётся FAIL до recovery verification.
+
+Дополнение 2026-09-22: data-preserving recovery decision утверждён, физический
+backup восстановлен в отдельный clone с WAL recovery; исходный volume проверен
+побайтово и не изменён. Schema repair на clone и транзакционный rollback
+подтвердили Alembic parity, но девять legacy function overloads остаются вне
+manifest. Решение об их выводе из `public` — новый fail-closed checkpoint в
+выбранном `docs/STAGES.md`; подробное redacted evidence — `docs/TESTING.md`.
 
 Контекст: существующие `0001..0012` Alembic migrations создают 15 product
 tables и рукописные PostgreSQL functions, triggers, ACL и `CHECK` constraints.

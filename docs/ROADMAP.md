@@ -352,8 +352,11 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   approved, local Session/API/DB/RU-UK shell and non-secret tests passed.
   ADR-028 independent schema/catalog gate and scratch negative verification
   pass, but the data-bearing local dev DB has genuine function/CHECK drift;
-  repository-wide `backend:check` and outbound audit remain red pending
-  data-preserving recovery and explicit network approval. Live authenticated
+  data-preserving recovery decision approved 2026-09-22: protected backup and
+  isolated clone verified, missing column/CHECK repaired only on clone with
+  Alembic PASS. Nine legacy function overloads require the selected
+  `ET-10.3-FUNCTION-DRIFT-DECISION` before clone catalog parity. Repository-wide
+  `backend:check` and outbound audit remain red. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.
 

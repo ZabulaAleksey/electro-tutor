@@ -29,25 +29,38 @@ from electro_tutor_api.domain.booking import (
 )
 
 
+def _contract_target_url() -> str:
+    contract_url = os.getenv("ET_BOOKING_OPERATION_CONTRACT_URL")
+    if contract_url is None:
+        require_database()
+        return MIGRATION_URL
+    target = make_url(contract_url)
+    assert (
+        target.drivername == "postgresql+asyncpg"
+        and target.host == "127.0.0.1"
+        and target.port == 55433
+        and target.database == "electro_tutor"
+        and target.username == "electro_tutor_migrator"
+        and not target.query
+    ), "contract override must target only the ET-10.3 clone without query overrides"
+    return contract_url
+
+
+def test_contract_override_rejects_query_redirect(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(
+        "ET_BOOKING_OPERATION_CONTRACT_URL",
+        "postgresql+asyncpg://electro_tutor_migrator:x@"
+        "127.0.0.1:55433/electro_tutor?port=55432",
+    )
+    with pytest.raises(AssertionError, match="without query overrides"):
+        _contract_target_url()
+
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_read_booking_operation_matches_repository_projection() -> None:
     """The booking adapter decodes these named fields, including persisted payload."""
-    contract_url = os.getenv("ET_BOOKING_OPERATION_CONTRACT_URL")
-    if contract_url is None:
-        require_database()
-        target_url = MIGRATION_URL
-    else:
-        target = make_url(contract_url)
-        assert (
-            target.drivername == "postgresql+asyncpg"
-            and target.host == "127.0.0.1"
-            and target.port == 55433
-            and target.database == "electro_tutor"
-            and target.username == "electro_tutor_migrator"
-        ), "contract override must target only the ET-10.3 clone"
-        target_url = contract_url
-    engine = create_async_engine(target_url)
+    engine = create_async_engine(_contract_target_url())
     try:
         async with engine.connect() as connection:
             async with connection.begin():

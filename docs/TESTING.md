@@ -310,15 +310,16 @@
   `electro_tutor` on clone the read-only projection test **FAILS** (exit 1):
   index 7 is `completed_at`, not `result_payload`. Direct read-only
   `SELECT result_payload FROM public.read_booking_operation(...)` likewise
-  fails `column does not exist`; absent-operation count is 0. Both new tests
+  fails `column does not exist`; absent-operation count is 0. Both DB tests
   on canonical disposable `electro_tutor_test` passed `2/2` (exit 0). An
   earlier run of projection + existing historical replay integration passed
   `2/2` (exit 0); existing two-account HTTP snapshot/authorization passed
   `1/1` (exit 0), including exact booking retry. Ruff and mypy on the new
-  test passed. Final combined run of both new tests plus the historical
-  booking and two-account HTTP tests passed `4/4` (exit 0) on the disposable
-  database; the final clone-runtime projection probe still failed exactly at
-  missing `result_payload` (pytest exit 1, `1 failed / 1 deselected`).
+  test passed. Final combined run of three new tests (including an offline
+  URL query-redirection negative) plus the historical booking and two-account
+  HTTP tests passed `5/5` (exit 0): four against the disposable database and
+  one offline; the final clone-runtime projection probe still failed exactly at
+  missing `result_payload` (pytest exit 1, `1 failed / 2 deselected`).
   A first test run failed only because PostgreSQL `provolatile` is delivered
   as `bytes`; that assertion was corrected before the reported passing run.
   One immediate test attempt after restarting PostgreSQL failed
@@ -326,13 +327,16 @@
 - Reproduction commands (connection passwords omitted): set
   `ET_BOOKING_OPERATION_CONTRACT_URL=postgresql+asyncpg://<migrator>@127.0.0.1:55433/electro_tutor`,
   then `python -m pytest services/api/tests/test_booking_operation_contract_integration.py -q -k matches_repository_projection --tb=short`
-  → expected exit 1, `1 failed / 1 deselected`. The test rejects any override
-  except the exact loopback clone host/port/database/migrator role. For the
+  → expected exit 1, `1 failed / 2 deselected`. The test rejects any override
+  except the exact loopback clone host/port/database/migrator role, and rejects
+  all URL query parameters: asyncpg can otherwise redirect with `?port=55432`.
+  Offline `test_contract_override_rejects_query_redirect` passed (exit 0).
+  For the
   positive path, set `ET_TEST_POSTGRES_PORT=55433` and the three existing
   `ET_TEST_DATABASE_URL`, `ET_AUTH_DATABASE_URL`, `ET_MIGRATION_DATABASE_URL`
   variables to their role-specific `electro_tutor_test` URLs; run
   `python -m pytest services/api/tests/test_booking_operation_contract_integration.py -q`
-  → exit 0, `2 passed`. Additional exact nodes run with exit 0:
+  → exit 0, `3 passed`. Additional exact nodes run with exit 0:
   `test_bookings_integration.py::test_real_booking_snapshot_and_historical_idempotent_result`
   and `test_booking_http_integration.py::test_booking_http_real_two_account_snapshot_and_authorization`.
   The latter requires `ET_CONFIRM_MIGRATION_LIFECYCLE=electro-tutor-local`.

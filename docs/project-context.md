@@ -119,10 +119,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `FAIL` — scratch Alembic/catalog parity and 9 negatives PASS; 2026-09-22 protected source backup/clone WAL recovery and schema rollback/forward PASS, clone Alembic PASS. Nine legacy functions still block catalog parity; preserved dev DB unchanged; `ET-10.3-FUNCTION-DRIFT-DECISION` pending |
-| `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
+| `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 verified archive and restored a separate clone; exact clone forward/reverse restored full preflight catalog/function inventory, second forward passed catalog and Alembic head. Original volume stayed unattached; external-caller compatibility for original 8→9-column reader remains undecided. |
+| `BDX-GATE-08 Test feedback` | `FAIL` composite — direct backend unit 196 and real clone integration 73 PASS/1 port-guard skip; `backend:test:fast` stops at accepted test Ruff format. |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `FAIL` — Pages workflow calls the same mandatory gate; fresh-scratch parity PASS, isolated clone catalog remains FAIL. Full `backend:check` requires clone-only orchestration because fixed `55432` belongs to MathMorph; complete run and network audit PASS pending |
+| `BDX-GATE-10 CI parity` | `FAIL` — clone catalog/Alembic, direct live HTTP, frontend build/browser subgates passed; `backend:check` hardcodes Compose `55432` and is unsafe for preserved source, global lint scans ignored backup-venv, outbound audit and authenticated browser remain open. |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

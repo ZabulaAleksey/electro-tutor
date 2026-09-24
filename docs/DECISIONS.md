@@ -835,6 +835,13 @@ backup восстановлен в отдельный clone с WAL recovery; и�
 manifest. Решение об их выводе из `public` — новый fail-closed checkpoint в
 выбранном `docs/STAGES.md`; подробное redacted evidence — `docs/TESTING.md`.
 
+Дополнение 2026-09-24: проверенный архив восстановлен в новый disposable clone;
+clone-only forward/reverse дал canonical catalog/Alembic PASS и exact preflight
+restoration. Это подтверждает техническую обратимость на изолированной копии,
+но не принимает несовместимость для неизвестных external SQL callers
+восьмиколоночной функции на original DB. Terminal `backend:check` и live
+authenticated/manual gates остаются открытыми; детали — `docs/TESTING.md`.
+
 Контекст: существующие `0001..0012` Alembic migrations создают 15 product
 tables и рукописные PostgreSQL functions, triggers, ACL и `CHECK` constraints.
 Ранее `services/api/alembic/env.py` передавал пустой `target_metadata`, поэтому

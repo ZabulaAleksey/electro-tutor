@@ -180,5 +180,7 @@ from a separately freshly migrated disposable database pins PostgreSQL
 functions, triggers, `CHECK` expressions, indexes including partial
 predicates, and private-table ACL. `backend:check` rejects unexpected drift
 without changing live data. Scratch Alembic/catalog parity and 9 rollback
-negatives pass; the existing dev DB at head 0012 has catalog divergence and
-2 account rows, so data-preserving reconciliation/isolation remains open.
+negatives pass. UA-15 restored a fresh isolated clone and proved exact
+canonical catalog/Alembic forward and preflight-identical reverse; the
+original dev DB at head 0012 still has catalog divergence and 2 account
+rows. External-caller compatibility and original-DB reconciliation remain open.

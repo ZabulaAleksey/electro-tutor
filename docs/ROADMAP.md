@@ -348,25 +348,19 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
   phase passed; runner cleanup and shell exit `0`, without payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус:
-  `IMPLEMENTED_UNVERIFIED / NEXT`; lifecycle/recovery/expiry SPEC/ADR-027
-  approved, local Session/API/DB/RU-UK shell and non-secret tests passed.
-  ADR-028 independent schema/catalog gate and scratch negative verification
-  pass, but the data-bearing local dev DB has genuine function/CHECK drift;
-  data-preserving recovery decision approved 2026-09-22: protected backup and
-  isolated clone verified, missing column/CHECK repaired only on clone with
-  Alembic PASS. Nine legacy function overloads passed clone-only archive and
-  exact reverse rehearsal; UA-13 confirmed the tenth `read_booking_operation(uuid)`
-  is an active replay contract whose legacy body differs from canonical payload
-  and participant rehydration semantics. UA-14 read-only test reproduced the
-  mismatch; provenance and external SQL callers remain unknown. Fail-closed
-  before tenth transfer or repair. Fresh UA-15 preflight 2026-09-24 stopped:
-  the prior clone is absent from current Docker contexts and the protected
-  archive is inaccessible to the current Windows identity. Restoring a
-  verifiable isolated clone precedes the external-caller compatibility
-  decision and catalog parity. Repository-wide
-  `backend:check` and outbound audit remain red. Live authenticated
-  Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
-  dependency-ready.
+  `IMPLEMENTED_UNVERIFIED / NEXT`; Session v1/ADR-027 и ADR-028 tooling
+  реализованы. UA-15 независимо проверил protected archive, восстановил
+  disposable clone на `127.0.0.1:55433`, подтвердил fresh 10/3/9 function
+  drift и один CHECK, затем провёл clone-only canonical forward/reverse с
+  точным восстановлением исходного catalog/function inventory. Второй forward
+  дал catalog/Alembic PASS; real DB integration/security, direct HTTP smoke,
+  frontend build и built browser subgates прошли. Original data-bearing volume
+  не монтировался и не запускался. Внешние SQL callers восьмиколоночной
+  `read_booking_operation(uuid)` неизвестны; риск замены на original не принят.
+  Full `backend:check` ограничен fixed `55432`, composite fast gate падает на
+  форматировании принятого теста, общий lint — на сохранённом backup-venv.
+  Outbound audit, live authenticated Session E2E и manual RU/UK остаются
+  открытыми; ET-11.1 не dependency-ready.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

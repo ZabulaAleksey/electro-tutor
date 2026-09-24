@@ -1,5 +1,11 @@
 # Testing contract
 
+## ET-10.3 UA-15 preflight — 2026-09-24
+
+- Git: clean `feature/et-10-3-lesson-session`, HEAD `39fc307c`. Docker Engine 29.7.2 started; `docker ps -a`, `docker volume ls`, and both `desktop-linux`/`default` contexts show no `electro-tutor-et103-clone-20260922` container or volume.
+- Original `electro-tutor-local-postgres` volume exists and has no attached container; it was not started, mounted or modified. The prior protected archive directory exists, but its ACL denies the current Windows identity access to `preserved-pgdata.tar`, so fresh size/SHA-256/integrity verification cannot be claimed.
+- Per the prompt's fail-closed precondition, no clone catalog inventory, caller probe against DB, migration, reverse or terminal gates ran. Historical UA-13/UA-14 evidence below remains historical; it does not prove the current host has a protected clone. The precise recovery action is in `docs/STAGES.md` UA-15.
+
 - `pnpm backend:test:fast`: Ruff, strict mypy, unit/component tests без Docker.
 - `pnpm backend:test:integration`: real PostgreSQL `electro_tutor_test`,
   readiness, outage/drift redaction, upgrade→downgrade→upgrade и запрет DDL для

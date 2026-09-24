@@ -359,8 +359,11 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   is an active replay contract whose legacy body differs from canonical payload
   and participant rehydration semantics. UA-14 read-only test reproduced the
   mismatch; provenance and external SQL callers remain unknown. Fail-closed
-  before tenth transfer or repair; `ET-10.3-EXTERNAL-CALLER-COMPATIBILITY-DECISION`
-  precedes clone catalog parity. Repository-wide
+  before tenth transfer or repair. Fresh UA-15 preflight 2026-09-24 stopped:
+  the prior clone is absent from current Docker contexts and the protected
+  archive is inaccessible to the current Windows identity. Restoring a
+  verifiable isolated clone precedes the external-caller compatibility
+  decision and catalog parity. Repository-wide
   `backend:check` and outbound audit remain red. Live authenticated
   Session E2E and manual RU/UK acceptance remain pending; ET-11.1 is not
   dependency-ready.

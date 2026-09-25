@@ -16,6 +16,7 @@ export default defineConfig(
       'test-results/**',
       'worktrees/**',
       '**/.venv/**',
+      '**/.venv.broken-backup-*/**',
       '**/.pytest_cache/**',
       '**/.ruff_cache/**',
       '**/*.tsbuildinfo',

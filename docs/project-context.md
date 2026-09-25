@@ -119,10 +119,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 verified archive and restored a separate clone; exact clone forward/reverse restored full preflight catalog/function inventory, second forward passed catalog and Alembic head. Original volume stayed unattached; external-caller compatibility for original 8→9-column reader remains undecided. |
-| `BDX-GATE-08 Test feedback` | `FAIL` composite — direct backend unit 196 and real clone integration 73 PASS/1 port-guard skip; `backend:test:fast` stops at accepted test Ruff format. |
+| `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 clone-only forward/reverse restored exact catalog/function inventory and second forward passed catalog/Alembic. At UA-16 preflight original volume was already rw-mounted by a running container; this run did not use it. External-caller compatibility for the original 8→9-column reader remains unknown, so repair is forbidden. |
+| `BDX-GATE-08 Test feedback` | `PASS` for isolated tiers — composite `backend:test:fast` 196 PASS with Ruff format/lint and mypy; real clone PostgreSQL integration 74 PASS without skip. Full `backend:check` CI parity remains blocked under BDX-GATE-10. |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `FAIL` — clone catalog/Alembic, direct live HTTP, frontend build/browser subgates passed; `backend:check` hardcodes Compose `55432` and is unsafe for preserved source, global lint scans ignored backup-venv, outbound audit and authenticated browser remain open. |
+| `BDX-GATE-10 CI parity` | `FAIL` — isolated clone integration 74 and backend fast 196, global lint, npm audit and bounded RU/UK browser probe passed; full `backend:check` still targets original-bound Compose `55432` and is unsafe while the original volume is active. Authenticated Session browser/manual gates remain open. |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

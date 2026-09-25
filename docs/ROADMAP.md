@@ -349,18 +349,17 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   phase passed; runner cleanup and shell exit `0`, without payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус:
   `IMPLEMENTED_UNVERIFIED / NEXT`; Session v1/ADR-027 и ADR-028 tooling
-  реализованы. UA-15 независимо проверил protected archive, восстановил
-  disposable clone на `127.0.0.1:55433`, подтвердил fresh 10/3/9 function
-  drift и один CHECK, затем провёл clone-only canonical forward/reverse с
-  точным восстановлением исходного catalog/function inventory. Второй forward
-  дал catalog/Alembic PASS; real DB integration/security, direct HTTP smoke,
-  frontend build и built browser subgates прошли. Original data-bearing volume
-  не монтировался и не запускался. Внешние SQL callers восьмиколоночной
-  `read_booking_operation(uuid)` неизвестны; риск замены на original не принят.
-  Full `backend:check` ограничен fixed `55432`, composite fast gate падает на
-  форматировании принятого теста, общий lint — на сохранённом backup-venv.
-  Outbound audit, live authenticated Session E2E и manual RU/UK остаются
-  открытыми; ET-11.1 не dependency-ready.
+  реализованы. UA-15 clone-only migration forward/reverse, archive/catalog
+  parity и HTTP smoke сохраняют силу. UA-16 на disposable clone `55433`
+  закрыл 74 real PostgreSQL integration без skip и composite backend fast
+  (196 unit, Ruff/mypy); общий lint после узкого ignore backup-venv PASS.
+  npm audit exit 0 (3 moderate, 0 high); bounded built-static RU/UK
+  Chromium/localization и outbound probe PASS, ожидаемый Google Fonts origin.
+  Original volume агент не трогал; при preflight контейнер original уже был Up
+  и `rw` mounted на `55432`. Full `backend:check` на Compose `55432`, live
+  authenticated Session browser и manual RU/UK multi-tab/keyboard gate открыты.
+  Внешние SQL callers legacy `read_booking_operation(uuid)` неизвестны, поэтому
+  original DB replacement запрещён; ET-11.1 не dependency-ready.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

@@ -49,8 +49,7 @@ def _contract_target_url() -> str:
 def test_contract_override_rejects_query_redirect(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(
         "ET_BOOKING_OPERATION_CONTRACT_URL",
-        "postgresql+asyncpg://electro_tutor_migrator:x@"
-        "127.0.0.1:55433/electro_tutor?port=55432",
+        "postgresql+asyncpg://electro_tutor_migrator:x@127.0.0.1:55433/electro_tutor?port=55432",
     )
     with pytest.raises(AssertionError, match="without query overrides"):
         _contract_target_url()
@@ -67,8 +66,7 @@ async def test_read_booking_operation_matches_repository_projection() -> None:
                 await connection.execute(text("SET TRANSACTION READ ONLY"))
                 result = await connection.execute(
                     text(
-                        "SELECT * FROM public.read_booking_operation("
-                        "CAST(:operation_id AS uuid))"
+                        "SELECT * FROM public.read_booking_operation(CAST(:operation_id AS uuid))"
                     ),
                     {"operation_id": UUID(int=0)},
                 )
@@ -93,20 +91,23 @@ async def test_read_booking_operation_matches_repository_projection() -> None:
                 )
                 assert isinstance(return_contract, str)
                 assert (
-                    "result_version integer, result_payload jsonb, completed_at"
-                    in return_contract
+                    "result_version integer, result_payload jsonb, completed_at" in return_contract
                 )
 
                 attributes = (
-                    await connection.execute(
-                        text(
-                            "SELECT p.provolatile,p.prosecdef,p.proconfig,"
-                            "pg_get_userbyid(p.proowner) AS owner "
-                            "FROM pg_proc p WHERE p.oid = "
-                            "to_regprocedure('public.read_booking_operation(uuid)')"
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT p.provolatile,p.prosecdef,p.proconfig,"
+                                "pg_get_userbyid(p.proowner) AS owner "
+                                "FROM pg_proc p WHERE p.oid = "
+                                "to_regprocedure('public.read_booking_operation(uuid)')"
+                            )
                         )
                     )
-                ).mappings().one()
+                    .mappings()
+                    .one()
+                )
                 assert attributes["provolatile"] == b"s"
                 assert attributes["prosecdef"] is True
                 assert attributes["proconfig"] == ["search_path=pg_catalog"]
@@ -143,14 +144,18 @@ async def test_read_booking_operation_rehydrates_participants_and_historical_pay
         )
         async with inspector.connect() as connection:
             stored = (
-                await connection.execute(
-                    text(
-                        "SELECT operation_id,result_payload FROM booking_operations "
-                        "WHERE action='booking.request' AND target_id=:target_id"
-                    ),
-                    {"target_id": requested.id},
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT operation_id,result_payload FROM booking_operations "
+                            "WHERE action='booking.request' AND target_id=:target_id"
+                        ),
+                        {"target_id": requested.id},
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
         operation_id = stored["operation_id"]
         assert isinstance(stored["result_payload"], dict)
         assert "tutor_account_id" not in stored["result_payload"]
@@ -168,11 +173,15 @@ async def test_read_booking_operation_rehydrates_participants_and_historical_pay
         assert accepted.status is BookingStatus.ACCEPTED
         async with PostgresUnitOfWork(runtime, student_credential) as unit:
             row = (
-                await unit.connection.execute(
-                    text("SELECT * FROM public.read_booking_operation(:operation_id)"),
-                    {"operation_id": operation_id},
+                (
+                    await unit.connection.execute(
+                        text("SELECT * FROM public.read_booking_operation(:operation_id)"),
+                        {"operation_id": operation_id},
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             assert row["operation_id"] == operation_id
             assert row["actor_account_id"] == student.account_id
             assert row["action"] == "booking.request"

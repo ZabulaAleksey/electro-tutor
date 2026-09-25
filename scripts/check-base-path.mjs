@@ -1,12 +1,12 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const projectRoot = process.cwd();
-const temporaryRoot = resolve(tmpdir());
-const outputDirectory = await mkdtemp(join(temporaryRoot, "electro-tutor-base-"));
+const temporaryRoot = resolve(projectRoot, ".astro");
+await mkdir(temporaryRoot, { recursive: true });
+const outputDirectory = await mkdtemp(join(temporaryRoot, "base-path-"));
 const environment = {
   ...process.env,
   SITE_URL: "https://example.invalid",

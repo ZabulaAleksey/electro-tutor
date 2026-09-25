@@ -89,7 +89,8 @@ pnpm verify:full
 ```
 
 Результат production-сборки находится в `dist/` и вручную не редактируется.
-`check:base-path` дополнительно собирает artifact во временный каталог с
+`check:base-path` собирает artifact во временный ignored каталог `.astro/`
+на том же томе с
 `BASE_PATH=/electro-tutor/`, проверяет internal links/assets и выполняет live
 Chromium smoke; временный artifact удаляется после проверки.
 `verify:full` выполняет frozen install, Git hygiene, static check, lint, все

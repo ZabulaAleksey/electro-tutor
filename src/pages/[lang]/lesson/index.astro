@@ -2,6 +2,7 @@
 import "../../../account/profile.css";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getLocale } from "../../../i18n";
+import { localePath } from "../../../site-path";
 import type { Language } from "../../../types";
 
 export function getStaticPaths() {
@@ -22,7 +23,7 @@ const copy = getLocale(language).lessonAccess;
     <div class="account-actions">
       <a class="button primary" data-access-login href="#" hidden>{copy.signIn}</a>
       <button class="button" data-access-retry type="button" hidden>{copy.retry}</button>
-      <a class="button ghost" href={`/${language}/account/`}>{copy.backToAccount}</a>
+      <a class="button ghost" href={localePath(language, "/account/")}>{copy.backToAccount}</a>
     </div>
     <section class="booking-panel lesson-access-active" data-access-active aria-label={copy.activeRegion} hidden>
       <h2>{copy.activeHeading}</h2>

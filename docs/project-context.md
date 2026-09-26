@@ -39,6 +39,7 @@ agents, Skills и Git workflow наследуются; локальные коп
     against `electro_tutor_test`).
   - stop: `pnpm backend:stop`.
   - check: `pnpm backend:check`.
+  - isolated ET-10.3 check: set `BACKEND_CLONE_CONTAINER` to a verified disposable `electro-tutor-et103-test-YYYYMMDD` or `electro-tutor-et103-clone-YYYYMMDD` container and `ET_TEST_POSTGRES_PORT` to its non-55432 loopback port; run `node scripts/backend.mjs check clone`. This opt-in mode verifies image, data mount, port and readiness before running quality, migration, catalog and HTTP gates against `electro_tutor_test`. It never starts/stops the original Compose project. A pre-existing catalog scratch DB makes the mode fail closed; it is not dropped.
   - test-fast: `pnpm backend:test:fast`.
   - test-integration: `pnpm backend:test:integration`.
   - build: `pnpm backend:build`.
@@ -49,7 +50,9 @@ agents, Skills и Git workflow наследуются; локальные коп
 - Required local services: Docker Compose `api` и `postgres`; ET-09.3 auth gate
   дополнительно поднимает isolated `keycloak` и выполняет idempotent provision.
 - Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
-  `pnpm backend:smoke`; API `/live` отделён от DB/schema `/ready`.
+  `pnpm backend:smoke`; `node scripts/backend.mjs smoke clone` performs an
+  isolated API process check against a preflighted disposable test PostgreSQL.
+  API `/live` отделён от DB/schema `/ready`.
 - Ports and collision policy: API `127.0.0.1:8000`, PostgreSQL
   `127.0.0.1:55432`, Tutor DEV Keycloak `127.0.0.1:58081`; non-loopback bind отклоняется preflight, occupied port
   приводит к visible Compose failure без fallback.
@@ -120,9 +123,9 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
 | `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 clone-only forward/reverse restored exact catalog/function inventory and second forward passed catalog/Alembic. At UA-16 preflight original volume was already rw-mounted by a running container; this run did not use it. External-caller compatibility for the original 8→9-column reader remains unknown, so repair is forbidden. |
-| `BDX-GATE-08 Test feedback` | `PASS` for isolated tiers — composite `backend:test:fast` 196 PASS with Ruff format/lint and mypy; real clone PostgreSQL integration 74 PASS without skip. Full `backend:check` CI parity remains blocked under BDX-GATE-10. |
+| `BDX-GATE-08 Test feedback` | `PASS` for isolated tiers — `backend:check clone` completed 196 fast, 74 real PostgreSQL integration without skip, 9 catalog negatives, Ruff/mypy and HTTP readiness on disposable test DB. |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `FAIL` — isolated clone integration 74 and backend fast 196, global lint, npm audit and bounded RU/UK browser probe passed; full `backend:check` still targets original-bound Compose `55432` and is unsafe while the original volume is active. Authenticated Session browser/manual gates remain open. |
+| `BDX-GATE-10 CI parity` | `BLOCKED` for default original-bound Compose command on this host. New `backend:check clone` passed the equivalent backend constituents on disposable PostgreSQL; fresh static Chromium failed 5 accepted ET-10.2 access-only cases after ET-10.3 auto-join, and authenticated Session/manual gates remain open. No repository-wide terminal PASS is claimed. |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

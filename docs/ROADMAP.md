@@ -349,15 +349,12 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   phase passed; runner cleanup and shell exit `0`, without payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус:
   `IMPLEMENTED_UNVERIFIED / NEXT`; Session v1/ADR-027 и ADR-028 tooling
-  реализованы. UA-15 clone-only migration forward/reverse, archive/catalog
-  parity и HTTP smoke сохраняют силу. UA-16 на disposable clone `55433`
-  закрыл 74 real PostgreSQL integration без skip и composite backend fast
-  (196 unit, Ruff/mypy); общий lint после узкого ignore backup-venv PASS.
-  npm audit exit 0 (3 moderate, 0 high); bounded built-static RU/UK
-  Chromium/localization и outbound probe PASS, ожидаемый Google Fonts origin.
-  Original volume агент не трогал; при preflight контейнер original уже был Up
-  и `rw` mounted на `55432`. Full `backend:check` на Compose `55432`, live
-  authenticated Session browser и manual RU/UK multi-tab/keyboard gate открыты.
+  реализованы. UA-15 clone-only migration forward/reverse и archive/catalog
+  parity сохраняют силу. UA-18 isolated `backend:check clone` на новой test DB
+  закрыл 196 fast, 74 real integration, 9 catalog negatives, image build и
+  `/live`/`/ready`, не затронув original volume. Fresh built Chromium выявил
+  пять FAIL в accepted ET-10.2 access-only mocks после ET-10.3 auto-join;
+  live authenticated Session и manual RU/UK multi-tab/keyboard gate открыты.
   Внешние SQL callers legacy `read_booking_operation(uuid)` неизвестны, поэтому
   original DB replacement запрещён; ET-11.1 не dependency-ready.
 

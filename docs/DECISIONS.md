@@ -842,6 +842,13 @@ restoration. Это подтверждает техническую обрати
 восьмиколоночной функции на original DB. Terminal `backend:check` и live
 authenticated/manual gates остаются открытыми; детали — `docs/TESTING.md`.
 
+Дополнение 2026-09-27: opt-in `backend:check clone` на отдельной пустой test DB
+прошёл весь isolated backend composite, включая fresh catalog baseline и real
+PostgreSQL integration. Default Compose `backend:check` по-прежнему направлен
+на preserved original volume и не запускался. Ни этот PASS, ни прежний
+clone-only repair не решают совместимость original 8-column SQL caller;
+отдельное decision для original replacement остаётся обязательным.
+
 Контекст: существующие `0001..0012` Alembic migrations создают 15 product
 tables и рукописные PostgreSQL functions, triggers, ACL и `CHECK` constraints.
 Ранее `services/api/alembic/env.py` передавал пустой `target_metadata`, поэтому

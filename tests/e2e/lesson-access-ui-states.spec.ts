@@ -2,6 +2,7 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 
 const bookingId = "22222222-2222-4222-8222-222222222222";
 const accessUrl = `http://127.0.0.1:8000/api/v1/bookings/${bookingId}/lesson-access`;
+const joinUrl = `http://127.0.0.1:8000/api/v1/bookings/${bookingId}/lesson-session`;
 const activeDecision = {
   grant_id: "33333333-3333-4333-8333-333333333333",
   booking_id: bookingId,
@@ -30,7 +31,18 @@ async function openShell(page: Page, language: "ru" | "uk") {
   await expect(page).toHaveURL(new RegExp(`/${language}/lesson/$`));
 }
 
+// These Access cases exercise the Access shell independently of Session
+// availability. ET-10.3 always attempts a protected Session join after Access
+// succeeds, so model an unavailable Session explicitly rather than allowing an
+// unmocked request to receive a real 401 from an unrelated local API.
+async function mockUnavailableSession(page: Page) {
+  await page.route(joinUrl, (route) => mockResponse(route, 503, {
+    error: { code: "lesson_session_unavailable" },
+  }));
+}
+
 test("holds the exact private request without rendering the active shell and clears the fragment", async ({ page }) => {
+  await mockUnavailableSession(page);
   let release = () => {};
   const gate = new Promise<void>((resolve) => { release = resolve; });
   let requested = false;
@@ -48,6 +60,7 @@ test("holds the exact private request without rendering the active shell and cle
     await expect(page.locator("[data-access-active]")).toBeVisible();
     await expect(page.locator("[data-access-role]")).toHaveText("ученик");
     await expect(page.locator("[data-lesson-access]")).toHaveAttribute("data-state", "active");
+    await expect(page.locator("[data-lesson-session]")).toBeHidden();
     await expect(page.locator("iframe")).toHaveCount(0);
   } finally {
     release();
@@ -78,6 +91,7 @@ for (const language of ["ru", "uk"] as const) {
 }
 
 test("retry checks the server again and does not promote an earlier failure", async ({ page }) => {
+  await mockUnavailableSession(page);
   let requests = 0;
   await page.route(accessUrl, (route) => {
     requests += 1;
@@ -92,7 +106,24 @@ test("retry checks the server again and does not promote an earlier failure", as
   expect(requests).toBe(2);
 });
 
+for (const language of ["ru", "uk"] as const) {
+  test(`${language} keeps the public route but hides Access and Session when join returns 401`, async ({ page }) => {
+    await page.route(accessUrl, (route) => mockResponse(route, 200, activeDecision));
+    await page.route(joinUrl, (route) => mockResponse(route, 401, {
+      error: { code: "authentication_required" },
+    }));
+    await openShell(page, language);
+    await expect(page.locator("[data-lesson-access] h1")).toBeVisible();
+    await expect(page.locator("[data-lesson-access]")).toHaveAttribute("data-state", "signedOut");
+    await expect(page.locator("[data-access-login]")).toBeVisible();
+    await expect(page.locator("[data-access-active]")).toBeHidden();
+    await expect(page.locator("[data-access-role]")).toBeEmpty();
+    await expect(page.locator("[data-lesson-session]")).toBeHidden();
+  });
+}
+
 test("a later 401 hides active access and ignores an older delayed private response", async ({ page }) => {
+  await mockUnavailableSession(page);
   let release = () => {};
   const gate = new Promise<void>((resolve) => { release = resolve; });
   let requests = 0;
@@ -118,6 +149,7 @@ test("a later 401 hides active access and ignores an older delayed private respo
 });
 
 test("same-document hash re-entry makes a fresh access request and hides revoked content", async ({ page }) => {
+  await mockUnavailableSession(page);
   let requests = 0;
   await page.route(accessUrl, (route) => {
     const sequence = ++requests;
@@ -137,6 +169,7 @@ test("same-document hash re-entry makes a fresh access request and hides revoked
 });
 
 test("invalid same-document re-entry closes an active shell without sending a request", async ({ page }) => {
+  await mockUnavailableSession(page);
   let requests = 0;
   await page.route(accessUrl, async (route) => {
     requests += 1;
@@ -173,6 +206,7 @@ test("a 200 without the exact server capability never opens the shell", async ({
 });
 
 test("localized active shell stays usable on mobile, keyboard and both themes", async ({ page }) => {
+  await mockUnavailableSession(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: "light" });
   await page.route(accessUrl, (route) => mockResponse(route, 200, activeDecision));

@@ -78,6 +78,14 @@ immutable subjects и application Accounts не зависели от прошл
 После success/failure runner останавливает local API, PostgreSQL и Keycloak без
 удаления named volumes; cleanup failure возвращает non-zero и точную recovery-команду.
 
+Для ET-10.3 на host с сохранённым original PostgreSQL volume используй
+`pnpm test:e2e:auth:isolated` из PowerShell. Этот runner проверяет точный
+disposable контейнер `electro-tutor-et103-test-20260926` на loopback `55434`,
+создаёт временный Keycloak на `58081`, запускает API и built browser phase,
+затем останавливает только эти два контейнера. Пароли создаются в памяти
+текущего процесса. Обычный `test:e2e:auth` использует original-bound Compose
+project и для preserved DB host не подходит.
+
 ## Проверки
 
 ```bash

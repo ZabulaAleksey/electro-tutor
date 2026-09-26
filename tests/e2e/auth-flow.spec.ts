@@ -182,6 +182,19 @@ test.describe("ET-09.4e terminal support contracts", () => {
     expect(e2eEnvironment.ET_DATABASE_URL).toContain("/electro_tutor_test");
     expect(e2eEnvironment.ET_AUTH_DATABASE_URL).toContain("/electro_tutor_test");
     expect(e2eEnvironment.ET_PROVISIONING_DATABASE_URL).toContain("/electro_tutor_test");
+    const isolated = trustedCliEnvironment({
+      ET_E2E_DATABASE_TARGET: "test", ET_TEST_POSTGRES_PORT: "55434",
+    });
+    expect(isolated.ET_TEST_POSTGRES_PORT).toBe("55434");
+    for (const url of [isolated.ET_DATABASE_URL, isolated.ET_AUTH_DATABASE_URL,
+      isolated.ET_PROVISIONING_DATABASE_URL]) {
+      expect(url).toContain("127.0.0.1:55434/electro_tutor_test");
+    }
+    expect(() => trustedCliEnvironment({
+      ET_E2E_DATABASE_TARGET: "test", ET_TEST_POSTGRES_PORT: "55432",
+    })).toThrow(/disposable test PostgreSQL port/);
+    expect(() => trustedCliEnvironment({ ET_TEST_POSTGRES_PORT: "55434" }))
+      .toThrow(/disposable test PostgreSQL port/);
     expect(() => parseTrustedCliSummary('{"status":"error"}', "audit_verified")).toThrow(
       /expected safe summary/,
     );

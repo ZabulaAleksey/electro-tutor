@@ -3,8 +3,10 @@
 Статус: **утверждённый implementation contract** ET-10.3. Владелец продукта
 явно подтвердил правила v1 в текущей задаче 2026-09-15. Local Session code,
 real-PostgreSQL/HTTP and frontend non-secret evidence прошли; security
-findings закрыты. Repository-wide Alembic drift gate, обязательный live
-Session E2E и ручная UX-проверка пока не пройдены.
+findings закрыты. Isolated disposable PostgreSQL Alembic/catalog gate и
+обязательный live Keycloak→API→PostgreSQL Session E2E прошли; literal human
+RU/UK screen-reader UX-проверка остаётся открытой. Original DB repair
+отдельно требует external SQL caller compatibility decision.
 
 Версия: 0.1
 
@@ -207,7 +209,7 @@ downgrade допускается только на exact disposable local/test P
 | `ET10.3-AC-05` RU/UK shell | `SESSION-001` | component loading/waiting/active/ended/denied/unavailable/re-entry/logout states and keyboard/screen-reader checks; live browser→Keycloak→API→PostgreSQL booking/grant→join→start→reload→end with no skipped Session phase |
 | `ET10.3-AC-06` regression/privacy | `SESSION-001`, `ACCESS-004` | existing `pnpm test`, backend fast/integration, check/lint/build, root/static E2E and redacted diff; public classroom unchanged |
 
-Live auth E2E требует secret values только в пользовательском локальном shell:
-значения нельзя запросить, вывести, сохранить в файле или commit. Если
+Live auth E2E использует ephemeral secret values только в локальном процессе:
+значения нельзя запрашивать у пользователя, выводить, сохранять в файле или commit. Если
 terminal browser phase не пройден, stage остаётся `implemented_unverified`,
 не `completed`.

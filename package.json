@@ -29,6 +29,7 @@
         "backend:idp:dev": "node scripts/backend.mjs idp:dev",
         "backend:idp:cleanup": "node scripts/backend.mjs idp:cleanup",
         "test:e2e:auth": "node scripts/run-auth-e2e.mjs",
+        "test:e2e:auth:isolated": "pwsh -NoProfile -File scripts/run-auth-e2e-isolated.ps1",
         "backend:test:fast": "node scripts/backend.mjs test-fast",
         "backend:test:integration": "node scripts/backend.mjs test-integration",
         "backend:db:status": "node scripts/backend.mjs db-status",

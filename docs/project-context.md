@@ -47,6 +47,11 @@ agents, Skills и Git workflow наследуются; локальные коп
   - IdP dev/provision: `pnpm backend:idp:dev`, `pnpm backend:idp:provision`.
   - auth/booking browser E2E: `pnpm test:e2e:auth`; runner always stops its
     test-profile Compose services without deleting named volumes.
+  - preserved-volume ET-10.3 auth E2E on Windows: `pnpm test:e2e:auth:isolated`;
+    PowerShell preflights and starts only the named disposable test PostgreSQL
+    on loopback `55434` and a temporary Keycloak on `58081`, then runs local
+    API and Playwright and stops those exact containers. It never invokes the
+    original-bound Compose project.
 - Required local services: Docker Compose `api` и `postgres`; ET-09.3 auth gate
   дополнительно поднимает isolated `keycloak` и выполняет idempotent provision.
 - Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
@@ -125,7 +130,7 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 clone-only forward/reverse restored exact catalog/function inventory and second forward passed catalog/Alembic. At UA-16 preflight original volume was already rw-mounted by a running container; this run did not use it. External-caller compatibility for the original 8→9-column reader remains unknown, so repair is forbidden. |
 | `BDX-GATE-08 Test feedback` | `PASS` for isolated tiers — `backend:check clone` completed 196 fast, 74 real PostgreSQL integration without skip, 9 catalog negatives, Ruff/mypy and HTTP readiness on disposable test DB. |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `BLOCKED` for default original-bound Compose command on this host. New `backend:check clone` passed the equivalent backend constituents on disposable PostgreSQL; fresh static Chromium failed 5 accepted ET-10.2 access-only cases after ET-10.3 auto-join, and authenticated Session/manual gates remain open. No repository-wide terminal PASS is claimed. |
+| `BDX-GATE-10 CI parity` | `BLOCKED` for default original-bound Compose command on this host. `backend:check clone` passed equivalent backend constituents on disposable PostgreSQL; built Chromium 94 PASS/5 expected auth-phase skips and isolated live Keycloak/API/Session E2E 1 PASS. Human RU/UK screen-reader acceptance remains open; no repository-wide original-bound terminal PASS is claimed. |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

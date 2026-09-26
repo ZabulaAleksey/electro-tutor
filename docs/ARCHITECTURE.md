@@ -260,7 +260,8 @@ ENDED. Participant role comes from immutable Booking, Session capabilities
 from server policy, and `current_topic_id` remains transport `null` until a
 future Topic stage. The static RU/UK lesson shell keeps only an opaque
 `#session=` ID for reload and re-reads the API; the public Jitsi classroom is
-unchanged. ET-10.3 terminal live browser/manual acceptance is still pending.
+unchanged. Isolated live Keycloak→API→PostgreSQL Session browser acceptance
+passed; literal human RU/UK screen-reader acceptance remains pending.
 
 ### ET-10.3 database drift-check boundary
 

@@ -1,6 +1,14 @@
 # Testing contract
 
-## ET-10.3 UA-18 isolated backend and browser reconciliation — 2026-09-27
+## ET-10.3 UA-18 access contract and isolated live auth — 2026-09-27
+
+- Baseline: clean `feature/et-10-3-lesson-session` at `3703332`. The five accepted ET-10.2 Access-only browser cases mocked Access 200 but left the new Session join unmocked; its genuine anonymous 401 correctly hid private Access and Session regions. The public lesson heading and login/access CTA remain visible. Their fixture now supplies Session 503, preserving the five Access assertions; separate RU/UK join-401 regressions assert public shell visibility and private-region hiding. No backend authorization or production frontend guard was weakened.
+- Focused built Chromium after the fixture correction: `22 passed` (before adding the two explicit 401 cases). Final `pnpm test:e2e:built`: `94 passed / 5 expected live-auth phase skips / 0 failed / 0 unexpected skips`, exit 0. `pnpm test`: `158 passed`; `pnpm lint`: PASS; `pnpm check`: 100 files/0 diagnostics; `pnpm build`: 19 pages/99 audited artifacts, PASS. The expected skips belong to the static built phase; the Session case ran unskipped below.
+- `pnpm test:e2e:auth:isolated` uses only verified disposable PostgreSQL 17.6 `electro-tutor-et103-test-20260926` and its same-named volume at `127.0.0.1:55434` (`electro_tutor_test`), temporary Keycloak `electro-tutor-et103-idp-<guid>` at `127.0.0.1:58081`, direct `.venv` API at `127.0.0.1:8000`, and frontend preview at `127.0.0.1:4322`. The wrapper checks exact container image/mount/ports, builds frontend before service start, generates in-process ephemeral credentials, provisions minimum local users, applies Alembic/check to the test DB, verifies `/live` and `/ready` 200, runs Playwright, then checks and stops only its disposable containers. No original-bound Compose command, original ET volume, preserved DB, MathMorph DB, saved credentials, email or payment endpoint was used.
+- Live auth result: profile phase `7 passed / 3 expected phase skips`; Session phase `1 passed / 0 skipped`, runner exit 0. Real browser login through isolated Keycloak, identity return, student/tutor Access grant and Session join, anonymous 401, authenticated foreign-account masked 404, scheduled-DB-time tutor START, reload, keyboard END, second-tab ENDED, RU/UK copy, mobile overflow and ARIA-region checks passed. Browser observed only `127.0.0.1:4322`, `127.0.0.1:58081`, `127.0.0.1:8000`, `fonts.googleapis.com`, `fonts.gstatic.com`; the latter two are declared font assets. Browser test credentials and traces/screenshots were not persisted. After cleanup, disposable test PostgreSQL was Exited, temporary IdP removed, original ET container remained Created, and MathMorph containers were untouched.
+- Earlier harness attempts failed on Docker child-process wait, cold IdP startup timeout, trusted CLI port validation, request-header inspection, and premature START assertion. Those harness issues were corrected before the successful full live run. Subsequent read-only review prompted build-before-start, bounded cleanup, and removal of `KC_*` from API/Playwright child environments; no product/browser source changed after the successful gates. Final runner `node --check` and PowerShell parser PASS, `pnpm lint` PASS, `pnpm check:context` PASS, `pnpm check:hygiene` PASS, `pnpm check` 100 files/0 diagnostics PASS (first sandboxed retry could not write generated `.astro` files; same command passed with repository write permission). Literal human RU/UK screen-reader UX acceptance remains PENDING; objective DOM/ARIA/keyboard/two-tab behavior was automated. External SQL caller compatibility remains a separate original-DB repair decision; no claim of absent external callers or preserved-DB parity is made.
+
+## ET-10.3 UA-18 initial isolated backend attempt (historical, before access reconciliation) — 2026-09-27
 
 - Starting source: clean `feature/et-10-3-lesson-session` at `67dd000`. Docker read-only inventory found original `electro-tutor-local-postgres-1` `Created` with `electro-tutor-local-postgres`; historical clone `electro-tutor-et103-clone-20260922` had only its own volume at `127.0.0.1:55433`. That historical clone still returned the legacy eight-field `read_booking_operation(uuid)` without `result_payload`; its `electro_tutor_test` integration suite passed `74/74` after correcting an initial root-directory pytest invocation that had collected duplicate tests from a registered nested worktree. No original or MathMorph container was started, stopped, queried, or mounted by this run.
 - New `node scripts/backend.mjs check clone` mode requires `BACKEND_CLONE_CONTAINER` matching a named ET-10.3 disposable container and `ET_TEST_POSTGRES_PORT` other than 55432. Docker inspect must show a running PostgreSQL 17.6 with one same-named data volume, loopback-only binding on the selected port, and at most the read-only init SQL bind. It constructs exact role-specific `electro_tutor_test` URLs; the original Compose lifecycle and preserved volume are never entered. Negative checks reject the original container/55432 before Docker mutation. The ordinary `backend:check` mode is unchanged and remains unsafe for this preserved local DB.
@@ -523,7 +531,7 @@ PostgreSQL and observe student-first READY, tutor START at the scheduled DB
 boundary, reload, END and foreign-account masking. A static/mock Playwright
 pass or root-artifact run is lower-level evidence, not terminal acceptance.
 
-Current local frontend evidence: `pnpm test` 156 passed, `pnpm check` 0
+Historical pre-UA-18 local frontend evidence: `pnpm test` 156 passed, `pnpm check` 0
 diagnostics, `pnpm lint` and build/audits exit 0; Session mocked browser states
 6 passed; `pnpm test:e2e` and `pnpm test:e2e:root` each 92 passed with 5
 expected phase-dependent skips, exit 0. The authenticated Session phase and
@@ -544,5 +552,6 @@ and CHECK drift. Thus repository-wide `backend:check` is not terminal PASS.
 `pnpm verify:full` passed restore/code/unit/root-browser/build/smoke phases
 but exited 1 at the sandbox-rejected outbound dependency audit; no audit PASS
 is claimed for this rerun. Live authenticated Session and manual acceptance
-remain NOT RUN. Detailed evidence and user actions are in selected
-`STAGES.md`.
+were NOT RUN at that earlier point. Current UA-18 live/browser evidence is at
+the top of this file; manual screen-reader acceptance remains open. Detailed
+user actions are in selected `STAGES.md`.

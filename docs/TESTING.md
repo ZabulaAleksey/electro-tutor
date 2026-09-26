@@ -1,5 +1,11 @@
 # Testing contract
 
+## ET-10.3 UA-19 manual screen-reader attempt — 2026-09-27
+
+- Source: clean `feature/et-10-3-lesson-session` at `f0041ab`; no product/test/runner source change since UA-18 terminal isolated live-auth PASS. Its backend, built-browser and live-auth evidence remains applicable; no expensive suite or disposable runtime was restarted.
+- Screen reader availability: NVDA was absent from installed Windows apps, PATH, standard Program Files locations and uninstall registry entries. Windows Narrator `Narrator.exe` 10.0.19041.4522 was available and launched. Computer Use reported that Narrator's window has higher Windows integrity than its helper, so it could not inspect that window; the available interface also provides no spoken-audio capture. Accessibility-tree/DOM assertions cannot establish actual speech or screen-reader focus experience.
+- RU and UK signed-out CTA, student READY, tutor START/ACTIVE/END, two-tab state announcement and keyboard focus/trap acceptance: **NOT_RUN / BLOCKED_BY_OBSERVABILITY**, not product FAIL. No announcement was heard or transcribed, no PASS claimed. The precise human evidence request is `ET-10.3-UA-19` in `docs/STAGES.md`. No ET original/preserved DB or MathMorph resource was touched.
+
 ## ET-10.3 UA-18 access contract and isolated live auth — 2026-09-27
 
 - Baseline: clean `feature/et-10-3-lesson-session` at `3703332`. The five accepted ET-10.2 Access-only browser cases mocked Access 200 but left the new Session join unmocked; its genuine anonymous 401 correctly hid private Access and Session regions. The public lesson heading and login/access CTA remain visible. Their fixture now supplies Session 503, preserving the five Access assertions; separate RU/UK join-401 regressions assert public shell visibility and private-region hiding. No backend authorization or production frontend guard was weakened.

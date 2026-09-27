@@ -17,7 +17,7 @@
 - выбор следующего незавершённого этапа;
 - выполнение одного ограниченного этапа за запуск;
 - синхронизация canonical selector, status, blockers и `NEXT` в
-  `prompts/STAGES.md`, а также долгосрочного порядка в `ROADMAP`;
+  `docs/STAGES.md`, а также долгосрочного порядка в `ROADMAP`;
 - воспроизводимая инструкция визуальной проверки результата.
 
 ## 3. Вне области
@@ -34,17 +34,16 @@
 Каждая роль должна иметь один источник: требования — `specs/`, устройство —
 `docs/ARCHITECTURE.md`, решения — `docs/DECISIONS.md`, дизайн —
 `docs/DESIGN.md`, безопасность — `docs/SECURITY.md`, долгосрочный порядок этапов —
-`docs/ROADMAP.md`. `prompts/STAGES.md` является единственным активным владельцем
+`docs/ROADMAP.md`. `docs/STAGES.md` является единственным активным владельцем
 current selector, stage status, `NEXT`, blockers и routing progression.
 
-После brownfield migration `docs/AI_PLAN.md` и `docs/AI_STATUS.md` сохраняются
-только как hash-bound retained legacy artifacts. Они не являются активными
+После brownfield migration `docs/AI_PLAN.md` и `docs/AI_STATUS.md` удаляются после переноса фактов и SHA в `docs/notes/legacy-ai-state-evidence.md` и сохраняются в Git parent как rollback. Они не являются активными
 routing inputs и не могут переопределять canonical record.
 
 ### FR-CTX-002 Команда продолжения
 
 Команда `Продолжай Electro Tutor` должна читать единственный selector из
-`prompts/STAGES.md`, разрешать ровно один matching stage record и подчиняться
+`docs/STAGES.md`, разрешать ровно один matching stage record и подчиняться
 его status, `NEXT`, blockers и dependency DAG. `BLOCKED` stage не запускается и
 не позволяет автоматически перейти к downstream stage. `OPTIONAL` не считается
 утверждённым требованием.
@@ -52,7 +51,7 @@ routing inputs и не могут переопределять canonical record.
 ### FR-CTX-003 Минимальный контекст
 
 Исполнитель читает ближайшие инструкции, canonical selector и exact record из
-`prompts/STAGES.md`, индекс SPEC, затрагиваемую SPEC и только релевантные
+`docs/STAGES.md`, индекс SPEC, затрагиваемую SPEC и только релевантные
 проектные документы. Остальные источники загружаются только по необходимости;
 retained legacy artifacts не входят в normal bootstrap path.
 
@@ -71,7 +70,7 @@ retained legacy artifacts не входят в normal bootstrap path.
 ### FR-CTX-006 Завершение
 
 После этапа исполнитель обновляет canonical record/selector в
-`prompts/STAGES.md` и только другие документы с изменившимися фактами, запускает
+`docs/STAGES.md` и только другие документы с изменившимися фактами, запускает
 соразмерные проверки, создаёт commit и не выполняет merge без явного разрешения
 пользователя.
 
@@ -103,12 +102,12 @@ frozen lockfile, валидировать context route/overlay и только 
   документа, конкурирующего с `docs/ARCHITECTURE.md`.
 - AC-CTX-002: обязательные SPEC/docs существуют и имеют однозначные роли.
 - AC-CTX-003: `AGENTS.md` распознаёт команду `Продолжай Electro Tutor`.
-- AC-CTX-004: `prompts/STAGES.md` описывает выбор, выполнение, проверку
+- AC-CTX-004: `docs/STAGES.md` описывает выбор, выполнение, проверку
   и закрытие одного этапа.
 - AC-CTX-005: аудит ссылок и `git diff --check` проходят без ошибок.
 - AC-CTX-006: протокол закрытия требует раздел «Как увидеть изменения воочию».
 - AC-CTX-007: новый session по repository-relative ссылкам разрешает единственный
-  selector и exact record в `prompts/STAGES.md`; при `BLOCKED` сообщает blockers,
+  selector и exact record в `docs/STAGES.md`; при `BLOCKED` сообщает blockers,
   не запускает stage и не выбирает downstream stage.
 - AC-CTX-008: README содержит безопасный ПК ↔ ноутбук workflow с
   явным branch selection, `--ff-only`, `--frozen-lockfile`, context route и

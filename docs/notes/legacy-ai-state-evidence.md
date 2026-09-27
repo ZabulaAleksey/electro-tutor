@@ -1,0 +1,6 @@
+# Сохранённые факты старого AI state
+
+- `docs/AI_PLAN.md` SHA-256 source worktree `3240cb38adf0a97c5e1c331e077b4c6363e596704a054152441bbd85932ce1ec`; Git parent этой миграции хранит исходные байты для rollback.
+- `docs/AI_STATUS.md` SHA-256 source worktree `5dedfb95c42d1c6074bfa536c18678232881697a152e66610ad7ce2b03df4c94`; Git parent этой миграции хранит исходные байты для rollback.
+
+GitHub main до миграции — `e1527e6`. Selected legacy STAGES `ET-09.4` partial, stage `ET-09.4c` profile persistence не начат по содержимому этого main. Старый AI_PLAN всё ещё говорит `ET-09.3` BLOCKED без отдельного IdP client/config/test account, тогда как Git history этого main содержит OIDC commit `303ba21` и поздние ET-09.4a/b checkpoints; это несовместимые snapshots, не два active owners. Старый AI_STATUS содержит evidence GitHub Pages CI/deploy, backend foundation и исторические Tutor stages. Production backend deploy не заявлен. На другом активном локальном checkout `~/electro-tutor` feature `feature/et-10-3-lesson-session` at `1722d16` чистая, но опережает GitHub main; её ET-10.3 facts не перенесены как remote main completion claim. До интеграции той ветки нужен отдельный branch-aware reconciliation.

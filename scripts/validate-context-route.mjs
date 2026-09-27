@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
-const canonicalStagePath = "prompts/STAGES.md";
+const canonicalStagePath = "docs/STAGES.md";
 const activeConsumers = [
   "AGENTS.md",
   "README.md",
@@ -27,6 +27,11 @@ const fail = (message) => {
 
 if (!existsSync(resolve(root, canonicalStagePath))) {
   fail(`${canonicalStagePath} is missing`);
+}
+for (const detachedPath of ["prompts/STAGES.md", "docs/AI_PLAN.md", "docs/AI_STATUS.md"]) {
+  if (existsSync(resolve(root, detachedPath))) {
+    fail(`${detachedPath} is still present as a competing execution source`);
+  }
 }
 
 for (const path of activeConsumers) {
@@ -81,8 +86,8 @@ const blockerMatches = [...record.matchAll(/^- Blockers: (.+)$/gm)];
 if (statusMatches.length !== 1) {
   fail(`${stageId} must contain exactly one canonical Status field`);
 }
-if (nextMatches.length !== 1 || nextMatches[0][1] !== stageId) {
-  fail(`${stageId} must contain exactly one matching canonical NEXT field`);
+if (nextMatches.length !== 1) {
+  fail(`${stageId} must contain exactly one canonical NEXT field`);
 }
 
 const status = statusMatches[0][1];

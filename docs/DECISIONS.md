@@ -756,3 +756,6 @@ rollback preserves rows and removes the consumer; destructive downgrade remains
 disposable-test only. Future policy/window or PLATFORM support requires a new
 versioned contract. Detailed requirements belong to
 `../specs/features/lesson-access-grants.spec.md`.
+## ADR-029 — Единственный owner execution state
+
+Статус: принято 2026-09-15 по прямому правилу пользователя. Текущий selector, plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`. Старый catalog и AI pair сохраняются через `docs/notes/` и Git parent; активная локальная ET-10.3 feature требует отдельной интеграции после remote docs merge.

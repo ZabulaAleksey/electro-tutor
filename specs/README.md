@@ -26,7 +26,8 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/rtc-provider-boundary.spec.md` | Действует; runtime verified | Изоляция публичного Jitsi за system-owned meeting port, adapter/fake contract tests и запрет vendor leakage в UI; `ET-RTC-001` completed locally |
 | `features/payments-and-booking.spec.md` | Действует для `FREE`/`EXTERNAL`; `PLATFORM` blocked | Утверждённый `ET-10.1` TutorOffer/Booking snapshot contract и отдельно отложенный hosted-payment path |
 | `features/lesson-access-grants.spec.md` | Действует для `ET-10.2`; `PLATFORM` source deferred | Утверждённый time-bounded LessonAccessGrant, atomic Booking issue/revoke, participant authorization и protected media-less shell |
-| `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; local DB/HTTP/frontend прошли, drift/live/manual gates открыты | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
+| `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; isolated backend/live browser gates прошли, literal human RU/UK screen-reader gate открыт | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
+| `features/live-tutoring-session.spec.md` | DRAFT, не входит в binding requirement scope | Repository reconciliation, proposed invite/media/presence boundary, threats, migration и bounded ET-12 plan |
 | `features/ai-native-tutoring-platform.spec.md` | Действующий mixed architecture baseline | Реализованные architecture IDs и non-binding future backlog классифицируются per-ID; каждый новый runtime implementation stage требует утверждённой feature-SPEC |
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,

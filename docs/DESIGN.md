@@ -139,8 +139,8 @@ no transition controls. A refresh control rechecks the server for scheduled
 START or another tab's change, without client-clock authorization. Signed-out,
 foreign, expired/revoked, malformed or unavailable responses hide Session,
 clear previous private DOM metadata and announce localized failure/retry.
-No media iframe is added. RU/UK multi-tab, keyboard/screen-reader and mobile
-acceptance remains a manual ET-10.3 terminal gate.
+No media iframe is added. Current ET-10.3 acceptance evidence and the
+remaining literal human screen-reader gate are tracked in `docs/STAGES.md`.
 
 ## Темы и сохраняемое состояние
 

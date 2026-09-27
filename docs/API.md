@@ -133,5 +133,6 @@ Booking participant and active grant. Missing/foreign resource is masked 404,
 expired/revoked participant grant is 403, malformed request 422, version/key
 conflict 409, and unavailable policy/DB/audit is redacted 503. All private
 responses remain `no-store`. After `ends_at`, unfinished Session is not
-represented as a persisted ENDED or readable history in v1. Live Session
-browser acceptance is pending; routes are local/CI, not deployed.
+represented as a persisted ENDED or readable history in v1. Isolated live
+Session browser acceptance passed; literal human RU/UK screen-reader gate
+remains pending. Routes are local/CI, not deployed.

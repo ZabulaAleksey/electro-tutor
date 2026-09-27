@@ -374,15 +374,40 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 
 ### ET-12 — Native realtime (`FEATURE_NEXT`)
 
+Проект live tutoring в
+`../specs/features/live-tutoring-session.spec.md` является
+**draft reconciliation**, не approval и не новый execution selector.
+Он переиспользует Booking → LessonAccessGrant → LessonSession и отделяет
+scoped invite credential от общей application session. Media-путь нельзя
+строить на публичной комнате `meet.jit.si`; ET-12.1 обязан доказать
+provider-enforced room/role access и прямой bypass-negative. Текущий
+dependency graph через ET-11.1/11.2 сохраняется, пока отдельное решение
+не изменит prerequisites.
+
 - **ET-12.1 — Realtime provider POC и ADR.** Статус: `PLANNED`; LiveKit —
-  кандидат, а не заранее объявленный production choice.
+  кандидат, а не заранее объявленный production choice. Jitsi допускается
+  как кандидат только на контролируемом token-required deployment после
+  реального room/role/bypass proof; provider, region, privacy/cost и
+  revoke/kick capability остаются открытыми решениями.
 - **ET-12.2 — Authorized media room.** Статус: `PLANNED`; backend-issued
-  short-lived token и real browser → API → provider path.
-- **ET-12.3 — Device management и screen share.** Статус: `PLANNED`.
-- **ET-12.4 — Reconnect и full session restoration.** Статус: `PLANNED`.
+  short-lived token и real browser → API → provider path. Предлагаемая
+  декомпозиция: `ET-12.2a` authenticated tutor/student + minimal embedded
+  video, затем `ET-12.2b` opaque invite → scoped student access → тот же
+  защищённый media path; каждый slice имеет собственный живой E2E и
+  негативные authorization tests. Не менять `LESSON_SHELL_V1` молча.
+- **ET-12.3 — Device management и screen share.** Статус: `PLANNED`;
+  endpoint отделён от participant Account и может быть deferred из первого
+  live tutoring MVP.
+- **ET-12.4 — Reconnect и full session restoration.** Статус: `PLANNED`;
+  проверять свежий grant и не превращать disconnect в Session END.
 - **ET-12.5 — TURN, adaptive media и quality telemetry.** Статус: `PLANNED`;
   production topology/cost требует решения.
-- **ET-12.6 — Waiting room, presence и moderation.** Статус: `PLANNED`.
+- **ET-12.6 — Waiting room, presence и moderation.** Статус: `PLANNED`;
+  trusted provider events → endpoint observations → tutor status и
+  attendance history; iframe events подтверждают только локальный UI.
+  Hosted student/tutor acceptance после этих slices остаётся отдельным
+  terminal gate; draft ET-12.7 из feature-SPEC не вводится в DAG до
+  решения о production topology.
 
 ### ET-13 — Recording, replay и search (`FEATURE_NEXT/LATER`)
 

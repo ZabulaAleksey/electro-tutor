@@ -22,7 +22,9 @@
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
     ],
-    "backlog_spec_files": [],
+    "backlog_spec_files": [
+      "specs/features/live-tutoring-session.spec.md"
+    ],
     "architecture_baseline_requirement_ids": [
       "AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006",
       "AC-ET092-001", "AC-ET092-002", "AC-ET092-003", "AC-ET092-004", "AC-ET092-005", "AC-ET092-006", "AC-ET092-007", "AC-ET092-008",

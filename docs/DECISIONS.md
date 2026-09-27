@@ -768,8 +768,10 @@ versioned contract. Detailed requirements belong to
 
 Статус: **принято как implementation contract** для `ET-10.3`;
 владелец продукта явно утвердил v1 rules в текущей задаче 2026-09-15.
-Локальная реализация и non-secret tests существуют; terminal live/manual
-acceptance и repository-wide `backend:check` пока не закрыты.
+Локальная реализация и non-secret tests существуют; isolated live
+browser/backend gates прошли. Literal human RU/UK screen-reader acceptance
+остаётся открытым, original DB repair — отдельным compatibility decision.
+Текущий status/evidence/NEXT принадлежат только `docs/STAGES.md`.
 
 Контекст: approved Booking v1 допускает accepted cancellation только до
 `starts_at`; grant v1 позволяет открыть shell в
@@ -894,8 +896,9 @@ manifest generation/parity с независимой baseline, а Pages CI — �
 repository-wide `backend:check` на existing dev DB не прошёл из-за
 настоящего catalog drift, не из-за empty metadata.
 Это remediation существующего Backend DX Delta, а не изменение Session
-product API или миграционной истории. ET-10.3 остаётся
-`implemented_unverified` до gate, live browser и manual acceptance.
+product API или миграционной истории. Текущий ET-10.3 status, результаты
+изолированных проверок и незакрытая ручная приёмка принадлежат
+`docs/STAGES.md`.
 
 Отклонено: live self-reflection (`alembic check` всегда зелёный на скрытом
 drift); отключение или игнорирование Alembic result; только Core metadata

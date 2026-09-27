@@ -2,7 +2,7 @@
 
 Статус: Действует
 
-Версия: 1.0
+Версия: 1.1
 
 ## Цель
 
@@ -37,17 +37,22 @@ Production artifact «Потенциала» должен публиковать
 
 ## Acceptance criteria
 
-1. Build-time validator отклоняет missing/extra/empty/untranslated keys.
-2. Все production RU/UK pages содержат корректные `html[lang]`, metadata,
+1. `L10N-001`: Build-time validator отклоняет missing/extra/empty/untranslated keys.
+2. `L10N-002`: Все production RU/UK pages содержат корректные `html[lang]`, metadata,
    canonical и hreflang targets, существующие в artifact.
-3. Общая оболочка, страницы, classroom и circular diagram получают строки из
+3. `L10N-003`: Общая оболочка, страницы, classroom и circular diagram получают строки из
    locale catalog; component-specific authored lesson text может оставаться
    рядом с component при типизированных RU/UK-парах.
-4. Unit tests покрывают parity, fallback и locale formatting.
-5. Chromium E2E покрывает route matrix и переключение языка с query/hash.
+4. `L10N-004`: Unit tests покрывают parity, fallback и locale formatting.
+5. `L10N-005`: Chromium E2E покрывает route matrix и переключение языка с query/hash.
 
 ## Non-goals
 
 - новые локали, машинный перевод и новый content model;
 - base-path portability, production-домен, CI/deploy;
 - изменение формул и содержания опубликованного урока.
+
+## История
+
+- 2026-09-22 — acceptance criteria получили stable IDs `L10N-001..005` без
+  изменения runtime contract.

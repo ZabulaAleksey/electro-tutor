@@ -3,11 +3,16 @@
 Здесь фиксируются только существенные технические и продуктовые решения. Новое
 решение дополняет журнал; исторические записи не переписываются задним числом.
 
-## ADR-024 — Jitsi локализован за system-owned meeting port
+## ADR-030 — Jitsi локализован за system-owned meeting port
 
 Дата: 2026-09-13
 
 Статус: принято
+
+Коррекция идентификатора от 2026-09-22: исходный heading этой записи использовал
+`ADR-024` и конфликтовал с более поздним принятым `ADR-024` про session-bound DB
+principal. Исторические ссылки на Jitsi `ADR-024` в immutable stage snapshot означают
+эту запись `ADR-030`; содержание и дата решения не менялись.
 
 Решение: сохранить публичный Jitsi как MVP implementation из ADR-004, но вынести его SDK/script,
 domain, options и command translation из React UI в один adapter. `Classroom.tsx` потребляет только
@@ -756,6 +761,147 @@ rollback preserves rows and removes the consumer; destructive downgrade remains
 disposable-test only. Future policy/window or PLATFORM support requires a new
 versioned contract. Detailed requirements belong to
 `../specs/features/lesson-access-grants.spec.md`.
-## ADR-029 — Единственный owner execution state
 
-Статус: принято 2026-09-15 по прямому правилу пользователя. Текущий selector, plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`. Старый catalog и AI pair сохраняются через `docs/notes/` и Git parent; активная локальная ET-10.3 feature требует отдельной интеграции после remote docs merge.
+## ADR-027 — Booking-bound LessonSession lifecycle and reload
+
+Дата: 2026-09-15
+
+Статус: **принято как implementation contract** для `ET-10.3`;
+владелец продукта явно утвердил v1 rules в текущей задаче 2026-09-15.
+Локальная реализация и non-secret tests существуют; terminal live/manual
+acceptance и repository-wide `backend:check` пока не закрыты.
+
+Контекст: approved Booking v1 допускает accepted cancellation только до
+`starts_at`; grant v1 позволяет открыть shell в
+`[starts_at - 15 minutes, ends_at)`, но `LESSON_SHELL_ENTER` не даёт Session
+mutations. Нынешний static shell удаляет `#booking`, поэтому обычный reload
+теряет join context. Media/timeline/chat не должны быть prerequisite lifecycle.
+
+Решение: ровно одна Session на Booking, первый tutor или student
+join создаёт `READY`; только tutor после scheduled start делает
+`READY→ACTIVE→ENDED`. Booking cancellation до start атомарно закрывает
+существующую `READY` как `CANCELLED` вместе с grant revoke и audit.
+PostgreSQL time после `ends_at` даёт derived `WINDOW_CLOSED`, а не ложный
+persisted `ENDED`. Все private reads/mutations требуют текущей server
+session, exact Booking participant и active grant; отдельная Session policy
+вычисляет role-specific operation capabilities, не меняя смысл grant v1.
+
+Session ID — opaque server UUID; immutable participants остаются в Booking, а
+transport возвращает `current_topic_id: null` до реального Topic contract.
+Transaction/ACL boundary переиспользует session-bound PostgreSQL functions,
+lock order Booking→grant→Session, narrow runtime `EXECUTE` and no direct
+Session/operation-ledger `SELECT` or DML for runtime/auth/public, optimistic version,
+exact idempotency ledger и server-generated independent audit operation IDs.
+Session client operation keys сохраняют Booking cross-domain namespace и
+race-safe 409 для чужого ledger; exact replay вновь проходит текущую
+session/participant/active-grant policy до persisted response.
+Create/start/end POST сохраняют JSON + canonical `Idempotency-Key` и
+новую request-side exact configured DEV `Origin` check (absent/null/foreign
+denied): simple form/cross-origin POST не создаёт Session/audit.
+Existing CORS filtering не считается CSRF-защитой, production topology
+не выбирается этим ADR.
+Grant/start/end time policy и active application session используют fresh
+PostgreSQL `clock_timestamp()` после lock wait; transaction-start
+`CURRENT_TIMESTAMP` в текущих Access/session authorization functions
+требует исправления и real-DB regression evidence до Session implementation.
+После одноразового `#booking` join shell держит `#session` fragment для
+reload, но fragment никогда не является authority. Operational rollback
+убирает consumers, не удаляя Session history и cancellation integrity.
+
+Отклоняемые альтернативы: auto-start при student join (client/role confusion);
+browser storage или Jitsi room как Session truth; изменение значения
+`LESSON_SHELL_V1` задним числом; copied Booking participants как конкурирующая
+authority; lazy worker/end при grant expiry, который создаёт фиктивный audit;
+запуск media/topic/chat framework ради пустого lifecycle.
+
+Подтверждены: student-first `READY` и tutor-only start после
+`starts_at`; atomic `READY→CANCELLED`; отсутствие terminal/history read после
+grant expiry в v1. Последствия, ошибки, миграция и exact acceptance описаны
+в `../specs/features/lesson-sessions.spec.md`. Approval разрешает
+implementation entry, но не закрывает stage.
+
+## ADR-028 — Canonical database drift contract for ET-10.3 gate
+
+Дата: 2026-09-15
+
+Статус: **принято; independent schema/catalog tooling реализованы и проверены
+на disposable DB**. Existing data-bearing dev DB has genuine drift, поэтому
+repository-wide `backend:check` остаётся FAIL до recovery verification.
+
+Дополнение 2026-09-22: data-preserving recovery decision утверждён, физический
+backup восстановлен в отдельный clone с WAL recovery; исходный volume проверен
+побайтово и не изменён. Schema repair на clone и транзакционный rollback
+подтвердили Alembic parity, но девять legacy function overloads остаются вне
+manifest. Решение об их выводе из `public` — новый fail-closed checkpoint в
+выбранном `docs/STAGES.md`; подробное redacted evidence — `docs/TESTING.md`.
+
+Дополнение 2026-09-24: проверенный архив восстановлен в новый disposable clone;
+clone-only forward/reverse дал canonical catalog/Alembic PASS и exact preflight
+restoration. Это подтверждает техническую обратимость на изолированной копии,
+но не принимает несовместимость для неизвестных external SQL callers
+восьмиколоночной функции на original DB. Terminal `backend:check` и live
+authenticated/manual gates остаются открытыми; детали — `docs/TESTING.md`.
+
+Дополнение 2026-09-27: opt-in `backend:check clone` на отдельной пустой test DB
+прошёл весь isolated backend composite, включая fresh catalog baseline и real
+PostgreSQL integration. Default Compose `backend:check` по-прежнему направлен
+на preserved original volume и не запускался. Ни этот PASS, ни прежний
+clone-only repair не решают совместимость original 8-column SQL caller;
+отдельное decision для original replacement остаётся обязательным.
+
+Контекст: существующие `0001..0012` Alembic migrations создают 15 product
+tables и рукописные PostgreSQL functions, triggers, ACL и `CHECK` constraints.
+Ранее `services/api/alembic/env.py` передавал пустой `target_metadata`, поэтому
+`alembic check` считал все текущие таблицы удалёнными. Теперь independent
+head metadata исправляет этот false positive; catalog gate показывает
+реальное расхождение existing dev DB. `backend:check` и Pages CI не могут
+быть terminal PASS для ET-10.3 на этой БД. Проверять
+live database против metadata, отражённой из неё самой, или отключать gate
+нельзя: оба варианта скрывают drift.
+
+Решение: объявить **желаемую head-0012 схему** всех 15 product tables через
+SQLAlchemy Core `MetaData` как tooling contract, без введения ORM/runtime
+model. `alembic check` остаётся обязательным и сравнивает live database с
+этой независимой декларацией; в metadata входят columns/types/nullability,
+server defaults, primary/foreign/unique keys, indexes и partial predicates.
+Не фильтровать неизвестные product tables; `alembic_version` — служебная
+таблица мигратора, не второй product model. Metadata должна обновляться вместе
+с каждой следующей migration; незапланированное предложение autogenerate
+означает FAIL, а не автоматическое применение или ослабление проверки.
+
+Отдельный обязательный PostgreSQL catalog verifier в том же `db-status` /
+`backend:check` gate сверяет критичные handwritten objects, которые сравнение
+Alembic не гарантирует: сигнатуру/тело, `SECURITY DEFINER`, `search_path` и
+`EXECUTE` ACL функций; definition/enabled state триггеров; expression и
+validated state `CHECK`; partial-index predicates и private table ACL.
+Ожидаемый versioned
+manifest строится из **отдельной disposable database**, заново поднятой
+immutable migrations до head, и хранится в репозитории; проверяемая live DB
+не используется как источник собственных ожиданий. Regeneration manifest
+разрешена только из этой disposable baseline и требует review diff;
+`backend:check` только читает и сравнивает, не чинит live schema. Scratch
+baseline создаётся/удаляется только в рамках одной операции; уже
+существующая DB с тем же точным именем не удаляется автоматически. Verifier
+не создаёт второй runtime DB и не выполняет destructive reset product data.
+
+Приёмка: чистая migrated head проходит Alembic/catalog parity; транзакционно
+внесённый drift column/default/index, function body/ACL, trigger enabled or
+definition и critical `CHECK` expression отвергается с безопасным
+diagnostic, после rollback чистый gate снова PASS. Тесты должны подтвердить
+manifest generation/parity с независимой baseline, а Pages CI — запуск того
+же обязательного gate. Secret-bearing output не сохраняется и не печатается.
+Девять rollback negatives и clean scratch parity прошли; полный
+repository-wide `backend:check` на existing dev DB не прошёл из-за
+настоящего catalog drift, не из-за empty metadata.
+Это remediation существующего Backend DX Delta, а не изменение Session
+product API или миграционной истории. ET-10.3 остаётся
+`implemented_unverified` до gate, live browser и manual acceptance.
+
+Отклонено: live self-reflection (`alembic check` всегда зелёный на скрытом
+drift); отключение или игнорирование Alembic result; только Core metadata
+без PostgreSQL catalog contract; runtime reflection из второй baseline DB
+при каждой проверке (лишний DB lifecycle и concurrency surface).
+
+## ADR-029 — Канонический owner локального execution state
+
+Статус: принято 2026-09-15 по прямому правилу пользователя. Selected ET-10.3 plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`; старый catalog/AI pair сохраняются через SHA/facts в `docs/notes/` и Git parent. Remote main ET-09.4 partial snapshot at `ac675d4` remains in Git ancestry; it does not supersede integrated ET-10.3 state. Protected dev DB recovery остаётся отдельным data-preserving decision gate.

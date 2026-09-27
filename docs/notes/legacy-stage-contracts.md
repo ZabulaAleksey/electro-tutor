@@ -1,6 +1,15 @@
-# Исторический каталог этапов локального main
+# Исторический каталог этапов active ET-10.3 track
 
-Снимок бывшего `prompts/STAGES.md` из local `main` (07aa04f), включая ET-10.3 selector. Remote `origin/main` (ac675d4) сохранил более ранний ET-09.4 snapshot в Git parent `b465deb:docs/notes/legacy-stage-contracts.md`; его 2026-09-15 evidence остаётся в истории. Ни один из этих archived selectors не является active routing input после переноса в `docs/STAGES.md`.
+Local `main` (`07aa04f`) retained this ET-10.3 stage catalog. Remote `origin/main` (`ac675d4`) retained an earlier ET-09.4 snapshot at `b465deb:docs/notes/legacy-stage-contracts.md`; its evidence remains in Git ancestry. Archived selectors are not active routing inputs.
+
+Примечание к неизменяемому snapshot: ссылка на Jitsi `ADR-024` в retained
+`ET-RTC-001` соответствует `ADR-030`; номер исправлен в canonical
+`docs/DECISIONS.md` 2026-09-22 из-за collision с session-bound `ADR-024`, а
+исторический текст ниже сохранён verbatim.
+
+Старый `prompts/STAGES.md` сохранён ниже; SHA-256 source worktree `9a5d80449ebbc57c6fcd285260e9a9ae74f889ba9e6b711e859eb2d74788d5f1`. Его selected ET-10.3 facts сведены в новый `docs/STAGES.md`; остальные records остаются историческим контрактом, Git parent — rollback.
+
+- Stage ID: ET-10.3
 
 # Поэтапный запуск Electro Tutor
 
@@ -858,17 +867,129 @@ exit `0`; local `main` contains the merge. No push, PR or deployment is claimed.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
-Статус: `blocked` — architecture entry requires high reasoning and approved
-LessonSession lifecycle/recovery contract; no implementation started.
+Статус: `implemented_unverified` — Session implementation and independent
+schema/catalog drift gates pass on a fresh disposable database; the existing
+dev database has genuine catalog drift. Repository-wide, live and manual gates
+remain open.
 
-- Status: blocked
+- Status: implemented_unverified
 - NEXT: ET-10.3
-- Blockers: main reasoning is currently medium; architecture contract for
-  LessonSession states, roles, transitions and recovery must be approved first.
-- **User action `ET-10.3-UA-01`: `PENDING / architecture entry`** — switch the
-  main task reasoning level to high and explicitly continue `ET-10.3`;
-  confirmation of high reasoning unlocks architecture/SPEC/ADR entry work,
-  not implementation before its contract is approved.
+- Next condition: High-level data-preserving dev DB recovery/isolation decision
+  before any migration/reset, then rerun `backend:check` and terminal gates.
+- Blockers: independent ADR-028 contracts expose genuine existing local dev
+  DB drift at revision 0012: 10 expected functions missing, 3 changed, 9
+  unexpected, and 1 expected CHECK missing. `backend:db:catalog:diagnose`
+  exits `1` safely with `status=drift`; `backend:check` cannot be terminal
+  PASS on that DB. Read-only row check found 2 accounts; no reset or repair
+  was attempted. Separately `verify:full` audit requires outbound npm-registry
+  access that auto-review rejected; prior frontend/build/browser/smoke phases
+  passed. Terminal live Session browser and manual RU/UK checks are pending.
+  ET-09.4b prompt cleanup remains separately blocked by missing
+  `.codex/dev-project.toml`.
+- Architecture checkpoint: high reasoning confirmed by user's Codex UI
+  screenshot and `Продолжай` (2026-09-15); owner explicitly approved
+  `../specs/features/lesson-sessions.spec.md` v1/ADR-027 in this task.
+  Independent media-less slice and terminal PASS criteria are fixed. Security
+  review findings on post-Session-lock expiry and fabricated audit identity
+  were corrected and covered in real PostgreSQL. Live Session evidence is
+  not claimed.
+- **User action `ET-10.3-UA-01`: `DONE / architecture entry`** — user switched
+  main task reasoning to high and explicitly continued `ET-10.3`;
+  screenshot confirmation unlocked architecture/SPEC/ADR proposal work.
+- **User action `ET-10.3-UA-02`: `DONE / product contract approval`** —
+  owner answered `Да, утверждаю предложенный v1-контракт` in this task
+  (2026-09-15), approving student-first `READY`/tutor-only start after
+  `starts_at`, atomic `READY→CANCELLED`, and no terminal/history read
+  after grant expiry. Approved SPEC/ADR unlock implementation entry.
+- **User action `ET-10.3-UA-03`: `DONE / implementation reasoning entry`** —
+  user explicitly sent `Продолжай ET-10.3` after the request to return to
+  medium; this continuation is treated as implementation entry confirmation.
+  Codex UI state was not independently inspected; it does not claim runtime
+  verification.
+- **User action `ET-10.3-UA-04`: `PENDING / CONDITIONAL live acceptance`** —
+  after `backend:check` architecture repair and all local gates pass, run
+  `pnpm test:e2e:auth` from the
+  project root in a personal local shell with required secret environment
+  variables supplied ephemerally and removed afterward; do not paste values
+  or secret-bearing child output. Expected evidence is build/audit results,
+  an unskipped LessonSession real browser phase, runner cleanup result and
+  shell `EXIT_CODE=0`; this unlocks the terminal E2E gate, not deployment.
+- **User action `ET-10.3-UA-05`: `PENDING / CONDITIONAL manual UX check`** —
+  after the live Session path is available, check RU/UK lesson shell in two
+  tabs and with keyboard/screen reader or equivalent accessibility workflow:
+  tutor start/end and student reload must not leak private state or duplicate
+  Session. A concise pass/fail confirmation with any observed issue is
+  expected evidence and unlocks the manual UX gate; no secret values needed.
+- **User action `ET-10.3-UA-06`: `DONE / architecture continuation`** —
+  user replied `Продолжай ET-10.3` after the High reasoning request;
+  runtime UI reasoning setting was not independently inspected. This
+  continuation unlocked ADR-028 design only, not `backend:check` PASS.
+- **User action `ET-10.3-UA-07`: `DONE / MEDIUM reasoning implementation entry`** —
+  user replied `Продолжай ET-10.3`; ADR-028 code/test remediation was performed.
+  Codex UI setting was not independently inspected.
+- **User action `ET-10.3-UA-08`: `PENDING / HIGH data-recovery architecture`** —
+  switch this task's reasoning level to High and reply `Продолжай ET-10.3`.
+  Expected evidence is approval of a data-preserving reconciliation or isolated
+  replacement plan for the existing local dev DB (2 accounts), including
+  rollback/backup and ownership of unexpected catalog objects. This unlocks
+  implementation of the chosen recovery; do not run `backend:db:reset-local`.
+- **User action `ET-10.3-UA-09`: `PENDING / CONDITIONAL network audit approval`** —
+  after local DB recovery, explicitly approve an outbound `pnpm audit
+  --audit-level high` request to the npm registry from this repository;
+  the request transmits the locked dependency graph, not secrets. Expected
+  evidence is audit exit `0` or its safe diagnostic; this unlocks the
+  dependency-audit part of `verify:full`. Auto-review rejected the current
+  request; no indirect bypass was attempted.
+
+- **ADR-028 implemented independent gate:** retain mandatory
+  `alembic check` with tooling-only independent SQLAlchemy Core metadata for
+  all 15 head-0012 product tables; add a versioned critical PostgreSQL
+  function/trigger/`CHECK`/ACL catalog contract derived only from a separate
+  freshly migrated disposable baseline and checked read-only against the
+  target DB. `backend:check` must fail on drift and pass on clean head; negative
+  column/default/index, function body/ACL, trigger and `CHECK` drift must be
+  detected and rolled back. Pages CI runs the same gate. Architecture docs
+  and implementation are synchronized. On a fresh scratch DB, Alembic check,
+  catalog parity and 9 rollback negatives pass; existing dev catalog drift
+  still blocks repository-wide PASS. This repair belongs to ET-10.3 and is
+  not deferred to ET-11.1.
+- **ADR-028 verification evidence:** `pnpm backend:test:fast` 194 passed / 81
+  deselected, Ruff/mypy PASS, exit `0`; `pnpm backend:test:integration` 72
+  passed / 201 deselected, exit `0`; `pnpm backend:db:catalog:baseline test`
+  Alembic clean + manifest parity + 9 catalog negatives, exit `0`, scratch
+  DB created and dropped in the same run. `pnpm
+  backend:db:catalog:diagnose` on preserved dev DB exits `1` with redacted
+  safe object-name/count differences. `pnpm verify:full` ran frozen restore,
+  code/context/unit, 92 root browser passes with 5 expected phase skips,
+  build and 4 production smokes, then exited `1` only at network-blocked
+  `pnpm audit --audit-level high`; it is not terminal PASS.
+
+- **Local implementation/evidence:** additive revision `20260915_0012` and
+  private Session domain/application/repository/API, Booking cancellation
+  hook and RU/UK reload shell are present. Real disposable PostgreSQL
+  `pnpm backend:test:integration`: `72 passed / 189 deselected`, exit `0`;
+  migration head→0005→head, Session constraints/ACL including PUBLIC, exact
+  HTTP cookie→API→PostgreSQL, concurrent join, tutor START/END, replay,
+  post-Session-lock grant/app-session expiry and Session cancellation audit
+  fault rollback are covered. `pnpm backend:test:fast`: `189 passed / 72
+  deselected`, Ruff/mypy PASS, exit `0`. `pnpm backend:check` reached
+  dependency audit, image build, doctor and `db-status` current=expected 0012,
+  then failed only at the known empty-target-metadata Alembic check (exit
+  `1`; inner check `255`); its cleanup stopped containers without deleting
+  volumes/data. This failure is not Session migration test failure and is not
+  terminal PASS.
+- **Local frontend/evidence:** `pnpm test` `156 passed`, `pnpm check` 0
+  diagnostics, `pnpm lint`/build/audits exit `0`; focused Session UI browser
+  `6 passed`, exit `0`; ordinary `pnpm test:e2e` and root-artifact
+  `pnpm test:e2e:root` each `92 passed / 5 expected phase skips`, exit `0`;
+  production smoke `4 passed`, exit `0`; `pnpm verify:full` terminal rerun
+  exit `0` (frozen install, hygiene, workflow, check, lint, unit, root E2E,
+  build, smoke, dependency audit). Audit reported 2 moderate and no high.
+  An earlier full-verify retry exposed one benign aborted catalog navigation
+  request and a later stale local preview-port collision; narrow theme rerun
+  passed and the final complete run passed without weakening an accepted test.
+  No authenticated Session browser phase was run by Codex without user-held
+  local secrets.
 
 - **Goal / why now:** establish central recoverable lesson runtime before media,
   whiteboard and timeline enrichments.
@@ -882,8 +1003,10 @@ LessonSession lifecycle/recovery contract; no implementation started.
   board, booking completion or AI.
 - **Modules / expected files:** lesson domain/repository/API, session shell/state,
   migration, specs/security/data/traceability and tests.
-- **DB / migration:** opaque public ID, booking relation, timestamps/status,
-  participants and concurrency/version guard; reversible migration.
+- **DB / migration:** opaque public ID, booking relation, timestamps/status
+  and concurrency/version guard; v1 participant role is derived from immutable
+  Booking without copied authority; additive migration, destructive downgrade
+  only on exact disposable local/test PostgreSQL with separate consent.
 - **Security / fallback / risks:** active grant required; client cannot set owner,
   status or capabilities; DB unavailable shows explicit unavailable/retry state,
   never creates browser-only session truth.

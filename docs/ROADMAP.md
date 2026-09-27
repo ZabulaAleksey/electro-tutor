@@ -347,10 +347,20 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
   phase passed; runner cleanup and shell exit `0`, without payment provider.
-- **ET-10.3 — LessonSession lifecycle и reload.** Статус: `BLOCKED / NEXT`;
-  architecture/SPEC entry requires high reasoning and approved lifecycle/
-  recovery contract before implementation of server-authoritative shell
-  state/capabilities without native media.
+- **ET-10.3 — LessonSession lifecycle и reload.** Статус:
+  `IMPLEMENTED_UNVERIFIED / NEXT`; Session v1/ADR-027 и ADR-028 tooling
+  реализованы. UA-15 clone-only migration forward/reverse и archive/catalog
+  parity сохраняют силу. UA-18 isolated `backend:check clone` на новой test DB
+  закрыл 196 fast, 74 real integration, 9 catalog negatives, image build и
+  `/live`/`/ready`, не затронув original volume. UA-18 reconciliation
+  подтвердил public lesson shell и отдельную authorization boundary для
+  Access/Session: пять access-only fixtures уточнены, RU/UK join-401
+  regressions добавлены. Built Chromium 94 PASS/5 expected auth-phase skips;
+  isolated Keycloak→API→disposable PostgreSQL Session E2E 1 PASS без skip,
+  profile phase 7 PASS/3 expected skips. Objective RU/UK two-tab/keyboard/
+  mobile/ARIA checks прошли; literal human screen-reader UX остаётся.
+  Внешние SQL callers legacy `read_booking_operation(uuid)` неизвестны, поэтому
+  original DB replacement запрещён; ET-11.1 не dependency-ready.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

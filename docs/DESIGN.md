@@ -128,6 +128,20 @@ appropriate live region; late private responses after logout or session expiry
 must not restore access. Mobile, keyboard, text-expansion and both-theme checks
 remain required.
 
+### ET-10.3 Session lifecycle states
+
+The same RU/UK protected shell joins from `#booking=` and then keeps an
+opaque `#session=` fragment so reload obtains current server state. The
+Session region remains hidden until an exact validated DTO arrives. Student
+first sees READY/waiting; tutor sees READY and a server-derived START control
+only when scheduled time permits. Tutor ACTIVE has END; ENDED/CANCELLED have
+no transition controls. A refresh control rechecks the server for scheduled
+START or another tab's change, without client-clock authorization. Signed-out,
+foreign, expired/revoked, malformed or unavailable responses hide Session,
+clear previous private DOM metadata and announce localized failure/retry.
+No media iframe is added. RU/UK multi-tab, keyboard/screen-reader and mobile
+acceptance remains a manual ET-10.3 terminal gate.
+
 ## Темы и сохраняемое состояние
 
 Светлая и тёмная темы должны иметь достаточный контраст. Выбор темы хранится в

@@ -12,7 +12,7 @@ Collections/MDX. Поддерживаются маршруты `ru` и `uk`.
 | Архитектура и существенные решения | `ARCHITECTURE.md`, `DECISIONS.md` |
 | Порядок развития | `ROADMAP.md` |
 | Current selector, stage status, `NEXT`, blockers и routing progression | `STAGES.md` |
-| Retained migration evidence | `notes/legacy-ai-state-evidence.md` и Git parent — SHA-bound исторические факты, не active routing inputs |
+| Retained migration evidence | `notes/legacy-ai-state-evidence.md` и Git parent — исторические SHA/facts, не active routing inputs |
 | Глобальная методика | `~/.codex/AGENTS.md` и глобальный ДЕВ |
 | Идеи и vision | Notion; не является evidence реализации |
 
@@ -39,6 +39,7 @@ agents, Skills и Git workflow наследуются; локальные коп
     against `electro_tutor_test`).
   - stop: `pnpm backend:stop`.
   - check: `pnpm backend:check`.
+  - isolated ET-10.3 check: set `BACKEND_CLONE_CONTAINER` to a verified disposable `electro-tutor-et103-test-YYYYMMDD` or `electro-tutor-et103-clone-YYYYMMDD` container and `ET_TEST_POSTGRES_PORT` to its non-55432 loopback port; run `node scripts/backend.mjs check clone`. This opt-in mode verifies image, data mount, port and readiness before running quality, migration, catalog and HTTP gates against `electro_tutor_test`. It never starts/stops the original Compose project. A pre-existing catalog scratch DB makes the mode fail closed; it is not dropped.
   - test-fast: `pnpm backend:test:fast`.
   - test-integration: `pnpm backend:test:integration`.
   - build: `pnpm backend:build`.
@@ -46,10 +47,17 @@ agents, Skills и Git workflow наследуются; локальные коп
   - IdP dev/provision: `pnpm backend:idp:dev`, `pnpm backend:idp:provision`.
   - auth/booking browser E2E: `pnpm test:e2e:auth`; runner always stops its
     test-profile Compose services without deleting named volumes.
+  - preserved-volume ET-10.3 auth E2E on Windows: `pnpm test:e2e:auth:isolated`;
+    PowerShell preflights and starts only the named disposable test PostgreSQL
+    on loopback `55434` and a temporary Keycloak on `58081`, then runs local
+    API and Playwright and stops those exact containers. It never invokes the
+    original-bound Compose project.
 - Required local services: Docker Compose `api` и `postgres`; ET-09.3 auth gate
   дополнительно поднимает isolated `keycloak` и выполняет idempotent provision.
 - Readiness/status command: `pnpm backend:status`, `pnpm backend:doctor`,
-  `pnpm backend:smoke`; API `/live` отделён от DB/schema `/ready`.
+  `pnpm backend:smoke`; `node scripts/backend.mjs smoke clone` performs an
+  isolated API process check against a preflighted disposable test PostgreSQL.
+  API `/live` отделён от DB/schema `/ready`.
 - Ports and collision policy: API `127.0.0.1:8000`, PostgreSQL
   `127.0.0.1:55432`, Tutor DEV Keycloak `127.0.0.1:58081`; non-loopback bind отклоняется preflight, occupied port
   приводит к visible Compose failure без fallback.
@@ -70,11 +78,16 @@ agents, Skills и Git workflow наследуются; локальные коп
   `N/A — schema генерируется FastAPI и не хранится вторым source`; owner — `docs/API.md`.
   отдельный generated artifact не versioned.
 - DB migration/status/seed/reset-local commands: `pnpm backend:db:migrate`,
-  `pnpm backend:db:status`, seed `N/A — ET-09.2 не имеет product tables/data`,
-  `pnpm backend:db:reset-local`.
+  `pnpm backend:db:status`, seed `N/A — supported canonical seed command is
+  not defined`, `pnpm backend:db:reset-local`; ADR-028 adds
+  `pnpm backend:db:catalog:baseline test` on an owned disposable scratch DB
+  and read-only `pnpm backend:db:catalog:diagnose` for a target DB.
 - Destructive command guard: reset требует exact
-  `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет только named local
-  volume; migration lifecycle требует exact consent и database
+  `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и удаляет весь named local
+  volume, potentially shared across checkouts and containing product data;
+  it is not an ET-10.3 drift recovery path. The observed dev DB has 2
+  account rows. Do not reset without a separately approved backup/recovery
+  decision. Migration lifecycle требует exact consent и database
   `electro_tutor_test`. Browser E2E also uses that isolated database through
   `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
 - Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
@@ -89,6 +102,19 @@ agents, Skills и Git workflow наследуются; локальные коп
   live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
 - Known limitations: production backend hosting/ingress/IAM/cookie topology не
   выбраны; exact credentialed CORS действует только для DEV/E2E, jobs отсутствуют.
+  ADR-028 now provides independent Core head metadata for 15 tables and a
+  committed `pg_catalog` manifest for functions, triggers, CHECKs, indexes
+  and private ACL. A newly migrated scratch DB passes Alembic check, catalog
+  parity and 9 transactional drift negatives. The existing dev DB at head
+  0012 genuinely diverges (10 expected functions missing, 3 changed, 9
+  unexpected and 1 CHECK missing), so `backend:db:catalog:diagnose` exits 1.
+  A scratch DB left by interrupted execution is never auto-dropped on the next
+  run: first inspect exact `electro_tutor_catalog_baseline` existence/owner
+  read-only via `docker compose exec -T postgres psql -X -U
+  electro_tutor_bootstrap -d postgres -c "SELECT datname, pg_get_userbyid(datdba)
+  FROM pg_database WHERE datname = 'electro_tutor_catalog_baseline'"`; resolve
+  ownership and recovery before any manual drop. No live DB self-reflection,
+  reset or automatic repair is allowed.
 - Explicit deviations from global Backend DX Policy: `none`.
 
 ### Backend DX gate status
@@ -101,10 +127,10 @@ agents, Skills и Git workflow наследуются; локальные коп
 | `BDX-GATE-04 Config safety` | `PASS` — exact roles/targets, redaction negatives |
 | `BDX-GATE-05 Service readiness` | `PASS` — Compose health + root doctor/ready/stop |
 | `BDX-GATE-06 API contract` | `PASS` — OpenAPI/component/error/request tests |
-| `BDX-GATE-07 Database lifecycle` | `PASS` — current, disposable lifecycle, grants and existing-volume role reconciliation; handwritten-metadata `alembic check` remains a known repository-wide limitation |
-| `BDX-GATE-08 Test feedback` | `PASS` — fast/full tiers без hidden skip |
+| `BDX-GATE-07 Database lifecycle` | `FAIL` for original DB — UA-15 clone-only forward/reverse restored exact catalog/function inventory and second forward passed catalog/Alembic. At UA-16 preflight original volume was already rw-mounted by a running container; this run did not use it. External-caller compatibility for the original 8→9-column reader remains unknown, so repair is forbidden. |
+| `BDX-GATE-08 Test feedback` | `PASS` for isolated tiers — `backend:check clone` completed 196 fast, 74 real PostgreSQL integration without skip, 9 catalog negatives, Ruff/mypy and HTTP readiness on disposable test DB. |
 | `BDX-GATE-09 Diagnostics and observability` | `PASS` — request ID, structured logs, redaction |
-| `BDX-GATE-10 CI parity` | `PASS` — Pages workflow вызывает `backend:check` |
+| `BDX-GATE-10 CI parity` | `BLOCKED` for default original-bound Compose command on this host. `backend:check clone` passed equivalent backend constituents on disposable PostgreSQL; built Chromium 94 PASS/5 expected auth-phase skips and isolated live Keycloak/API/Session E2E 1 PASS. Human RU/UK screen-reader acceptance remains open; no repository-wide original-bound terminal PASS is claimed. |
 | `BDX-GATE-11 Documentation impact` | `PASS` — README/contracts/state synchronized |
 | `BDX-GATE-12 No overengineering` | `PASS` — один monolith + PostgreSQL, future systems deferred |
 

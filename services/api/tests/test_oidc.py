@@ -19,6 +19,7 @@ def oidc_fixture(
     token_nonce: str = "expected-nonce",
     audience: str | list[str] = CLIENT_ID,
     authorized_party: str | None = None,
+    extra_claims: dict[str, object] | None = None,
 ):
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     public_jwk = jwt.algorithms.RSAAlgorithm.to_jwk(private_key.public_key(), as_dict=True)
@@ -35,6 +36,8 @@ def oidc_fixture(
     }
     if authorized_party is not None:
         claims["azp"] = authorized_party
+    if extra_claims is not None:
+        claims.update(extra_claims)
     id_token = jwt.encode(
         claims,
         private_key,
@@ -88,6 +91,35 @@ async def test_discovery_and_id_token_validate_issuer_audience_nonce_without_sec
     assert token_form["client_id"] == [CLIENT_ID]
     assert token_form["code_verifier"] == ["v" * 64]
     assert "client_secret" not in token_form
+
+
+@pytest.mark.asyncio
+async def test_valid_provider_authority_claims_are_ignored_by_identity_boundary() -> None:
+    adapter, _ = oidc_fixture(
+        extra_claims={
+            "roles": ["tutor", "platform-admin"],
+            "groups": ["/tenant-a/admins"],
+            "realm_access": {"roles": ["realm-admin"]},
+            "resource_access": {
+                CLIENT_ID: {"roles": ["tenant-admin", "tutor"]},
+            },
+            "tenant_id": "tenant-a",
+        }
+    )
+    discovery = await adapter.discover()
+
+    identity = await adapter.exchange_code(
+        discovery,
+        code="authorization-code",
+        redirect_uri="http://127.0.0.1:8000/api/v1/auth/callback",
+        verifier="v" * 64,
+        nonce="expected-nonce",
+    )
+
+    assert identity.issuer == ISSUER
+    assert identity.subject == "stable-subject"
+    assert identity.email == "test@invalid.example"
+    assert set(vars(identity)) == {"issuer", "subject", "email"}
 
 
 @pytest.mark.asyncio

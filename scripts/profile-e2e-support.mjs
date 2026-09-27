@@ -143,16 +143,24 @@ export function trustedCliEnvironment(environment = process.env) {
     Object.entries(environment).filter(([name]) => !name.startsWith("ET_")),
   );
   const useTestDatabase = environment.ET_E2E_DATABASE_TARGET === "test";
+  const isolatedPort = environment.ET_TEST_POSTGRES_PORT;
+  if (isolatedPort && (!useTestDatabase || !/^(?:55433|55434)$/.test(isolatedPort))) {
+    throw new Error("Trusted E2E CLI requires a supported disposable test PostgreSQL port.");
+  }
+  const testUrl = (url) => isolatedPort
+    ? url.replace("127.0.0.1:55432/", `127.0.0.1:${isolatedPort}/`)
+    : url;
   return {
     ...cleanEnvironment,
     ET_ENVIRONMENT: useTestDatabase ? "test" : "local",
+    ...(isolatedPort ? { ET_TEST_POSTGRES_PORT: isolatedPort } : {}),
     ET_HOST: "127.0.0.1",
     ET_PORT: "8000",
     ET_DOCS_ENABLED: useTestDatabase ? "false" : "true",
-    ET_DATABASE_URL: useTestDatabase ? localTestRuntimeUrl : localRuntimeUrl,
-    ET_AUTH_DATABASE_URL: useTestDatabase ? localTestAuthUrl : localAuthUrl,
+    ET_DATABASE_URL: useTestDatabase ? testUrl(localTestRuntimeUrl) : localRuntimeUrl,
+    ET_AUTH_DATABASE_URL: useTestDatabase ? testUrl(localTestAuthUrl) : localAuthUrl,
     ET_PROVISIONING_DATABASE_URL: useTestDatabase
-      ? localTestProvisioningUrl
+      ? testUrl(localTestProvisioningUrl)
       : localProvisioningUrl,
     ET_OIDC_ISSUER: "http://127.0.0.1:58081/realms/electro-tutor-dev",
     ET_OIDC_BACKCHANNEL_BASE_URL: "http://127.0.0.1:58081",

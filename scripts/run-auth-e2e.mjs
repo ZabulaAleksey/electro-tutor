@@ -69,6 +69,9 @@ runTrustedBookingGrantCli({
 }, baseBrowserEnvironment);
 runBrowserPhase("booking");
 runBrowserPhase("lesson-access");
+// ET-10.3 is a required terminal browser phase: no auth-flow skip or mock
+// substitutes for the browser -> Keycloak -> API -> PostgreSQL lifecycle.
+runBrowserPhase("lesson-session", { E2E_SPEC: "tests/e2e/auth-lesson-session.spec.ts" });
 const accountBeforeEmailChange = runTrustedProfileCli(
   ["e2e-resolve-account", "--subject", identities.primarySubject],
   "account_resolved",

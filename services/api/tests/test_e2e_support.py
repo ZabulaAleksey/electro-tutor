@@ -331,12 +331,11 @@ def integration_settings() -> tuple[Settings, ProvisioningSettings]:
     auth = os.getenv("ET_AUTH_DATABASE_URL")
     provisioning = os.getenv("ET_PROVISIONING_DATABASE_URL")
     migration = os.getenv("ET_MIGRATION_DATABASE_URL")
-    if (runtime, auth, provisioning, migration, PORT) != (
+    if (runtime, auth, provisioning, migration) != (
         RUNTIME_URL,
         AUTH_URL,
         PROVISIONING_URL,
         MIGRATION_URL,
-        55432,
     ):
         pytest.skip("E2E support tests require exact disposable local PostgreSQL roles")
     return (

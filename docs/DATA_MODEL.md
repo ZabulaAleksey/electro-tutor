@@ -151,3 +151,36 @@ backfilled atomically with collision-safe random operation IDs and exact
 `service/lesson-access-migration` / `migration_backfill` audit provenance in the
 migration transaction. Operational rollback
 retains rows; destructive downgrade remains disposable local/test-only.
+
+## ET-10.3 additive LessonSession schema
+
+Revision `20260915_0012` adds `lesson_sessions`: server-generated opaque UUID,
+unique restricted Booking FK, persisted `READY|ACTIVE|ENDED|CANCELLED`, positive
+version, DB-owned creation/transition timestamps and status/timestamp checks.
+There is no copied Account participant or role, media room, event stream or
+Topic FK; `current_topic_id: null` is an API placeholder only. One accepted
+Booking can create one READY row, regardless of which participant joins first.
+
+`lesson_session_operations` records canonical operation UUID, actor/action,
+Booking/Session, intent digest, exact persisted result and independent
+server-generated audit operation ID. Session create/start/end and redacted
+AuditEvents commit atomically. Booking cancel before start closes any READY
+Session in the same Booking/grant/audit transaction. Grant window and
+application-session expiry use fresh PostgreSQL clock after authority locks;
+`WINDOW_CLOSED` is derived rather than a persisted ENDED transition. Runtime,
+auth and public roles have no direct Session/ledger table access; narrow
+session-bound functions own authorization and mutation. Operational rollback
+preserves these rows; downgrade is destructive and only for explicitly
+consented disposable local/test PostgreSQL.
+
+ADR-028 implements a tooling-only **desired head schema** declaration for all 15
+product tables, independent of the inspected DB. It is not an ORM or a
+runtime replacement for Alembic migrations. A versioned catalog manifest
+from a separately freshly migrated disposable database pins PostgreSQL
+functions, triggers, `CHECK` expressions, indexes including partial
+predicates, and private-table ACL. `backend:check` rejects unexpected drift
+without changing live data. Scratch Alembic/catalog parity and 9 rollback
+negatives pass. UA-15 restored a fresh isolated clone and proved exact
+canonical catalog/Alembic forward and preflight-identical reverse; the
+original dev DB at head 0012 still has catalog divergence and 2 account
+rows. External-caller compatibility and original-DB reconciliation remain open.

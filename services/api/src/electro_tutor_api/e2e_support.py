@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any, cast
 from urllib.parse import urlsplit
@@ -211,7 +212,15 @@ def _validate_local_target(settings: Settings, provisioning_settings: Provisioni
     ):
         raise E2ESupportError("invalid_e2e_target")
     expected_database = "electro_tutor" if settings.profile == "local" else "electro_tutor_test"
-    expected = ("127.0.0.1", 55432, expected_database)
+    expected_port = 55432
+    if settings.profile == "test":
+        try:
+            expected_port = int(os.getenv("ET_TEST_POSTGRES_PORT", "55432"))
+        except ValueError as exc:
+            raise E2ESupportError("invalid_e2e_target") from exc
+        if not 1 <= expected_port <= 65535:
+            raise E2ESupportError("invalid_e2e_target")
+    expected = ("127.0.0.1", expected_port, expected_database)
     targets = (
         (settings.runtime_database_url, "electro_tutor_runtime"),
         (settings.auth_database_url, "electro_tutor_auth_runtime"),

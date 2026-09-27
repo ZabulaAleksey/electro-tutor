@@ -37,7 +37,7 @@
 `docs/ROADMAP.md`. `docs/STAGES.md` является единственным активным владельцем
 current selector, stage status, `NEXT`, blockers и routing progression.
 
-После brownfield migration `docs/AI_PLAN.md` и `docs/AI_STATUS.md` удаляются после переноса фактов и SHA в `docs/notes/legacy-ai-state-evidence.md` и сохраняются в Git parent как rollback. Они не являются активными
+После brownfield migration `docs/AI_PLAN.md` и `docs/AI_STATUS.md` удаляются после сохранения фактов и SHA в `docs/notes/legacy-ai-state-evidence.md` и Git parent. Они не являются активными
 routing inputs и не могут переопределять canonical record.
 
 ### FR-CTX-002 Команда продолжения

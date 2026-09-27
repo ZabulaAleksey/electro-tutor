@@ -16,6 +16,14 @@ from electro_tutor_api.adapters.database import ALEMBIC_DIR, expected_revision
 from electro_tutor_api.config import MigrationSettings, ProvisioningSettings, Settings
 from electro_tutor_api.domain.audit import AuditAction
 from electro_tutor_api.e2e_support import E2ESupport, E2ESupportError
+from electro_tutor_api.schema_catalog_contract import (
+    CatalogDriftError,
+    catalog_differences,
+    load_manifest,
+    snapshot_catalog,
+    snapshot_manifest,
+    verify_catalog,
+)
 
 
 def alembic_config(settings: MigrationSettings) -> Config:
@@ -34,6 +42,40 @@ async def db_status(settings: MigrationSettings) -> dict[str, str | None]:
     finally:
         await engine.dispose()
     return {"current": str(current) if current else None, "expected": expected_revision()}
+
+
+async def db_catalog_check(settings: MigrationSettings) -> None:
+    engine = create_async_engine(settings.migration_database_url, pool_pre_ping=True)
+    try:
+        async with engine.connect() as connection:
+            await verify_catalog(connection)
+    finally:
+        await engine.dispose()
+
+
+async def db_catalog_snapshot(settings: MigrationSettings) -> dict[str, object]:
+    engine = create_async_engine(settings.migration_database_url, pool_pre_ping=True)
+    try:
+        async with engine.connect() as connection:
+            current = await connection.scalar(text("SELECT version_num FROM alembic_version"))
+            if current != expected_revision():
+                raise CatalogDriftError("baseline migration head is not current")
+            return snapshot_manifest(await snapshot_catalog(connection))
+    finally:
+        await engine.dispose()
+
+
+async def db_catalog_diagnose(settings: MigrationSettings) -> dict[str, object]:
+    engine = create_async_engine(settings.migration_database_url, pool_pre_ping=True)
+    try:
+        async with engine.connect() as connection:
+            current = await connection.scalar(text("SELECT version_num FROM alembic_version"))
+            if current != expected_revision():
+                raise CatalogDriftError("database revision does not match catalog manifest")
+            differences = catalog_differences(await snapshot_catalog(connection), load_manifest())
+            return {"status": "drift" if differences else "ok", "differences": differences}
+    finally:
+        await engine.dispose()
 
 
 def _emit(payload: dict[str, object], *, error: bool = False) -> None:
@@ -137,6 +179,8 @@ def main(argv: list[str] | None = None) -> int:
             "config-check",
             "db-status",
             "db-migrate",
+            "db-catalog-snapshot",
+            "db-catalog-diagnose",
             "e2e-resolve-account",
             "e2e-issue-tutor-grant",
             "e2e-issue-booking-grant",
@@ -149,6 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--request-id")
     parser.add_argument("--action")
     parser.add_argument("--managed-subject", action="append", default=[])
+    parser.add_argument("--baseline-consent")
     args = parser.parse_args(argv or sys.argv[1:])
     e2e_commands = {
         "e2e-resolve-account",
@@ -195,8 +240,56 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             print(json.dumps({"status": "unavailable", "dependency": "database"}))
             return 1
-        print(json.dumps({"status": "ok", **status}, sort_keys=True))
-        return 0 if status["current"] == status["expected"] else 1
+        if status["current"] != status["expected"]:
+            print(json.dumps({"status": "drift", **status}, sort_keys=True))
+            return 1
+        try:
+            asyncio.run(db_catalog_check(settings))
+        except CatalogDriftError:
+            print(
+                json.dumps(
+                    {
+                        "status": "drift",
+                        "dependency": "database_catalog",
+                        "diagnose": "pnpm backend:db:catalog:diagnose",
+                    }
+                )
+            )
+            return 1
+        except Exception:
+            print(json.dumps({"status": "unavailable", "dependency": "database_catalog"}))
+            return 1
+        print(json.dumps({"status": "ok", "catalog": "current", **status}, sort_keys=True))
+        return 0
+    if args.command == "db-catalog-snapshot":
+        if (
+            settings.profile != "test"
+            or settings.migration_database_url.rsplit("/", 1)[-1]
+            != "electro_tutor_catalog_baseline"
+            or args.baseline_consent != "electro-tutor-catalog-baseline"
+        ):
+            _emit({"status": "error", "code": "baseline_target_denied"}, error=True)
+            return 2
+        try:
+            _emit(asyncio.run(db_catalog_snapshot(settings)))
+        except CatalogDriftError:
+            _emit({"status": "error", "code": "baseline_catalog_invalid"}, error=True)
+            return 1
+        except Exception:
+            _emit({"status": "error", "code": "baseline_unavailable"}, error=True)
+            return 1
+        return 0
+    if args.command == "db-catalog-diagnose":
+        try:
+            diagnosis = asyncio.run(db_catalog_diagnose(settings))
+            _emit(diagnosis)
+        except CatalogDriftError:
+            _emit({"status": "error", "code": "catalog_contract_invalid"}, error=True)
+            return 1
+        except Exception:
+            _emit({"status": "error", "code": "catalog_unavailable"}, error=True)
+            return 1
+        return 0 if diagnosis["status"] == "ok" else 1
     try:
         command.upgrade(alembic_config(settings), "head")
     except Exception:

@@ -279,11 +279,24 @@ class MigrationSettings(BaseSettings):
             raise ValueError("migration URL must use postgresql+asyncpg with explicit credentials")
         if parsed.hostname not in {"127.0.0.1", "localhost", "postgres"}:
             raise ValueError("local/test/ci migration host must be local PostgreSQL")
-        if parsed.path.removeprefix("/") not in {"electro_tutor", "electro_tutor_test"}:
+        if parsed.path.removeprefix("/") not in {
+            "electro_tutor",
+            "electro_tutor_test",
+            "electro_tutor_catalog_baseline",
+        }:
             raise ValueError("local/test/ci migration database is not approved")
         if parsed.username != "electro_tutor_migrator":
             raise ValueError("migration URL must use the migrator role")
         return value
+
+    @model_validator(mode="after")
+    def restrict_catalog_baseline(self) -> MigrationSettings:
+        if (
+            urlsplit(self.migration_database_url).path == "/electro_tutor_catalog_baseline"
+            and self.profile != "test"
+        ):
+            raise ValueError("catalog baseline migrations require the test profile")
+        return self
 
 
 class ProvisioningSettings(BaseSettings):

@@ -2,7 +2,7 @@
 
 Статус: Действует
 
-Версия: 1.1
+Версия: 1.2
 
 ## Цель
 
@@ -34,13 +34,15 @@
 
 ## Acceptance criteria
 
-1. Root и `/electro-tutor/` builds создают эквивалентные 15-page artifacts.
-2. Artifact audit разрешает все internal HTML links/assets, manifest targets,
+1. `BASE-001`: Root и `/electro-tutor/` builds создают эквивалентные route sets,
+   совпадающие с canonical production manifest; текущий verified artifact содержит
+   19 pages, но acceptance не фиксирует исторический count при добавлении routes.
+2. `BASE-002`: Artifact audit разрешает все internal HTML links/assets, manifest targets,
    canonical/hreflang и исключает localhost/machine-local URL.
-3. Live browser smoke открывает direct home, nested lesson и interactive route,
+3. `BASE-003`: Live browser smoke открывает direct home, nested lesson и interactive route,
    проверяет assets, 404 и locale switch с query/hash под непустым base.
-4. Service worker script URL/scope и offline cache paths соответствуют base.
-5. GitHub Pages workflow явно передаёт production build значения
+4. `BASE-004`: Service worker script URL/scope и offline cache paths соответствуют base.
+5. `BASE-005`: GitHub Pages workflow явно передаёт production build значения
    `SITE_URL=https://zabulaaleksey.github.io` и
    `BASE_PATH=/electro-tutor/`; artifact audit подтверждает этот project base и
    не допускает localhost/machine-local URL.
@@ -50,3 +52,8 @@
 - управление внешним GitHub Pages deployment, DNS и repository settings;
 - полная перестройка CI quality gates следующего этапа;
 - изменение locale, lesson content или URL-state schemas.
+
+## История
+
+- 2026-09-22 — acceptance criteria получили stable IDs `BASE-001..005`, а
+  route parity отвязана от устаревшего фиксированного count 15 страниц.

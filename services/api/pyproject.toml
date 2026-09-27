@@ -34,6 +34,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
   "integration: requires an explicitly configured disposable PostgreSQL database",
+  "catalog_baseline: requires a freshly created exact disposable catalog database",
 ]
 
 [tool.ruff]

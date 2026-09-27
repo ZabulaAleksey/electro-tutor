@@ -38,7 +38,11 @@ pnpm backend:stop
 gate — `pnpm backend:check`; отдельные уровни — `backend:test:fast` и
 `backend:test:integration`. Удаление local DB разрешается только точным
 `ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и командой
-`backend:db:reset-local`.
+`backend:db:reset-local`; этот reset удаляет весь named volume, который
+может содержать данные из других checkouts, и не является способом
+исправления ET-10.3 drift. Для проверки независимой схемы без изменения
+dev-БД: `pnpm backend:db:catalog:baseline test`; для read-only диагностики
+dev-БД: `pnpm backend:db:catalog:diagnose` (exit 1 при обнаруженном drift).
 
 ### Local authentication ET-09.3
 
@@ -74,6 +78,14 @@ immutable subjects и application Accounts не зависели от прошл
 После success/failure runner останавливает local API, PostgreSQL и Keycloak без
 удаления named volumes; cleanup failure возвращает non-zero и точную recovery-команду.
 
+Для ET-10.3 на host с сохранённым original PostgreSQL volume используй
+`pnpm test:e2e:auth:isolated` из PowerShell. Этот runner проверяет точный
+disposable контейнер `electro-tutor-et103-test-20260926` на loopback `55434`,
+создаёт временный Keycloak на `58081`, запускает API и built browser phase,
+затем останавливает только эти два контейнера. Пароли создаются в памяти
+текущего процесса. Обычный `test:e2e:auth` использует original-bound Compose
+project и для preserved DB host не подходит.
+
 ## Проверки
 
 ```bash
@@ -85,7 +97,8 @@ pnpm verify:full
 ```
 
 Результат production-сборки находится в `dist/` и вручную не редактируется.
-`check:base-path` дополнительно собирает artifact во временный каталог с
+`check:base-path` собирает artifact во временный ignored каталог `.astro/`
+на том же томе с
 `BASE_PATH=/electro-tutor/`, проверяет internal links/assets и выполняет live
 Chromium smoke; временный artifact удаляется после проверки.
 `verify:full` выполняет frozen install, Git hygiene, static check, lint, все

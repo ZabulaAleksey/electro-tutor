@@ -48,6 +48,6 @@ Read-only `reconcile_project_framework.py` классифицировал reposi
 безопасность, состояние, roadmap и stage protocol. Новые hooks, MCP, config,
 Skill или subagent не добавлены: подтверждённого пробела для них нет.
 
-## Brownfield STAGES reconciliation 2026-09-15
+## Brownfield active ET-10.3 STAGES reconciliation 2026-09-15
 
-Old prompt stage catalog and AI pair — MERGE; `docs/STAGES.md` — ADD. Current remote main ET-09.4 partial; separate active local ET-10.3 feature at `1722d16` protected from overwrite. Product code/tests/locks/CI/config — FORBIDDEN_TO_OVERWRITE. Unique facts/SHA in `docs/notes/`, Git parent rollback; formal DEV bridge not asserted.
+Old prompt stage catalog and AI pair — MERGE; `docs/STAGES.md` — ADD. Selected local ET-10.3 implemented_unverified with protected dev DB (2 accounts, drift); remote ET-09.4 partial snapshot at `ac675d4` is retained in Git ancestry and does not overwrite active state. Product code/tests/locks/CI/config/DB/upstream assets — FORBIDDEN_TO_OVERWRITE. Source SHA/facts in `docs/notes/` and Git parent rollback; formal DEV bridge not asserted.

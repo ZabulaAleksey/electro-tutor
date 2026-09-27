@@ -24,8 +24,10 @@ Production deployment Electro Tutor допускается только для a
   загруженный verify job после успешных gates.
 - `QG-005`: ручной и автоматический production deploy разрешены только для
   `main`; фактический push/merge/deploy требует отдельного разрешения пользователя.
-- `QG-006`: verify получает только `contents: read`, checkout credentials не
-  сохраняются; `pages: write` и `id-token: write` принадлежат только deploy job.
+- `QG-006`: verify получает только `contents: read` для checkout и `pages: read`
+  для `actions/configure-pages`; checkout credentials не сохраняются.
+  `pages: write` и `id-token: write` принадлежат только deploy job. Permissions
+  задаются по job, без workflow-wide расширения.
 - `QG-007`: сторонние GitHub Actions закреплены полными commit SHA, install
   использует frozen lockfile, cache является только ускорением, а stale workflow
   runs отменяются через concurrency.

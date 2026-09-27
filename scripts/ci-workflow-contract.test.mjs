@@ -17,6 +17,27 @@ describe("GitHub Pages pre-deploy contract", () => {
     expect(() => validatePagesWorkflow(source)).not.toThrow();
   });
 
+  it("requires Pages read permission for verification", () => {
+    const broken = mutateWorkflow((workflow) => {
+      delete workflow.jobs.verify.permissions.pages;
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/pages: read/);
+  });
+
+  it("rejects Pages write permission in verification", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.jobs.verify.permissions.pages = "write";
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/pages: read/);
+  });
+
+  it("rejects workflow-wide permissions", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.permissions = { pages: "write" };
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/individual jobs/);
+  });
+
   it.each([
     ["type/static", "check"],
     ["unit/integration/component", "test"],

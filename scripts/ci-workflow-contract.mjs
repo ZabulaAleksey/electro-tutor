@@ -64,8 +64,10 @@ export function validatePagesWorkflow(source, fullVerificationSteps = fullVerify
     "Manual and automatic publication must be restricted to main.",
   );
   assert(workflow?.concurrency?.["cancel-in-progress"] === true, "Stale runs must be cancelled.");
-  assert(verify.permissions?.contents === "read", "Verify must have contents: read only.");
-  assert(Object.keys(verify.permissions).length === 1, "Verify permissions must be minimal.");
+  assert(workflow.permissions == null, "Permissions must be scoped to individual jobs.");
+  assert(verify.permissions?.contents === "read", "Verify must have contents: read.");
+  assert(verify.permissions?.pages === "read", "Verify must have pages: read for Pages configuration.");
+  assert(Object.keys(verify.permissions).length === 2, "Verify permissions must be minimal.");
   assert(deploy.permissions?.pages === "write", "Deploy must have pages: write.");
   assert(deploy.permissions?.["id-token"] === "write", "Deploy must have id-token: write.");
   assert(deploy.permissions?.actions === "read", "Deploy must have actions: read.");

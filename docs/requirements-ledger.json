@@ -106,17 +106,17 @@
     {
       "requirement_ids": ["INT-009", "LINE-001", "LINE-002", "LINE-003", "LINE-004", "LINE-005", "LINE-006", "LINE-007", "LINE-008", "LINE-009", "LINE-010"],
       "domain": "scientific-interactive-transient",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "code": ["transient-core/src", "src/transient", "src/components/TransmissionLineLab.tsx", "src/pages/[lang]/interactive/transmission-line.astro", "src/pages/[lang]/interactive/circular-diagram.astro"],
-      "unit": ["Rust reference suite: 6 PASS, 2 disputed assertions pending review; source-reflection regression 2 PASS; frontend unit 168 PASS"],
-      "integration": ["Pinned WASM build, pnpm lint/check/build and locale/site artifact audits PASS"],
-      "e2e": ["Built Chromium: 102 PASS/5 expected live-auth skips before default change; final targeted 6 PASS after default change and project-base Worker/WASM 1 PASS before it"],
+      "unit": ["Independent physics and approved numerical oracles: Rust reference 8 PASS; source-reflection 2 PASS; frontend unit 168 PASS"],
+      "integration": ["Pinned WASM source/artifact hash, Rust Clippy/rustfmt, pnpm lint/check/build and locale/site artifact audits PASS"],
+      "e2e": ["Built Chromium 106 PASS/5 expected unrelated live-auth skips; project-base Chromium 4+1 PASS including real Worker/WASM"],
       "runtime": "Rust/WASM numerical solver in a dedicated Worker; default ideal source Rs=0 reflects returning perturbations; state and per-cell coefficients use O(N) memory.",
       "security": "Finite bounded SI configuration and CFL validation; worker error shown to the user.",
       "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
       "observability": "Port, state, grid and energy readings plus local development performance overlay.",
-      "gap": "Two new Rust reference assertions are disputed and await permission to correct; final physics acceptance remains open.",
-      "action": "Resolve two numerical assertions with independent evidence, rerun full Rust gate and synchronize terminal ET-LINE-001 status."
+      "gap": "No open physics gate for ET-LINE-001; ET-10.3 manual screen-reader acceptance remains independent.",
+      "action": "Keep analytic Rust and live Worker/WASM browser regressions when extending line models; integrate this verified checkpoint into local main under Git policy."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],

@@ -11,15 +11,16 @@ Roadmap задаёт порядок развития, но не заменяет
 Статус: `DONE` (verified locally, 2026-09-28). Он использует завершённые
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
 Локальное слияние product code в `main` выполнено на `c19882e`; terminal
-status/evidence синхронизированы на feature branch и ожидают разрешённого
-fast-forward в canonical `main`.
+status/evidence интегрированы в canonical local `main@a7b198f` 2026-09-28.
+Push/deploy не выполнялись.
 
 ## ET-LINE-001 — Численный интерактив длинной линии
 
-Статус: `CURRENT`, реализация слита в local `main` по команде пользователя.
-Реальный Rust/WASM Worker solver и отдельный RU/UK route круговой диаграммы
-работают; численный gate остаётся открытым. PASS gates и NEXT принадлежат
-`STAGES.md`.
+Статус: `DONE` (verified locally, 2026-09-28). Product implementation уже
+в local `main`; Rust/WASM Worker solver, отдельный RU/UK route круговой
+диаграммы и все physics/browser gates прошли. Test/evidence checkpoint пока
+на `feature/line-transient-mvp`; canonical-main integration указана в
+`STAGES.md`. Push/deploy не выполнялись.
 
 ## Tutor stabilization track — 2026
 

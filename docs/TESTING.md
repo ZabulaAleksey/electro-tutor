@@ -2,6 +2,15 @@
 
 ## ET-LINE-001 — численный интерактив длинной линии
 
+### Terminal physics and browser verification — 2026-09-28
+
+- User approvals `ET-LINE-001-UA-01` and `UA-03` cover exactly three numerical assertions. Independent physics, units, initial conditions, topology, CFL/grid sensitivity, old/new expectations and tolerances: `docs/notes/et-line-physics-reconciliation.md`. Classified first-wave single-point oracle `MODEL/DISCRETIZATION_LIMITATION`, series and parallel late-RLC oracles `TEST_CONTRACT_BUG`. Solver code and shipped WASM unchanged; no assertion merely widened around a measured solver value.
+- `cargo fmt --check` PASS; `cargo test --locked --offline` PASS: reference 8/8, source-reflection 2/2; `cargo clippy --locked --offline --all-targets -- -D warnings` PASS. Cargo target redirected to isolated Codex work directory because sandbox denied writes to worktree target. `pnpm wasm:check` PASS: source/artifact hash still matches.
+- `pnpm test` 168 PASS/20 files, `pnpm lint` PASS, `pnpm check` 119 files/0 errors/0 warnings (2 generated WASM glue hints), `pnpm build` 25 pages, 24 localized routes/115 audited files PASS. `pnpm test:e2e:built` built Chromium 106 PASS/5 expected live-auth phase skips, including line Worker/WASM/Canvas and both locales. `pnpm check:base-path` static build/audits and Chromium 4+1 PASS, including real Worker/WASM under `/electro-tutor/`.
+- Native release microbenchmark N=1000/5000/10000 below predates test-only corrections; it remains applicable because solver and artifact are unchanged. No Keycloak, backend DB, original volume or external service is required for this static simulator acceptance. `ET-10.3` manual screen-reader gate remains separate.
+
+### Historical implementation and original failures
+
 - Изолированный `feature/line-transient-mvp` worktree на local `main` `c19882e`.
   `pnpm install --frozen-lockfile --offline` PASS. `wasm-bindgen-cli 0.2.129`
   установлен локально в ignored `.tools`; `cargo build --target wasm32-unknown-unknown
@@ -13,8 +22,9 @@
   сетке/дисперсии. `series_and_parallel_rlc_remain_finite` требует
   `|I_L|>0.01 А` в `t=20 мс` для обоих соединений, тогда как у последовательной
   RLC при DC конденсатор в установившемся состоянии разрывает путь и `I_L→0`.
-  Запрос на изменение именно этих двух новых assertions ожидает решение;
-  auto-review отклонил попытку без него. Нет claims о полном physics PASS.
+  Тогда изменение двух accepted assertions ожидало разрешения и auto-review
+  его отклонил; это исторический failed baseline, теперь разрешённый и
+  исправленный в terminal verification выше.
   `cargo fmt --check` и `cargo clippy --all-targets -- -D warnings` PASS;
   rustfmt добавил только пробелы, переносы и завершающие запятые, численные
   assertions не менялись. После форматирования Rust suite повторён: те же
@@ -37,7 +47,8 @@
   отражение и продолжение колебаний; при ручном выборе `Rs=50 Ω` возвращённая
   волна поглощается. После смены default `pnpm test` 168 PASS,
   `pnpm check` 119 files/0 diagnostics, lint/build/context PASS; ранее полный
-  built Chromium 102 PASS не повторялся после смены default.
+  built Chromium 102 PASS на тот момент не повторялся после смены default;
+  полный повтор 106 PASS/5 expected skips указан выше.
 - `pnpm check:base-path`: `/electro-tutor/` static build/audits PASS,
   существующий base-path Chromium 4 PASS и дополнительный реальный
   `uk/interactive/transmission-line/` → Worker → ES module → WASM путь 1 PASS.

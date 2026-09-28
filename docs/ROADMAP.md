@@ -8,11 +8,11 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ## ET-STAR-001 — Несимметричная звезда с нейтралью
 
-Статус: `CURRENT` (локальные проверки завершены; terminal status и
-integration decisions указаны в `STAGES.md`). Он использует завершённые
+Статус: `DONE` (verified locally, 2026-09-28). Он использует завершённые
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
-Локальное слияние в `main` выполнено на `c19882e`; terminal status
-ожидает отдельного решения в `STAGES.md`.
+Локальное слияние product code в `main` выполнено на `c19882e`; terminal
+status/evidence синхронизированы на feature branch и ожидают разрешённого
+fast-forward в canonical `main`.
 
 ## ET-LINE-001 — Численный интерактив длинной линии
 

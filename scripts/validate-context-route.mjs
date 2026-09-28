@@ -128,6 +128,7 @@ const requirementIdPrefixes = [
   "REC",
   "PAY",
   "AI",
+  "INAPP",
   "INT",
   "LINE",
   "OPS",

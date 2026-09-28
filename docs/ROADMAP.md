@@ -437,9 +437,9 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 
 ### ET-14 — Notifications и background jobs (`FEATURE_NEXT`)
 
-- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `BLOCKED`
-  до утверждённой notification policy ADR и безопасной disposable DB среды;
-  exact gate и runnable slice — в `STAGES.md`.
+- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `CURRENT`;
+  notification policy v1/ADR-032 утверждена, реализация готова к запуску.
+  Real DB acceptance потребует доказанной disposable среды; exact NEXT в `STAGES.md`.
 - **ET-14.2 — Preferences, timezone и reminders.** Статус: `PLANNED`.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.

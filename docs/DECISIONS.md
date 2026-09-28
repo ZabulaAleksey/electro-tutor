@@ -932,3 +932,39 @@ drift); отключение или игнорирование Alembic result; �
 скачивания Rust toolchain. Локальная регенерация требует закреплённой версии
 CLI 0.2.129. Отказ от WebGPU, threads, MNA и полного timeline в MVP сохраняет
 детерминированное O(N) состояние и переносимый static browser path.
+
+
+## ADR-032 — Внутренние уведомления ET-14.1
+
+Статус: принято 2026-09-28 по прямому решению пользователя. Контракт первого
+bounded stage — `specs/features/in-app-notifications.spec.md`; дальнейшие
+внешние каналы требуют отдельных stages.
+
+V1 хранит application notifications внутри Electro Tutor. Первый producer —
+успешный переход `booking.accepted`: одна приватная запись для student Account
+этого Booking. Booking и grant остаются authoritative; ошибка доставки не
+отменяет уже принятый Booking. Durable event/outbox создаётся в той же DB
+транзакции, worker идемпотентно материализует inbox item. Ни fire-and-forget
+в HTTP process, ни утверждения exactly-once delivery нет. Дубли исключаются
+уникальным business key события/recipient; retry сверяет существующий итог.
+
+Срок жизни обычной записи — 30 дней от `created_at`. По истечении она не
+попадает в list/count и недоступна через item API; bounded maintenance может
+физически удалить её. `read_at` фиксирует прочтение, но не сокращает срок
+видимости. V1 не предоставляет delete и mark-all API: один mark-read сохраняет
+ясную owner boundary; добавление других mutations требует фактического UX.
+
+Канонические данные — machine-readable `booking.accepted`, bounded structured
+payload с booking UUID и restricted internal navigation target. RU/UK текст
+формируется presentation layer по type и locale, HTML и локализованная строка
+не хранятся как единственная истина. Произвольные URL/redirect запрещены.
+List, unread count и mark-read серверно ограничены текущим Account; foreign ID
+не раскрывает запись, frontend не является authorization boundary. Список
+пагинирован; unread count исключает истёкшие записи. Realtime не требуется:
+refresh/navigation может повторно запросить inbox.
+
+Внешние push/email/SMS/Telegram providers, preferences, reminders и новые
+notification categories вне ET-14.1. Единая application boundary и
+structured event позволяют добавить каналы позднее без изменения Booking
+truth. Технический выбор worker, индексов, cleanup и retry уточняется в
+implementation при сохранении этого контракта и проверяется real DB/E2E.

@@ -10,6 +10,7 @@
       "specs/features/base-path-portability.spec.md",
       "specs/features/circular-diagram-state.spec.md",
       "specs/features/context-automation.spec.md",
+      "specs/features/in-app-notifications.spec.md",
       "specs/features/lesson-access-grants.spec.md",
       "specs/features/lesson-publishing.spec.md",
       "specs/features/lesson-sessions.spec.md",
@@ -282,6 +283,21 @@
       "observability": "Mutation audit and request/correlation IDs.",
       "gap": "Protected dev DB drift, port conflict, live authenticated phase and manual RU/UK gate.",
       "action": "Approve data-preserving recovery/isolation, free port safely, rerun backend:check and live Session E2E."
+    },
+    {
+      "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
+      "domain": "in-app-notifications-v1",
+      "status": "PLANNED",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "ADR-032 and binding feature SPEC approved; implementation not yet started.",
+      "security": "Server-owned recipient, foreign-ID masking and safe internal navigation are binding requirements.",
+      "a11y": "RU/UK keyboard and accessible unread state are binding requirements; no UI evidence yet.",
+      "observability": "Outbox attempts, lag and failure without private payload are required; not implemented.",
+      "gap": "PostgreSQL migration, worker, API, inbox UI and real E2E remain to implement and verify.",
+      "action": "Implement ET-14.1 vertical slice from approved ADR-032 and SPEC; verify on isolated DB without original-volume mutation."
     },
     {
       "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],

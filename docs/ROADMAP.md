@@ -289,8 +289,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
 не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
-canonical main@9762797 после real DB/worker/browser acceptance; policy ET-14.2
-утверждена ADR-033, реализация ведётся в отдельной feature-ветке. ET-10.3 остаётся
+canonical main@9762797 после real DB/worker/browser acceptance; ET-14.2 verified locally on feature/et-14-2-reminders after disposable DB/Keycloak/browser acceptance; next ET-14.3 needs privacy policy and test bot access. ET-10.3 остаётся
 implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
@@ -441,8 +440,7 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 - **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
   в canonical main после clean/upgrade/rollback DB и live browser
   acceptance; push/deploy не было.
-- **ET-14.2 — Preferences, timezone и reminders.** Статус: PARTIAL;
-  product policy утверждена ADR-033, implementation/acceptance в работе. Точный NEXT в docs/STAGES.md.
+- **ET-14.2 — Preferences, timezone и reminders.** Статус: VERIFIED locally on feature/et-14-2-reminders after final 0014 catalog, real DB/concurrency/DST and live RU/UK browser acceptance; merge/push/deploy не выполнялись. Точный NEXT в docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.
 - **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый

@@ -209,6 +209,9 @@ Platform payments не реализованы. Требования находя
 Любое изменение платежей, аутентификации, внешних scripts, OAuth или хранения
 данных требует security review.
 
+## ET-14.2 reminder ownership
+
+Настройки доступны только через текущую application session; PUT требует точный разрешённый Origin. Client не передаёт Account ID для чтения или записи настроек. Таблицы reminder_settings и booking_reminders закрыты от прямого runtime DML; узкие security-definer функции привязывают операции к session Account или проверенному Booking transition. Worker повторно проверяет состояние Booking и 15-minute grace перед записью в ET-14.1 outbox; cancellation/settings change инвалидируют queued intent. Unique business keys и row locks исключают duplicate при двух workers. Real PostgreSQL тесты проверили foreign/anonymous access, ACL, stale cancellation и concurrency; isolated live browser подтвердил foreign notification read 404. Telegram и другие внешние каналы отсутствуют в ET-14.2; их privacy/credential gate относится к ET-14.3.
 ## Проверка изменений
 
 - поиск случайно добавленных секретов и приватных URL;

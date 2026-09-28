@@ -148,3 +148,12 @@ remains pending. Routes are local/CI, not deployed.
 All routes are `no-store`, return no Account ID or arbitrary navigation URL,
 and use the established error envelope. The browser constructs only the typed
 internal Booking link. Transport/unit, real PostgreSQL ownership/ACL and live isolated browser→API→worker checks passed; see `STAGES.md`.
+
+## ET-14.2 reminder settings API — locally verified
+
+| Route | Contract |
+|---|---|
+| GET /api/v1/reminder-settings/me | active session; returns own IANA timezone or null, 24h/1h/15m toggles and quiet-hours settings; defaults true/true/false and quiet hours off |
+| PUT /api/v1/reminder-settings/me | active session and exact allowed Origin; validates IANA zone, independent toggles and optional HH:mm quiet-hours range; atomically recalculates future own Booking intents |
+
+No route accepts an Account ID or foreign Booking ID. Direct reminder-job tables are unavailable to the runtime role; Booking transition and settings functions scope by the bound application session. Notification list items can carry only the typed booking.reminder.24h, .1h or .15m events and Booking UUID. The browser renders RU/UK content and constructs a bounded internal Booking link. Real PostgreSQL ownership/ACL, concurrent worker and isolated live browser checks passed; see STAGES.md and TESTING.md.

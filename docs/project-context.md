@@ -91,10 +91,10 @@ agents, Skills и Git workflow наследуются; локальные коп
   decision. Migration lifecycle требует exact consent и database
   `electro_tutor_test`. Browser E2E also uses that isolated database through
   `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
-- Worker/scheduler commands: ET-09.2 baseline had none; ET-14.1 feature adds
+- Worker/scheduler commands: ET-09.2 baseline had none; ET-14.1 introduced
   `pnpm backend:notifications:worker` and Compose `notification-worker`
   with bounded delivery/cleanup. BDX-L3 isolated acceptance passed with
-  disposable PostgreSQL/Keycloak and 0013 catalog; preserved original DB still
+  disposable PostgreSQL/Keycloak and 0013/0014 catalog evidence; preserved original DB still
   requires separate compatibility proof before any migration or worker start.
 - External sandbox/stub/fallback modes: isolated Keycloak DEV — real provider
   evidence, не mock и не production; IdP/DB outage fail closed без local identity
@@ -108,7 +108,8 @@ agents, Skills и Git workflow наследуются; локальные коп
 - Known limitations: production backend hosting/ingress/IAM/cookie topology не
   выбраны; exact credentialed CORS действует только для DEV/E2E. ET-14.1
   worker/catalog/live job verification passed on an isolated disposable stack.
-  Current Core head metadata covers 17 product tables (ADR-028 baseline: 15 at 0012) and a
+  ET-14.2 reuses the same worker for due reminder jobs; final 0014 clean/upgrade/catalog, concurrent worker and live browser acceptance passed on a separate disposable 55437 stack.
+  Current Core head 0014 metadata covers 19 product tables (ADR-028 baseline: 15 at 0012) and a
   committed `pg_catalog` manifest for functions, triggers, CHECKs, indexes
   and private ACL. A newly migrated scratch DB passes Alembic check, catalog
   parity and 9 transactional drift negatives. The existing dev DB at head

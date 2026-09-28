@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-14.2
+- Stage ID: ET-14.3
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -64,7 +64,7 @@
 - User action `ET-STAR-001-UA-01`: DONE для локального fast-forward merge `dc38ee6 → c19882e` по команде пользователя «Сливай» 2026-09-28. Clean/merged checkout, отсутствие active preview/process и регенерируемость ignored Playwright/node_modules данных проверены; `worktree_policy.py check-delete` PASS, `worktrees/star-phasor` удалён через Git и остаточный cache очищен, каталог отсутствует. Push/deploy не выполнялись.
 - Verification refresh 2026-09-28: `pnpm test` 168 PASS, lint PASS, Astro check 119 files/0 errors/0 warnings, build 25 pages/24 localized routes/115 audited files PASS, built Chromium 106 PASS/5 expected unrelated live-auth skips (star cases PASS), project-base 4+1 Chromium PASS, `check:context` PASS. Scope: static local/browser path, no backend.
 - User action `ET-STAR-001-UA-02`: DONE by this run's explicit direction to execute all automatable stages; current tests and browser acceptance above, documentation checkpoint committed on feature branch. Unlock — terminal `verified` projection; canonical-main documentation sync awaits `ET-LINE-001-UA-02`.
-- NEXT: ET-14.2-MIGRATION-SCHEDULER
+- NEXT: ET-14.3-POLICY-AND-TEST-BOT
 - Next action: none for ET-STAR-001; retain independent ET-10.3 manual gate.
 
 ## ET-LINE-001 — Численный transient симулятор длинной линии
@@ -83,8 +83,8 @@
 - User action `ET-LINE-001-UA-02`: DONE 2026-09-28; user explicitly authorized exact `main → a7b198f`. Preflight confirmed clean expected refs and ancestry; `git merge --ff-only` PASS, `main` HEAD exactly `a7b198f`, design/reconciliation commits reachable, context/CI/hygiene validators PASS. Push/deploy NOT RUN. Unlock — canonical-main design/status integration.
 - User action `ET-LINE-001-UA-03`: DONE 2026-09-28; user separately approved review of the third parallel-RLC `|U_C|>0.01 V` assertion after independent analytical and grid-sensitivity checks. Physics evidence in `docs/notes/et-line-physics-reconciliation.md`; unlock — focused and complete Rust reference validation. No terminal PASS inferred from approval alone.
 - Verification completion 2026-09-28: three physical oracles passed Rust reference 8/8 and full crate tests; Clippy, rustfmt, WASM artifact hash, 168 frontend tests, lint, typecheck, production build, root built Chromium 106 PASS/5 expected live-auth skips and base-path 4+1 Chromium PASS. `ET-LINE-001` verified locally; no backend/IdP or manual screen-reader completion inferred. Final `pnpm verify:full -- --skip-install` exit 0: hygiene/CI, Astro check, lint, 168 Vitest, root built Chromium 106 PASS/5 expected skips, 25-page build, production smoke 4 PASS, dependency audit 3 moderate/0 high or critical.
-- NEXT: ET-14.2-MIGRATION-SCHEDULER
-- Next action: none for ET-LINE-001; ET-14.1 is verified in canonical main and ET-14.2 is the active independent stage. ET-10.3-UA-19 remains a separate human gate.
+- NEXT: ET-14.3-POLICY-AND-TEST-BOT
+- Next action: none for ET-LINE-001; ET-14.1 is verified in canonical main; ET-14.2 is verified on its feature branch; ET-14.3 awaits external/privacy inputs. ET-10.3-UA-19 remains a separate human gate.
 - User action `ET-LINE-001-UA-04`: DONE 2026-09-28; user approved exact `main@a7b198f → feature/line-transient-mvp@fefe168` for commits `6a0d08c`, `19b1a27`, `fefe168`. Fresh preflight: both worktrees clean, merge base `a7b198f`, remote `main` read-only HEAD unchanged at `dc38ee6`. `git merge --ff-only` PASS; local `main@fefe168` clean, all three commits reachable, context/CI/hygiene validators PASS. Push/deploy/worktree deletion NOT RUN.
 
 ## ET-14.1 — Domain events, jobs/outbox и in-app inbox
@@ -103,18 +103,34 @@
 - User action ET-14.1-UA-01: DONE 2026-09-28; approved v1 policy recorded in ADR-032/SPEC.
 - User action ET-14.1-UA-02: DONE BY ISOLATION 2026-09-28; exact disposable Docker identity/mount/port and preserved-container states checked before mutation; clean/upgrade/catalog/worker/live E2E evidence above.
 - User action ET-14.1-UA-03: DONE 2026-09-28. User approved exact local main@9350797 → feature/et-14-1-notifications@9762797; both worktrees clean, merge base exact, live origin/main unchanged. git merge --ff-only PASS; all 11 commits reachable, main clean, context/CI/hygiene validators PASS. Push/deploy NOT RUN.
-- NEXT: ET-14.2-MIGRATION-SCHEDULER
+- NEXT: ET-14.3-POLICY-AND-TEST-BOT
 
 ## ET-14.2 — Preferences, timezone и reminders
 
-- Status: partial
-- Condition: ET-14.1 verified and integrated into canonical main@9762797; user approved bounded reminder policy 2026-09-28. ADR-033 and specs/features/booking-reminders.spec.md define the current contract. Implementation and acceptance remain open.
-- Dependencies: ET-14.1 verified; policy approved. ET-10.3 manual gate is independent.
-- Goal/scope: explicit own IANA timezone and 24h/1h/15m settings → accepted immutable Booking schedules owner-scoped intents → quiet-hours/late policy → ET-14.1 inbox. Booking reschedule is cancel + new Booking per accepted Booking SPEC.
-- Runnable vertical slice: user saves timezone/preferences; two participants accept Booking; due worker emits one localized reminder per enabled eligible offset; cancellation invalidates pending jobs, replacement Booking schedules anew.
-- PASS contract: reversible migration/catalog parity on disposable PostgreSQL; real DB scheduler/DST/quiet-hours/late/cancellation/ownership/concurrent-worker tests; RU/UK settings and live browser→API→DB→worker E2E; docs/context/security review. No mock-only completion.
-- User action ET-14.2-UA-01: DONE 2026-09-28. Directly approved 24h+1h ON, 15m opt-in, explicit IANA zone, quiet hours OFF by default, defer/skip semantics, cancel/new Booking replacement and 15-minute late grace. Recorded in ADR-033/SPEC; unlock ET-14.2 implementation.
-- NEXT: ET-14.2-MIGRATION-SCHEDULER
+- Status: verified
+- Condition: ET-14.1 verified in local main@9762797; approved ADR-033 and booking-reminders SPEC implemented on feature/et-14-2-reminders. Local commit 57c6867 contains the terminal implementation; it is not merged to main, pushed or deployed.
+- Dependencies: ET-14.1 verified; reminder policy approved. ET-10.3 manual gate is independent.
+- Goal/scope: explicit IANA timezone and 24h/1h/15m settings; owner-scoped durable Booking intents; quiet-hours/DST/15-minute grace; ET-14.1 outbox/inbox delivery. Booking reschedule remains cancel plus new immutable Booking.
+- PASS contract: reversible migration/catalog parity on disposable PostgreSQL; real DB scheduler/DST/quiet-hours/late/cancellation/ownership/concurrent-worker tests; RU/UK settings and live browser→Keycloak→API→DB→worker; docs/context/security review.
+- Evidence 2026-09-29: isolated PostgreSQL 17.6 on 127.0.0.1:55437 and ephemeral Keycloak 26.7.2 on 58081; exact disposable mounts/ports checked, original Electro Tutor and MathMorph containers/volumes untouched. Fresh test and independent catalog DBs migrated base→0014; manifest matches test DB. Separate empty rehearsal passed 0013→0014, 0014→0013→0014, Alembic check and catalog parity. Earlier disposable partial-0014/test DBs preserved by rename, never discarded. Backend 202 DB-free PASS, 64 real PostgreSQL integration PASS with 17 unrelated environment skips; exact inclusive +15-minute boundary and two simultaneous workers verified. Ruff, format and mypy PASS.
+- Browser evidence 2026-09-29: frontend 174 Vitest PASS; ESLint, Astro 129 files/0 errors/0 warnings, locale/CI/hygiene/context checks and 25-page/115-file production build PASS. Built Chromium 110 PASS/5 expected live-auth skips; production smoke 4 PASS. Isolated live Keycloak profile/auth 7 PASS/3 expected phase skips, ET-14.1 notification regression 1 PASS, ET-14.2 reminder 1 PASS: settings persistence, keyboard, RU/UK, Booking acceptance, due worker, localized inbox item, anonymous 401 and foreign notification read 404. Full verify exit 0; dependency audit found 3 moderate, 0 high.
+- AUTOMATED_A11Y: PASS for semantic settings controls, keyboard save/focus, localized names/states and automated Chromium UI checks. MANUAL_SCREEN_READER_GATE: PENDING only for independent ET-10.3.
+- Limits: original data-bearing DB 8-column read_booking_operation(uuid) compatibility remains unmodified; feature branch awaits separate merge authorization. No push/deploy. ET-14.3 has a genuine privacy/credential/external gate; ET-14.4 needs provider selection; ET-11.1 depends on ET-10.3 terminal/manual and original DB compatibility.
+- User action ET-14.2-UA-01: DONE 2026-09-28. Approved defaults, IANA zone, quiet hours, cancel/new Booking, and 15-minute grace; ADR-033/SPEC.
+- No-tails audit 2026-09-29: canonical main@9762797 clean, origin/main@dc38ee6 unchanged; prior ET-14.1, line, design and detached 72212d5 material reachable from main. All historical worktrees clean. Feature/et-14-2-reminders descends main and contains the intentional unmerged ET-14.2 tail; no stash or unknown dirty checkout. 0014 is the only new migration and has fresh catalog/upgrade evidence. No orphan material; merge remains an explicit approval boundary.
+- NEXT: ET-14.3-POLICY-AND-TEST-BOT
+
+## ET-14.3 — Secure Telegram linking и delivery adapter
+
+- Status: blocked
+- Blockers: unapproved Telegram privacy/content/retention semantics; missing disposable test bot token and consenting test recipient/chat.
+- Condition: ET-14.2 terminal local verification exists, but no approved Telegram privacy/content/retention contract or bot and test-recipient credentials; no live provider acceptance can run.
+- Dependencies: ET-14.2 verified; explicit privacy decision and disposable test bot/channel access. ET-10.3 manual gate is independent.
+- Goal/scope: opt-in account↔Telegram linking and bounded delivery adapter after approved data contract. No provider code is claimed complete.
+- User action ET-14.2-UA-02: PENDING MERGE APPROVAL. After a fresh clean/ancestry/remote preflight, allow local main fast-forward to the final feature/et-14-2-reminders HEAD, then check status, commit reachability and context/hygiene validators. Evidence: exact local merge result. This does not authorize push, deploy, force or worktree deletion.
+- User action ET-14.3-UA-01: PENDING PRODUCT DECISION. Approve exact Telegram opt-in, message data/content, chat-ID retention/deletion and unlink behavior in a feature SPEC/ADR. Evidence: reviewed signed-off contract; unlocks bounded implementation.
+- User action ET-14.3-UA-02: PENDING CREDENTIAL/EXTERNAL. Provide a test bot token via the approved local secret mechanism and a consenting disposable test recipient/chat, never in Git or STAGES. Evidence: live provider-side send/link/unlink and negative ownership checks; unlocks terminal E2E.
+- NEXT: ET-14.3-POLICY-AND-TEST-BOT
 
 ## Поздние этапы
 

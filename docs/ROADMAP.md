@@ -8,8 +8,8 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ## ET-STAR-001 — Несимметричная звезда с нейтралью
 
-Статус: `CURRENT` (отдельный локальный feature track; финальная верификация и
-integration decision указаны в `STAGES.md`). Он использует завершённые
+Статус: `CURRENT` (локальные проверки завершены; terminal status и
+integration decisions указаны в `STAGES.md`). Он использует завершённые
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
 
 ## Tutor stabilization track — 2026

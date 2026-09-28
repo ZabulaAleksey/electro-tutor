@@ -90,6 +90,12 @@ export function calculateStar(parameters: StarParameters): StarCalculation {
     displacement = divideComplex(numerator, denominator);
   }
 
+  // Keep the singular diagnostic for mathematically indeterminate legacy inputs;
+  // otherwise reject negative resistance before returning physical results.
+  if (PHASES.some(phase => phases[phase].re < 0) || neutral.re < 0) {
+    return { ok: false, reason: "range" };
+  }
+
   const voltages = {} as PhaseValues;
   const currents = {} as PhaseValues;
   for (const phase of PHASES) {

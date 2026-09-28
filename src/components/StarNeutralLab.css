@@ -1,3 +1,5 @@
+@import "./StarDiagramColors.css";
+
 .star-page { padding-top: 45px; }
 .star-page-intro { max-width: 850px; margin-bottom: 28px; }
 .star-page-intro h1 { font-size: clamp(34px, 4vw, 54px); letter-spacing: -.045em; margin: 12px 0; }
@@ -9,7 +11,7 @@
 .star-presets > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .star-presets button, .star-plot-actions button { border: 1px solid var(--line); background: var(--white); padding: 8px 11px; border-radius: 8px; cursor: pointer; }
 .star-presets button:hover, .star-plot-actions button:hover { border-color: var(--green); }
-.star-top-grid, .star-diagrams { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.star-top-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .star-card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 15px; background: var(--white); }
 .star-card h2 { font-size: 20px; margin: 0 0 17px; }
 .star-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
@@ -27,24 +29,35 @@
 .star-field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .star-hint { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 8px 0; }
 .star-card svg { display: block; width: 100%; height: auto; max-width: 560px; margin: 10px auto; overflow: hidden; }
-.star-axes text { fill: var(--muted); font-size: 10px; }
-.star-axes .star-axis-label { font-size: 13px; font-weight: 700; fill: var(--ink); }
-.star-grid-line { stroke: var(--line); stroke-width: 1; }
-.star-axis { stroke: var(--muted); stroke-width: 1.5; }
+.star-axes text { fill: var(--star-plot-axis); font-size: 10px; }
+.star-axes .star-axis-label { font-size: 13px; font-weight: 700; fill: var(--star-plot-label); }
+.star-grid-line { stroke: var(--star-plot-grid); stroke-width: 1; }
+.star-axis { stroke: var(--star-plot-axis); stroke-width: 1.5; }
 .star-point line { stroke: var(--phase-color); stroke-width: 1.5; opacity: .65; }
-.star-point circle { fill: var(--phase-color); stroke: var(--white); stroke-width: 3; cursor: grab; touch-action: none; }
+.star-point circle { fill: var(--phase-color); stroke: var(--star-plot-halo); stroke-width: 3; cursor: grab; touch-action: none; }
 .star-point circle:active { cursor: grabbing; }
 .star-impedance svg { user-select: none; }
-.star-point text { fill: var(--ink); font-size: 17px; font-weight: 800; paint-order: stroke; stroke: var(--white); stroke-width: 4px; }
-.star-phase-a, .star-vector-a { --phase-color: var(--orange); }
-.star-phase-b, .star-vector-b { --phase-color: var(--blue); }
-.star-phase-c, .star-vector-c { --phase-color: var(--violet); }
-.star-vector { color: var(--phase-color, var(--green)); }
+.star-point text { fill: var(--star-plot-label); font-size: 17px; font-weight: 800; paint-order: stroke; stroke: var(--star-plot-halo); stroke-width: 4px; }
+.star-phase-a { --phase-color: var(--star-z-a); }
+.star-phase-b { --phase-color: var(--star-z-b); }
+.star-phase-c { --phase-color: var(--star-z-c); }
+.star-guide { stroke: var(--star-plot-grid); stroke-width: 1; }
+.star-vector { color: var(--star-vector-color); }
+.star-source, .star-marker-source, .star-key-source { --star-vector-color: var(--star-voltage-phase); }
+.star-line, .star-marker-line, .star-key-line { --star-vector-color: var(--star-voltage-line); }
+.star-load, .star-marker-load, .star-key-load { --star-vector-color: var(--star-voltage-load); }
+.star-displacement, .star-marker-displacement, .star-key-displacement { --star-vector-color: var(--star-voltage-neutral); }
+.star-current, .star-marker-current, .star-key-current { --star-vector-color: var(--star-current); }
 .star-vector line { stroke: currentColor; stroke-width: 2.5; }
-.star-vector text { fill: var(--ink); font-size: 16px; font-weight: 800; paint-order: stroke; stroke: var(--white); stroke-width: 4px; }
-.star-vector path { fill: currentColor; }
-.star-source line { stroke-dasharray: 7 5; stroke-width: 3.5; opacity: .75; }
-.star-neutral { color: var(--green); }
+.star-vector text { fill: var(--star-vector-color); font-size: 14px; font-weight: 800; paint-order: stroke; stroke: var(--star-plot-halo); stroke-width: 4px; }
+.star-marker { fill: var(--star-vector-color); }
+.star-source line { stroke-dasharray: 7 5; stroke-width: 5; }
+.star-current line { stroke-width: 2; }
+.star-node circle { fill: var(--star-plot-label); stroke: var(--star-plot-halo); stroke-width: 2; }
+.star-node text { fill: var(--star-plot-label); font-size: 15px; font-weight: 800; paint-order: stroke; stroke: var(--star-plot-halo); stroke-width: 4px; }
+.star-scales, .star-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; line-height: 1.5; }
+.star-scales { font-weight: 700; margin: 5px 0 10px; }
+.star-legend span { color: var(--star-vector-color); font-weight: 700; }
 .star-error { padding: 15px 20px; border: 1px solid var(--orange); border-radius: 10px; color: var(--ink); background: var(--white); }
 .star-table-scroll { overflow-x: auto; max-width: 100%; }
 .star-results table { border-collapse: collapse; width: 100%; min-width: 560px; text-align: left; }
@@ -55,7 +68,7 @@
 .star-entry h2 { margin: 0 0 7px; font-size: 22px; }
 .star-entry p { color: var(--muted); margin: 0 0 10px; }
 .star-entry a { color: var(--green); font-weight: 800; }
-@media (max-width: 900px) { .star-top-grid, .star-diagrams { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) { .star-top-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) {
   .star-page { padding: 32px 20px 70px; }
   .star-card { padding: 16px; }

@@ -404,6 +404,9 @@ imports из frontmatter не допускаются.
 или диагностическая причина передаются SVG-графикам и таблице. Числовые поля и
 drag точки меняют один state. Округление происходит только при отображении;
 сервер, URL-state и новая графическая библиотека в этом контуре не участвуют.
+Плоскость Z ограничивает R ≥ 0; соседний SVG помещает N, n и A/B/C на плоскость
+напряжений и рисует токи от n с отдельным масштабом. Палитра обоих SVG
+хранится в `src/components/StarDiagramColors.css` для светлой и тёмной тем.
 `circular-diagram-state.ts` владеет схемой `v=1`, defaults, domain limits и pure
 pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.tsx`
 получает только типизированное состояние, синхронизирует его с UI и browser
@@ -498,7 +501,7 @@ Wrangler и edge redirect больше не являются компонент�
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
 | Математика круговой диаграммы | `src/models/circular-diagram.ts` |
 | Математика звезды и presets | `src/models/star-neutral.ts` |
-| UI, плоскость Z и векторные диаграммы звезды | `src/components/StarNeutralLab.tsx`, `src/components/StarNeutralPlots.tsx` |
+| UI, плоскость Z и совмещённая топографическая диаграмма звезды | `src/components/StarNeutralLab.tsx`, `src/components/StarNeutralPlots.tsx`, `src/components/StarDiagramColors.css` |
 | URL/state schema и limits | `src/models/circular-diagram-state.ts` |
 | Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |

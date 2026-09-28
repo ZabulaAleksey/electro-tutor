@@ -189,7 +189,7 @@ def _create_functions() -> None:
     DECLARE v_actor uuid:=public.current_session_account_id();
     BEGIN
       IF p_limit IS NULL OR p_limit<1 OR p_limit>50 OR
-         p_offset IS NULL OR p_offset<0 OR p_offset>10000 THEN
+         p_offset IS NULL OR p_offset<0 THEN
         RAISE EXCEPTION 'invalid_notification_page' USING ERRCODE='22023';
       END IF;
       RETURN QUERY

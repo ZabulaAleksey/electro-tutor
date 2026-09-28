@@ -141,7 +141,7 @@ remains pending. Routes are local/CI, not deployed.
 
 | Route | Contract |
 |---|---|
-| `GET /api/v1/notifications?limit=20&offset=0` | active session, owner-only list; limit 1..50, offset 0..10000; item contains opaque ID, `booking.accepted`, Booking UUID, created/expiry/read times |
+| `GET /api/v1/notifications?limit=20&offset=0` | active session, owner-only list; limit 1..50, non-negative 32-bit offset; item contains opaque ID, `booking.accepted`, Booking UUID, created/expiry/read times |
 | `GET /api/v1/notifications/unread-count` | active session, own unexpired unread count |
 | `POST /api/v1/notifications/{id}/read` | active session plus exact allowed Origin; idempotent 204 for own unexpired item; foreign/unknown/expired masked 404 |
 

@@ -80,7 +80,7 @@ async function request<T>(
 export function listNotifications(
   fetcher: Fetcher, origin: URL, offset = 0, signal?: AbortSignal,
 ): Promise<NotificationResult<NotificationItem[]>> {
-  if (!Number.isInteger(offset) || offset < 0 || offset > 10000) {
+  if (!Number.isInteger(offset) || offset < 0 || offset > 2_147_483_647) {
     return Promise.resolve({ ok: false, status: 0, code: "invalid_page" });
   }
   return request(fetcher, origin, `/api/v1/notifications?limit=20&offset=${offset}`, (body) => {

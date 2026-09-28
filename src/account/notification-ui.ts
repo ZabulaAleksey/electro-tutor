@@ -121,7 +121,7 @@ export function mountNotifications(): void {
     for (const item of result.value) list.append(render(item, version));
     offset += result.value.length;
     state.textContent = offset === 0 ? copy.empty : "";
-    more.hidden = result.value.length < 20 || offset > 10000;
+    more.hidden = result.value.length < 20 || offset > 2_147_483_647;
     void refreshCount(version, signal);
   };
 

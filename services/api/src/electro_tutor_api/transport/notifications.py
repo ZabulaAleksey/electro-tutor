@@ -76,7 +76,7 @@ def build_notification_router(
     @router.get("/notifications", response_model=NotificationListResponse)
     async def list_notifications(
         limit: int = Query(20, ge=1, le=50),
-        offset: int = Query(0, ge=0, le=10000),
+        offset: int = Query(0, ge=0, le=2_147_483_647),
         context: NotificationRequestContext = dependency,
     ) -> NotificationListResponse:
         items = await service.list(

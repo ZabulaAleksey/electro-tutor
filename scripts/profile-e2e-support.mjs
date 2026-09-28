@@ -144,7 +144,7 @@ export function trustedCliEnvironment(environment = process.env) {
   );
   const useTestDatabase = environment.ET_E2E_DATABASE_TARGET === "test";
   const isolatedPort = environment.ET_TEST_POSTGRES_PORT;
-  if (isolatedPort && (!useTestDatabase || !/^(?:55433|55434)$/.test(isolatedPort))) {
+  if (isolatedPort && (!useTestDatabase || !/^(?:55433|55434|55436)$/.test(isolatedPort))) {
     throw new Error("Trusted E2E CLI requires a supported disposable test PostgreSQL port.");
   }
   const testUrl = (url) => isolatedPort

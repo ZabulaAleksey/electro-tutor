@@ -8,10 +8,13 @@ const root = resolve(import.meta.dirname, "..");
 const apiRoot = join(root, "services", "api");
 const python = join(apiRoot, ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const port = process.env.ET_TEST_POSTGRES_PORT;
-if (process.env.BACKEND_CLONE_CONTAINER !== "electro-tutor-et103-test-20260926"
-  || port !== "55434" || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
+const legacyTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et103-test-20260926"
+  && port === "55434";
+const notificationTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et141-test-20260928"
+  && port === "55436";
+if (!(legacyTrack || notificationTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
   || !process.env.ET_DEV_TEST_PASSWORD) {
-  throw new Error("Isolated auth phase requires the exact disposable test DB and ephemeral IdP credentials.");
+  throw new Error("Isolated auth phase requires an exact disposable test DB and ephemeral IdP credentials.");
 }
 const baseEnvironment = Object.fromEntries(Object.entries(process.env)
   .filter(([key]) => !key.startsWith("ET_") && !key.startsWith("E2E_")
@@ -68,7 +71,9 @@ function browserPhase(phase, identities) {
     E2E_AUTH_PHASE: phase,
     E2E_SPEC: phase === "lesson-session"
       ? "tests/e2e/auth-lesson-session.spec.ts"
-      : "tests/e2e/auth-flow.spec.ts",
+      : phase === "notification"
+        ? "tests/e2e/auth-notifications.spec.ts"
+        : "tests/e2e/auth-flow.spec.ts",
   };
   execFileSync(process.execPath, [join(root, "scripts", "run-e2e.mjs")], {
     cwd: root, env, stdio: "inherit", timeout: phase === "lesson-session" ? 600_000 : 300_000,
@@ -77,6 +82,7 @@ function browserPhase(phase, identities) {
 }
 
 let api;
+let worker;
 try {
   await waitFor("http://127.0.0.1:58081/realms/master", 300_000);
   command(python, ["-m", "alembic", "upgrade", "head"], { cwd: apiRoot, env: databaseEnvironment });
@@ -95,31 +101,55 @@ try {
   });
   await waitFor("http://127.0.0.1:8000/api/v1/health/ready", 30_000);
   await waitFor("http://127.0.0.1:8000/api/v1/health/live", 5_000);
-  console.log("Isolated live auth: PostgreSQL 55434, Keycloak 58081, API 8000, web 4322; /live and /ready PASS.");
-  const browserEnvironment = browserPhase("profiles", identities);
-  runTrustedBookingGrantCli({
-    subject: identities.secondarySubject,
-    operationId: randomUUID(),
-    correlationId: randomUUID(),
-    requestId: `et-10-3-isolated-grant-${randomUUID()}`,
-  }, browserEnvironment);
-  browserPhase("lesson-session", identities);
-  console.log("Isolated authenticated Session E2E PASS.");
+  console.log("Isolated live auth: PostgreSQL " + port + ", Keycloak 58081, API 8000, web 4322; /live and /ready PASS.");
+  if (notificationTrack) {
+    // Real first login resolves managed Keycloak subjects to application accounts.
+    browserPhase("profiles", identities);
+    const grantEnvironment = {
+      ...baseEnvironment,
+      ET_TEST_POSTGRES_PORT: port,
+      ET_E2E_DATABASE_TARGET: "test",
+      E2E_PRIMARY_SUBJECT: identities.primarySubject,
+      E2E_SECONDARY_SUBJECT: identities.secondarySubject,
+    };
+    runTrustedBookingGrantCli({
+      subject: identities.secondarySubject,
+      operationId: randomUUID(),
+      correlationId: randomUUID(),
+      requestId: "et-14-1-isolated-grant-" + randomUUID(),
+    }, grantEnvironment);
+    worker = spawn(python, ["-m", "electro_tutor_api.notification_worker"], {
+      cwd: apiRoot, env: databaseEnvironment, stdio: "ignore", shell: false,
+    });
+    browserPhase("notification", identities);
+    console.log("Isolated authenticated notification E2E PASS.");
+  } else {
+    const browserEnvironment = browserPhase("profiles", identities);
+    runTrustedBookingGrantCli({
+      subject: identities.secondarySubject,
+      operationId: randomUUID(),
+      correlationId: randomUUID(),
+      requestId: `et-10-3-isolated-grant-${randomUUID()}`,
+    }, browserEnvironment);
+    browserPhase("lesson-session", identities);
+    console.log("Isolated authenticated Session E2E PASS.");
+  }
 } finally {
-  if (api && api.exitCode === null) {
+  for (const child of [worker, api]) {
+    if (!child || child.exitCode !== null) continue;
     const waitForExit = async (timeoutMs) => {
-      if (api.exitCode !== null || api.signalCode !== null) return true;
+      if (child.exitCode !== null || child.signalCode !== null) return true;
       return Promise.race([
-        new Promise((done) => api.once("exit", () => done(true))),
+        new Promise((done) => child.once("exit", () => done(true))),
         delay(timeoutMs, false),
       ]);
     };
-    api.kill("SIGTERM");
+    child.kill("SIGTERM");
     if (!await waitForExit(5000)) {
-      api.kill("SIGKILL");
+      child.kill("SIGKILL");
       if (!await waitForExit(2000)) {
         process.exitCode = 1;
-        console.error("Isolated API process did not stop after bounded termination.");
+        console.error("Isolated service process did not stop after bounded termination.");
       }
     }
   }

@@ -334,7 +334,8 @@ prompts/                     протокол поэтапного продол�
 | `src/pages/[lang]/index.astro` | `/ru/`, `/uk/` |
 | `src/pages/[lang]/topics/index.astro` | каталог |
 | `src/pages/[lang]/topics/[section]/[slug].astro` | опубликованный урок |
-| `src/pages/[lang]/interactive.astro` | круговая диаграмма |
+| `src/pages/[lang]/interactive.astro` | раздел интерактивов и круговая диаграмма |
+| `src/pages/[lang]/interactive/star-neutral.astro` | несимметричная звезда с нейтралью |
 | `src/pages/[lang]/classroom.astro` | кабинет занятия |
 | `src/pages/[lang]/services.astro` | услуги и расписание |
 | `src/pages/[lang]/contacts.astro` | контакты |
@@ -357,7 +358,7 @@ canonical/sitemap) и `BASE_PATH` (deployment prefix). Runtime-код форми
 форматируют пользовательские числа, даты, длительности и plural forms.
 `scripts/validate-locales.mjs` блокирует build при missing/extra/empty или
 неподтверждённо одинаковых ключах; `scripts/audit-built-locales.mjs` проверяет
-парность 14 собранных routes, `html[lang]`, canonical и `ru`/`uk`/`x-default`
+парность собранных локализованных routes, `html[lang]`, canonical и `ru`/`uk`/`x-default`
 hreflang. Авторский lesson MDX и математические обозначения остаются в своих
 domain sources и проверяются lesson contract.
 
@@ -398,6 +399,11 @@ imports из frontmatter не допускаются.
 - query/hash при переходе на парную локаль.
 
 `MeshLessonIsland.tsx` сохраняет уровень подробности в `potential-level`.
+`star-neutral.ts` владеет чистым расчётом трёхфазной звезды: комплексные
+сопротивления и режим нейтрали поступают из локального React state; результат
+или диагностическая причина передаются SVG-графикам и таблице. Числовые поля и
+drag точки меняют один state. Округление происходит только при отображении;
+сервер, URL-state и новая графическая библиотека в этом контуре не участвуют.
 `circular-diagram-state.ts` владеет схемой `v=1`, defaults, domain limits и pure
 pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.tsx`
 получает только типизированное состояние, синхронизирует его с UI и browser
@@ -491,6 +497,8 @@ Wrangler и edge redirect больше не являются компонент�
 | Формулы | `src/components/Formula.tsx` |
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
 | Математика круговой диаграммы | `src/models/circular-diagram.ts` |
+| Математика звезды и presets | `src/models/star-neutral.ts` |
+| UI, плоскость Z и векторные диаграммы звезды | `src/components/StarNeutralLab.tsx`, `src/components/StarNeutralPlots.tsx` |
 | URL/state schema и limits | `src/models/circular-diagram-state.ts` |
 | Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |
 | Вид круговой диаграммы | `src/components/CircularDiagram.css`, `src/components/CircularDiagramMath.css` |

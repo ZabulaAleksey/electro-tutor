@@ -1,5 +1,14 @@
 # Testing contract
 
+## ET-STAR-001 — несимметричная звезда с нейтралью
+
+- Среда: изолированный `feature/star-phasor-interactive` worktree от чистого local `main` `dc38ee6`; pnpm 11.23.0, frozen offline restore. Сервер, DB, Keycloak и внешние запросы для нового интерактива не нужны.
+- Математика: `src/models/star-neutral.test.ts` — 7 PASS: balanced/unbalanced с ideal neutral, balanced/unbalanced с open neutral, finite neutral KCL и `I_N = U_nN/Z_N`, rectangular↔polar, фазный short/singular и `Z_N=0`. В составе `pnpm test`: 168 PASS, 20 files.
+- Статика: `pnpm lint` PASS; `pnpm check` 106 files/0 diagnostics; `pnpm build` 21 pages, 20 localized routes и 104 audited files PASS; `pnpm check:context` PASS для `ET-STAR-001` и `INT-004..008`.
+- Built Chromium: `pnpm test:e2e:built` 99 PASS/5 expected live-auth phase skips. Пять новых browser cases проверяют маршрут и RU→UK, R/X↔|Z|/φ, drag через fixed header, open neutral, preset, совпадающие точки, mobile без горизонтального overflow и масштабы 0.001/1,000,000 Ω. Финальный целевой прогон 5 PASS. Эти static/browser checks не заменяют отдельную ET-10.3 manual screen-reader acceptance.
+- Итоговый full-page desktop/mobile screenshot на локальном preview просмотрен: desktop содержит controls + Z plane, ниже раздельные voltage/current SVG и таблицу; mobile складывает блоки и показывает обе формы результатов в каждой строке. Снимки сохранены только как пользовательские artifacts вне Git.
+- Ограничение v1: короткое замыкание фазы, несимметричный источник и URL-state звезды не моделируются по SPEC. Для этого локального consumer path backend gate не применяется.
+
 ## ET-10.3 UA-19 manual screen-reader attempt — 2026-09-27
 
 - Source: clean `feature/et-10-3-lesson-session` at `f0041ab`; no product/test/runner source change since UA-18 terminal isolated live-auth PASS. Its backend, built-browser and live-auth evidence remains applicable; no expensive suite or disposable runtime was restarted.

@@ -17,7 +17,8 @@
       "specs/features/payments-and-booking.spec.md",
       "specs/features/pre-deploy-quality-gates.spec.md",
       "specs/features/profiles-capabilities-audit.spec.md",
-      "specs/features/rtc-provider-boundary.spec.md"
+      "specs/features/rtc-provider-boundary.spec.md",
+      "specs/features/star-neutral-phasors.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -82,7 +83,22 @@
       "a11y": "Named controls and live output covered by browser suite.",
       "observability": "Visible recovery notice and deterministic assertion output.",
       "gap": "Verification applies to the circular diagram only; no cross-module units/dimensions framework exists.",
-      "action": "Define units/dimensions/tolerance contracts before adding another scientific module."
+      "action": "Keep explicit units and tolerance checks in each scientific module; consider a shared dimensions framework only with a demonstrated cross-module need."
+    },
+    {
+      "requirement_ids": ["INT-004", "INT-005", "INT-006", "INT-007", "INT-008"],
+      "domain": "scientific-interactive-star",
+      "status": "VERIFIED",
+      "code": ["src/models/star-neutral.ts", "src/components/StarNeutralLab.tsx", "src/components/StarNeutralPlots.tsx", "src/pages/[lang]/interactive/star-neutral.astro"],
+      "unit": ["src/models/star-neutral.test.ts: 7 mathematical cases PASS"],
+      "integration": ["pnpm lint/check/build: RU/UK routes and local calculation PASS"],
+      "e2e": ["tests/e2e/star-neutral.spec.ts: browser input, drag, preset, locale, scaling, mobile PASS"],
+      "runtime": "Built static Astro page and React island perform local calculations without server requests.",
+      "security": "Bounded finite inputs; short/singular/nonfinite results produce diagnostic state.",
+      "a11y": "Named fields, labelled SVG vectors and numerical alternative to pointer drag; mobile browser check.",
+      "observability": "Diagnostic message and deterministic unit/browser assertions.",
+      "gap": "Short-circuit modeling and asymmetric source are outside v1.",
+      "action": "Keep finite/open KCL and browser interaction regression when extending the model."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],

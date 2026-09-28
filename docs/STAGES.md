@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-10.3
+- Stage ID: ET-STAR-001
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -46,6 +46,20 @@
 - **Запись:** в `docs/TESTING.md` для каждого locale/scenario указать screen reader+version, `PASS`/`FAIL`, фактически произнесённую ключевую фразу и focus observation. При `FAIL` добавить element/control, expected, actual и точные steps. Не записывать credentials или private payload. Краткий формат таблицы — в `docs/TESTING.md`.
 - **PASS и следующий шаг:** UA-19 `VERIFIED` только при семи PASS для каждого языка, человеческом наблюдении речи и focus и отсутствии accessibility blocker. Тогда записать evidence, пересчитать terminal ET-10.3 status и новый `NEXT` по stage routing. При product FAIL оставить `implemented_unverified`, записать конкретный defect и узкий fix `NEXT`; не скрывать FAIL skip'ом или изменением acceptance. При невозможности наблюдать речь/focus оставить `BLOCKED_BY_OBSERVABILITY`, UA-19 не VERIFIED и product FAIL не утверждать.
 - **Known attempt:** NVDA ранее отсутствовал; Narrator `10.0.19041.4522` запускался, но automation не могла наблюдать речь из-за Windows integrity/observability boundary. DOM/ARIA fake PASS сознательно не выдавался (evidence — `docs/TESTING.md`, UA-19 attempt).
+
+## ET-STAR-001 — Несимметричная звезда с нейтралью
+
+- Status: implemented_unverified
+- Condition: локальная реализация готова, финальная сверка ещё выполняется. Это отдельный явно запущенный feature track; ранее выбранный ET-10.3 сохраняет `implemented_unverified`, UA-19 и свой NEXT без изменения. Этот track не разблокирует ET-10.3 и не требует его закрытия.
+- Dependencies: завершённые `TUTOR-03` (интерактив), `TUTOR-04` (RU/UK), `TUTOR-05` (base path) по `docs/ROADMAP.md`. Вход: чистый `main` на `dc38ee6`, существующие Astro/React/SVG/complex utilities и pnpm lockfile; worktree `worktrees/star-phasor`, ветка `feature/star-phasor-interactive`.
+- Goal/scope: отдельная RU/UK страница из раздела «Интерактив»; симметричный ABC источник, комплексные Z фаз и нейтрали, три режима нейтрали, общий state алгебраических/полярных полей и drag точек, локальные вычисления, отдельные SVG напряжений/токов, результаты и четыре presets. Требования: `specs/features/star-neutral-phasors.spec.md`.
+- Runnable vertical slice: `/ru/interactive/` → карточка звезды → `/ru/interactive/star-neutral/` → изменить Z_A числом/drag → сразу увидеть U_nN, U_A/B/C и I_A/B/C/N на графиках и в таблице; тот же путь доступен в `uk`. Сервер не требуется.
+- PASS contract: `pnpm test` подтверждает balanced/unbalanced × ideal/open, finite KCL/Ohm, conversion и негативные случаи; `pnpm lint`, `pnpm check`, `pnpm build` подтверждают типы, локали и обе static routes; `pnpm test:e2e:built` проверяет живой browser path, обе локали, двусторонний ввод, drag, нейтраль, preset и mobile width. Проверить финальный diff и `git diff --check`.
+- Evidence: frozen offline `pnpm install` PASS; `pnpm test` 168 PASS; `pnpm lint` PASS; `pnpm check` 106 files/0 diagnostics; `pnpm build` 21 pages, 20 localized routes/104 audited files PASS; `pnpm check:context` PASS; built Chromium 99 PASS/5 expected unrelated live-auth phase skips, including 5/5 target cases. Desktop/mobile screenshots reviewed; `git diff --check` PASS. Scope: local feature worktree and built static browser, no backend needed for this consumer path. Commit и final diff review ожидаются. Details: `docs/TESTING.md`.
+- Temporary implementation: none. Deferred: несимметричный источник, короткое замыкание, серверное хранение и URL-state не входят в v1; конечное/почти нулевое фазное Z даёт явную ошибку вместо вымышленного тока.
+- User action `ET-STAR-001-UA-01`: PENDING CONDITIONAL после финальных PASS и commit; явно разрешить локальное слияние `feature/star-phasor-interactive` в `main` и удаление только `worktrees/star-phasor` после preflight; evidence — разрешение пользователя, merge SHA, clean tracked/untracked state и worktree-policy delete PASS; unlock — integration и возврат current selector к ET-10.3. Push/deploy не входят в это разрешение.
+- NEXT: ET-STAR-001-FINAL-VERIFY
+- Next action: завершить финальный built Chromium прогон, документацию, diff review и атомарный commit; затем запросить отдельное разрешение на merge/worktree cleanup.
 
 ## Поздние этапы
 

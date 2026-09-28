@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import StarNeutralLab from "../../../components/StarNeutralLab";
+import "../../../components/StarNeutralLab.css";
+import { getLocale } from "../../../i18n";
+import { localePath } from "../../../site-path";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+const language = Astro.params.lang as Language;
+const copy = getLocale(language).star;
+---
+
+<BaseLayout title={`${copy.title} — ${getLocale(language).brand.name}`} description={copy.description}
+  language={language} active="interactive" alternatePath="/interactive/star-neutral/">
+  <section class="section star-page">
+    <div class="star-page-intro">
+      <a class="star-back" href={localePath(language, "/interactive/")}>← {copy.back}</a>
+      <span class="section-kicker">{copy.kicker}</span>
+      <h1>{copy.title}</h1><p>{copy.lead}</p>
+    </div>
+    <StarNeutralLab client:load language={language} />
+  </section>
+</BaseLayout>

@@ -5,6 +5,8 @@ import "../../components/CircularDiagram.css";
 import "../../components/CircularDiagramMath.css";
 import type { Language } from "../../types";
 import { getLocale } from "../../i18n";
+import { localePath } from "../../site-path";
+import "../../components/StarNeutralLab.css";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
@@ -26,6 +28,10 @@ const copy = getLocale(language);
     <p>{copy.interactive.lead}</p>
   </section>
   <div class="section interactive-section">
+    <article class="star-entry"><span class="section-kicker">{copy.star.kicker}</span>
+      <h2>{copy.star.title}</h2><p>{copy.star.cardLead}</p>
+      <a href={localePath(language, "/interactive/star-neutral/")}>{copy.star.open} →</a>
+    </article>
     <CircularDiagram client:load transition:persist="circular-diagram" language={language} />
   </div>
 </BaseLayout>

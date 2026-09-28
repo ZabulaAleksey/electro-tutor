@@ -75,6 +75,19 @@ const copy = getLocale(language).account;
       </div>
     </section>
 
+    <section class="notification-section" data-notifications hidden aria-labelledby="notification-section-title" aria-busy="false">
+      <div class="profile-section-heading">
+        <h2 id="notification-section-title">{getLocale(language).notifications.heading}</h2>
+        <p data-notification-count aria-live="polite"></p>
+      </div>
+      <p class="notification-state" data-notification-state role="status" aria-live="polite"></p>
+      <div class="notification-list" data-notification-list></div>
+      <div class="notification-actions">
+        <button class="button ghost" data-notification-retry type="button" hidden>{getLocale(language).notifications.retry}</button>
+        <button class="button ghost" data-notification-more type="button" hidden>{getLocale(language).notifications.more}</button>
+      </div>
+    </section>
+
     <section class="booking-section" data-booking hidden aria-labelledby="booking-section-title">
       <div class="profile-section-heading">
         <span class="section-kicker">{copy.booking.kicker}</span>
@@ -146,7 +159,9 @@ const copy = getLocale(language).account;
   <script>
     import { mountAccountProfile } from "../../account/profile-ui";
     import { mountBooking } from "../../account/booking-ui";
+    import { mountNotifications } from "../../account/notification-ui";
     mountBooking();
+    mountNotifications();
     mountAccountProfile();
   </script>
 </BaseLayout>

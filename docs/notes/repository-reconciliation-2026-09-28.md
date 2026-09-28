@@ -14,7 +14,7 @@ No stashes, tags, staged/unstaged/untracked source files, merge/rebase state or 
 
 ## Stage dependency result
 
-- `ET-STAR-001`: AUTO_RUNNABLE_NOW terminal status synchronization; static acceptance refreshed and status updated on feature branch.
+- `ET-STAR-001`: ALREADY_VERIFIED after this run's automated terminal status synchronization on feature branch; canonical-main projection awaits approved integration.
 - `ET-LINE-001`: partial, Rust reference 6/8; two accepted numerical assertions require contract decision before changing tests. Frontend/Worker browser path passes.
 - `ET-10.3`: implementation and historical isolated DB/auth E2E evidence exist; literal RU/UK human screen-reader observation remains PENDING. Original data-bearing DB repair requires separate compatibility decision for unknown external SQL callers.
 - `ET-11.1` and later ET-11/12 runtime slices: not dependency-ready while ET-10.3 gate and provider/product prerequisites remain. `live-tutoring-session.spec.md` is a draft, not approval.
@@ -22,6 +22,6 @@ No stashes, tags, staged/unstaged/untracked source files, merge/rebase state or 
 
 ## Fresh verification boundary
 
-At local `main@d58e787`: Vitest 168 PASS; backend fast 196 PASS/83 deselected with Ruff format/lint and mypy PASS; Astro check 119 files, zero errors/warnings; build 25 pages and 115 artifact files PASS; built Chromium 106 PASS/5 expected live-auth skips; project-base Chromium 4+1 PASS; context, CI workflow and hygiene validators PASS. Full Rust reference 6 PASS/2 FAIL. Docker service was stopped and daemon unavailable; backend doctor failed at API `127.0.0.1:8000` connection, so no fresh DB/IdP/restore evidence. Migration 0010 source declares nine columns including `result_payload`; repository adapter reads it. Historical preserved DB eight-column drift is not inferred fixed from source. No original database/volume was accessed or modified.
+At local `main@d58e787`: `pnpm verify:full` exit 0 (frozen install, Vitest 168 PASS, lint, Astro check 119 files/0 errors, root Chromium 106 PASS/5 expected live-auth skips, build 25 pages/115 artifact files, production smoke 4 PASS, dependency audit 3 moderate/0 high); backend fast 196 PASS/83 deselected with Ruff format/lint and mypy PASS; project-base Chromium 4+1 PASS; context, CI workflow and hygiene validators PASS. Full Rust reference 6 PASS/2 FAIL, separate source-reflection 2 PASS. Docker service was stopped and daemon unavailable; backend doctor failed at API `127.0.0.1:8000` connection, so no fresh DB/IdP/restore evidence. Migration 0010 source declares nine columns including `result_payload`; repository adapter reads it. Historical preserved DB eight-column drift is not inferred fixed from source. No original database/volume was accessed or modified.
 
 Approval review rejected local-main fast-forward of `feature/live-tutoring-design`, citing the prohibition on direct `main` mutation. The feature merge is preserved and no push/deploy occurred. Canonical-main integration awaits the exact user approval recorded in `../STAGES.md`.

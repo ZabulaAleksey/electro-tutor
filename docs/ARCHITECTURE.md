@@ -336,6 +336,8 @@ prompts/                     протокол поэтапного продол�
 | `src/pages/[lang]/topics/[section]/[slug].astro` | опубликованный урок |
 | `src/pages/[lang]/interactive.astro` | раздел интерактивов и круговая диаграмма |
 | `src/pages/[lang]/interactive/star-neutral.astro` | несимметричная звезда с нейтралью |
+| `src/pages/[lang]/interactive/circular-diagram.astro` | отдельный маршрут годографа при сохранении встроенного интерактива и старых share links на index |
+| `src/pages/[lang]/interactive/transmission-line.astro` | локальная лаборатория переходного процесса длинной линии |
 | `src/pages/[lang]/classroom.astro` | кабинет занятия |
 | `src/pages/[lang]/services.astro` | услуги и расписание |
 | `src/pages/[lang]/contacts.astro` | контакты |
@@ -412,6 +414,19 @@ pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.t
 получает только типизированное состояние, синхронизирует его с UI и browser
 history и не передаёт сырые `URLSearchParams` математической модели. Legacy
 share-ссылки без `v` мигрируют; повреждённые ссылки восстанавливают defaults.
+
+Длинная линия имеет отдельную численную границу: `transient-core` хранит
+распределённые `V[N+1]`, `I[N]`, per-cell `L/R/dx`, per-node `C/G` и минимальный
+state источника/нагрузки. Один шаг leapfrog проходит массивы последовательно;
+midpoint companion решает только два граничных узла. `SourcePort` и
+`BoundaryDevice` задают заменяемые порты, а grid layout сохраняет место для
+неоднородных и потерьных ячеек. Аналитические коэффициенты отражения используются
+только в reference tests. `wasm-bindgen` создаёт ES module и WASM; tracked
+артефакт проверяется `scripts/transient-wasm.mjs` по SHA-256 источников и output.
+`src/transient/transient.worker.ts` единолично владеет WASM объектом, выполняет
+play/seek и посылает transferable снимок не чаще, чем UI подтверждает
+отрисовку. React хранит поля и скалярные показания; большие массивы остаются
+в Worker и одном текущем Canvas-снимке. Static route не зависит от API/DB.
 
 ## Кабинет занятия
 
@@ -501,6 +516,8 @@ Wrangler и edge redirect больше не являются компонент�
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
 | Математика круговой диаграммы | `src/models/circular-diagram.ts` |
 | Математика звезды и presets | `src/models/star-neutral.ts` |
+| Физика длинной линии и boundary ports | `transient-core/src/` (Rust, `wasm-bindgen`) |
+| Worker-протокол и Canvas эпюры | `src/transient/`, `src/components/TransmissionLineLab.tsx` |
 | UI, плоскость Z и совмещённая топографическая диаграмма звезды | `src/components/StarNeutralLab.tsx`, `src/components/StarNeutralPlots.tsx`, `src/components/StarDiagramColors.css` |
 | URL/state schema и limits | `src/models/circular-diagram-state.ts` |
 | Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |

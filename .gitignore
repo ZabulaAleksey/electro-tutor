@@ -17,3 +17,6 @@ pnpm-debug.log*
 .ruff_cache/
 __pycache__/
 *.py[cod]
+.cargo-home/
+.tools/
+transient-core/target/

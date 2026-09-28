@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-STAR-001
+- Stage ID: ET-LINE-001
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -58,10 +58,24 @@
 - Evidence: implementation commit `4a2ad4a`; frozen offline `pnpm install` PASS; `pnpm test` 168 PASS; `pnpm lint` PASS; `pnpm check` 106 files/0 diagnostics; `pnpm build` 21 pages, 20 localized routes/104 audited files PASS; `pnpm check:context` PASS; built Chromium 99 PASS/5 expected unrelated live-auth phase skips, including 5/5 target cases. Desktop/mobile screenshots reviewed; staged diff/`git diff --check` PASS. Scope: local feature worktree and built static browser, no backend needed for this consumer path. Evidence level: committed locally, not merged/pushed/deployed. Details: `docs/TESTING.md`.
 - Refinement evidence 2026-09-28: после совмещения диаграмм и ограничения R ≥ 0 повторены `pnpm test` 168 PASS, `pnpm lint` PASS, `pnpm check` 106 files/0 diagnostics, `pnpm build` 21 pages/20 localized routes/104 audited files PASS, `pnpm test:e2e:built` 99 PASS/5 expected unrelated skips и `pnpm check:context` PASS. В браузере проверены координаты N/n/A/B/C и начала векторов, разные масштабы и цвета тёмной темы; код ещё не слит.
 - Temporary implementation: none. Deferred: несимметричный источник, короткое замыкание, серверное хранение и URL-state не входят в v1; конечное/почти нулевое фазное Z даёт явную ошибку вместо вымышленного тока.
-- User action `ET-STAR-001-UA-01`: READY CONDITIONAL; явно разрешить локальное слияние `feature/star-phasor-interactive` в `main` и удаление только `worktrees/star-phasor` после preflight; evidence — разрешение пользователя, merge SHA, clean tracked/untracked state и worktree-policy delete PASS; unlock — integration и возврат current selector к ET-10.3. Push/deploy не входят в это разрешение.
+- User action `ET-STAR-001-UA-01`: DONE для локального fast-forward merge `dc38ee6 → c19882e` по команде пользователя «Сливай» 2026-09-28. Clean/merged checkout, отсутствие active preview/process и регенерируемость ignored Playwright/node_modules данных проверены; `worktree_policy.py check-delete` PASS, `worktrees/star-phasor` удалён через Git и остаточный cache очищен, каталог отсутствует. Push/deploy не выполнялись.
 - User action `ET-STAR-001-UA-02`: READY; подтвердить право повысить stage до `verified` и roadmap до `DONE` после commit документационного checkpoint и повторного `check:context`/diff gate; evidence — явное разрешение и clean committed state; unlock — terminal status synchronization без изменения product code.
 - NEXT: ET-STAR-001-STATUS-DECISION
-- Next action: сохранить проверенную реализацию и документационный checkpoint; запросить разрешение на terminal status synchronization. Merge/worktree cleanup остаются отдельным approval-gated действием.
+- Next action: terminal status synchronization остаётся отдельным решением `ET-STAR-001-UA-02`; новая явно заказанная пользователем работа ведётся в `ET-LINE-001`, не снимая этот gate.
+
+## ET-LINE-001 — Численный transient симулятор длинной линии
+
+- Status: partial
+- Condition: пользователь 2026-09-28 явно заказал отдельную ссылку на круговую диаграмму и реализацию приложенного MASTER PROMPT. Source baseline — local `main` `c19882e`; изолированный worktree `worktrees/line-transient-mvp`, ветка `feature/line-transient-mvp`. Продуктовый код и браузерный consumer path работают; physics reference suite имеет два неразрешённых новых assertions, поэтому terminal `verified` запрещён. `ET-10.3` и `ET-STAR-001-UA-02` сохраняют свои gates.
+- Dependencies: завершённые TUTOR-03 interactive, TUTOR-04 RU/UK и TUTOR-05 base path. Никакой backend или будущий simulator feature не нужен для static consumer path.
+- Goal/scope: `INT-009` отдельный RU/UK route круговой диаграммы и `LINE-001..010` Rust/WASM Worker transient solver, passive boundary devices, Canvas epures, playback/seek/stop, diagnostics, verification и benchmark по `specs/features/transmission-line-transient.spec.md`.
+- Plan: SPEC, Rust/WASM build, ports/solver, Worker/Canvas/RU/UK routes, benchmark и browser E2E реализованы. Следующее действие — решение UA-01 о двух новых physics assertions; затем Rust PASS, docs synchronization и final commit. При отсутствии разрешения сохранить частичный checkpoint и worktree. Reversible rollback — обычный Git workflow feature-ветки; `main` не меняется до отдельного merge.
+- Runnable vertical slice: `/ru/interactive/` → «Длинная линия» → open preset `E=100 V,Rs=50 Ω,l=1000 km,v=2e8 m/s,Z0=50 Ω,N=1000,stop=20 ms` → Play → `U(x),I(x)` на Canvas и изменение load около `τ=5 ms` → Pause/Reset/Step/seek; тот же маршрут на `uk`. Круговая диаграмма доступна отдельной карточкой.
+- PASS contract: `cargo test`/WASM build и Rust numerical reference/convergence/stability, `pnpm test`/lint/check/build, `pnpm test:e2e:built` с реальным Worker/WASM/RU/UK/Canvas, benchmark N=1000/5000/10000, final diff/context check. Ни static smoke, ни JS substitute не закрывают physics gate.
+- Evidence: SPEC до кода; Rust 1.88, target wasm32 и pinned wasm-bindgen 0.2.129 build/artifact hash PASS. Rust 6/8 PASS: first wave numerical ringing 52.014588 В против нового `50±1 В`; series RLC DC test требует `|I_L|>0.01 А` в 20 мс. Rust Clippy PASS. `pnpm test` 168 PASS, lint/check/build/locale/site/context PASS; full built Chromium 102 PASS/5 unrelated live-auth skips, после UI/C/L/share-state additions target Chromium 5 PASS. `pnpm check:base-path` static audits + 4 existing/1 new Worker/WASM Chromium PASS. Native benchmark N=1000/5000/10000 записан в `docs/TESTING.md`; O(N) storage 54.7/273.5/546.9 KiB. Browser worker transfer виден в DEV overlay. Diff/hygiene PASS; worktree сохраняется до решения UA-01 и terminal gate.
+- Temporary implementation: none. Deferred: lossy/heterogeneous line, nonlinear device/MNA, threads/GPU и full-history timeline по SPEC.
+- User action `ET-LINE-001-UA-01`: PENDING; ответить на уже отправленный запрос о праве заменить **два новых** численных assertions физически обоснованными контрольными точками после независимого расчёта. Expected evidence: явное разрешение, затем auto-review acceptance и Rust 8/8 PASS; unlock — physics gate, final docs/commit. Если разрешение не дано или auto-review снова отклонит, сохранить FAIL и `partial`, не ослаблять тесты обходным путём.
+- NEXT: LINE-NUMERICAL-ASSERTION-DECISION
 
 ## Поздние этапы
 

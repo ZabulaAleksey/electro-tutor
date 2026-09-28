@@ -18,7 +18,8 @@
       "specs/features/pre-deploy-quality-gates.spec.md",
       "specs/features/profiles-capabilities-audit.spec.md",
       "specs/features/rtc-provider-boundary.spec.md",
-      "specs/features/star-neutral-phasors.spec.md"
+      "specs/features/star-neutral-phasors.spec.md",
+      "specs/features/transmission-line-transient.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -99,6 +100,21 @@
       "observability": "Diagnostic message and deterministic unit/browser assertions.",
       "gap": "Short-circuit modeling and asymmetric source are outside v1.",
       "action": "Keep finite/open KCL and browser interaction regression when extending the model."
+    },
+    {
+      "requirement_ids": ["INT-009", "LINE-001", "LINE-002", "LINE-003", "LINE-004", "LINE-005", "LINE-006", "LINE-007", "LINE-008", "LINE-009", "LINE-010"],
+      "domain": "scientific-interactive-transient",
+      "status": "IMPLEMENTED",
+      "code": ["transient-core/src", "src/transient", "src/components/TransmissionLineLab.tsx", "src/pages/[lang]/interactive/transmission-line.astro", "src/pages/[lang]/interactive/circular-diagram.astro"],
+      "unit": ["Rust reference suite: 6 PASS, 2 disputed assertions pending review; frontend unit 168 PASS"],
+      "integration": ["Pinned WASM build, pnpm lint/check/build and locale/site artifact audits PASS"],
+      "e2e": ["Built Chromium: 102 PASS/5 expected live-auth skips; final targeted 5 PASS and project-base Worker/WASM 1 PASS"],
+      "runtime": "Rust/WASM numerical solver in a dedicated Worker; state and per-cell coefficients use O(N) memory.",
+      "security": "Finite bounded SI configuration and CFL validation; worker error shown to the user.",
+      "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
+      "observability": "Port, state, grid and energy readings plus local development performance overlay.",
+      "gap": "Two new Rust reference assertions are disputed and await permission to correct; final acceptance and documentation gate remain open.",
+      "action": "Resolve two numerical assertions with independent evidence, rerun Rust/browser gates and synchronize ET-LINE-001."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],

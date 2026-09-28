@@ -11,6 +11,14 @@ Roadmap задаёт порядок развития, но не заменяет
 Статус: `CURRENT` (локальные проверки завершены; terminal status и
 integration decisions указаны в `STAGES.md`). Он использует завершённые
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
+Локальное слияние в `main` выполнено на `c19882e`; terminal status
+ожидает отдельного решения в `STAGES.md`.
+
+## ET-LINE-001 — Численный интерактив длинной линии
+
+Статус: `CURRENT` в отдельной feature-ветке. Реальный Rust/WASM Worker solver
+и отдельный RU/UK route круговой диаграммы заказаны пользователем; PASS
+gates и NEXT принадлежат `STAGES.md`.
 
 ## Tutor stabilization track — 2026
 

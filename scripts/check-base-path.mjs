@@ -20,10 +20,10 @@ if (!resolvedOutput.startsWith(`${temporaryRoot}\\`) && !resolvedOutput.startsWi
   throw new Error(`Refusing to use unexpected build directory: ${resolvedOutput}`);
 }
 
-async function run(modulePath, args = []) {
+async function run(modulePath, args = [], overrides = {}) {
   const child = spawn(process.execPath, [resolve(projectRoot, modulePath), ...args], {
     cwd: projectRoot,
-    env: environment,
+    env: { ...environment, ...overrides },
     stdio: "inherit",
   });
   const [code] = await once(child, "exit");
@@ -37,6 +37,7 @@ try {
   await run("scripts/audit-built-lessons.mjs");
   await run("scripts/audit-built-site.mjs");
   await run("scripts/run-e2e.mjs");
+  await run("scripts/run-e2e.mjs", [], { E2E_SPEC: "tests/e2e/transmission-line-base-path.spec.ts" });
   console.log("Project-base verification passed for /electro-tutor/.");
 } finally {
   await rm(resolvedOutput, { recursive: true, force: true });

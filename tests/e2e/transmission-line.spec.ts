@@ -73,9 +73,33 @@ test("capacitor and inductor loads evolve persistent device state after wave arr
     await page.getByRole("spinbutton", { name: "Перейти к времени, мс" }).fill("6");
     await page.getByRole("button", { name: "Перейти к времени, мс" }).click();
     await expect.poll(async () => {
-      const text = await page.locator(".line-diagnostics p").last().textContent() || "";
+      const text = await page.locator(".line-diagnostics p").filter({ hasText: "Состояние нагрузки" }).textContent() || "";
       const match = text.match(new RegExp(`${quantity}=(-?[\\d.]+)`));
       return match ? Math.abs(Number(match[1])) : 0;
     }).toBeGreaterThan(0.001);
   }
+});
+
+test("ideal source reflects the returning open-load wave for another round trip", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/");
+  await expect(page.getByText("Модель готова")).toBeVisible();
+  await expect(page.getByText("Отражение на источнике Γs: -1")).toBeVisible();
+  const seek = page.getByRole("spinbutton", { name: "Перейти к времени, мс" });
+  const loadVoltage = () => page.locator(".line-diagnostics dd").nth(3).textContent()
+    .then(value => parseFloat(value || "0"));
+  await seek.fill("6");
+  await page.getByRole("button", { name: "Перейти к времени, мс" }).click();
+  await expect.poll(loadVoltage).toBeGreaterThan(150);
+  await seek.fill("16");
+  await page.getByRole("button", { name: "Перейти к времени, мс" }).click();
+  await expect.poll(loadVoltage).toBeLessThan(50);
+  await expect(page.locator(".line-diagnostics dd").nth(2)).toContainText("100 В");
+
+  await page.getByRole("spinbutton", { name: "Сопротивление источника, Ом" }).fill("50");
+  await page.getByRole("button", { name: "Применить параметры" }).click();
+  await expect(page.getByText("Модель готова")).toBeVisible();
+  await expect(page.getByText("Отражение на источнике Γs: 0")).toBeVisible();
+  await page.getByRole("button", { name: "Перейти к времени, мс" }).click();
+  await expect.poll(loadVoltage).toBeGreaterThan(80);
+  await expect.poll(loadVoltage).toBeLessThan(120);
 });

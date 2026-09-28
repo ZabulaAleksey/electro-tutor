@@ -108,6 +108,8 @@ export default function TransmissionLineLab({ language }: { language: Language }
   const dt = draft.line.cfl * dx / draft.line.velocityMS;
   const lPrime = draft.line.impedanceOhm / draft.line.velocityMS;
   const cPrime = 1 / (draft.line.impedanceOhm * draft.line.velocityMS);
+  const sourceReflection = (applied.source.resistanceOhm - applied.line.impedanceOhm)
+    / (applied.source.resistanceOhm + applied.line.impedanceOhm);
   const onPlotMove = (event: PointerEvent<HTMLCanvasElement>) => {
     const snapshot = latestRef.current;
     if (!snapshot) return;
@@ -154,6 +156,7 @@ export default function TransmissionLineLab({ language }: { language: Language }
           <div><dt>{t.energy}</dt><dd>{fmt(status?.energy ?? 0)} Дж</dd></div></dl>
         <p>{t.extent}: {fmt(status?.minV ?? 0)}…{fmt(status?.maxV ?? 0)} В / {fmt(status?.minI ?? 0)}…{fmt(status?.maxI ?? 0)} А</p>
         <p>{t.loadState}: U_C={fmt(status?.capV ?? 0)} В, I_L={fmt(status?.indI ?? 0)} А</p>
+        <p>{t.sourceReflection}: {fmt(sourceReflection)}{applied.source.resistanceOhm === 0 ? ` (${t.idealBoundary})` : ""}</p>
       </section>
       <section className="line-derived"><h2>{t.derived}</h2>
         <dl><div><dt>L′ / C′</dt><dd>{fmt(lPrime)} Гн/м / {fmt(cPrime)} Ф/м</dd></div>

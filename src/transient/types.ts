@@ -13,7 +13,7 @@ export type TransientConfig = {
 };
 
 export const OPEN_PRESET: TransientConfig = {
-  source: { voltageV: 100, resistanceOhm: 50, switchTimeS: 0 },
+  source: { voltageV: 100, resistanceOhm: 0, switchTimeS: 0 },
   line: { lengthM: 1e6, velocityMS: 2e8, impedanceOhm: 50, cells: 1000, cfl: 0.9 },
   load: { kind: "open", topology: "series", resistanceOhm: 50, inductanceH: 0.02,
     capacitanceF: 1e-5, initialVoltageV: 0, initialCurrentA: 0 },

@@ -106,15 +106,15 @@
       "domain": "scientific-interactive-transient",
       "status": "IMPLEMENTED",
       "code": ["transient-core/src", "src/transient", "src/components/TransmissionLineLab.tsx", "src/pages/[lang]/interactive/transmission-line.astro", "src/pages/[lang]/interactive/circular-diagram.astro"],
-      "unit": ["Rust reference suite: 6 PASS, 2 disputed assertions pending review; frontend unit 168 PASS"],
+      "unit": ["Rust reference suite: 6 PASS, 2 disputed assertions pending review; source-reflection regression 2 PASS; frontend unit 168 PASS"],
       "integration": ["Pinned WASM build, pnpm lint/check/build and locale/site artifact audits PASS"],
-      "e2e": ["Built Chromium: 102 PASS/5 expected live-auth skips; final targeted 5 PASS and project-base Worker/WASM 1 PASS"],
-      "runtime": "Rust/WASM numerical solver in a dedicated Worker; state and per-cell coefficients use O(N) memory.",
+      "e2e": ["Built Chromium: 102 PASS/5 expected live-auth skips before default change; final targeted 6 PASS after default change and project-base Worker/WASM 1 PASS before it"],
+      "runtime": "Rust/WASM numerical solver in a dedicated Worker; default ideal source Rs=0 reflects returning perturbations; state and per-cell coefficients use O(N) memory.",
       "security": "Finite bounded SI configuration and CFL validation; worker error shown to the user.",
       "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
       "observability": "Port, state, grid and energy readings plus local development performance overlay.",
-      "gap": "Two new Rust reference assertions are disputed and await permission to correct; final acceptance and documentation gate remain open.",
-      "action": "Resolve two numerical assertions with independent evidence, rerun Rust/browser gates and synchronize ET-LINE-001."
+      "gap": "Two new Rust reference assertions are disputed and await permission to correct; final physics acceptance remains open.",
+      "action": "Resolve two numerical assertions with independent evidence, rerun full Rust gate and synchronize terminal ET-LINE-001 status."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],

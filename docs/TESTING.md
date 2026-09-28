@@ -19,6 +19,11 @@
   rustfmt добавил только пробелы, переносы и завершающие запятые, численные
   assertions не менялись. После форматирования Rust suite повторён: те же
   6 PASS/2 FAIL, затем WASM пересобран и hash/build проверены.
+- Отдельный `cargo test --offline --locked --test source_reflection`: 2/2 PASS.
+  При `Rs=0`, open load и `τ=5 ms` нагрузка проходит примерно `200→0→200 В`
+  на последовательных оборотах, а левый порт удерживает `100 В`; при `Rs=Z0`
+  вернувшаяся волна поглощается. Это целевой regression test, не закрытие двух
+  спорных assertions выше. Новый test отформатирован; Clippy PASS.
 - Frontend `pnpm test`: 168 PASS, 20 files; `pnpm lint`, `pnpm check` (118 files,
   0 diagnostics), `pnpm build` (25 pages/24 RU/UK routes/115 audited files),
   `pnpm check:context` PASS после регистрации `LINE` prefix и ADR-031.
@@ -27,7 +32,12 @@
   линии, реальный Worker/WASM/Canvas, `Play/Pause/Reset/Step/seek` и 5000-cell
   reconfigure. После добавления C/L, диагностики и отдельного share-state
   годографа целевой suite: 5 PASS, включая изменение физического `uC/iL`
-  после прихода волны и query/hash после RU→UK.
+  после прихода волны и query/hash после RU→UK. После смены default `Rs=0`
+  целевой built Chromium 6/6 PASS: реальный Worker/WASM показывает возвратное
+  отражение и продолжение колебаний; при ручном выборе `Rs=50 Ω` возвращённая
+  волна поглощается. После смены default `pnpm test` 168 PASS,
+  `pnpm check` 119 files/0 diagnostics, lint/build/context PASS; ранее полный
+  built Chromium 102 PASS не повторялся после смены default.
 - `pnpm check:base-path`: `/electro-tutor/` static build/audits PASS,
   существующий base-path Chromium 4 PASS и дополнительный реальный
   `uk/interactive/transmission-line/` → Worker → ES module → WASM путь 1 PASS.

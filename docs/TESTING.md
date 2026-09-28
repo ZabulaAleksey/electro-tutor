@@ -1,5 +1,33 @@
 # Testing contract
 
+## ET-14.1 — notification source checkpoint, 2026-09-28
+
+- Local feature commits `6e471d9` (0013/outbox/worker/API) and `ff0ebc5`
+  (RU/UK inbox); not merged, pushed or deployed. Original Electro Tutor and
+  MathMorph DB/volumes untouched. Docker service stopped; Docker API unavailable.
+- Alembic `20260915_0012:20260928_0013 --sql` forward and reverse PASS as
+  offline DDL generation only. Real clean bootstrap, upgrade, catalog fingerprint,
+  trigger/ACL/expiry semantics and rollback are NOT RUN. The committed catalog
+  manifest remains an independently generated 0012 baseline; do not relabel
+  it 0013 without a freshly migrated disposable PostgreSQL catalog snapshot.
+- Backend targeted schema/notification tests 6 PASS, new exact disposable DB
+  integration test collected/1 skipped. Strict mypy PASS; changed-file Ruff
+  PASS. DB-free suite 198 PASS/1 FAIL (`test_committed_manifest_is_head_pinned_and_complete`),
+  84 integration tests deselected. The failure is the expected fail-closed
+  0012 manifest versus new 0013 head; no backend/full PASS claim. Repository
+  wide Ruff includes historical 0009 migration lint errors; that migration
+  was not rewritten.
+- Frontend Vitest 171/171 PASS, ESLint PASS, Astro check 0 errors (2 generated
+  WASM hints), locale/context/workflow validators PASS, Rust/WASM artifact
+  match PASS, 25-page static build and 115-file artifact audit PASS.
+  Built Chromium mock API component states RU keyboard/read/safe link and
+  UK error/empty/retry 2/2 PASS. This is not the required live
+  browser→API→DB→worker E2E.
+- Compose local/test `config --quiet` PASS read-only. Worker runs bounded
+  delivery and expiry in separate transactions; failure logs expose class and
+  counts only. No live worker output or Keycloak verification for ET-14.1.
+  Exact next gate and safe action are in selected `docs/STAGES.md`.
+
 ## ET-LINE-001 — численный интерактив длинной линии
 
 ### Terminal physics and browser verification — 2026-09-28

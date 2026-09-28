@@ -22,7 +22,8 @@ agents, Skills и Git workflow наследуются; локальные коп
 
 ## Backend DX Delta
 
-- Applicability level: `BDX-L2` — stateful FastAPI + PostgreSQL local/CI slice.
+- Applicability level: `BDX-L3` source checkpoint — stateful FastAPI +
+  PostgreSQL and ET-14.1 notification worker; real worker/DB acceptance pending.
 - Supported local environments: Windows 11 PowerShell и CI Linux; Docker engine
   обязателен для integration/full gates.
 - Canonical working directory: repository root `${PROJECTS_ROOT}/electro-tutor`.
@@ -90,7 +91,11 @@ agents, Skills и Git workflow наследуются; локальные коп
   decision. Migration lifecycle требует exact consent и database
   `electro_tutor_test`. Browser E2E also uses that isolated database through
   `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
-- Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
+- Worker/scheduler commands: ET-09.2 baseline had none; ET-14.1 feature adds
+  `pnpm backend:notifications:worker` and Compose `notification-worker`
+  with bounded delivery/cleanup. BDX-L3 source checkpoint only; worker startup
+  depends on independent 0013 catalog/real DB acceptance and must not target
+  the preserved original volume.
 - External sandbox/stub/fallback modes: isolated Keycloak DEV — real provider
   evidence, не mock и не production; IdP/DB outage fail closed без local identity
   fallback.
@@ -101,7 +106,8 @@ agents, Skills и Git workflow наследуются; локальные коп
   fast и real-PostgreSQL tests, pip-audit, Compose config/image, Alembic current/check,
   live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
 - Known limitations: production backend hosting/ingress/IAM/cookie topology не
-  выбраны; exact credentialed CORS действует только для DEV/E2E, jobs отсутствуют.
+  выбраны; exact credentialed CORS действует только для DEV/E2E. ET-14.1
+  worker exists in source, but no 0013 catalog/live job verification exists yet.
   ADR-028 now provides independent Core head metadata for 15 tables and a
   committed `pg_catalog` manifest for functions, triggers, CHECKs, indexes
   and private ACL. A newly migrated scratch DB passes Alembic check, catalog

@@ -184,3 +184,22 @@ negatives pass. UA-15 restored a fresh isolated clone and proved exact
 canonical catalog/Alembic forward and preflight-identical reverse; the
 original dev DB at head 0012 still has catalog divergence and 2 account
 rows. External-caller compatibility and original-DB reconciliation remain open.
+
+## ET-14.1 additive notification schema — partial source implementation
+
+Revision `20260928_0013` declares `notification_outbox` and `notifications`
+with restricted Booking/Account FKs, unique
+`(event_type, booking_id, recipient_account_id)`, 30-day expiry check,
+pending/owner/unread/expiry indexes and no direct runtime/auth/provisioner
+table privileges. An `AFTER UPDATE OF status` trigger records the accepted
+Booking event in the transition transaction without changing
+`accept_booking` or its return signature. Narrow security-definer functions
+process bounded batches, list/count/mark by active session Account and clean
+expired rows. No pre-existing Booking is backfilled into the inbox.
+
+This is source design, not a verified 0013 catalog. Offline Alembic forward/
+reverse generated SQL only. The committed manifest still pins the genuine
+0012 catalog, so startup catalog verification fails closed until an independent
+fresh disposable DB snapshot is produced and the clean/upgrade paths pass.
+The original data-bearing DB remains at its separately tracked compatibility
+gate; this migration has not been applied there.

@@ -8,6 +8,7 @@
     "binding_spec_files": [
       "specs/system.spec.md",
       "specs/features/base-path-portability.spec.md",
+      "specs/features/booking-reminders.spec.md",
       "specs/features/circular-diagram-state.spec.md",
       "specs/features/context-automation.spec.md",
       "specs/features/in-app-notifications.spec.md",
@@ -283,6 +284,21 @@
       "observability": "Mutation audit and request/correlation IDs.",
       "gap": "Protected dev DB drift, port conflict, live authenticated phase and manual RU/UK gate.",
       "action": "Approve data-preserving recovery/isolation, free port safely, rerun backend:check and live Session E2E."
+    },
+    {
+      "requirement_ids": ["REM-001", "REM-002", "REM-003", "REM-004", "REM-005"],
+      "domain": "booking-reminders",
+      "status": "PLANNED",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "ADR-033 and feature SPEC approved; no ET-14.2 runtime implementation yet.",
+      "security": "Session-scoped owner settings and stale Booking checks are required by approved SPEC.",
+      "a11y": "RU/UK keyboard and accessible settings controls are required, not yet implemented.",
+      "observability": "Due, delivered, skipped, cancelled and retryable outcomes are required.",
+      "gap": "ET-14.2 implementation and real DB/browser acceptance remain open.",
+      "action": "Implement on an isolated feature branch using ET-14.1 outbox and disposable PostgreSQL."
     },
     {
       "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],

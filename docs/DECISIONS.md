@@ -968,3 +968,29 @@ notification categories вне ET-14.1. Единая transaction trigger/worker
 boundary и structured event позволяют добавить каналы позднее без изменения Booking
 truth. Технический выбор worker, индексов, cleanup и retry уточняется в
 implementation при сохранении этого контракта и проверяется real DB/E2E.
+
+## ADR-033 — ET-14.2: пользовательские настройки и напоминания
+
+Статус: принято 2026-09-28 по прямому решению пользователя. Полный bounded
+контракт — `specs/features/booking-reminders.spec.md`. ET-14.1 остаётся
+единственной delivery/outbox/inbox основой; внешние каналы и realtime не нужны.
+
+Настройки текущего Account содержат явно сохранённую IANA timezone, три
+независимых переключателя 24h/1h/15m (defaults ON/ON/OFF) и quiet hours
+(default OFF) с локальным start/end, включая интервал через полночь. Browser
+zone — только подтверждаемое предложение. Booking хранит неизменный UTC
+instant; смена timezone его не двигает, но пересчитывает ещё pending reminders.
+
+Каждый offset сохраняет свой planned instant. При попадании в quiet hours
+effective due переносится к их окончанию; если Booking уже начался, напоминание
+пропускается. Worker допускает опоздание максимум 15 минут от effective due и
+только до начала Booking; далее фиксирует skipped. Это общее правило и для
+24h offset. Отмена Booking инвалидирует pending jobs без удаления доставленной
+истории. Согласно принятому Booking SPEC перенос есть cancel + new Booking, не
+изменение immutable snapshot; новые jobs принадлежат новому Booking ID.
+
+Scheduler хранит durable intents и идемпотентно передаёт due action в
+существующий ET-14.1 outbox. Worker повторно проверяет Booking перед передачей,
+чтобы cancellation/replacement не породили stale notification. Machine type
+и Booking UUID — business payload; RU/UK текст строится в UI. Server-side
+session ownership и narrow DB privileges обязательны.

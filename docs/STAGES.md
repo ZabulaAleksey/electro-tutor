@@ -64,7 +64,7 @@
 - User action `ET-STAR-001-UA-01`: DONE для локального fast-forward merge `dc38ee6 → c19882e` по команде пользователя «Сливай» 2026-09-28. Clean/merged checkout, отсутствие active preview/process и регенерируемость ignored Playwright/node_modules данных проверены; `worktree_policy.py check-delete` PASS, `worktrees/star-phasor` удалён через Git и остаточный cache очищен, каталог отсутствует. Push/deploy не выполнялись.
 - Verification refresh 2026-09-28: `pnpm test` 168 PASS, lint PASS, Astro check 119 files/0 errors/0 warnings, build 25 pages/24 localized routes/115 audited files PASS, built Chromium 106 PASS/5 expected unrelated live-auth skips (star cases PASS), project-base 4+1 Chromium PASS, `check:context` PASS. Scope: static local/browser path, no backend.
 - User action `ET-STAR-001-UA-02`: DONE by this run's explicit direction to execute all automatable stages; current tests and browser acceptance above, documentation checkpoint committed on feature branch. Unlock — terminal `verified` projection; canonical-main documentation sync awaits `ET-LINE-001-UA-02`.
-- NEXT: ET-14.2-POLICY-DECISION
+- NEXT: ET-14.2-MIGRATION-SCHEDULER
 - Next action: none for ET-STAR-001; retain independent ET-10.3 manual gate.
 
 ## ET-LINE-001 — Численный transient симулятор длинной линии
@@ -83,8 +83,8 @@
 - User action `ET-LINE-001-UA-02`: DONE 2026-09-28; user explicitly authorized exact `main → a7b198f`. Preflight confirmed clean expected refs and ancestry; `git merge --ff-only` PASS, `main` HEAD exactly `a7b198f`, design/reconciliation commits reachable, context/CI/hygiene validators PASS. Push/deploy NOT RUN. Unlock — canonical-main design/status integration.
 - User action `ET-LINE-001-UA-03`: DONE 2026-09-28; user separately approved review of the third parallel-RLC `|U_C|>0.01 V` assertion after independent analytical and grid-sensitivity checks. Physics evidence in `docs/notes/et-line-physics-reconciliation.md`; unlock — focused and complete Rust reference validation. No terminal PASS inferred from approval alone.
 - Verification completion 2026-09-28: three physical oracles passed Rust reference 8/8 and full crate tests; Clippy, rustfmt, WASM artifact hash, 168 frontend tests, lint, typecheck, production build, root built Chromium 106 PASS/5 expected live-auth skips and base-path 4+1 Chromium PASS. `ET-LINE-001` verified locally; no backend/IdP or manual screen-reader completion inferred. Final `pnpm verify:full -- --skip-install` exit 0: hygiene/CI, Astro check, lint, 168 Vitest, root built Chromium 106 PASS/5 expected skips, 25-page build, production smoke 4 PASS, dependency audit 3 moderate/0 high or critical.
-- NEXT: ET-14.2-POLICY-DECISION
-- Next action: none for ET-LINE-001; ET-14.1 verified locally; ET-14.2 policy decision is selected independently. ET-10.3-UA-19 remains a separate human gate.
+- NEXT: ET-14.2-MIGRATION-SCHEDULER
+- Next action: none for ET-LINE-001; ET-14.1 is verified in canonical main and ET-14.2 is the active independent stage. ET-10.3-UA-19 remains a separate human gate.
 - User action `ET-LINE-001-UA-04`: DONE 2026-09-28; user approved exact `main@a7b198f → feature/line-transient-mvp@fefe168` for commits `6a0d08c`, `19b1a27`, `fefe168`. Fresh preflight: both worktrees clean, merge base `a7b198f`, remote `main` read-only HEAD unchanged at `dc38ee6`. `git merge --ff-only` PASS; local `main@fefe168` clean, all three commits reachable, context/CI/hygiene validators PASS. Push/deploy/worktree deletion NOT RUN.
 
 ## ET-14.1 — Domain events, jobs/outbox и in-app inbox
@@ -98,23 +98,24 @@
 - Evidence 2026-09-28: новый volume/container electro-tutor-et141-test-20260928 на 127.0.0.1:55436; единственный writable data mount — его собственный volume; repository init SQL read-only. Сохранённые Electro Tutor/MathMorph containers оставались stopped/Created, original DB и volumes не монтировались/не менялись. Fresh electro_tutor_test и независимая electro_tutor_catalog_baseline мигрированы до 0013; manifest 0013 создан из fresh catalog, db-status/catalog parity PASS. Отдельная electro_tutor DB прошла 0012→0013 и Alembic check; baseline прошла реальный 0013→0012→0013 с тем же catalog manifest. 9 transactional catalog drift cases PASS. Backend 199 DB-free PASS, 75 real DB integration PASS без skip, mypy 48 files PASS, Ruff format/check src/tests PASS. Worker --once PASS; real booking/outbox/delivery/retention/IDOR integration PASS. Frontend Vitest 171 PASS, ESLint PASS, Astro check 124 files/0 errors/0 warnings (2 generated hints), build 25 pages/115-file audit PASS; static Chromium 108 PASS/5 expected live-auth skips. Isolated live Keycloak profile phase 7 PASS/3 expected phase skips, dedicated notification browser 1 PASS: Booking accepted → worker → RU inbox → keyboard mark-read/reload, UK empty/foreign 404, anonymous 401. Exact commands and limits: docs/TESTING.md.
 - AUTOMATED_A11Y: PASS — RU/UK semantic controls, keyboard mark-read, visible unread state and status region exercised in component and live Chromium; no manual speech observation claimed.
 - MANUAL_SCREEN_READER_GATE: PENDING — ET-10.3 RU/UK observation is separate and does not affect ET-14.1 terminal local acceptance.
-- Limit: original data-bearing DB read_booking_operation(uuid) 8-column compatibility remains a separate unmodified gate. Local feature commits are not merged into main; push/deploy NOT RUN. Manual ET-10.3 RU/UK screen-reader gate remains implemented_unverified.
-- No-tails audit: canonical main@9350797 clean; feature/line-transient-mvp@fefe168, design@a7b198f and detached@72212d5 reachable from main; feature/et-14-1-notifications is the intentional clean, unmerged track. No stashes, unknown dirty worktrees or unaccounted migrations. origin/main@dc38ee6 tracking ref unchanged; no push/deploy.
+- Limit: original data-bearing DB read_booking_operation(uuid) 8-column compatibility remains a separate unmodified gate. ET-14.1 commits were fast-forward integrated into local main@9762797 with all 11 commits reachable; push/deploy NOT RUN. Manual ET-10.3 RU/UK screen-reader gate remains implemented_unverified.
+- No-tails audit: canonical main@9762797 clean; feature/line-transient-mvp@fefe168, design@a7b198f and detached@72212d5 reachable from main; feature/et-14-1-notifications is reachable from main; ET-14.2 uses a separate feature branch. No stashes, unknown dirty worktrees or unaccounted migrations. origin/main@dc38ee6 tracking ref unchanged; no push/deploy.
 - User action ET-14.1-UA-01: DONE 2026-09-28; approved v1 policy recorded in ADR-032/SPEC.
 - User action ET-14.1-UA-02: DONE BY ISOLATION 2026-09-28; exact disposable Docker identity/mount/port and preserved-container states checked before mutation; clean/upgrade/catalog/worker/live E2E evidence above.
-- NEXT: ET-14.2-POLICY-DECISION
+- User action ET-14.1-UA-03: DONE 2026-09-28. User approved exact local main@9350797 → feature/et-14-1-notifications@9762797; both worktrees clean, merge base exact, live origin/main unchanged. git merge --ff-only PASS; all 11 commits reachable, main clean, context/CI/hygiene validators PASS. Push/deploy NOT RUN.
+- NEXT: ET-14.2-MIGRATION-SCHEDULER
 
 ## ET-14.2 — Preferences, timezone и reminders
 
-- Status: blocked
-- Blockers: ET-14.2 reminder timing, default preference, explicit timezone, quiet-hours and late/reschedule policy require an approved product contract.
-- Condition: ET-14.1 verified locally; actual current SPEC defines only broad schedule/dedup/preference behavior. Legacy stage notes explicitly require approved scheduling, timezone, quiet-hours and reminder policy before implementation. No current code/tests define the user-visible defaults or late/reschedule behavior; this is a real product choice, not stale ADR drift.
-- Dependencies: ET-14.1 verified; product policy approval pending. ET-10.3 manual gate is independent.
-- Goal/scope: user preference and explicit IANA timezone → accepted Booking schedules an in-app reminder → reschedule/cancel reconciles pending work → one localized due item. External channels remain out of scope.
-- Runnable vertical slice: not yet runnable until reminder timing/default/quiet-hours/late-delivery semantics are approved and recorded in a bounded SPEC/ADR.
-- PASS contract: approved policy before code; real DB scheduler, DST/quiet-hours/reschedule/ownership/idempotency, RU/UK UI and time-controlled browser→API→worker acceptance; no mock-only completion.
-- User action ET-14.2-UA-01: PENDING PRODUCT DECISION. Choose which of 24h/1h/15m offsets are enabled/default; whether reminders are opt-in; how a user supplies/changes explicit IANA timezone; quiet-hours behavior; cancellation/reschedule and late-worker catch-up policy. Expected evidence: approved bounded reminder policy in SPEC/ADR. Unlock: ET-14.2 implementation and tests.
-- NEXT: ET-14.2-POLICY-DECISION
+- Status: partial
+- Condition: ET-14.1 verified and integrated into canonical main@9762797; user approved bounded reminder policy 2026-09-28. ADR-033 and specs/features/booking-reminders.spec.md define the current contract. Implementation and acceptance remain open.
+- Dependencies: ET-14.1 verified; policy approved. ET-10.3 manual gate is independent.
+- Goal/scope: explicit own IANA timezone and 24h/1h/15m settings → accepted immutable Booking schedules owner-scoped intents → quiet-hours/late policy → ET-14.1 inbox. Booking reschedule is cancel + new Booking per accepted Booking SPEC.
+- Runnable vertical slice: user saves timezone/preferences; two participants accept Booking; due worker emits one localized reminder per enabled eligible offset; cancellation invalidates pending jobs, replacement Booking schedules anew.
+- PASS contract: reversible migration/catalog parity on disposable PostgreSQL; real DB scheduler/DST/quiet-hours/late/cancellation/ownership/concurrent-worker tests; RU/UK settings and live browser→API→DB→worker E2E; docs/context/security review. No mock-only completion.
+- User action ET-14.2-UA-01: DONE 2026-09-28. Directly approved 24h+1h ON, 15m opt-in, explicit IANA zone, quiet hours OFF by default, defer/skip semantics, cancel/new Booking replacement and 15-minute late grace. Recorded in ADR-033/SPEC; unlock ET-14.2 implementation.
+- NEXT: ET-14.2-MIGRATION-SCHEDULER
+
 ## Поздние этапы
 
 - ET-11.1/ET-11.2 и поздние stages не снимают blockers ET-10.3; их execution требует dependency-ready SPEC/evidence.

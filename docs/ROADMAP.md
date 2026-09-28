@@ -16,9 +16,10 @@ integration decisions указаны в `STAGES.md`). Он использует 
 
 ## ET-LINE-001 — Численный интерактив длинной линии
 
-Статус: `CURRENT` в отдельной feature-ветке. Реальный Rust/WASM Worker solver
-и отдельный RU/UK route круговой диаграммы заказаны пользователем; PASS
-gates и NEXT принадлежат `STAGES.md`.
+Статус: `CURRENT`, реализация слита в local `main` по команде пользователя.
+Реальный Rust/WASM Worker solver и отдельный RU/UK route круговой диаграммы
+работают; численный gate остаётся открытым. PASS gates и NEXT принадлежат
+`STAGES.md`.
 
 ## Tutor stabilization track — 2026
 

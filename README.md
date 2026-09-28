@@ -59,10 +59,10 @@ pnpm backend:stop
 ```
 
 `backend:dev` применяет Alembic migrations и запускает API с PostgreSQL;
-в feature-ветке ET-14.1 также запускается notification worker. Пока 0013
-catalog/upgrade не проверены на отдельной disposable DB, не запускай эту
-команду против сохранённого original Electro Tutor volume. Изолированный
-DB/worker acceptance и его blocker описаны в `docs/STAGES.md`.
+в feature-ветке ET-14.1 также запускается notification worker. Migration 0013,
+catalog manifest и live worker/browser acceptance проверены на отдельной disposable DB.
+Сохранённый original Electro Tutor volume остаётся отдельным compatibility gate;
+backend:dev к нему не применять. Подробности: docs/STAGES.md и docs/TESTING.md.
 `backend:stop` останавливает контейнеры, сохраняя named volume. Полный local/CI
 gate — `pnpm backend:check`; отдельные уровни — `backend:test:fast` и
 `backend:test:integration`. Удаление local DB разрешается только точным

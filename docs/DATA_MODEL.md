@@ -185,21 +185,20 @@ canonical catalog/Alembic forward and preflight-identical reverse; the
 original dev DB at head 0012 still has catalog divergence and 2 account
 rows. External-caller compatibility and original-DB reconciliation remain open.
 
-## ET-14.1 additive notification schema — partial source implementation
+## ET-14.1 additive notification schema — verified on disposable PostgreSQL
 
-Revision `20260928_0013` declares `notification_outbox` and `notifications`
-with restricted Booking/Account FKs, unique
-`(event_type, booking_id, recipient_account_id)`, 30-day expiry check,
-pending/owner/unread/expiry indexes and no direct runtime/auth/provisioner
-table privileges. An `AFTER UPDATE OF status` trigger records the accepted
-Booking event in the transition transaction without changing
-`accept_booking` or its return signature. Narrow security-definer functions
-process bounded batches, list/count/mark by active session Account and clean
-expired rows. No pre-existing Booking is backfilled into the inbox.
+Revision 20260928_0013 adds notification_outbox and notifications with restricted
+Booking/Account FKs, a unique event/booking/recipient business key, exact 30-day
+expiry check and pending/owner/unread/expiry indexes. Runtime, auth and
+provisioner roles have no direct table DML. An AFTER UPDATE OF status trigger
+records Booking acceptance in the same transaction without changing the
+accepted Booking function signature. Narrow security-definer functions process
+bounded batches, list/count/mark by active Account session and remove expired
+rows. Existing Booking rows are not backfilled.
 
-This is source design, not a verified 0013 catalog. Offline Alembic forward/
-reverse generated SQL only. The committed manifest still pins the genuine
-0012 catalog, so startup catalog verification fails closed until an independent
-fresh disposable DB snapshot is produced and the clean/upgrade paths pass.
-The original data-bearing DB remains at its separately tracked compatibility
-gate; this migration has not been applied there.
+The 0013 catalog manifest was captured from an independently fresh migrated
+disposable PostgreSQL database. A second clean database and a 0012→0013
+upgrade database matched it; real 0013→0012→0013 rollback/re-upgrade on the
+empty baseline matched again. Nine transactional catalog drift cases passed.
+The original data-bearing DB was not migrated and its historical 8-column
+read_booking_operation(uuid) compatibility gate remains separate.

@@ -137,7 +137,7 @@ represented as a persisted ENDED or readable history in v1. Isolated live
 Session browser acceptance passed; literal human RU/UK screen-reader gate
 remains pending. Routes are local/CI, not deployed.
 
-## ET-14.1 private notification API — source checkpoint
+## ET-14.1 private notification API — locally verified
 
 | Route | Contract |
 |---|---|
@@ -147,5 +147,4 @@ remains pending. Routes are local/CI, not deployed.
 
 All routes are `no-store`, return no Account ID or arbitrary navigation URL,
 and use the established error envelope. The browser constructs only the typed
-internal Booking link. Transport/unit and mocked browser checks passed, while
-real PostgreSQL ACL/API/worker E2E remains unverified; see `STAGES.md`.
+internal Booking link. Transport/unit, real PostgreSQL ownership/ACL and live isolated browser→API→worker checks passed; see `STAGES.md`.

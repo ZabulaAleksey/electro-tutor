@@ -287,17 +287,17 @@
     {
       "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
       "domain": "in-app-notifications-v1",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": ["services/api/alembic/versions/20260928_0013_notifications.py", "services/api/src/electro_tutor_api/notification_worker.py", "services/api/src/electro_tutor_api/transport/notifications.py", "src/account/notification-ui.ts"],
       "unit": ["services/api/tests/test_notifications.py", "services/api/tests/test_schema_contract.py", "src/account/notification-contract.test.ts"],
-      "integration": ["services/api/tests/test_notifications_integration.py (collected; skipped without exact disposable DB)"],
-      "e2e": ["tests/e2e/notification-ui-states.spec.ts (2 mock API component browser PASS; live E2E NOT RUN)"],
-      "runtime": "0013 migration/worker/API/UI committed locally; offline Alembic SQL and compose config PASS; worker cannot start at head until independently generated 0013 catalog manifest and real DB verification.",
-      "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link implemented; real PostgreSQL ACL/IDOR tests pending.",
-      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mocked Chromium; live API/manual screen-reader not claimed.",
-      "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class implemented; runtime delivery/retention not yet observed.",
-      "gap": "Disposable PostgreSQL/Keycloak unavailable; catalog manifest still 0012, so DB-free manifest gate intentionally FAIL and ET-14.1 is not verified.",
-      "action": "Prove isolated daemon or disposable endpoint, migrate fresh and 0012 upgrade DB, generate independent 0013 catalog manifest, run real DB/auth/browser worker acceptance."
+      "integration": ["services/api/tests/test_notifications_integration.py PASS on isolated PostgreSQL; full integration 75 PASS"],
+      "e2e": ["tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"],
+      "runtime": "0013 migration/worker/API/UI committed locally; independent fresh PostgreSQL catalog manifest, clean bootstrap, 0012 upgrade, rollback/re-upgrade and worker startup PASS.",
+      "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link verified by real PostgreSQL ACL/IDOR and live browser foreign/anonymous negatives.",
+      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. ET-10.3 manual screen-reader remains separate.",
+      "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class; real delivery and retention observed on disposable DB.",
+      "gap": "ET-14.1 terminal local acceptance passed; original data-bearing DB 8-column compatibility and feature-to-main integration remain separately open.",
+      "action": "Keep 30-day/ownership/IDOR and independent catalog regressions; ET-14.2 reminder policy is the next product decision."
     },
     {
       "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],

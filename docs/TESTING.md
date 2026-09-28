@@ -1,35 +1,13 @@
 # Testing contract
 
-## ET-14.1 — notification source checkpoint, 2026-09-28
+## ET-14.1 — terminal isolated notification verification, 2026-09-28
 
-- Local feature commits `6e471d9` (0013/outbox/worker/API) and `ff0ebc5`
-  (RU/UK inbox); not merged, pushed or deployed. Original Electro Tutor and
-  MathMorph DB/volumes untouched. Docker service stopped; Docker API unavailable.
-- Alembic `20260915_0012:20260928_0013 --sql` forward and reverse PASS as
-  offline DDL generation only. Real clean bootstrap, upgrade, catalog fingerprint,
-  trigger/ACL/expiry semantics and rollback are NOT RUN. The committed catalog
-  manifest remains an independently generated 0012 baseline; do not relabel
-  it 0013 without a freshly migrated disposable PostgreSQL catalog snapshot.
-- Backend targeted schema/notification tests 6 PASS, new exact disposable DB
-  integration test collected/1 skipped. Strict mypy PASS; changed-file Ruff
-  PASS. DB-free suite 198 PASS/1 FAIL (`test_committed_manifest_is_head_pinned_and_complete`),
-  84 integration tests deselected. The failure is the expected fail-closed
-  0012 manifest versus new 0013 head; no backend/full PASS claim. Repository
-  wide Ruff includes historical 0009 migration lint errors; that migration
-  was not rewritten.
-- Frontend Vitest 171/171 PASS, ESLint PASS, Astro check 0 errors (2 generated
-  WASM hints), locale/context/workflow validators PASS, Rust/WASM artifact
-  match PASS, 25-page static build and 115-file artifact audit PASS.
-  Built Chromium mock API component states RU keyboard/read/safe link and
-  UK error/empty/retry 2/2 PASS. Full built static Chromium suite 108 PASS,
-  5 expected live-auth phase skips, exit 0; this includes the notification
-  component cases. This is not the required live
-  browser→API→DB→worker E2E.
-- Compose local/test `config --quiet` PASS read-only. Worker runs bounded
-  delivery and expiry in separate transactions; failure logs expose class and
-  counts only. No live worker output or Keycloak verification for ET-14.1.
-  Exact next gate and safe action are in selected `docs/STAGES.md`.
-
+- Feature branch implementation remains local; no merge, push or deploy. Docker context desktop-linux returned Engine 29.8.0. Read-only preflight captured every container restart policy/mount; preserved Electro Tutor and MathMorph data-bearing containers were stopped/Created before and after. New PostgreSQL 17.6 electro-tutor-et141-test-20260928 used only its identically named volume, read-only repository init SQL and 127.0.0.1:55436. Ephemeral Keycloak 26.7.2 used no persistent volume at 127.0.0.1:58081 and was removed. Disposable PostgreSQL stopped cleanly after acceptance; its volume retained for evidence. No original DB/volume was mounted or mutated.
+- Fresh electro_tutor_test and independently fresh electro_tutor_catalog_baseline migrated from base through 0013; Alembic check PASS. The 0013 manifest was captured from the latter real catalog, then matched by test DB db-status. Separate fresh electro_tutor DB reached 0012 with 9-column read_booking_operation(uuid), no notification tables, then upgraded 0012→0013 with Alembic/catalog parity PASS. Empty baseline real downgrade 0013→0012→0013 plus full manifest parity PASS. This does not prove the preserved original 8-column DB migrated.
+- Backend 199 DB-free PASS/84 deselected; 75 real PostgreSQL integration PASS/208 deselected with explicit named disposable DB lifecycle consent; 9 transactional catalog drift tests PASS/274 deselected. Notification booking→outbox→worker→owner inbox, duplicate replay, retention, ACL and foreign read regression PASS. Strict mypy 48 source files PASS; Ruff format 84 src/tests files and Ruff check PASS. Actual notification worker --once startup/catalog/delivery/cleanup PASS. Earlier test SQL ambiguous timestamp parameter was corrected and targeted integration rerun PASS.
+- Frontend Vitest 171/171 PASS, ESLint PASS, Astro check 124 files/0 errors/0 warnings (2 generated WASM hints), locale/context/workflow/hygiene validators PASS, Rust/WASM artifact match PASS. Static build 25 pages/115-file audit PASS; full built static Chromium 108 PASS/5 expected live-auth skips, including 2 mock API notification component cases.
+- Dedicated pnpm test:e2e:notifications:isolated exit 0 after exact mount/image/port preflight, production build, ephemeral Keycloak provision and API live/ready 200. Existing live profile phase 7 PASS/3 expected unrelated phase skips. Dedicated browser notification phase 1 PASS, unskipped: real Booking acceptance → outbox worker → student RU inbox/unread count → keyboard mark-read/reload persistence; foreign UK inbox empty and mark-read 404, anonymous count 401, safe internal Booking link. No manual screen-reader claim. Initial attempts found a too-short PostgreSQL crash-recovery readiness window and missing first-login prerequisite before tutor grant; harness fixed, then complete run passed.
+- API/worker error logs expose counts and failure class, not private payload. Separate transactions prevent cleanup failure from rolling back committed delivery. ET-14.2 reminder policy remains unapproved; exact product gate is in selected docs/STAGES.md.
 ## ET-LINE-001 — численный интерактив длинной линии
 
 ### Terminal physics and browser verification — 2026-09-28

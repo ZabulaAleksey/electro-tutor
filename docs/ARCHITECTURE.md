@@ -85,9 +85,9 @@ Locked Python restore сопровождается lock-drift и vulnerability g
 ET-14.1 добавляет к этому историческому ET-09.2 catalog отдельный
 `notification-worker` без Redis/брокера. `backend:dev` и `backend:e2e`
 запускают worker после миграции; он использует только runtime DB role и
-ограниченные функции delivery/cleanup. В текущей feature-ветке 0013 catalog
-manifest и real DB acceptance ещё не подтверждены: запуск на сохранённой
-original DB запрещён до отдельного compatibility/isolation checkpoint.
+ограниченные функции delivery/cleanup. В feature-ветке 0013 catalog manifest получен из свежей disposable БД;
+clean bootstrap, upgrade, rollback и live worker/browser acceptance прошли.
+Сохранённая original DB остаётся отдельным compatibility gate и не менялась.
 
 Canonical local orchestration — root `compose.yaml`: PostgreSQL 17 доступен
 host-only на `127.0.0.1:55432`, API — на `127.0.0.1:8000`; project/profile names

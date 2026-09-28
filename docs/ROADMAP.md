@@ -288,10 +288,11 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
-не переупорядочивая platform-track. Текущий selector задан в `STAGES.md`: после
-независимого verified `ET-LINE-001` выбран `ET-14.1` с утверждённым
-product policy (ADR-032). `ET-10.3` остаётся `implemented_unverified` из-за ручного
-screen reader; `ET-03` и внешние решения `ET-05..07` также не закрыты.
+не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
+локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 ожидает
+утверждения reminder/timezone/quiet-hours policy. ET-10.3 остаётся
+implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
+ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
 contracts — в `STAGES.md`.
@@ -437,10 +438,11 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 
 ### ET-14 — Notifications и background jobs (`FEATURE_NEXT`)
 
-- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `CURRENT`;
-  notification policy v1/ADR-032 утверждена, source implementation в feature
-  checkpoint, real DB/catalog/E2E ещё не подтверждены. Exact NEXT в `STAGES.md`.
-- **ET-14.2 — Preferences, timezone и reminders.** Статус: `PLANNED`.
+- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
+  на локальной feature-ветке после clean/upgrade/rollback DB и live browser
+  acceptance; canonical main ещё не включает feature commits, push/deploy не было.
+- **ET-14.2 — Preferences, timezone и reminders.** Статус: BLOCKED
+  настоящим product policy decision; точный NEXT в docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.
 - **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый

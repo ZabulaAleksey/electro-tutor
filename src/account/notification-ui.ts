@@ -47,7 +47,9 @@ export function mountNotifications(): void {
     card.dataset.notificationId = item.id;
     card.dataset.unread = String(item.readAt === null);
     const message = document.createElement("p");
-    message.textContent = copy.accepted;
+    message.textContent = item.type === "booking.accepted" ? copy.accepted
+      : item.type === "booking.reminder.24h" ? copy.reminder24h
+        : item.type === "booking.reminder.1h" ? copy.reminder1h : copy.reminder15m;
     const meta = document.createElement("div");
     meta.className = "notification-meta";
     const status = document.createElement("span");

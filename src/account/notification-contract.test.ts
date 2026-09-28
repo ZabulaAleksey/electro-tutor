@@ -31,6 +31,9 @@ describe("private notification browser contract", () => {
     expect(notificationBookingHref("uk", item)).toBe(
       `/uk/lesson/#booking=${bookingId}`,
     );
+    for (const type of ["booking.reminder.24h", "booking.reminder.1h", "booking.reminder.15m"]) {
+      expect(parseNotification({ ...raw, type })?.type).toBe(type);
+    }
     expect(parseNotification({ ...raw, type: "external.redirect", url: "https://evil.invalid" })).toBeNull();
     expect(parseNotification({ ...raw, booking_id: "https://evil.invalid" })).toBeNull();
     expect(getLocale("ru").notifications.accepted).not.toBe(getLocale("uk").notifications.accepted);

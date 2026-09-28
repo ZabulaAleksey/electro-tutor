@@ -75,6 +75,39 @@ const copy = getLocale(language).account;
       </div>
     </section>
 
+    <section class="reminder-section" data-reminder-settings hidden aria-labelledby="reminder-settings-title" aria-busy="false">
+      <div class="profile-section-heading">
+        <h2 id="reminder-settings-title">{getLocale(language).reminders.heading}</h2>
+        <p>{getLocale(language).reminders.lead}</p>
+      </div>
+      <p data-reminder-state role="status" aria-live="polite"></p>
+      <button class="button ghost" data-reminder-retry type="button" hidden>{getLocale(language).reminders.retry}</button>
+      <form class="reminder-form" data-reminder-form hidden novalidate aria-busy="false">
+        <label for="reminder-time-zone">{getLocale(language).reminders.timeZone}</label>
+        <input id="reminder-time-zone" name="time-zone" data-reminder-zone type="text" autocomplete="off" spellcheck="false" aria-describedby="reminder-time-zone-help reminder-error" required />
+        <p class="profile-help" id="reminder-time-zone-help">{getLocale(language).reminders.timeZoneHelp}</p>
+        <button class="button ghost" data-reminder-suggest type="button" hidden></button>
+        <fieldset>
+          <legend>{getLocale(language).reminders.schedule}</legend>
+          <label><input data-reminder-24h type="checkbox" />{getLocale(language).reminders.offset24h}</label>
+          <label><input data-reminder-1h type="checkbox" />{getLocale(language).reminders.offset1h}</label>
+          <label><input data-reminder-15m type="checkbox" />{getLocale(language).reminders.offset15m}</label>
+        </fieldset>
+        <fieldset>
+          <legend>{getLocale(language).reminders.quietHours}</legend>
+          <label><input data-reminder-quiet type="checkbox" />{getLocale(language).reminders.quietEnabled}</label>
+          <div class="reminder-times" data-reminder-times hidden>
+            <label for="reminder-quiet-start">{getLocale(language).reminders.quietStart}</label>
+            <input id="reminder-quiet-start" data-reminder-start type="time" step="60" />
+            <label for="reminder-quiet-end">{getLocale(language).reminders.quietEnd}</label>
+            <input id="reminder-quiet-end" data-reminder-end type="time" step="60" />
+          </div>
+        </fieldset>
+        <p class="profile-error" id="reminder-error" data-reminder-error role="alert" hidden></p>
+        <button class="button primary" data-reminder-save type="submit">{getLocale(language).reminders.save}</button>
+      </form>
+    </section>
+
     <section class="notification-section" data-notifications hidden aria-labelledby="notification-section-title" aria-busy="false">
       <div class="profile-section-heading">
         <h2 id="notification-section-title">{getLocale(language).notifications.heading}</h2>
@@ -160,8 +193,10 @@ const copy = getLocale(language).account;
     import { mountAccountProfile } from "../../account/profile-ui";
     import { mountBooking } from "../../account/booking-ui";
     import { mountNotifications } from "../../account/notification-ui";
+    import { mountReminderSettings } from "../../account/reminder-ui";
     mountBooking();
     mountNotifications();
+    mountReminderSettings();
     mountAccountProfile();
   </script>
 </BaseLayout>

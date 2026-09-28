@@ -33,6 +33,16 @@
 .profile-card :focus-visible, .account-actions :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
 .profile-card [disabled] { cursor: wait; }
 .booking-section { margin-top: 58px; padding-top: 42px; border-top: 1px solid var(--line); }
+.reminder-section { margin-top: 42px; padding-top: 36px; border-top: 1px solid var(--line); max-width: 850px; }
+.reminder-form { display: grid; gap: 10px; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.reminder-form > label, .reminder-form legend { font-weight: 800; }
+.reminder-form > input, .reminder-times input { min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); font: inherit; }
+.reminder-form fieldset { display: grid; gap: 10px; margin: 8px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.reminder-form fieldset label { display: flex; align-items: center; gap: 10px; }
+.reminder-form input[type="checkbox"] { width: 18px; height: 18px; flex: none; }
+.reminder-times { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.reminder-section :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
+.reminder-section [disabled] { cursor: wait; }
 .notification-section { margin-top: 42px; padding-top: 36px; border-top: 1px solid var(--line); }
 .notification-list { display: grid; gap: 12px; max-width: 850px; }
 .notification-item { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }

@@ -12,7 +12,9 @@ const legacyTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et103
   && port === "55434";
 const notificationTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et141-test-20260928"
   && port === "55436";
-if (!(legacyTrack || notificationTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
+const reminderTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et142-test-20260928"
+  && port === "55437";
+if (!(legacyTrack || notificationTrack || reminderTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
   || !process.env.ET_DEV_TEST_PASSWORD) {
   throw new Error("Isolated auth phase requires an exact disposable test DB and ephemeral IdP credentials.");
 }
@@ -73,7 +75,9 @@ function browserPhase(phase, identities) {
       ? "tests/e2e/auth-lesson-session.spec.ts"
       : phase === "notification"
         ? "tests/e2e/auth-notifications.spec.ts"
-        : "tests/e2e/auth-flow.spec.ts",
+        : phase === "reminder"
+          ? "tests/e2e/auth-reminders.spec.ts"
+          : "tests/e2e/auth-flow.spec.ts",
   };
   execFileSync(process.execPath, [join(root, "scripts", "run-e2e.mjs")], {
     cwd: root, env, stdio: "inherit", timeout: phase === "lesson-session" ? 600_000 : 300_000,
@@ -102,7 +106,7 @@ try {
   await waitFor("http://127.0.0.1:8000/api/v1/health/ready", 30_000);
   await waitFor("http://127.0.0.1:8000/api/v1/health/live", 5_000);
   console.log("Isolated live auth: PostgreSQL " + port + ", Keycloak 58081, API 8000, web 4322; /live and /ready PASS.");
-  if (notificationTrack) {
+  if (notificationTrack || reminderTrack) {
     // Real first login resolves managed Keycloak subjects to application accounts.
     browserPhase("profiles", identities);
     const grantEnvironment = {
@@ -122,7 +126,12 @@ try {
       cwd: apiRoot, env: databaseEnvironment, stdio: "ignore", shell: false,
     });
     browserPhase("notification", identities);
-    console.log("Isolated authenticated notification E2E PASS.");
+    if (reminderTrack) {
+      browserPhase("reminder", identities);
+      console.log("Isolated authenticated reminder E2E PASS.");
+    } else {
+      console.log("Isolated authenticated notification E2E PASS.");
+    }
   } else {
     const browserEnvironment = browserPhase("profiles", identities);
     runTrustedBookingGrantCli({

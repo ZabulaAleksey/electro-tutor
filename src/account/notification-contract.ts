@@ -3,7 +3,7 @@ import type { Language } from "../types";
 
 export interface NotificationItem {
   id: string;
-  type: "booking.accepted";
+  type: "booking.accepted" | "booking.reminder.24h" | "booking.reminder.1h" | "booking.reminder.15m";
   bookingId: string;
   createdAt: string;
   expiresAt: string;
@@ -27,13 +27,13 @@ function timestamp(value: unknown): value is string {
 export function parseNotification(value: unknown): NotificationItem | null {
   if (!record(value)
     || typeof value.id !== "string" || !isOpaqueUuid(value.id)
-    || value.type !== "booking.accepted"
+    || !["booking.accepted", "booking.reminder.24h", "booking.reminder.1h", "booking.reminder.15m"].includes(String(value.type))
     || typeof value.booking_id !== "string" || !isOpaqueUuid(value.booking_id)
     || !timestamp(value.created_at) || !timestamp(value.expires_at)
     || (value.read_at !== null && !timestamp(value.read_at))) return null;
   return {
     id: value.id,
-    type: value.type,
+    type: value.type as NotificationItem["type"],
     bookingId: value.booking_id,
     createdAt: value.created_at,
     expiresAt: value.expires_at,

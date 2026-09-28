@@ -258,14 +258,14 @@ async function catalogBaseline(mode = "check") {
 
 async function dev() {
   await dbMigrate();
-  await compose(["up", "-d", "--wait", "api"]);
+  await compose(["up", "-d", "--wait", "api", "notification-worker"]);
 }
 
 async function e2eDev() {
   await startPostgres();
   await reconcileDatabaseRoles();
   await e2eCompose(["run", "--rm", "--build", "migrate"]);
-  await e2eCompose(["up", "-d", "--wait", "api"]);
+  await e2eCompose(["up", "-d", "--wait", "api", "notification-worker"]);
 }
 
 async function doctor() {

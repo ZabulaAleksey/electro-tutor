@@ -964,7 +964,7 @@ List, unread count и mark-read серверно ограничены текущ
 refresh/navigation может повторно запросить inbox.
 
 Внешние push/email/SMS/Telegram providers, preferences, reminders и новые
-notification categories вне ET-14.1. Единая application boundary и
-structured event позволяют добавить каналы позднее без изменения Booking
+notification categories вне ET-14.1. Единая transaction trigger/worker
+boundary и structured event позволяют добавить каналы позднее без изменения Booking
 truth. Технический выбор worker, индексов, cleanup и retry уточняется в
 implementation при сохранении этого контракта и проверяется real DB/E2E.

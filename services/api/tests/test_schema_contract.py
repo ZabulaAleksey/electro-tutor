@@ -18,6 +18,8 @@ PRODUCT_TABLES = {
     "lesson_access_grants",
     "lesson_session_operations",
     "lesson_sessions",
+    "notification_outbox",
+    "notifications",
     "student_profiles",
     "tutor_offers",
     "tutor_profiles",
@@ -72,6 +74,8 @@ def test_partial_indexes_and_foreign_keys_remain_declared() -> None:
         "uq_capability_grants_active_scope": "revoked_at IS NULL",
         "uq_bookings_offer_open": "status IN ('REQUESTED','ACCEPTED')",
         "uq_lesson_access_grants_revoke_operation": "revoke_operation_id IS NOT NULL",
+        "ix_notification_outbox_pending": "delivered_at IS NULL AND attempts < 5",
+        "ix_notifications_owner_unread": "read_at IS NULL",
     }
     indexes = {index.name: index for table in metadata.tables.values() for index in table.indexes}
     for name, predicate in expected.items():
@@ -93,3 +97,40 @@ def test_partial_indexes_and_foreign_keys_remain_declared() -> None:
         for constraint in session.constraints
         if isinstance(constraint, UniqueConstraint)
     } == {"uq_lesson_session_operations_audit"}
+
+
+def test_notification_schema_keeps_owner_retention_and_dedup_contract() -> None:
+    outbox = metadata.tables["notification_outbox"]
+    inbox = metadata.tables["notifications"]
+    assert {column.name for column in outbox.columns} == {
+        "id",
+        "recipient_account_id",
+        "event_type",
+        "booking_id",
+        "created_at",
+        "next_attempt_at",
+        "attempts",
+        "last_sqlstate",
+        "delivered_at",
+    }
+    assert {column.name for column in inbox.columns} == {
+        "id",
+        "recipient_account_id",
+        "event_type",
+        "booking_id",
+        "created_at",
+        "expires_at",
+        "read_at",
+    }
+    assert inbox.c.read_at.nullable
+    assert not inbox.c.recipient_account_id.nullable
+    assert {
+        constraint.name
+        for constraint in inbox.constraints
+        if isinstance(constraint, UniqueConstraint)
+    } == {"uq_notifications_business"}
+    assert any(
+        constraint.name == "ck_notifications_retention"
+        and str(constraint.sqltext) == "expires_at = created_at + interval '30 days'"
+        for constraint in inbox.constraints
+    )

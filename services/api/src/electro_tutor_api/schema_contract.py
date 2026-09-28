@@ -1,4 +1,4 @@
-"""Independent desired head-0012 table metadata for the Alembic drift gate.
+"""Independent desired head-0013 table metadata for the Alembic drift gate.
 
 This is tooling-only SQLAlchemy Core metadata, not an ORM or a runtime query model.
 Migrations remain the immutable upgrade history. A drift check must never derive
@@ -592,3 +592,67 @@ lesson_session_operations = sa.Table(
     ),
     ck("ck_lesson_session_operations_digest", "intent_digest ~ '^[0-9a-f]{64}$'"),
 )
+
+notification_outbox = sa.Table(
+    "notification_outbox",
+    metadata,
+    col("id", sa.Uuid(), default=UUID_DEFAULT),
+    col("recipient_account_id", sa.Uuid()),
+    col("event_type", sa.String(32)),
+    col("booking_id", sa.Uuid()),
+    col("created_at", UTC, default=CLOCK),
+    col("next_attempt_at", UTC, default=CLOCK),
+    col("attempts", sa.SmallInteger(), default="0"),
+    col("last_sqlstate", sa.String(5), null=True),
+    col("delivered_at", UTC, null=True),
+    pk("notification_outbox", "id"),
+    fk("fk_notification_outbox_recipient", "recipient_account_id", "accounts.id"),
+    fk("fk_notification_outbox_booking", "booking_id", "bookings.id"),
+    uq("uq_notification_outbox_business", "event_type", "booking_id", "recipient_account_id"),
+    ck("ck_notification_outbox_event_type", "event_type='booking.accepted'"),
+    ck("ck_notification_outbox_attempts", "attempts BETWEEN 0 AND 5"),
+    ck(
+        "ck_notification_outbox_sqlstate",
+        "last_sqlstate IS NULL OR last_sqlstate ~ '^[0-9A-Z]{5}$'",
+    ),
+    ck("ck_notification_outbox_delivery", "delivered_at IS NULL OR delivered_at >= created_at"),
+)
+sa.Index(
+    "ix_notification_outbox_pending",
+    notification_outbox.c.next_attempt_at,
+    notification_outbox.c.id,
+    postgresql_where=sa.text("delivered_at IS NULL AND attempts < 5"),
+)
+sa.Index("ix_notification_outbox_retention", notification_outbox.c.created_at)
+
+notifications = sa.Table(
+    "notifications",
+    metadata,
+    col("id", sa.Uuid(), default=UUID_DEFAULT),
+    col("recipient_account_id", sa.Uuid()),
+    col("event_type", sa.String(32)),
+    col("booking_id", sa.Uuid()),
+    col("created_at", UTC),
+    col("expires_at", UTC),
+    col("read_at", UTC, null=True),
+    pk("notifications", "id"),
+    fk("fk_notifications_recipient", "recipient_account_id", "accounts.id"),
+    fk("fk_notifications_booking", "booking_id", "bookings.id"),
+    uq("uq_notifications_business", "event_type", "booking_id", "recipient_account_id"),
+    ck("ck_notifications_event_type", "event_type='booking.accepted'"),
+    ck("ck_notifications_retention", "expires_at = created_at + interval '30 days'"),
+    ck("ck_notifications_read", "read_at IS NULL OR read_at >= created_at"),
+)
+sa.Index(
+    "ix_notifications_owner_inbox",
+    notifications.c.recipient_account_id,
+    sa.text("created_at DESC"),
+    sa.text("id DESC"),
+)
+sa.Index(
+    "ix_notifications_owner_unread",
+    notifications.c.recipient_account_id,
+    notifications.c.expires_at,
+    postgresql_where=sa.text("read_at IS NULL"),
+)
+sa.Index("ix_notifications_expiry", notifications.c.expires_at)

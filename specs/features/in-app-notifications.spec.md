@@ -34,9 +34,10 @@ screen-reader gate ET-10.3; prerequisites — ET-09.2 и ET-10.1.
 
 ## Границы и отказ
 
-Единственная production boundary создания — application service/port для
-domain event/inbox; Booking не знает provider SDK. PostgreSQL и existing
-Alembic discipline остаются authoritative. Outbox/job retries bounded;
+Единственная production boundary создания event — транзакционный trigger
+успешного Booking transition; materialization выполняет отдельный worker
+через ограниченные DB functions. Booking не знает provider SDK. PostgreSQL
+и existing Alembic discipline остаются authoritative. Outbox/job retries bounded;
 после exhausted attempts запись остаётся диагностируемой и подлежит
 reconciliation. Exactly-once claim запрещён. External channels, preferences,
 reminders, WebSocket и новые категории не входят в v1. Internal navigation

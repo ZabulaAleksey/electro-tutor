@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import CircularDiagram from "../../../components/CircularDiagram";
+import "../../../components/CircularDiagram.css";
+import "../../../components/CircularDiagramMath.css";
+import "../../../components/TransmissionLineLab.css";
+import { getLocale } from "../../../i18n";
+import { lineCopy } from "../../../transient/copy";
+import { localePath } from "../../../site-path";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const copy = getLocale(language).diagram;
+---
+<BaseLayout title={`${copy.title} — ${getLocale(language).brand.name}`} description={copy.lead}
+  language={language} active="interactive" alternatePath="/interactive/circular-diagram/">
+  <section class="line-page"><div class="line-page-intro">
+    <a href={localePath(language, "/interactive/")}>← {lineCopy(language).back}</a>
+    <h1>{copy.title}</h1><p>{copy.lead}</p>
+  </div><CircularDiagram client:load language={language} /></section>
+</BaseLayout>

@@ -6,6 +6,21 @@ Roadmap задаёт порядок развития, но не заменяет
 
 Статусы: `DONE`, `CURRENT`, `PLANNED`, `BLOCKED`, `OPTIONAL`.
 
+## ET-STAR-001 — Несимметричная звезда с нейтралью
+
+Статус: `CURRENT` (локальные проверки завершены; terminal status и
+integration decisions указаны в `STAGES.md`). Он использует завершённые
+интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
+Локальное слияние в `main` выполнено на `c19882e`; terminal status
+ожидает отдельного решения в `STAGES.md`.
+
+## ET-LINE-001 — Численный интерактив длинной линии
+
+Статус: `CURRENT`, реализация слита в local `main` по команде пользователя.
+Реальный Rust/WASM Worker solver и отдельный RU/UK route круговой диаграммы
+работают; численный gate остаётся открытым. PASS gates и NEXT принадлежат
+`STAGES.md`.
+
 ## Tutor stabilization track — 2026
 
 Этот track принят поверх существующей ET-карты для доказательной стабилизации

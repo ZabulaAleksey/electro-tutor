@@ -1,0 +1,29 @@
+.star-lab {
+  --star-z-a: #b54708;
+  --star-z-b: #1766a4;
+  --star-z-c: #7542a5;
+  --star-voltage-phase: #c62828;
+  --star-voltage-line: #25803b;
+  --star-voltage-load: #1269bd;
+  --star-voltage-neutral: #b38600;
+  --star-current: #733ca6;
+  --star-plot-grid: #dce3e6;
+  --star-plot-axis: #586675;
+  --star-plot-label: #1e293b;
+  --star-plot-halo: var(--white);
+}
+
+[data-theme="dark"] .star-lab {
+  --star-z-a: #ffad6b;
+  --star-z-b: #76c3ff;
+  --star-z-c: #c9a0ff;
+  --star-voltage-phase: #ff7777;
+  --star-voltage-line: #78dc90;
+  --star-voltage-load: #72b9ff;
+  --star-voltage-neutral: #ffd15c;
+  --star-current: #c59aff;
+  --star-plot-grid: #35433e;
+  --star-plot-axis: #a5b5ae;
+  --star-plot-label: #f1f6f2;
+  --star-plot-halo: var(--white);
+}

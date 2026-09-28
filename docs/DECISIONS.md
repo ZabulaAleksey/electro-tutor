@@ -908,3 +908,27 @@ drift); отключение или игнорирование Alembic result; �
 ## ADR-029 — Канонический owner локального execution state
 
 Статус: принято 2026-09-15 по прямому правилу пользователя. Selected ET-10.3 plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`; старый catalog/AI pair сохраняются через SHA/facts в `docs/notes/` и Git parent. Remote main ET-09.4 partial snapshot at `ac675d4` remains in Git ancestry; it does not supersede integrated ET-10.3 state. Protected dev DB recovery остаётся отдельным data-preserving decision gate.
+
+## ADR-031 — Численная граница интерактива длинной линии
+
+Статус: принято для ET-LINE-001, 2026-09-28. По пользовательскому MASTER PROMPT
+физику длинной линии реализует Rust `transient-core` с `wasm-bindgen`, запущенный
+в одном Web Worker. Staggered leapfrog обновляет распределённые токи и напряжения
+с `dt=0.9·dx/v` по умолчанию; конец линии имеет half-cell ёмкость, линейные
+реактивные приборы — midpoint companion и собственный state. Нелинейный residual
+пока только extension seam, не фиктивная работающая модель. Grid хранит per-cell
+коэффициенты для будущих пространственных R′/L′/G′/C′, но MVP задаёт R′=G′=0.
+У источника и нагрузки разные порты; идеальные ограничения `Rs=0` и short
+задаются прямо. Snapshot только по запросу Worker и через transferable буферы,
+без истории или React state массивов. Аналитика допустима в тестовом oracle,
+не в production time stepping.
+Стартовая конфигурация использует идеальный источник `Rs=0`: он удерживает
+полное `Vs`, а отражение пришедшего приращения имеет `Γs=-1`, так что процесс
+после первого возврата продолжается. `Rs=Z0` остаётся проверочным согласованным
+вариантом; коэффициент в UI служит только диагностике.
+
+Скомпилированный WASM отслеживается в репозитории вместе с SHA-256 manifest:
+так штатный Node-only CI может проверить точное соответствие исходнику без
+скачивания Rust toolchain. Локальная регенерация требует закреплённой версии
+CLI 0.2.129. Отказ от WebGPU, threads, MNA и полного timeline в MVP сохраняет
+детерминированное O(N) состояние и переносимый static browser path.

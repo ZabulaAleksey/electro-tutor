@@ -1,5 +1,69 @@
 # Testing contract
 
+## ET-LINE-001 — численный интерактив длинной линии
+
+- Изолированный `feature/line-transient-mvp` worktree на local `main` `c19882e`.
+  `pnpm install --frozen-lockfile --offline` PASS. `wasm-bindgen-cli 0.2.129`
+  установлен локально в ignored `.tools`; `cargo build --target wasm32-unknown-unknown
+  --release --locked` и генерация `public/transient-core/` PASS. `pnpm
+  wasm:check` подтвердил source/artifact SHA-256. Rust target и Cargo cache
+  локальны для worktree, не изменяют общие runtime credentials.
+- Rust `cargo test --offline --locked`: 6/8 PASS. `propagation_speed_and_characteristic_relation`
+  ожидает `50±1 В` в `x=500 км,t=3 мс`, фактически `52.014588 В` при конечной
+  сетке/дисперсии. `series_and_parallel_rlc_remain_finite` требует
+  `|I_L|>0.01 А` в `t=20 мс` для обоих соединений, тогда как у последовательной
+  RLC при DC конденсатор в установившемся состоянии разрывает путь и `I_L→0`.
+  Запрос на изменение именно этих двух новых assertions ожидает решение;
+  auto-review отклонил попытку без него. Нет claims о полном physics PASS.
+  `cargo fmt --check` и `cargo clippy --all-targets -- -D warnings` PASS;
+  rustfmt добавил только пробелы, переносы и завершающие запятые, численные
+  assertions не менялись. После форматирования Rust suite повторён: те же
+  6 PASS/2 FAIL, затем WASM пересобран и hash/build проверены.
+- Отдельный `cargo test --offline --locked --test source_reflection`: 2/2 PASS.
+  При `Rs=0`, open load и `τ=5 ms` нагрузка проходит примерно `200→0→200 В`
+  на последовательных оборотах, а левый порт удерживает `100 В`; при `Rs=Z0`
+  вернувшаяся волна поглощается. Это целевой regression test, не закрытие двух
+  спорных assertions выше. Новый test отформатирован; Clippy PASS.
+- Frontend `pnpm test`: 168 PASS, 20 files; `pnpm lint`, `pnpm check` (118 files,
+  0 diagnostics), `pnpm build` (25 pages/24 RU/UK routes/115 audited files),
+  `pnpm check:context` PASS после регистрации `LINE` prefix и ADR-031.
+  Полный built Chromium: 102 PASS/5 expected unrelated live-auth skips; 3
+  первоначальных target cases проверили страницу годографа, RU/UK маршрут
+  линии, реальный Worker/WASM/Canvas, `Play/Pause/Reset/Step/seek` и 5000-cell
+  reconfigure. После добавления C/L, диагностики и отдельного share-state
+  годографа целевой suite: 5 PASS, включая изменение физического `uC/iL`
+  после прихода волны и query/hash после RU→UK. После смены default `Rs=0`
+  целевой built Chromium 6/6 PASS: реальный Worker/WASM показывает возвратное
+  отражение и продолжение колебаний; при ручном выборе `Rs=50 Ω` возвращённая
+  волна поглощается. После смены default `pnpm test` 168 PASS,
+  `pnpm check` 119 files/0 diagnostics, lint/build/context PASS; ранее полный
+  built Chromium 102 PASS не повторялся после смены default.
+- `pnpm check:base-path`: `/electro-tutor/` static build/audits PASS,
+  существующий base-path Chromium 4 PASS и дополнительный реальный
+  `uk/interactive/transmission-line/` → Worker → ES module → WASM путь 1 PASS.
+- Reproducible native release microbenchmark (`cargo run --offline --example
+  benchmark --release --locked`, 1000 steps; machine-local, single run):
+
+  | N | steps/s | simulated s / wall s | snapshot copy, µs | stored grid/state, KiB |
+  |---:|---:|---:|---:|---:|
+  | 1000 | 374195 | 1.683880 | 1.14 | 54.7 |
+  | 5000 | 76224 | 0.068601 | 43.38 | 273.5 |
+  | 10000 | 29734 | 0.013380 | 77.89 | 546.9 |
+
+  Browser DEV overlay отдельно показывает Worker→UI transfer/queue latency,
+  copy, frame и steps/s; эти machine-local измерения не служат SLA.
+
+
+## ET-STAR-001 — несимметричная звезда с нейтралью
+
+- Среда: изолированный `feature/star-phasor-interactive` worktree от чистого local `main` `dc38ee6`; pnpm 11.23.0, frozen offline restore. Сервер, DB, Keycloak и внешние запросы для нового интерактива не нужны.
+- Математика: `src/models/star-neutral.test.ts` — 7 PASS: balanced/unbalanced с ideal neutral, balanced/unbalanced с open neutral, finite neutral KCL и `I_N = U_nN/Z_N`, rectangular↔polar, фазный short/singular и `Z_N=0`. В составе `pnpm test`: 168 PASS, 20 files.
+- Статика: `pnpm lint` PASS; `pnpm check` 106 files/0 diagnostics; `pnpm build` 21 pages, 20 localized routes и 104 audited files PASS; `pnpm check:context` PASS для `ET-STAR-001` и `INT-004..008`.
+- Built Chromium: `pnpm test:e2e:built` 99 PASS/5 expected live-auth phase skips. Пять новых browser cases проверяют маршрут и RU→UK, R/X↔|Z|/φ, drag через fixed header, open neutral, preset, совпадающие точки, mobile без горизонтального overflow и масштабы 0.001/1,000,000 Ω. Финальный целевой прогон 5 PASS. Эти static/browser checks не заменяют отдельную ET-10.3 manual screen-reader acceptance.
+- Дополнение 2026-09-28: плоскость Z стоит слева от общей топографической диаграммы, числовые настройки идут после таблицы. В локальном браузере проверены N→A, n→A, N→n, B→A и начало тока в n по координатам SVG, раздельные масштабы В/А и вычисленные цвета тёмной схемы; светлая схема проверена по исходным токенам CSS. После изменения UI повторены unit, lint, type check, build и built Chromium; прежние принятые тесты не изменялись.
+- Desktop/mobile layout: при широкой ширине две диаграммы видны рядом; на mobile используются последовательные блоки без горизонтального overflow. Скриншоты предыдущего варианта заменены визуальной проверкой нового локального preview, не используются как evidence новой раскладки.
+- Ограничение v1: короткое замыкание фазы, несимметричный источник и URL-state звезды не моделируются по SPEC. Для этого локального consumer path backend gate не применяется.
+
 ## ET-10.3 UA-19 manual screen-reader attempt — 2026-09-27
 
 - Source: clean `feature/et-10-3-lesson-session` at `f0041ab`; no product/test/runner source change since UA-18 terminal isolated live-auth PASS. Its backend, built-browser and live-auth evidence remains applicable; no expensive suite or disposable runtime was restarted.

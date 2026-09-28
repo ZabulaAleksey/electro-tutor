@@ -289,8 +289,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
 не переупорядочивая platform-track. Текущий selector задан в `STAGES.md`: после
-независимого verified `ET-LINE-001` рассмотрен `ET-14.1`, чей product policy
-вход ещё открыт. `ET-10.3` остаётся `implemented_unverified` из-за ручного
+независимого verified `ET-LINE-001` выбран `ET-14.1` с утверждённым
+product policy (ADR-032). `ET-10.3` остаётся `implemented_unverified` из-за ручного
 screen reader; `ET-03` и внешние решения `ET-05..07` также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage

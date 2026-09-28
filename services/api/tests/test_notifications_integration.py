@@ -161,7 +161,7 @@ async def test_booking_event_delivery_private_inbox_and_retention() -> None:
             await connection.execute(
                 text(
                     "UPDATE notifications SET created_at=:old,"
-                    "expires_at=:old+interval '30 days' WHERE id=:id"
+                    "expires_at=CAST(:old AS timestamptz)+interval '30 days' WHERE id=:id"
                 ),
                 {"old": old, "id": item.id},
             )

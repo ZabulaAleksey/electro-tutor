@@ -8,6 +8,7 @@
 - `cargo fmt --check` PASS; `cargo test --locked --offline` PASS: reference 8/8, source-reflection 2/2; `cargo clippy --locked --offline --all-targets -- -D warnings` PASS. Cargo target redirected to isolated Codex work directory because sandbox denied writes to worktree target. `pnpm wasm:check` PASS: source/artifact hash still matches.
 - `pnpm test` 168 PASS/20 files, `pnpm lint` PASS, `pnpm check` 119 files/0 errors/0 warnings (2 generated WASM glue hints), `pnpm build` 25 pages, 24 localized routes/115 audited files PASS. `pnpm test:e2e:built` built Chromium 106 PASS/5 expected live-auth phase skips, including line Worker/WASM/Canvas and both locales. `pnpm check:base-path` static build/audits and Chromium 4+1 PASS, including real Worker/WASM under `/electro-tutor/`.
 - Native release microbenchmark N=1000/5000/10000 below predates test-only corrections; it remains applicable because solver and artifact are unchanged. No Keycloak, backend DB, original volume or external service is required for this static simulator acceptance. `ET-10.3` manual screen-reader gate remains separate.
+- Final committed checkpoint `19b1a27`: `pnpm verify:full -- --skip-install` exit 0 with hygiene/CI, Astro check 119 files/0 errors/0 warnings, lint, Vitest 168 PASS, root built Chromium 106 PASS/5 expected live-auth skips, 25-page build/115 artifact audit, production smoke 4 PASS and dependency audit 3 moderate/0 high/critical. This script does not include Cargo; full Rust evidence is recorded above.
 
 ### Historical implementation and original failures
 

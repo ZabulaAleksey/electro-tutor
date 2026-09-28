@@ -288,9 +288,10 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
-не переупорядочивая platform-track. Текущий selector — `ET-10.3`; `ET-03`
-остаётся независимым content-потоком, а внешние решения из `ET-05`, `ET-06`
-и `ET-07` не считаются закрытыми.
+не переупорядочивая platform-track. Текущий selector задан в `STAGES.md`: после
+независимого verified `ET-LINE-001` рассмотрен `ET-14.1`, чей product policy
+вход ещё открыт. `ET-10.3` остаётся `implemented_unverified` из-за ручного
+screen reader; `ET-03` и внешние решения `ET-05..07` также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
 contracts — в `STAGES.md`.
@@ -436,7 +437,9 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 
 ### ET-14 — Notifications и background jobs (`FEATURE_NEXT`)
 
-- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `PLANNED`.
+- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `BLOCKED`
+  до утверждённой notification policy ADR и безопасной disposable DB среды;
+  exact gate и runnable slice — в `STAGES.md`.
 - **ET-14.2 — Preferences, timezone и reminders.** Статус: `PLANNED`.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.

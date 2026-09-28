@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LINE-001
+- Stage ID: ET-14.1
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -64,7 +64,7 @@
 - User action `ET-STAR-001-UA-01`: DONE для локального fast-forward merge `dc38ee6 → c19882e` по команде пользователя «Сливай» 2026-09-28. Clean/merged checkout, отсутствие active preview/process и регенерируемость ignored Playwright/node_modules данных проверены; `worktree_policy.py check-delete` PASS, `worktrees/star-phasor` удалён через Git и остаточный cache очищен, каталог отсутствует. Push/deploy не выполнялись.
 - Verification refresh 2026-09-28: `pnpm test` 168 PASS, lint PASS, Astro check 119 files/0 errors/0 warnings, build 25 pages/24 localized routes/115 audited files PASS, built Chromium 106 PASS/5 expected unrelated live-auth skips (star cases PASS), project-base 4+1 Chromium PASS, `check:context` PASS. Scope: static local/browser path, no backend.
 - User action `ET-STAR-001-UA-02`: DONE by this run's explicit direction to execute all automatable stages; current tests and browser acceptance above, documentation checkpoint committed on feature branch. Unlock — terminal `verified` projection; canonical-main documentation sync awaits `ET-LINE-001-UA-02`.
-- NEXT: ET-LINE-001 verified independently; follow selected stage routing for later work.
+- NEXT: ET-14.1
 - Next action: none for ET-STAR-001; retain independent ET-10.3 manual gate.
 
 ## ET-LINE-001 — Численный transient симулятор длинной линии
@@ -82,9 +82,23 @@
 - Prior verification baseline before approved physics reconciliation (2026-09-28): Rust 1.88 `cargo test --locked` reproduced exactly 6/8 reference PASS and the same two FAIL; source-reflection 2/2 PASS; no accepted test changed. `pnpm verify:full` exit 0: frozen install, hygiene/CI, lint, Vitest 168 PASS, Astro check 119 files/0 errors/0 warnings, root Chromium 106 PASS/5 expected live-auth skips, build 25 pages/115 audited files, production smoke 4 PASS, dependency audit 3 moderate/0 high. Project-base 4+1 Chromium PASS; context validator PASS. Rust physics gate remains FAIL. Docker engine absent, so fresh DB/IdP/restore verification NOT RUN.
 - User action `ET-LINE-001-UA-02`: DONE 2026-09-28; user explicitly authorized exact `main → a7b198f`. Preflight confirmed clean expected refs and ancestry; `git merge --ff-only` PASS, `main` HEAD exactly `a7b198f`, design/reconciliation commits reachable, context/CI/hygiene validators PASS. Push/deploy NOT RUN. Unlock — canonical-main design/status integration.
 - User action `ET-LINE-001-UA-03`: DONE 2026-09-28; user separately approved review of the third parallel-RLC `|U_C|>0.01 V` assertion after independent analytical and grid-sensitivity checks. Physics evidence in `docs/notes/et-line-physics-reconciliation.md`; unlock — focused and complete Rust reference validation. No terminal PASS inferred from approval alone.
-- Verification completion 2026-09-28: three physical oracles passed Rust reference 8/8 and full crate tests; Clippy, rustfmt, WASM artifact hash, 168 frontend tests, lint, typecheck, production build, root built Chromium 106 PASS/5 expected live-auth skips and base-path 4+1 Chromium PASS. `ET-LINE-001` verified locally; no backend/IdP or manual screen-reader completion inferred.
-- NEXT: ET-LINE-001-LOCAL-MAIN-INTEGRATION
-- Next action: integrate verified test/evidence checkpoint into local `main`, then select the next dependency-ready stage; ET-10.3-UA-19 remains a separate human gate.
+- Verification completion 2026-09-28: three physical oracles passed Rust reference 8/8 and full crate tests; Clippy, rustfmt, WASM artifact hash, 168 frontend tests, lint, typecheck, production build, root built Chromium 106 PASS/5 expected live-auth skips and base-path 4+1 Chromium PASS. `ET-LINE-001` verified locally; no backend/IdP or manual screen-reader completion inferred. Final `pnpm verify:full -- --skip-install` exit 0: hygiene/CI, Astro check, lint, 168 Vitest, root built Chromium 106 PASS/5 expected skips, 25-page build, production smoke 4 PASS, dependency audit 3 moderate/0 high or critical.
+- NEXT: ET-14.1-NOTIFICATION-POLICY-DECISION
+- Next action: ET-LINE-001 terminal test/evidence checkpoint is committed on `feature/line-transient-mvp` but not yet merged into local `main`; exact merge permission is `ET-LINE-001-UA-04` below. ET-10.3-UA-19 remains a separate human gate.
+- User action `ET-LINE-001-UA-04`: PENDING at integration boundary; review `main@a7b198f` and clean `feature/line-transient-mvp` (two physics/status commits plus this routing checkpoint), then explicitly approve a fast-forward of local `main` to the reviewed feature HEAD if desired. Expected evidence: FF ancestry, clean target, committed checkpoint reachability, context/CI/hygiene validators and no orphan material after merge. No force push, push, deploy, worktree deletion or original DB action is included. Unlock — canonical-main projection of ET-LINE-001 verified evidence.
+
+## ET-14.1 — Domain events, jobs/outbox и in-app inbox
+
+- Status: blocked
+- Condition: независимый platform track после `ET-09.2` и `ET-10.1`. Canonical `ROADMAP.md` и `specs/features/ai-native-tutoring-platform.spec.md` задают durable event/outbox и in-app канал, но не определяют адресата, private content/deep link, read/retention policy для первого `booking.accepted` сообщения. Исторический полный контракт в `docs/notes/legacy-stage-contracts.md` требует approved notification policy ADR до реализации. Product code ещё не начат; прежний line worktree остаётся чистым после checkpoint.
+- Dependencies: `ET-09.2` и `ET-10.1` terminal verified; event delivery/job idempotency/retry и notification policy ADR не утверждены. ET-10.3 manual screen-reader gate не является зависимостью этого независимого track.
+- Goal/scope: один реальный путь `booking.accepted` transaction → durable outbox → retry-safe worker → одно owner-scoped in-app notification → RU/UK inbox → mark read. External channels, reminders и preferences принадлежат ET-14.2..4.
+- Runnable vertical slice: tutor accepts a REQUESTED booking → transaction commits booking and event → worker delivers one student-visible private inbox item → owning student reads/marks it read; duplicate/retry does not create a second item and worker outage does not roll back accepted booking.
+- PASS contract: approved policy SPEC/ADR before code; reversible PostgreSQL migration and catalog parity; real DB worker delivery/outage/dedup/ownership tests; RU/UK inbox component; browser→API→DB→worker→inbox→read E2E; security/accessibility and fallback review; final diff/context and docs sync. Mock or static route alone cannot close stage.
+- Blockers: PRODUCT_DECISION — notification recipient/visibility/read/retention policy is absent from canonical SPEC/ADR; ENVIRONMENT — Docker daemon is stopped and safe startup isolation from preserved original Electro Tutor/MathMorph containers is not proven. No disposable DB/IdP or live worker acceptance was run for ET-14.1.
+- User action `ET-14.1-UA-01`: PENDING product decision. Proposed v1: on the first successful `booking.accepted`, create exactly one private in-app item for the booking's student; show generic localized status and an authorized booking deep link, no tutor/private session payload; mark read only by that student; duplicate/retry deduplicated by booking ID + event type; no external send. Decide whether this recipient/content/read policy is accepted and specify retention/deletion duration or a policy basis. Expected evidence: explicit approved semantics for versioned SPEC/ADR. Unlock — ET-14.1 implementation and meaningful acceptance tests.
+- User action `ET-14.1-UA-02`: PENDING only if local Docker Desktop cannot be safely isolated by machine evidence. Start/allow an isolated daemon environment or provide an independently verified disposable PostgreSQL/Keycloak endpoint, without auto-starting original Electro Tutor or MathMorph containers/volumes. Expected evidence: exact container/volume ownership and ports before any mutating command. Unlock — real DB/worker/browser acceptance, not the product policy decision.
+- NEXT: ET-14.1-NOTIFICATION-POLICY-DECISION
 
 ## Поздние этапы
 

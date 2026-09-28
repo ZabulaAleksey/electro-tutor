@@ -12,6 +12,7 @@ PRODUCT_TABLES = {
     "auth_transactions",
     "booking_operations",
     "bookings",
+    "booking_reminders",
     "capability_grant_operations",
     "capability_grants",
     "external_identities",
@@ -19,6 +20,7 @@ PRODUCT_TABLES = {
     "lesson_session_operations",
     "lesson_sessions",
     "notification_outbox",
+    "reminder_settings",
     "notifications",
     "student_profiles",
     "tutor_offers",
@@ -76,6 +78,7 @@ def test_partial_indexes_and_foreign_keys_remain_declared() -> None:
         "uq_lesson_access_grants_revoke_operation": "revoke_operation_id IS NOT NULL",
         "ix_notification_outbox_pending": "delivered_at IS NULL AND attempts < 5",
         "ix_notifications_owner_unread": "read_at IS NULL",
+        "ix_booking_reminders_due": "status='scheduled'",
     }
     indexes = {index.name: index for table in metadata.tables.values() for index in table.indexes}
     for name, predicate in expected.items():

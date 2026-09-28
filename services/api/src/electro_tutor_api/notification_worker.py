@@ -27,6 +27,10 @@ CLEANUP_BATCH_SIZE = 500
 
 async def run_once(engine: AsyncEngine) -> tuple[int, int]:
     async with engine.begin() as connection:
+        await connection.scalar(
+            text("SELECT public.process_due_booking_reminders(:limit)"),
+            {"limit": BATCH_SIZE},
+        )
         delivered = await connection.scalar(
             text("SELECT public.deliver_notification_outbox(:limit)"), {"limit": BATCH_SIZE}
         )

@@ -21,6 +21,7 @@ from electro_tutor_api.adapters.lesson_access_repository import (
 from electro_tutor_api.adapters.lesson_session_repository import PostgresLessonSessionRepository
 from electro_tutor_api.adapters.notification_repository import PostgresNotificationRepository
 from electro_tutor_api.adapters.profile_repository import PostgresProfileRepository
+from electro_tutor_api.adapters.reminder_repository import PostgresReminderSettingsRepository
 from electro_tutor_api.domain.identity import Principal, SessionCredential
 from electro_tutor_api.errors import AuditUnavailableError, AuthenticationRequiredError
 
@@ -45,6 +46,7 @@ class PostgresUnitOfWork:
         self.lesson_access_grants: PostgresLessonAccessGrantRepository
         self.lesson_sessions: PostgresLessonSessionRepository
         self.notifications: PostgresNotificationRepository
+        self.reminder_settings: PostgresReminderSettingsRepository
         self.profiles: PostgresProfileRepository
         self.tutor_offers: PostgresTutorOfferRepository
 
@@ -101,6 +103,7 @@ class PostgresUnitOfWork:
         self.lesson_access_grants = PostgresLessonAccessGrantRepository(self._connection)
         self.lesson_sessions = PostgresLessonSessionRepository(self._connection)
         self.notifications = PostgresNotificationRepository(self._connection)
+        self.reminder_settings = PostgresReminderSettingsRepository(self._connection)
         self.profiles = PostgresProfileRepository(self._connection)
         self.tutor_offers = PostgresTutorOfferRepository(self._connection, self.booking_operations)
         return self

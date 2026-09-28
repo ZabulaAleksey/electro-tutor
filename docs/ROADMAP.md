@@ -18,9 +18,9 @@ Push/deploy не выполнялись.
 
 Статус: `DONE` (verified locally, 2026-09-28). Product implementation уже
 в local `main`; Rust/WASM Worker solver, отдельный RU/UK route круговой
-диаграммы и все physics/browser gates прошли. Test/evidence checkpoint пока
-на `feature/line-transient-mvp`; canonical-main integration указана в
-`STAGES.md`. Push/deploy не выполнялись.
+диаграммы и все physics/browser gates прошли. Test/evidence checkpoint
+интегрирован fast-forward в canonical local `main@fefe168`. Push/deploy не
+выполнялись.
 
 ## Tutor stabilization track — 2026
 

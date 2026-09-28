@@ -116,7 +116,7 @@
       "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
       "observability": "Port, state, grid and energy readings plus local development performance overlay.",
       "gap": "No open physics gate for ET-LINE-001; ET-10.3 manual screen-reader acceptance remains independent.",
-      "action": "Keep analytic Rust and live Worker/WASM browser regressions when extending line models; integrate this verified checkpoint into local main under Git policy."
+      "action": "Keep analytic Rust and live Worker/WASM browser regressions when extending line models; verified checkpoint is in local main@fefe168."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],

@@ -34,3 +34,8 @@ On 2026-09-28 the user explicitly approved exact `main → a7b198f`. Preflight c
 ## Post-physics no-tails addendum
 
 `main@a7b198f` remains clean; `feature/live-tutoring-design@a7b198f` and detached historical `72212d5` are clean and reachable from main. `feature/line-transient-mvp` fast-forwarded from `d58e787` to `a7b198f`, then committed independent physics oracles/evidence at `6a0d08c`; its test/status documentation checkpoint is being recorded on the same branch. This new unique material is accounted for as a pending canonical-main integration boundary under project Git policy, not orphaned or claimed merged. No stashes, unexpected dirty worktrees, new migrations, push or deploy. The original data-bearing DB and MathMorph resources were not touched. Current stage status/NEXT: `../STAGES.md`.
+
+
+## Exact ET-LINE-001 integration
+
+The user explicitly approved `main@a7b198f → feature/line-transient-mvp@fefe168` for exactly `6a0d08c`, `19b1a27`, `fefe168`. Both checkout states were clean; merge base equalled `a7b198f`; remote `main` read-only `ls-remote` remained `dc38ee6` (the first sandboxed network attempt failed, escalated read-only retry succeeded). `git merge --ff-only` advanced local main to `fefe168`; all three commits are reachable and context/CI/hygiene validators passed. The line branch now has no unique material relative to main. No push, deploy, worktree deletion, original DB or MathMorph mutation. Unreconciled branches for this integration: none; the earlier pending statement is historical evidence.

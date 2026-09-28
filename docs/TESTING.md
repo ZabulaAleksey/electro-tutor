@@ -21,7 +21,9 @@
   WASM hints), locale/context/workflow validators PASS, Rust/WASM artifact
   match PASS, 25-page static build and 115-file artifact audit PASS.
   Built Chromium mock API component states RU keyboard/read/safe link and
-  UK error/empty/retry 2/2 PASS. This is not the required live
+  UK error/empty/retry 2/2 PASS. Full built static Chromium suite 108 PASS,
+  5 expected live-auth phase skips, exit 0; this includes the notification
+  component cases. This is not the required live
   browser→API→DB→worker E2E.
 - Compose local/test `config --quiet` PASS read-only. Worker runs bounded
   delivery and expiry in separate transactions; failure logs expose class and

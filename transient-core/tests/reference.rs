@@ -2,21 +2,40 @@ use transient_core::config::{LineConfig, LoadConfig, LoadKind, SimError, SourceC
 use transient_core::line::TransmissionLine;
 
 fn line(cells: usize) -> LineConfig {
-    LineConfig { length_m: 1e6, velocity_m_s: 2e8, impedance_ohm: 50.0, cells, cfl: 0.9 }
+    LineConfig {
+        length_m: 1e6,
+        velocity_m_s: 2e8,
+        impedance_ohm: 50.0,
+        cells,
+        cfl: 0.9,
+    }
 }
 fn source() -> SourceConfig {
-    SourceConfig { voltage_v: 100.0, resistance_ohm: 50.0, switch_time_s: 0.0 }
+    SourceConfig {
+        voltage_v: 100.0,
+        resistance_ohm: 50.0,
+        switch_time_s: 0.0,
+    }
 }
 fn load(kind: LoadKind) -> LoadConfig {
-    LoadConfig { kind, topology: Topology::Series, resistance_ohm: 50.0,
-        inductance_h: 0.02, capacitance_f: 1e-5, initial_voltage_v: 0.0, initial_current_a: 0.0 }
+    LoadConfig {
+        kind,
+        topology: Topology::Series,
+        resistance_ohm: 50.0,
+        inductance_h: 0.02,
+        capacitance_f: 1e-5,
+        initial_voltage_v: 0.0,
+        initial_current_a: 0.0,
+    }
 }
 fn sim(cells: usize, kind: LoadKind) -> TransmissionLine {
     TransmissionLine::new(line(cells), source(), load(kind)).expect("reference config")
 }
 fn near(actual: f64, expected: f64, tolerance: f64) {
-    assert!((actual - expected).abs() <= tolerance,
-        "expected {expected} ± {tolerance}, got {actual}");
+    assert!(
+        (actual - expected).abs() <= tolerance,
+        "expected {expected} ± {tolerance}, got {actual}"
+    );
 }
 
 #[test]
@@ -36,8 +55,10 @@ fn propagation_speed_and_characteristic_relation() {
 fn matched_open_short_and_mismatch_match_reference_oracles() {
     // Expected first terminal voltages use Γ=(RL−Z0)/(RL+Z0) only here.
     for (kind, resistance, expected) in [
-        (LoadKind::R, 50.0, 50.0), (LoadKind::Open, 50.0, 100.0),
-        (LoadKind::Short, 50.0, 0.0), (LoadKind::R, 150.0, 75.0),
+        (LoadKind::R, 50.0, 50.0),
+        (LoadKind::Open, 50.0, 100.0),
+        (LoadKind::Short, 50.0, 0.0),
+        (LoadKind::R, 150.0, 75.0),
     ] {
         let mut config = load(kind);
         config.resistance_ohm = resistance;
@@ -45,8 +66,12 @@ fn matched_open_short_and_mismatch_match_reference_oracles() {
         sim.advance_to(0.006).expect("first arrival");
         let d = sim.diagnostics();
         near(d.load_voltage_v, expected, 4.0);
-        if kind == LoadKind::Open { near(d.load_current_a, 0.0, 1e-12); }
-        if kind == LoadKind::Short { near(d.load_voltage_v, 0.0, 1e-12); }
+        if kind == LoadKind::Open {
+            near(d.load_current_a, 0.0, 1e-12);
+        }
+        if kind == LoadKind::Short {
+            near(d.load_voltage_v, 0.0, 1e-12);
+        }
     }
 }
 
@@ -57,19 +82,56 @@ fn capacitor_and_inductor_initial_conditions_are_continuous() {
     let mut cap = TransmissionLine::new(line(1000), source(), c).expect("capacitor");
     near(cap.voltages()[1000], 12.0, 1e-12);
     cap.step_many(1).expect("one C step");
-    assert!((cap.diagnostics().device.capacitor_voltage_v.unwrap_or_default() - 12.0).abs() < 1.0);
+    assert!(
+        (cap.diagnostics()
+            .device
+            .capacitor_voltage_v
+            .unwrap_or_default()
+            - 12.0)
+            .abs()
+            < 1.0
+    );
     cap.advance_to(0.007).expect("charging");
-    assert!(cap.diagnostics().device.capacitor_voltage_v.unwrap_or_default() > 20.0);
+    assert!(
+        cap.diagnostics()
+            .device
+            .capacitor_voltage_v
+            .unwrap_or_default()
+            > 20.0
+    );
     cap.reset();
-    near(cap.diagnostics().device.capacitor_voltage_v.unwrap_or_default(), 12.0, 1e-12);
+    near(
+        cap.diagnostics()
+            .device
+            .capacitor_voltage_v
+            .unwrap_or_default(),
+        12.0,
+        1e-12,
+    );
 
     let mut l = load(LoadKind::L);
     l.initial_current_a = 0.2;
     let mut ind = TransmissionLine::new(line(1000), source(), l).expect("inductor");
     ind.step_many(1).expect("one L step");
-    assert!((ind.diagnostics().device.inductor_current_a.unwrap_or_default() - 0.2).abs() < 0.1);
+    assert!(
+        (ind.diagnostics()
+            .device
+            .inductor_current_a
+            .unwrap_or_default()
+            - 0.2)
+            .abs()
+            < 0.1
+    );
     ind.advance_to(0.007).expect("inductor evolution");
-    assert!((ind.diagnostics().device.inductor_current_a.unwrap_or_default() - 0.2).abs() > 0.1);
+    assert!(
+        (ind.diagnostics()
+            .device
+            .inductor_current_a
+            .unwrap_or_default()
+            - 0.2)
+            .abs()
+            > 0.1
+    );
 }
 
 #[test]
@@ -91,11 +153,14 @@ fn grid_refinement_converges_at_equal_physical_time() {
     let mut reference = sim(1600, LoadKind::R);
     reference.advance_to(0.006).expect("reference");
     let reference_v = reference.voltages()[1600];
-    let errors: Vec<f64> = [100, 200, 400, 800].into_iter().map(|cells| {
-        let mut sim = sim(cells, LoadKind::R);
-        sim.advance_to(0.006).expect("refinement");
-        (sim.voltages()[cells] - reference_v).abs()
-    }).collect();
+    let errors: Vec<f64> = [100, 200, 400, 800]
+        .into_iter()
+        .map(|cells| {
+            let mut sim = sim(cells, LoadKind::R);
+            sim.advance_to(0.006).expect("refinement");
+            (sim.voltages()[cells] - reference_v).abs()
+        })
+        .collect();
     assert!(errors[3] < errors[0] + 0.1, "errors: {errors:?}");
     assert!(errors[3] < 1.0, "errors: {errors:?}");
 }
@@ -132,10 +197,19 @@ fn backward_seek_resets_and_recomputes_deterministically() {
 fn invalid_inputs_and_cfl_fail_closed() {
     let mut bad_line = line(100);
     bad_line.cfl = 1.1;
-    assert!(matches!(TransmissionLine::new(bad_line, source(), load(LoadKind::R)), Err(SimError::Unstable)));
+    assert!(matches!(
+        TransmissionLine::new(bad_line, source(), load(LoadKind::R)),
+        Err(SimError::Unstable)
+    ));
     let mut bad_load = load(LoadKind::R);
     bad_load.resistance_ohm = -1.0;
-    assert!(matches!(TransmissionLine::new(line(100), source(), bad_load), Err(SimError::Invalid(_))));
+    assert!(matches!(
+        TransmissionLine::new(line(100), source(), bad_load),
+        Err(SimError::Invalid(_))
+    ));
     let mut sim = sim(100, LoadKind::Open);
-    assert!(matches!(sim.advance_to(f64::INFINITY), Err(SimError::Invalid(_))));
+    assert!(matches!(
+        sim.advance_to(f64::INFINITY),
+        Err(SimError::Invalid(_))
+    ));
 }

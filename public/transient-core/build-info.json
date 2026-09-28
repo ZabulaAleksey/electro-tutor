@@ -1,6 +1,6 @@
 {
   "schema": 1,
   "wasmBindgen": "0.2.129",
-  "sourceSha256": "4174fad91ec3211f1042ecb1939b6a68929b63b29583d54de8ca213108228b99",
-  "artifactSha256": "1599e810776d52e06467ed2edad2172edce7651048cc84d24205914f26b51b62"
+  "sourceSha256": "bb18b393283edb4b2f5c504fdf5e553e05b13ad0e342909544511ceac41c7025",
+  "artifactSha256": "4df06a5652652e9f313fad9ccd48e270e1ddecfda2ea549d3ca3cedbb85ecbd8"
 }

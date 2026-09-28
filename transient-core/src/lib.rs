@@ -40,7 +40,11 @@ impl WasmSimulation {
         initial_current_a: f64,
     ) -> Result<WasmSimulation, JsValue> {
         let line = LineConfig {
-            length_m, velocity_m_s, impedance_ohm, cells: cells as usize, cfl,
+            length_m,
+            velocity_m_s,
+            impedance_ohm,
+            cells: cells as usize,
+            cfl,
         };
         let source = SourceConfig {
             voltage_v: source_voltage_v,
@@ -50,8 +54,11 @@ impl WasmSimulation {
         let load = LoadConfig {
             kind: LoadKind::parse(load_kind).map_err(js_error)?,
             topology: Topology::parse(topology).map_err(js_error)?,
-            resistance_ohm, inductance_h, capacitance_f,
-            initial_voltage_v, initial_current_a,
+            resistance_ohm,
+            inductance_h,
+            capacitance_f,
+            initial_voltage_v,
+            initial_current_a,
         };
         let inner = TransmissionLine::new(line, source, load).map_err(js_error)?;
         Ok(Self { inner })
@@ -94,12 +101,24 @@ impl WasmSimulation {
     pub fn diagnostics(&self) -> Vec<f64> {
         let d = self.inner.diagnostics();
         vec![
-            d.time_s, d.step_index as f64, d.dt_s, d.dx_m, d.cfl,
-            d.travel_time_s, d.source_voltage_v, d.source_current_a,
-            d.load_voltage_v, d.load_current_a, d.min_voltage_v,
-            d.max_voltage_v, d.min_current_a, d.max_current_a,
-            d.line_energy_j, d.device.capacitor_voltage_v.unwrap_or(0.0),
-            d.device.inductor_current_a.unwrap_or(0.0), d.device.stored_energy_j,
+            d.time_s,
+            d.step_index as f64,
+            d.dt_s,
+            d.dx_m,
+            d.cfl,
+            d.travel_time_s,
+            d.source_voltage_v,
+            d.source_current_a,
+            d.load_voltage_v,
+            d.load_current_a,
+            d.min_voltage_v,
+            d.max_voltage_v,
+            d.min_current_a,
+            d.max_current_a,
+            d.line_energy_j,
+            d.device.capacitor_voltage_v.unwrap_or(0.0),
+            d.device.inductor_current_a.unwrap_or(0.0),
+            d.device.stored_energy_j,
         ]
     }
 }

@@ -17,8 +17,11 @@ impl Grid {
         let dx = config.length_m / config.cells as f64;
         let inductance = config.impedance_ohm / config.velocity_m_s * dx;
         let capacitance = dx / (config.impedance_ohm * config.velocity_m_s);
-        if !inductance.is_finite() || inductance <= 0.0
-            || !capacitance.is_finite() || capacitance <= 0.0 {
+        if !inductance.is_finite()
+            || inductance <= 0.0
+            || !capacitance.is_finite()
+            || capacitance <= 0.0
+        {
             return Err(SimError::Invalid("derived LC grid"));
         }
         let mut node_c = vec![capacitance; config.cells + 1];
@@ -118,9 +121,12 @@ impl TransmissionLine {
     }
 
     pub fn storage_f64_count(&self) -> usize {
-        self.voltages.len() + self.currents.len()
-            + self.grid.dx_m.len() + self.grid.inductance_h.len()
-            + self.grid.resistance_ohm.len() + self.grid.capacitance_f.len()
+        self.voltages.len()
+            + self.currents.len()
+            + self.grid.dx_m.len()
+            + self.grid.inductance_h.len()
+            + self.grid.resistance_ohm.len()
+            + self.grid.capacitance_f.len()
             + self.grid.conductance_s.len()
     }
 
@@ -164,10 +170,13 @@ impl TransmissionLine {
         let dt = self.dt();
         let n = self.config.cells;
         let old_time = self.time();
-        let new_step = self.step_index.checked_add(1).ok_or(SimError::TooManySteps)?;
+        let new_step = self
+            .step_index
+            .checked_add(1)
+            .ok_or(SimError::TooManySteps)?;
         for k in 0..n {
-            self.currents[k] += dt / self.grid.inductance_h[k]
-                * (self.voltages[k] - self.voltages[k + 1]);
+            self.currents[k] +=
+                dt / self.grid.inductance_h[k] * (self.voltages[k] - self.voltages[k + 1]);
         }
 
         let old_source = self.voltages[0];
@@ -179,7 +188,8 @@ impl TransmissionLine {
         } else {
             let conductance = 1.0 / source_resistance;
             (c0_over_dt * old_source + conductance * source_voltage
-                - self.currents[0] - conductance * old_source * 0.5)
+                - self.currents[0]
+                - conductance * old_source * 0.5)
                 / (c0_over_dt + conductance * 0.5)
         };
         self.voltages[0] = new_source;
@@ -190,19 +200,24 @@ impl TransmissionLine {
         };
 
         for k in 1..n {
-            self.voltages[k] += dt / self.grid.capacitance_f[k]
-                * (self.currents[k - 1] - self.currents[k]);
+            self.voltages[k] +=
+                dt / self.grid.capacitance_f[k] * (self.currents[k - 1] - self.currents[k]);
         }
 
         let old_load = self.voltages[n];
         let cn_over_dt = self.grid.capacitance_f[n] / dt;
         let (new_load, load_current) = match self.load.relation(old_load, dt) {
-            PortRelation::FixedVoltage(voltage) => {
-                (voltage, self.currents[n - 1] - cn_over_dt * (voltage - old_load))
-            }
-            PortRelation::Linear { conductance, bias_current } => {
+            PortRelation::FixedVoltage(voltage) => (
+                voltage,
+                self.currents[n - 1] - cn_over_dt * (voltage - old_load),
+            ),
+            PortRelation::Linear {
+                conductance,
+                bias_current,
+            } => {
                 let voltage = (cn_over_dt * old_load + self.currents[n - 1]
-                    - conductance * old_load * 0.5 - bias_current)
+                    - conductance * old_load * 0.5
+                    - bias_current)
                     / (cn_over_dt + conductance * 0.5);
                 let current = conductance * (old_load + voltage) * 0.5 + bias_current;
                 (voltage, current)
@@ -215,7 +230,8 @@ impl TransmissionLine {
         if !self.source_current_a.is_finite()
             || !load_current.is_finite()
             || !self.voltages.iter().all(|v| v.is_finite())
-            || !self.currents.iter().all(|i| i.is_finite()) {
+            || !self.currents.iter().all(|i| i.is_finite())
+        {
             return Err(SimError::NonFinite);
         }
         Ok(())
@@ -224,10 +240,18 @@ impl TransmissionLine {
     pub fn diagnostics(&self) -> Diagnostics {
         let (min_voltage_v, max_voltage_v) = min_max(&self.voltages);
         let (min_current_a, max_current_a) = min_max(&self.currents);
-        let electric = self.voltages.iter().zip(self.grid.capacitance_f.iter())
-            .map(|(v, c)| 0.5 * c * v * v).sum::<f64>();
-        let magnetic = self.currents.iter().zip(self.grid.inductance_h.iter())
-            .map(|(i, l)| 0.5 * l * i * i).sum::<f64>();
+        let electric = self
+            .voltages
+            .iter()
+            .zip(self.grid.capacitance_f.iter())
+            .map(|(v, c)| 0.5 * c * v * v)
+            .sum::<f64>();
+        let magnetic = self
+            .currents
+            .iter()
+            .zip(self.grid.inductance_h.iter())
+            .map(|(i, l)| 0.5 * l * i * i)
+            .sum::<f64>();
         Diagnostics {
             time_s: self.time(),
             step_index: self.step_index,
@@ -250,7 +274,9 @@ impl TransmissionLine {
 }
 
 fn min_max(values: &[f64]) -> (f64, f64) {
-    values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), value| {
-        (min.min(*value), max.max(*value))
-    })
+    values
+        .iter()
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), value| {
+            (min.min(*value), max.max(*value))
+        })
 }

@@ -38,7 +38,8 @@ impl LineConfig {
         if !self.velocity_m_s.is_finite() || self.velocity_m_s <= 0.0 || self.velocity_m_s > 3e8 {
             return Err(SimError::Invalid("wave velocity"));
         }
-        if !self.impedance_ohm.is_finite() || self.impedance_ohm <= 0.0 || self.impedance_ohm > 1e6 {
+        if !self.impedance_ohm.is_finite() || self.impedance_ohm <= 0.0 || self.impedance_ohm > 1e6
+        {
             return Err(SimError::Invalid("characteristic impedance"));
         }
         if !(20..=10000).contains(&self.cells) {
@@ -68,10 +69,14 @@ impl SourceConfig {
         if !self.voltage_v.is_finite() || self.voltage_v.abs() > 1e6 {
             return Err(SimError::Invalid("source voltage"));
         }
-        if !self.resistance_ohm.is_finite() || self.resistance_ohm < 0.0 || self.resistance_ohm > 1e9 {
+        if !self.resistance_ohm.is_finite()
+            || self.resistance_ohm < 0.0
+            || self.resistance_ohm > 1e9
+        {
             return Err(SimError::Invalid("source resistance"));
         }
-        if !self.switch_time_s.is_finite() || self.switch_time_s < 0.0 || self.switch_time_s > 10.0 {
+        if !self.switch_time_s.is_finite() || self.switch_time_s < 0.0 || self.switch_time_s > 10.0
+        {
             return Err(SimError::Invalid("switch time"));
         }
         Ok(self)
@@ -148,14 +153,25 @@ pub struct LoadConfig {
 impl LoadConfig {
     pub fn validate(self) -> Result<Self, SimError> {
         let (r, l, c) = self.kind.components();
-        if (r && (!self.resistance_ohm.is_finite() || self.resistance_ohm <= 0.0 || self.resistance_ohm > 1e9))
-            || (l && (!self.inductance_h.is_finite() || self.inductance_h <= 0.0 || self.inductance_h > 1e9))
-            || (c && (!self.capacitance_f.is_finite() || self.capacitance_f <= 0.0 || self.capacitance_f > 1e6))
+        if (r
+            && (!self.resistance_ohm.is_finite()
+                || self.resistance_ohm <= 0.0
+                || self.resistance_ohm > 1e9))
+            || (l
+                && (!self.inductance_h.is_finite()
+                    || self.inductance_h <= 0.0
+                    || self.inductance_h > 1e9))
+            || (c
+                && (!self.capacitance_f.is_finite()
+                    || self.capacitance_f <= 0.0
+                    || self.capacitance_f > 1e6))
         {
             return Err(SimError::Invalid("passive load value"));
         }
-        if !self.initial_voltage_v.is_finite() || self.initial_voltage_v.abs() > 1e6
-            || !self.initial_current_a.is_finite() || self.initial_current_a.abs() > 1e6
+        if !self.initial_voltage_v.is_finite()
+            || self.initial_voltage_v.abs() > 1e6
+            || !self.initial_current_a.is_finite()
+            || self.initial_current_a.abs() > 1e6
         {
             return Err(SimError::Invalid("load initial state"));
         }

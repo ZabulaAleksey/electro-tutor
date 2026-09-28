@@ -15,6 +15,10 @@
   RLC при DC конденсатор в установившемся состоянии разрывает путь и `I_L→0`.
   Запрос на изменение именно этих двух новых assertions ожидает решение;
   auto-review отклонил попытку без него. Нет claims о полном physics PASS.
+  `cargo fmt --check` и `cargo clippy --all-targets -- -D warnings` PASS;
+  rustfmt добавил только пробелы, переносы и завершающие запятые, численные
+  assertions не менялись. После форматирования Rust suite повторён: те же
+  6 PASS/2 FAIL, затем WASM пересобран и hash/build проверены.
 - Frontend `pnpm test`: 168 PASS, 20 files; `pnpm lint`, `pnpm check` (118 files,
   0 diagnostics), `pnpm build` (25 pages/24 RU/UK routes/115 audited files),
   `pnpm check:context` PASS после регистрации `LINE` prefix и ADR-031.

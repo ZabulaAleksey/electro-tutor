@@ -55,20 +55,37 @@ impl LinearLoad {
 impl BoundaryDevice for LinearLoad {
     fn relation(&self, _old_voltage: f64, dt: f64) -> PortRelation {
         match self.config.kind {
-            LoadKind::Open => return PortRelation::Linear { conductance: 0.0, bias_current: 0.0 },
+            LoadKind::Open => {
+                return PortRelation::Linear {
+                    conductance: 0.0,
+                    bias_current: 0.0,
+                }
+            }
             LoadKind::Short => return PortRelation::FixedVoltage(0.0),
             _ => {}
         }
         let (has_r, has_l, has_c) = self.parts();
-        let r = if has_r { self.config.resistance_ohm } else { 0.0 };
+        let r = if has_r {
+            self.config.resistance_ohm
+        } else {
+            0.0
+        };
         let l = self.config.inductance_h;
         let c = self.config.capacitance_f;
         let (conductance, bias_current) = match self.config.topology {
             Topology::Series if has_l => {
                 let a = dt / (2.0 * l);
                 let denominator = 1.0 + a * r + if has_c { a * dt / (2.0 * c) } else { 0.0 };
-                (a / denominator,
-                    (self.inductor_current_a - if has_c { a * self.capacitor_voltage_v } else { 0.0 }) / denominator)
+                (
+                    a / denominator,
+                    (self.inductor_current_a
+                        - if has_c {
+                            a * self.capacitor_voltage_v
+                        } else {
+                            0.0
+                        })
+                        / denominator,
+                )
             }
             Topology::Series if has_c => {
                 let denominator = r + dt / (2.0 * c);
@@ -84,7 +101,10 @@ impl BoundaryDevice for LinearLoad {
                 (g_r + g_l + g_c, bias)
             }
         };
-        PortRelation::Linear { conductance, bias_current }
+        PortRelation::Linear {
+            conductance,
+            bias_current,
+        }
     }
 
     fn commit(&mut self, old_voltage: f64, new_voltage: f64, current: f64, dt: f64) {
@@ -118,9 +138,13 @@ impl BoundaryDevice for LinearLoad {
         let (_, has_l, has_c) = self.parts();
         let energy = if has_l {
             0.5 * self.config.inductance_h * self.inductor_current_a.powi(2)
-        } else { 0.0 } + if has_c {
+        } else {
+            0.0
+        } + if has_c {
             0.5 * self.config.capacitance_f * self.capacitor_voltage_v.powi(2)
-        } else { 0.0 };
+        } else {
+            0.0
+        };
         DeviceState {
             current_a: self.terminal_current_a,
             capacitor_voltage_v: has_c.then_some(self.capacitor_voltage_v),
@@ -131,7 +155,7 @@ impl BoundaryDevice for LinearLoad {
 
     fn initial_terminal_voltage(&self) -> Option<f64> {
         let (_, _, has_c) = self.parts();
-        (self.config.topology == Topology::Parallel && has_c
-            || self.config.kind == LoadKind::C).then_some(self.config.initial_voltage_v)
+        (self.config.topology == Topology::Parallel && has_c || self.config.kind == LoadKind::C)
+            .then_some(self.config.initial_voltage_v)
     }
 }

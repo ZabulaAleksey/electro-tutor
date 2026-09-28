@@ -43,7 +43,21 @@ fn propagation_speed_and_characteristic_relation() {
     let mut sim = sim(1000, LoadKind::Open);
     near(sim.diagnostics().travel_time_s, 0.005, 1e-12);
     sim.advance_to(0.003).expect("stable propagation");
-    near(sim.voltages()[500], 50.0, 1.0);
+    // An ideal step rings at an individual Yee-grid point. The passed-wave
+    // plateau has the analytic 50 V / 1 A amplitude across a physical window.
+    let plateau_start = sim.cells() / 5;
+    let plateau_end = sim.cells() * 2 / 5;
+    let plateau_v = sim.voltages()[plateau_start..plateau_end]
+        .iter()
+        .sum::<f64>()
+        / (plateau_end - plateau_start) as f64;
+    let plateau_i = sim.currents()[plateau_start..plateau_end]
+        .iter()
+        .sum::<f64>()
+        / (plateau_end - plateau_start) as f64;
+    near(plateau_v, 50.0, 0.5);
+    near(plateau_i, 1.0, 0.02);
+    near(plateau_v / plateau_i, 50.0, 0.5);
     near(sim.currents()[500], 1.0, 0.05);
     assert!(sim.voltages()[1000].abs() < 0.1, "front arrived early");
     sim.advance_to(0.0055).expect("arrival");
@@ -140,11 +154,56 @@ fn series_and_parallel_rlc_remain_finite() {
         let mut config = load(LoadKind::RLC);
         config.topology = topology;
         let mut sim = TransmissionLine::new(line(500), source(), config).expect("RLC");
+        sim.advance_to(0.0055).expect("RLC transient");
+        if topology == Topology::Series {
+            // 100 V Thevenin step, 100 ohm total R, 20 mH and 10 uF give
+            // 0.754 A at 0.5 ms after the wave reaches the load.
+            near(
+                sim.diagnostics()
+                    .device
+                    .inductor_current_a
+                    .expect("series inductor"),
+                0.754,
+                0.05,
+            );
+        } else {
+            // Parallel RLC: v(s) = 200 exp(-2000s) sin(1000s) V.
+            // At s=0.5 ms, the capacitor must see about 35.27 V.
+            near(
+                sim.diagnostics()
+                    .device
+                    .capacitor_voltage_v
+                    .expect("parallel capacitor"),
+                35.27,
+                2.0,
+            );
+        }
         sim.advance_to(0.02).expect("finite RLC");
         let d = sim.diagnostics();
         assert!(d.line_energy_j.is_finite() && d.device.stored_energy_j.is_finite());
-        assert!(d.device.capacitor_voltage_v.unwrap_or_default().abs() > 0.01);
-        assert!(d.device.inductor_current_a.unwrap_or_default().abs() > 0.01);
+        if topology == Topology::Series {
+            // A charged series capacitor blocks steady DC current.
+            assert!(d.device.inductor_current_a.expect("series inductor").abs() < 0.005);
+            near(
+                d.device.capacitor_voltage_v.expect("series capacitor"),
+                100.0,
+                0.5,
+            );
+        } else {
+            // At DC the parallel inductor shorts the load; its voltage decays.
+            assert!(
+                d.device
+                    .capacitor_voltage_v
+                    .expect("parallel capacitor")
+                    .abs()
+                    < 0.01
+            );
+            near(
+                d.device.inductor_current_a.expect("parallel inductor"),
+                2.0,
+                0.05,
+            );
+        }
     }
 }
 

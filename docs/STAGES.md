@@ -115,6 +115,9 @@
 - PASS contract: approved policy before code; real DB scheduler, DST/quiet-hours/reschedule/ownership/idempotency, RU/UK UI and time-controlled browser→API→worker acceptance; no mock-only completion.
 - User action ET-14.2-UA-01: PENDING PRODUCT DECISION. Choose which of 24h/1h/15m offsets are enabled/default; whether reminders are opt-in; how a user supplies/changes explicit IANA timezone; quiet-hours behavior; cancellation/reschedule and late-worker catch-up policy. Expected evidence: approved bounded reminder policy in SPEC/ADR. Unlock: ET-14.2 implementation and tests.
 - NEXT: ET-14.2-POLICY-DECISION
+- Independent Pages dependency checkpoint 2026-09-30: `fix/et-fast-uri-pages` updates only the `fast-uri` override/lockfile `3.1.6 → 3.1.7`. Fresh `pnpm audit --audit-level high --json` changed from 2 high/3 moderate to 0 high/3 moderate; both high advisories were dev-only through `@astrojs/check → @astrojs/language-server → volar-service-yaml → yaml-language-server → ajv → fast-uri`. Frozen install, workflow validator, lint, 171 Vitest, Astro check 124 files/0 errors, 25-page build/115-file artifact audit and built Chromium 108 PASS/5 expected live-auth skips passed. This is local verification only; Pages verify/deploy has not run. Details: `docs/TESTING.md`.
+- User action `ET-PAGES-DEP-01`: PENDING APPROVAL; trigger: review the committed fix branch and the local `main`/`origin/main` relation before integration. Exact action: authorize a separately scoped merge, push and any resulting Pages workflow/deploy only after inspecting the final payload and target refs. Expected evidence: approved target/operation plus Git/Actions run and deployment read-back if executed. Unlock: remote Pages security gate. No merge, push or deploy is inferred from this checkpoint.
+
 ## Поздние этапы
 
 - ET-11.1/ET-11.2 и поздние stages не снимают blockers ET-10.3; их execution требует dependency-ready SPEC/evidence.

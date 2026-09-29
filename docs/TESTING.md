@@ -1,5 +1,12 @@
 # Testing contract
 
+## Pages dependency security checkpoint — 2026-09-30
+
+- Base: clean local `main@8b076bd`, `origin/main@b252844` (local main ahead 28), fix branch `fix/et-fast-uri-pages`. `pnpm@11.23.0`, Node `22.23.1`, canonical `pnpm-lock.yaml` and `pnpm-workspace.yaml`.
+- Fresh `pnpm audit --audit-level high --json` before patch: 2 high, 3 moderate, 0 critical. Both high findings were `fast-uri@3.1.6` through dev-only `@astrojs/check → @astrojs/language-server → volar-service-yaml → yaml-language-server → ajv/ajv-draft-04/ajv-i18n → ajv → fast-uri`. Maintainer advisories `GHSA-qw65-cvwx-89v3` and `GHSA-58mr-gqgx-xq4g` name `3.1.7` as the patched 3.x release. No production consumer path was identified in the audit output; this does not prove that arbitrary deployments are safe.
+- Changed only the `fast-uri` override from `3.1.6` to `3.1.7`; `pnpm install --lockfile-only` changed five lockfile lines and passed supply-chain policy (793 entries). `pnpm install --frozen-lockfile` passed. Fresh audit exited 0: 0 high/critical, 3 moderate. No advisory suppression or major upgrade.
+- `pnpm check:ci-workflow` PASS, `pnpm lint` PASS, `pnpm test` 171 PASS/21 files, `pnpm check` 124 files/0 errors/0 warnings (2 generated WASM hints), `pnpm build` 25 pages/24 localized routes/115 audited files PASS, `pnpm test:e2e:built` 108 PASS/5 expected live-auth skips. Rust/WASM shipped artifact hash check passed inside build. Static Pages workflow contract passed; actual GitHub Pages verify/deploy was not run.
+- Docker API unavailable in this session. Backend DB/IdP and authenticated browser gates were not rerun for this dev-tool dependency patch. ET-10.3-UA-19 manual RU/UK screen-reader gate and ET-14.2 policy decision remain open.
 ## ET-14.1 — terminal isolated notification verification, 2026-09-28
 
 - Feature branch implementation remains local; no merge, push or deploy. Docker context desktop-linux returned Engine 29.8.0. Read-only preflight captured every container restart policy/mount; preserved Electro Tutor and MathMorph data-bearing containers were stopped/Created before and after. New PostgreSQL 17.6 electro-tutor-et141-test-20260928 used only its identically named volume, read-only repository init SQL and 127.0.0.1:55436. Ephemeral Keycloak 26.7.2 used no persistent volume at 127.0.0.1:58081 and was removed. Disposable PostgreSQL stopped cleanly after acceptance; its volume retained for evidence. No original DB/volume was mounted or mutated.

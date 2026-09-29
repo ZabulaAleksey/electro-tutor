@@ -51,3 +51,21 @@ Skill или subagent не добавлены: подтверждённого п
 ## Brownfield active ET-10.3 STAGES reconciliation 2026-09-15
 
 Old prompt stage catalog and AI pair — MERGE; `docs/STAGES.md` — ADD. Selected local ET-10.3 implemented_unverified with protected dev DB (2 accounts, drift); remote ET-09.4 partial snapshot at `ac675d4` is retained in Git ancestry and does not overwrite active state. Product code/tests/locks/CI/config/DB/upstream assets — FORBIDDEN_TO_OVERWRITE. Source SHA/facts in `docs/notes/` and Git parent rollback; formal DEV bridge not asserted.
+
+## Structured DEV bridge adoption — 2026-09-29
+
+Read-only `reconcile_project_framework.py` подтвердил `BROWNFIELD`, канонические
+pnpm/uv/Cargo locks, отсутствие dependency drift и `FORBIDDEN_TO_OVERWRITE`
+для product code/tests/locks/DB assets. До adoption overlay validator сообщал
+только `missing-dev-bridge` и `missing-dev-project-marker`; stage route canonical.
+Владелец выбрал explicit structured opt-in в GDA-NEW-HOST-001.
+
+| Capability | Владелец | Классификация | Минимальное решение |
+|---|---|---|---|
+| DEV membership и portable paths | Global DEV contract; project AGENTS | `CONFLICT → INHERITED` | `.codex/dev-project.toml` и exact AGENTS declaration |
+| Host tools и doctor | Global DEV | `INHERITED` | Global проверяет host prerequisites; project pins и Backend DX Delta локальны |
+| Architecture, auth, DB, sessions и locks | Electro Tutor Git | `FORBIDDEN_TO_OVERWRITE` | Без application, data, migration и feature-branch mutation |
+| Selected stage и product blockers | `docs/STAGES.md` | `PROJECT_ONLY` | Сохранить ET-10.3/ET-14.2 lifecycle и независимые gates |
+
+Фраза 2026-09-15 выше о неактивном formal DEV bridge историческая; этот opt-in
+заменяет только membership state, не проектные правила.

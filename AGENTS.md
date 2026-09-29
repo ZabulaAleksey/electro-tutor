@@ -1,5 +1,7 @@
 # Electro Tutor — project overlay
 
+Global DEV bridge: enabled
+
 Сначала применяй `~/.codex/AGENTS.md`. Этот файл содержит только
 локальные инварианты и маршрутизацию; общие agents, Skills, hooks, MCP, Git
 workflow и правила качества наследуются и здесь не дублируются.

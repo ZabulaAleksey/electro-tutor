@@ -1,5 +1,13 @@
 # Testing contract
 
+## Night dependency and branch-truth sweep — 2026-10-01
+
+- Source baseline `d0bbd7bf00c3f0d5cc80169083fcaf6f1ed9a4f8`; canonical truth correction `1260367a6f0ea19892f8737b7c470f9195c93309`. Reminder runtime/policy находится на preserved feature track `d8891537`; integration approval correction `850713cfe4a831527d0d6ff2022a1532a49b221d`. Main/feature divergent2/4 при входе; fast-forward instruction устранён. Root не содержит reminders и не получает reminder VERIFIED.
+- Existing-materialization frozen/offline pnpm11.23.0 и uv lock check PASS; clean-room bootstrap не выполнялся. Context/CI/hygiene PASS. Frontend171 Vitest, lint, Astro124 files/0 errors/0 warnings/2 generated hints, shipped WASM source/artifact match, 344 paired locale keys,25-page build/24 localized routes/115 audited files PASS. Fresh pnpm audit:793 dependencies, все vulnerability severities0.
+- Первый static built Chromium run:107 PASS/5 expected live-phase skips/1 FAIL — browser context teardown exceeded unchanged30000ms timeout в booking-ui-states.spec.ts:129. Before retry сохранены context/screenshot/trace в task work directory, exact path/hash находятся в JSON. Тот же113-case suite на existing CI1worker profile:108 PASS/5 skips, exit0. Assertions/timeouts/config/source не ослаблялись; массовый parallel-run timeout не повышается до подтверждённого product defect.
+- Fresh runtime Python audit обнаружил PyJWT2.14.0/CVE-2026-101918 (GHSA-42vr-xj54-vc7v). Targeted `uv lock --project services/api --upgrade-package pyjwt==2.15.0` меняет только package entry/distribution hashes. Locked sync и повтор `pnpm backend:test:fast` PASS: Ruff84 files/check, mypy48 source files,199 tests/84 integration+catalog deselected. After audit33 runtime packages/0 known vulnerabilities. Offline20,000-depth payload→DecodeError и normal control PASS; live auth/DB/provider не запускались.
+- Canonical evidence: `docs/evidence/night-20261001-audit.json`, runtime requirements before/patched snapshots, actual `night-20261001-python-audit-after.json` и `night-20261001-pyjwt-probe.json`. Audit inputs не заменяют uv.lock. Original DB compatibility, ET-10.3 manual screen reader, reviewed reminder integration и feature-track ET-14.3 Telegram privacy/test-bot gates остаются открыты; merge/push/deploy/delete не выполнялись.
+
 ## Pages dependency security checkpoint — 2026-09-30
 
 - Base: clean local `main@8b076bd`, `origin/main@b252844` (local main ahead 28), fix branch `fix/et-fast-uri-pages`. `pnpm@11.23.0`, Node `22.23.1`, canonical `pnpm-lock.yaml` and `pnpm-workspace.yaml`.

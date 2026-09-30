@@ -1,0 +1,7 @@
+{
+  "pyjwt_version": "2.15.0",
+  "scope": "offline vendor payload parser; no live authentication request",
+  "nested_depth": 20000,
+  "nested_payload_exception": "DecodeError",
+  "normal_payload_control": true
+}

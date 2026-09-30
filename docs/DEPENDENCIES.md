@@ -1,5 +1,9 @@
 # Dependency contract
 
+## Locked runtime advisory patch — 2026-10-01
+
+Canonical uv.lock фиксирует PyJWT2.15.0 в прежнем compatible2.x range; pyproject API/dependency contract не менялся. Targeted lock update, locked restoration, existing backend gates и fresh runtime audit PASS. Runtime requirements exports в docs/evidence — immutable audit inputs; source of truth остаются pyproject.toml/uv.lock. Existing-tree frozen/offline restore не является fresh clean-room acceptance.
+
 Root Node ecosystem остаётся под `pnpm@11.23.0` и `pnpm-lock.yaml`. Backend
 имеет отдельный Python ecosystem в `services/api/pyproject.toml` с единственным
 `services/api/uv.lock`; npm/Yarn/Bun lockfiles не допускаются.

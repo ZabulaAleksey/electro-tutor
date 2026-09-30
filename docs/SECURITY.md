@@ -1,5 +1,9 @@
 # Безопасность и границы доверия
 
+## Runtime dependency advisory checkpoint — 2026-10-01
+
+Locked PyJWT2.14.0 обновлён до2.15.0 по vendor GHSA-42vr-xj54-vc7v/CVE-2026-101918. Fresh runtime audit33 packages/0 known vulnerabilities; existing backend199 PASS и offline recursive-payload DecodeError/normal control подтверждены. Public auth/capability/ownership contracts и accepted tests сохранены. Live authenticated/DB/provider gates в этом audit не повторялись. Локальная source/evidence граница — `docs/TESTING.md`, `docs/evidence/night-20261001-audit.json`; production/hosted состояние не повышается.
+
 Проект является статическим сайтом, но загружает внешнюю видеоплатформу,
 сохраняет часть состояния в браузере и планирует расписание/платежи. Поэтому
 границы доверия должны быть явными до production-расширения.

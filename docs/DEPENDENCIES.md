@@ -10,7 +10,7 @@ Ruff, mypy, pytest и pip-audit. `backend:bootstrap` и CI используют 
 `backend:check` отклоняет lock drift и известные уязвимости runtime export.
 
 Node security baseline фиксирует Astro `^7.3.2` (исправление AVIF RCE) и
-временные exact transitive overrides `fast-uri@3.1.6`, `js-yaml@4.3.2`,
+временные exact transitive overrides `fast-uri@3.1.8`, `js-yaml@4.3.2`,
 `svgo@4.1.0`, пока их direct parents не поднимут безопасные диапазоны.
 `pnpm audit --audit-level high` обязан завершаться с exit `0`; overrides следует
 удалять только после lockfile-проверки, что безопасные версии приходят нативно.

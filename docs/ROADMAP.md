@@ -289,8 +289,10 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
 не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
-локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 ожидает
-утверждения reminder/timezone/quiet-hours policy. ET-10.3 остаётся
+локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 имеет
+approved policy и historical local verification на отдельной `feature/et-14-2-reminders`,
+но отсутствует в root checkout и ожидает reviewed integration. Тот track выбрал
+ET-14.3 с Telegram privacy/test-bot gates. ET-10.3 остаётся
 implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в

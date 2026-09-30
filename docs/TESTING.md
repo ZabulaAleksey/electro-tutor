@@ -654,3 +654,7 @@ is claimed for this rerun. Live authenticated Session and manual acceptance
 were NOT RUN at that earlier point. Current UA-18 live/browser evidence is at
 the top of this file; manual screen-reader acceptance remains open. Detailed
 user actions are in selected `STAGES.md`.
+
+## Dependency security checkpoint — 2026-09-30
+
+PyJWT 2.14.0 and pytest 9.1.1 via locked uv removed the 12 current Python advisory records; pytest-asyncio compatibility remained locked. Vitest 4.1.11, devalue 5.9.1, fast-uri 3.1.8 and scoped brace-expansion overrides via frozen pnpm removed the current frontend advisories. uv audit --locked and pnpm audit --audit-level moderate reported zero known findings. Backend fast suite: 199 passed/84 integration deselected; Ruff check/format and strict mypy 48 files passed. Frontend: 171 unit tests, lint, 25-page Astro build with locale/publication/site audits passed. This is local dependency evidence only; ET-10.3 manual screen-reader acceptance and original data-bearing DB compatibility remain open.

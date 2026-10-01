@@ -12,7 +12,7 @@ Roadmap задаёт порядок развития, но не заменяет
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
 Локальное слияние product code в `main` выполнено на `c19882e`; terminal
 status/evidence интегрированы в canonical local `main@a7b198f` 2026-09-28.
-Ручной повторный PASS получен 2026-10-01 для исторического `c19882e`; его source уже совпадает с текущим main. Finalization разрешена пользователем; актуальное evidence находится в `STAGES.md`. Production deploy не входит в эту задачу.
+Ручной повторный PASS получен 2026-10-01 для исторического `c19882e`; его source уже совпадает с текущим main. Recovery verification checkpoint merged/pushed в main@ab3a942 с remote read-back PASS, временный worktree удалён после guarded preflight; source сохранён. Актуальное evidence находится в `STAGES.md`. Production deploy не запускался.
 
 ## ET-LINE-001 — Численный интерактив длинной линии
 

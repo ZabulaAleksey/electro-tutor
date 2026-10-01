@@ -85,6 +85,16 @@ class AuthenticationRequiredError(RuntimeError):
     status_code = 401
 
 
+class NotificationNotFoundError(RuntimeError):
+    code = "notification_not_found"
+    status_code = 404
+
+
+class NotificationUnavailableError(RuntimeError):
+    code = "notification_unavailable"
+    status_code = 503
+
+
 class CapabilityRequiredError(RuntimeError):
     code = "capability_required"
     status_code = 403

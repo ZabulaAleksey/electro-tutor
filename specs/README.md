@@ -20,6 +20,7 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
 | `features/star-neutral-phasors.spec.md` | Действует | Локальный трёхфазный интерактив: комплексные сопротивления, три режима нейтрали, векторные диаграммы и численная защита |
+| `features/transmission-line-transient.spec.md` | Действует | Rust/WASM Worker transient линии, Canvas эпюры и отдельные маршруты интерактивов |
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |
 | `features/base-path-portability.spec.md` | Действует | Единый site/base URL contract для root и project-site artifacts |
 | `features/pre-deploy-quality-gates.spec.md` | Действует | Единый full-verify pipeline и безопасная передача проверенного artifact в GitHub Pages deploy |
@@ -27,7 +28,8 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/rtc-provider-boundary.spec.md` | Действует; runtime verified | Изоляция публичного Jitsi за system-owned meeting port, adapter/fake contract tests и запрет vendor leakage в UI; `ET-RTC-001` completed locally |
 | `features/payments-and-booking.spec.md` | Действует для `FREE`/`EXTERNAL`; `PLATFORM` blocked | Утверждённый `ET-10.1` TutorOffer/Booking snapshot contract и отдельно отложенный hosted-payment path |
 | `features/lesson-access-grants.spec.md` | Действует для `ET-10.2`; `PLATFORM` source deferred | Утверждённый time-bounded LessonAccessGrant, atomic Booking issue/revoke, participant authorization и protected media-less shell |
-| `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; local DB/HTTP/frontend прошли, drift/live/manual gates открыты | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
+| `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; isolated backend/live browser gates прошли, literal human RU/UK screen-reader gate открыт | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
+| `features/live-tutoring-session.spec.md` | DRAFT, не входит в binding requirement scope | Repository reconciliation, proposed invite/media/presence boundary, threats, migration и bounded ET-12 plan |
 | `features/ai-native-tutoring-platform.spec.md` | Действующий mixed architecture baseline | Реализованные architecture IDs и non-binding future backlog классифицируются per-ID; каждый новый runtime implementation stage требует утверждённой feature-SPEC |
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,

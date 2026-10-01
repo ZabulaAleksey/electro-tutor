@@ -39,6 +39,19 @@
 жёлтое, токи фиолетовые. Масштабы В и А показаны отдельно. Значения цветов
 для обеих тем принадлежат `src/components/StarDiagramColors.css`.
 
+## Интерактив длинной линии
+
+Три интерактива имеют отдельные карточки и RU/UK страницы. В лаборатории
+длинной линии сначала видны управление, схема «источник → линия → нагрузка»
+и два Canvas графика: красное напряжение `U(x)`, синий ток `I(x)`.
+Диагностика и производные шаги сетки идут под графиками; числовые параметры
+расположены ниже. Под курсором выводятся координата и оба значения. Зелёный
+элемент управления обозначает действие, а не физическую величину. Множитель
+воспроизведения меняет только визуальный темп, что явно отделено от `CFL`.
+Стартовый идеальный источник имеет `Rs=0`; диагностика показывает коэффициент
+отражения у источника `Γs=-1`. Изменение `Rs` применяется вместе с остальными
+числовыми параметрами.
+
 ## Типографика
 
 - основной интерфейс: `DM Sans`, затем системный sans-serif;
@@ -149,8 +162,8 @@ no transition controls. A refresh control rechecks the server for scheduled
 START or another tab's change, without client-clock authorization. Signed-out,
 foreign, expired/revoked, malformed or unavailable responses hide Session,
 clear previous private DOM metadata and announce localized failure/retry.
-No media iframe is added. RU/UK multi-tab, keyboard/screen-reader and mobile
-acceptance remains a manual ET-10.3 terminal gate.
+No media iframe is added. Current ET-10.3 acceptance evidence and the
+remaining literal human screen-reader gate are tracked in `docs/STAGES.md`.
 
 ## Темы и сохраняемое состояние
 

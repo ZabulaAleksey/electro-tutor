@@ -20,9 +20,26 @@ Project overlay хранит только project-specific delta. Hooks, MCP, ge
 agents, Skills и Git workflow наследуются; локальные копии без подтверждённого
 пробела не создаются.
 
+## Structured DEV bridge
+
+- Global owner: `${DEV_ROOT}/context/global/codex-dev` владеет общим router,
+  portable path resolver, bootstrap, doctor и capability contracts.
+- Project owner: `${PROJECTS_ROOT}/electro-tutor` владеет product code, SPEC,
+  `AGENTS.md`, выбранным `docs/STAGES.md`, pnpm/uv locks и Backend DX Delta.
+- Граница наследования: `.codex/dev-project.toml` явно включает DEV;
+  exact AGENTS declaration только поясняет его человеку. Проектные правила
+  уточняют global contract без ослабления безопасности и утверждённой policy.
+- Portable roots: `${DEV_ROOT}`, `${PROJECTS_ROOT}`, `${PROJECT_ROOT}`;
+  Windows bootstrap-пример допускает `E:\DEV`. `~` остаётся machine-local.
+- Tools и исключения: Global DEV проверяет host tools и portable layout.
+  Проект сохраняет pinned pnpm/uv workflow, isolated Docker services, защищённые
+  DB volumes, auth, lesson-session и release contracts. Bridge не меняет
+  application architecture и не активирует product feature.
+
 ## Backend DX Delta
 
-- Applicability level: `BDX-L2` — stateful FastAPI + PostgreSQL local/CI slice.
+- Applicability level: `BDX-L3` isolated verified — stateful FastAPI +
+  PostgreSQL and ET-14.1 notification worker; isolated worker/DB acceptance passed.
 - Supported local environments: Windows 11 PowerShell и CI Linux; Docker engine
   обязателен для integration/full gates.
 - Canonical working directory: repository root `${PROJECTS_ROOT}/electro-tutor`.
@@ -90,7 +107,11 @@ agents, Skills и Git workflow наследуются; локальные коп
   decision. Migration lifecycle требует exact consent и database
   `electro_tutor_test`. Browser E2E also uses that isolated database through
   `compose.e2e.yaml`; it never resets or treats `electro_tutor` as test data.
-- Worker/scheduler commands: `N/A — workers/queues/schedulers не входят в ET-09.2`.
+- Worker/scheduler commands: ET-09.2 baseline had none; ET-14.1 feature adds
+  `pnpm backend:notifications:worker` and Compose `notification-worker`
+  with bounded delivery/cleanup. BDX-L3 isolated acceptance passed with
+  disposable PostgreSQL/Keycloak and 0013 catalog; preserved original DB still
+  requires separate compatibility proof before any migration or worker start.
 - External sandbox/stub/fallback modes: isolated Keycloak DEV — real provider
   evidence, не mock и не production; IdP/DB outage fail closed без local identity
   fallback.
@@ -101,8 +122,9 @@ agents, Skills и Git workflow наследуются; локальные коп
   fast и real-PostgreSQL tests, pip-audit, Compose config/image, Alembic current/check,
   live HTTP→DB smoke, cleanup; Pages CI вызывает тот же backend gate.
 - Known limitations: production backend hosting/ingress/IAM/cookie topology не
-  выбраны; exact credentialed CORS действует только для DEV/E2E, jobs отсутствуют.
-  ADR-028 now provides independent Core head metadata for 15 tables and a
+  выбраны; exact credentialed CORS действует только для DEV/E2E. ET-14.1
+  worker/catalog/live job verification passed on an isolated disposable stack.
+  Current Core head metadata covers 17 product tables (ADR-028 baseline: 15 at 0012) and a
   committed `pg_catalog` manifest for functions, triggers, CHECKs, indexes
   and private ACL. A newly migrated scratch DB passes Alembic check, catalog
   parity and 9 transactional drift negatives. The existing dev DB at head

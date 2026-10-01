@@ -8,8 +8,19 @@ Roadmap задаёт порядок развития, но не заменяет
 
 ## ET-STAR-001 — Несимметричная звезда с нейтралью
 
-Статус: `CURRENT` для повторного исторического verification track от `c19882e`: найденный source запущен отдельно; ручной gate `ET-STAR-001-UA-03` ожидает PASS/FAIL в `STAGES.md`. Integration до PASS запрещена. Он использует завершённые
+Статус: `DONE` (verified locally, 2026-09-28). Он использует завершённые
 интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
+Локальное слияние product code в `main` выполнено на `c19882e`; terminal
+status/evidence интегрированы в canonical local `main@a7b198f` 2026-09-28.
+Ручной повторный PASS получен 2026-10-01 для исторического `c19882e`; его source уже совпадает с текущим main. Finalization разрешена пользователем; актуальное evidence находится в `STAGES.md`. Production deploy не входит в эту задачу.
+
+## ET-LINE-001 — Численный интерактив длинной линии
+
+Статус: `DONE` (verified locally, 2026-09-28). Product implementation уже
+в local `main`; Rust/WASM Worker solver, отдельный RU/UK route круговой
+диаграммы и все physics/browser gates прошли. Test/evidence checkpoint
+интегрирован fast-forward в canonical local `main@fefe168`. Push/deploy не
+выполнялись.
 
 ## Tutor stabilization track — 2026
 
@@ -277,9 +288,11 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
-не переупорядочивая platform-track. Текущий selector — `ET-10.3`; `ET-03`
-остаётся независимым content-потоком, а внешние решения из `ET-05`, `ET-06`
-и `ET-07` не считаются закрытыми.
+не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
+локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 ожидает
+утверждения reminder/timezone/quiet-hours policy. ET-10.3 остаётся
+implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
+ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
 contracts — в `STAGES.md`.
@@ -379,15 +392,40 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 
 ### ET-12 — Native realtime (`FEATURE_NEXT`)
 
+Проект live tutoring в
+`../specs/features/live-tutoring-session.spec.md` является
+**draft reconciliation**, не approval и не новый execution selector.
+Он переиспользует Booking → LessonAccessGrant → LessonSession и отделяет
+scoped invite credential от общей application session. Media-путь нельзя
+строить на публичной комнате `meet.jit.si`; ET-12.1 обязан доказать
+provider-enforced room/role access и прямой bypass-negative. Текущий
+dependency graph через ET-11.1/11.2 сохраняется, пока отдельное решение
+не изменит prerequisites.
+
 - **ET-12.1 — Realtime provider POC и ADR.** Статус: `PLANNED`; LiveKit —
-  кандидат, а не заранее объявленный production choice.
+  кандидат, а не заранее объявленный production choice. Jitsi допускается
+  как кандидат только на контролируемом token-required deployment после
+  реального room/role/bypass proof; provider, region, privacy/cost и
+  revoke/kick capability остаются открытыми решениями.
 - **ET-12.2 — Authorized media room.** Статус: `PLANNED`; backend-issued
-  short-lived token и real browser → API → provider path.
-- **ET-12.3 — Device management и screen share.** Статус: `PLANNED`.
-- **ET-12.4 — Reconnect и full session restoration.** Статус: `PLANNED`.
+  short-lived token и real browser → API → provider path. Предлагаемая
+  декомпозиция: `ET-12.2a` authenticated tutor/student + minimal embedded
+  video, затем `ET-12.2b` opaque invite → scoped student access → тот же
+  защищённый media path; каждый slice имеет собственный живой E2E и
+  негативные authorization tests. Не менять `LESSON_SHELL_V1` молча.
+- **ET-12.3 — Device management и screen share.** Статус: `PLANNED`;
+  endpoint отделён от participant Account и может быть deferred из первого
+  live tutoring MVP.
+- **ET-12.4 — Reconnect и full session restoration.** Статус: `PLANNED`;
+  проверять свежий grant и не превращать disconnect в Session END.
 - **ET-12.5 — TURN, adaptive media и quality telemetry.** Статус: `PLANNED`;
   production topology/cost требует решения.
-- **ET-12.6 — Waiting room, presence и moderation.** Статус: `PLANNED`.
+- **ET-12.6 — Waiting room, presence и moderation.** Статус: `PLANNED`;
+  trusted provider events → endpoint observations → tutor status и
+  attendance history; iframe events подтверждают только локальный UI.
+  Hosted student/tutor acceptance после этих slices остаётся отдельным
+  terminal gate; draft ET-12.7 из feature-SPEC не вводится в DAG до
+  решения о production topology.
 
 ### ET-13 — Recording, replay и search (`FEATURE_NEXT/LATER`)
 
@@ -400,8 +438,11 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
 
 ### ET-14 — Notifications и background jobs (`FEATURE_NEXT`)
 
-- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: `PLANNED`.
-- **ET-14.2 — Preferences, timezone и reminders.** Статус: `PLANNED`.
+- **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
+  на локальной feature-ветке после clean/upgrade/rollback DB и live browser
+  acceptance; canonical main ещё не включает feature commits, push/deploy не было.
+- **ET-14.2 — Preferences, timezone и reminders.** Статус: BLOCKED
+  настоящим product policy decision; точный NEXT в docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.
 - **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый

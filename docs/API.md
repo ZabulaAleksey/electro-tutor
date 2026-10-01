@@ -133,5 +133,18 @@ Booking participant and active grant. Missing/foreign resource is masked 404,
 expired/revoked participant grant is 403, malformed request 422, version/key
 conflict 409, and unavailable policy/DB/audit is redacted 503. All private
 responses remain `no-store`. After `ends_at`, unfinished Session is not
-represented as a persisted ENDED or readable history in v1. Live Session
-browser acceptance is pending; routes are local/CI, not deployed.
+represented as a persisted ENDED or readable history in v1. Isolated live
+Session browser acceptance passed; literal human RU/UK screen-reader gate
+remains pending. Routes are local/CI, not deployed.
+
+## ET-14.1 private notification API — locally verified
+
+| Route | Contract |
+|---|---|
+| `GET /api/v1/notifications?limit=20&offset=0` | active session, owner-only list; limit 1..50, non-negative 32-bit offset; item contains opaque ID, `booking.accepted`, Booking UUID, created/expiry/read times |
+| `GET /api/v1/notifications/unread-count` | active session, own unexpired unread count |
+| `POST /api/v1/notifications/{id}/read` | active session plus exact allowed Origin; idempotent 204 for own unexpired item; foreign/unknown/expired masked 404 |
+
+All routes are `no-store`, return no Account ID or arbitrary navigation URL,
+and use the established error envelope. The browser constructs only the typed
+internal Booking link. Transport/unit, real PostgreSQL ownership/ACL and live isolated browser→API→worker checks passed; see `STAGES.md`.

@@ -10,6 +10,7 @@
       "specs/features/base-path-portability.spec.md",
       "specs/features/circular-diagram-state.spec.md",
       "specs/features/context-automation.spec.md",
+      "specs/features/in-app-notifications.spec.md",
       "specs/features/lesson-access-grants.spec.md",
       "specs/features/lesson-publishing.spec.md",
       "specs/features/lesson-sessions.spec.md",
@@ -18,12 +19,15 @@
       "specs/features/pre-deploy-quality-gates.spec.md",
       "specs/features/profiles-capabilities-audit.spec.md",
       "specs/features/rtc-provider-boundary.spec.md",
-      "specs/features/star-neutral-phasors.spec.md"
+      "specs/features/star-neutral-phasors.spec.md",
+      "specs/features/transmission-line-transient.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
     ],
-    "backlog_spec_files": [],
+    "backlog_spec_files": [
+      "specs/features/live-tutoring-session.spec.md"
+    ],
     "architecture_baseline_requirement_ids": [
       "AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006",
       "AC-ET092-001", "AC-ET092-002", "AC-ET092-003", "AC-ET092-004", "AC-ET092-005", "AC-ET092-006", "AC-ET092-007", "AC-ET092-008",
@@ -99,6 +103,21 @@
       "observability": "Diagnostic message and deterministic unit/browser assertions.",
       "gap": "Short-circuit modeling and asymmetric source are outside v1.",
       "action": "Keep finite/open KCL and browser interaction regression when extending the model."
+    },
+    {
+      "requirement_ids": ["INT-009", "LINE-001", "LINE-002", "LINE-003", "LINE-004", "LINE-005", "LINE-006", "LINE-007", "LINE-008", "LINE-009", "LINE-010"],
+      "domain": "scientific-interactive-transient",
+      "status": "VERIFIED",
+      "code": ["transient-core/src", "src/transient", "src/components/TransmissionLineLab.tsx", "src/pages/[lang]/interactive/transmission-line.astro", "src/pages/[lang]/interactive/circular-diagram.astro"],
+      "unit": ["Independent physics and approved numerical oracles: Rust reference 8 PASS; source-reflection 2 PASS; frontend unit 168 PASS"],
+      "integration": ["Pinned WASM source/artifact hash, Rust Clippy/rustfmt, pnpm lint/check/build and locale/site artifact audits PASS"],
+      "e2e": ["Built Chromium 106 PASS/5 expected unrelated live-auth skips; project-base Chromium 4+1 PASS including real Worker/WASM"],
+      "runtime": "Rust/WASM numerical solver in a dedicated Worker; default ideal source Rs=0 reflects returning perturbations; state and per-cell coefficients use O(N) memory.",
+      "security": "Finite bounded SI configuration and CFL validation; worker error shown to the user.",
+      "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
+      "observability": "Port, state, grid and energy readings plus local development performance overlay.",
+      "gap": "No open physics gate for ET-LINE-001; ET-10.3 manual screen-reader acceptance remains independent.",
+      "action": "Keep analytic Rust and live Worker/WASM browser regressions when extending line models; verified checkpoint is in local main@fefe168."
     },
     {
       "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],
@@ -264,6 +283,21 @@
       "observability": "Mutation audit and request/correlation IDs.",
       "gap": "Protected dev DB drift, port conflict, live authenticated phase and manual RU/UK gate.",
       "action": "Approve data-preserving recovery/isolation, free port safely, rerun backend:check and live Session E2E."
+    },
+    {
+      "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
+      "domain": "in-app-notifications-v1",
+      "status": "VERIFIED",
+      "code": ["services/api/alembic/versions/20260928_0013_notifications.py", "services/api/src/electro_tutor_api/notification_worker.py", "services/api/src/electro_tutor_api/transport/notifications.py", "src/account/notification-ui.ts"],
+      "unit": ["services/api/tests/test_notifications.py", "services/api/tests/test_schema_contract.py", "src/account/notification-contract.test.ts"],
+      "integration": ["services/api/tests/test_notifications_integration.py PASS on isolated PostgreSQL; full integration 75 PASS"],
+      "e2e": ["tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"],
+      "runtime": "0013 migration/worker/API/UI committed locally; independent fresh PostgreSQL catalog manifest, clean bootstrap, 0012 upgrade, rollback/re-upgrade and worker startup PASS.",
+      "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link verified by real PostgreSQL ACL/IDOR and live browser foreign/anonymous negatives.",
+      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. ET-10.3 manual screen-reader remains separate.",
+      "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class; real delivery and retention observed on disposable DB.",
+      "gap": "ET-14.1 terminal local acceptance passed; original data-bearing DB 8-column compatibility and feature-to-main integration remain separately open.",
+      "action": "Keep 30-day/ownership/IDOR and independent catalog regressions; ET-14.2 reminder policy is the next product decision."
     },
     {
       "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],

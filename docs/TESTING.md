@@ -1,5 +1,85 @@
 # Testing contract
 
+## ET-STAR-001 — historical recovery acceptance, 2026-10-01
+
+- Human PASS получен для c19882e: left impedance plane, Re≥0, единые voltage/current vectors справа и синхронный пересчёт. Source уже совпадает с актуальным main/ET-14.2; reimplementation не требовалась.
+- Verification branch согласована с main без product changes: frozen offline install, 171 unit/integration tests (21 files), lint, Astro check (124 files, 0 errors/0 warnings, 2 pre-existing unused-variable hints в generated WASM JS), build (25 pages, 24 localized routes, 115 audited files), context/diff checks PASS.
+- Target built-browser consumer path: E2E_SPEC=tests/e2e/star-neutral.spec.ts pnpm test:e2e:built — 5/5 PASS; RU/UK navigation, rectangular/polar state, drag/neutral/preset, mobile layout и plot extent. Независимые backend gates не запускались, поскольку runtime/backend source задачи не меняется. Final publication/cleanup evidence — docs/STAGES.md.
+
+## ET-14.1 — terminal isolated notification verification, 2026-09-28
+
+- Feature branch implementation remains local; no merge, push or deploy. Docker context desktop-linux returned Engine 29.8.0. Read-only preflight captured every container restart policy/mount; preserved Electro Tutor and MathMorph data-bearing containers were stopped/Created before and after. New PostgreSQL 17.6 electro-tutor-et141-test-20260928 used only its identically named volume, read-only repository init SQL and 127.0.0.1:55436. Ephemeral Keycloak 26.7.2 used no persistent volume at 127.0.0.1:58081 and was removed. Disposable PostgreSQL stopped cleanly after acceptance; its volume retained for evidence. No original DB/volume was mounted or mutated.
+- Fresh electro_tutor_test and independently fresh electro_tutor_catalog_baseline migrated from base through 0013; Alembic check PASS. The 0013 manifest was captured from the latter real catalog, then matched by test DB db-status. Separate fresh electro_tutor DB reached 0012 with 9-column read_booking_operation(uuid), no notification tables, then upgraded 0012→0013 with Alembic/catalog parity PASS. Empty baseline real downgrade 0013→0012→0013 plus full manifest parity PASS. This does not prove the preserved original 8-column DB migrated.
+- Backend 199 DB-free PASS/84 deselected; 75 real PostgreSQL integration PASS/208 deselected with explicit named disposable DB lifecycle consent; 9 transactional catalog drift tests PASS/274 deselected. Notification booking→outbox→worker→owner inbox, duplicate replay, retention, ACL and foreign read regression PASS. Strict mypy 48 source files PASS; Ruff format 84 src/tests files and Ruff check PASS. Actual notification worker --once startup/catalog/delivery/cleanup PASS. Earlier test SQL ambiguous timestamp parameter was corrected and targeted integration rerun PASS.
+- Frontend Vitest 171/171 PASS, ESLint PASS, Astro check 124 files/0 errors/0 warnings (2 generated WASM hints), locale/context/workflow/hygiene validators PASS, Rust/WASM artifact match PASS. Static build 25 pages/115-file audit PASS; full built static Chromium 108 PASS/5 expected live-auth skips, including 2 mock API notification component cases.
+- Dedicated pnpm test:e2e:notifications:isolated exit 0 after exact mount/image/port preflight, production build, ephemeral Keycloak provision and API live/ready 200. Existing live profile phase 7 PASS/3 expected unrelated phase skips. Dedicated browser notification phase 1 PASS, unskipped: real Booking acceptance → outbox worker → student RU inbox/unread count → keyboard mark-read/reload persistence; foreign UK inbox empty and mark-read 404, anonymous count 401, safe internal Booking link. No manual screen-reader claim. Initial attempts found a too-short PostgreSQL crash-recovery readiness window and missing first-login prerequisite before tutor grant; harness fixed, then complete run passed.
+- API/worker error logs expose counts and failure class, not private payload. Separate transactions prevent cleanup failure from rolling back committed delivery. ET-14.2 reminder policy remains unapproved; exact product gate is in selected docs/STAGES.md.
+## ET-LINE-001 — численный интерактив длинной линии
+
+### Terminal physics and browser verification — 2026-09-28
+
+- User approvals `ET-LINE-001-UA-01` and `UA-03` cover exactly three numerical assertions. Independent physics, units, initial conditions, topology, CFL/grid sensitivity, old/new expectations and tolerances: `docs/notes/et-line-physics-reconciliation.md`. Classified first-wave single-point oracle `MODEL/DISCRETIZATION_LIMITATION`, series and parallel late-RLC oracles `TEST_CONTRACT_BUG`. Solver code and shipped WASM unchanged; no assertion merely widened around a measured solver value.
+- `cargo fmt --check` PASS; `cargo test --locked --offline` PASS: reference 8/8, source-reflection 2/2; `cargo clippy --locked --offline --all-targets -- -D warnings` PASS. Cargo target redirected to isolated Codex work directory because sandbox denied writes to worktree target. `pnpm wasm:check` PASS: source/artifact hash still matches.
+- `pnpm test` 168 PASS/20 files, `pnpm lint` PASS, `pnpm check` 119 files/0 errors/0 warnings (2 generated WASM glue hints), `pnpm build` 25 pages, 24 localized routes/115 audited files PASS. `pnpm test:e2e:built` built Chromium 106 PASS/5 expected live-auth phase skips, including line Worker/WASM/Canvas and both locales. `pnpm check:base-path` static build/audits and Chromium 4+1 PASS, including real Worker/WASM under `/electro-tutor/`.
+- Native release microbenchmark N=1000/5000/10000 below predates test-only corrections; it remains applicable because solver and artifact are unchanged. No Keycloak, backend DB, original volume or external service is required for this static simulator acceptance. `ET-10.3` manual screen-reader gate remains separate.
+- Final committed checkpoint `19b1a27`: `pnpm verify:full -- --skip-install` exit 0 with hygiene/CI, Astro check 119 files/0 errors/0 warnings, lint, Vitest 168 PASS, root built Chromium 106 PASS/5 expected live-auth skips, 25-page build/115 artifact audit, production smoke 4 PASS and dependency audit 3 moderate/0 high/critical. This script does not include Cargo; full Rust evidence is recorded above.
+
+### Historical implementation and original failures
+
+- Изолированный `feature/line-transient-mvp` worktree на local `main` `c19882e`.
+  `pnpm install --frozen-lockfile --offline` PASS. `wasm-bindgen-cli 0.2.129`
+  установлен локально в ignored `.tools`; `cargo build --target wasm32-unknown-unknown
+  --release --locked` и генерация `public/transient-core/` PASS. `pnpm
+  wasm:check` подтвердил source/artifact SHA-256. Rust target и Cargo cache
+  локальны для worktree, не изменяют общие runtime credentials.
+- Rust `cargo test --offline --locked`: 6/8 PASS. `propagation_speed_and_characteristic_relation`
+  ожидает `50±1 В` в `x=500 км,t=3 мс`, фактически `52.014588 В` при конечной
+  сетке/дисперсии. `series_and_parallel_rlc_remain_finite` требует
+  `|I_L|>0.01 А` в `t=20 мс` для обоих соединений, тогда как у последовательной
+  RLC при DC конденсатор в установившемся состоянии разрывает путь и `I_L→0`.
+  Тогда изменение двух accepted assertions ожидало разрешения и auto-review
+  его отклонил; это исторический failed baseline, теперь разрешённый и
+  исправленный в terminal verification выше.
+  `cargo fmt --check` и `cargo clippy --all-targets -- -D warnings` PASS;
+  rustfmt добавил только пробелы, переносы и завершающие запятые, численные
+  assertions не менялись. После форматирования Rust suite повторён: те же
+  6 PASS/2 FAIL, затем WASM пересобран и hash/build проверены.
+- Отдельный `cargo test --offline --locked --test source_reflection`: 2/2 PASS.
+  При `Rs=0`, open load и `τ=5 ms` нагрузка проходит примерно `200→0→200 В`
+  на последовательных оборотах, а левый порт удерживает `100 В`; при `Rs=Z0`
+  вернувшаяся волна поглощается. Это целевой regression test, не закрытие двух
+  спорных assertions выше. Новый test отформатирован; Clippy PASS.
+- Frontend `pnpm test`: 168 PASS, 20 files; `pnpm lint`, `pnpm check` (118 files,
+  0 diagnostics), `pnpm build` (25 pages/24 RU/UK routes/115 audited files),
+  `pnpm check:context` PASS после регистрации `LINE` prefix и ADR-031.
+  Полный built Chromium: 102 PASS/5 expected unrelated live-auth skips; 3
+  первоначальных target cases проверили страницу годографа, RU/UK маршрут
+  линии, реальный Worker/WASM/Canvas, `Play/Pause/Reset/Step/seek` и 5000-cell
+  reconfigure. После добавления C/L, диагностики и отдельного share-state
+  годографа целевой suite: 5 PASS, включая изменение физического `uC/iL`
+  после прихода волны и query/hash после RU→UK. После смены default `Rs=0`
+  целевой built Chromium 6/6 PASS: реальный Worker/WASM показывает возвратное
+  отражение и продолжение колебаний; при ручном выборе `Rs=50 Ω` возвращённая
+  волна поглощается. После смены default `pnpm test` 168 PASS,
+  `pnpm check` 119 files/0 diagnostics, lint/build/context PASS; ранее полный
+  built Chromium 102 PASS на тот момент не повторялся после смены default;
+  полный повтор 106 PASS/5 expected skips указан выше.
+- `pnpm check:base-path`: `/electro-tutor/` static build/audits PASS,
+  существующий base-path Chromium 4 PASS и дополнительный реальный
+  `uk/interactive/transmission-line/` → Worker → ES module → WASM путь 1 PASS.
+- Reproducible native release microbenchmark (`cargo run --offline --example
+  benchmark --release --locked`, 1000 steps; machine-local, single run):
+
+  | N | steps/s | simulated s / wall s | snapshot copy, µs | stored grid/state, KiB |
+  |---:|---:|---:|---:|---:|
+  | 1000 | 374195 | 1.683880 | 1.14 | 54.7 |
+  | 5000 | 76224 | 0.068601 | 43.38 | 273.5 |
+  | 10000 | 29734 | 0.013380 | 77.89 | 546.9 |
+
+  Browser DEV overlay отдельно показывает Worker→UI transfer/queue latency,
+  copy, frame и steps/s; эти machine-local измерения не служат SLA.
+
+
 ## ET-STAR-001 — несимметричная звезда с нейтралью
 
 - Среда: изолированный `feature/star-phasor-interactive` worktree от чистого local `main` `dc38ee6`; pnpm 11.23.0, frozen offline restore. Сервер, DB, Keycloak и внешние запросы для нового интерактива не нужны.

@@ -74,6 +74,22 @@ services:
       retries: 20
     restart: "no"
 
+  notification-worker:
+    image: electro-tutor-local-api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      ET_ENVIRONMENT: local
+      ET_DATABASE_URL: postgresql+asyncpg://electro_tutor_runtime:local-runtime-only@postgres:5432/electro_tutor
+      ET_AUTH_DATABASE_URL: postgresql+asyncpg://electro_tutor_auth_runtime:local-auth-runtime-only@postgres:5432/electro_tutor
+      ET_OIDC_BACKCHANNEL_BASE_URL: http://keycloak:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "electro_tutor_api.notification_worker"]
+    restart: "no"
+
   migrate:
     image: electro-tutor-local-api
     build:

@@ -254,7 +254,9 @@ versioned timeline; checkpoint strategy подтверждается измер�
 
 Business domain публикует событие один раз. In-app notification остаётся
 доступной без внешнего channel; retries, deduplication, scheduling, timezone и
-provider failures не меняют booking/lesson truth.
+provider failures не меняют booking/lesson truth. Утверждённый bounded v1
+`ET-14.1` определён в `in-app-notifications.spec.md` и ADR-032; reminders,
+preferences и внешние channels остаются следующими stages.
 
 ### PLAT-011 Payments and marketplace
 

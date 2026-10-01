@@ -82,6 +82,13 @@ Locked Python restore сопровождается lock-drift и vulnerability g
 | `pnpm backend:db:status` / `backend:db:migrate` / `backend:db:reset-local` | Alembic state/apply и guarded disposable reset |
 | `pnpm backend:idp:dev` / `backend:idp:provision` / `test:e2e:auth` | isolated Keycloak lifecycle/reconciliation и real browser auth evidence |
 
+ET-14.1 добавляет к этому историческому ET-09.2 catalog отдельный
+`notification-worker` без Redis/брокера. `backend:dev` и `backend:e2e`
+запускают worker после миграции; он использует только runtime DB role и
+ограниченные функции delivery/cleanup. В feature-ветке 0013 catalog manifest получен из свежей disposable БД;
+clean bootstrap, upgrade, rollback и live worker/browser acceptance прошли.
+Сохранённая original DB остаётся отдельным compatibility gate и не менялась.
+
 Canonical local orchestration — root `compose.yaml`: PostgreSQL 17 доступен
 host-only на `127.0.0.1:55432`, API — на `127.0.0.1:8000`; project/profile names
 фиксированы и collision обнаруживается до старта. CI вызывает те же root scripts,
@@ -336,6 +343,8 @@ prompts/                     протокол поэтапного продол�
 | `src/pages/[lang]/topics/[section]/[slug].astro` | опубликованный урок |
 | `src/pages/[lang]/interactive.astro` | раздел интерактивов и круговая диаграмма |
 | `src/pages/[lang]/interactive/star-neutral.astro` | несимметричная звезда с нейтралью |
+| `src/pages/[lang]/interactive/circular-diagram.astro` | отдельный маршрут годографа при сохранении встроенного интерактива и старых share links на index |
+| `src/pages/[lang]/interactive/transmission-line.astro` | локальная лаборатория переходного процесса длинной линии |
 | `src/pages/[lang]/classroom.astro` | кабинет занятия |
 | `src/pages/[lang]/services.astro` | услуги и расписание |
 | `src/pages/[lang]/contacts.astro` | контакты |
@@ -412,6 +421,23 @@ pipeline `parse → validate → normalize → canonicalize`. `CircularDiagram.t
 получает только типизированное состояние, синхронизирует его с UI и browser
 history и не передаёт сырые `URLSearchParams` математической модели. Legacy
 share-ссылки без `v` мигрируют; повреждённые ссылки восстанавливают defaults.
+
+Длинная линия имеет отдельную численную границу: `transient-core` хранит
+распределённые `V[N+1]`, `I[N]`, per-cell `L/R/dx`, per-node `C/G` и минимальный
+state источника/нагрузки. Один шаг leapfrog проходит массивы последовательно;
+midpoint companion решает только два граничных узла. `SourcePort` и
+`BoundaryDevice` задают заменяемые порты, а grid layout сохраняет место для
+неоднородных и потерьных ячеек. Аналитические коэффициенты отражения используются
+только в reference tests. `wasm-bindgen` создаёт ES module и WASM; tracked
+артефакт проверяется `scripts/transient-wasm.mjs` по SHA-256 источников и output.
+`src/transient/transient.worker.ts` единолично владеет WASM объектом, выполняет
+play/seek и посылает transferable снимок не чаще, чем UI подтверждает
+отрисовку. React хранит поля и скалярные показания; большие массивы остаются
+в Worker и одном текущем Canvas-снимке. Static route не зависит от API/DB.
+При `Rs=0` порт удерживает заданное полное напряжение источника, поэтому
+пришедшее приращение напряжения отражается с `Γs=-1`. При `Rs=Z0` возвращённая
+волна поглощается. UI вычисляет `Γs` только для диагностики; шаг времени
+остаётся численным в Rust/WASM.
 
 ## Кабинет занятия
 
@@ -501,6 +527,8 @@ Wrangler и edge redirect больше не являются компонент�
 | Электрическая схема урока | `src/components/CircuitDiagram.tsx` |
 | Математика круговой диаграммы | `src/models/circular-diagram.ts` |
 | Математика звезды и presets | `src/models/star-neutral.ts` |
+| Физика длинной линии и boundary ports | `transient-core/src/` (Rust, `wasm-bindgen`) |
+| Worker-протокол и Canvas эпюры | `src/transient/`, `src/components/TransmissionLineLab.tsx` |
 | UI, плоскость Z и совмещённая топографическая диаграмма звезды | `src/components/StarNeutralLab.tsx`, `src/components/StarNeutralPlots.tsx`, `src/components/StarDiagramColors.css` |
 | URL/state schema и limits | `src/models/circular-diagram-state.ts` |
 | Browser adapter круговой диаграммы | `src/components/CircularDiagram.tsx` |

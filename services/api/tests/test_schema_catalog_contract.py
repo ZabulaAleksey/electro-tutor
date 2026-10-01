@@ -18,7 +18,7 @@ def test_committed_manifest_is_head_pinned_and_complete() -> None:
     objects = manifest["objects"]
     assert isinstance(objects, dict)
     assert set(objects) == set(CATEGORIES)
-    assert len(objects["table_acl"]) == 15
+    assert len(objects["table_acl"]) == 17
 
 
 def test_diagnostics_never_expose_unexpected_live_identifier_or_body() -> None:

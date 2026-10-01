@@ -33,6 +33,15 @@
 .profile-card :focus-visible, .account-actions :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
 .profile-card [disabled] { cursor: wait; }
 .booking-section { margin-top: 58px; padding-top: 42px; border-top: 1px solid var(--line); }
+.notification-section { margin-top: 42px; padding-top: 36px; border-top: 1px solid var(--line); }
+.notification-list { display: grid; gap: 12px; max-width: 850px; }
+.notification-item { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.notification-item[data-unread="true"] { border-left: 4px solid var(--blue); }
+.notification-item p { margin: 8px 0; line-height: 1.5; }
+.notification-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: 13px; }
+.notification-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+.notification-state { min-height: 24px; color: var(--muted); }
+.notification-section :focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 65%, white); outline-offset: 3px; }
 .booking-disclaimer { display: grid; gap: 5px; max-width: 850px; margin: 0 0 22px; padding: 16px 18px; border: 1px solid color-mix(in srgb, var(--blue) 34%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--blue) 6%, var(--white)); }
 .booking-disclaimer span, .booking-panel > p { color: var(--muted); line-height: 1.55; }
 .booking-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

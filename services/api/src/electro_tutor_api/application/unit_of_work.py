@@ -26,6 +26,7 @@ from electro_tutor_api.domain.capability import (
 from electro_tutor_api.domain.identity import Principal
 from electro_tutor_api.domain.lesson_access import LessonAccessDecision
 from electro_tutor_api.domain.lesson_session import LessonSession
+from electro_tutor_api.domain.notification import Notification
 from electro_tutor_api.domain.profile import StudentProfile, TutorProfile
 
 
@@ -169,6 +170,14 @@ class LessonSessionRepository(Protocol):
     ) -> LessonSession: ...
 
 
+class NotificationRepository(Protocol):
+    async def list(self, *, limit: int, offset: int) -> list[Notification]: ...
+
+    async def unread_count(self) -> int: ...
+
+    async def mark_read(self, notification_id: UUID) -> bool: ...
+
+
 class AuditUnitOfWork(Protocol):
     audit_events: AuditEventRepository
     booking_operations: BookingOperationRepository
@@ -176,6 +185,7 @@ class AuditUnitOfWork(Protocol):
     capability_grants: CapabilityGrantRepository
     lesson_access_grants: LessonAccessGrantRepository
     lesson_sessions: LessonSessionRepository
+    notifications: NotificationRepository
     profiles: ProfileRepository
     session_principal: Principal | None
     tutor_offers: TutorOfferRepository

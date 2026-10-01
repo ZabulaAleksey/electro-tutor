@@ -768,8 +768,10 @@ versioned contract. Detailed requirements belong to
 
 Статус: **принято как implementation contract** для `ET-10.3`;
 владелец продукта явно утвердил v1 rules в текущей задаче 2026-09-15.
-Локальная реализация и non-secret tests существуют; terminal live/manual
-acceptance и repository-wide `backend:check` пока не закрыты.
+Локальная реализация и non-secret tests существуют; isolated live
+browser/backend gates прошли. Literal human RU/UK screen-reader acceptance
+остаётся открытым, original DB repair — отдельным compatibility decision.
+Текущий status/evidence/NEXT принадлежат только `docs/STAGES.md`.
 
 Контекст: approved Booking v1 допускает accepted cancellation только до
 `starts_at`; grant v1 позволяет открыть shell в
@@ -894,8 +896,9 @@ manifest generation/parity с независимой baseline, а Pages CI — �
 repository-wide `backend:check` на existing dev DB не прошёл из-за
 настоящего catalog drift, не из-за empty metadata.
 Это remediation существующего Backend DX Delta, а не изменение Session
-product API или миграционной истории. ET-10.3 остаётся
-`implemented_unverified` до gate, live browser и manual acceptance.
+product API или миграционной истории. Текущий ET-10.3 status, результаты
+изолированных проверок и незакрытая ручная приёмка принадлежат
+`docs/STAGES.md`.
 
 Отклонено: live self-reflection (`alembic check` всегда зелёный на скрытом
 drift); отключение или игнорирование Alembic result; только Core metadata
@@ -905,3 +908,63 @@ drift); отключение или игнорирование Alembic result; �
 ## ADR-029 — Канонический owner локального execution state
 
 Статус: принято 2026-09-15 по прямому правилу пользователя. Selected ET-10.3 plan/status/evidence/NEXT принадлежат только `docs/STAGES.md`; старый catalog/AI pair сохраняются через SHA/facts в `docs/notes/` и Git parent. Remote main ET-09.4 partial snapshot at `ac675d4` remains in Git ancestry; it does not supersede integrated ET-10.3 state. Protected dev DB recovery остаётся отдельным data-preserving decision gate.
+
+## ADR-031 — Численная граница интерактива длинной линии
+
+Статус: принято для ET-LINE-001, 2026-09-28. По пользовательскому MASTER PROMPT
+физику длинной линии реализует Rust `transient-core` с `wasm-bindgen`, запущенный
+в одном Web Worker. Staggered leapfrog обновляет распределённые токи и напряжения
+с `dt=0.9·dx/v` по умолчанию; конец линии имеет half-cell ёмкость, линейные
+реактивные приборы — midpoint companion и собственный state. Нелинейный residual
+пока только extension seam, не фиктивная работающая модель. Grid хранит per-cell
+коэффициенты для будущих пространственных R′/L′/G′/C′, но MVP задаёт R′=G′=0.
+У источника и нагрузки разные порты; идеальные ограничения `Rs=0` и short
+задаются прямо. Snapshot только по запросу Worker и через transferable буферы,
+без истории или React state массивов. Аналитика допустима в тестовом oracle,
+не в production time stepping.
+Стартовая конфигурация использует идеальный источник `Rs=0`: он удерживает
+полное `Vs`, а отражение пришедшего приращения имеет `Γs=-1`, так что процесс
+после первого возврата продолжается. `Rs=Z0` остаётся проверочным согласованным
+вариантом; коэффициент в UI служит только диагностике.
+
+Скомпилированный WASM отслеживается в репозитории вместе с SHA-256 manifest:
+так штатный Node-only CI может проверить точное соответствие исходнику без
+скачивания Rust toolchain. Локальная регенерация требует закреплённой версии
+CLI 0.2.129. Отказ от WebGPU, threads, MNA и полного timeline в MVP сохраняет
+детерминированное O(N) состояние и переносимый static browser path.
+
+
+## ADR-032 — Внутренние уведомления ET-14.1
+
+Статус: принято 2026-09-28 по прямому решению пользователя. Контракт первого
+bounded stage — `specs/features/in-app-notifications.spec.md`; дальнейшие
+внешние каналы требуют отдельных stages.
+
+V1 хранит application notifications внутри Electro Tutor. Первый producer —
+успешный переход `booking.accepted`: одна приватная запись для student Account
+этого Booking. Booking и grant остаются authoritative; ошибка доставки не
+отменяет уже принятый Booking. Durable event/outbox создаётся в той же DB
+транзакции, worker идемпотентно материализует inbox item. Ни fire-and-forget
+в HTTP process, ни утверждения exactly-once delivery нет. Дубли исключаются
+уникальным business key события/recipient; retry сверяет существующий итог.
+
+Срок жизни обычной записи — 30 дней от `created_at`. По истечении она не
+попадает в list/count и недоступна через item API; bounded maintenance может
+физически удалить её. `read_at` фиксирует прочтение, но не сокращает срок
+видимости. V1 не предоставляет delete и mark-all API: один mark-read сохраняет
+ясную owner boundary; добавление других mutations требует фактического UX.
+
+Канонические данные — machine-readable `booking.accepted`, bounded structured
+payload с booking UUID и restricted internal navigation target. RU/UK текст
+формируется presentation layer по type и locale, HTML и локализованная строка
+не хранятся как единственная истина. Произвольные URL/redirect запрещены.
+List, unread count и mark-read серверно ограничены текущим Account; foreign ID
+не раскрывает запись, frontend не является authorization boundary. Список
+пагинирован; unread count исключает истёкшие записи. Realtime не требуется:
+refresh/navigation может повторно запросить inbox.
+
+Внешние push/email/SMS/Telegram providers, preferences, reminders и новые
+notification categories вне ET-14.1. Единая transaction trigger/worker
+boundary и structured event позволяют добавить каналы позднее без изменения Booking
+truth. Технический выбор worker, индексов, cleanup и retry уточняется в
+implementation при сохранении этого контракта и проверяется real DB/E2E.

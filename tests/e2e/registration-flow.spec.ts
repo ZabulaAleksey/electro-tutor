@@ -56,12 +56,15 @@ test("RC1 local provider registration creates a student-only session", async ({ 
   }, api);
   expect(tutor.status).toBe(403);
 
-  const foreign = await page.evaluate(async (url) => {
+  // A newly registered user must not be able to read an unowned account. The
+  // synthetic UUID is deliberately absent from this disposable database; the
+  // API's ownership-preserving 404 is the safe no-data oracle.
+  const unowned = await page.evaluate(async (url) => {
     const response = await fetch(`${url}/profiles/student/00000000-0000-4000-8000-000000000000`, {
       credentials: "include",
     });
     return { status: response.status, body: await response.json() };
   }, api);
-  expect(foreign.status).toBe(404);
-  expect(foreign.body.error?.code).toBe("profile_not_found");
+  expect(unowned.status).toBe(404);
+  expect(unowned.body.error?.code).toBe("profile_not_found");
 });

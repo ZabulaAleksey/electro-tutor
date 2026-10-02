@@ -5,20 +5,25 @@ import Formula from "../components/Formula";
 import LevelPicker from "../components/LevelPicker";
 import type { DetailLevel, Language, Page } from "../types";
 import { getLocale } from "../i18n";
+import LessonPractice from "../components/LessonPractice";
+import type { LessonProgressController } from "../learning/use-learning-progress";
 
 export default function MeshLesson({
   language,
   level,
   onLevel,
+  learning,
   onNavigate,
 }: {
   language: Language;
   level: DetailLevel;
   onLevel: (level: DetailLevel) => void;
+  learning?: LessonProgressController;
   onNavigate: (page: Page) => void;
 }) {
   const locale = getLocale(language);
   const copy = locale.meshLesson;
+  const learningOnStep = learning?.onStep;
   const [activeSection, setActiveSection] = useState(1);
 
   useEffect(() => {
@@ -55,6 +60,11 @@ export default function MeshLesson({
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
+
+  useEffect(() => {
+    learningOnStep?.(activeSection as 1 | 2 | 3 | 4 | 5);
+  }, [activeSection, learningOnStep]);
+
   return (
     <div className="lesson-page">
       <aside className="lesson-sidebar">
@@ -78,6 +88,9 @@ export default function MeshLesson({
           <p>{copy.lead}</p>
         </header>
         <LevelPicker level={level} language={language} onChange={onLevel} />
+        {learning?.storageState === "unavailable" && (
+          <p className="learning-storage-warning" role="status">{locale.learning.storageUnavailable}</p>
+        )}
 
         <section id="step-1" className="lesson-section">
           <span className="step-label">01 / {copy.idea}</span>
@@ -160,9 +173,15 @@ export default function MeshLesson({
           <Formula>{String.raw`P_R\approx150.55\ \mathrm W,\qquad P_E=E_1I_1+E_2I_2\approx150.55\ \mathrm W`}</Formula>
           <div className="success-note"><Check />{copy.success}</div>
         </section>
+        <LessonPractice
+          language={language}
+          completed={learning?.progress?.completed ?? false}
+          storageState={learning?.storageState ?? "unavailable"}
+          onComplete={() => learning?.onComplete()}
+        />
         <div className="lesson-next">
-          <div><span>{copy.next}</span><strong>{copy.nodal}</strong></div>
-          <button disabled><ArrowRight /></button>
+          <div><span>{locale.learning.nextHeading}</span><strong>{locale.learning.nextTitle}</strong></div>
+          <button aria-label={locale.learning.nextHeading} onClick={() => onNavigate("catalog")}><ArrowRight /></button>
         </div>
       </article>
     </div>

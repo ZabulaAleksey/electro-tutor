@@ -1,7 +1,7 @@
 {
   "criterion": "ET-NIGHT-BOOKING-RACE-01",
   "base": "6c6cc91fef2b500b6cc519a8cd4d17aebb5bc142",
-  "status": "VALIDATED_LOCALLY_ROOT_REVIEWED",
+  "status": "PUBLISHED_VERIFIED_BOUNDED",
   "implementation_owner": "delegated Sol Medium worker: new test only",
   "review": "root independent source review against SPEC and actual owned-DB evidence; no separate agent review claimed",
   "runtime": "Python3.12.5/uv0.12.3/PostgreSQL17.6",
@@ -105,6 +105,13 @@
       "docs/project-context.md"
     ]
   },
-  "publication": "pending normal merge/push with skipci; no deploy",
+  "publication": {
+    "commit": "b76c93d85e886937e837c58892becb1b7810c2c7",
+    "main_origin": "0/0",
+    "actions_for_exact_head": 0,
+    "deployments_for_exact_head": 0,
+    "method": "ordinary fast-forward/push; skipci preserves no-deploy",
+    "source_or_tests_changed_in_state_sync": false
+  },
   "captured_utc": "2026-10-02T09:16:07.988129+00:00"
 }

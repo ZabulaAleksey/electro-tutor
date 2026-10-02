@@ -177,6 +177,27 @@ Audit metadata bounded и не содержит title, display name, session dat
 free-text reason или external settlement details. Audit failure rolls back whole
 transaction и возвращает `503 audit_unavailable`.
 
+### ET-NIGHT-BOOKING-RACE-01 — same-version accept/cancel evidence
+
+This additive integration criterion verifies the existing optimistic-version/atomic
+booking contract; it does not implement reminders, payments or a new transition policy.
+Tutor accept and student cancel of the same future REQUESTED Booking, using different
+operation IDs and the same observed `expected_version`, run through separate authenticated
+PostgreSQL connections. Both must reach a real authoritative lock wait before release;
+exercise both launch orders without assuming scheduler/row-lock FIFO priority.
+Exactly one transition succeeds at version+1 and the other returns `version_conflict`.
+The winner has exactly one operation result and booking audit; the loser has neither.
+Final Booking state matches the winner, with one active grant/accepted outbox only for an
+accept winner and neither for a cancel winner. Exact winner replay returns its historical
+result without duplicate operation/audit/outbox/grant effects. A later cancellation after
+re-reading the accepted version is a separate valid transition, not a second success of
+the original same-version race. Current notification/reminder semantics stay unchanged.
+The test runs only with exact existing disposable-role admission, on a newly owned named
+clone-test container/volume with loopback non-55432 port; the preserved original database
+and unknown legacy function callers are never accessed. Existing accepted tests, fixtures,
+production source and migrations remain unchanged. This database consumer proof cannot
+close ET-14.2 policy decisions or ET-10.3 human speech/focus acceptance.
+
 ## 6. Time и localization
 
 - API принимает RFC3339 instant с numeric offset + IANA zone.

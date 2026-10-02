@@ -1,0 +1,110 @@
+{
+  "criterion": "ET-NIGHT-BOOKING-RACE-01",
+  "base": "6c6cc91fef2b500b6cc519a8cd4d17aebb5bc142",
+  "status": "VALIDATED_LOCALLY_ROOT_REVIEWED",
+  "implementation_owner": "delegated Sol Medium worker: new test only",
+  "review": "root independent source review against SPEC and actual owned-DB evidence; no separate agent review claimed",
+  "runtime": "Python3.12.5/uv0.12.3/PostgreSQL17.6",
+  "checks": {
+    "quality": [
+      {
+        "label": "ruff-format",
+        "exit": 0,
+        "capture_sha256": "9768eed49a8831ae7da21738b4579c3aac21cbeffe482ca40611c554624f1cde",
+        "summary": "85 files already formatted\n"
+      },
+      {
+        "label": "ruff-lint",
+        "exit": 0,
+        "capture_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "summary": "All checks passed!\n"
+      },
+      {
+        "label": "mypy",
+        "exit": 0,
+        "capture_sha256": "ecb8399edbf23ad4cacd9fb156d28186a57318eeac101aedcdc3ff78fc21a035",
+        "summary": "Success: no issues found in 48 source files\r\n"
+      }
+    ],
+    "final": [
+      {
+        "label": "fast-cleanenv",
+        "exit": 0,
+        "capture_sha256": "29bbdb051bffa9d48c91f592a14c6c1bc2604957a13684c158f03e5a20a06011",
+        "summary": "........................................................................ [ 36%]\r\n........................................................................ [ 72%]\r\n.......................................................                  [100%]\r\n199 passed, 86 deselected in 5.35s\r\n"
+      },
+      {
+        "label": "race-final",
+        "exit": 0,
+        "capture_sha256": "9366fb38391b36111fce82d4e14c5a7d8b630f753fb98f37cd70f7313853ad3b",
+        "summary": "..                                                                       [100%]\r\n2 passed in 1.41s\r\n"
+      }
+    ],
+    "related": [
+      {
+        "label": "booking-grant-session-outbox-regressions-v2",
+        "exit": 0,
+        "capture_sha256": "38ac2bb51bd0c6dee527825954116d15883f384884d13fcecd28235319a9670e",
+        "summary": ".........s......                                                         [100%]\r\n15 passed, 1 skipped in 17.02s\r\n"
+      }
+    ],
+    "fresh_migration": [
+      {
+        "label": "migration-upgrade",
+        "exit": 0,
+        "capture_sha256": "007ce54dcef43e36ea81369b36c7a199093b9177a0af793066f45db3c5e264a5",
+        "summary": "Running upgrade  -> 20260831_0001, Create the initial reversible infrastructure lineage.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260831_0001 -> 20260831_0002, Restrict the runtime role to read-only migration metadata.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260831_0002 -> 20260908_0003, Add Tutor-local external identities, auth transactions, and sessions.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260908_0003 -> 20260908_0004, Restrict runtime identity updates to mutable attributes.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260908_0004 -> 20260908_0005, Add append-only product-security audit events.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260908_0005 -> 20260909_0006, Add provider-independent internal accounts.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260909_0006 -> 20260909_0007, Add trusted account-scoped capability grants and operation ledger.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260909_0007 -> 20260912_0008, Add private Student and Tutor profile persistence.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260912_0008 -> 20260912_0009, Bind private profile operations to an active application session.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260912_0009 -> 20260914_0010, Add session-bound tutor offers, bookings, and idempotent operation ledger.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260914_0010 -> 20260914_0011, Add booking-derived lesson access grants and authorization boundary.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260914_0011 -> 20260915_0012, Booking-bound lesson sessions and post-lock entitlement clock.\r\nINFO  [alembic.runtime.migration] Running upgrade 20260915_0012 -> 20260928_0013, In-app notification outbox and private inbox.\r\n"
+      },
+      {
+        "label": "migration-check",
+        "exit": 0,
+        "capture_sha256": "e9d1aa5d0a908059216911035789ff2a83cf8fee581aa6b6432305199189225d",
+        "summary": "No new upgrade operations detected.\r\nINFO  [alembic.runtime.migration] Context impl PostgresqlImpl.\r\nINFO  [alembic.runtime.migration] Will assume transactional DDL.\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments\r\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.checkconstraint_byname\r\n"
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "container_clean_stop_exit": 0,
+    "exact_owned_container_removed": true,
+    "exact_owned_synthetic_volume_removed": true,
+    "remaining_nonce_matches": 0,
+    "original_db_or_volume_accessed": false,
+    "preserved_resources_cleanup": false,
+    "captured_utc": "2026-10-02T09:13:17.385649+00:00"
+  },
+  "history": {
+    "initial_instrumentation": "2FAIL before lock observation; exact cause unproven; ownPID repair2PASS; limited migrator application_name visibility independently TRUE, no grants changed",
+    "initial_unit_harness": "integration env incorrectly supplied to unit tests:2FAIL/197PASS; cleaned process-local env199PASS, accepted tests unchanged"
+  },
+  "source_test_worktree_sha256": "9c201144b2685051718437fc369cd3f48c4a56b71f30f9d5f3fe8ae4c1afe993",
+  "accepted_contract": "one new file only; all existing tests/fixtures/production/migrations/locks unchanged",
+  "scope": "actual DB application consumer, not HTTP/browser/production E2E",
+  "preserved_gates": [
+    "ET-14.2-UA-01 policy",
+    "ET-10.3-UA-19 RU/UK human speech/focus",
+    "original8to9column SQL caller compatibility"
+  ],
+  "documentation": {
+    "updated": [
+      "specs/features/payments-and-booking.spec.md",
+      "docs/STAGES.md",
+      "docs/TESTING.md",
+      "docs/ROADMAP.md",
+      "docs/TRACEABILITY.md"
+    ],
+    "checked_without_change": [
+      "README.md",
+      "docs/ARCHITECTURE.md",
+      "docs/DECISIONS.md",
+      "docs/DESIGN.md",
+      "docs/SECURITY.md",
+      "docs/API.md",
+      "docs/DATA_MODEL.md",
+      "docs/DEPENDENCIES.md",
+      "docs/project-context.md"
+    ]
+  },
+  "publication": "pending normal merge/push with skipci; no deploy",
+  "captured_utc": "2026-10-02T09:16:07.988129+00:00"
+}

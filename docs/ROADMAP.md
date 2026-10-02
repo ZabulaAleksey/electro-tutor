@@ -361,6 +361,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   SPEC/ADR-025, domain/PostgreSQL, private HTTP и RU/UK browser UI verified.
   Exact two-user Keycloak → API → PostgreSQL terminal phases passed with
   cleanup confirmation and exit `0`.
+  Independent night same-version accept/cancel criterion:2 actual lock-contention cases PASS with atomic ledger/audit/grant/outbox/replay checks; selected ET-14.2 policy gate unchanged.
 - **ET-10.2 — LessonAccessGrant.** Статус: `COMPLETED (validated locally,
   2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
   authorization negatives and RU/UK three-identity Keycloak/browser terminal

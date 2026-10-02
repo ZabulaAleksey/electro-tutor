@@ -997,3 +997,23 @@ Scheduler хранит durable intents и идемпотентно переда�
 session ownership и narrow DB privileges обязательны.
 
 Подтверждение 2026-10-02: product owner повторно зафиксировал policy **ACCEPTED**; это closed decision. Повторное согласование допустимо только при новом изменении этого product contract. Evidence — `docs/evidence/manual-gates-20261002/reconciliation.json`.
+
+## ADR-034 — Canonical evidence и повторная ручная accessibility-приёмка
+
+Статус: принято 2026-10-02 по прямому запросу пользователя.
+
+Каждое фактически выполненное изменение, ручная проверка, принятое product
+decision и закрытый gate оставляют canonical evidence/status entry до handoff:
+execution status, blockers, user actions и NEXT — в соответствующем STAGES
+record; проверки — в TESTING и content-free evidence; product decisions —
+в DECISIONS/затронутой SPEC. Чат и transient report не заменяют эти записи.
+Это project delta к FR-CTX-006, а не второй status owner.
+
+`ET-10.3-UA-19` / manual Windows Narrator принят пользователем как `PASS`.
+Не запрашивать его повторение без нового изменения, реально затрагивающего
+accessibility, focus или screen-reader behavior. При таком изменении явно
+зафиксировать затронутые сценарии и причину нового gate в STAGES; scope
+повторной проверки ограничить ими. Неизвестные execution date, версию
+Narrator и произнесённые фразы не выдумывать. Источник этого PASS — прямое
+подтверждение пользователя, не новая автоматическая проверка. Evidence:
+`docs/evidence/accepted-gates-20261002.json`.

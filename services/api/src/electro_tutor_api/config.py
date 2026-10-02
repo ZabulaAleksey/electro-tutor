@@ -160,7 +160,9 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_profile_and_roles(self) -> Settings:
-        if self.test_oidc_port is not None and (self.profile != "test" or self.test_oidc_port != 58181):
+        if self.test_oidc_port is not None and (
+            self.profile != "test" or self.test_oidc_port != 58181
+        ):
             raise ValueError("ET_TEST_OIDC_PORT is allowed only as 58181 in the test profile")
         if (self.docs_enabled or self.debug) and self.profile != "local":
             raise ValueError("docs/debug are allowed only with explicit local profile")

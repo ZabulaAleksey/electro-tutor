@@ -3,7 +3,11 @@ import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
 export const EXPECTED_KEYCLOAK_URL = "http://127.0.0.1:58081";
-export const KEYCLOAK_URL = process.env.ET_KEYCLOAK_URL || EXPECTED_KEYCLOAK_URL;
+export const REGISTRATION_KEYCLOAK_URL = "http://127.0.0.1:58181";
+const registrationEnvironment = process.env.ET_ENVIRONMENT === "test"
+  && process.env.ET_TEST_OIDC_PORT === "58181";
+export const KEYCLOAK_URL = process.env.ET_KEYCLOAK_URL
+  || (registrationEnvironment ? REGISTRATION_KEYCLOAK_URL : EXPECTED_KEYCLOAK_URL);
 export const REALM = "electro-tutor-dev";
 export const CLIENT_ID = "electro-tutor-web-dev";
 export const TEST_USERNAME = "et-dev-acceptance";
@@ -51,8 +55,15 @@ function required(name) {
 }
 
 export function validateProvisioningEnvironment(environment = process.env) {
-  if ((environment.ET_KEYCLOAK_URL || EXPECTED_KEYCLOAK_URL) !== EXPECTED_KEYCLOAK_URL) {
-    throw new Error(`ET_KEYCLOAK_URL must be exactly ${EXPECTED_KEYCLOAK_URL}`);
+  const hasRegistrationPort = environment.ET_TEST_OIDC_PORT !== undefined;
+  const registration = environment.ET_ENVIRONMENT === "test" && hasRegistrationPort;
+  if (hasRegistrationPort && (environment.ET_ENVIRONMENT !== "test"
+    || environment.ET_TEST_OIDC_PORT !== "58181")) {
+    throw new Error("ET_TEST_OIDC_PORT=58181 requires ET_ENVIRONMENT=test");
+  }
+  const expectedUrl = registration ? REGISTRATION_KEYCLOAK_URL : EXPECTED_KEYCLOAK_URL;
+  if ((environment.ET_KEYCLOAK_URL || expectedUrl) !== expectedUrl) {
+    throw new Error(`ET_KEYCLOAK_URL must be exactly ${expectedUrl}`);
   }
   if (environment.ET_DEV_TEST_USERNAME && environment.ET_DEV_TEST_USERNAME !== TEST_USERNAME) {
     throw new Error(`ET_DEV_TEST_USERNAME must be exactly ${TEST_USERNAME}`);

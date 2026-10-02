@@ -102,6 +102,7 @@ try {
     ET_KEYCLOAK_ADMIN_PASSWORD: process.env.ET_KEYCLOAK_ADMIN_PASSWORD,
     ET_DEV_TEST_PASSWORD: process.env.ET_DEV_TEST_PASSWORD,
     ET_KEYCLOAK_URL: `http://127.0.0.1:${idpPort}`,
+    ...(registrationTrack ? { ET_ENVIRONMENT: "test", ET_TEST_OIDC_PORT: idpPort } : {}),
   };
   const identities = parseProvisionerSummary(command(process.execPath,
     [join(root, "scripts", "keycloak-provision.mjs")], { env: provisionEnvironment }));
@@ -116,7 +117,7 @@ try {
   });
   await waitFor("http://127.0.0.1:8000/api/v1/health/ready", 30_000);
   await waitFor("http://127.0.0.1:8000/api/v1/health/live", 5_000);
-  console.log("Isolated live auth: PostgreSQL " + port + ", Keycloak 58081, API 8000, web 4322; /live and /ready PASS.");
+  console.log("Isolated live auth: PostgreSQL " + port + ", Keycloak " + idpPort + ", API 8000, web 4322; /live and /ready PASS.");
   if (registrationTrack) {
     browserPhase("registration", identities);
     console.log("Isolated local provider registration E2E PASS.");

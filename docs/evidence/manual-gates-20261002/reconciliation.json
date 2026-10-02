@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-10-02",
+  "authority": "Direct product-owner confirmation in this chat; confirmation date is not the historical manual run date.",
+  "closed_gates": [
+    {
+      "id": "ET-10.3-UA-19",
+      "status": "PASS",
+      "tool": "Windows Narrator (owner-confirmed)",
+      "locales": [
+        "ru",
+        "uk"
+      ],
+      "scope": "Existing Session manual speech/focus acceptance",
+      "routes": [
+        "/ru/lesson/#booking=<id>",
+        "/uk/lesson/#booking=<id>"
+      ]
+    },
+    {
+      "id": "ET-RU-UK-VOICE",
+      "status": "PASS",
+      "locales": [
+        "ru",
+        "uk"
+      ],
+      "scope": "Previously accepted RU/UK voice manual acceptance; same baseline as UA-19, not a newly executed agent test"
+    },
+    {
+      "id": "ET-14.2-UA-01",
+      "status": "ACCEPTED",
+      "contract": "850713cfe4a831527d0d6ff2022a1532a49b221d:specs/features/booking-reminders.spec.md",
+      "decision": "ADR-033",
+      "historical_approval_date": "2026-09-28"
+    }
+  ],
+  "revalidation": "Only a concrete new change affecting the accepted speech/focus/voice behavior or the approved reminder product policy; documentation/branch changes do not reopen gates.",
+  "git_snapshot": {
+    "main": "09b61d13b083f65527f51d76f752f707f6b84702",
+    "origin_main_tracking_ref": "09b61d13b083f65527f51d76f752f707f6b84702",
+    "reminder_branch": "850713cfe4a831527d0d6ff2022a1532a49b221d",
+    "documentation_parent": "ce8d16f95e75e0e7d6de99dff98a306b81e31809",
+    "remote_fresh_fetch": false
+  },
+  "main_ui": {
+    "inbox": true,
+    "reminder_settings": false,
+    "routes": [
+      "/ru/account/",
+      "/uk/account/"
+    ],
+    "owner": "src/pages/[lang]/account.astro"
+  },
+  "reminder_ui": {
+    "branch": "feature/et-14-2-reminders",
+    "routes": [
+      "/ru/account/",
+      "/uk/account/"
+    ],
+    "selectors": [
+      "[data-reminder-settings]",
+      "[data-notifications]"
+    ],
+    "main_integration": "NOT_MERGED"
+  },
+  "fresh_checks": {
+    "frontend": "174 PASS / 22 files",
+    "backend_fast": "202 PASS / 90 deselected; Ruff format/lint and mypy PASS; pytest cache write warning",
+    "context": "PASS",
+    "ci_workflow": "PASS",
+    "hygiene": "PASS on both root and feature; initial feature failure was elevated Git ownership/environment boundary, corrected with exact process-local safe.directory; global config unchanged.",
+    "lint": "PASS",
+    "astro_check": "129 files, 0 errors, 0 warnings, 2 pre-existing generated WASM hints",
+    "build": "PASS: 25 pages, 24 localized routes, 115 audited files",
+    "wasm_and_locales": "PASS: shipped WASM matches source; 369 paired keys",
+    "root_overlay": "PASS: canonical_valid, execution_allowed, inspection_ok true; no issues"
+  },
+  "historical_live_evidence": {
+    "date": "2026-09-29",
+    "source_commit": "57c6867",
+    "reference": "feature/et-14-2-reminders:docs/TESTING.md#ET-14.2",
+    "backend_db": "64 PASS / 17 unrelated environment skips",
+    "live_reminder": "1 PASS",
+    "live_inbox_regression": "1 PASS",
+    "live_auth_profile": "7 PASS / 3 expected phase skips"
+  },
+  "live_rerun": "NOT_RUN: exact historical disposable test container absent; unchanged product source preserves historical evidence. Recreating isolated runtime is agent work, not a human acceptance gate.",
+  "integration": {
+    "status": "APPROVAL_REQUIRED_BY_AUTO_REVIEW",
+    "attempt": "git merge --no-commit --no-ff feature/et-14-2-reminders into docs/et-voice-acceptance-pass",
+    "outcome": "Rejected before execution; no merge state/source mutation",
+    "reason": "Reviewer requires explicit merge authorization for broad branch integration",
+    "must_preserve": [
+      "main portable DEV bridge",
+      "fast-uri 3.1.7 security patch",
+      "booking same-version race test/evidence",
+      "star recovery evidence",
+      "ce8d16f UA-19 PASS documentation"
+    ],
+    "read_only_preflight": "git merge-tree --trivial-merge at base 9762797/root ce8d16f/feature 850713c: exit 0; docs changed on both branches; no tree write or merge execution. First output decode failed (cp1251), UTF-8 retry PASS. Conflict resolution and post-merge tests remain agent work after approval."
+  },
+  "real_manual_remaining": [],
+  "out_of_scope_future_inputs": [
+    "ET-14.3 Telegram privacy decision and consenting test bot/chat access: no implemented screen yet",
+    "Original DB legacy SQL compatibility: deployment/repair authorization, not a reminders UI manual gate",
+    "Read-only pip-audit outbound authorization from night record: permission, not a manual screen check"
+  ],
+  "source_changes": "None: production code, accepted tests, migrations and locks unchanged; no push/deploy/worktree deletion.",
+  "documentation_sync": {
+    "updated": [
+      "docs/STAGES.md",
+      "docs/TESTING.md",
+      "docs/ROADMAP.md",
+      "docs/TRACEABILITY.md",
+      "docs/requirements-ledger.json",
+      "docs/evidence/manual-gates-20261002/reconciliation.json"
+    ],
+    "root_policy_owner_updated": "docs/DECISIONS.md ADR-033; original complete SPEC remains on reminder feature pending integration",
+    "checked_without_behavior_change": [
+      "README.md",
+      "docs/ARCHITECTURE.md",
+      "docs/API.md",
+      "docs/DATA_MODEL.md",
+      "docs/SECURITY.md",
+      "docs/DESIGN.md",
+      "specs/README.md",
+      "specs/features/lesson-sessions.spec.md",
+      "specs/features/booking-reminders.spec.md (feature)",
+      "docs/project-context.md",
+      "package.json",
+      "pnpm-lock.yaml"
+    ],
+    "automation_promotion": "NOT_NEEDED: existing dev-karkas metadata route PASS; no new automation, Skill or dependency."
+  }
+}

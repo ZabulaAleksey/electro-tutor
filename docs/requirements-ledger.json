@@ -72,7 +72,7 @@
       "a11y": "Keyboard and accessible names automated; real screen-reader and full three-level persistence are not terminally evidenced.",
       "observability": "Browser assertion failures and screenshots.",
       "gap": "No focused persistence regression for all three explanation levels and no screen-reader run.",
-      "action": "Add focused LevelPicker persistence tests and complete ET-10.3 manual RU/UK screen-reader gate."
+      "action": "Add focused LevelPicker persistence tests and retain owner-confirmed UA-19 PASS; authored-content/LevelPicker depth is outside the accepted Session scope."
     },
     {
       "requirement_ids": ["FR-006", "CDS-FR-001", "CDS-FR-002", "CDS-FR-003", "CDS-FR-004", "CDS-NFR-001", "CDS-AC-001", "CDS-AC-002", "CDS-AC-003", "CDS-AC-004", "CDS-AC-005", "CDS-AC-006"],
@@ -272,17 +272,17 @@
     {
       "requirement_ids": ["SESSION-001", "ET10.3-AC-01", "ET10.3-AC-02", "ET10.3-AC-03", "ET10.3-AC-04", "ET10.3-AC-05", "ET10.3-AC-06", "PLAT-005"],
       "domain": "lesson-session-lifecycle",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": ["services/api/src/electro_tutor_api/application/lesson_sessions.py", "services/api/src/electro_tutor_api/adapters/lesson_session_repository.py", "src/account/lesson-session-contract.ts"],
       "unit": ["Backend fast 195 PASS/81 deselected and frontend 156 PASS on 2026-09-22"],
-      "integration": ["Historical 72 PostgreSQL PASS; current rerun BLOCKED before migrations by port collision and preserved DB drift"],
-      "e2e": ["Static Session UI states PASS; real browser→Keycloak→API→PostgreSQL phase NOT RUN"],
+      "integration": ["UA-18 isolated backend:check PASS: 196 fast, 74 real PostgreSQL integration, 9 catalog negatives, API health 200 (2026-09-27)"],
+      "e2e": ["UA-18 live browser -> Keycloak -> API -> PostgreSQL Session 1 PASS; profile 7 PASS/3 unrelated skips; UA-19 Narrator and RU/UK voice human acceptance PASS, owner confirmed 2026-10-02"],
       "runtime": "Media-less READY→ACTIVE→ENDED/CANCELLED implementation exists.",
-      "security": "Participant/active-grant/tutor transition policies implemented; terminal live red team pending.",
-      "a11y": "Static keyboard/RU/UK states covered; manual gate pending.",
+      "security": "Live Session participant/foreign/anonymous policies PASS on isolated runtime; original DB legacy compatibility remains separate.",
+      "a11y": "UA-19 / Narrator and RU/UK voice manual speech/focus acceptance PASS; owner-confirmed 2026-10-02.",
       "observability": "Mutation audit and request/correlation IDs.",
-      "gap": "Protected dev DB drift, port conflict, live authenticated phase and manual RU/UK gate.",
-      "action": "Approve data-preserving recovery/isolation, free port safely, rerun backend:check and live Session E2E."
+      "gap": "No open Session acceptance gate; original data-bearing DB compatibility remains a separate repair boundary.",
+      "action": "Preserve manual PASS; rerun only after a concrete change affecting speech/focus/voice behavior."
     },
     {
       "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
@@ -294,10 +294,10 @@
       "e2e": ["tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"],
       "runtime": "0013 migration/worker/API/UI committed locally; independent fresh PostgreSQL catalog manifest, clean bootstrap, 0012 upgrade, rollback/re-upgrade and worker startup PASS.",
       "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link verified by real PostgreSQL ACL/IDOR and live browser foreign/anonymous negatives.",
-      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. ET-10.3 manual screen-reader remains separate.",
+      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. UA-19 / Narrator / RU/UK voice acceptance PASS, owner-confirmed 2026-10-02.",
       "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class; real delivery and retention observed on disposable DB.",
-      "gap": "ET-14.1 terminal local acceptance passed; original data-bearing DB 8-column compatibility and feature-to-main integration remain separately open.",
-      "action": "Keep 30-day/ownership/IDOR and independent catalog regressions; ET-14.2 reminder policy is the next product decision."
+      "gap": "ET-14.1 inbox is already in main at /ru/account/ and /uk/account/. ET-14.2 reminders implementation verified on feature branch; main integration awaits merge approval, not manual acceptance.",
+      "action": "Retain notification regressions; integrate approved ET-14.2 implementation preserving main security/bridge/race/recovery changes."
     },
     {
       "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],
@@ -399,10 +399,10 @@
       "e2e": ["Built static Chromium PASS; authenticated live E2E pending"],
       "runtime": "No release/deploy performed.",
       "security": "Pinned actions and artifact handoff exist; full dependency verdict unavailable.",
-      "a11y": "Static critical-route checks PASS; manual Session gate pending.",
+      "a11y": "UA-19 / Narrator / RU/UK voice manual Session acceptance PASS, owner-confirmed 2026-10-02; other authored-content scope is not inferred.",
       "observability": "CI/gate exit codes; no production backend telemetry.",
       "gap": "verify:full is frontend-centric and cannot close backend/authenticated release readiness.",
-      "action": "Keep release blocked until DB recovery, backend integration, live auth E2E, dependency audit and manual gates pass."
+      "action": "Release readiness remains separate; retain UA-19 PASS and require applicable current automated/environment gates, without requesting the closed manual Session gate again."
     },
     {
       "requirement_ids": ["AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006"],

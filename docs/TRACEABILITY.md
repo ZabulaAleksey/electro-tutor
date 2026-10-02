@@ -35,3 +35,5 @@ Account boundary, `ET-09.4b` trusted grant/evaluator и `ET-09.4c..d`
 session-bound profiles/HTTP подтверждены local evidence. `ET-09.4e` и whole
 `ET-09.4` verified live two-user Keycloak/browser evidence. Production
 backend/IAM deployment не выполнялся и не следует из этого статуса.
+
+ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded SPEC already implemented/verified on `feature/et-14-2-reminders`; `/ru/account/` and `/uk/account/` contain settings + inbox there. Main contains inbox only; integration remains agent work awaiting merge approval, not manual acceptance. UA-19 / Narrator and RU/UK voice PASS; evidence — `evidence/manual-gates-20261002/reconciliation.json`.

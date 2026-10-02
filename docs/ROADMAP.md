@@ -288,9 +288,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
-не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
-локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 ожидает
-утверждения reminder/timezone/quiet-hours policy. ET-10.3 verified: ранее принятая manual RU/UK voice acceptance PASS
+не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified и уже интегрирован в main после real DB/worker/browser acceptance; ET-14.2 policy ACCEPTED; verified feature awaits local main integration, not manual acceptance. ET-10.3 verified: ранее принятая manual RU/UK voice acceptance PASS
 восстановлена в TESTING/UA-19 2026-10-02; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
@@ -361,7 +359,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   SPEC/ADR-025, domain/PostgreSQL, private HTTP и RU/UK browser UI verified.
   Exact two-user Keycloak → API → PostgreSQL terminal phases passed with
   cleanup confirmation and exit `0`.
-  Independent night same-version accept/cancel criterion:2 actual lock-contention cases PASS with atomic ledger/audit/grant/outbox/replay checks; selected ET-14.2 policy gate unchanged.
+  Independent night same-version accept/cancel criterion:2 actual lock-contention cases PASS with atomic ledger/audit/grant/outbox/replay checks; ET-14.2 policy now ACCEPTED; selected integration tail is separate.
 - **ET-10.2 — LessonAccessGrant.** Статус: `COMPLETED (validated locally,
   2026-09-15)`; time-bounded FREE/EXTERNAL grant, real PostgreSQL/HTTP
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
@@ -444,8 +442,7 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 - **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
   на локальной feature-ветке после clean/upgrade/rollback DB и live browser
   acceptance; feature commits теперь достижимы из local `main` (проверено при recovery audit на `main@f25214e`). Production deploy не подтверждён.
-- **ET-14.2 — Preferences, timezone и reminders.** Статус: BLOCKED
-  настоящим product policy decision; точный NEXT в docs/STAGES.md.
+- **ET-14.2 — Preferences, timezone и reminders.** Policy ACCEPTED (ADR-033); implementation and terminal isolated tests VERIFIED on feature. Main integration pending explicit merge authorization after auto-review rejection; no user manual product blocker. Exact account routes/evidence/NEXT — docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.
 - **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый

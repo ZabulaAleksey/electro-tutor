@@ -16,6 +16,7 @@ const reminderTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et1
   && port === "55437";
 const registrationTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-rc1-registration-test"
   && port === "55437";
+const idpPort = registrationTrack ? "58181" : "58081";
 if (!(legacyTrack || notificationTrack || reminderTrack || registrationTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
   || !process.env.ET_DEV_TEST_PASSWORD) {
   throw new Error("Isolated auth phase requires an exact disposable test DB and ephemeral IdP credentials.");
@@ -73,6 +74,7 @@ function browserPhase(phase, identities) {
     E2E_SECONDARY_SUBJECT: identities.secondarySubject,
     E2E_THIRD_SUBJECT: identities.thirdSubject,
     E2E_AUTH_PHASE: phase,
+    ...(registrationTrack ? { E2E_OIDC_PORT: idpPort } : {}),
     E2E_SPEC: phase === "lesson-session"
       ? "tests/e2e/auth-lesson-session.spec.ts"
       : phase === "notification"
@@ -92,20 +94,25 @@ function browserPhase(phase, identities) {
 let api;
 let worker;
 try {
-  await waitFor("http://127.0.0.1:58081/realms/master", 300_000);
+  await waitFor(`http://127.0.0.1:${idpPort}/realms/master`, 300_000);
   command(python, ["-m", "alembic", "upgrade", "head"], { cwd: apiRoot, env: databaseEnvironment });
   command(python, ["-m", "alembic", "check"], { cwd: apiRoot, env: databaseEnvironment });
   const provisionEnvironment = {
     ...baseEnvironment,
     ET_KEYCLOAK_ADMIN_PASSWORD: process.env.ET_KEYCLOAK_ADMIN_PASSWORD,
     ET_DEV_TEST_PASSWORD: process.env.ET_DEV_TEST_PASSWORD,
-    ET_KEYCLOAK_URL: "http://127.0.0.1:58081",
+    ET_KEYCLOAK_URL: `http://127.0.0.1:${idpPort}`,
   };
   const identities = parseProvisionerSummary(command(process.execPath,
     [join(root, "scripts", "keycloak-provision.mjs")], { env: provisionEnvironment }));
+  const apiEnvironment = registrationTrack
+    ? { ...databaseEnvironment, ET_TEST_OIDC_PORT: idpPort,
+      ET_OIDC_ISSUER: `http://127.0.0.1:${idpPort}/realms/electro-tutor-dev`,
+      ET_OIDC_BACKCHANNEL_BASE_URL: `http://127.0.0.1:${idpPort}` }
+    : databaseEnvironment;
   api = spawn(python, ["-m", "uvicorn", "electro_tutor_api.main:create_app", "--factory",
     "--host", "127.0.0.1", "--port", "8000", "--no-access-log"], {
-    cwd: apiRoot, env: databaseEnvironment, stdio: "ignore", shell: false,
+    cwd: apiRoot, env: apiEnvironment, stdio: "ignore", shell: false,
   });
   await waitFor("http://127.0.0.1:8000/api/v1/health/ready", 30_000);
   await waitFor("http://127.0.0.1:8000/api/v1/health/live", 5_000);

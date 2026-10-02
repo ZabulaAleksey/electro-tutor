@@ -49,6 +49,7 @@ _KNOWN_ENV = {
     "ET_DEV_TEST_PASSWORD",
     "ET_DEV_TEST_EMAIL",
     "ET_TEST_POSTGRES_PORT",
+    "ET_TEST_OIDC_PORT",
 }
 
 _LOCAL_ORIGINS = "http://127.0.0.1:4321,http://127.0.0.1:4322"
@@ -121,6 +122,7 @@ class Settings(BaseSettings):
         300, validation_alias="ET_AUTH_TRANSACTION_TTL_SECONDS"
     )
     cookie_secure: bool = Field(False, validation_alias="ET_COOKIE_SECURE")
+    test_oidc_port: int | None = Field(None, validation_alias="ET_TEST_OIDC_PORT")
 
     @model_validator(mode="before")
     @classmethod
@@ -158,6 +160,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_profile_and_roles(self) -> Settings:
+        if self.test_oidc_port is not None and (self.profile != "test" or self.test_oidc_port != 58181):
+            raise ValueError("ET_TEST_OIDC_PORT is allowed only as 58181 in the test profile")
         if (self.docs_enabled or self.debug) and self.profile != "local":
             raise ValueError("docs/debug are allowed only with explicit local profile")
         parsed_runtime = urlsplit(self.runtime_database_url)
@@ -188,11 +192,12 @@ class Settings(BaseSettings):
         return self
 
     def _validate_identity_contract(self) -> None:
+        expected_oidc_port = self.test_oidc_port or 58081
         issuer = urlsplit(self.oidc_issuer)
         if (
             issuer.scheme != "http"
             or issuer.hostname != "127.0.0.1"
-            or issuer.port != 58081
+            or issuer.port != expected_oidc_port
             or issuer.path != "/realms/electro-tutor-dev"
             or issuer.query
             or issuer.fragment
@@ -202,7 +207,7 @@ class Settings(BaseSettings):
         if (
             backchannel.scheme != "http"
             or (backchannel.hostname, backchannel.port)
-            not in {("127.0.0.1", 58081), ("keycloak", 8080)}
+            not in {("127.0.0.1", expected_oidc_port), ("keycloak", 8080)}
             or backchannel.username is not None
             or backchannel.password is not None
             or backchannel.path not in {"", "/"}

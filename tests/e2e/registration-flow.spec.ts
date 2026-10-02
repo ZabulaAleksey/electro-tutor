@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 
 const web = process.env.E2E_WEB_ORIGIN || "http://127.0.0.1:4322";
 const api = "http://127.0.0.1:8000/api/v1";
+const idpPort = process.env.E2E_OIDC_PORT || "58081";
 
 test.use({ trace: "off", screenshot: "off", video: "off" });
 
@@ -21,7 +22,7 @@ test("RC1 local provider registration creates a student-only session", async ({ 
 
   await page.goto(`${web}/ru/account/`);
   await page.getByRole("link", { name: /Войти|Увійти/ }).click();
-  await expect(page).toHaveURL(/127\.0\.0\.1:58081\/realms\/electro-tutor-dev/);
+  await expect(page).toHaveURL(new RegExp(`127\\.0\\.0\\.1:${idpPort}\\/realms\\/electro-tutor-dev`));
   await page.getByRole("link", { name: /Register|Регистрация|Реєстрація/ }).click();
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Email").fill(email);

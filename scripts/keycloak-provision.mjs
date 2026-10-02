@@ -34,6 +34,10 @@ export const PROVISION_TIMEOUT_MS = 5_000;
 export const REDIRECT_URIS = ["http://127.0.0.1:8000/api/v1/auth/callback"];
 export const WEB_ORIGINS = ["http://127.0.0.1:4321", "http://127.0.0.1:4322"];
 export const POST_LOGOUT_REDIRECT_URIS = WEB_ORIGINS.map((origin) => `${origin}/`);
+// Local disposable Keycloak is the only provider target accepted by this
+// provisioner. Self-registration creates an ordinary provider identity; the
+// application still grants no tutor capability from OIDC claims.
+export const REGISTRATION_ALLOWED = true;
 
 function emitSafeSummary(summary) {
   const serialized = JSON.stringify(summary);
@@ -150,7 +154,7 @@ export async function provision() {
     ...(realm || {}),
     realm: REALM,
     enabled: true,
-    registrationAllowed: false,
+    registrationAllowed: REGISTRATION_ALLOWED,
     loginWithEmailAllowed: true,
     resetPasswordAllowed: false,
     duplicateEmailsAllowed: false,
@@ -225,7 +229,7 @@ export async function provision() {
     testIdentityOwner: TEST_IDENTITY_GROUP,
   };
   const actualPostLogout = (reconciled.attributes?.["post.logout.redirect.uris"] || "").split("##").filter(Boolean);
-  if (!reconciledRealm.enabled || reconciledRealm.registrationAllowed || reconciledRealm.resetPasswordAllowed || reconciledRealm.duplicateEmailsAllowed || reconciledRealm.editUsernameAllowed) throw new Error("Keycloak realm security contract did not reconcile");
+  if (!reconciledRealm.enabled || reconciledRealm.registrationAllowed !== REGISTRATION_ALLOWED || reconciledRealm.resetPasswordAllowed || reconciledRealm.duplicateEmailsAllowed || reconciledRealm.editUsernameAllowed) throw new Error("Keycloak realm security contract did not reconcile");
   if (!safeSummary.publicClient || !safeSummary.standardFlowEnabled || safeSummary.implicitFlowEnabled || safeSummary.directAccessGrantsEnabled || reconciled.serviceAccountsEnabled || reconciled.fullScopeAllowed || safeSummary.pkceMethod !== "S256") throw new Error("Keycloak client security contract did not reconcile");
   if (!exactValues(reconciled.defaultClientScopes, ["profile", "email"]) || !exactValues(reconciled.optionalClientScopes, [])) throw new Error("Keycloak client scope contract did not reconcile exactly");
   if (!exactValues(reconciled.redirectUris, REDIRECT_URIS) || !exactValues(reconciled.webOrigins, WEB_ORIGINS) || !exactValues(actualPostLogout, POST_LOGOUT_REDIRECT_URIS)) throw new Error("Keycloak redirect/origin contract did not reconcile exactly");

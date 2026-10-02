@@ -14,7 +14,9 @@ const notificationTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor
   && port === "55436";
 const reminderTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-et142-test-20260928"
   && port === "55437";
-if (!(legacyTrack || notificationTrack || reminderTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
+const registrationTrack = process.env.BACKEND_CLONE_CONTAINER === "electro-tutor-rc1-registration-test"
+  && port === "55437";
+if (!(legacyTrack || notificationTrack || reminderTrack || registrationTrack) || !process.env.ET_KEYCLOAK_ADMIN_PASSWORD
   || !process.env.ET_DEV_TEST_PASSWORD) {
   throw new Error("Isolated auth phase requires an exact disposable test DB and ephemeral IdP credentials.");
 }
@@ -77,6 +79,8 @@ function browserPhase(phase, identities) {
         ? "tests/e2e/auth-notifications.spec.ts"
         : phase === "reminder"
           ? "tests/e2e/auth-reminders.spec.ts"
+            : phase === "registration"
+              ? "tests/e2e/registration-flow.spec.ts"
           : "tests/e2e/auth-flow.spec.ts",
   };
   execFileSync(process.execPath, [join(root, "scripts", "run-e2e.mjs")], {
@@ -106,7 +110,10 @@ try {
   await waitFor("http://127.0.0.1:8000/api/v1/health/ready", 30_000);
   await waitFor("http://127.0.0.1:8000/api/v1/health/live", 5_000);
   console.log("Isolated live auth: PostgreSQL " + port + ", Keycloak 58081, API 8000, web 4322; /live and /ready PASS.");
-  if (notificationTrack || reminderTrack) {
+  if (registrationTrack) {
+    browserPhase("registration", identities);
+    console.log("Isolated local provider registration E2E PASS.");
+  } else if (notificationTrack || reminderTrack) {
     // Real first login resolves managed Keycloak subjects to application accounts.
     browserPhase("profiles", identities);
     const grantEnvironment = {

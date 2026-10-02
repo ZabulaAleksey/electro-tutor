@@ -136,11 +136,11 @@
 ## ET-RC1 — Productization / Release Candidate 1
 
 - Status: verified
-- Checkpoint: source_manifest_sha256=febc05d47ce1e6d5b2cc37a21b6d60a23f9e4a8863b595c6a461875ea8eb1ab7
+- Checkpoint: source_manifest_sha256=cd4690f47af51e0eb4574d8e8567dd61b2e25a4a7d55d8a82286b1b7cd52da90
 - Candidate result: RC1_READY — локальный release candidate Web + installable PWA.
 - Blockers: none
 - Deployment boundary: production hosting/IAM/original DB compatibility remain separate ET-18.2 scope.
-- Condition: approved productization-rc1.spec.md RC1-001..010 выполнены; проверен связный путь без знания внутренних stages. ET-14.2 интегрирован в main с 19c6ea2; RC1 candidate prepared for explicitly authorized safe local integration.
+- Condition: approved productization-rc1.spec.md RC1-001..010 выполнены; проверен связный путь без знания внутренних stages. ET-14.2 интегрирован в main с 19c6ea2; RC1 source integrated in local main bee6ddc after explicitly authorized clean fast-forward; final documentation receipt retained in the same local ancestry.
 - Dependencies: ET-10.3/ET-14.1/ET-14.2 verified; обе истории docs/reminders, DEV bridge, security fixes и принятые tests/evidence сохранены.
 - Runnable vertical slice: home -> catalog -> опубликованный mesh lesson -> ответ/feedback -> completion -> reload/leave -> resume -> account/history. Реальный Keycloak -> API -> PostgreSQL: signup -> student profile -> lesson -> logout -> login -> восстановленная история/settings/inbox. Booking -> worker -> reminder/inbox terminal acceptance сохранён и проверен при reconciliation; это отдельный настоящий consumer path, не mock.
 - Changes: account в общей navigation; безопасная public API configuration; bounded timeouts; честные unavailable services/contacts; практика и versioned device-only progress с гостевой/issuer+subject namespace; защита slow identity/malformed/quota/storage-denied; resume/history; raster PWA icons/offline Worker/WASM; keyboard/reduced-motion/contrast fixes; compatible dependency patches.

@@ -737,3 +737,7 @@ is claimed for this rerun. Live authenticated Session and manual acceptance
 were NOT RUN at that earlier point. Current UA-18 live/browser evidence is at
 the top of this file; manual acceptance is now PASS per the restored UA-19 record. Detailed
 user actions are in selected `STAGES.md`.
+
+## RC1 post-integration readback
+
+Authorized clean local main19c6ea2 -> bee6ddc fast-forward DONE. No source conflict; all feature/docs/bridge ancestors retained. Context/CI/hygiene readback PASS. Source manifest uses canonical LF for UTF-8 text and exact binary bytes; pre/post checkout differences independently proved CRLF-only, not a behavior change. No repeat of unchanged campaign required. Own DB containers stopped/ephemeral IdP exited; important worktrees retained. Final receipt: evidence/rc1/readiness.json. No push/deploy/publication.

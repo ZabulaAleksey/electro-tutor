@@ -1,6 +1,6 @@
 # PRODUCTIZATION_REPORT — Electro Tutor RC1
 
-Дата:2026-10-02. Derived report; status owner:docs/STAGES.md ET-RC1; machine receipt:docs/evidence/rc1/readiness.json. RESULT:RC1_READY locally; exact local-main integration receipt is finalized separately. No production deployment/publication.
+Дата:2026-10-02. Derived report; status owner:docs/STAGES.md ET-RC1; machine receipt:docs/evidence/rc1/readiness.json. RESULT:RC1_READY locally; source integrated in local main bee6ddc through approved clean fast-forward; post-integration receipt completed. No production deployment/publication.
 
 ## Current Product State
 
@@ -115,3 +115,5 @@ REAL_MANUAL_REMAINING:NONE. Narrator/UA-19 PASS, RU/UK voice PASS and ET-14.2 pr
 ## RC1 Readiness
 
 RC1_READY locally. Frontend189, backend208, real PG83/no skips, full Chromium128/6 expected dedicated-live skips, genuine signup/return1, base-path5; lint/typecheck/validators/build/health/route/mobile/a11y/error/PWA/security audit PASS. Canonical state, requirements-ledger, traceability, ADR-035, TESTING, dependency/security/design/architecture/data/API/context/README updated; existing accepted tests/manual decisions retained. No push/deploy/release publication/worktree deletion. Next concrete stage: ET-18.2 bounded staging Web/PWA hosting/runtime/HTTPS IAM/backup plan.
+
+Post-integration: main19c6ea2 -> bee6ddc; retained0500798/d6485cc/8fe5ac6/92bb0a5 ancestry. Context/CI/hygiene/source readback PASS, only CRLF->LF Git checkout normalization. Own test services stopped; important worktrees retained. No remote mutation. Canonical file sync inventory is recorded in readiness.json.

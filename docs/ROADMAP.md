@@ -501,3 +501,7 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 Эти направления классифицированы как `INTEGRATION_LATER` или `EXPERIMENTAL` и
 не являются launchable stages. Для каждого сначала нужен отдельный refinement,
 SPEC/ADR, dependency check и явное одобрение.
+
+## ET-RC1 — Productization / Release Candidate 1
+
+Approved bounded consolidation campaign 2026-10-02. ET-14.2 is locally merged in main19c6ea2 with fresh live reminders/inbox PASS; closed UA-19/voice/policy gates retained. Current stage/automatic findings/NEXT — STAGES ET-RC1; requirements — productization-rc1.spec.md. No new large course/media/payments/native wrapper.

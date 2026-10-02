@@ -36,3 +36,5 @@ denominator, но только binding SPEC создаёт обязательс�
 
 Перед существенным изменением поведения сначала обнови затрагиваемую SPEC,
 затем архитектуру/план и только после этого код и тесты.
+
+| `features/productization-rc1.spec.md` | Approved 2026-10-02 user contract; execution in ET-RC1 | Existing Web/PWA product journey, shell, bounded local progress/resume, release automation and RC1 report |

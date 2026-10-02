@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-14.2
+- Stage ID: ET-RC1
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -109,8 +109,8 @@
 
 ## ET-14.2 — Preferences, timezone и reminders
 
-- Status: partial
-- Blockers: none for product/manual acceptance; authorized integration and current automated post-integration checks in progress.
+- Status: verified
+- Blockers: none for ET-14.2 product/manual acceptance. Broad preview startup issue transferred to ET-RC1 automatic gate.
 - Condition: reminder implementation and terminal isolated acceptance already exist on `feature/et-14-2-reminders` (implementation `57c6867`, audited branch `850713c`). Baseline `main@09b61d1` had inbox only. User explicitly authorized local merge 2026-10-02; current integration tree now contains reminder settings and 0014, pending final checks/commit/main fast-forward. UA-19 / Narrator and RU/UK voice manual acceptance PASS, owner-confirmed 2026-10-02.
 - Dependencies: ET-14.1 verified; ADR-033 reminder policy ACCEPTED. ET-10.3 manual gate closed, not a prerequisite blocker.
 - Goal/scope: approved IANA timezone, 24h/1h/15m and quiet hours -> durable owner-scoped Booking intents -> ET-14.1 worker/outbox/inbox. Cancel + new Booking, inclusive 15-minute catch-up grace; external channels deferred.
@@ -127,6 +127,26 @@
 - Current integration evidence 2026-10-02: frontend174/backend202, real PostgreSQL83 with no skips, lint/typecheck/build/context/CI/hygiene PASS; live profile7PASS/3 expected skips, inbox1PASS and reminders1PASS, runner exit0. Concurrent main@8fe5ac6 accepted-gates/ADR-034/AGENTS/context SPEC commits preserved by ancestry; production source matches feature0500798; main bridge/security/race/star/voice evidence preserved. Full static browser runner hit two pre-test preview readiness timeouts; resolve automatically in the approved RC1 productization campaign. Not a manual gate.
 - NEXT: ET-RC1-PRODUCTIZATION
 
+- Main integration: DONE / MERGED locally 19c6ea2, 2026-10-02; includes 0500798/d6485cc/c5bdb76 and concurrent main8fe5ac6. API/0014/RU/UK account settings+inbox present in main; current live consumer PASS. No push/deploy/worktree deletion. Previous pre-integration snapshots in evidence are historical.
+
 ## Поздние этапы
 
 - ET-10.3 acceptance verified; ET-11.1/ET-11.2 и поздние stages требуют отдельного выбора и dependency-ready SPEC/evidence, их реализация этим checkpoint не запускается.
+
+## ET-RC1 — Productization / Release Candidate 1
+
+- Status: partial
+- Blockers: automatic productization/verification work in progress; no pending UA-19 / RU/UK voice / reminder policy gate.
+- Condition: user directly approved RC1 productization 2026-10-02; local main19c6ea2 contains reminders+closed gates. Existing one RU/UK lesson, three labs, Account/Booking/Session/inbox/reminders/PWA are the inputs.
+- Dependencies: ET-10.3 verified; ET-14.1 verified; ET-14.2 locally merged/current live verification PASS. Original DB compatibility/production deployment/external providers are excluded from this local release candidate, not hidden prerequisites for public learning path.
+- Goal/scope: approved productization-rc1.spec.md RC1-001..010. Connect current shell/navigation, learning action/completion/resume/local-per-identity persistence and account/history, automate routes/mobile/a11y/errors/security/performance/PWA/build. No new large course/media/payment/provider architecture.
+- Plan: bounded product audit -> isolated learning writer + shell/config/startup audit -> integration -> automatic product/real-auth/error/mobile/PWA gates -> review -> canonical report/evidence -> local main integration. Individual commits are checkpoints, not completion.
+- Runnable vertical slice: real public home -> authored lesson -> answer/feedback -> local completion -> leave/reload -> resume/history; real existing isolated IdP/API/DB/worker for account/reminders. All accepted tests retained.
+- PASS contract: RC1-001..010 plus full user-specified release gates; status only RC1_READY after evidence, otherwise concrete RC1_BLOCKED. Historical manual PASS is preserved; new affected speech/focus behavior must identify narrow scenario before any human request.
+- Audit findings: account is omitted from common nav; MeshLesson persists level only, not progress/completion; next lesson is disabled/unpublished; frontend API resolver assumes4321/4322; manifest SVG-only icons; public signup/provider readiness and preview startup delay require inspection. Three labs are practice tools, not pretend-complete courses.
+- Baseline fresh: frontend174; backend202; real PostgreSQL83/no skips; lint/typecheck/build25pages/115files/context/CI/hygiene PASS; live profiles7PASS/3 expected unrelated skips, inbox1PASS, reminder1PASS. Broad115-case run on existing ready preview109PASS/5 expected skips/1 browser-process-close failure; serial rerun queued. Two managed preview startup timeouts before tests are automatic diagnostics, not product/manual FAIL.
+- Revalidation: UA-19 / Narrator PASS, RU/UK voice PASS, reminders product policy ACCEPTED. Public learning UI adds separate automation coverage; protected Session speech/focus remains unchanged.
+- User actions: none for current automatic work. No production publication, destructive cleanup or important worktree removal approved.
+- REAL_MANUAL_REMAINING: NONE for closed gate scope; RC1-specific human-only scenarios must be concrete and not fabricated from unavailable automation.
+- Evidence owner: docs/TESTING.md, docs/evidence/rc1/readiness.json; detailed derived report docs/notes/productization-report.md after audit. Existing source parity/receipt docs/evidence/manual-gates-20261002/reconciliation.json.
+- NEXT: ET-RC1-LEARNING-AND-SHELL

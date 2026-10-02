@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/productization-rc1.spec.md",
       "specs/features/booking-reminders.spec.md",
       "specs/system.spec.md",
       "specs/features/base-path-portability.spec.md",
@@ -45,6 +46,32 @@
   },
   "allowed_statuses": ["VERIFIED", "IMPLEMENTED", "PARTIAL", "PLANNED", "BLOCKED", "UNAVAILABLE"],
   "rows": [
+    {
+      "requirement_ids": [
+        "RC1-001",
+        "RC1-002",
+        "RC1-003",
+        "RC1-004",
+        "RC1-005",
+        "RC1-006",
+        "RC1-007",
+        "RC1-008",
+        "RC1-009",
+        "RC1-010"
+      ],
+      "domain": "release-candidate-productization",
+      "status": "PLANNED",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "RC1 bounded productization approved; existing main19c6ea2 reminder/source is the baseline.",
+      "security": "Preserve auth/account isolation/private cache; local public-lesson progress namespaces must not claim encryption/cloud authorization.",
+      "a11y": "Accepted UA-19/Narrator/RU/UK voice PASS preserved; new public learning UI gets automated keyboard/labels/focus/mobile coverage.",
+      "observability": "Content-free route/flags/assets/readiness and actual command evidence; no private identity/cookie/secret logs.",
+      "gap": "Product shell/local progress/resume/config/startup/PWA and automatic RC1 gates in progress.",
+      "action": "Implement bounded approved RC1 slice, run actual consumer paths and review, then sync canonical docs/report; no deploy/publication."
+    },
     {
       "requirement_ids": ["FR-001", "FR-002", "FR-003", "LP-FR-001", "LP-FR-002", "LP-FR-003", "LP-FR-004", "LP-FR-005", "LP-FR-006", "LP-FR-007", "LP-NFR-001", "LP-NFR-002", "LP-NFR-003", "LP-AC-001", "LP-AC-002", "LP-AC-003", "LP-AC-004", "LP-AC-005", "LP-AC-005a", "LP-AC-006", "LP-AC-007"],
       "domain": "public-content",

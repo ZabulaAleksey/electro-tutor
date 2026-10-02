@@ -104,5 +104,32 @@
       "specs/features/lesson-sessions.spec.md"
     ],
     "preserved_parent_checkpoint": "ce8d16f95e75e0e7d6de99dff98a306b81e31809"
+  },
+  "post_integration": {
+    "recorded_on": "2026-10-02",
+    "authorization": "Direct user approval: merge in main, run post-integration checks and canonical read-back; no push/deploy; cleanup only if clean and unnecessary.",
+    "method": "fast_forward",
+    "target": "main",
+    "before_head": "09b61d13b083f65527f51d76f752f707f6b84702",
+    "integrated_head": "0801c32a13e1f8a362bb08d7c4fb929fa31ed1f3",
+    "source_branch": "docs/et-accepted-gates-policy",
+    "source_commits": [
+      "ce8d16f95e75e0e7d6de99dff98a306b81e31809",
+      "0801c32a13e1f8a362bb08d7c4fb929fa31ed1f3"
+    ],
+    "checks": {
+      "context_route": "PASS",
+      "validator_syntax": "PASS",
+      "git_hygiene": "PASS",
+      "git_diff_check": "PASS",
+      "canonical_status_read_back": "PASS",
+      "source_spec_adr_hashes": "PASS",
+      "rem_requirement_coverage": "5/5",
+      "integration_worktree_status": "CLEAN"
+    },
+    "scope": "Documentation/context consumer only. Reminder runtime integration is separate. Parallel dirty root checkout untouched.",
+    "push": "NOT_PERFORMED",
+    "deploy": "NOT_PERFORMED",
+    "cleanup_policy": "Authorized only after commit reachability, clean tracked/untracked/ignored inventory, no active process and shared worktree policy preflight; exact worktrees/accepted-gates-policy only."
   }
 }

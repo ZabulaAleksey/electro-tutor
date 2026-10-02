@@ -2,6 +2,8 @@
 
 ## Canonical acceptance synchronization — verification, 2026-10-02
 
+- Post-integration: explicitly authorized local fast-forward `main 09b61d1 → 0801c32`; preserved parent `ce8d16f`. On integrated main, context route, syntax, hygiene/diff, source SHA-256 and canonical read-back repeated PASS; clean worktree. No push/deploy/runtime/manual rerun. Root parallel staged runtime was preserved; receipt post_integration records exact heads and scope.
+
 - `node scripts/validate-context-route.mjs`, `node --check scripts/validate-context-route.mjs`, `node scripts/check-git-hygiene.mjs`, `git diff --check`: PASS. Единственный selector ET-14.2; approved policy закрыта, runtime integration approval остаётся отдельным blocker.
 - Read-back: accepted SPEC bytes и ADR-033 совпадают с `f750812`; source SHA-256 независимо пересчитаны. UA-19 PASS/NOT_REQUIRED, ET-14.2-UA-01 DONE/APPROVED, REM-001..005 root BLOCKED by integration, ADR-034/FR-CTX-006 согласованы в STAGES/ledger/SPEC/evidence.
 - README, API, ARCHITECTURE, DESIGN, SECURITY, DATA_MODEL, DEPENDENCIES, project-context и lesson-sessions SPEC проверены без новых изменений относительно сохранённого UA-19 parent `ce8d16f`. Исторические failed/NOT_RUN attempts сохранены. Product runtime, accepted tests, locks, DB и browser не менялись/не запускались; единственный context consumer delta — распознавание approved `REM` IDs в существующем validator. Receipt: `docs/evidence/accepted-gates-20261002.json`.

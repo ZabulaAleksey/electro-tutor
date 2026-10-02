@@ -5,7 +5,7 @@
 real-PostgreSQL/HTTP and frontend non-secret evidence прошли; security
 findings закрыты. Isolated disposable PostgreSQL Alembic/catalog gate и
 обязательный live Keycloak→API→PostgreSQL Session E2E прошли; literal human
-RU/UK screen-reader UX-проверка остаётся открытой. Original DB repair
+RU/UK screen-reader / Narrator / voice manual acceptance PASS, owner-confirmed 2026-10-02; repeat only after an affected behavior change. Original DB repair
 отдельно требует external SQL caller compatibility decision.
 
 Версия: 0.1

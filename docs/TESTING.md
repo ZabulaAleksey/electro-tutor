@@ -1,5 +1,17 @@
 # Testing contract
 
+## Acceptance reconciliation — 2026-10-02
+
+- UA-19 / Windows Narrator manual acceptance: **PASS**; RU/UK voice manual acceptance: **PASS**, по прямому подтверждению пользователя в этой задаче. Это восстановление ранее выполненного acceptance, не новый агентский speech test; дата/версия/произнесённые фразы старого прогона не выдумываются. Существующий Session сценарий: `/ru/lesson/#booking=<id>` и `/uk/lesson/#booking=<id>`, student READY, tutor START/ACTIVE/END, two tabs и speech/focus.
+- ET-14.2 reminders product policy: **ACCEPTED**. Утверждённый ADR-033/booking-reminders contract уже существует в `feature/et-14-2-reminders`; 24h/1h ON, 15m OFF, explicit confirmed IANA timezone, quiet hours OFF by default, cancel + new immutable Booking, inclusive 15-minute catch-up grace. Повторного product decision нет.
+- Revalidation: повтор только после конкретного нового изменения соответствующего behavior; восстановление документации и интеграция неизменного принятого behavior не открывают ручной gate заново.
+- Main UI audit: inbox уже в `main`, route `/ru/account/` и `/uk/account/`, section `[data-notifications]`. Reminders settings `[data-reminder-settings]` на этих же account screens существуют только в feature-ветке. Owner — `src/pages/[lang]/account.astro`; основной `main` ещё не содержит reminders UI/migration 0014.
+- Fresh feature checks: `pnpm test` 174 PASS; `pnpm backend:test:fast` 202 PASS, Ruff format/lint/mypy PASS (non-fatal pytest cache warning); context/CI/hygiene PASS. ESLint PASS; Astro 129 files, 0 errors/0 warnings/2 pre-existing generated WASM hints; production build 25 pages/24 localized routes/115 audited files PASS; root overlay validator no issues. Historical 2026-09-29 real DB/live reminders/inbox acceptance сохранено ниже/в feature TESTING. Fresh live rerun NOT_RUN: exact disposable test container отсутствует, его восстановление — задача агента, а не ручной blocker.
+- Local merge отклонён auto-review до исполнения из-за отсутствия принятого reviewer-ом explicit merge approval. Подготовленная feature implementation и её tests остаются проверенными; main integration ещё не подтверждена. Отдельный merge approval не является ручной product acceptance.
+- `REAL_MANUAL_REMAINING: none` для UA-19 / RU/UK voice / ET-14.2. Future Telegram/privacy/credentials и original DB compatibility не имеют реализованного экрана в этом scope и не включаются в текущую ручную checklist.
+- Machine-readable evidence: `evidence/manual-gates-20261002/reconciliation.json`; current state/NEXT — `STAGES.md`. Production source, accepted tests, locks и DB не менялись.
+
+
 ## ET-14.2 — terminal isolated reminder verification, 2026-09-29
 
 - Exact disposable PostgreSQL 17.6 container electro-tutor-et142-test-20260928 used its own named volume and 127.0.0.1:55437; ephemeral Keycloak 26.7.2 used 58081 and no persistent volume. The original Electro Tutor and MathMorph containers/volumes stayed untouched. The isolated wrapper stopped its own services after acceptance. Failed-run test DBs were preserved by exact rename, then clean replacements migrated; no original data was reset.
@@ -7,7 +19,7 @@
 - Backend: 202 DB-free PASS; 64 real PostgreSQL integration PASS, 17 existing environment skips and 211 deselected. Tests cover owner-scoped defaults/settings, each offset, quiet-hours/overnight/DST gap and fold, cancellation, queued invalidation, +5/+15/>15-minute grace, expired Booking, two concurrent workers and runtime ACL. Ruff check/format (91 files), strict mypy (52 files), migration and catalog tests PASS.
 - Frontend: 174 Vitest PASS, lint PASS, Astro check 129 files/0 errors/0 warnings (2 generated WASM hints), RU/UK locale pairing 369 keys, production build 25 pages/115 audited files PASS. Built Chromium 110 PASS/5 expected live-auth skips, including two mocked reminder UI/keyboard/accessibility cases; production smoke 4 PASS. Full project verify with skip-install exited 0; dependency audit 3 moderate/0 high.
 - Live acceptance: pnpm test:e2e:reminders:isolated exited 0 after exact stopped-container/mount/port/image preflight, Keycloak provision, real API health, worker start and browser phases. Auth/profile 7 PASS/3 expected phase skips; ET-14.1 live Booking/outbox/inbox 1 PASS; ET-14.2 real RU/UK settings, keyboard save/reload, 15m opt-in, Booking acceptance, due worker, localized student inbox and foreign/anonymous denial 1 PASS. The ET-14.1 fixture Booking is cancelled after its assertions to avoid overlap with the next phase. Initial harness failures exposed a missing exact 55437 allowlist and cross-phase Booking/selector collisions; these were fixed, with a complete final rerun.
-- Automated UI/accessibility checks passed. No manual RU/UK screen-reader speech observation was performed; ET-10.3 remains implemented_unverified. ET-14.2 is verified locally on feature/et-14-2-reminders; merge, push and deploy were not performed.
+- Automated UI/accessibility checks passed. No manual speech observation was performed by that automated run. Previously completed human UA-19 / Narrator / RU/UK voice acceptance is now owner-confirmed PASS (2026-10-02); ET-10.3 verified. ET-14.2 is verified locally on feature/et-14-2-reminders; merge, push and deploy were not performed.
 
 ## ET-14.1 — terminal isolated notification verification, 2026-09-28
 
@@ -635,9 +647,7 @@ pass or root-artifact run is lower-level evidence, not terminal acceptance.
 Historical pre-UA-18 local frontend evidence: `pnpm test` 156 passed, `pnpm check` 0
 diagnostics, `pnpm lint` and build/audits exit 0; Session mocked browser states
 6 passed; `pnpm test:e2e` and `pnpm test:e2e:root` each 92 passed with 5
-expected phase-dependent skips, exit 0. The authenticated Session phase and
-RU/UK multi-tab/accessibility manual check have not yet been run or confirmed
-by the user. Real PostgreSQL `backend:test:integration` passed 72 (189 fast
+expected phase-dependent skips, exit 0. At that historical point, authenticated Session and manual checks were NOT_RUN. Superseded by UA-18 live PASS and owner-confirmed UA-19 / Narrator / RU/UK voice PASS (2026-10-02). Real PostgreSQL `backend:test:integration` passed 72 (189 fast
 deselected), including Session HTTP, migration cycle/ACL, post-lock expiry,
 audit rollback and lifecycle; `backend:test:fast` passed 189 (72 integration
 deselected), both exit 0. `pnpm verify:full` final retry exited 0 with root

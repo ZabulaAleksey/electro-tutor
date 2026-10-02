@@ -290,7 +290,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
 не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
 canonical main@9762797 после real DB/worker/browser acceptance; ET-14.2 verified locally on feature/et-14-2-reminders after disposable DB/Keycloak/browser acceptance; next ET-14.3 needs privacy policy and test bot access. ET-10.3 остаётся
-implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
+verified после owner-confirmed manual PASS 2026-10-02; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
@@ -375,7 +375,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   regressions добавлены. Built Chromium 94 PASS/5 expected auth-phase skips;
   isolated Keycloak→API→disposable PostgreSQL Session E2E 1 PASS без skip,
   profile phase 7 PASS/3 expected skips. Objective RU/UK two-tab/keyboard/
-  mobile/ARIA checks прошли; literal human screen-reader UX остаётся.
+  mobile/ARIA checks прошли; literal human screen-reader UX PASS, owner-confirmed 2026-10-02.
   Внешние SQL callers legacy `read_booking_operation(uuid)` неизвестны, поэтому
   original DB replacement запрещён; ET-11.1 не dependency-ready.
 

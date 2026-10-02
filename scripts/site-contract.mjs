@@ -21,3 +21,8 @@ export function normalizeSiteOrigin(value) {
   }
   return site.origin;
 }
+
+// Hostname allowlists are policy data; only concrete local URLs and user paths leak deployment state.
+export function hasMachineLocalReference(source) {
+ return /(?:https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?=[:/\s"']|$)|[A-Za-z]:[\\/]Users[\\/]|\/(?:Users|home)\/[^/]+\/)/i.test(source);
+}

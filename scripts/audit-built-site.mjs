@@ -1,6 +1,6 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
-import { normalizeBasePath, normalizeSiteOrigin } from "./site-contract.mjs";
+import { hasMachineLocalReference, normalizeBasePath, normalizeSiteOrigin } from "./site-contract.mjs";
 
 const root = resolve(process.env.BUILD_OUTPUT_DIR || "dist");
 const basePath = normalizeBasePath(process.env.BASE_PATH);
@@ -46,7 +46,7 @@ for (const file of files) {
   const relativeFile = relative(root, file).split(sep).join("/");
   if (!/\.(?:html|css|js|json|xml|webmanifest)$/.test(relativeFile)) continue;
   const source = await readFile(file, "utf8");
-  if (/(?:localhost|127\.0\.0\.1|[A-Za-z]:[\\/]Users[\\/]|\/(?:Users|home)\/[^/]+\/)/i.test(source)) {
+  if (hasMachineLocalReference(source)) {
     errors.push(`${relativeFile}: machine-local URL/path leaked into artifact`);
   }
   if (relativeFile.endsWith(".html")) {

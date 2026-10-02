@@ -9,7 +9,7 @@ import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string; description: string; language: Language;
-  active?: "home" | "topics" | "interactive" | "classroom" | "services" | "contacts";
+  active?: "home" | "topics" | "interactive" | "classroom" | "services" | "contacts" | "account";
   alternatePath?: string; keywords?: string[];
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
@@ -23,12 +23,14 @@ const iconPath = withBasePath("/icons/potential.svg");
 const webFontScriptPath = withBasePath("/scripts/web-font.js");
 const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
+const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
 const nav = [
   { id: "home", href: localePath(language), label: copy.nav.home },
   { id: "topics", href: localePath(language, "/topics/"), label: copy.nav.topics },
   { id: "interactive", href: localePath(language, "/interactive/"), label: copy.nav.interactive },
   { id: "classroom", href: localePath(language, "/classroom/"), label: copy.nav.classroom },
   { id: "services", href: localePath(language, "/services/"), label: copy.nav.services },
+  { id: "account", href: localePath(language, "/account/"), label: copy.account.heading },
   { id: "contacts", href: localePath(language, "/contacts/"), label: copy.nav.contacts },
 ];
 ---
@@ -37,6 +39,7 @@ const nav = [
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="electro-tutor-api-origin" content={publicApiOrigin} />
   <meta name="theme-color" content="#246b54" />
   <meta name="description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -62,7 +65,8 @@ const nav = [
   <ClientRouter />
   <script is:inline>
     (() => {
-      const saved = localStorage.getItem("potential-theme");
+      let saved = null;
+        try { saved = localStorage.getItem("potential-theme"); } catch {}
       document.documentElement.dataset.theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     })();
   </script>
@@ -90,9 +94,9 @@ const nav = [
   <main><slot /></main>
   <footer><span>© 2026 {copy.brand.name}</span><span>{copy.brand.motto}</span></footer>
 
-  <dialog class="install-dialog" id="install-dialog">
+  <dialog class="install-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
     <div class="install-dialog-content">
-      <h2>{copy.install.title}</h2>
+      <h2 id="install-dialog-title">{copy.install.title}</h2>
       <p>{copy.install.description}</p>
       <ol data-ios-steps hidden>
         <li>{copy.install.stepShare}</li>
@@ -108,7 +112,8 @@ const nav = [
       const state = window.__potentialUi ||= { installPrompt: null, globalEventsReady: false };
 
       const applySavedTheme = () => {
-        const saved = localStorage.getItem("potential-theme");
+        let saved = null;
+        try { saved = localStorage.getItem("potential-theme"); } catch {}
         document.documentElement.dataset.theme = saved
           || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       };
@@ -121,9 +126,10 @@ const nav = [
       };
 
       const restoreLanguageScroll = () => {
-        const saved = sessionStorage.getItem("potential-language-scroll");
+        let saved = null;
+        try { saved = sessionStorage.getItem("potential-language-scroll"); } catch {}
         if (!saved) return;
-        sessionStorage.removeItem("potential-language-scroll");
+        try { sessionStorage.removeItem("potential-language-scroll"); } catch {}
         try {
           const scroll = JSON.parse(saved);
           if (scroll.path === location.pathname && Number.isFinite(scroll.y)) {
@@ -152,7 +158,7 @@ const nav = [
         if (themeToggle) themeToggle.onclick = () => {
           const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
           document.documentElement.dataset.theme = next;
-          localStorage.setItem("potential-theme", next);
+          try { localStorage.setItem("potential-theme", next); } catch {}
         };
 
         if (standalone) installButton?.setAttribute("hidden", "");
@@ -181,7 +187,7 @@ const nav = [
           target.search = location.search;
           target.hash = location.hash;
           link.href = target.toString();
-          sessionStorage.setItem("potential-language-scroll", JSON.stringify({ path: target.pathname, y: scrollY }));
+          try { sessionStorage.setItem("potential-language-scroll", JSON.stringify({ path: target.pathname, y: scrollY })); } catch {}
         }, true);
         addEventListener("keydown", event => {
           if (event.key === "Escape") closeMobileMenu();
@@ -199,7 +205,7 @@ const nav = [
             const root = document.documentElement;
             const scriptURL = root.dataset.serviceWorkerPath;
             const scope = root.dataset.basePath;
-            if (scriptURL && scope) navigator.serviceWorker.register(scriptURL, { scope });
+            if (scriptURL && scope) navigator.serviceWorker.register(scriptURL, { scope }).catch(() => {});
           }, { once: true });
         }
       }

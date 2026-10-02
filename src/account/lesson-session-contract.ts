@@ -66,7 +66,7 @@ export function parseLessonSession(value: unknown): LessonSession | null {
 
 async function request(fetcher: Fetcher, url: URL, init: RequestInit, expectedId: string, expectedBookingId?: string, expectedRole?: "student" | "tutor"): Promise<LessonSessionResult> {
   try {
-    const response = await fetcher(url, { ...init, credentials: "include", cache: "no-store" });
+    const response = await fetcher(url, { ...init, credentials: "include", cache: "no-store", signal: init.signal ?? AbortSignal.timeout(10_000) });
     const body: unknown = await response.json().catch(() => null);
     if (!response.ok) {
       const code = record(body) && record(body.error) && typeof body.error.code === "string"

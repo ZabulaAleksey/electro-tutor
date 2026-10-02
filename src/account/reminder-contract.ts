@@ -62,6 +62,7 @@ async function request(
     const response = await fetcher(new URL("/api/v1/reminder-settings/me", origin), {
       credentials: "include",
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       ...init,
     });

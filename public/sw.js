@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "potential-pwa-";
-const CACHE = `${CACHE_PREFIX}v2`;
+const CACHE = `${CACHE_PREFIX}v3`;
 const SCOPE_URL = new URL("./", self.registration.scope);
 const withBase = (path = "") => new URL(path.replace(/^\/+/, ""), SCOPE_URL).pathname;
 const CORE = [
@@ -9,6 +9,10 @@ const CORE = [
   withBase("offline.html"),
   withBase("manifest.webmanifest"),
   withBase("icons/potential.svg"),
+  withBase("icons/potential-maskable.svg"),
+  withBase("icons/potential-192.png"),
+  withBase("icons/potential-512.png"),
+  withBase("icons/potential-maskable-512.png"),
 ];
 const CACHEABLE_DESTINATIONS = new Set([
   "font",
@@ -16,6 +20,8 @@ const CACHEABLE_DESTINATIONS = new Set([
   "manifest",
   "script",
   "style",
+  "worker",
+  "sharedworker",
 ]);
 const PRIVATE_PATH_PREFIXES = ["api", "auth", "checkout", "payments"].map(withBase);
 
@@ -132,7 +138,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (CACHEABLE_DESTINATIONS.has(request.destination)) {
+  if (CACHEABLE_DESTINATIONS.has(request.destination) || new URL(request.url).pathname.endsWith(".wasm")) {
     event.respondWith(cacheFirstAsset(request));
   }
 });

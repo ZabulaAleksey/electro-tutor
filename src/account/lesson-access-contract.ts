@@ -21,6 +21,7 @@ export async function readLessonAccess(
       method: "GET",
       credentials: "include",
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
       headers: { Accept: "application/json" },
     });
     const body: unknown = await response.json().catch(() => null);

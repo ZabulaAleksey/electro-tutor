@@ -9,7 +9,12 @@ export function getStaticPaths() {
 
 const language = Astro.params.lang as Language;
 const copy = getLocale(language);
-const bookingUrl = import.meta.env.PUBLIC_CALCOM_URL;
+const configuredBookingUrl = import.meta.env.PUBLIC_CALCOM_URL;
+let bookingUrl: string | undefined;
+try {
+  const url = new URL(configuredBookingUrl || "");
+  if (url.protocol === "https:" && !url.username && !url.password) bookingUrl = url.href;
+} catch {}
 ---
 
 <BaseLayout

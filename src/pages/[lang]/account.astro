@@ -12,7 +12,7 @@ const language = Astro.params.lang as Language;
 const copy = getLocale(language).account;
 ---
 
-<BaseLayout title={copy.title} description={copy.description} language={language} alternatePath="/account/">
+<BaseLayout title={copy.title} description={copy.description} language={language} alternatePath="/account/" active="account">
   <section class="section account-page" data-account>
     <span class="eyebrow"><i></i>{copy.eyebrow}</span>
     <h1>{copy.heading}</h1>

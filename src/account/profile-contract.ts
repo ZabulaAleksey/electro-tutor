@@ -44,9 +44,21 @@ function errorCode(value: unknown): string {
   return value.error.code;
 }
 
-export function resolveLocalApiOrigin(location: { origin: string; port: string }): URL | null {
+export function validatePublicApiOrigin(value: string): URL | null {
+  try {
+    const url = new URL(value);
+    if (url.username || url.password || url.search || url.hash || url.pathname !== "/") return null;
+    if (url.protocol !== "https:" && !(url.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname))) return null;
+    return url;
+  } catch { return null; }
+}
+
+export function resolveLocalApiOrigin(location: { origin: string; port: string }, configured?: string): URL | null {
+  const declared = configured ?? (typeof document === "undefined" ? "" : document.querySelector<HTMLMetaElement>('meta[name="electro-tutor-api-origin"]')?.content ?? "");
+  if (declared) return validatePublicApiOrigin(declared);
   if (location.port !== "4321" && location.port !== "4322") return null;
-  const origin = new URL(location.origin);
+  const origin = validatePublicApiOrigin(location.origin);
+  if (!origin || !["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname)) return null;
   origin.port = "8000";
   return origin;
 }
@@ -68,6 +80,7 @@ export async function fetchCurrentSession(fetcher: Fetcher, apiOrigin: URL): Pro
       credentials: "include",
       cache: "no-store",
       headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10_000),
     });
     const body = await readJson(response);
     if (!response.ok) return { ok: false, status: response.status, code: errorCode(body) };
@@ -112,7 +125,7 @@ async function requestProfile(
   displayName?: string,
 ): Promise<ProfileResult> {
   const headers: Record<string, string> = { Accept: "application/json" };
-  const init: RequestInit = { method, credentials: "include", cache: "no-store", headers };
+  const init: RequestInit = { method, credentials: "include", cache: "no-store", headers, signal: AbortSignal.timeout(10_000) };
   if (method !== "GET") {
     headers["Content-Type"] = "application/json";
     init.body = JSON.stringify({ display_name: displayName });

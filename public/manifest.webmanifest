@@ -10,7 +10,10 @@
   "orientation": "any",
   "background_color": "#f5f3ee",
   "theme_color": "#246b54",
-  "categories": ["education", "utilities"],
+  "categories": [
+    "education",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "icons/potential.svg",
@@ -22,6 +25,24 @@
       "src": "icons/potential-maskable.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/potential-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/potential-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/potential-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],

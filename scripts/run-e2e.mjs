@@ -63,7 +63,7 @@ async function assertPreviewPortAvailable() {
   }
 }
 
-async function waitUntilReady(preview, timeoutMs = 30_000) {
+async function waitUntilReady(preview, timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
@@ -83,7 +83,7 @@ async function waitUntilReady(preview, timeoutMs = 30_000) {
     await delay(100);
   }
 
-  throw new Error(`Astro preview did not become ready at ${readinessURL} within ${timeoutMs}ms.`);
+  throw new Error(`Astro preview did not become ready at ${readinessURL} within ${timeoutMs}ms (owned PID=${preview.pid}).`);
 }
 
 async function stopPreview(preview) {

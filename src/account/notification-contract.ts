@@ -52,6 +52,7 @@ async function request<T>(
     const response = await fetcher(new URL(path, origin), {
       credentials: "include",
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
       headers: { Accept: "application/json" },
       ...init,
     });

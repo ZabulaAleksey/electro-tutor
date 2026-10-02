@@ -268,7 +268,8 @@ from server policy, and `current_topic_id` remains transport `null` until a
 future Topic stage. The static RU/UK lesson shell keeps only an opaque
 `#session=` ID for reload and re-reads the API; the public Jitsi classroom is
 unchanged. Isolated live Keycloak→API→PostgreSQL Session browser acceptance
-passed; literal human RU/UK screen-reader acceptance remains pending.
+passed; prior user-accepted manual RU/UK voice/screen-reader acceptance
+is PASS (TESTING.md, ET-10.3-UA-19).
 
 ### ET-10.3 database drift-check boundary
 

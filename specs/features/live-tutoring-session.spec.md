@@ -27,7 +27,8 @@ Existing `rtc-provider-boundary.spec.md` относится только к пу
 считает LiveKit кандидатом для ET-12, а не выбранным provider. Поэтому
 «создать Lesson Session» и «встроить текущий public Jitsi» не являются
 начальными задачами. Сначала нужен provider security proof и версия политики
-доступа. ET-10.3 остаётся `implemented_unverified` до UA-19.
+доступа. ET-10.3 verified; ранее принятая UA-19 manual RU/UK voice
+acceptance PASS восстановлена в `../../docs/TESTING.md` 2026-10-02.
 
 ## 2. Предлагаемая предметная граница
 
@@ -296,8 +297,9 @@ may be decoupled from media only by an explicit SPEC/ROADMAP dependency change.
 
 ## 11. Recommended NEXT
 
-Keep `docs/STAGES.md` selector `ET-10.3` and complete its existing
-`ET-10.3-UA-19` literal RU/UK human screen-reader gate. In parallel, this
+Follow the current `docs/STAGES.md` selector `ET-14.2` and its policy
+decision; ET-10.3-UA-19 is PASS from prior user-accepted manual RU/UK
+voice verification (canonical TESTING record). In parallel, this
 read-only architecture draft can be reviewed. The first new bounded execution
 stage is ET-12.1 only after ET-10.3 status and roadmap prerequisites are
 truthfully reconciled; provider POC and policy/guest credential ADR precede

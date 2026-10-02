@@ -1,5 +1,17 @@
 # Testing contract
 
+## ET-10.3 UA-19 — manual RU/UK voice acceptance: PASS
+
+- Evidence ID: `ET-10.3-UA-19`; canonical record: эта секция; stage/status owner: `docs/STAGES.md`, record `ET-10.3`.
+- Status: **PASS**; human action **DONE**. Ручная RU/UK voice/screen-reader speech/focus acceptance выполнена ранее и принята пользователем.
+- Основание: прямое подтверждение владельца продукта в чате от **2026-10-02**: «считать manual RU/UK voice acceptance уже выполненным ранее и принятым пользователем»; «статус: PASS». Это дата восстановления canonical evidence, а не выдуманная дата старого прогона.
+- Scope: существующий gate UA-19 для RU и UK — signed-out CTA, student READY, tutor START/ACTIVE/END, two-tab state announcement, keyboard speech/focus. Принятие относится к gate целиком; отдельные spoken phrases, screen-reader version, timestamp и source SHA старой ручной сессии в текущем подтверждении не сообщены и не реконструируются.
+- Evidence type: ранее выполненная ручная проверка, подтверждённая пользователем; не новый автоматический прогон. Историческая попытка automation 2026-09-27 ниже остаётся NOT_RUN/BLOCKED_BY_OBSERVABILITY именно для той попытки и не отменяет человеческий PASS.
+- Revalidation trigger: только новое изменение, реально затрагивающее voice behavior, объявления screen reader или focus проверенного flow. Отсутствие прежней canonical записи, смена чата/ветки, documentation-only edits и невозможность агента слышать речь не открывают принятый gate заново.
+- Связанные isolated backend/live browser PASS сохранены; этот documentation-only checkpoint не меняет product/test/runner source и не запускает runtime. Original DB legacy SQL compatibility и ET-14.2 policy остаются отдельными решениями.
+
+Общее правило сохранения ручного acceptance: уже выполненная и принятая пользователем ручная проверка сохраняет PASS при восстановлении evidence. Сначала оформить подтверждение в canonical record; повторную проверку запрашивать только при новом изменении затронутого поведения.
+
 ## ET-NIGHT-BOOKING-RACE-01 — same-version contention, 2026-10-02
 
 - Два отдельных authenticated PostgreSQL connections действительно ожидают authoritative Booking row lock до release; обе launch orders проверены без FIFO assumption. Один winner/version+1, loser version_conflict, один winner operation/audit, grant/outbox только при accept, exact replay без новых effects. Новые2cases PASS1.41s. Existing Booking/Access/Session/Outbox suite15PASS/1skip17.02s; skip требует отдельный migration-lifecycle consent и не является race skip.
@@ -99,7 +111,9 @@
 - Desktop/mobile layout: при широкой ширине две диаграммы видны рядом; на mobile используются последовательные блоки без горизонтального overflow. Скриншоты предыдущего варианта заменены визуальной проверкой нового локального preview, не используются как evidence новой раскладки.
 - Ограничение v1: короткое замыкание фазы, несимметричный источник и URL-state звезды не моделируются по SPEC. Для этого локального consumer path backend gate не применяется.
 
-## ET-10.3 UA-19 manual screen-reader attempt — 2026-09-27
+## ET-10.3 UA-19 historical automation attempt — 2026-09-27
+
+Historical attempt only; current human acceptance is PASS in the canonical UA-19 record above. The old operator template below is retained for provenance, not a pending user request.
 
 - Source: clean `feature/et-10-3-lesson-session` at `f0041ab`; no product/test/runner source change since UA-18 terminal isolated live-auth PASS. Its backend, built-browser and live-auth evidence remains applicable; no expensive suite or disposable runtime was restarted.
 - Screen reader availability: NVDA was absent from installed Windows apps, PATH, standard Program Files locations and uninstall registry entries. Windows Narrator `Narrator.exe` 10.0.19041.4522 was available and launched. Computer Use reported that Narrator's window has higher Windows integrity than its helper, so it could not inspect that window; the available interface also provides no spoken-audio capture. Accessibility-tree/DOM assertions cannot establish actual speech or screen-reader focus experience.
@@ -660,5 +674,5 @@ and CHECK drift. Thus repository-wide `backend:check` is not terminal PASS.
 but exited 1 at the sandbox-rejected outbound dependency audit; no audit PASS
 is claimed for this rerun. Live authenticated Session and manual acceptance
 were NOT RUN at that earlier point. Current UA-18 live/browser evidence is at
-the top of this file; manual screen-reader acceptance remains open. Detailed
+the top of this file; manual acceptance is now PASS per the restored UA-19 record. Detailed
 user actions are in selected `STAGES.md`.

@@ -769,8 +769,9 @@ versioned contract. Detailed requirements belong to
 Статус: **принято как implementation contract** для `ET-10.3`;
 владелец продукта явно утвердил v1 rules в текущей задаче 2026-09-15.
 Локальная реализация и non-secret tests существуют; isolated live
-browser/backend gates прошли. Literal human RU/UK screen-reader acceptance
-остаётся открытым, original DB repair — отдельным compatibility decision.
+browser/backend gates прошли. Ранее принятая manual RU/UK voice/screen-reader
+acceptance PASS восстановлена в TESTING.md (UA-19) 2026-10-02; original DB
+repair остаётся отдельным compatibility decision.
 Текущий status/evidence/NEXT принадлежат только `docs/STAGES.md`.
 
 Контекст: approved Booking v1 допускает accepted cancellation только до

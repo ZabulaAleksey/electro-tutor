@@ -163,7 +163,8 @@ START or another tab's change, without client-clock authorization. Signed-out,
 foreign, expired/revoked, malformed or unavailable responses hide Session,
 clear previous private DOM metadata and announce localized failure/retry.
 No media iframe is added. Current ET-10.3 acceptance evidence and the
-remaining literal human screen-reader gate are tracked in `docs/STAGES.md`.
+accepted manual RU/UK voice/screen-reader PASS are tracked in `docs/STAGES.md`
+and the canonical UA-19 record in `docs/TESTING.md`.
 
 ## Темы и сохраняемое состояние
 

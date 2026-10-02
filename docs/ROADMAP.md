@@ -290,8 +290,8 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
 не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified в
 локальной feature-ветке после real DB/worker/browser acceptance; ET-14.2 ожидает
-утверждения reminder/timezone/quiet-hours policy. ET-10.3 остаётся
-implemented_unverified из-за ручного screen reader; ET-03 и внешние решения
+утверждения reminder/timezone/quiet-hours policy. ET-10.3 verified: ранее принятая manual RU/UK voice acceptance PASS
+восстановлена в TESTING/UA-19 2026-10-02; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
 `../specs/features/ai-native-tutoring-platform.spec.md`; detailed stage
@@ -367,7 +367,7 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   authorization negatives and RU/UK three-identity Keycloak/browser terminal
   phase passed; runner cleanup and shell exit `0`, without payment provider.
 - **ET-10.3 — LessonSession lifecycle и reload.** Статус:
-  `IMPLEMENTED_UNVERIFIED / NEXT`; Session v1/ADR-027 и ADR-028 tooling
+  `VERIFIED`; Session v1/ADR-027 и ADR-028 tooling
   реализованы. UA-15 clone-only migration forward/reverse и archive/catalog
   parity сохраняют силу. UA-18 isolated `backend:check clone` на новой test DB
   закрыл 196 fast, 74 real integration, 9 catalog negatives, image build и
@@ -377,9 +377,11 @@ ET-12.6 + ET-13.2 + ET-14.2 → ET-18.1 → ET-18.2
   regressions добавлены. Built Chromium 94 PASS/5 expected auth-phase skips;
   isolated Keycloak→API→disposable PostgreSQL Session E2E 1 PASS без skip,
   profile phase 7 PASS/3 expected skips. Objective RU/UK two-tab/keyboard/
-  mobile/ARIA checks прошли; literal human screen-reader UX остаётся.
+  mobile/ARIA checks прошли; manual RU/UK voice/screen-reader acceptance
+  PASS по ранее выполненной и принятой пользователем проверке (TESTING/UA-19).
   Внешние SQL callers legacy `read_booking_operation(uuid)` неизвестны, поэтому
-  original DB replacement запрещён; ET-11.1 не dependency-ready.
+  original DB replacement запрещён. UA-19 больше не блокирует ET-11.1;
+  execution требует отдельного выбора и сверки остальных SPEC/DAG prerequisites.
 
 ### ET-11 — Timeline и persistent learning surface (`FOUNDATION_NOW/NEXT`)
 

@@ -134,8 +134,8 @@ expired/revoked participant grant is 403, malformed request 422, version/key
 conflict 409, and unavailable policy/DB/audit is redacted 503. All private
 responses remain `no-store`. After `ends_at`, unfinished Session is not
 represented as a persisted ENDED or readable history in v1. Isolated live
-Session browser acceptance passed; literal human RU/UK screen-reader gate
-remains pending. Routes are local/CI, not deployed.
+Session browser acceptance passed; prior user-accepted manual RU/UK
+voice/screen-reader gate is PASS (TESTING.md, ET-10.3-UA-19). Routes are local/CI, not deployed.
 
 ## ET-14.1 private notification API — locally verified
 

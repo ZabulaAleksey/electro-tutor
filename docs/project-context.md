@@ -166,3 +166,7 @@ destructive reset, выполняет `pnpm install --frozen-lockfile`, запу
 selector и выбранный record в `docs/STAGES.md`. Его status, `NEXT`, blockers
 и dependencies определяют дальнейшее действие; retained legacy artifacts в
 normal bootstrap не читаются.
+
+## RC1 product context
+
+Локальный Web/PWA release candidate собирает уже реализованный продукт:1 опубликованный урок RU/UK,3 практических labs, реальный student signup/account, profiles/Booking/Session, inbox/reminders, device-only learning history/resume. STAGES ET-RC1 — current execution/status owner; derived product report — notes/productization-report.md. Manual Narrator/voice PASS и reminder policy ACCEPTED сохранены; manual remaining NONE. Production hosting/HTTPS IAM/original DB repair остаются отдельным ET-18.2 scope. No native wrapper/cloud progress/large course added.

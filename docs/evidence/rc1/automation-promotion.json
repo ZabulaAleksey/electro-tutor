@@ -1,0 +1,1 @@
+{"ok": true, "result": {"placement": {"action": "place", "capability_id": "electro-tutor.product-route-audit", "equivalent_global": null, "reason": "scope_matches_semantics", "recommended_scope": "project", "status": "ready", "write_authorized": false}, "reason": "promotion_target_selected", "status": "ready", "target": "validator_test", "write_authorized": false}}

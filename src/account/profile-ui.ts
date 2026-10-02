@@ -153,7 +153,7 @@ export function mountAccountProfile(): void {
   };
 
   if (!apiOrigin) {
-    renderSessionError(copy.localOnly);
+    renderSessionError(getLocale(language).productShell.accountUnavailable);
     return;
   }
 

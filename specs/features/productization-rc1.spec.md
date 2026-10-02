@@ -45,7 +45,9 @@ Stage/evidence/status owner — ../../docs/STAGES.md, ET-RC1.
 - RC1-007: Web + installable PWA remains primary target: valid manifest/icons,
   project-base-aware service worker, offline shell and visited public lesson,
   update behavior and no private API caching. Native packages out of scope.
-  Any SW behavior change bumps cache version and tests installed-client update.
+  Installed-client update must be tested. Retain the accepted v2 cache/key
+  contract for additive public assets; cache schema/key format changes require
+  a version bump and separately approved acceptance-contract migration.
 - RC1-008: inventory feature flags, unused/deprecated/demo surfaces, public JS/
   assets/build bytes and obvious heavy bundles. Remove only proven-unused
   code/flags; no blind cleanup or performance claims without measured evidence.
@@ -88,3 +90,34 @@ registration/config changes require dedicated own/foreign/default-role tests.
 RC1_READY means a locally validated release candidate and production-like Web/
 installable artifact, not deployed/published production backend or release.
 No push/deploy/tag publication/worktree deletion is included.
+
+## Isolated registration infrastructure
+
+RC1 registration uses its own disposable database/container and provider.
+If historical IdP loopback58081 is owned by another project, preserve it.
+A dedicated test-only opt-in ET_TEST_OIDC_PORT=58181 may select exactly
+http://127.0.0.1:58181/realms/electro-tutor-dev for test profile and the
+owned registration runner. Default/local/CI identities and all existing
+allowlists remain exact unchanged. Arbitrary ports/hosts/realms or privilege
+changes are forbidden. Negative tests must reject test opt-in in local/CI
+and every alternate value; accepted tests remain unchanged.
+
+## Bounded dependency security fixes
+
+Current RC1 advisory gate found high transitive findings in fast-uri3.1.6,
+brace-expansion1.1.18/5.0.9 and devalue5.8.2. Use existing pnpm overrides,
+patched compatible fast-uri3.1.7, brace-expansion1.1.20/5.0.11 and devalue5.9.3;
+no package-manager/framework migration or new dependency. Regenerate lockfile
+only through pinned pnpm, prove frozen restore and current tests/build/browser
+plus high-severity advisory gate. Lower severity residuals remain explicit
+bounded debt, never change the release audit threshold to hide a finding.
+
+Backend runtime advisory repair: retain PyJWT 2.x crypto API, raise minimum to
+2.14.0 (patched release for 13 current findings), regenerate through uv only.
+Verify locked restore, backend checks and genuine OIDC signup/session journey.
+Identity loading must disable progress writes until the authoritative namespace
+is resolved; a slow /me response must not complete a signed-in lesson as guest.
+
+Compatible moderate patches also available: fast-uri3.1.8,
+brace-expansion1.1.21/5.0.12, Vitest4.1.11 (including mocker).
+Use the same pinned manager; no framework or runner replacement.

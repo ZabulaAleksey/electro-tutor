@@ -191,3 +191,9 @@ and the canonical UA-19 record in `docs/TESTING.md`.
 3. Проверять RU/UK, обе темы и мобильную ширину.
 4. Не переносить важный индексируемый текст целиком в React.
 5. Существенное изменение визуального языка фиксировать в `DECISIONS.md`.
+
+## RC1 shell and learning states
+
+Account доступен в общей RU/UK desktop/mobile navigation. Home/account показывают device-only summary/resume; урок — подписанное поле числового ответа, invalid/incorrect/correct feedback/live region и completion. Identity-loading блокирует запись; storage unavailable показывает явное предупреждение и правильный ответ без обещания сохранения. Services/contacts без настроенного провайдера дают честное unavailable и переход к каталогу/account.
+
+Новые practice controls/summary actions имеют44px targets и mobile reflow. Общий focus-visible/reduced-motion и подписанный install dialog сохраняют keyboard behavior. Dark primary CTA использует контрастный текст, small accent copy проверена computed sRGB. Existing approved translations and protected Session speech/focus unchanged; no Stage IDs/DEV terminology in built visible public content. Desktop/tablet/mobile + semantic/keyboard automation — TESTING.

@@ -33,12 +33,17 @@ export function useLearningProgress(lessonId = MESH_LESSON_ID): LessonProgressCo
     const guest = createLearningStore(guestNamespace());
     const initial = loadLessonProgress(guest, lessonId);
     if (!isCurrent()) return;
-    setStore(guest);
-    setProgress(initial.progress);
-    setStorageState(initial.state);
+    setProgress(undefined);
+    setStorageState("loading");
 
     const identity = await fetchLearningIdentity(window.fetch.bind(window), resolveLocalApiOrigin(window.location));
-    if (!isCurrent() || !identity) return;
+    if (!isCurrent()) return;
+    if (!identity) {
+      setStore(guest);
+      setProgress(initial.progress);
+      setStorageState(initial.state);
+      return;
+    }
     const namespace = await authenticatedNamespace(identity);
     if (!isCurrent()) return;
     if (!namespace) {
@@ -68,16 +73,18 @@ export function useLearningProgress(lessonId = MESH_LESSON_ID): LessonProgressCo
   }, [loadStore]);
 
   const onStep = useCallback((step: 1 | 2 | 3 | 4 | 5) => {
+    if (storageState === "loading") return;
     const next = markLessonStep(store, step, lessonId);
     setProgress(next.progress);
     setStorageState(next.state);
-  }, [lessonId, store]);
+  }, [lessonId, store, storageState]);
 
   const onComplete = useCallback(() => {
+    if (storageState === "loading") return;
     const next = completeLesson(store, lessonId);
     setProgress(next.progress);
     setStorageState(next.state);
-  }, [lessonId, store]);
+  }, [lessonId, store, storageState]);
 
   return { progress, storageState, onStep, onComplete };
 }

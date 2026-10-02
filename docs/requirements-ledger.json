@@ -31,20 +31,82 @@
       "specs/features/live-tutoring-session.spec.md"
     ],
     "architecture_baseline_requirement_ids": [
-      "AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006",
-      "AC-ET092-001", "AC-ET092-002", "AC-ET092-003", "AC-ET092-004", "AC-ET092-005", "AC-ET092-006", "AC-ET092-007", "AC-ET092-008",
-      "AUTH-001", "AUTH-002", "AUTH-003", "AUTH-004", "DB-001", "INT-001", "INT-002", "INT-003", "OPS-001", "PLAT-001", "PLAT-002"
+      "AC-ET091-001",
+      "AC-ET091-002",
+      "AC-ET091-003",
+      "AC-ET091-004",
+      "AC-ET091-005",
+      "AC-ET091-006",
+      "AC-ET092-001",
+      "AC-ET092-002",
+      "AC-ET092-003",
+      "AC-ET092-004",
+      "AC-ET092-005",
+      "AC-ET092-006",
+      "AC-ET092-007",
+      "AC-ET092-008",
+      "AUTH-001",
+      "AUTH-002",
+      "AUTH-003",
+      "AUTH-004",
+      "DB-001",
+      "INT-001",
+      "INT-002",
+      "INT-003",
+      "OPS-001",
+      "PLAT-001",
+      "PLAT-002"
     ],
     "future_backlog_requirement_ids": [
-      "AI-001", "AI-002", "AI-003", "BOARD-001", "BOARD-002", "BOARD-003", "CHAT-001", "CHAT-002",
-      "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005", "PAY-001", "PAY-002", "PAY-003",
-      "PAYOUT-001", "PAYOUT-002", "PLAT-006", "PLAT-007", "PLAT-008", "PLAT-009", "PLAT-010", "PLAT-011", "PLAT-012", "PLAT-013", "PLAT-014",
-      "REC-001", "REC-002", "REC-003", "REC-004", "SESSION-002", "SESSION-003", "SESSION-004",
-      "TIME-001", "TIME-002", "TIME-003", "TIME-004"
+      "AI-001",
+      "AI-002",
+      "AI-003",
+      "BOARD-001",
+      "BOARD-002",
+      "BOARD-003",
+      "CHAT-001",
+      "CHAT-002",
+      "NOTIF-001",
+      "NOTIF-002",
+      "NOTIF-003",
+      "NOTIF-004",
+      "NOTIF-005",
+      "PAY-001",
+      "PAY-002",
+      "PAY-003",
+      "PAYOUT-001",
+      "PAYOUT-002",
+      "PLAT-006",
+      "PLAT-007",
+      "PLAT-008",
+      "PLAT-009",
+      "PLAT-010",
+      "PLAT-011",
+      "PLAT-012",
+      "PLAT-013",
+      "PLAT-014",
+      "REC-001",
+      "REC-002",
+      "REC-003",
+      "REC-004",
+      "SESSION-002",
+      "SESSION-003",
+      "SESSION-004",
+      "TIME-001",
+      "TIME-002",
+      "TIME-003",
+      "TIME-004"
     ],
     "classification_rule": "Every stable SPEC ID is binding by default unless it appears exactly once in architecture_baseline_requirement_ids or future_backlog_requirement_ids. Explicit future classification overrides textual references from a binding SPEC, including IDs named only to state non-goals. Future backlog may only be PLANNED, BLOCKED or UNAVAILABLE."
   },
-  "allowed_statuses": ["VERIFIED", "IMPLEMENTED", "PARTIAL", "PLANNED", "BLOCKED", "UNAVAILABLE"],
+  "allowed_statuses": [
+    "VERIFIED",
+    "IMPLEMENTED",
+    "PARTIAL",
+    "PLANNED",
+    "BLOCKED",
+    "UNAVAILABLE"
+  ],
   "rows": [
     {
       "requirement_ids": [
@@ -60,26 +122,80 @@
         "RC1-010"
       ],
       "domain": "release-candidate-productization",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "RC1 bounded productization approved; existing main19c6ea2 reminder/source is the baseline.",
-      "security": "Preserve auth/account isolation/private cache; local public-lesson progress namespaces must not claim encryption/cloud authorization.",
+      "status": "VERIFIED",
+      "code": [
+        "src/learning",
+        "src/components/LessonPractice.tsx",
+        "src/layouts/BaseLayout.astro",
+        "src/pages/[lang]/account.astro",
+        "public/sw.js",
+        "scripts/run-registration-e2e-isolated.ps1"
+      ],
+      "unit": [
+        "src/learning/progress.test.ts",
+        "src/account/api-configuration.test.ts",
+        "scripts/keycloak-registration.test.mjs"
+      ],
+      "integration": [
+        "docs/evidence/rc1/readiness.json: real PG83/build25pages/121files"
+      ],
+      "e2e": [
+        "tests/e2e/learning-journey.spec.ts",
+        "tests/e2e/product-shell-audit.spec.ts",
+        "tests/e2e/product-accessibility.spec.ts",
+        "tests/e2e/product-pwa.spec.ts",
+        "tests/e2e/registration-flow.spec.ts"
+      ],
+      "runtime": "Validated locally; no production deploy/publication.",
+      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
       "a11y": "Accepted UA-19/Narrator/RU/UK voice PASS preserved; new public learning UI gets automated keyboard/labels/focus/mobile coverage.",
       "observability": "Content-free route/flags/assets/readiness and actual command evidence; no private identity/cookie/secret logs.",
-      "gap": "Product shell/local progress/resume/config/startup/PWA and automatic RC1 gates in progress.",
-      "action": "Implement bounded approved RC1 slice, run actual consumer paths and review, then sync canonical docs/report; no deploy/publication."
+      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
+      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
     },
     {
-      "requirement_ids": ["FR-001", "FR-002", "FR-003", "LP-FR-001", "LP-FR-002", "LP-FR-003", "LP-FR-004", "LP-FR-005", "LP-FR-006", "LP-FR-007", "LP-NFR-001", "LP-NFR-002", "LP-NFR-003", "LP-AC-001", "LP-AC-002", "LP-AC-003", "LP-AC-004", "LP-AC-005", "LP-AC-005a", "LP-AC-006", "LP-AC-007"],
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "LP-FR-001",
+        "LP-FR-002",
+        "LP-FR-003",
+        "LP-FR-004",
+        "LP-FR-005",
+        "LP-FR-006",
+        "LP-FR-007",
+        "LP-NFR-001",
+        "LP-NFR-002",
+        "LP-NFR-003",
+        "LP-AC-001",
+        "LP-AC-002",
+        "LP-AC-003",
+        "LP-AC-004",
+        "LP-AC-005",
+        "LP-AC-005a",
+        "LP-AC-006",
+        "LP-AC-007"
+      ],
       "domain": "public-content",
       "status": "VERIFIED",
-      "code": ["src/content", "src/content.config.ts", "scripts/audit-built-lessons.mjs", "scripts/audit-built-locales.mjs"],
-      "unit": ["src/content/lesson-contract.test.ts", "src/content/lesson-manifest.test.ts", "src/curriculum-publication.test.ts"],
-      "integration": ["pnpm build: 19 pages and locale/lesson/site audits PASS on 2026-09-22"],
-      "e2e": ["tests/e2e/localization-contract.spec.ts", "tests/e2e/smoke-and-state.spec.ts", "92 PASS/5 expected skips on 2026-09-22"],
+      "code": [
+        "src/content",
+        "src/content.config.ts",
+        "scripts/audit-built-lessons.mjs",
+        "scripts/audit-built-locales.mjs"
+      ],
+      "unit": [
+        "src/content/lesson-contract.test.ts",
+        "src/content/lesson-manifest.test.ts",
+        "src/curriculum-publication.test.ts"
+      ],
+      "integration": [
+        "Current build25 pages/24 localized routes/121 artifacts and publication audits PASS"
+      ],
+      "e2e": [
+        "RU/UK real public practice/completion/resume; all explanation levels/reload; full route suite PASS"
+      ],
       "runtime": "Static Astro production artifact verified locally.",
       "security": "Published/draft boundary and artifact audits are enforced.",
       "a11y": "Localized semantic routes covered; authored-content screen-reader depth remains manual.",
@@ -88,28 +204,67 @@
       "action": "Keep build-time parity and artifact audits mandatory for every new RU/UK lesson."
     },
     {
-      "requirement_ids": ["FR-004", "FR-005", "NFR-003"],
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "NFR-003"
+      ],
       "domain": "lesson-ui-a11y",
-      "status": "PARTIAL",
-      "code": ["src/components/LevelPicker.tsx", "src/components/Formula.tsx", "src/components/CircuitDiagram.tsx"],
-      "unit": [],
-      "integration": ["pnpm check/lint/build PASS on 2026-09-22"],
-      "e2e": ["tests/e2e/theme-accessibility-responsive.spec.ts"],
-      "runtime": "Keyboard/mobile/accessibility smoke verified on the static surface.",
-      "security": "N/A beyond untrusted authored content rendering rules.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LevelPicker.tsx",
+        "src/components/Formula.tsx",
+        "src/components/CircuitDiagram.tsx"
+      ],
+      "unit": [
+        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
+      ],
+      "integration": [
+        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
+      ],
+      "e2e": [
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+      ],
+      "runtime": "Validated locally; no production deploy/publication.",
+      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
       "a11y": "Keyboard and accessible names automated; real screen-reader and full three-level persistence are not terminally evidenced.",
       "observability": "Browser assertion failures and screenshots.",
-      "gap": "No focused persistence regression for all three explanation levels and no screen-reader run.",
-      "action": "Add focused LevelPicker persistence tests and retain owner-confirmed UA-19 PASS; authored-content/LevelPicker depth is outside the accepted Session scope."
+      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
+      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
     },
     {
-      "requirement_ids": ["FR-006", "CDS-FR-001", "CDS-FR-002", "CDS-FR-003", "CDS-FR-004", "CDS-NFR-001", "CDS-AC-001", "CDS-AC-002", "CDS-AC-003", "CDS-AC-004", "CDS-AC-005", "CDS-AC-006"],
+      "requirement_ids": [
+        "FR-006",
+        "CDS-FR-001",
+        "CDS-FR-002",
+        "CDS-FR-003",
+        "CDS-FR-004",
+        "CDS-NFR-001",
+        "CDS-AC-001",
+        "CDS-AC-002",
+        "CDS-AC-003",
+        "CDS-AC-004",
+        "CDS-AC-005",
+        "CDS-AC-006"
+      ],
       "domain": "scientific-interactive",
       "status": "VERIFIED",
-      "code": ["src/models/circular-diagram-state.ts", "src/models/circular-diagram.ts", "src/components/CircularDiagram.tsx"],
-      "unit": ["src/models/circular-diagram-state.test.ts", "src/models/circular-diagram.test.ts", "156 frontend tests PASS on 2026-09-22"],
-      "integration": ["Canonical URL serialization and production build audits PASS"],
-      "e2e": ["tests/e2e/circular-diagram-state.spec.ts PASS on 2026-09-22"],
+      "code": [
+        "src/models/circular-diagram-state.ts",
+        "src/models/circular-diagram.ts",
+        "src/components/CircularDiagram.tsx"
+      ],
+      "unit": [
+        "src/models/circular-diagram-state.test.ts",
+        "src/models/circular-diagram.test.ts",
+        "156 frontend tests PASS on 2026-09-22"
+      ],
+      "integration": [
+        "Canonical URL serialization and production build audits PASS"
+      ],
+      "e2e": [
+        "tests/e2e/circular-diagram-state.spec.ts PASS on 2026-09-22"
+      ],
       "runtime": "Share/reload/history/language state equality verified in Chromium.",
       "security": "Malformed, duplicate, oversized and unknown URL state fails to safe defaults.",
       "a11y": "Named controls and live output covered by browser suite.",
@@ -118,13 +273,30 @@
       "action": "Keep explicit units and tolerance checks in each scientific module; consider a shared dimensions framework only with a demonstrated cross-module need."
     },
     {
-      "requirement_ids": ["INT-004", "INT-005", "INT-006", "INT-007", "INT-008"],
+      "requirement_ids": [
+        "INT-004",
+        "INT-005",
+        "INT-006",
+        "INT-007",
+        "INT-008"
+      ],
       "domain": "scientific-interactive-star",
       "status": "VERIFIED",
-      "code": ["src/models/star-neutral.ts", "src/components/StarNeutralLab.tsx", "src/components/StarNeutralPlots.tsx", "src/pages/[lang]/interactive/star-neutral.astro"],
-      "unit": ["src/models/star-neutral.test.ts: 7 mathematical cases PASS"],
-      "integration": ["pnpm lint/check/build: RU/UK routes and local calculation PASS"],
-      "e2e": ["tests/e2e/star-neutral.spec.ts: browser input, drag, preset, locale, scaling, mobile PASS"],
+      "code": [
+        "src/models/star-neutral.ts",
+        "src/components/StarNeutralLab.tsx",
+        "src/components/StarNeutralPlots.tsx",
+        "src/pages/[lang]/interactive/star-neutral.astro"
+      ],
+      "unit": [
+        "src/models/star-neutral.test.ts: 7 mathematical cases PASS"
+      ],
+      "integration": [
+        "pnpm lint/check/build: RU/UK routes and local calculation PASS"
+      ],
+      "e2e": [
+        "tests/e2e/star-neutral.spec.ts: browser input, drag, preset, locale, scaling, mobile PASS"
+      ],
       "runtime": "Built static Astro page and React island perform local calculations without server requests.",
       "security": "Bounded finite inputs; short/singular/nonfinite results produce diagnostic state.",
       "a11y": "Named fields, labelled SVG vectors and numerical alternative to pointer drag; mobile browser check.",
@@ -133,28 +305,81 @@
       "action": "Keep finite/open KCL and browser interaction regression when extending the model."
     },
     {
-      "requirement_ids": ["INT-009", "LINE-001", "LINE-002", "LINE-003", "LINE-004", "LINE-005", "LINE-006", "LINE-007", "LINE-008", "LINE-009", "LINE-010"],
+      "requirement_ids": [
+        "INT-009",
+        "LINE-001",
+        "LINE-002",
+        "LINE-003",
+        "LINE-004",
+        "LINE-005",
+        "LINE-006",
+        "LINE-007",
+        "LINE-008",
+        "LINE-009",
+        "LINE-010"
+      ],
       "domain": "scientific-interactive-transient",
       "status": "VERIFIED",
-      "code": ["transient-core/src", "src/transient", "src/components/TransmissionLineLab.tsx", "src/pages/[lang]/interactive/transmission-line.astro", "src/pages/[lang]/interactive/circular-diagram.astro"],
-      "unit": ["Independent physics and approved numerical oracles: Rust reference 8 PASS; source-reflection 2 PASS; frontend unit 168 PASS"],
-      "integration": ["Pinned WASM source/artifact hash, Rust Clippy/rustfmt, pnpm lint/check/build and locale/site artifact audits PASS"],
-      "e2e": ["Built Chromium 106 PASS/5 expected unrelated live-auth skips; project-base Chromium 4+1 PASS including real Worker/WASM"],
+      "code": [
+        "transient-core/src",
+        "src/transient",
+        "src/components/TransmissionLineLab.tsx",
+        "src/pages/[lang]/interactive/transmission-line.astro",
+        "src/pages/[lang]/interactive/circular-diagram.astro"
+      ],
+      "unit": [
+        "Independent physics and approved numerical oracles: Rust reference 8 PASS; source-reflection 2 PASS; frontend unit 168 PASS"
+      ],
+      "integration": [
+        "Pinned WASM source/artifact hash, Rust Clippy/rustfmt, pnpm lint/check/build and locale/site artifact audits PASS"
+      ],
+      "e2e": [
+        "Built Chromium 106 PASS/5 expected unrelated live-auth skips; project-base Chromium 4+1 PASS including real Worker/WASM"
+      ],
       "runtime": "Rust/WASM numerical solver in a dedicated Worker; default ideal source Rs=0 reflects returning perturbations; state and per-cell coefficients use O(N) memory.",
       "security": "Finite bounded SI configuration and CFL validation; worker error shown to the user.",
       "a11y": "Named controls and RU/UK routes; Canvas has textual diagnostics.",
       "observability": "Port, state, grid and energy readings plus local development performance overlay.",
-      "gap": "No open physics gate for ET-LINE-001; ET-10.3 manual screen-reader acceptance remains independent.",
+      "gap": "No open ET-LINE-001 physics gate; accepted Session/Narrator manual PASS retained.",
       "action": "Keep analytic Rust and live Worker/WASM browser regressions when extending line models; verified checkpoint is in local main@fefe168."
     },
     {
-      "requirement_ids": ["FR-007", "FR-008", "NFR-006", "AC-008", "AC-009", "L10N-001", "L10N-002", "L10N-003", "L10N-004", "L10N-005", "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005"],
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "NFR-006",
+        "AC-008",
+        "AC-009",
+        "L10N-001",
+        "L10N-002",
+        "L10N-003",
+        "L10N-004",
+        "L10N-005",
+        "BASE-001",
+        "BASE-002",
+        "BASE-003",
+        "BASE-004",
+        "BASE-005"
+      ],
       "domain": "browser-pwa-localization",
       "status": "VERIFIED",
-      "code": ["src/layouts/BaseLayout.astro", "public/sw.js", "src/site-path.ts"],
-      "unit": ["src/i18n/index.test.ts", "src/site-path.test.ts"],
-      "integration": ["Production build and artifact audits PASS on 2026-09-22"],
-      "e2e": ["tests/e2e/pwa-lifecycle.spec.ts", "tests/e2e/font-loading.spec.ts", "tests/e2e/base-path.spec.ts"],
+      "code": [
+        "src/layouts/BaseLayout.astro",
+        "public/sw.js",
+        "src/site-path.ts"
+      ],
+      "unit": [
+        "src/i18n/index.test.ts",
+        "src/site-path.test.ts"
+      ],
+      "integration": [
+        "Production build and artifact audits PASS on 2026-09-22"
+      ],
+      "e2e": [
+        "tests/e2e/pwa-lifecycle.spec.ts",
+        "tests/e2e/font-loading.spec.ts",
+        "tests/e2e/base-path.spec.ts"
+      ],
       "runtime": "PWA update/offline and nonblocking font paths passed in built Chromium suite.",
       "security": "Private/no-store/API/error responses are excluded from navigation cache.",
       "a11y": "Theme and locale controls are keyboard-operable.",
@@ -163,13 +388,39 @@
       "action": "Keep cache versioning and built-artifact browser gate mandatory."
     },
     {
-      "requirement_ids": ["FR-009", "AC-010", "RTC-001", "RTC-002", "RTC-003", "RTC-004", "RTC-005", "RTC-006", "AC-RTC-A", "AC-RTC-B", "AC-RTC-C", "AC-RTC-D", "AC-RTC-E", "AC-RTC-F", "AC-RTC-G"],
+      "requirement_ids": [
+        "FR-009",
+        "AC-010",
+        "RTC-001",
+        "RTC-002",
+        "RTC-003",
+        "RTC-004",
+        "RTC-005",
+        "RTC-006",
+        "AC-RTC-A",
+        "AC-RTC-B",
+        "AC-RTC-C",
+        "AC-RTC-D",
+        "AC-RTC-E",
+        "AC-RTC-F",
+        "AC-RTC-G"
+      ],
       "domain": "legacy-rtc-provider-boundary",
       "status": "VERIFIED",
-      "code": ["src/classroom/meeting.ts", "src/classroom/create-meeting-provider.ts", "src/classroom/jitsi-meeting-adapter.ts"],
-      "unit": ["src/classroom/meeting.test.ts PASS within 156-test suite"],
-      "integration": ["Injected Jitsi SDK adapter and fake share the bounded provider contract"],
-      "e2e": ["Public explicit-join classroom consumer path and localized fallback smoke"],
+      "code": [
+        "src/classroom/meeting.ts",
+        "src/classroom/create-meeting-provider.ts",
+        "src/classroom/jitsi-meeting-adapter.ts"
+      ],
+      "unit": [
+        "src/classroom/meeting.test.ts PASS within 156-test suite"
+      ],
+      "integration": [
+        "Injected Jitsi SDK adapter and fake share the bounded provider contract"
+      ],
+      "e2e": [
+        "Public explicit-join classroom consumer path and localized fallback smoke"
+      ],
       "runtime": "Bounded public Jitsi explicit-join/muted-defaults MVP and replaceable adapter contract are verified.",
       "security": "Verified contract explicitly does not treat the public Jitsi room as Tutor authorization.",
       "a11y": "Localized controls covered; media accessibility not verified.",
@@ -178,13 +429,21 @@
       "action": "Keep the verified legacy adapter bounded; assign new stable IDs in an approved ET-12 SPEC before implementing authorized RTC."
     },
     {
-      "requirement_ids": ["FR-010"],
+      "requirement_ids": [
+        "FR-010"
+      ],
       "domain": "external-scheduling-link",
       "status": "IMPLEMENTED",
-      "code": ["src/pages/[lang]/services.astro"],
+      "code": [
+        "src/pages/[lang]/services.astro"
+      ],
       "unit": [],
-      "integration": ["Locale/build contract"],
-      "e2e": ["tests/e2e/localization-contract.spec.ts"],
+      "integration": [
+        "Locale/build contract"
+      ],
+      "e2e": [
+        "tests/e2e/localization-contract.spec.ts"
+      ],
       "runtime": "Optional Cal.com link or localized fallback.",
       "security": "No secrets are transmitted by the local integration.",
       "a11y": "Link/fallback semantics covered by localized page checks.",
@@ -193,43 +452,116 @@
       "action": "Choose one scheduling authority before external calendar synchronization."
     },
     {
-      "requirement_ids": ["NFR-001", "NFR-002", "NFR-004", "NFR-005", "AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006", "AC-007"],
+      "requirement_ids": [
+        "NFR-001",
+        "NFR-002",
+        "NFR-004",
+        "NFR-005",
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007"
+      ],
       "domain": "frontend-quality-security",
       "status": "VERIFIED",
-      "code": ["package.json", ".editorconfig", "scripts/full-verify.mjs", "scripts/check-git-hygiene.mjs"],
-      "unit": ["156 PASS on 2026-09-22"],
-      "integration": ["check/lint/build and three artifact audits PASS"],
-      "e2e": ["92 PASS/5 expected skips on built artifact"],
-      "runtime": "Local production artifact verified; no deploy performed.",
-      "security": "Secret/hygiene checks exist; outbound dependency audit remains approval-gated.",
+      "code": [
+        "package.json",
+        ".editorconfig",
+        "scripts/full-verify.mjs",
+        "scripts/check-git-hygiene.mjs"
+      ],
+      "unit": [
+        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
+      ],
+      "integration": [
+        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
+      ],
+      "e2e": [
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+      ],
+      "runtime": "Validated locally; no production deploy/publication.",
+      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
       "a11y": "Covered by separate partial/verified UI rows.",
       "observability": "Deterministic command exit codes and artifact counts.",
-      "gap": "Current full-verify dependency audit and backend/auth E2E are not terminal PASS.",
-      "action": "Run outbound audit only after approval and never infer backend readiness from frontend verify:full."
+      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
+      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
     },
     {
-      "requirement_ids": ["FR-CTX-001", "FR-CTX-002", "FR-CTX-003", "FR-CTX-004", "FR-CTX-005", "FR-CTX-006", "FR-CTX-007", "FR-CTX-008", "NFR-CTX-001", "NFR-CTX-002", "NFR-CTX-003", "NFR-CTX-004", "AC-CTX-001", "AC-CTX-002", "AC-CTX-003", "AC-CTX-004", "AC-CTX-005", "AC-CTX-006", "AC-CTX-007", "AC-CTX-008"],
+      "requirement_ids": [
+        "FR-CTX-001",
+        "FR-CTX-002",
+        "FR-CTX-003",
+        "FR-CTX-004",
+        "FR-CTX-005",
+        "FR-CTX-006",
+        "FR-CTX-007",
+        "FR-CTX-008",
+        "NFR-CTX-001",
+        "NFR-CTX-002",
+        "NFR-CTX-003",
+        "NFR-CTX-004",
+        "AC-CTX-001",
+        "AC-CTX-002",
+        "AC-CTX-003",
+        "AC-CTX-004",
+        "AC-CTX-005",
+        "AC-CTX-006",
+        "AC-CTX-007",
+        "AC-CTX-008"
+      ],
       "domain": "context-governance",
-      "status": "PARTIAL",
-      "code": ["AGENTS.md", "docs/STAGES.md", "scripts/validate-context-route.mjs"],
-      "unit": ["Context validator now rejects duplicate ADR IDs and invalid ledger schema"],
-      "integration": ["pnpm check:context PASS on 2026-09-22"],
-      "e2e": [],
-      "runtime": "Canonical stage selector resolves ET-10.3.",
-      "security": "No secret values are stored in state docs.",
+      "status": "VERIFIED",
+      "code": [
+        "AGENTS.md",
+        "docs/STAGES.md",
+        "scripts/validate-context-route.mjs"
+      ],
+      "unit": [
+        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
+      ],
+      "integration": [
+        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
+      ],
+      "e2e": [
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+      ],
+      "runtime": "Formal .codex/dev-project.toml enabled; canonical ET-RC1 selector and overlay validators PASS.",
+      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
       "a11y": "N/A",
       "observability": "Fail-closed validator messages.",
-      "gap": "Formal .codex/dev-project.toml bridge is absent although overlay/global references exist.",
-      "action": "Human must decide whether to formally enable the DEV bridge; do not infer it from legacy signals."
+      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
+      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
     },
     {
-      "requirement_ids": ["AUTH-001", "AUTH-002", "AUTH-003", "AUTH-004", "PCA-ID-001", "PCA-ID-002", "PCA-ID-003", "PCA-ID-004"],
+      "requirement_ids": [
+        "AUTH-001",
+        "AUTH-002",
+        "AUTH-003",
+        "AUTH-004",
+        "PCA-ID-001",
+        "PCA-ID-002",
+        "PCA-ID-003",
+        "PCA-ID-004"
+      ],
       "domain": "identity-authentication",
       "status": "IMPLEMENTED",
-      "code": ["services/api/src/electro_tutor_api/adapters/oidc.py", "services/api/src/electro_tutor_api/application/auth.py", "services/api/src/electro_tutor_api/adapters/auth_repository.py"],
-      "unit": ["services/api/tests/test_oidc.py: 9 PASS on 2026-09-22", "backend fast suite 195 PASS/81 deselected"],
-      "integration": ["Historical real PostgreSQL/Keycloak evidence; not rerun because fixed port is occupied"],
-      "e2e": ["Historical tests/e2e/auth-flow.spec.ts; authenticated live phase not rerun"],
+      "code": [
+        "services/api/src/electro_tutor_api/adapters/oidc.py",
+        "services/api/src/electro_tutor_api/application/auth.py",
+        "services/api/src/electro_tutor_api/adapters/auth_repository.py"
+      ],
+      "unit": [
+        "Current backend208 PASS/Ruff/mypy"
+      ],
+      "integration": [
+        "Current PostgreSQL83 PASS; owned isolated Keycloak58181/API/DB ready200"
+      ],
+      "e2e": [
+        "Genuine registration/student profile/403 escalation/404 unowned/lesson/reload/logout/login/history1 PASS; unchanged two-user acceptance retained"
+      ],
       "runtime": "DEV-only loopback OIDC and opaque application sessions.",
       "security": "Signed injected roles/groups/tenant/admin claims are ignored by the identity DTO; capabilities remain DB-owned.",
       "a11y": "Account loading/session-expiry UI covered by static browser mocks.",
@@ -238,13 +570,38 @@
       "action": "Approve a production IAM/revocation SPEC before changing runtime semantics."
     },
     {
-      "requirement_ids": ["PCA-PROFILE-001", "PCA-PROFILE-002", "PCA-GRANT-001", "PCA-GRANT-002", "PCA-GRANT-003", "PCA-GRANT-004", "PCA-AUDIT-001", "PCA-AUDIT-002", "PCA-AUDIT-003", "PCA-AUDIT-004", "AUTHZ-001", "AUTHZ-002", "AUTHZ-003", "PLAT-003"],
+      "requirement_ids": [
+        "PCA-PROFILE-001",
+        "PCA-PROFILE-002",
+        "PCA-GRANT-001",
+        "PCA-GRANT-002",
+        "PCA-GRANT-003",
+        "PCA-GRANT-004",
+        "PCA-AUDIT-001",
+        "PCA-AUDIT-002",
+        "PCA-AUDIT-003",
+        "PCA-AUDIT-004",
+        "AUTHZ-001",
+        "AUTHZ-002",
+        "AUTHZ-003",
+        "PLAT-003"
+      ],
       "domain": "profiles-capabilities-audit",
       "status": "IMPLEMENTED",
-      "code": ["services/api/src/electro_tutor_api/application/profiles.py", "services/api/src/electro_tutor_api/application/capabilities.py", "services/api/src/electro_tutor_api/adapters/audit_repository.py"],
-      "unit": ["Backend fast suite PASS on 2026-09-22"],
-      "integration": ["Accepted real PostgreSQL ownership/atomicity suites exist; not rerun in this pass"],
-      "e2e": ["Historical two-user auth-flow evidence"],
+      "code": [
+        "services/api/src/electro_tutor_api/application/profiles.py",
+        "services/api/src/electro_tutor_api/application/capabilities.py",
+        "services/api/src/electro_tutor_api/adapters/audit_repository.py"
+      ],
+      "unit": [
+        "Current backend208 PASS/Ruff/mypy"
+      ],
+      "integration": [
+        "Current PostgreSQL83 PASS; owned isolated Keycloak58181/API/DB ready200"
+      ],
+      "e2e": [
+        "Genuine registration/student profile/403 escalation/404 unowned/lesson/reload/logout/login/history1 PASS; unchanged two-user acceptance retained"
+      ],
       "runtime": "Account-scoped Student/Tutor profiles and exact trusted grants.",
       "security": "Foreign/self-escalation negatives and masked 404 contracts exist.",
       "a11y": "Profile UI state coverage is browser-mock level.",
@@ -253,13 +610,30 @@
       "action": "Do not claim tenant isolation; design tenant ownership separately and refactor shared auth context after ET-10.3."
     },
     {
-      "requirement_ids": ["BOOK-001", "BOOK-002", "BOOK-003", "BOOK-004", "PAY-004", "PLAT-004"],
+      "requirement_ids": [
+        "BOOK-001",
+        "BOOK-002",
+        "BOOK-003",
+        "BOOK-004",
+        "PAY-004",
+        "PLAT-004"
+      ],
       "domain": "booking-free-external",
       "status": "IMPLEMENTED",
-      "code": ["services/api/src/electro_tutor_api/application/bookings.py", "services/api/src/electro_tutor_api/domain/booking.py", "src/account/booking-ui.ts"],
-      "unit": ["Backend fast suite and frontend unit suite PASS on 2026-09-22"],
-      "integration": ["Accepted PostgreSQL idempotency/overlap/ownership suites exist; not rerun"],
-      "e2e": ["Static browser state matrix PASS; live Keycloak/PostgreSQL flow historical"],
+      "code": [
+        "services/api/src/electro_tutor_api/application/bookings.py",
+        "services/api/src/electro_tutor_api/domain/booking.py",
+        "src/account/booking-ui.ts"
+      ],
+      "unit": [
+        "Backend fast suite and frontend unit suite PASS on 2026-09-22"
+      ],
+      "integration": [
+        "Accepted PostgreSQL idempotency/overlap/ownership suites exist; not rerun"
+      ],
+      "e2e": [
+        "Static browser state matrix PASS; live Keycloak/PostgreSQL flow historical"
+      ],
       "runtime": "FREE/EXTERNAL booking snapshot implemented.",
       "security": "Server derives participants/price/state; IDOR and stale-version contracts exist.",
       "a11y": "RU/UK booking UI state matrix and keyboard smoke.",
@@ -268,13 +642,40 @@
       "action": "Keep payment authority outside Booking until approved platform-payment slice."
     },
     {
-      "requirement_ids": ["ACCESS-SEC-001", "ACCESS-SEC-002", "ACCESS-SEC-003", "ACCESS-SEC-004", "ACCESS-SEC-005", "ACCESS-SEC-006", "ACCESS-002", "ACCESS-003", "ACCESS-004", "ET10.2-AC-01", "ET10.2-AC-02", "ET10.2-AC-03", "ET10.2-AC-04", "ET10.2-AC-05", "ET10.2-AC-06", "ET10.2-AC-07"],
+      "requirement_ids": [
+        "ACCESS-SEC-001",
+        "ACCESS-SEC-002",
+        "ACCESS-SEC-003",
+        "ACCESS-SEC-004",
+        "ACCESS-SEC-005",
+        "ACCESS-SEC-006",
+        "ACCESS-002",
+        "ACCESS-003",
+        "ACCESS-004",
+        "ET10.2-AC-01",
+        "ET10.2-AC-02",
+        "ET10.2-AC-03",
+        "ET10.2-AC-04",
+        "ET10.2-AC-05",
+        "ET10.2-AC-06",
+        "ET10.2-AC-07"
+      ],
       "domain": "lesson-access-entitlement",
       "status": "IMPLEMENTED",
-      "code": ["services/api/src/electro_tutor_api/application/lesson_access.py", "services/api/src/electro_tutor_api/adapters/lesson_access_repository.py", "src/account/lesson-access-ui.ts"],
-      "unit": ["Backend fast suite PASS on 2026-09-22"],
-      "integration": ["Accepted real PostgreSQL participant/revoke/expiry/concurrency suites; not rerun"],
-      "e2e": ["Static RU/UK negative state matrix PASS; historical three-identity live phase"],
+      "code": [
+        "services/api/src/electro_tutor_api/application/lesson_access.py",
+        "services/api/src/electro_tutor_api/adapters/lesson_access_repository.py",
+        "src/account/lesson-access-ui.ts"
+      ],
+      "unit": [
+        "Backend fast suite PASS on 2026-09-22"
+      ],
+      "integration": [
+        "Accepted real PostgreSQL participant/revoke/expiry/concurrency suites; not rerun"
+      ],
+      "e2e": [
+        "Static RU/UK negative state matrix PASS; historical three-identity live phase"
+      ],
       "runtime": "FREE/EXTERNAL LessonAccessGrant is current access source of truth.",
       "security": "Participant-only, masked foreign access, DB-time expiry and revoke fail closed.",
       "a11y": "Localized protected-shell states covered.",
@@ -283,7 +684,14 @@
       "action": "Keep ACCESS-001 platform source blocked until verified payment evidence exists."
     },
     {
-      "requirement_ids": ["ACCESS-001", "PAY-001", "PAY-002", "PAY-003", "PAYOUT-001", "PAYOUT-002"],
+      "requirement_ids": [
+        "ACCESS-001",
+        "PAY-001",
+        "PAY-002",
+        "PAY-003",
+        "PAYOUT-001",
+        "PAYOUT-002"
+      ],
       "domain": "platform-payments-entitlements",
       "status": "BLOCKED",
       "code": [],
@@ -298,13 +706,32 @@
       "action": "Approve legal/provider/currency/refund model, then implement provider anti-corruption adapter and entitlement source of truth."
     },
     {
-      "requirement_ids": ["SESSION-001", "ET10.3-AC-01", "ET10.3-AC-02", "ET10.3-AC-03", "ET10.3-AC-04", "ET10.3-AC-05", "ET10.3-AC-06", "PLAT-005"],
+      "requirement_ids": [
+        "SESSION-001",
+        "ET10.3-AC-01",
+        "ET10.3-AC-02",
+        "ET10.3-AC-03",
+        "ET10.3-AC-04",
+        "ET10.3-AC-05",
+        "ET10.3-AC-06",
+        "PLAT-005"
+      ],
       "domain": "lesson-session-lifecycle",
       "status": "VERIFIED",
-      "code": ["services/api/src/electro_tutor_api/application/lesson_sessions.py", "services/api/src/electro_tutor_api/adapters/lesson_session_repository.py", "src/account/lesson-session-contract.ts"],
-      "unit": ["Backend fast 195 PASS/81 deselected and frontend 156 PASS on 2026-09-22"],
-      "integration": ["UA-18 isolated backend:check PASS: 196 fast, 74 real PostgreSQL integration, 9 catalog negatives, API health 200 (2026-09-27)"],
-      "e2e": ["UA-18 live browser -> Keycloak -> API -> PostgreSQL Session 1 PASS; profile 7 PASS/3 unrelated skips; UA-19 Narrator and RU/UK voice human acceptance PASS, owner confirmed 2026-10-02"],
+      "code": [
+        "services/api/src/electro_tutor_api/application/lesson_sessions.py",
+        "services/api/src/electro_tutor_api/adapters/lesson_session_repository.py",
+        "src/account/lesson-session-contract.ts"
+      ],
+      "unit": [
+        "Backend fast 195 PASS/81 deselected and frontend 156 PASS on 2026-09-22"
+      ],
+      "integration": [
+        "UA-18 isolated backend:check PASS: 196 fast, 74 real PostgreSQL integration, 9 catalog negatives, API health 200 (2026-09-27)"
+      ],
+      "e2e": [
+        "UA-18 live browser -> Keycloak -> API -> PostgreSQL Session 1 PASS; profile 7 PASS/3 unrelated skips; UA-19 Narrator and RU/UK voice human acceptance PASS, owner confirmed 2026-10-02"
+      ],
       "runtime": "Media-less READY→ACTIVE→ENDED/CANCELLED implementation exists.",
       "security": "Live Session participant/foreign/anonymous policies PASS on isolated runtime; original DB legacy compatibility remains separate.",
       "a11y": "UA-19 / Narrator and RU/UK voice manual speech/focus acceptance PASS; owner-confirmed 2026-10-02.",
@@ -334,35 +761,76 @@
         "src/account/reminder-contract.test.ts; frontend 174 PASS on 2026-10-02"
       ],
       "integration": [
-        "services/api/tests/test_reminders_integration.py; historical real DB 64 PASS, 17 unrelated skips; clean 0014/catalog and reversible 0013 upgrade PASS 2026-09-29"
+        "Fresh real PostgreSQL83 and live profiles7/inbox1/reminder1 PASS at reconciliation"
       ],
       "e2e": [
         "tests/e2e/auth-reminders.spec.ts: live RU/UK browser -> Keycloak -> API -> PostgreSQL -> worker -> inbox 1 PASS on 2026-09-29; notification regression 1 PASS"
       ],
-      "runtime": "Approved settings, scheduler/0014/API/worker and RU/UK account screens implemented and verified on feature; local integration in progress.",
+      "runtime": "Integrated local main account screens /ru/account/ and /uk/account/.",
       "security": "Owner session/CSRF/foreign/anonymous and stale Booking/worker idempotency checked on real PostgreSQL/live browser.",
       "a11y": "Semantic settings, RU/UK keyboard/save/focus and UI states automated PASS; UA-19 / Narrator / RU/UK voice previously accepted PASS, not reopened.",
       "observability": "Due/delivered/skipped/cancelled/retryable durable outcomes and redacted worker counts verified.",
-      "gap": "Local main finalization/post-integration checks in progress; no manual product gate.",
-      "action": "Complete authorized local merge and post-integration automated checks; no push/deploy/DB original repair."
+      "gap": "NONE within accepted ET-14.1/ET-14.2 local scope; main integration DONE since19c6ea2.",
+      "action": "Retain accepted policy and live evidence; no redundant manual rerun."
     },
     {
-      "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
+      "requirement_ids": [
+        "INAPP-001",
+        "INAPP-002",
+        "INAPP-003",
+        "INAPP-004",
+        "INAPP-005"
+      ],
       "domain": "in-app-notifications-v1",
       "status": "VERIFIED",
-      "code": ["services/api/alembic/versions/20260928_0013_notifications.py", "services/api/src/electro_tutor_api/notification_worker.py", "services/api/src/electro_tutor_api/transport/notifications.py", "src/account/notification-ui.ts"],
-      "unit": ["services/api/tests/test_notifications.py", "services/api/tests/test_schema_contract.py", "src/account/notification-contract.test.ts"],
-      "integration": ["services/api/tests/test_notifications_integration.py PASS on isolated PostgreSQL; full integration 75 PASS"],
-      "e2e": ["tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"],
-      "runtime": "0013 migration/worker/API/UI committed locally; independent fresh PostgreSQL catalog manifest, clean bootstrap, 0012 upgrade, rollback/re-upgrade and worker startup PASS.",
+      "code": [
+        "services/api/alembic/versions/20260928_0013_notifications.py",
+        "services/api/src/electro_tutor_api/notification_worker.py",
+        "services/api/src/electro_tutor_api/transport/notifications.py",
+        "src/account/notification-ui.ts"
+      ],
+      "unit": [
+        "services/api/tests/test_notifications.py",
+        "services/api/tests/test_schema_contract.py",
+        "src/account/notification-contract.test.ts"
+      ],
+      "integration": [
+        "Fresh real PostgreSQL83 and live profiles7/inbox1/reminder1 PASS at reconciliation"
+      ],
+      "e2e": [
+        "tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"
+      ],
+      "runtime": "Integrated local main account screens /ru/account/ and /uk/account/.",
       "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link verified by real PostgreSQL ACL/IDOR and live browser foreign/anonymous negatives.",
       "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. UA-19 / Narrator / RU/UK voice acceptance PASS, owner-confirmed 2026-10-02.",
       "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class; real delivery and retention observed on disposable DB.",
-      "gap": "ET-14.1 inbox is already in main at /ru/account/ and /uk/account/. ET-14.2 reminders implementation verified on feature branch; main integration awaits merge approval, not manual acceptance.",
-      "action": "Retain notification regressions; integrate approved ET-14.2 implementation preserving main security/bridge/race/recovery changes."
+      "gap": "NONE within accepted ET-14.1/ET-14.2 local scope; main integration DONE since19c6ea2.",
+      "action": "Retain accepted policy and live evidence; no redundant manual rerun."
     },
     {
-      "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],
+      "requirement_ids": [
+        "SESSION-002",
+        "SESSION-003",
+        "SESSION-004",
+        "TIME-001",
+        "TIME-002",
+        "TIME-003",
+        "TIME-004",
+        "CHAT-001",
+        "CHAT-002",
+        "BOARD-001",
+        "BOARD-002",
+        "BOARD-003",
+        "REC-001",
+        "REC-002",
+        "REC-003",
+        "REC-004",
+        "NOTIF-001",
+        "NOTIF-002",
+        "NOTIF-003",
+        "NOTIF-004",
+        "NOTIF-005"
+      ],
       "domain": "future-realtime-collaboration",
       "status": "PLANNED",
       "code": [],
@@ -377,7 +845,11 @@
       "action": "Create bounded approved ET-11/ET-12/ET-13/ET-14 slices; do not count Jitsi whiteboard as canonical board state."
     },
     {
-      "requirement_ids": ["AI-001", "AI-002", "AI-003"],
+      "requirement_ids": [
+        "AI-001",
+        "AI-002",
+        "AI-003"
+      ],
       "domain": "grounded-ai-tutor",
       "status": "PLANNED",
       "code": [],
@@ -392,22 +864,43 @@
       "action": "Approve AI provider/privacy/cost/grounding SPEC, then build canonical-context + provenance + adversarial corpus vertical slice."
     },
     {
-      "requirement_ids": ["PLAT-001", "PLAT-002"],
+      "requirement_ids": [
+        "PLAT-001",
+        "PLAT-002"
+      ],
       "domain": "platform-foundation",
       "status": "IMPLEMENTED",
-      "code": ["services/api", "scripts/backend.mjs", "docs/ARCHITECTURE.md"],
-      "unit": ["Backend fast suite PASS on 2026-09-22"],
-      "integration": ["Historical root API→PostgreSQL evidence; current rerun blocked by port conflict"],
+      "code": [
+        "services/api",
+        "scripts/backend.mjs",
+        "docs/ARCHITECTURE.md"
+      ],
+      "unit": [
+        "Backend fast suite PASS on 2026-09-22"
+      ],
+      "integration": [
+        "Historical root API→PostgreSQL evidence; current rerun blocked by port conflict"
+      ],
       "e2e": [],
       "runtime": "Local FastAPI/PostgreSQL walking skeleton and root command surface exist.",
       "security": "Loopback/local profiles and least-privilege roles are enforced.",
       "a11y": "N/A",
       "observability": "Request IDs, structured logs and readiness diagnostics.",
-      "gap": "Not a production deployment and current DB terminal gate is blocked.",
+      "gap": "Not a production deployment; current disposable DB/API terminal acceptance PASS.",
       "action": "Close ET-10.3 recovery and live gates before expanding the platform."
     },
     {
-      "requirement_ids": ["PLAT-006", "PLAT-007", "PLAT-008", "PLAT-009", "PLAT-010", "PLAT-011", "PLAT-012", "PLAT-013", "PLAT-014"],
+      "requirement_ids": [
+        "PLAT-006",
+        "PLAT-007",
+        "PLAT-008",
+        "PLAT-009",
+        "PLAT-010",
+        "PLAT-011",
+        "PLAT-012",
+        "PLAT-013",
+        "PLAT-014"
+      ],
       "domain": "platform-roadmap",
       "status": "PLANNED",
       "code": [],
@@ -422,10 +915,17 @@
       "action": "Refine each roadmap capability into an approved feature-SPEC after ET-10.3 terminal gates."
     },
     {
-      "requirement_ids": ["INT-001", "INT-002", "INT-003"],
+      "requirement_ids": [
+        "INT-001",
+        "INT-002",
+        "INT-003"
+      ],
       "domain": "external-integrations",
       "status": "PARTIAL",
-      "code": ["docs/ARCHITECTURE.md", "MathMorph direct-DB prohibition"],
+      "code": [
+        "docs/ARCHITECTURE.md",
+        "MathMorph direct-DB prohibition"
+      ],
       "unit": [],
       "integration": [],
       "e2e": [],
@@ -437,42 +937,100 @@
       "action": "Implement only with a versioned API/export contract in a future approved slice."
     },
     {
-      "requirement_ids": ["OPS-001", "DB-001", "AC-ET092-001", "AC-ET092-002", "AC-ET092-003", "AC-ET092-004", "AC-ET092-005", "AC-ET092-006", "AC-ET092-007", "AC-ET092-008"],
+      "requirement_ids": [
+        "OPS-001",
+        "DB-001",
+        "AC-ET092-001",
+        "AC-ET092-002",
+        "AC-ET092-003",
+        "AC-ET092-004",
+        "AC-ET092-005",
+        "AC-ET092-006",
+        "AC-ET092-007",
+        "AC-ET092-008"
+      ],
       "domain": "backend-dx-database",
       "status": "PARTIAL",
-      "code": ["scripts/backend.mjs", "compose.yaml", "services/api/alembic", "services/api/src/electro_tutor_api/schema_catalog_contract.py"],
-      "unit": ["Ruff/mypy/backend fast suite PASS on 2026-09-22"],
-      "integration": ["Current runner blocked by unrelated port owner before test DB migrations"],
+      "code": [
+        "scripts/backend.mjs",
+        "compose.yaml",
+        "services/api/alembic",
+        "services/api/src/electro_tutor_api/schema_catalog_contract.py"
+      ],
+      "unit": [
+        "Ruff/mypy/backend fast suite PASS on 2026-09-22"
+      ],
+      "integration": [
+        "Current owned disposable PostgreSQL83 PASS/no skips"
+      ],
       "e2e": [],
-      "runtime": "Electro Tutor container is Created; named data volume preserved.",
+      "runtime": "Current disposable acceptance PASS; preserved original data-bearing DB is not repaired.",
       "security": "Runtime role has no DDL; destructive reset is deny-by-default.",
       "a11y": "N/A",
       "observability": "Doctor/status/log commands and redacted readiness errors exist.",
-      "gap": "Genuine dev catalog drift with 2 accounts plus fixed-port collision.",
-      "action": "Approve backup/rollback recovery plan and coordinate port ownership without deleting any volume."
+      "gap": "Original legacy catalog/SQL caller compatibility remains separate deployment debt, not current RC1/manual gate.",
+      "action": "ET-18.2 must choose a backed-up deployment DB migration plan; no original volume mutation in RC1."
     },
     {
-      "requirement_ids": ["QG-001", "QG-002", "QG-003", "QG-004", "QG-005", "QG-006", "QG-007", "AC-QG-001", "AC-QG-002", "AC-QG-003", "AC-QG-004", "AC-QG-005"],
+      "requirement_ids": [
+        "QG-001",
+        "QG-002",
+        "QG-003",
+        "QG-004",
+        "QG-005",
+        "QG-006",
+        "QG-007",
+        "AC-QG-001",
+        "AC-QG-002",
+        "AC-QG-003",
+        "AC-QG-004",
+        "AC-QG-005"
+      ],
       "domain": "release-quality-gates",
-      "status": "PARTIAL",
-      "code": ["scripts/full-verify.mjs", ".github/workflows/pages.yml", "scripts/ci-workflow-contract.mjs"],
-      "unit": ["Frontend and backend-fast tiers PASS on 2026-09-22"],
-      "integration": ["Backend integration blocked; dependency audit approval pending"],
-      "e2e": ["Built static Chromium PASS; authenticated live E2E pending"],
-      "runtime": "No release/deploy performed.",
-      "security": "Pinned actions and artifact handoff exist; full dependency verdict unavailable.",
+      "status": "VERIFIED",
+      "code": [
+        "scripts/full-verify.mjs",
+        ".github/workflows/pages.yml",
+        "scripts/ci-workflow-contract.mjs"
+      ],
+      "unit": [
+        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
+      ],
+      "integration": [
+        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
+      ],
+      "e2e": [
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+      ],
+      "runtime": "Validated locally; no production deploy/publication.",
+      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
       "a11y": "UA-19 / Narrator / RU/UK voice manual Session acceptance PASS, owner-confirmed 2026-10-02; other authored-content scope is not inferred.",
       "observability": "CI/gate exit codes; no production backend telemetry.",
-      "gap": "verify:full is frontend-centric and cannot close backend/authenticated release readiness.",
-      "action": "Release readiness remains separate; retain UA-19 PASS and require applicable current automated/environment gates, without requesting the closed manual Session gate again."
+      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
+      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
     },
     {
-      "requirement_ids": ["AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006"],
+      "requirement_ids": [
+        "AC-ET091-001",
+        "AC-ET091-002",
+        "AC-ET091-003",
+        "AC-ET091-004",
+        "AC-ET091-005",
+        "AC-ET091-006"
+      ],
       "domain": "platform-foundation-architecture",
       "status": "IMPLEMENTED",
-      "code": ["docs/ARCHITECTURE.md", "docs/SECURITY.md", "docs/TRACEABILITY.md"],
-      "unit": ["Context and contract validators"],
-      "integration": ["Root command and backend skeleton exist"],
+      "code": [
+        "docs/ARCHITECTURE.md",
+        "docs/SECURITY.md",
+        "docs/TRACEABILITY.md"
+      ],
+      "unit": [
+        "Context and contract validators"
+      ],
+      "integration": [
+        "Root command and backend skeleton exist"
+      ],
       "e2e": [],
       "runtime": "Local platform foundation exists.",
       "security": "Least-privilege/local-only boundaries documented and tested.",

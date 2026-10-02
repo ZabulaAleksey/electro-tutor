@@ -62,9 +62,9 @@ async function request(
     const response = await fetcher(new URL("/api/v1/reminder-settings/me", origin), {
       credentials: "include",
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       ...init,
+      signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(10_000)]) : AbortSignal.timeout(10_000),
     });
     let body: unknown;
     try { body = await response.json(); } catch { body = null; }

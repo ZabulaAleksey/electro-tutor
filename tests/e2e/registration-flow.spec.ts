@@ -28,8 +28,8 @@ test("RC1 local provider registration creates a student-only session", async ({ 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("First name").fill("RC1");
   await page.getByLabel("Last name").fill("Student");
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByLabel(/Password confirmation|Confirm password/).fill(password);
+  await page.locator("#password").fill(password);
+  await page.locator("#password-confirm").fill(password);
   await page.getByRole("button", { name: /Register|Регистрация|Реєстрація/ }).click();
 
   await expect(page).toHaveURL(new RegExp(`${web.replaceAll(".", "\\.")}/ru/account/`));
@@ -68,4 +68,26 @@ test("RC1 local provider registration creates a student-only session", async ({ 
   }, api);
   expect(unowned.status).toBe(404);
   expect(unowned.body.error?.code).toBe("profile_not_found");
+
+  // Genuine authenticated learning persistence: no mocked /me or progress response.
+  await page.goto(`${web}/ru/topics/dc/mesh-current-method/`);
+  await expect(page.getByLabel("Ваш ответ")).toBeVisible();
+  await page.getByLabel("Ваш ответ").fill("2,18");
+  await page.getByRole("button", { name: "Проверить", exact: true }).click();
+  await expect(page.locator("#practice-feedback")).toContainText("Урок отмечен завершённым");
+  await expect.poll(()=>page.evaluate(()=>Object.keys(localStorage).some(key=>key.startsWith("potential-learning:v1:subject:")&&JSON.parse(localStorage.getItem(key)||"{}").lessons?.["mesh-current-method"]?.completed))).toBe(true);
+  await page.reload();await expect(page.locator("#practice-feedback")).toContainText("Урок отмечен завершённым");
+  await page.goto(`${web}/ru/account/`);await expect(page.locator("[data-learning-summary]")).toContainText("Урок завершён");
+  await page.getByRole("button",{name:"Выйти",exact:true}).click();
+  // Provider-owned logout confirmation is the accepted auth contract.
+  await page.getByRole("button",{name:"Logout",exact:true}).click();
+  await expect(page).toHaveURL(`${web}/ru/`);
+  await expect(page.locator("[data-learning-summary]")).not.toContainText("Урок завершён");
+  await page.goto(`${web}/ru/account/`);await page.getByRole("link",{name:"Войти",exact:true}).click();
+  await page.locator("#username").fill(username);await page.locator("#password").fill(password);
+  await page.locator("#kc-login").click();await expect(page).toHaveURL(`${web}/ru/account/`);
+  await expect(page.locator("[data-learning-summary]")).toContainText("Урок завершён");
+  await expect(page.locator("[data-reminder-settings]")).toBeVisible();
+  await expect(page.locator("[data-notification-state]")).toContainText("Уведомлений пока нет");
+
 });

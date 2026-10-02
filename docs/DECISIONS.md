@@ -1017,3 +1017,20 @@ accessibility, focus или screen-reader behavior. При таком измен
 Narrator и произнесённые фразы не выдумывать. Источник этого PASS — прямое
 подтверждение пользователя, не новая автоматическая проверка. Evidence:
 `docs/evidence/accepted-gates-20261002.json`.
+
+## ADR-035 — RC1 product shell, device progress and provider signup
+
+Статус: принято в bounded RC1 consolidation scope по прямому запросу владельца 2026-10-02; SPEC productization-rc1.spec.md.
+
+RC1 соединяет существующие capabilities, не создаёт большой курс/cloud progress/media/payments/native wrapper. Один опубликованный RU/UK mesh lesson имеет конкретную числовую практику/feedback/completion/resume; три labs — самостоятельные инструменты практики. Неопубликованный материал честно unavailable. Browser progress version1, device-only, не обещает cross-device sync. Гость и успешный server `/me` issuer+subject имеют отдельные namespaces; SHA-256 key не является шифрованием. Нет автоматического переноса guest history в account, токенов/email/password в learning record. До identity resolution запись заблокирована; повреждённые/недоступные stores не дают ложного saved success.
+
+Обычная регистрация принадлежит Keycloak provider и создаёт только обычный Account/Student. Provider signup не выдаёт Tutor capability; доверенный server grant остаётся обязательным. Существующий provider logout confirmation сохранён. Ни один accepted auth/Session/reminder contract не ослаблен.
+
+RC1_READY означает проверенный локальный Web/PWA candidate и production-like artifact. Production HTTPS IAM/API/hosting, original preserved DB compatibility и operator backup/restore — отдельный ET-18.2 deployment boundary. Такой scope не разрешает публикацию/deploy. Исторические ручные PASS/ACCEPTED сохраняются (ADR-034). Evidence: TESTING и evidence/rc1/readiness.json.
+
+RC1 PWA reconciliation: additive raster/Worker/WASM entries keep existing cache
+v2/key schema. New SW bytes trigger native update, install refreshes CORE and
+hashed asset names avoid stale code; installed v1-to-v2 migration/update
+acceptance remains unchanged/PASS. An early RC1 v3 bump conflicted with accepted
+FR-008 cache consumer contract and was corrected in source, rather than rewriting
+accepted tests. Future cache/key schema migrations require versioned contract.

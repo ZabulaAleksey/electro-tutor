@@ -1,0 +1,135 @@
+{
+  "stage_id": "ET-RC1",
+  "requirements": [
+    {
+      "requirement_id": "RC1-001",
+      "owner": "product-shell",
+      "code": [
+        "src/layouts/BaseLayout.astro",
+        "src/pages/[lang]/index.astro"
+      ],
+      "tests_or_evidence": [
+        "tests/e2e/learning-journey.spec.ts",
+        "tests/e2e/product-shell-audit.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-002",
+      "owner": "lesson-practice",
+      "code": [
+        "src/components/LessonPractice.tsx",
+        "src/learning/practice.ts"
+      ],
+      "tests_or_evidence": [
+        "src/learning/progress.test.ts",
+        "tests/e2e/learning-journey.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-003",
+      "owner": "learning-progress",
+      "code": [
+        "src/learning/progress.ts",
+        "src/learning/use-learning-progress.ts",
+        "src/learning/summary.ts"
+      ],
+      "tests_or_evidence": [
+        "src/learning/progress.test.ts",
+        "tests/e2e/learning-journey.spec.ts",
+        "tests/e2e/registration-flow.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-004",
+      "owner": "account-auth",
+      "code": [
+        "src/account/profile-contract.ts",
+        "scripts/keycloak-provision.mjs"
+      ],
+      "tests_or_evidence": [
+        "tests/e2e/registration-flow.spec.ts",
+        "services/api/tests/test_rc1_registration_config.py"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-005",
+      "owner": "ui-accessibility",
+      "code": [
+        "src/styles.css",
+        "src/layouts/BaseLayout.astro"
+      ],
+      "tests_or_evidence": [
+        "tests/e2e/product-shell-audit.spec.ts",
+        "tests/e2e/product-accessibility.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-006",
+      "owner": "product-errors",
+      "code": [
+        "src/account/reminder-contract.ts",
+        "src/account/notification-contract.ts"
+      ],
+      "tests_or_evidence": [
+        "tests/e2e/product-shell-audit.spec.ts",
+        "tests/e2e/reminder-ui-states.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-007",
+      "owner": "pwa",
+      "code": [
+        "public/sw.js",
+        "public/manifest.webmanifest"
+      ],
+      "tests_or_evidence": [
+        "tests/e2e/product-pwa.spec.ts",
+        "tests/e2e/pwa-lifecycle.spec.ts"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-008",
+      "owner": "product-inventory",
+      "code": [
+        "docs/notes/productization-report.md"
+      ],
+      "tests_or_evidence": [
+        "docs/evidence/rc1/performance.json"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-009",
+      "owner": "release-verification",
+      "code": [
+        "package.json",
+        "services/api/pyproject.toml"
+      ],
+      "tests_or_evidence": [
+        "docs/evidence/rc1/readiness.json",
+        "docs/TESTING.md"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    },
+    {
+      "requirement_id": "RC1-010",
+      "owner": "canonical-evidence",
+      "code": [
+        "docs/STAGES.md",
+        "docs/requirements-ledger.json",
+        "docs/DECISIONS.md"
+      ],
+      "tests_or_evidence": [
+        "scripts/validate-context-route.mjs"
+      ],
+      "status": "VERIFIED_LOCALLY"
+    }
+  ]
+}

@@ -241,3 +241,11 @@ Platform payments не реализованы. Требования находя
 7. Root logs command полагается на текущий запрет credentials/payload в logs;
    централизованный redaction filter обязателен до добавления adapters/providers,
    способных передать сторонние error details.
+
+## RC1 bounded product pass
+
+Provider signup produces ordinary student identity only; actual new-user Tutor PUT403 and unowned profile404 tested. Existing Account/Booking/Session/notification ownership, cookie/CSRF/OIDC negatives and least-privilege real DB regression retained. Test-only58181 is opt-in only for test profile/exact realm/loopback; local/CI/arbitrary hosts/ports rejected. Owned disposable infrastructure does not touch original data or other repositories.
+
+Learning namespace derives from trusted successful `/me` issuer+subject, never client email/tutor flags. Browser SHA-256 key is a separation mechanism, not encryption or protection from same-device developer tools/XSS. Record contains lesson ID/step/timestamps/completion only. Guest records do not auto-merge. Corrupt/oversized/malformed records preserve raw evidence and fail closed; denied/quota storage cannot claim persisted completion. Pending identity cannot write guest completion for a signed-in learner.
+
+Public API config rejects credentialed/nonloopback HTTP URLs; no private API caching/raw exceptions/JSON exposed. Request deadlines preserve external abort. Existing production build removes DEV-only performance details. Compatible patch graph: fast-uri3.1.8, brace-expansion1.1.21/5.0.12, devalue5.9.3, Vitest4.1.11; PyJWT2.15.1 (minimum2.14). Fresh frontend audit0 and applicable Python runtime pip-audit0. No broad external pentest/OS vulnerability certification or production deployment claim. Original DB compatibility is retained separate debt.

@@ -317,3 +317,23 @@ button { min-height: 24px; }
  html { scroll-behavior: auto; }
  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.lesson-practice { margin: 36px 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); }
+.lesson-practice h2 { margin-top: 12px; }
+.lesson-practice form { display: grid; gap: 12px; }
+.lesson-practice label { font-weight: 700; }
+.practice-input-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.practice-input-row input { width: 160px; max-width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--paper); font: inherit; }
+.lesson-practice .button { min-height: 44px; }
+#practice-feedback { display: flex; align-items: center; gap: 8px; min-height: 28px; margin: 0; }
+#practice-feedback svg { width: 20px; height: 20px; flex: none; }
+.learning-summary { display: grid; gap: 10px; margin: 24px 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); }
+.learning-summary h2, .learning-summary p { margin: 0; }
+.learning-summary small { color: var(--muted); }
+.learning-summary a { width: fit-content; min-height: 44px; display: inline-flex; align-items: center; color: var(--green); font-weight: 700; }
+.learning-storage-warning { padding: 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--white); }
+.section-kicker, .curriculum-index { color: color-mix(in srgb, var(--orange) 70%, var(--ink)); }
+[data-theme="dark"] .profile-error { color: #ff9c8d; }
+@media (max-width: 600px) { .lesson-practice, .learning-summary { padding: 18px; } .practice-input-row .button { width: 100%; justify-content: center; } }
+
+[data-theme="dark"] .button.primary { color: var(--paper); }

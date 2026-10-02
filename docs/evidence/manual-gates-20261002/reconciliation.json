@@ -36,15 +36,16 @@
   ],
   "revalidation": "Only a concrete new change affecting the accepted speech/focus/voice behavior or the approved reminder product policy; documentation/branch changes do not reopen gates.",
   "git_snapshot": {
-    "main": "09b61d13b083f65527f51d76f752f707f6b84702",
+    "main": "19c6ea2",
     "origin_main_tracking_ref": "09b61d13b083f65527f51d76f752f707f6b84702",
     "reminder_branch": "850713cfe4a831527d0d6ff2022a1532a49b221d",
     "documentation_parent": "ce8d16f95e75e0e7d6de99dff98a306b81e31809",
-    "remote_fresh_fetch": false
+    "remote_fresh_fetch": false,
+    "historical_main_before_integration": "09b61d13b083f65527f51d76f752f707f6b84702"
   },
   "main_ui": {
     "inbox": true,
-    "reminder_settings": false,
+    "reminder_settings": true,
     "routes": [
       "/ru/account/",
       "/uk/account/"
@@ -61,7 +62,7 @@
       "[data-reminder-settings]",
       "[data-notifications]"
     ],
-    "main_integration": "NOT_MERGED"
+    "main_integration": "MERGED_LOCAL_MAIN_19c6ea2"
   },
   "fresh_checks": {
     "frontend": "174 PASS / 22 files",
@@ -86,10 +87,7 @@
   },
   "live_rerun": "PASS on fresh owned labelled exact disposable PostgreSQL55437 and ephemeral Keycloak58081; original/preserved DB and MathMorph untouched; temporary services stopped.",
   "integration": {
-    "status": "AUTHORIZED_INTEGRATION_TREE_VALIDATED",
-    "attempt": "git merge --no-commit --no-ff feature/et-14-2-reminders into docs/et-voice-acceptance-pass",
-    "outcome": "Rejected before execution; no merge state/source mutation",
-    "reason": "Reviewer requires explicit merge authorization for broad branch integration",
+    "status": "MERGED_LOCAL_MAIN",
     "must_preserve": [
       "main portable DEV bridge",
       "fast-uri 3.1.7 security patch",
@@ -109,7 +107,12 @@
       "live_inbox": "1 PASS",
       "live_reminder": "1 PASS, runner exit0",
       "context_ci_hygiene": "PASS",
-      "built_regression": "NOT_RUN: two preview readiness timeouts before tests; carried into RC1 startup audit, not a human blocker"
+      "built_regression": "110 PASS / 5 expected live skips on serial Chromium; prior infrastructure timeout and transient browser process crash superseded"
+    },
+    "historical_rejected_attempt": {
+      "attempt": "git merge --no-commit --no-ff feature/et-14-2-reminders into docs/et-voice-acceptance-pass",
+      "outcome": "Rejected before execution; no merge state/source mutation",
+      "reason": "Reviewer requires explicit merge authorization for broad branch integration"
     }
   },
   "real_manual_remaining": [],
@@ -127,7 +130,7 @@
       "docs/requirements-ledger.json",
       "docs/evidence/manual-gates-20261002/reconciliation.json"
     ],
-    "root_policy_owner_updated": "docs/DECISIONS.md ADR-033; original complete SPEC remains on reminder feature pending integration",
+    "root_policy_owner_updated": "ADR-033 and complete booking-reminders SPEC integrated in main19c6ea2",
     "checked_without_behavior_change": [
       "README.md",
       "docs/ARCHITECTURE.md",

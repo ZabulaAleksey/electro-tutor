@@ -19,6 +19,7 @@ export default function LessonPractice({ language, completed, storageState, onCo
   }, [completed]);
   const submit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (storageState === "loading") return;
     const next = gradePracticeAnswer(answer);
     setResult(next.result);
     if (next.result === "correct") onComplete();
@@ -33,6 +34,7 @@ export default function LessonPractice({ language, completed, storageState, onCo
         <label htmlFor="practice-answer">{copy.practiceLabel}</label>
         <div className="practice-input-row">
           <input
+            disabled={storageState === "loading"}
             id="practice-answer"
             inputMode="decimal"
             value={answer}
@@ -40,10 +42,11 @@ export default function LessonPractice({ language, completed, storageState, onCo
             aria-describedby="practice-help practice-feedback"
           />
           <span aria-hidden="true">А</span>
-          <button className="button primary" type="submit">{copy.practiceCheck}</button>
+          <button className="button primary" type="submit" disabled={storageState === "loading"}>{copy.practiceCheck}</button>
         </div>
         <small id="practice-help">{copy.practiceHelp}</small>
         <p id="practice-feedback" role="status" aria-live="polite">
+          {storageState === "loading" && copy.checkingIdentity}
           {result === "invalid" && <><CircleAlert aria-hidden="true" /> {copy.practiceInvalid}</>}
           {result === "incorrect" && <><Target aria-hidden="true" /> {copy.practiceIncorrect}</>}
           {result === "correct" && <><Check aria-hidden="true" /> {storageState === "unavailable" ? copy.practiceCorrectUnavailable : copy.practiceCorrect}</>}

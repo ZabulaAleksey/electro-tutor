@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "potential-pwa-";
-const CACHE = `${CACHE_PREFIX}v3`;
+const CACHE = `${CACHE_PREFIX}v2`;
 const SCOPE_URL = new URL("./", self.registration.scope);
 const withBase = (path = "") => new URL(path.replace(/^\/+/, ""), SCOPE_URL).pathname;
 const CORE = [

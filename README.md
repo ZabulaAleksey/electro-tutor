@@ -228,3 +228,11 @@ PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
   отдельный edge redirect не требуется.
 - Cloudflare/Wrangler больше не входят в действующий deployment path.
 - deploy не выполняется автоматически агентом без явного запроса пользователя.
+
+## Release Candidate 1 — локальный Web/PWA
+
+Canonical current status/evidence: `docs/STAGES.md` ET-RC1, `docs/TESTING.md`, `docs/evidence/rc1/readiness.json`; подробный productization report — `docs/notes/productization-report.md`. One RU/UK authored lesson + three practice labs, account/history/resume and integrated inbox/reminders. Learning progress is explicitly device-only.
+
+Repeat public candidate locally with pinned Node/pnpm: `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm preview --host 127.0.0.1 --port 4322`; open `/ru/` or `/uk/`, catalog -> mesh lesson -> answer -> return/resume/account. Public deployment build supplies `SITE_URL`, `BASE_PATH` and, when backend is configured, safe `PUBLIC_API_ORIGIN`; secrets never belong in PUBLIC variables. Account needs the separately configured API/Keycloak/PostgreSQL, not a fake static login. Ordinary provider signup creates a Student, never Tutor rights. The isolated registration runner uses explicitly owned stopped disposable DB55437/IdP58181 and stops only its own processes.
+
+PWA has manifest/raster/maskable icons, installability/offline public shell and visited offline Worker/WASM lab acceptance. This is a local production-like release candidate; deployment/publication are not performed. Next bounded stage — ET-18.2 hosting/runtime/HTTPS IAM/backup plan.

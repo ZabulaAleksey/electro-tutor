@@ -1,0 +1,54 @@
+{
+  "files": 121,
+  "total_bytes": 2505973,
+  "javascript_bytes": 652563,
+  "javascript_gzip_bytes": 200406,
+  "largest_assets": [
+    {
+      "path": "_astro/MeshLessonIsland.30W_0KIp.js",
+      "bytes": 275556,
+      "gzip_bytes": 81141
+    },
+    {
+      "path": "_astro/client.CS_NhApi.js",
+      "bytes": 184040,
+      "gzip_bytes": 57169
+    },
+    {
+      "path": "uk/topics/dc/mesh-current-method/index.html",
+      "bytes": 77790,
+      "gzip_bytes": 11586
+    },
+    {
+      "path": "ru/topics/dc/mesh-current-method/index.html",
+      "bytes": 77621,
+      "gzip_bytes": 11526
+    },
+    {
+      "path": "_astro/KaTeX_AMS-Regular.DRggAlZN.ttf",
+      "bytes": 63632,
+      "gzip_bytes": 34543
+    },
+    {
+      "path": "_astro/i18n.BPmGPGNF.js",
+      "bytes": 56702,
+      "gzip_bytes": 15128
+    },
+    {
+      "path": "_astro/BaseLayout._5GNdQyl.css",
+      "bytes": 53743,
+      "gzip_bytes": 13560
+    },
+    {
+      "path": "_astro/KaTeX_Main-Regular.ypZvNtVU.ttf",
+      "bytes": 53580,
+      "gzip_bytes": 31483
+    }
+  ],
+  "home_react_islands": false,
+  "home_scripts": [
+    "/scripts/web-font.js",
+    "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CYDbzu1r.js",
+    "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.B2zI3VjI.js"
+  ]
+}

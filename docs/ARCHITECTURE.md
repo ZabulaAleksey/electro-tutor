@@ -568,3 +568,11 @@ command contract — в `project-context.md`.
   production build, project-base smoke этого `dist/` и dependency audit. Только
   после них `dist/` загружается как Pages artifact; deploy job зависит от verify
   и не пересобирает artifact.
+
+## RC1 consolidation delta
+
+Home/catalog/authored lesson/account form one common shell; home/account render a pure DOM progress summary, so home does not hydrate a React island. Existing Mesh React island owns numeric practice and versioned browser progress. `src/learning/` validates record bounds, limits published IDs and resolves guest versus SHA-256(issuer + NUL + subject) only after successful server `/me`; pending identity disables writes. Device-only persistence, not server Course/Progress schema or sync. Account profile/Booking/Session/inbox/reminders retain PostgreSQL ownership and server authority.
+
+`PUBLIC_API_ORIGIN` is a public deployment input: HTTPS, or exact loopback HTTP; no credentials/path/query/fragment. Unconfigured non-loopback builds show localized unavailable state; loopback4321/4322 can resolve existing API8000. No secrets in metadata. Contracts bound requests to10s and preserve cancellation. `PUBLIC_CALCOM_URL` optional validated HTTPS; absence shows unavailable + local product next action.
+
+PWA reuses existing v2 public cache/migration contract, adds raster192/512/maskable assets and same-origin worker/WASM assets for visited offline labs. API/auth/private/no-store responses never cached. No Electron/Tauri or new offline database. Source/lock/security/browser acceptance — evidence/rc1/readiness.json; deployment topology remains ET-18.2.

@@ -157,3 +157,7 @@ internal Booking link. Transport/unit, real PostgreSQL ownership/ACL and live is
 | PUT /api/v1/reminder-settings/me | active session and exact allowed Origin; validates IANA zone, independent toggles and optional HH:mm quiet-hours range; atomically recalculates future own Booking intents |
 
 No route accepts an Account ID or foreign Booking ID. Direct reminder-job tables are unavailable to the runtime role; Booking transition and settings functions scope by the bound application session. Notification list items can carry only the typed booking.reminder.24h, .1h or .15m events and Booking UUID. The browser renders RU/UK content and constructs a bounded internal Booking link. Real PostgreSQL ownership/ACL, concurrent worker and isolated live browser checks passed; see STAGES.md and TESTING.md.
+
+## RC1 integration/configuration delta
+
+Existing API DTOs/endpoints and revision0014 remain unchanged. Public shell uses deployment `PUBLIC_API_ORIGIN` (validated HTTPS/exact loopback HTTP), localized unavailable on unconfigured nonloopback origin, and10s request deadlines. Account/inbox/reminder screens: `/ru/account/`, `/uk/account/`. Real provider registration and repeated login consume existing OIDC callback/`/me` and own-profile routes; provider confirmation remains part of logout. Ordinary signup never grants Tutor. `ET_TEST_OIDC_PORT=58181` belongs only to owned test runner/profile, not production configuration. No server learning-progress endpoint added.

@@ -107,6 +107,12 @@ const nav = [
     </div>
   </dialog>
 
+  <script>
+    import { mountLearningSummary } from "../learning/summary";
+    document.addEventListener("astro:page-load", mountLearningSummary);
+    mountLearningSummary();
+  </script>
+
   <script is:inline>
     (() => {
       const state = window.__potentialUi ||= { installPrompt: null, globalEventsReady: false };

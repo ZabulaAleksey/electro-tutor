@@ -9,7 +9,7 @@ Roadmap задаёт порядок развития, но не заменяет
 ## ET-STAR-001 — Несимметричная звезда с нейтралью
 
 Статус: `DONE` (verified locally, 2026-09-28). Он использует завершённые
-интерактивный, RU/UK и base-path контракты, не меняя незакрытый ET-10.3.
+интерактивный, RU/UK и base-path контракты, сохраняя verified ET-10.3.
 Локальное слияние product code в `main` выполнено на `c19882e`; terminal
 status/evidence интегрированы в canonical local `main@a7b198f` 2026-09-28.
 Ручной повторный PASS получен 2026-10-01 для исторического `c19882e`; его source уже совпадает с текущим main. Recovery verification checkpoint merged/pushed в main@ab3a942 с remote read-back PASS, временный worktree удалён после guarded preflight; source сохранён. Актуальное evidence находится в `STAGES.md`. Production deploy не запускался.
@@ -288,7 +288,7 @@ backend/доступ. После решения нужны feature-SPEC, privacy
 Новый track детализирует дальнейшее развитие; после закрытия `TUTOR-06`, `ET-08`,
 `ET-09.1..4`, `ET-10.1..2` и независимый bounded sidecar `ET-RTC-001`
 завершены. Sidecar изолировал существующий public Jitsi за сменной границей,
-не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified и уже интегрирован в main после real DB/worker/browser acceptance; ET-14.2 policy ACCEPTED; verified feature awaits local main integration, not manual acceptance. ET-10.3 verified: ранее принятая manual RU/UK voice acceptance PASS
+не переупорядочивая platform-track. Текущий selector задан в docs/STAGES.md: независимый ET-14.1 verified и уже интегрирован в main после real DB/worker/browser acceptance; ET-14.2 policy ACCEPTED; implementation integrated in local main19c6ea2 and live-verified. ET-10.3 verified: ранее принятая manual RU/UK voice acceptance PASS
 восстановлена в TESTING/UA-19 2026-10-02; ET-03 и внешние решения
 ET-05..07 также не закрыты.
 Канонические инварианты и открытые решения находятся в
@@ -442,7 +442,7 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 - **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
   на локальной feature-ветке после clean/upgrade/rollback DB и live browser
   acceptance; feature commits теперь достижимы из local `main` (проверено при recovery audit на `main@f25214e`). Production deploy не подтверждён.
-- **ET-14.2 — Preferences, timezone и reminders.** Policy ACCEPTED (ADR-033); implementation and terminal isolated tests VERIFIED on feature. Main integration pending explicit merge authorization after auto-review rejection; no user manual product blocker. Exact account routes/evidence/NEXT — docs/STAGES.md.
+- **ET-14.2 — Preferences, timezone и reminders.** Policy ACCEPTED (ADR-033); implementation and terminal isolated tests VERIFIED; integrated in local main19c6ea2 after explicit approval, no manual blocker. Exact account routes/evidence/NEXT — docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:
   `BLOCKED` до bot/test-channel credentials и privacy decision.
 - **ET-14.4 — Calendar/email/Web Push adapters.** Статус: `OPTIONAL`; каждый
@@ -504,4 +504,4 @@ SPEC/ADR, dependency check и явное одобрение.
 
 ## ET-RC1 — Productization / Release Candidate 1
 
-Approved bounded consolidation campaign 2026-10-02. ET-14.2 is locally merged in main19c6ea2 with fresh live reminders/inbox PASS; closed UA-19/voice/policy gates retained. Current stage/automatic findings/NEXT — STAGES ET-RC1; requirements — productization-rc1.spec.md. No new large course/media/payments/native wrapper.
+Статус: DONE / RC1_READY, validated locally 2026-10-02. Approved bounded consolidation campaign completed; detailed derived report — docs/notes/productization-report.md, receipt — docs/evidence/rc1/readiness.json. Следующий конкретный этап — ET-18.2 bounded staging/hosting/runtime plan. No production deployment or release publication.  ET-14.2 is locally merged in main19c6ea2 with fresh live reminders/inbox PASS; closed UA-19/voice/policy gates retained. Current stage/automatic findings/NEXT — STAGES ET-RC1; requirements — productization-rc1.spec.md. No new large course/media/payments/native wrapper.

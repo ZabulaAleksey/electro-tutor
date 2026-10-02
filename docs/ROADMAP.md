@@ -440,7 +440,7 @@ dependency graph через ET-11.1/11.2 сохраняется, пока отд
 
 - **ET-14.1 — Domain events, jobs/outbox и in-app inbox.** Статус: VERIFIED
   на локальной feature-ветке после clean/upgrade/rollback DB и live browser
-  acceptance; canonical main ещё не включает feature commits, push/deploy не было.
+  acceptance; feature commits теперь достижимы из local `main` (проверено при recovery audit на `main@f25214e`). Production deploy не подтверждён.
 - **ET-14.2 — Preferences, timezone и reminders.** Статус: BLOCKED
   настоящим product policy decision; точный NEXT в docs/STAGES.md.
 - **ET-14.3 — Secure Telegram linking и delivery adapter.** Статус:

@@ -59,7 +59,7 @@ pnpm backend:stop
 ```
 
 `backend:dev` применяет Alembic migrations и запускает API с PostgreSQL;
-в feature-ветке ET-14.1 также запускается notification worker. Migration 0013,
+в текущем `main` также запускается notification worker. Migration 0013,
 catalog manifest и live worker/browser acceptance проверены на отдельной disposable DB.
 Сохранённый original Electro Tutor volume остаётся отдельным compatibility gate;
 backend:dev к нему не применять. Подробности: docs/STAGES.md и docs/TESTING.md.
@@ -162,8 +162,10 @@ Vitest как инструмент и не является отдельным S
 
 1. Перед переключением убедись, что нужная работа сохранена в commit и отправлена
    в доступный remote; dirty/untracked файлы автоматически не переносятся.
-2. Запомни имя рабочей ветки через `git branch --show-current`. На другом
-   компьютере сначала проверь `git status --short --branch`, затем выполни
+2. Запомни имя рабочей ветки через `git branch --show-current` и проверь
+   `git worktree list --porcelain`: несколько worktree могут содержать разные
+   этапы и SHA. На другом компьютере сначала проверь `git status --short --branch`
+   и `git worktree list --porcelain`, затем выполни
    `git fetch origin`. Переключись через `git switch <branch>`; если локальной
    ветки ещё нет, используй `git switch --track -c <branch> origin/<branch>`.
 3. Получи только fast-forward изменения выбранной ветки:

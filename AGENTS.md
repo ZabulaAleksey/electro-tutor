@@ -59,6 +59,11 @@ workflow и правила качества наследуются и здесь
 - Backend workflow наследует `~/.codex/rules/backend-dx.md`; project-specific
   commands, profiles и evidence находятся в `docs/project-context.md`.
 
+## Canonical evidence и ручная приёмка
+
+- Каждое фактически выполненное изменение, ручная проверка, принятое product decision и закрытый gate должны до handoff оставлять canonical entry: status/blockers/user actions/NEXT в STAGES, проверки в TESTING/evidence, решения в DECISIONS/затронутой SPEC (FR-CTX-006, ADR-034). Чат и transient report не заменяют эти records.
+- UA-19 / manual Narrator принят пользователем как PASS. Не запрашивай повторную проверку без нового изменения, реально затрагивающего accessibility/focus/screen-reader behavior; сначала зафиксируй affected scenarios и trigger в STAGES.
+
 ## Команды
 
 ```bash

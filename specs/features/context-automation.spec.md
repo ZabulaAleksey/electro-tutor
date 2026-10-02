@@ -74,6 +74,15 @@ retained legacy artifacts не входят в normal bootstrap path.
 соразмерные проверки, создаёт commit и не выполняет merge без явного разрешения
 пользователя.
 
+Project delta принят 2026-10-02 (ADR-034): каждое фактически выполненное
+изменение, ручная проверка, принятое product decision и закрытый gate до
+handoff оставляют canonical evidence/status entry. STAGES хранит status,
+blockers, user actions и NEXT; TESTING/evidence — проверку и её provenance;
+DECISIONS/затронутая SPEC — принятое решение. Чат и transient report не
+заменяют records. UA-19 / manual Narrator принят как PASS; новый gate
+запрашивается только после recorded change, реально затрагивающего
+accessibility/focus/screen-reader behavior, с явно ограниченным impact.
+
 ### FR-CTX-007 Наглядная проверка
 
 После каждого этапа исполнитель сообщает, как увидеть результат воочию: точную

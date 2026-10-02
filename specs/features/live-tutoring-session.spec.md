@@ -297,8 +297,8 @@ may be decoupled from media only by an explicit SPEC/ROADMAP dependency change.
 
 ## 11. Recommended NEXT
 
-Follow the current `docs/STAGES.md` selector `ET-14.2` and its policy
-decision; ET-10.3-UA-19 is PASS from prior user-accepted manual RU/UK
+Follow the current `docs/STAGES.md` selector `ET-14.2` and its runtime
+integration approval boundary (ADR-033 policy already approved); ET-10.3-UA-19 is PASS from prior user-accepted manual RU/UK
 voice verification (canonical TESTING record). In parallel, this
 read-only architecture draft can be reviewed. The first new bounded execution
 stage is ET-12.1 only after ET-10.3 status and roadmap prerequisites are

@@ -969,3 +969,54 @@ notification categories вне ET-14.1. Единая transaction trigger/worker
 boundary и structured event позволяют добавить каналы позднее без изменения Booking
 truth. Технический выбор worker, индексов, cleanup и retry уточняется в
 implementation при сохранении этого контракта и проверяется real DB/E2E.
+
+## ADR-033 — ET-14.2: пользовательские настройки и напоминания
+
+Статус: принято 2026-09-28 по прямому решению пользователя. Полный bounded
+контракт — `specs/features/booking-reminders.spec.md`. ET-14.1 остаётся
+единственной delivery/outbox/inbox основой; внешние каналы и realtime не нужны.
+
+Настройки текущего Account содержат явно сохранённую IANA timezone, три
+независимых переключателя 24h/1h/15m (defaults ON/ON/OFF) и quiet hours
+(default OFF) с локальным start/end, включая интервал через полночь. Browser
+zone — только подтверждаемое предложение. Booking хранит неизменный UTC
+instant; смена timezone его не двигает, но пересчитывает ещё pending reminders.
+
+Каждый offset сохраняет свой planned instant. При попадании в quiet hours
+effective due переносится к их окончанию; если Booking уже начался, напоминание
+пропускается. Worker допускает опоздание максимум 15 минут от effective due и
+только до начала Booking; далее фиксирует skipped. Это общее правило и для
+24h offset. Отмена Booking инвалидирует pending jobs без удаления доставленной
+истории. Согласно принятому Booking SPEC перенос есть cancel + new Booking, не
+изменение immutable snapshot; новые jobs принадлежат новому Booking ID.
+
+Scheduler хранит durable intents и идемпотентно передаёт due action в
+существующий ET-14.1 outbox. Worker повторно проверяет Booking перед передачей,
+чтобы cancellation/replacement не породили stale notification. Machine type
+и Booking UUID — business payload; RU/UK текст строится в UI. Server-side
+session ownership и narrow DB privileges обязательны.
+
+Восстановлено в canonical root 2026-10-02 из принятого checkpoint `f750812`;
+receipt/source hashes — `docs/evidence/accepted-gates-20261002.json`. Это
+синхронизация принятого решения; reminder runtime остаётся в отдельной
+`feature/et-14-2-reminders` и требует отдельного разрешения на интеграцию.
+
+## ADR-034 — Canonical evidence и повторная ручная accessibility-приёмка
+
+Статус: принято 2026-10-02 по прямому запросу пользователя.
+
+Каждое фактически выполненное изменение, ручная проверка, принятое product
+decision и закрытый gate оставляют canonical evidence/status entry до handoff:
+execution status, blockers, user actions и NEXT — в соответствующем STAGES
+record; проверки — в TESTING и content-free evidence; product decisions —
+в DECISIONS/затронутой SPEC. Чат и transient report не заменяют эти записи.
+Это project delta к FR-CTX-006, а не второй status owner.
+
+`ET-10.3-UA-19` / manual Windows Narrator принят пользователем как `PASS`.
+Не запрашивать его повторение без нового изменения, реально затрагивающего
+accessibility, focus или screen-reader behavior. При таком изменении явно
+зафиксировать затронутые сценарии и причину нового gate в STAGES; scope
+повторной проверки ограничить ими. Неизвестные execution date, версию
+Narrator и произнесённые фразы не выдумывать. Источник этого PASS — прямое
+подтверждение пользователя, не новая автоматическая проверка. Evidence:
+`docs/evidence/accepted-gates-20261002.json`.

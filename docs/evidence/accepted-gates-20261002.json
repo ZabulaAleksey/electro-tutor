@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-10-02",
+  "repository": "electro-tutor",
+  "baseline_head": "ce8d16f95e75e0e7d6de99dff98a306b81e31809",
+  "scope": "Canonical documentation synchronization; no new product/runtime/manual test execution.",
+  "manual_gate": {
+    "id": "ET-10.3-UA-19",
+    "status": "PASS",
+    "acceptance": "accepted_by_product_owner",
+    "source": "direct_user_instruction_in_current_chat",
+    "scope": "Existing RU/UK lesson/session speech, focus and screen-reader acceptance contract.",
+    "screen_reader": "Windows Narrator",
+    "observed_version": null,
+    "execution_date": null,
+    "scenario_level_observations": null,
+    "provenance_limit": "Aggregate owner confirmation; no invented speech transcript, per-scenario receipt or execution metadata.",
+    "rerun_trigger": "New change actually affecting accessibility, focus or screen-reader behavior; record affected scenarios before rerun.",
+    "supporting_historical_automated_evidence": "docs/TESTING.md: UA-18 terminal rerun on 723fc3f; no rerun in this task."
+  },
+  "product_decision": {
+    "id": "ET-14.2-UA-01",
+    "status": "APPROVED",
+    "decision": "ADR-033",
+    "approved_on": "2026-09-28",
+    "source_checkpoint": "f7508123a34b362ce454dc8847445802f670e062",
+    "spec_path": "specs/features/booking-reminders.spec.md",
+    "spec_sha256": "19fcd0589e37b83412817e6fbd16a86e247ab47d862641a98330ddfe71afca48",
+    "source_decisions_blob_sha256": "ed8013b6e82044efc6a88a2e44c5dd0d555cf14d6d45e4d6f43ed4fd791bdf67",
+    "source_adr033_sha256": "21d18ab3f8add2b0742cc4219ed7cf044b460251061bd2df75df30fccaaa4f43",
+    "restoration_requested_on": "2026-10-02",
+    "policy": {
+      "offsets": [
+        "24h",
+        "1h",
+        "15m"
+      ],
+      "default_enabled": [
+        "24h",
+        "1h"
+      ],
+      "explicit_iana_timezone_required": true,
+      "browser_zone": "confirmation_only",
+      "quiet_hours_default": "OFF",
+      "quiet_hours_due": "defer_to_end_or_skip_if_booking_started",
+      "late_grace_minutes_inclusive": 15,
+      "delivery_requires": "Booking ACCEPTED and not started",
+      "reschedule": "cancel_old_and_accept_new_immutable_booking",
+      "cancellation": "invalidate_pending_preserve_delivered_history",
+      "settings_change": "recalculate_pending_only",
+      "delivery": "existing_ET14.1_in_app_outbox_inbox"
+    },
+    "runtime_branch": "feature/et-14-2-reminders",
+    "runtime_checkpoint": "850713cfe4a831527d0d6ff2022a1532a49b221d",
+    "runtime_terminal_evidence_checkpoint": "57c6867",
+    "runtime_reachable_from_root_main": false,
+    "remaining_gate": "ET-14.2-UA-02 separate integration approval; no merge/push/deploy authorized by this documentation task."
+  },
+  "project_rule": {
+    "decision": "ADR-034",
+    "requirement": "FR-CTX-006",
+    "status": "ACCEPTED",
+    "source": "direct_user_instruction_in_current_chat"
+  },
+  "documentation_verification": {
+    "status": "PASS",
+    "scope": "Canonical documentation and context consumer only; no new product/manual/DB/browser run.",
+    "checks": [
+      {
+        "command": "node scripts/validate-context-route.mjs",
+        "result": "PASS",
+        "observed_route": "ET-14.2 blocked only by runtime integration approval"
+      },
+      {
+        "command": "node --check scripts/validate-context-route.mjs",
+        "result": "PASS"
+      },
+      {
+        "command": "node scripts/check-git-hygiene.mjs",
+        "result": "PASS"
+      },
+      {
+        "command": "git diff --check",
+        "result": "PASS"
+      },
+      {
+        "check": "Exact restored SPEC bytes and original ADR-033 text match f750812; three receipt source SHA-256 fields independently recomputed",
+        "result": "PASS"
+      },
+      {
+        "check": "STAGES selector/status/NEXT/user actions, ledger Session VERIFIED and REM-001..005 BLOCKED by runtime integration agree with approval receipt; unknown manual metadata remains null",
+        "result": "PASS"
+      }
+    ],
+    "checked_without_change": [
+      "README.md",
+      "docs/API.md",
+      "docs/ARCHITECTURE.md",
+      "docs/DESIGN.md",
+      "docs/SECURITY.md",
+      "docs/DATA_MODEL.md",
+      "docs/DEPENDENCIES.md",
+      "docs/project-context.md",
+      "specs/features/lesson-sessions.spec.md"
+    ],
+    "preserved_parent_checkpoint": "ce8d16f95e75e0e7d6de99dff98a306b81e31809"
+  }
+}

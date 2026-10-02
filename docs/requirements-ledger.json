@@ -6,8 +6,8 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
-      "specs/system.spec.md",
       "specs/features/base-path-portability.spec.md",
+      "specs/features/booking-reminders.spec.md",
       "specs/features/circular-diagram-state.spec.md",
       "specs/features/context-automation.spec.md",
       "specs/features/in-app-notifications.spec.md",
@@ -20,7 +20,8 @@
       "specs/features/profiles-capabilities-audit.spec.md",
       "specs/features/rtc-provider-boundary.spec.md",
       "specs/features/star-neutral-phasors.spec.md",
-      "specs/features/transmission-line-transient.spec.md"
+      "specs/features/transmission-line-transient.spec.md",
+      "specs/system.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -69,10 +70,10 @@
       "e2e": ["tests/e2e/theme-accessibility-responsive.spec.ts"],
       "runtime": "Keyboard/mobile/accessibility smoke verified on the static surface.",
       "security": "N/A beyond untrusted authored content rendering rules.",
-      "a11y": "Keyboard and accessible names automated; real screen-reader and full three-level persistence are not terminally evidenced.",
+      "a11y": "Static lesson keyboard/name checks remain scoped; ET-10.3 Session manual Narrator UA-19 is independently owner-accepted PASS, not a blanket authored-content/LevelPicker acceptance.",
       "observability": "Browser assertion failures and screenshots.",
-      "gap": "No focused persistence regression for all three explanation levels and no screen-reader run.",
-      "action": "Add focused LevelPicker persistence tests and complete ET-10.3 manual RU/UK screen-reader gate."
+      "gap": "No focused persistence regression for all three explanation levels; authored-content screen-reader depth is separate from accepted Session UA-19.",
+      "action": "Add focused LevelPicker persistence evidence when that scope is selected; do not repeat accepted Session UA-19 without new accessibility/focus/screen-reader change."
     },
     {
       "requirement_ids": ["FR-006", "CDS-FR-001", "CDS-FR-002", "CDS-FR-003", "CDS-FR-004", "CDS-NFR-001", "CDS-AC-001", "CDS-AC-002", "CDS-AC-003", "CDS-AC-004", "CDS-AC-005", "CDS-AC-006"],
@@ -187,12 +188,12 @@
       "unit": ["Context validator now rejects duplicate ADR IDs and invalid ledger schema"],
       "integration": ["pnpm check:context PASS on 2026-09-22"],
       "e2e": [],
-      "runtime": "Canonical stage selector resolves ET-10.3.",
+      "runtime": "Canonical selector resolves ET-14.2; explicit .codex/dev-project.toml bridge exists. FR-CTX-006/ADR-034 requires durable canonical evidence/status for every performed change, manual check, decision and closed gate.",
       "security": "No secret values are stored in state docs.",
       "a11y": "N/A",
       "observability": "Fail-closed validator messages.",
-      "gap": "Formal .codex/dev-project.toml bridge is absent although overlay/global references exist.",
-      "action": "Human must decide whether to formally enable the DEV bridge; do not infer it from legacy signals."
+      "gap": "Current synchronization is bounded to accepted gates/policy; historical full-corpus evidence is not promoted by documentation alone.",
+      "action": "Record canonical evidence/status before every handoff; respect accepted UA-19 and separate ET-14.2 runtime integration."
     },
     {
       "requirement_ids": ["AUTH-001", "AUTH-002", "AUTH-003", "AUTH-004", "PCA-ID-001", "PCA-ID-002", "PCA-ID-003", "PCA-ID-004"],
@@ -272,17 +273,17 @@
     {
       "requirement_ids": ["SESSION-001", "ET10.3-AC-01", "ET10.3-AC-02", "ET10.3-AC-03", "ET10.3-AC-04", "ET10.3-AC-05", "ET10.3-AC-06", "PLAT-005"],
       "domain": "lesson-session-lifecycle",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": ["services/api/src/electro_tutor_api/application/lesson_sessions.py", "services/api/src/electro_tutor_api/adapters/lesson_session_repository.py", "src/account/lesson-session-contract.ts"],
-      "unit": ["Backend fast 195 PASS/81 deselected and frontend 156 PASS on 2026-09-22"],
-      "integration": ["Historical 72 PostgreSQL PASS; current rerun BLOCKED before migrations by port collision and preserved DB drift"],
-      "e2e": ["Static Session UI states PASS; real browser→Keycloak→API→PostgreSQL phase NOT RUN"],
-      "runtime": "Media-less READY→ACTIVE→ENDED/CANCELLED implementation exists.",
-      "security": "Participant/active-grant/tutor transition policies implemented; terminal live red team pending.",
-      "a11y": "Static keyboard/RU/UK states covered; manual gate pending.",
+      "unit": ["Historical UA-18 frontend 158 PASS and backend 196 fast PASS; docs/TESTING.md"],
+      "integration": ["UA-18 disposable backend composite: 74 real integration, 9 catalog negatives, live/ready PASS; docs/TESTING.md"],
+      "e2e": ["UA-18 723fc3f: isolated live Keycloak/API/PostgreSQL Session 1 PASS, profile 7 PASS/3 expected phase skips", "ET-10.3-UA-19 manual Narrator owner-accepted PASS 2026-10-02; docs/evidence/accepted-gates-20261002.json"],
+      "runtime": "Media-less LessonSession verified locally; UA-18 automated/live and UA-19 owner-accepted terminal evidence. No new test run in this documentation task.",
+      "security": "Participant/grant/tutor boundaries passed isolated live Session tests including anonymous 401 and foreign 404; original DB replacement remains unauthorized.",
+      "a11y": "RU/UK manual Narrator UA-19 accepted PASS by product owner; rerun only after new accessibility/focus/screen-reader change (ADR-034).",
       "observability": "Mutation audit and request/correlation IDs.",
-      "gap": "Protected dev DB drift, port conflict, live authenticated phase and manual RU/UK gate.",
-      "action": "Approve data-preserving recovery/isolation, free port safely, rerun backend:check and live Session E2E."
+      "gap": "No open ET-10.3 local acceptance gate. Original DB SQL caller compatibility and production deployment remain separate.",
+      "action": "Preserve terminal evidence; proceed by selected ET-14.2 integration approval, not repeated UA-19."
     },
     {
       "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],
@@ -294,10 +295,10 @@
       "e2e": ["tests/e2e/notification-ui-states.spec.ts 2 mock API PASS; auth-notifications.spec.ts 1 live Keycloak/API/DB/worker PASS"],
       "runtime": "0013 migration/worker/API/UI committed locally; independent fresh PostgreSQL catalog manifest, clean bootstrap, 0012 upgrade, rollback/re-upgrade and worker startup PASS.",
       "security": "Server session binding, narrow DB functions, no direct runtime table DML, CSRF Origin guard and internal typed Booking link verified by real PostgreSQL ACL/IDOR and live browser foreign/anonymous negatives.",
-      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. ET-10.3 manual screen-reader remains separate.",
+      "a11y": "RU/UK keyboard button/link, visible unread text and status region passed mock Chromium; live RU keyboard/read and UK empty passed. ET-10.3 manual screen-reader remains separate. UA-19 accepted PASS for Session, not inbox speech.",
       "observability": "Bounded five-attempt outbox with SQLSTATE, worker counts and redacted failure class; real delivery and retention observed on disposable DB.",
-      "gap": "ET-14.1 terminal local acceptance passed; original data-bearing DB 8-column compatibility and feature-to-main integration remain separately open.",
-      "action": "Keep 30-day/ownership/IDOR and independent catalog regressions; ET-14.2 reminder policy is the next product decision."
+      "gap": "ET-14.1 runtime is reachable from root main; original DB compatibility/deployment remain separate.",
+      "action": "Preserve 30-day/ownership/catalog regressions; ET-14.2 policy is approved ADR-033, runtime integration awaits separate authorization."
     },
     {
       "requirement_ids": ["SESSION-002", "SESSION-003", "SESSION-004", "TIME-001", "TIME-002", "TIME-003", "TIME-004", "CHAT-001", "CHAT-002", "BOARD-001", "BOARD-002", "BOARD-003", "REC-001", "REC-002", "REC-003", "REC-004", "NOTIF-001", "NOTIF-002", "NOTIF-003", "NOTIF-004", "NOTIF-005"],
@@ -399,10 +400,10 @@
       "e2e": ["Built static Chromium PASS; authenticated live E2E pending"],
       "runtime": "No release/deploy performed.",
       "security": "Pinned actions and artifact handoff exist; full dependency verdict unavailable.",
-      "a11y": "Static critical-route checks PASS; manual Session gate pending.",
+      "a11y": "Static critical-route checks PASS; manual Session Narrator UA-19 accepted PASS by product owner 2026-10-02; release readiness remains independent.",
       "observability": "CI/gate exit codes; no production backend telemetry.",
       "gap": "verify:full is frontend-centric and cannot close backend/authenticated release readiness.",
-      "action": "Keep release blocked until DB recovery, backend integration, live auth E2E, dependency audit and manual gates pass."
+      "action": "Preserve release boundaries for original DB compatibility/dependency audits/production readiness; existing UA-18 isolated live and accepted UA-19 are closed and must not be requested again without relevant changes."
     },
     {
       "requirement_ids": ["AC-ET091-001", "AC-ET091-002", "AC-ET091-003", "AC-ET091-004", "AC-ET091-005", "AC-ET091-006"],
@@ -418,6 +419,21 @@
       "observability": "Request/correlation/audit foundation only.",
       "gap": "Application layer still directly imports identity adapters; DTOs are manually duplicated across backend/frontend.",
       "action": "After ET-10.3, introduce system-owned identity ports and import/DTO compatibility guards without new frameworks."
+    },
+    {
+      "requirement_ids": ["REM-001", "REM-002", "REM-003", "REM-004", "REM-005"],
+      "domain": "booking-reminders",
+      "status": "BLOCKED",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "Approved contract restored from f750812; runtime and historical terminal evidence remain on feature/et-14-2-reminders@850713c, not integrated into root main.",
+      "security": "Owner-bound server session, narrow DB privileges and in-app-only contract; root runtime security verification follows authorized integration.",
+      "a11y": "Approved RU/UK settings/keyboard contract; historical feature verification is not root acceptance or Session UA-19 reuse.",
+      "observability": "Intent scheduled/delivered/skipped/cancelled/retryable outcomes required; canonical policy receipt docs/evidence/accepted-gates-20261002.json.",
+      "gap": "ET-14.2-UA-02 integration approval only; product policy ET-14.2-UA-01 already DONE.",
+      "action": "Review separately authorized integration preserving both root and feature changes, then relevant root runtime verification."
     }
   ]
 }

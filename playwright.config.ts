@@ -6,6 +6,9 @@ const baseURL = `http://${host}:${port}`;
 const liveLessonSessionPhase =
   process.env.E2E_AUTH_PHASE === "lesson-session" &&
   process.env.E2E_SPEC === "tests/e2e/auth-lesson-session.spec.ts";
+const liveReminderPhase =
+  process.env.E2E_AUTH_PHASE === "reminder" &&
+  process.env.E2E_SPEC === "tests/e2e/auth-reminders.spec.ts";
 const liveNotificationPhase =
   process.env.E2E_AUTH_PHASE === "notification" &&
   process.env.E2E_SPEC === "tests/e2e/auth-notifications.spec.ts";
@@ -14,8 +17,8 @@ export default defineConfig({
   testDir: "./tests/e2e",
   // Secret-bearing Session and notification scenarios require explicit live phases.
   // Ordinary static/root E2E excludes both.
-  testIgnore: liveLessonSessionPhase || liveNotificationPhase
-    ? [] : ["**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts"],
+  testIgnore: liveLessonSessionPhase || liveNotificationPhase || liveReminderPhase
+    ? [] : ["**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts", "**/auth-reminders.spec.ts"],
   outputDir: "./test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

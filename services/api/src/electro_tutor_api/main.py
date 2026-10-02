@@ -32,11 +32,13 @@ from electro_tutor_api.application.lesson_access import LessonAccessGrantService
 from electro_tutor_api.application.lesson_sessions import LessonSessionService
 from electro_tutor_api.application.notifications import NotificationService
 from electro_tutor_api.application.profiles import ProfileService, UnitOfWorkFactory
+from electro_tutor_api.application.reminders import ReminderSettingsService
 from electro_tutor_api.config import Settings, get_settings
 from electro_tutor_api.domain.booking import BookingValidationError
 from electro_tutor_api.domain.lesson_access import LessonAccessValidationError
 from electro_tutor_api.domain.lesson_session import LessonSessionValidationError
 from electro_tutor_api.domain.profile import ProfileValidationError
+from electro_tutor_api.domain.reminder import ReminderSettingsValidationError
 from electro_tutor_api.errors import (
     AuditUnavailableError,
     AuthenticationRequiredError,
@@ -79,6 +81,7 @@ from electro_tutor_api.transport.notifications import (
     build_notification_router,
 )
 from electro_tutor_api.transport.profiles import build_profile_router
+from electro_tutor_api.transport.reminders import build_reminder_router
 
 PROFILE_ERROR_CONTRACT: dict[type[Exception], tuple[str, str, int]] = {
     AuthenticationRequiredError: (
@@ -177,6 +180,7 @@ def create_app(
     lesson_access_service: LessonAccessGrantService | None = None,
     lesson_session_service: LessonSessionService | None = None,
     notification_service: NotificationService | None = None,
+    reminder_settings_service: ReminderSettingsService | None = None,
 ) -> FastAPI:
     resolved = settings or get_settings()
     owned_engines: list[AsyncEngine] = []
@@ -240,6 +244,13 @@ def create_app(
     resolved_notification_service = notification_service
     if resolved_notification_service is None and runtime_engine is not None:
         resolved_notification_service = NotificationService(
+            cast(
+                UnitOfWorkFactory, lambda credential: PostgresUnitOfWork(runtime_engine, credential)
+            )
+        )
+    resolved_reminder_service = reminder_settings_service
+    if resolved_reminder_service is None and runtime_engine is not None:
+        resolved_reminder_service = ReminderSettingsService(
             cast(
                 UnitOfWorkFactory, lambda credential: PostgresUnitOfWork(runtime_engine, credential)
             )
@@ -367,6 +378,7 @@ def create_app(
 
     notification_errors: dict[type[Exception], tuple[str, str, int]] = {
         NotificationIdValidationError: ("invalid_request", "Request validation failed.", 422),
+        ReminderSettingsValidationError: ("invalid_request", "Request validation failed.", 422),
         NotificationOriginDeniedError: ("origin_denied", "Request origin is not allowed.", 403),
         NotificationNotFoundError: ("notification_not_found", "Notification was not found.", 404),
         NotificationUnavailableError: (
@@ -422,6 +434,11 @@ def create_app(
             build_notification_router(
                 resolved_auth_service, resolved_notification_service, resolved
             ),
+            prefix="/api/v1",
+        )
+    if resolved_reminder_service is not None:
+        app.include_router(
+            build_reminder_router(resolved_auth_service, resolved_reminder_service, resolved),
             prefix="/api/v1",
         )
     return app

@@ -190,6 +190,10 @@ test.describe("ET-09.4e terminal support contracts", () => {
       isolated.ET_PROVISIONING_DATABASE_URL]) {
       expect(url).toContain("127.0.0.1:55434/electro_tutor_test");
     }
+    const reminders = trustedCliEnvironment({
+      ET_E2E_DATABASE_TARGET: "test", ET_TEST_POSTGRES_PORT: "55437",
+    });
+    expect(reminders.ET_DATABASE_URL).toContain("127.0.0.1:55437/electro_tutor_test");
     expect(() => trustedCliEnvironment({
       ET_E2E_DATABASE_TARGET: "test", ET_TEST_POSTGRES_PORT: "55432",
     })).toThrow(/disposable test PostgreSQL port/);

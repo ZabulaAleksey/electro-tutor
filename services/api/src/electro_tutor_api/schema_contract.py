@@ -609,7 +609,10 @@ notification_outbox = sa.Table(
     fk("fk_notification_outbox_recipient", "recipient_account_id", "accounts.id"),
     fk("fk_notification_outbox_booking", "booking_id", "bookings.id"),
     uq("uq_notification_outbox_business", "event_type", "booking_id", "recipient_account_id"),
-    ck("ck_notification_outbox_event_type", "event_type='booking.accepted'"),
+    ck(
+        "ck_notification_outbox_event_type",
+        "event_type IN ('booking.accepted','booking.reminder.24h','booking.reminder.1h','booking.reminder.15m')",
+    ),
     ck("ck_notification_outbox_attempts", "attempts BETWEEN 0 AND 5"),
     ck(
         "ck_notification_outbox_sqlstate",
@@ -639,7 +642,10 @@ notifications = sa.Table(
     fk("fk_notifications_recipient", "recipient_account_id", "accounts.id"),
     fk("fk_notifications_booking", "booking_id", "bookings.id"),
     uq("uq_notifications_business", "event_type", "booking_id", "recipient_account_id"),
-    ck("ck_notifications_event_type", "event_type='booking.accepted'"),
+    ck(
+        "ck_notifications_event_type",
+        "event_type IN ('booking.accepted','booking.reminder.24h','booking.reminder.1h','booking.reminder.15m')",
+    ),
     ck("ck_notifications_retention", "expires_at = created_at + interval '30 days'"),
     ck("ck_notifications_read", "read_at IS NULL OR read_at >= created_at"),
 )
@@ -656,3 +662,68 @@ sa.Index(
     postgresql_where=sa.text("read_at IS NULL"),
 )
 sa.Index("ix_notifications_expiry", notifications.c.expires_at)
+
+
+reminder_settings = sa.Table(
+    "reminder_settings",
+    metadata,
+    col("account_id", sa.Uuid()),
+    col("time_zone", sa.String(64), null=True),
+    col("remind_24h", sa.Boolean(), default=sa.text("true")),
+    col("remind_1h", sa.Boolean(), default=sa.text("true")),
+    col("remind_15m", sa.Boolean(), default=sa.text("false")),
+    col("quiet_hours_enabled", sa.Boolean(), default=sa.text("false")),
+    col("quiet_hours_start", sa.Time(), null=True),
+    col("quiet_hours_end", sa.Time(), null=True),
+    col("updated_at", UTC, default=CLOCK),
+    pk("reminder_settings", "account_id"),
+    fk("fk_reminder_settings_account", "account_id", "accounts.id"),
+    ck(
+        "ck_reminder_settings_zone",
+        "time_zone IS NULL OR (char_length(time_zone) BETWEEN 1 AND 64 AND time_zone !~ '[[:cntrl:]]')",
+    ),
+    ck(
+        "ck_reminder_settings_quiet_range",
+        "(quiet_hours_start IS NULL AND quiet_hours_end IS NULL) OR "
+        "(quiet_hours_start IS NOT NULL AND quiet_hours_end IS NOT NULL "
+        "AND quiet_hours_start<>quiet_hours_end)",
+    ),
+    ck(
+        "ck_reminder_settings_quiet_enabled",
+        "NOT quiet_hours_enabled OR (quiet_hours_start IS NOT NULL AND quiet_hours_end IS NOT NULL)",
+    ),
+)
+
+booking_reminders = sa.Table(
+    "booking_reminders",
+    metadata,
+    col("id", sa.Uuid(), default=UUID_DEFAULT),
+    col("booking_id", sa.Uuid()),
+    col("recipient_account_id", sa.Uuid()),
+    col("offset_minutes", sa.SmallInteger()),
+    col("planned_at", UTC),
+    col("due_at", UTC),
+    col("status", sa.String(16), default="scheduled"),
+    col("updated_at", UTC, default=CLOCK),
+    pk("booking_reminders", "id"),
+    fk("fk_booking_reminders_booking", "booking_id", "bookings.id"),
+    fk("fk_booking_reminders_recipient", "recipient_account_id", "accounts.id"),
+    uq("uq_booking_reminders_business", "booking_id", "recipient_account_id", "offset_minutes"),
+    ck("ck_booking_reminders_offset", "offset_minutes IN (1440,60,15)"),
+    ck("ck_booking_reminders_due", "due_at>=planned_at"),
+    ck(
+        "ck_booking_reminders_status",
+        "status IN ('scheduled','queued','delivered','skipped','cancelled')",
+    ),
+)
+sa.Index(
+    "ix_booking_reminders_due",
+    booking_reminders.c.due_at,
+    booking_reminders.c.id,
+    postgresql_where=sa.text("status='scheduled'"),
+)
+sa.Index(
+    "ix_booking_reminders_booking",
+    booking_reminders.c.booking_id,
+    booking_reminders.c.status,
+)

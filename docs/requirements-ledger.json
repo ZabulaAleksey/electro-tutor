@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/booking-reminders.spec.md",
       "specs/system.spec.md",
       "specs/features/base-path-portability.spec.md",
       "specs/features/circular-diagram-state.spec.md",
@@ -283,6 +284,40 @@
       "observability": "Mutation audit and request/correlation IDs.",
       "gap": "No open Session acceptance gate; original data-bearing DB compatibility remains a separate repair boundary.",
       "action": "Preserve manual PASS; rerun only after a concrete change affecting speech/focus/voice behavior."
+    },
+    {
+      "requirement_ids": [
+        "REM-001",
+        "REM-002",
+        "REM-003",
+        "REM-004",
+        "REM-005"
+      ],
+      "domain": "booking-reminders",
+      "status": "VERIFIED",
+      "code": [
+        "services/api/alembic/versions/20260928_0014_booking_reminders.py",
+        "services/api/src/electro_tutor_api/transport/reminders.py",
+        "services/api/src/electro_tutor_api/notification_worker.py",
+        "src/account/reminder-ui.ts",
+        "src/pages/[lang]/account.astro"
+      ],
+      "unit": [
+        "services/api/tests/test_reminders.py; backend DB-free 202 PASS on 2026-10-02",
+        "src/account/reminder-contract.test.ts; frontend 174 PASS on 2026-10-02"
+      ],
+      "integration": [
+        "services/api/tests/test_reminders_integration.py; historical real DB 64 PASS, 17 unrelated skips; clean 0014/catalog and reversible 0013 upgrade PASS 2026-09-29"
+      ],
+      "e2e": [
+        "tests/e2e/auth-reminders.spec.ts: live RU/UK browser -> Keycloak -> API -> PostgreSQL -> worker -> inbox 1 PASS on 2026-09-29; notification regression 1 PASS"
+      ],
+      "runtime": "Approved settings, scheduler/0014/API/worker and RU/UK account screens implemented and verified on feature; local integration in progress.",
+      "security": "Owner session/CSRF/foreign/anonymous and stale Booking/worker idempotency checked on real PostgreSQL/live browser.",
+      "a11y": "Semantic settings, RU/UK keyboard/save/focus and UI states automated PASS; UA-19 / Narrator / RU/UK voice previously accepted PASS, not reopened.",
+      "observability": "Due/delivered/skipped/cancelled/retryable durable outcomes and redacted worker counts verified.",
+      "gap": "Local main finalization/post-integration checks in progress; no manual product gate.",
+      "action": "Complete authorized local merge and post-integration automated checks; no push/deploy/DB original repair."
     },
     {
       "requirement_ids": ["INAPP-001", "INAPP-002", "INAPP-003", "INAPP-004", "INAPP-005"],

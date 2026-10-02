@@ -202,3 +202,9 @@ upgrade database matched it; real 0013→0012→0013 rollback/re-upgrade on the
 empty baseline matched again. Nine transactional catalog drift cases passed.
 The original data-bearing DB was not migrated and its historical 8-column
 read_booking_operation(uuid) compatibility gate remains separate.
+
+## ET-14.2 additive reminder schema — verified on disposable PostgreSQL
+
+Revision 20260928_0014 adds reminder_settings keyed by Account and booking_reminders keyed by Booking, recipient and one of the 24h/1h/15m offsets. Each intent persists planned_at and quiet-hours-adjusted due_at as timestamptz instants plus scheduled/queued/delivered/skipped/cancelled state. Partial due and Booking indexes support bounded worker and invalidation scans. Existing notification_outbox/notifications gain only the three typed reminder event values; no second inbox or external provider storage is introduced. Runtime roles cannot directly read or mutate these tables. Narrow security-definer functions bind settings to the active Account; Booking accept/cancel triggers and worker functions handle durable scheduling, cancellation, outbox delivery and the inclusive 15-minute grace.
+
+The 0014 catalog manifest was captured from an independently fresh migrated disposable database, matched by the test database and by a separate empty 0013→0014 upgrade rehearsal. Final 0014→0013→0014 rollback/reapply and Alembic check passed. The original data-bearing DB remains untouched; its old read_booking_operation(uuid) row shape is a separate compatibility gate. See STAGES.md and TESTING.md for exact evidence.

@@ -28,7 +28,9 @@ class NotificationResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: UUID
-    type: Literal["booking.accepted"]
+    type: Literal[
+        "booking.accepted", "booking.reminder.24h", "booking.reminder.1h", "booking.reminder.15m"
+    ]
     booking_id: UUID
     created_at: datetime
     expires_at: datetime

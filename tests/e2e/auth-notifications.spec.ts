@@ -116,6 +116,14 @@ test("ET-14.1 live Booking -> outbox -> worker -> private inbox -> read", async 
     await expect(student.locator('[data-notification-id="' + notificationId + '"]'))
       .toHaveAttribute("data-unread", "false");
     await expect(student.locator("[data-notification-count]")).toContainText("0");
+    // Keep the verified notification while freeing this disposable Booking slot
+    // for the following ET-14.2 live phase.
+    await tutor.reload();
+    const cancelResponse = tutor.waitForResponse((response) =>
+      response.url().endsWith(`/bookings/${booking.id}/cancel`));
+    await tutor.locator(`[data-booking-id="${booking.id}"]`)
+      .getByRole("button", { name: "Скасувати" }).click();
+    expect((await (await cancelResponse).json()).status).toBe("CANCELLED");
   } finally {
     await tutorContext.close(); await studentContext.close(); await thirdContext.close();
     await anonymousContext.close();

@@ -1,5 +1,11 @@
 # Testing contract
 
+## Combined reminders integration checkpoint — 2026-10-02
+
+- Production source parity with feature0500798 PASS; main bridge/security lock/booking race/spec/evidence preserved. Fresh frontend174, backend202/Ruff/mypy, real PostgreSQL83 with no skips, lint/typecheck/build/context/CI/hygiene PASS. Fresh auth/profile7PASS/3 unrelated skips, inbox1PASS, reminder1PASS, isolated runner exit0; new owned disposable55437 with tracked ro init SQL; original DB/MathMorph untouched.
+- Two broad built-run attempts timed out waiting for Astro preview before launching tests. NOT_RUN, not product FAIL or manual gate; automatic startup issue retained for the newly authorized RC1 campaign. Prior unchanged-source broad110PASS and fresh live consumer acceptance remain distinct evidence.
+- Exact resource creation/ownership and current checks: evidence/manual-gates-20261002/reconciliation.json.
+
 ## Acceptance reconciliation — 2026-10-02
 
 - UA-19 / Windows Narrator manual acceptance: **PASS**; RU/UK voice manual acceptance: **PASS**, по прямому подтверждению пользователя в этой задаче. Это восстановление ранее выполненного acceptance, не новый агентский speech test; дата/версия/произнесённые фразы старого прогона не выдумываются. Существующий Session сценарий: `/ru/lesson/#booking=<id>` и `/uk/lesson/#booking=<id>`, student READY, tutor START/ACTIVE/END, two tabs и speech/focus.
@@ -11,6 +17,15 @@
 - `REAL_MANUAL_REMAINING: none` для UA-19 / RU/UK voice / ET-14.2. Future Telegram/privacy/credentials и original DB compatibility не имеют реализованного экрана в этом scope и не включаются в текущую ручную checklist.
 - Machine-readable evidence: `evidence/manual-gates-20261002/reconciliation.json`; current state/NEXT — `STAGES.md`. Production source, accepted tests, locks и DB не менялись.
 
+
+## ET-14.2 — terminal isolated reminder verification, 2026-09-29
+
+- Exact disposable PostgreSQL 17.6 container electro-tutor-et142-test-20260928 used its own named volume and 127.0.0.1:55437; ephemeral Keycloak 26.7.2 used 58081 and no persistent volume. The original Electro Tutor and MathMorph containers/volumes stayed untouched. The isolated wrapper stopped its own services after acceptance. Failed-run test DBs were preserved by exact rename, then clean replacements migrated; no original data was reset.
+- Clean electro_tutor_test and independently clean electro_tutor_catalog_baseline migrated base→0014 with Alembic check. The manifest was captured from the independent baseline and matched the test catalog. Separate empty electro_tutor rehearsal passed 0013→0014, final 0014→0013→0014, Alembic check and db-status/catalog parity. An earlier disposable DB containing an intermediate 0014 body was preserved by rename rather than treating it as a canonical upgrade target. The original data-bearing 8-column read_booking_operation(uuid) DB was never modified.
+- Backend: 202 DB-free PASS; 64 real PostgreSQL integration PASS, 17 existing environment skips and 211 deselected. Tests cover owner-scoped defaults/settings, each offset, quiet-hours/overnight/DST gap and fold, cancellation, queued invalidation, +5/+15/>15-minute grace, expired Booking, two concurrent workers and runtime ACL. Ruff check/format (91 files), strict mypy (52 files), migration and catalog tests PASS.
+- Frontend: 174 Vitest PASS, lint PASS, Astro check 129 files/0 errors/0 warnings (2 generated WASM hints), RU/UK locale pairing 369 keys, production build 25 pages/115 audited files PASS. Built Chromium 110 PASS/5 expected live-auth skips, including two mocked reminder UI/keyboard/accessibility cases; production smoke 4 PASS. Full project verify with skip-install exited 0; dependency audit 3 moderate/0 high.
+- Live acceptance: pnpm test:e2e:reminders:isolated exited 0 after exact stopped-container/mount/port/image preflight, Keycloak provision, real API health, worker start and browser phases. Auth/profile 7 PASS/3 expected phase skips; ET-14.1 live Booking/outbox/inbox 1 PASS; ET-14.2 real RU/UK settings, keyboard save/reload, 15m opt-in, Booking acceptance, due worker, localized student inbox and foreign/anonymous denial 1 PASS. The ET-14.1 fixture Booking is cancelled after its assertions to avoid overlap with the next phase. Initial harness failures exposed a missing exact 55437 allowlist and cross-phase Booking/selector collisions; these were fixed, with a complete final rerun.
+- Automated UI/accessibility checks passed. No manual speech observation was performed by that automated run. Previously completed human UA-19 / Narrator / RU/UK voice acceptance is now owner-confirmed PASS (2026-10-02); ET-10.3 verified. ET-14.2 is verified locally on feature/et-14-2-reminders; merge, push and deploy were not performed.
 
 ## ET-10.3 UA-19 — manual RU/UK voice acceptance: PASS
 

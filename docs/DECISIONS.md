@@ -973,7 +973,7 @@ implementation при сохранении этого контракта и пр
 ## ADR-033 — ET-14.2: пользовательские настройки и напоминания
 
 Статус: принято 2026-09-28 по прямому решению пользователя. Полный bounded
-контракт уже versioned в `feature/et-14-2-reminders:specs/features/booking-reminders.spec.md`; перенос SPEC/code в main относится к integration task в STAGES. ET-14.1 остаётся
+контракт — `specs/features/booking-reminders.spec.md`; approved feature source интегрирован в текущую integration-ветку, final main ancestry/checks принадлежат STAGES. ET-14.1 остаётся
 единственной delivery/outbox/inbox основой; внешние каналы и realtime не нужны.
 
 Настройки текущего Account содержат явно сохранённую IANA timezone, три

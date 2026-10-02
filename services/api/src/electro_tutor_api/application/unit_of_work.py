@@ -28,6 +28,7 @@ from electro_tutor_api.domain.lesson_access import LessonAccessDecision
 from electro_tutor_api.domain.lesson_session import LessonSession
 from electro_tutor_api.domain.notification import Notification
 from electro_tutor_api.domain.profile import StudentProfile, TutorProfile
+from electro_tutor_api.domain.reminder import ReminderSettings
 
 
 class AuditEventRepository(Protocol):
@@ -178,6 +179,12 @@ class NotificationRepository(Protocol):
     async def mark_read(self, notification_id: UUID) -> bool: ...
 
 
+class ReminderSettingsRepository(Protocol):
+    async def get(self) -> ReminderSettings: ...
+
+    async def put(self, settings: ReminderSettings) -> ReminderSettings: ...
+
+
 class AuditUnitOfWork(Protocol):
     audit_events: AuditEventRepository
     booking_operations: BookingOperationRepository
@@ -186,6 +193,7 @@ class AuditUnitOfWork(Protocol):
     lesson_access_grants: LessonAccessGrantRepository
     lesson_sessions: LessonSessionRepository
     notifications: NotificationRepository
+    reminder_settings: ReminderSettingsRepository
     profiles: ProfileRepository
     session_principal: Principal | None
     tutor_offers: TutorOfferRepository

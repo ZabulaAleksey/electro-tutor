@@ -84,9 +84,9 @@
     "live_inbox_regression": "1 PASS",
     "live_auth_profile": "7 PASS / 3 expected phase skips"
   },
-  "live_rerun": "NOT_RUN: exact historical disposable test container absent; unchanged product source preserves historical evidence. Recreating isolated runtime is agent work, not a human acceptance gate.",
+  "live_rerun": "PASS on fresh owned labelled exact disposable PostgreSQL55437 and ephemeral Keycloak58081; original/preserved DB and MathMorph untouched; temporary services stopped.",
   "integration": {
-    "status": "APPROVAL_REQUIRED_BY_AUTO_REVIEW",
+    "status": "AUTHORIZED_INTEGRATION_TREE_VALIDATED",
     "attempt": "git merge --no-commit --no-ff feature/et-14-2-reminders into docs/et-voice-acceptance-pass",
     "outcome": "Rejected before execution; no merge state/source mutation",
     "reason": "Reviewer requires explicit merge authorization for broad branch integration",
@@ -97,13 +97,25 @@
       "star recovery evidence",
       "ce8d16f UA-19 PASS documentation"
     ],
-    "read_only_preflight": "git merge-tree --trivial-merge at base 9762797/root ce8d16f/feature 850713c: exit 0; docs changed on both branches; no tree write or merge execution. First output decode failed (cp1251), UTF-8 retry PASS. Conflict resolution and post-merge tests remain agent work after approval."
+    "read_only_preflight": "git merge-tree --trivial-merge at base 9762797/root ce8d16f/feature 850713c: exit 0; docs changed on both branches; no tree write or merge execution. First output decode failed (cp1251), UTF-8 retry PASS. Conflict resolution and post-merge tests remain agent work after approval.",
+    "approval": "2026-10-02 direct user reply: Да, сливай; docs@d6485cc + reminders@0500798 into local main@09b61d1; no push/deploy/worktree deletion",
+    "source_parity": "Production src/services/api/src/alembic/uv.lock match reminder feature0500798; main DEV marker/pnpm security lock/booking-race tests and evidence unchanged",
+    "post_integration": {
+      "frontend": "174 PASS",
+      "backend_fast": "202 PASS / 92 deselected; Ruff format/lint/mypy PASS",
+      "backend_real_db": "83 PASS / 211 deselected, no skips, own fresh PostgreSQL55437",
+      "lint_typecheck_build": "PASS:129 files/0 errors/0 warnings/2 generated hints;25 pages/115 artifacts",
+      "live_auth_profile": "7 PASS / 3 unrelated phase skips",
+      "live_inbox": "1 PASS",
+      "live_reminder": "1 PASS, runner exit0",
+      "context_ci_hygiene": "PASS",
+      "built_regression": "NOT_RUN: two preview readiness timeouts before tests; carried into RC1 startup audit, not a human blocker"
+    }
   },
   "real_manual_remaining": [],
   "out_of_scope_future_inputs": [
     "ET-14.3 Telegram privacy decision and consenting test bot/chat access: no implemented screen yet",
-    "Original DB legacy SQL compatibility: deployment/repair authorization, not a reminders UI manual gate",
-    "Read-only pip-audit outbound authorization from night record: permission, not a manual screen check"
+    "Original DB legacy SQL compatibility: deployment/repair authorization, not a reminders UI manual gate"
   ],
   "source_changes": "None: production code, accepted tests, migrations and locks unchanged; no push/deploy/worktree deletion.",
   "documentation_sync": {

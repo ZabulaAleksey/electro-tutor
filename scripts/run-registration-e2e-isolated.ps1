@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $dbName = 'electro-tutor-rc1-registration-test'
 $dbPort = 55437
+$idpPort = 58181
 $idpName = "electro-tutor-rc1-registration-idp-$([guid]::NewGuid().ToString('N'))"
 $dbStarted = $false
 $idpStarted = $false
@@ -10,7 +11,7 @@ function Assert-FreePort([int]$port) {
     try { $listener.Start() } finally { $listener.Stop() }
 }
 
-foreach ($port in @($dbPort, 58081, 8000, 4322)) { Assert-FreePort $port }
+foreach ($port in @($dbPort, $idpPort, 8000, 4322)) { Assert-FreePort $port }
 $details = @(docker inspect $dbName | ConvertFrom-Json)
 if ($LASTEXITCODE -ne 0 -or $details.Count -ne 1) { throw 'Disposable registration database container is unavailable.' }
 $db = $details[0]
@@ -39,10 +40,10 @@ try {
     $env:ET_DEV_TEST_PASSWORD = [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
     $env:KC_BOOTSTRAP_ADMIN_USERNAME = 'admin'
     $env:KC_BOOTSTRAP_ADMIN_PASSWORD = $env:ET_KEYCLOAK_ADMIN_PASSWORD
-    $env:KC_HOSTNAME = 'http://127.0.0.1:58081'
+    $env:KC_HOSTNAME = "http://127.0.0.1:$idpPort"
     $env:KC_HOSTNAME_BACKCHANNEL_DYNAMIC = 'true'
     $idpStarted = $true
-    docker run --pull=never --rm -d --name $idpName -p '127.0.0.1:58081:8080' -e KC_BOOTSTRAP_ADMIN_USERNAME -e KC_BOOTSTRAP_ADMIN_PASSWORD -e KC_HOSTNAME -e KC_HOSTNAME_BACKCHANNEL_DYNAMIC 'quay.io/keycloak/keycloak:26.7.2' start-dev --http-port=8080 | Out-Null
+    docker run --pull=never --rm -d --name $idpName -p "127.0.0.1:${idpPort}:8080" -e KC_BOOTSTRAP_ADMIN_USERNAME -e KC_BOOTSTRAP_ADMIN_PASSWORD -e KC_HOSTNAME -e KC_HOSTNAME_BACKCHANNEL_DYNAMIC 'quay.io/keycloak/keycloak:26.7.2' start-dev --http-port=8080 | Out-Null
     $env:BACKEND_CLONE_CONTAINER = $dbName
     $env:ET_TEST_POSTGRES_PORT = [string]$dbPort
     node scripts/run-auth-e2e-isolated.mjs

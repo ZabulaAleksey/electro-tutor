@@ -151,3 +151,5 @@
 - REAL_MANUAL_REMAINING: NONE
 - NEXT: ET-18.2
 - Next scope: bounded Web/PWA staging/HTTPS IAM/API/backup plan before deployment; future features remain separate backlog.
+
+- DEV-LDC original race admission: `compose.local-race-test.yaml` is a fresh opt-in ET-10.3 disposable clone on loopback55434 with exact new container/volume name20261008 and original readonly init SQL. Native creation/migration/two accepted accept-cancel race variants pending; no original DB/fixtures/test contract changed, no full-suite replay.

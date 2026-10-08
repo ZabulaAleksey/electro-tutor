@@ -1,0 +1,13 @@
+# Explicit fresh disposable contract from scripts/backend.mjs inspectIsolatedClone.
+name: electro-tutor-et103-test-20261008
+services:
+  postgres:
+    container_name: electro-tutor-et103-test-20261008
+    ports: !override
+      - "127.0.0.1:55434:5432"
+    volumes: !override
+      - electro-tutor-race-test:/var/lib/postgresql/data
+      - ./services/api/docker/init-db.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+volumes:
+  electro-tutor-race-test:
+    name: electro-tutor-et103-test-20261008

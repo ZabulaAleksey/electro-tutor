@@ -152,4 +152,4 @@
 - NEXT: ET-18.2
 - Next scope: bounded Web/PWA staging/HTTPS IAM/API/backup plan before deployment; future features remain separate backlog.
 
-- DEV-LDC original race admission: `compose.local-race-test.yaml` is a fresh opt-in ET-10.3 disposable clone on loopback55434 with exact new container/volume name20261008 and original readonly init SQL. Native creation/migration/two accepted accept-cancel race variants pending; no original DB/fixtures/test contract changed, no full-suite replay.
+- DEV-LDC original race admission: VERIFIED_TWO_VARIANTS — native fresh ET103 container/volume20261008/loopback55434/original readonly init SQL/new0014, original accept/cancel tests 2PASS0SKIP28.40s. Owned registry COMPLETED/SSH released/new container stopped+data retained/original19resource source-default-ledger POST unchanged. Prior full81PASS2SKIP remains its historical result; these two skipped scenarios are now covered separately. V23 tokenlost UNKNOWN_HOLD/GER-15 unchanged; frontend/auth/whole MASTER pending. Evidence ELECTRO_DISPOSABLE_RACES_TERMINAL_V1 in DEV-LDC Task.

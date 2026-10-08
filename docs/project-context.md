@@ -170,3 +170,16 @@ normal bootstrap не читаются.
 ## RC1 product context
 
 Локальный Web/PWA release candidate собирает уже реализованный продукт:1 опубликованный урок RU/UK,3 практических labs, реальный student signup/account, profiles/Booking/Session, inbox/reminders, device-only learning history/resume. STAGES ET-RC1 — current execution/status owner; derived product report — notes/productization-report.md. Manual Narrator/voice PASS и reminder policy ACCEPTED сохранены; manual remaining NONE. Production hosting/HTTPS IAM/original DB repair остаются отдельным ET-18.2 scope. No native wrapper/cloud progress/large course added.
+
+
+DEV-LDC: две исходные `test_same_version_accept_cancel_has_one_atomic_winner`
+проверки (`accept`, `cancel`) выполнены отдельно на доказанно новой disposable
+БД контейнера/volume `electro-tutor-et103-test-20261008`, loopback `55434`,
+исходный readonly init SQL, Alembic `20260928_0014`: **2 passed, 0 skipped,
+28.40 s**. Это закрывает два skip-сценария предыдущего native integration
+запуска (81 PASS/2 SKIP), сохраняя его исходный результат; повтор полной suite
+не выполнялся. Новый контейнер остановлен, данные/volume сохранены; SSH
+освобождён, прежние 19 ресурсов и source/config/default/ledger POST неизменны.
+Evidence: `ELECTRO_DISPOSABLE_RACES_TERMINAL_V1` в текущей DEV-LDC Task.
+V23 потерявшая token BACKUP/session остаётся UNKNOWN_HOLD; GER-15 неизменён.
+Frontend/auth/cold acceptance и весь infrastructure MASTER остаются partial.

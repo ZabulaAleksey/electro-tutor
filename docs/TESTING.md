@@ -741,3 +741,16 @@ user actions are in selected `STAGES.md`.
 ## RC1 post-integration readback
 
 Authorized clean local main19c6ea2 -> bee6ddc fast-forward DONE. No source conflict; all feature/docs/bridge ancestors retained. Context/CI/hygiene readback PASS. Source manifest uses canonical LF for UTF-8 text and exact binary bytes; pre/post checkout differences independently proved CRLF-only, not a behavior change. No repeat of unchanged campaign required. Own DB containers stopped/ephemeral IdP exited; important worktrees retained. Final receipt: evidence/rc1/readiness.json. No push/deploy/publication.
+
+
+DEV-LDC: две исходные `test_same_version_accept_cancel_has_one_atomic_winner`
+проверки (`accept`, `cancel`) выполнены отдельно на доказанно новой disposable
+БД контейнера/volume `electro-tutor-et103-test-20261008`, loopback `55434`,
+исходный readonly init SQL, Alembic `20260928_0014`: **2 passed, 0 skipped,
+28.40 s**. Это закрывает два skip-сценария предыдущего native integration
+запуска (81 PASS/2 SKIP), сохраняя его исходный результат; повтор полной suite
+не выполнялся. Новый контейнер остановлен, данные/volume сохранены; SSH
+освобождён, прежние 19 ресурсов и source/config/default/ledger POST неизменны.
+Evidence: `ELECTRO_DISPOSABLE_RACES_TERMINAL_V1` в текущей DEV-LDC Task.
+V23 потерявшая token BACKUP/session остаётся UNKNOWN_HOLD; GER-15 неизменён.
+Frontend/auth/cold acceptance и весь infrastructure MASTER остаются partial.

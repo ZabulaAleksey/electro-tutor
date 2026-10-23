@@ -23,5 +23,34 @@
     "post_volume_names_unchanged": true
   },
   "accepted_tests_changed": false,
-  "database_sql_executed": false
+  "database_sql_executed": false,
+  "fresh_postgresql": {
+    "status": "PASS",
+    "scope": "fresh tmpfs PostgreSQL17.6, synthetic test DB only; original personal DB never started",
+    "steps": [
+      {
+        "check": "upgrade",
+        "exit": 0
+      },
+      {
+        "check": "schema",
+        "exit": 0
+      },
+      {
+        "check": "integration",
+        "exit": 0
+      },
+      {
+        "check": "catalog",
+        "exit": 0
+      }
+    ],
+    "seconds": 108.437,
+    "helper_removed": true,
+    "all_volume_names_unchanged": true,
+    "original_container_state_unchanged": true,
+    "integration_passed": 83,
+    "integration_deselected": 217,
+    "catalog_revision": "20260928_0014"
+  }
 }

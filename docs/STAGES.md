@@ -136,6 +136,13 @@
 ## ET-RC1 — Productization / Release Candidate 1
 
 - Status: verified
+- Fresh synthetic PostgreSQL17.6 tmpfs: migrations0→0014/check/catalog +83integrationPASS/
+  217deselected. Original personal DB container/state unchanged, helper removed,77volume names
+  unchanged. This is fresh DB integration; hosted IdP/voice acceptance not repeated.
+- ET-STAGING-PLAN-01 / BLOCKED_DECISION: NEXT ET-18.2 is bounded planning only. Owner must
+  confirm hosting/HTTPS/IAM/backup-restore/SLO/budget/operator contract and dependency-ready
+  ET-18.1 before rollout implementation; current Settings supports only local/test/ci.
+  Expected approved SPEC + concrete runtime/rollback gates; no production profile invented.
 - Local Docker hygiene RC1-009: all services json-file10m×3; psql-only role helper
   tmpfs16MiB prevents anonymous volumes. Native model/helper allocation PASS; no SQL,
   schema/data/voice/auth behavior change. Evidence: docs/evidence/docker-hygiene-20261023.json.

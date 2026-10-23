@@ -1,3 +1,11 @@
+## Fresh disposable PostgreSQL —2026-10-23
+
+New PostgreSQL17.6 with512MiB tmpfs/384MiB memory and original readonly init SQL;
+loopback55438. Alembic0→0014/check,83integrationPASS/217deselected, catalog current PASS.
+Original personal DB was not started/migrated, container state equal before/after; own
+helper removed and all77persistent volume names unchanged. No IdP/voice/manual replay.
+Evidence: evidence/docker-hygiene-20261023.json; raw logs retained in local recovery archive.
+
 ## Ограничение Docker storage —2026-10-23
 
 Native Compose config всех изменённых profiles PASS. Реальный изолированный psql-helper

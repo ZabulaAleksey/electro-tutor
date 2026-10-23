@@ -136,6 +136,19 @@
 ## ET-RC1 — Productization / Release Candidate 1
 
 - Status: verified
+- NIGHT-ET-POSTMERGE-01 / VERIFIED_LOCAL_7D63A28: repeated frontend189/backend208 tests,
+  Ruff92/mypy52/typecheck/build/context/CI/hygiene PASS on updated main. Existing original DB,
+  IdP and accepted Narrator/RU/UK voice/reminder gates preserved; no repeated manual request.
+- ET-STAGING-SCOPE-01 / NEEDS_DECISION: owner must distinguish bounded RC1 Web/PWA private
+  staging from full ET-18.2 backend/realtime production rollout. Existing build exports25pages;
+  backend runtime supports local/test/ci only. No hosted production profile or resources invented.
+  Safe next action: approve bounded staging SPEC/topology, hosting/HTTPS/IAM owner, synthetic
+  dataset, backup/restore proof, SLO/budget/operator and rollout/rollback acceptance. Expected
+  approved contract unblocks implementation; full bundle still requires ET-18.1 dependencies.
+- NIGHT-ET-HYGIENE-01 / MAINTENANCE_RULE: continue in canonical root/existing branch,
+  existing worktree-policy audit and exact inactive-ref review at finalization; no duplicate
+  checkout. Existing Compose bounded logs and role-helper tmpfs remain. Stop disposable test
+  helpers and compare volume sets. Publication/Pages auto-deploy is a separate owner action.
 - Fresh synthetic PostgreSQL17.6 tmpfs: migrations0→0014/check/catalog +83integrationPASS/
   217deselected. Original personal DB container/state unchanged, helper removed,77volume names
   unchanged. This is fresh DB integration; hosted IdP/voice acceptance not repeated.
@@ -159,10 +172,9 @@
   native CLI changed it to selected C:/Users/aleks/DEV/dependencies/pnpm-store with exact backup
   and read-back. Receipt: ${DEV_ROOT}/state/pnpm-store-recovery-20261023/receipt.json.
   No package graph or Codex runtime configuration changed.
-- NIGHT-ET-FINALIZE-01 / PENDING_FINAL_REVIEW: local main remains6b5af43; no branch deletion.
-  Automatic approval rejected these action classes during MathMorph consolidation; owner may
-  approve exact final local payload/merged inactive branch list after all checks, with no remote
-  push/deploy. Expected clean ancestry/inventory receipt; unlock local finalization only.
+- NIGHT-ET-FINALIZE-01 / DONE_LOCAL: owner explicitly approved; main6b5af43 ->7d63a28
+  via verified fast-forward. All15 exact inactive integrated refs deleted by git branch -d;
+  fix/et-fast-uri-pages retained, recovery bundles verified, one checkout. Push/deploy unauthorized.
 
 - Checkpoint: source_manifest_sha256=cd4690f47af51e0eb4574d8e8567dd61b2e25a4a7d55d8a82286b1b7cd52da90
 - Candidate result: RC1_READY — локальный release candidate Web + installable PWA.
@@ -175,7 +187,7 @@
 - Evidence: docs/evidence/rc1/readiness.json; docs/TESTING.md; derived docs/notes/productization-report.md. Frontend189 PASS, backend208 PASS, real PostgreSQL83 PASS/no skips; broad Chromium128 PASS/6 expected live-phase skips; dedicated genuine registration/return1 PASS; base-path4+1 PASS; build25 pages/24 localized routes/121 artifacts; lint/typecheck/validators/audits PASS.
 - Review: two bounded independent read-only review cycles; malformed browser record and delayed identity write findings resolved and regression-tested. Accepted tests not rewritten, weakened, deleted or skipped. Protected Session speech/focus source unchanged.
 - Closed user gates: ET-10.3-UA-19 / Narrator PASS; RU/UK voice PASS; ET-14.2-UA-01 policy ACCEPTED; integration approval DONE. Evidence: accepted-gates-20261002.json and manual-gates-20261002/reconciliation.json. Повтор только после конкретного изменения соответствующего behavior.
-- User actions: none for historical RC1 product acceptance; NIGHT-ET-FINALIZE-01 above applies only to this maintenance run. No remote publication, deployment or original data repair performed.
+- User actions: none for historical RC1 product acceptance; local finalization DONE. ET-STAGING-SCOPE-01 and ET-STAGING-PLAN-01 above are the remaining rollout planning decisions. No remote publication, deployment or original data repair performed.
 - REAL_MANUAL_REMAINING: NONE
 - NEXT: ET-18.2
 - Next scope: bounded Web/PWA staging/HTTPS IAM/API/backup plan before deployment; future features remain separate backlog.

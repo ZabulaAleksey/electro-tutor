@@ -58,5 +58,174 @@
   "old_branch_disposition": "fix/et-fast-uri-pages is superseded: importing it would lower PyJWT/devalue and remove accepted reminder command; retained in verified bundle and local refs",
   "shared_pnpm_store_repair": "native config updated only storeDir E:/DEV -> selected C:/Users/aleks/DEV; backup/receipt under DEV_ROOT/state/pnpm-store-recovery-20261023",
   "remote_push_merge_deploy": "NOT_EXECUTED",
-  "main": "6b5af43 unchanged"
+  "main": "7d63a280d4a30ab530647c7fdfd204e40909f689",
+  "local_finalization": {
+    "preflight": "PASS",
+    "verified_bundles": [
+      "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\.worktree-archives\\night-consolidation-20261023\\all-refs.bundle",
+      "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\.worktree-archives\\night-consolidation-20261023\\post-cleanup-reflog-history.bundle",
+      "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\.worktree-archives\\night-consolidation-20261023\\validated-checkpoint.bundle"
+    ],
+    "main_before": "6b5af43882d13c2d786e1169b39a50ac7d20e60c",
+    "approved_candidate": "7d63a280d4a30ab530647c7fdfd204e40909f689",
+    "deleted": [
+      {
+        "branch": "docs/accepted-manual-gates-policy",
+        "sha": "09b61d13b083f65527f51d76f752f707f6b84702",
+        "rc": 0,
+        "result": "Deleted branch docs/accepted-manual-gates-policy (was 09b61d1).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-acceptance-postintegration",
+        "sha": "8fe5ac66e1b59f7159879d54ef57a4e4aafc8760",
+        "rc": 0,
+        "result": "Deleted branch docs/et-acceptance-postintegration (was 8fe5ac6).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-accepted-gates-policy",
+        "sha": "0801c32a13e1f8a362bb08d7c4fb929fa31ed1f3",
+        "rc": 0,
+        "result": "Deleted branch docs/et-accepted-gates-policy (was 0801c32).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-dev-bridge",
+        "sha": "8b076bdde878f1f785c09935fd0def4c8acc8207",
+        "rc": 0,
+        "result": "Deleted branch docs/et-dev-bridge (was 8b076bd).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-dev-bridge-remote",
+        "sha": "b25284428c38ea5b7a0e056836a0140b0496bce2",
+        "rc": 0,
+        "result": "Deleted branch docs/et-dev-bridge-remote (was b252844).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-manual-gates-reconciled",
+        "sha": "19c6ea2046bce2999f8061e54176fb5affbeef83",
+        "rc": 0,
+        "result": "Deleted branch docs/et-manual-gates-reconciled (was 19c6ea2).",
+        "reason": ""
+      },
+      {
+        "branch": "docs/et-voice-acceptance-pass",
+        "sha": "ce8d16f95e75e0e7d6de99dff98a306b81e31809",
+        "rc": 0,
+        "result": "Deleted branch docs/et-voice-acceptance-pass (was ce8d16f).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/et-14-1-notifications",
+        "sha": "97627973fb4f588ac9b5841c846adf9916d42d1b",
+        "rc": 0,
+        "result": "Deleted branch feature/et-14-1-notifications (was 9762797).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/et-14-2-reminders",
+        "sha": "050079878d2f6ea7b20662fc0f3f71566212a717",
+        "rc": 0,
+        "result": "Deleted branch feature/et-14-2-reminders (was 0500798).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/line-transient-mvp",
+        "sha": "fefe168ac0d26b91d1ec1bf9020fb5ca89d3c9f3",
+        "rc": 0,
+        "result": "Deleted branch feature/line-transient-mvp (was fefe168).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/live-tutoring-design",
+        "sha": "a7b198fa306ea112ed3e8096aaa3acf665b76b2d",
+        "rc": 0,
+        "result": "Deleted branch feature/live-tutoring-design (was a7b198f).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/rc1-learning-loop",
+        "sha": "92bb0a5d15f93475f3cae7dfb9808117e7b6f90e",
+        "rc": 0,
+        "result": "Deleted branch feature/rc1-learning-loop (was 92bb0a5).",
+        "reason": ""
+      },
+      {
+        "branch": "feature/rc1-productization",
+        "sha": "6b5af43882d13c2d786e1169b39a50ac7d20e60c",
+        "rc": 0,
+        "result": "Deleted branch feature/rc1-productization (was 6b5af43).",
+        "reason": ""
+      },
+      {
+        "branch": "fix/et-blackout-recovery-docs",
+        "sha": "6c6cc91fef2b500b6cc519a8cd4d17aebb5bc142",
+        "rc": 0,
+        "result": "Deleted branch fix/et-blackout-recovery-docs (was 6c6cc91).",
+        "reason": ""
+      },
+      {
+        "branch": "test/et-booking-accept-cancel-race",
+        "sha": "09b61d13b083f65527f51d76f752f707f6b84702",
+        "rc": 0,
+        "result": "Deleted branch test/et-booking-accept-cancel-race (was 09b61d1).",
+        "reason": ""
+      }
+    ],
+    "preserved": [],
+    "ff_only": "PASS",
+    "main_after": "7d63a280d4a30ab530647c7fdfd204e40909f689",
+    "worktrees": "worktree C:/Users/aleks/DEV/projects/electro-tutor\nHEAD 7d63a280d4a30ab530647c7fdfd204e40909f689\nbranch refs/heads/main",
+    "status": "",
+    "remaining_branches": [
+      "feature/return-local-dev-consumer|7d63a280d4a30ab530647c7fdfd204e40909f689",
+      "fix/et-fast-uri-pages|ff810d4cc807249f21fd844d7acb61c4e2e6a27a",
+      "main|7d63a280d4a30ab530647c7fdfd204e40909f689"
+    ]
+  },
+  "postmerge_checks": {
+    "source_commit": "7d63a280d4a30ab530647c7fdfd204e40909f689",
+    "checks": [
+      {
+        "name": "unit",
+        "exit": 0,
+        "seconds": 16.62
+      },
+      {
+        "name": "check",
+        "exit": 0,
+        "seconds": 79.6
+      },
+      {
+        "name": "build",
+        "exit": 0,
+        "seconds": 19.96
+      },
+      {
+        "name": "backend",
+        "exit": 0,
+        "seconds": 15.99
+      },
+      {
+        "name": "context",
+        "exit": 0,
+        "seconds": 1.97
+      },
+      {
+        "name": "ci",
+        "exit": 0,
+        "seconds": 1.84
+      },
+      {
+        "name": "hygiene",
+        "exit": 0,
+        "seconds": 1.77
+      }
+    ]
+  },
+  "targeted_dev_cleanup_reference": "MathMorph docs/evidence/night-current-runtime-20261023.json; DEV selected STAGES",
+  "remaining_staging_scope": "NEEDS_DECISION; no production profile inferred"
 }

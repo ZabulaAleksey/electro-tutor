@@ -30,7 +30,7 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/lesson-access-grants.spec.md` | Действует для `ET-10.2`; `PLATFORM` source deferred | Утверждённый time-bounded LessonAccessGrant, atomic Booking issue/revoke, participant authorization и protected media-less shell |
 | `features/booking-reminders.spec.md` | Утверждённый contract ET-14.2 / ADR-033 (2026-09-28) | REM-001..005: defaults, confirmed IANA timezone, quiet hours, late grace и immutable Booking; runtime integration отдельно в STAGES |
 | `features/lesson-sessions.spec.md` | Утверждённый contract `ET-10.3`; isolated backend/live browser gates прошли, ранее принятый manual RU/UK voice gate PASS (TESTING/UA-19) | Booking-bound lifecycle, participant role, active-grant authorization, reload, expiry и terminal acceptance без media |
-| `features/booking-reminders.spec.md` | Утверждённый contract ET-14.2; feature terminal acceptance PASS, local main finalization in progress | Explicit IANA settings, 24h/1h/15m intents, quiet hours, late grace и cancel + new Booking replacement |
+| `features/booking-reminders.spec.md` | Утверждённый contract ET-14.2; feature terminal acceptance PASS; locally integrated in main7d63a28 | Explicit IANA settings, 24h/1h/15m intents, quiet hours, late grace и cancel + new Booking replacement |
 | `features/live-tutoring-session.spec.md` | DRAFT, не входит в binding requirement scope | Repository reconciliation, proposed invite/media/presence boundary, threats, migration и bounded ET-12 plan |
 | `features/ai-native-tutoring-platform.spec.md` | Действующий mixed architecture baseline | Реализованные architecture IDs и non-binding future backlog классифицируются per-ID; каждый новый runtime implementation stage требует утверждённой feature-SPEC |
 

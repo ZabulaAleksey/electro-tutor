@@ -1,5 +1,11 @@
 ## Fresh disposable PostgreSQL —2026-10-23
 
+Post-merge main `7d63a28`: repeated `pnpm test`189 PASS, `pnpm check`, `pnpm build`,
+`pnpm backend:test:fast`208 PASS/92deselected (Ruff92/mypy52), `check:context`,
+`check:ci-workflow`, `check:hygiene` PASS. This is fresh local main validation. Existing genuine
+DB/browser/voice acceptance stays scoped to its recorded runs; hosted rollout was not run.
+Receipt: `docs/evidence/night-consolidation-20261023.json`.
+
 New PostgreSQL17.6 with512MiB tmpfs/384MiB memory and original readonly init SQL;
 loopback55438. Alembic0→0014/check,83integrationPASS/217deselected, catalog current PASS.
 Original personal DB was not started/migrated, container state equal before/after; own

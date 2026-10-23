@@ -38,6 +38,12 @@ agents, Skills и Git workflow наследуются; локальные коп
 
 ## Backend DX Delta
 
+Maintenance closure reuses the canonical root and existing worktree-policy audit. Record exact
+inactive refs/owned helpers and their recovery in selected STAGES; only an approved exact list
+may be removed. Compare Docker volume names after disposable helpers; implicit image VOLUME
+must be covered by bounded tmpfs. Local main integration never authorizes push/auto-deploy.
+
+
 Локальный maintenance2026-10-23 переиспользует Compose: json-file10m×3 для сервисов;
 psql-only helper перекрывает image VOLUME временным16MiB tmpfs. PRE/during/POST
 проверка реального no-network helper:0 новых томов, SQL/DB не запускались.

@@ -1,5 +1,9 @@
 # Потенциал
 
+Локальная консолидация 2026-10-23: main `7d63a28`,15 согласованных веток удалены,
+один checkout. Повторно прошли frontend189/backend208 тестов, typecheck/build и context/CI
+проверки. RC1_READY сохранён; следующий bounded staging plan и owner decisions — `docs/STAGES.md`.
+
 `electro-tutor` — русско-украинская образовательная платформа по электротехнике
 на Astro с MDX-уроками, формулами KaTeX, React-интерактивом и
 PWA-возможностями. Технические коды локалей — `ru` и `uk`.

@@ -1,5 +1,9 @@
 # Дорожная карта Electro Tutor
 
+Local main `7d63a28` now includes the approved consolidation;15 inactive refs removed.
+RC1 product/manual acceptance retained. NEXT remains bounded ET-18.2 planning, with the
+scope/prerequisite conflict explicitly held in selected `docs/STAGES.md`; no rollout assumed.
+
 Roadmap задаёт порядок развития, но не заменяет SPEC. Детали ближайшей работы
 и подтверждённые status/`NEXT`/blockers находятся в выбранном record
 `STAGES.md`.

@@ -1,3 +1,26 @@
+## Night consolidation —2026-10-23
+
+Canonical source baseline1d12899, feature/return-local-dev-consumer. All4 temporary worktrees
+removed after reachable-history and SHA retention checks. Verified full refs/dangling backup
+retained; root recovery archive namespace ignored as runtime data. Existing application source,
+locks, accepted tests, voice/focus behavior and production resources unchanged.
+
+| Check | Result |
+|---|---|
+| pnpm11.23 frozen restore; uv0.12.3 frozen all-groups | PASS |
+| pnpm test |189PASS/27files |
+| backend:test:fast |208PASS/92deselected; Ruff92/mypy52 PASS |
+| lint/check/build |PASS;144files/0errors/0warnings/2existing hints;25pages/24routes/121files |
+| context/CI/whitespace hygiene |PASS; exact per-process Git trust, no global Git config edit |
+| built Chromium |128PASS/6dedicated-live-phase skips |
+| Git integrity |PASS |
+
+Stale global pnpm storeDir E: caused ENOENT during restore and nested pnpm auto-install.
+Native CLI repaired its single config key to selected C: store with original backup; ordinary
+commands now work without a store override. This is tool recovery, not a test waiver.
+Original DB/auth/notifications/voice acceptance below was not repeated or relabeled current.
+Current receipt: evidence/night-consolidation-20261023.json; routing/approvals: selected STAGES.
+
 # Testing contract
 
 ## RC1 — terminal local acceptance, 2026-10-02

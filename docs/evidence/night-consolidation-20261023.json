@@ -1,0 +1,62 @@
+{
+  "kind": "local_consolidation",
+  "date": "2026-10-23",
+  "source_baseline": "1d128996e9042828c0eb31096eead083fb58bf56",
+  "branch": "feature/return-local-dev-consumer",
+  "worktrees_before": 5,
+  "worktrees_after": 1,
+  "removed": [
+    {
+      "Path": "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\worktrees\\electro-tutor-active-stages",
+      "HEAD": "72212d5d90da35e69f3393a00fe9ab8b69cfb8fc",
+      "Absent": true,
+      "Integrated": true,
+      "FreeAfter": 165049344000
+    },
+    {
+      "Path": "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\worktrees\\line-transient-mvp",
+      "HEAD": "050079878d2f6ea7b20662fc0f3f71566212a717",
+      "Absent": true,
+      "Integrated": true,
+      "FreeAfter": 166034522112
+    },
+    {
+      "Path": "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\worktrees\\live-tutoring-design",
+      "HEAD": "a7b198fa306ea112ed3e8096aaa3acf665b76b2d",
+      "Absent": true,
+      "Integrated": true,
+      "FreeAfter": 166037917696
+    },
+    {
+      "Path": "C:\\Users\\aleks\\DEV\\projects\\electro-tutor\\worktrees\\rc1-learning-loop",
+      "HEAD": "92bb0a5d15f93475f3cae7dfb9808117e7b6f90e",
+      "Absent": true,
+      "Integrated": true,
+      "FreeAfter": 166045339648
+    }
+  ],
+  "retention": {
+    "MovedFiles": 3,
+    "MovedBytes": 239,
+    "IdenticalAlreadyRetained": 0,
+    "Verified": true
+  },
+  "checks": {
+    "frozen_pnpm_uv": "PASS",
+    "frontend_unit": 189,
+    "backend_fast": 208,
+    "backend_deselected": 92,
+    "ruff_format_lint_mypy": "PASS",
+    "lint": "PASS",
+    "astro_check": "144 files,0errors,0warnings,2existing hints",
+    "build": "25pages/24localized routes/121files",
+    "context_ci_hygiene": "PASS",
+    "built_browser": "128PASS/6dedicated-live-phase skips",
+    "git_fsck": "PASS",
+    "live_backend_acceptance": "NOT_RERUN; no backend source change"
+  },
+  "old_branch_disposition": "fix/et-fast-uri-pages is superseded: importing it would lower PyJWT/devalue and remove accepted reminder command; retained in verified bundle and local refs",
+  "shared_pnpm_store_repair": "native config updated only storeDir E:/DEV -> selected C:/Users/aleks/DEV; backup/receipt under DEV_ROOT/state/pnpm-store-recovery-20261023",
+  "remote_push_merge_deploy": "NOT_EXECUTED",
+  "main": "6b5af43 unchanged"
+}

@@ -136,6 +136,24 @@
 ## ET-RC1 — Productization / Release Candidate 1
 
 - Status: verified
+- Night consolidation2026-10-23: canonical root/feature/return-local-dev-consumer reused;
+  all4 temporary worktrees physically removed (5 ->1 total), HEADs reachable from active line,
+  ignored3files/239bytes SHA-retained. All original refs plus dangling commit are in verified
+  .worktree-archives/night-consolidation-20261023/all-refs.bundle (85,565,536bytes).
+  Old security branch is superseded by current newer dependencies; no lock downgrade/import.
+- Current cleanup checks: frozen pnpm11.23/uv0.12.3, frontend189PASS, backend208PASS/92deselected,
+  Ruff/mypy/lint/check/build/context/CI/hygiene PASS; built Chromium128PASS/6dedicated-live skips.
+  DB/auth/voice/manual acceptance below remains historical and is not reopened by cleanup.
+  Evidence: docs/evidence/night-consolidation-20261023.json and docs/TESTING.md.
+- Shared DEV repair: pnpm global config had only stale storeDir E:/DEV/dependencies/pnpm-store;
+  native CLI changed it to selected C:/Users/aleks/DEV/dependencies/pnpm-store with exact backup
+  and read-back. Receipt: ${DEV_ROOT}/state/pnpm-store-recovery-20261023/receipt.json.
+  No package graph or Codex runtime configuration changed.
+- NIGHT-ET-FINALIZE-01 / PENDING_FINAL_REVIEW: local main remains6b5af43; no branch deletion.
+  Automatic approval rejected these action classes during MathMorph consolidation; owner may
+  approve exact final local payload/merged inactive branch list after all checks, with no remote
+  push/deploy. Expected clean ancestry/inventory receipt; unlock local finalization only.
+
 - Checkpoint: source_manifest_sha256=cd4690f47af51e0eb4574d8e8567dd61b2e25a4a7d55d8a82286b1b7cd52da90
 - Candidate result: RC1_READY — локальный release candidate Web + installable PWA.
 - Blockers: none
@@ -147,7 +165,7 @@
 - Evidence: docs/evidence/rc1/readiness.json; docs/TESTING.md; derived docs/notes/productization-report.md. Frontend189 PASS, backend208 PASS, real PostgreSQL83 PASS/no skips; broad Chromium128 PASS/6 expected live-phase skips; dedicated genuine registration/return1 PASS; base-path4+1 PASS; build25 pages/24 localized routes/121 artifacts; lint/typecheck/validators/audits PASS.
 - Review: two bounded independent read-only review cycles; malformed browser record and delayed identity write findings resolved and regression-tested. Accepted tests not rewritten, weakened, deleted or skipped. Protected Session speech/focus source unchanged.
 - Closed user gates: ET-10.3-UA-19 / Narrator PASS; RU/UK voice PASS; ET-14.2-UA-01 policy ACCEPTED; integration approval DONE. Evidence: accepted-gates-20261002.json and manual-gates-20261002/reconciliation.json. Повтор только после конкретного изменения соответствующего behavior.
-- User actions: none for RC1. No pending credentials/acceptance introduced. No push, production deploy, release publication, original data repair or important worktree deletion performed.
+- User actions: none for historical RC1 product acceptance; NIGHT-ET-FINALIZE-01 above applies only to this maintenance run. No remote publication, deployment or original data repair performed.
 - REAL_MANUAL_REMAINING: NONE
 - NEXT: ET-18.2
 - Next scope: bounded Web/PWA staging/HTTPS IAM/API/backup plan before deployment; future features remain separate backlog.

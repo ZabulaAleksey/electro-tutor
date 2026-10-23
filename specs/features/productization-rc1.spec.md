@@ -57,6 +57,9 @@ Stage/evidence/status owner — ../../docs/STAGES.md, ET-RC1.
   runner infrastructure issues are agent work; mocks only cover error matrices,
   not terminal consumer evidence. Build/runtime startup has declared config,
   bounded readiness and safe diagnostics. Original DB/MathMorph never mutated.
+  Local Docker logs use json-file max-size10m/max-file3. The PostgreSQL db-role-bootstrap
+  client covers its implicit data VOLUME with a16MiB tmpfs and creates no persistent
+  anonymous volume; existing roles/schema and database data mounts are unchanged.
 - RC1-010: synchronize canonical STAGES/ROADMAP/TESTING/SPEC/architecture/
   API/security/traceability/ledger as facts change; generate detailed
   PRODUCTIZATION_REPORT and content-free readiness evidence. Keep UA-19 /

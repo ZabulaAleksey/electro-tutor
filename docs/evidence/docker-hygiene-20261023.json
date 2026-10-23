@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-23",
+  "scope": "bounded local diagnostic logs and no anonymous role-helper volume",
+  "live_helper_proof": {
+    "project": "electro-tutor",
+    "source_compose": "compose.yaml",
+    "service": "db-role-bootstrap",
+    "image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "tmpfs": {
+      "/var/lib/postgresql/data": "size=16m"
+    },
+    "logging": {
+      "Type": "json-file",
+      "Config": {
+        "max-file": "3",
+        "max-size": "10m"
+      }
+    },
+    "volume_count_before": 83,
+    "volume_count_during": 83,
+    "database_contact": "NONE_NO_NETWORK_SLEEP_ONLY",
+    "allocation_contract": "PASS",
+    "post_volume_names_unchanged": true
+  },
+  "accepted_tests_changed": false,
+  "database_sql_executed": false
+}

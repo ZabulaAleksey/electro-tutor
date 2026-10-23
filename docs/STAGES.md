@@ -136,6 +136,9 @@
 ## ET-RC1 — Productization / Release Candidate 1
 
 - Status: verified
+- Local Docker hygiene RC1-009: all services json-file10m×3; psql-only role helper
+  tmpfs16MiB prevents anonymous volumes. Native model/helper allocation PASS; no SQL,
+  schema/data/voice/auth behavior change. Evidence: docs/evidence/docker-hygiene-20261023.json.
 - Night consolidation2026-10-23: canonical root/feature/return-local-dev-consumer reused;
   all4 temporary worktrees physically removed (5 ->1 total), HEADs reachable from active line,
   ignored3files/239bytes SHA-retained. All original refs plus dangling commit are in verified

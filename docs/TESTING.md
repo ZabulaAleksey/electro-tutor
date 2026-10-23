@@ -1,3 +1,10 @@
+## Ограничение Docker storage —2026-10-23
+
+Native Compose config всех изменённых profiles PASS. Реальный изолированный psql-helper
+запущен только с sleep/network none: image VOLUME покрыт16MiB tmpfs, json-file10m×3,
+имена томов PRE/during/POST83→83→83. Это allocation/logging proof, SQL не выполнялся.
+Accepted tests и DB schemas не менялись. Evidence: docs/evidence/docker-hygiene-20261023.json.
+
 ## Night consolidation —2026-10-23
 
 Canonical source baseline1d12899, feature/return-local-dev-consumer. All4 temporary worktrees

@@ -1,7 +1,14 @@
+x-local-logging: &et-local-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 name: electro-tutor-local
 
 services:
   keycloak:
+    logging: *et-local-logging
     image: quay.io/keycloak/keycloak:26.7.2
     command: ["start-dev", "--http-port=8080"]
     environment:
@@ -22,6 +29,7 @@ services:
     restart: "no"
 
   postgres:
+    logging: *et-local-logging
     image: postgres:17.6
     environment:
       POSTGRES_DB: electro_tutor
@@ -44,6 +52,7 @@ services:
     restart: "no"
 
   api:
+    logging: *et-local-logging
     image: electro-tutor-local-api
     build:
       context: ./services/api
@@ -75,6 +84,7 @@ services:
     restart: "no"
 
   notification-worker:
+    logging: *et-local-logging
     image: electro-tutor-local-api
     build:
       context: ./services/api
@@ -91,6 +101,7 @@ services:
     restart: "no"
 
   migrate:
+    logging: *et-local-logging
     image: electro-tutor-local-api
     build:
       context: ./services/api
@@ -105,6 +116,9 @@ services:
     restart: "no"
 
   db-role-bootstrap:
+    tmpfs:
+      - /var/lib/postgresql/data:size=16m
+    logging: *et-local-logging
     image: postgres:17.6
     environment:
       PGPASSWORD: local-bootstrap-only

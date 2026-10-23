@@ -38,6 +38,12 @@ agents, Skills и Git workflow наследуются; локальные коп
 
 ## Backend DX Delta
 
+Локальный maintenance2026-10-23 переиспользует Compose: json-file10m×3 для сервисов;
+psql-only helper перекрывает image VOLUME временным16MiB tmpfs. PRE/during/POST
+проверка реального no-network helper:0 новых томов, SQL/DB не запускались.
+Менеджеры, ORM, schema и persistent data mounts не менялись.
+
+
 - Applicability level: `BDX-L3` isolated verified — stateful FastAPI +
   PostgreSQL and ET-14.1 notification worker; isolated worker/DB acceptance passed.
 - Supported local environments: Windows 11 PowerShell и CI Linux; Docker engine

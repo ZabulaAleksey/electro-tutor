@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+Public static MVP (2026-10-28): тот же Astro `dist/` опубликован Direct Upload в
+Cloudflare Pages: https://electrotutor-mvp.pages.dev/, `BASE_PATH=/`, без API origin.
+GitHub Pages сохранён. Backend/OIDC/PKCE topology не менялась; lesson/practice работает локально в браузере.
+
 Документ описывает фактическое устройство проекта «Потенциал». Требования
 находятся в `../specs/`, а известные расхождения реализации — в
 выбранном record `STAGES.md`.

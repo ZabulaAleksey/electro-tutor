@@ -1,3 +1,21 @@
+## Static MVP / Cloudflare Pages public acceptance — 2026-10-28
+
+Source `0d4061e`, existing `feature/return-local-dev-consumer`; product code/tests unchanged.
+`pnpm@11.23.0 run build` with `SITE_URL=https://electrotutor-mvp.pages.dev`, `BASE_PATH=/`,
+empty `PUBLIC_API_ORIGIN`: PASS,25pages/24localized routes/121artifacts, shipped WASM integrity
+and394paired locale keys PASS. Global pnpm11.20 conflicted with nested script; exact already
+installed11.23 used via process-local PATH shim, no global config or dependency change.
+`pnpm exec playwright test tests/e2e/learning-journey.spec.ts --grep 'public learner|explanation levels' --workers=1`:
+4PASS/29.0s (RU/UK guest feedback/completion/resume and3levels/reload), no mocked backend.
+Chrome `127.0.0.1:4325`: root→RU home→mesh lesson, correct2.18A feedback, direct reload,
+SVG circuit and KaTeX visually PASS; zero `.katex-error` and captured browser errors.
+Expected current I3=(54−30)/11=24/11A; no backend required.
+Owner explicitly approved resource+publication; Pages Direct Upload121/121files, deployment
+`c0bbe0d0-280e-45dc-8dac-8d20d96782cf`, https://electrotutor-mvp.pages.dev/.
+Public Chrome PASS: HTTPS root→RU home→lesson, wrong1.2A/correct2.18A feedback,
+completion retained after direct-route reload; RU→UK retains completion. SVG circuit and9KaTeX
+visually PASS, zero `.katex-error`, zero captured browser errors. No login/developer setup.
+This evidence covers the public lesson; hosted API/OIDC/booking were not deployed or retested.
 ## Fresh disposable PostgreSQL —2026-10-23
 
 Post-merge main `7d63a28`: repeated `pnpm test`189 PASS, `pnpm check`, `pnpm build`,

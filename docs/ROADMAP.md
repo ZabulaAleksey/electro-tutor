@@ -1,5 +1,9 @@
 # Дорожная карта Electro Tutor
 
+MVP NOW (2026-10-28): существующий статический учебный сценарий опубликован на
+https://electrotutor-mvp.pages.dev/ и проверен в обычном Chrome. Для урока backend не нужен;
+полный ET-18.2 rollout остаётся отдельным scope. Текущий evidence — `STAGES.md` / ET-MVP-NOW.
+
 Local main `7d63a28` now includes the approved consolidation;15 inactive refs removed.
 RC1 product/manual acceptance retained. NEXT remains bounded ET-18.2 planning, with the
 scope/prerequisite conflict explicitly held in selected `docs/STAGES.md`; no rollout assumed.

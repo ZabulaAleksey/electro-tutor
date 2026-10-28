@@ -135,6 +135,11 @@
 
 ## ET-RC1 — Productization / Release Candidate 1
 
+- ET-MVP-NOW / verified, released/deployed (2026-10-28): прямой запрос владельца запускает существующий static Web MVP на Cloudflare Pages без новых features/backend и без ожидания ET-18.2. Сценарий: / → RU home → /ru/topics/dc/mesh-current-method/ → I3=24/11 A → feedback/completion/reload. RU/UK lesson, SVG и KaTeX уже реализованы; PUBLIC_API_ORIGIN пустой, OIDC/PKCE source не меняется. Acceptance: build, главная, упражнение/корректный ответ, схемы/формулы, browser errors, reload прямой ссылки; затем те же проверки публичного HTTPS URL.
+- ET-MVP-CF-LOGIN-01 / DONE: владелец подтвердил вход; активный Cloudflare account ea6e01a387850248f6cc7c60024aa57a подтверждён через Workers & Pages в браузере приложения.
+- ET-MVP-CF-PUBLISH-01 / DONE 2026-10-28: прямой ответ владельца «Разрешаю создать и опубликовать» разрешает бесплатный Pages Direct Upload electrotutor-mvp в account ea6e01a387850248f6cc7c60024aa57a и публичную публикацию проверенного static dist (BASE_PATH=/, SITE_URL=https://electrotutor-mvp.pages.dev). Artifact ZIP SHA256 f1557819a9cfe1ae82397b80ca26760a295162e22d1fad8516d688cf0908f400. GitHub Pages, production secrets и backend infrastructure сохраняются. Cloudflare загрузил 121/121 файлов и подтвердил Success. Production deployment c0bbe0d0-280e-45dc-8dac-8d20d96782cf; immutable URL https://c0bbe0d0.electrotutor-mvp.pages.dev/; основной URL https://electrotutor-mvp.pages.dev/.
+- MVP local evidence: source 0d4061e, штатный pnpm11.23.0 build PASS: WASM integrity, 394 paired locale keys, 25 pages/24 localized routes/121 artifacts. Existing Playwright learning-journey --grep "public learner|explanation levels" --workers=1: 4 PASS (29.0s), без mock/backend. Chrome home/lesson/правильный ответ/прямой reload PASS; SVG/KaTeX визуально проверены, .katex-error=0, browser errors=0. Математика: 6I1−2I2=24, −2I1+8I2=12 → I3=24/11 A. Public Chrome PASS на https://electrotutor-mvp.pages.dev/: root→RU home→mesh lesson, wrong1.2/correct2.18A feedback, completion после прямого reload, RU→UK с сохранённым progress, SVG/9 KaTeX без .katex-error и browser errors. Учебный сценарий без login/backend/manual developer setup. User actions for MVP: none; blockers: none. Результат теста хранится в docs/TESTING.md.
+
 - Status: verified
 - NIGHT-ET-POSTMERGE-01 / VERIFIED_LOCAL_7D63A28: repeated frontend189/backend208 tests,
   Ruff92/mypy52/typecheck/build/context/CI/hygiene PASS on updated main. Existing original DB,
@@ -179,7 +184,7 @@
 - Checkpoint: source_manifest_sha256=cd4690f47af51e0eb4574d8e8567dd61b2e25a4a7d55d8a82286b1b7cd52da90
 - Candidate result: RC1_READY — локальный release candidate Web + installable PWA.
 - Blockers: none
-- Deployment boundary: production hosting/IAM/original DB compatibility remain separate ET-18.2 scope.
+- Deployment boundary: static public MVP опубликован на Cloudflare Pages; backend production hosting/IAM/original DB compatibility remain separate ET-18.2 scope.
 - Condition: approved productization-rc1.spec.md RC1-001..010 выполнены; проверен связный путь без знания внутренних stages. ET-14.2 интегрирован в main с 19c6ea2; RC1 source integrated in local main bee6ddc after explicitly authorized clean fast-forward; final documentation receipt retained in the same local ancestry.
 - Dependencies: ET-10.3/ET-14.1/ET-14.2 verified; обе истории docs/reminders, DEV bridge, security fixes и принятые tests/evidence сохранены.
 - Runnable vertical slice: home -> catalog -> опубликованный mesh lesson -> ответ/feedback -> completion -> reload/leave -> resume -> account/history. Реальный Keycloak -> API -> PostgreSQL: signup -> student profile -> lesson -> logout -> login -> восстановленная история/settings/inbox. Booking -> worker -> reminder/inbox terminal acceptance сохранён и проверен при reconciliation; это отдельный настоящий consumer path, не mock.
@@ -190,6 +195,6 @@
 - User actions: none for historical RC1 product acceptance; local finalization DONE. ET-STAGING-SCOPE-01 and ET-STAGING-PLAN-01 above are the remaining rollout planning decisions. No remote publication, deployment or original data repair performed.
 - REAL_MANUAL_REMAINING: NONE
 - NEXT: ET-18.2
-- Next scope: bounded Web/PWA staging/HTTPS IAM/API/backup plan before deployment; future features remain separate backlog.
+- Next scope: ET-MVP-NOW completed; отдельный полный backend rollout ET-18.2 требует bounded HTTPS/IAM/API/backup plan. Future features remain separate backlog.
 
 - DEV-LDC original race admission: VERIFIED_TWO_VARIANTS — native fresh ET103 container/volume20261008/loopback55434/original readonly init SQL/new0014, original accept/cancel tests 2PASS0SKIP28.40s. Owned registry COMPLETED/SSH released/new container stopped+data retained/original19resource source-default-ledger POST unchanged. Prior full81PASS2SKIP remains its historical result; these two skipped scenarios are now covered separately. V23 tokenlost UNKNOWN_HOLD/GER-15 unchanged; frontend/auth/whole MASTER pending. Evidence ELECTRO_DISPOSABLE_RACES_TERMINAL_V1 in DEV-LDC Task.

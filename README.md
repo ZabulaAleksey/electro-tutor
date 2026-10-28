@@ -1,5 +1,10 @@
 # Потенциал
 
+Публичный MVP: https://electrotutor-mvp.pages.dev/ — Cloudflare Pages, 2026-10-28.
+Начните с урока «Метод контурных токов»: RU/UK, схема, формулы, проверка ответа
+и прогресс на этом устройстве. Регистрация и настройка сервера для урока не нужны.
+Сборка и реальный публичный сценарий проверены; evidence — `docs/STAGES.md` и `docs/TESTING.md`.
+
 Локальная консолидация 2026-10-23: main `7d63a28`,15 согласованных веток удалены,
 один checkout. Повторно прошли frontend189/backend208 тестов, typecheck/build и context/CI
 проверки. RC1_READY сохранён; следующий bounded staging plan и owner decisions — `docs/STAGES.md`.

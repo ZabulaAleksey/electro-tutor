@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-SHOWCASE-001
+- Stage ID: ET-MICRO-001
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -132,6 +132,21 @@
 ## Поздние этапы
 
 - ET-10.3 acceptance verified; ET-11.1/ET-11.2 и поздние stages требуют отдельного выбора и dependency-ready SPEC/evidence, их реализация этим checkpoint не запускается.
+
+## ET-MICRO-001 — Micro Labs на главной
+
+- Status: partial
+- Lifecycle: in_progress; evidence: implemented and validated locally2026-10-29; publication permission pending.
+- SPEC: specs/features/engineering-showcase.spec.md; SHOW-008..011.
+- Dependencies: ET-SHOWCASE-001 verified/released, clean main e2e0497. Existing checkout/new feature/micro-labs; no worktree.
+- Slice: home→14micro models/8groups→physical parameter→computed result/plot→reset/filter/permalink/locale. Neutral engineering symbols; existing3advanced routes preserved.
+- Plan: pure models+invariants → reusable card/circuit/plot/time+catalog → mobile/browser/current frontend gates → commit → ONE owner publication permission → public same-path acceptance.
+- Checks: KCL/KVL/power; RLC resonance/RMS; RC continuity/energy; diode piecewise intersection; star balance; first-order differential equation; motor torque/back-EMF/energy; line load boundary. Production build/unit/lint/typecheck and bounded browser.
+- Blockers: none for Micro MVP. Advanced multi-line owner prompt/reference not supplied; that future scope is deferred, not a dependency. No 3D needed for chosen2D models.
+- Local evidence:213unit/29files PASS, lint PASS, Astro158files/0errors/0warnings/2existingWASM hints, build25pages/126artifacts PASS.17combined browser checks PASS/37.4s; final7micro PASS/17.6s after multiline/390px formula fix. Physics14invariants/control corners PASS. Actual local Chrome desktop/mobile,14cards/8groups,390px width375,KaTeX/errors0; source-only105topics/14real/91planned. Existing accepted tests unchanged. Evidence:docs/TESTING.md.
+- Documentation sync:README/STAGES/ROADMAP/TESTING/feature SPEC/index/ARCHITECTURE/ADR-037/DESIGN/SHOW ledger updated; SECURITY/API/DATA_MODEL/dependency/SW contracts checked unchanged within this frontend delta.
+- ET-MICRO-PUBLISH-01 / READY: owner must grant ONE permission for fast-forward feature/micro-labs release candidate→main, ordinary origin/main push in ZabulaAleksey/electro-tutor and existing Cloudflare electrotutor production build https://electrotutor.pages.dev/. Exact candidate SHA will be shown after local commit. Expected evidence:remote main SHA, provider source/deployment SUCCESS and public Micro Labs controls/time/filter/hash/RU-UK/mobile/no-error checks. Prior release approvals do not authorize this version. Old electrotutor-mvp/GitHub Pages preserved; [skip actions] keeps legacy GitHub deploy independent. Own review preview4325 retained; no new worktree.
+- NEXT: ET-MICRO-PUBLISH-01
 
 ## ET-SHOWCASE-001 — Инженерная витрина главной
 

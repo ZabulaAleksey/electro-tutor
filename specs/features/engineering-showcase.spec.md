@@ -15,3 +15,14 @@ Acceptance: physics invariant unit tests for all8; UI unit/build/typecheck/lint;
 References: OpenStax University Physics2 sections10.5 and15.3; Kirtley Magnetic Circuits; existing star-neutral model/spec/tests. External sources inform equations only; local computations and invariants are evidence.
 
 Текущий release по ответу владельца: все контакты/календарь/оплата пока не подключаются.
+
+## Micro Labs / ET-MICRO-001 — утверждено2026-10-29
+
+- SHOW-008:14 опубликованных Micro Labs на главной: Ohm, voltage/current dividers, max power, RLC resonance, RMS, balanced star, RC charge/discharge, PWL diode, RC low-pass, first-order control, fixed-flux DC drive and matched-source line reflection. Один-два физических параметра, reset, расчёт/единицы/векторная схема/график, без фиктивной интерактивности. Явные допущения; временной ползунок для RC/control/drive синхронизирован с курсором и результатом.
+- SHOW-009: data-driven micro catalog с постоянными IDs/category/title/model/parameters/verification/existing route,8групп, filtering/search and #micro=<id> preserving RU/UK. Не загружать будущие105/185карточек; расширять данные существующих моделей. Состояние карточек сохраняется при фильтрации. Сложные редакторы остаются в /interactive/; ссылки только на существующие материалы.
+- SHOW-010: строгие нейтральные проводники/УГО; локальные смысловые акценты, легенды + штриховка; графики с корректными единицами/масштабом/нулём/характерными точками. Mobile390,light/dark, keyboard/reduced motion. Нет новых dependencies/services/3D engine. Для плоских моделей2D предпочтительнее3D;0 новых3D сцен в этом MVP.
+- SHOW-011: independent numerical/invariant tests and current frontend gates; targeted built browser14cards/controls/reset/categories/time/hash/RU-UK/mobile/no critical errors. Existing accepted tests unchanged. After local PASS ask ONE publication permission; no prior-release approval reuse.
+
+Future-only:105micro topics in source-only src/showcase/micro-backlog.ts (14mapped published IDs,91planned, not loaded in browser) are capability backlog, not published placeholders. Advanced Labs12directions and multi-line editor remain gradual development. Lossless2–3line editor requires typed topology/boundary states/initial conditions/verified owner reference (additional owner prompt not supplied); no fake arbitrary-RLC reflection coefficients. Future3D U(x,t)/I(x,t) shares physical coordinates/time/observations and lazy loading plus2D fallback; not on current critical path.
+
+RLC reference: https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit . Motor model is explicitly reduced KVL + Jω̇=ktI−ML with La=b=0; independent ODE/back-EMF/power tests verify the analytic solution.

@@ -21,3 +21,4 @@ export const featured = stories.filter(story => story.featured);
 export const categories: Category[] = ["electrical", "power", "drive", "control", "electronics", "math", "software", "coding"];
 export function findStory(hash: string) { return stories.find(story => story.id === new URLSearchParams(hash.replace(/^#/, "")).get("story")); }
 export function filterStories(category: string, query: string, language: "ru" | "uk") { const term = query.trim().toLocaleLowerCase(); return stories.filter(story => (category === "all" || story.category === category) && `${story.title[language]} ${story.id}`.toLocaleLowerCase().includes(term)); }
+export { microLabs } from "./micro-catalog";

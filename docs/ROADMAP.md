@@ -1,5 +1,7 @@
 # Дорожная карта Electro Tutor
 
+ET-MICRO-001: validated locally —14 Micro Labs/8групп,213 unit PASS,7 новых и11 существующих browser scenarios PASS; отдельный approval и public verification pending.105 тем сохранены в source-only каталоге,91 — planned. Advanced Labs/editor/3D не блокируют этот релиз.
+
 ET-SHOWCASE-001: verified publicly 2026-10-29 — инженерная главная8сюжетов/3dynamic, catalog12/
 5templates, software/занятия/запись. main merged/pushed, Cloudflare deployment bb3428b1 SUCCESS и public Chrome PASS;185будущих сюжетов — backlog.
 

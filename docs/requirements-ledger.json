@@ -110,6 +110,21 @@
   ],
   "rows": [
     {
+      "requirement_ids": ["SHOW-008", "SHOW-009", "SHOW-010", "SHOW-011"],
+      "domain": "micro-labs-home",
+      "status": "PARTIAL",
+      "code": ["src/showcase/MicroLabs.tsx", "src/showcase/MicroVisual.tsx", "src/showcase/micro-models.ts", "src/showcase/micro-catalog.ts"],
+      "unit": ["src/showcase/micro-models.test.ts"],
+      "integration": ["docs/TESTING.md"],
+      "e2e": ["tests/e2e/micro-labs.spec.ts"],
+      "runtime": "Implemented/validated locally:213unit,7micro+11existing browser scenarios, production build PASS. No public deployment of this Micro Labs version.",
+      "security": "Local bounded analytic models; no new dependencies/services/auth; only existing relative routes.",
+      "a11y": "Keyboard category tabs, native labelled sliders, reduced-motion/no autonomous card loops.",
+      "observability": "Explicit assumptions, units, curve legends and true model outputs; no telemetry.",
+      "gap": "Only exact owner publication approval and real public verification pending.",
+      "action": "ET-MICRO-PUBLISH-01: exact candidate merge/main push/Cloudflare publication approval."
+    },
+    {
       "requirement_ids": [
         "SHOW-001",
         "SHOW-002",

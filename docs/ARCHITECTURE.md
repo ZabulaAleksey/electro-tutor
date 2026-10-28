@@ -585,3 +585,5 @@ PWA reuses existing v2 public cache/migration contract, adds raster192/512/maska
 локальный typed catalog/physics/SVG renderer. Три bounded dynamic модели, five static examples;
 open-star переиспользует `models/star-neutral.ts`. Поиск/категории/пагинация и #story IDs живут
 на главной; существующий Astro router, серверная граница и зависимости сохранены.
+
+Micro Labs / ET-MICRO-001: внутри той же React island добавлен memoized MicroLabs со своим локальным состоянием. Typed micro-catalog → чистый microModel → CircuitView/LivePlot/LiveParameter/TimeController/MicroLabCard.14 моделей переиспользуют physics DC/RLC/RC/diode; остальные явно ограничены аналитическими уравнениями. Только изменённая карточка пересчитывается; нет отдельных RAF/timer loops. Ползунок t управляет точкой, курсором и значениями. #micro=<id> сохраняется при RU/UK; фильтрация сохраняет состояние. Source-only micro-backlog105тем не импортируется клиентом. Существующие /interactive/ остаются большими расчётными лабораториями; произвольный multi-line/RLC editor и3D — future-only. Новых dependencies/API/БД нет.

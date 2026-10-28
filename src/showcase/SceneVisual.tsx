@@ -13,19 +13,19 @@ export function CircuitVisual({ kind, parameters, time = 0, mini = false, langua
   const markerDistance = (time % 6) / 6 * 1320;
   const marker = markerDistance < 440 ? [70 + markerDistance, 80] : markerDistance < 660 ? [510, 80 + markerDistance - 440] : markerDistance < 1100 ? [510 - (markerDistance - 660), 300] : [70, 300 - (markerDistance - 1100)];
   function resistor(x: number, y: number, label: string, tone = "orange", width = 82) {
-    return <g><rect x={x} y={y - 12} width={width} height="24" rx="2" fill={paper} stroke={color(tone)} strokeWidth="2.5" /><text x={x + width / 2} y={y - 28} textAnchor="middle" fill={color(tone)}>{label}</text></g>;
+    return <g><rect x={x} y={y - 12} width={width} height="24" rx="2" fill={paper} stroke={ink} strokeWidth="2.5" /><text x={x + width / 2} y={y - 28} textAnchor="middle" fill={color(tone)}>{label}</text></g>;
   }
   function source(label: string, alternating = false) {
-    return <g><circle cx="70" cy="190" r="28" fill={paper} stroke={color("blue")} strokeWidth="2.5" /><text x="70" y="197" textAnchor="middle" fill={color("blue")} fontSize="24">{alternating ? "∿" : "+"}</text><text x="20" y="236" fill={color("blue")}>{label}</text>{!alternating && <text x="84" y="224" fill={color("blue")}>−</text>}</g>;
+    return <g><circle cx="70" cy="190" r="28" fill={paper} stroke={ink} strokeWidth="2.5" /><text x="70" y="197" textAnchor="middle" fill={color("blue")} fontSize="24">{alternating ? "∿" : "+"}</text><text x="20" y="236" fill={color("blue")}>{label}</text>{!alternating && <text x="84" y="224" fill={color("blue")}>−</text>}</g>;
   }
   const series = kind === "dc" || kind === "ac" || kind === "diode";
   return <svg className={mini ? "lab-circuit lab-mini-circuit" : "lab-circuit"} viewBox="0 0 580 360" role="img" aria-label={`${title}: ${kind}`}>
     <defs><marker id={arrow} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto-start-reverse"><path d="M0 0 L7 3 L0 6" fill="none" stroke="context-stroke" strokeWidth="1.5" /></marker><pattern id={`grid-${id}`} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="var(--line)" /></pattern></defs>
     <rect width="580" height="360" fill={`url(#grid-${id})`} />
     <g fill="none" stroke={ink} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-      {series && <><path d="M70 80 V162 M70 218 V300 H510 V80" />{kind === "dc" && <path d="M70 80 H170 M252 80 H355 M437 80 H510" />}{kind === "ac" && <><path d="M70 80 H128 M210 80 H240 M336 80 H410 M410 80 V61 M410 99 V80 M426 61 V99 M426 80 H510" /><path d="M240 80 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0" stroke={color("violet")} /></>}{kind === "diode" && <><path d="M70 80 H170 M252 80 H376 M420 80 H510" /><path d="M376 60 L411 80 L376 100 Z M413 60 V100" stroke={color("orange")} /></>}</>}
-      {kind === "rc" && <><path d="M70 80 V162 M70 218 V300 H480 V199 M480 159 V80 H302 M220 80 H180 M118 80 H70" /><circle cx="118" cy="80" r="3" fill={ink} /><circle cx="180" cy="80" r="3" fill={ink} /><path d="M118 80 H180" stroke={color("green")} /><path d="M454 162 H506 M454 197 H506" stroke={color("blue")} /></>}
-      {(kind === "three" || kind === "neutral") && <>{[90, 180, 270].map((y, k) => <g key={y}><path d={`M60 ${y} H220 M302 ${y} H470 V180`} stroke={color(["orange", "blue", "violet"][k])} /><circle cx="60" cy={y} r="4" fill={color(["orange", "blue", "violet"][k])} /><path d={`M104 ${y - 15} H176`} stroke={color(["orange", "blue", "violet"][k])} markerEnd={`url(#${arrow})`} /></g>)}{kind === "three" && <path d="M60 325 H470 V180" stroke={color("green")} />}<circle cx="470" cy="180" r="5" fill={ink} /></>}
+      {series && <><path d="M70 80 V162 M70 218 V300 H510 V80" />{kind === "dc" && <path d="M70 80 H170 M252 80 H355 M437 80 H510" />}{kind === "ac" && <><path d="M70 80 H128 M210 80 H240 M336 80 H410 M410 80 V61 M410 99 V80 M426 61 V99 M426 80 H510" /><path d="M240 80 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0 a12 18 0 0 1 24 0" stroke={ink} /></>}{kind === "diode" && <><path d="M70 80 H170 M252 80 H376 M420 80 H510" /><path d="M376 60 L411 80 L376 100 Z M413 60 V100" stroke={ink} /></>}</>}
+      {kind === "rc" && <><path d="M70 80 V162 M70 218 V300 H480 V199 M480 159 V80 H302 M220 80 H180 M118 80 H70" /><circle cx="118" cy="80" r="3" fill={ink} /><circle cx="180" cy="80" r="3" fill={ink} /><path d="M118 80 H180" stroke={color("green")} /><path d="M454 162 H506 M454 197 H506" stroke={ink} /></>}
+      {(kind === "three" || kind === "neutral") && <>{[90, 180, 270].map((y, k) => <g key={y}><path d={`M60 ${y} H220 M302 ${y} H470 V180`} stroke={ink} /><circle cx="60" cy={y} r="4" fill={color(["orange", "blue", "violet"][k])} /><path d={`M104 ${y - 15} H176`} stroke={color(["orange", "blue", "violet"][k])} markerEnd={`url(#${arrow})`} /></g>)}{kind === "three" && <path d="M60 325 H470 V180" stroke={color("green")} />}<circle cx="470" cy="180" r="5" fill={ink} /></>}
       {kind === "line" && <><path d="M55 125 V158 M55 202 V235 H480 V209 M480 151 V125 H155 M55 125 H90" /><circle cx="55" cy="180" r="22" stroke={color("blue")} /><rect x="90" y="113" width="65" height="24" fill={paper} stroke={color("orange")} /><rect x="468" y="151" width="24" height="58" fill={paper} stroke={color("orange")} /><path d="M180 144 H390 M390 214 H285" stroke={color("blue")} markerEnd={`url(#${arrow})`} /><path d="M390 163 H300" stroke={color("violet")} markerEnd={`url(#${arrow})`} /></>}
     </g>
     <g fontFamily="inherit" fontSize="16" fontWeight="600" fill={ink}>
@@ -57,7 +57,7 @@ export function Phasors({ kind, parameters, time = 0 }: { kind: SceneKind; param
 
 export function ScenePlot({ plot, kind, parameters, time = 0, language }: { plot: Plot; kind: SceneKind; parameters: Parameters; time?: number; language: Language }) {
   const id = useId().replace(/:/g, ""), clip = `lab-plot-${id}`;
-  const polylinePoints = useMemo(() => plot.curves.map(curve => curve.points.map(([px, py]) => `${53 + px / plot.xMax * 460},${184 - (py - plot.yMin) / (plot.yMax - plot.yMin) * 142}`).join(" ")), [plot]);
+  const polylinePoints = useMemo(() => plot.curves.map(curve => curve.points.map(([px, py]) => `${(53 + px / plot.xMax * 460).toFixed(3)},${(184 - (py - plot.yMin) / (plot.yMax - plot.yMin) * 142).toFixed(3)}`).join(" ")), [plot]);
   const x = (v: number) => 53 + v / plot.xMax * 460, y = (v: number) => 184 - (v - plot.yMin) / (plot.yMax - plot.yMin) * 142;
   const cursor = kind === "rc" ? Math.min(time, plot.xMax) : kind === "ac" ? (time / 4 % 2) / 2 * plot.xMax : null;
   const d = diode();
@@ -66,7 +66,7 @@ export function ScenePlot({ plot, kind, parameters, time = 0, language }: { plot
     {[0, 1, 2, 3, 4].map(k => <g key={k} fill="var(--muted)" fontSize="12"><path d={`M53 ${42 + k * 35.5} H513 M${53 + k * 115} 42 V184`} stroke="var(--line)" strokeWidth="1" /><text x="46" y={46 + k * 35.5} textAnchor="end">{n(plot.yMax - k * (plot.yMax - plot.yMin) / 4)}</text><text x={53 + k * 115} y="204" textAnchor="middle">{n(k * plot.xMax / 4)}</text></g>)}
     <path d="M53 40 V184 H516" fill="none" stroke="var(--muted)" strokeWidth="1.3" /><text x="53" y="22" fill="var(--muted)" fontSize="12">{plot.yLabel}</text><text x="514" y="227" textAnchor="end" fill="var(--muted)" fontSize="12">{plot.xLabel}</text>
     <g clipPath={`url(#${clip})`}>
-      {plot.curves.map((curve, index) => <polyline key={curve.label} points={polylinePoints[index]} fill="none" stroke={color(curve.color)} strokeWidth="2.8" strokeDasharray={curve.dash ? "8 5" : undefined} />)}
+      {plot.curves.map((curve, index) => <polyline key={curve.label} points={polylinePoints[index]} fill="none" stroke={color(curve.color)} strokeWidth="2.8" strokeDasharray={curve.dash ? index === 2 ? "2 4" : "8 5" : undefined} />)}
       {cursor !== null && <path d={`M${x(cursor)} 40 V186`} stroke={color("green")} strokeWidth="1.5" strokeDasharray="3 4" />}
       {kind === "diode" && <><circle cx={x(d.ud)} cy={y(d.i * 1000)} r="6" fill={color("green")} /><text x={x(d.ud) - 13} y={y(d.i * 1000) - 13} fill={color("green")} fontSize="14">Q</text></>}
       {kind === "ac" && <circle cx={x(cursor ?? 0)} cy={y(Math.sin(Math.PI * time / 2))} r="4.5" fill={color("blue")} />}

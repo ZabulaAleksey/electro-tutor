@@ -208,3 +208,7 @@ Manual interaction останавливает autoplay7.5s, reduced motion от�
 offscreen сцена не анимируется. Mobile390px — один столбец и горизонтальные миниатюры;
 fixed scene geometry и bounds tests защищают plots/footer от обрезания. Сюжеты static и
 software illustrations явно маркированы; неподключённая запись не содержит фиктивных CTA.
+
+## Micro Labs / engineering graphics —2026-10-29
+
+Neutral ink conductors, connections and passive/source symbols in light/dark themes. Local curve/operating-point colours always paired with labels, marker or line style. Compact14micro cards use SI values, KaTeX, SVG axes/grid/legend and real analytic samples; time cursor and numerical state use one physical t. Existing carousel remains; micro controls are separate from advanced labs. No neon/rainbow/ornamental3D. Future3D only where dimensionality is meaningful, lazy-loaded with2D fallback. User's standard supersedes the earlier blanket quantity-colour scheme for circuit branches.

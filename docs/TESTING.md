@@ -15,7 +15,7 @@ stars KCL/phase voltages, diode PWL/load intersection, magnetic MMF/flux and lin
 Static examples are not presented as simulators; software figures are own task illustrations.
 Final normalized AC phasors/short viewport checks2PASS/4.1s. Context route PASS with registered
 SHOW namespace and canonical Status/NEXT. Artifact SHA256697feca01df6a7ce3cc238f83fc35e33bc65c649a45aac4bb0a29370f9b16d7f.
-Public deployment acceptance pending; backend/OIDC/booking are outside this UI delta.
+Post-merge 2026-10-29: main fast-forward7d63a28→06a1802,199tests/28files PASS, build25pages/126artifacts PASS, context/diff PASS. Local feature branch deleted after ancestry check. Public deployment acceptance pending; backend/OIDC/booking are outside this UI delta.
 ## Public address electrotutor.pages.dev — 2026-10-28
 
 Owner approved creating a free second Pages project; display rename alone preserves hostnames.

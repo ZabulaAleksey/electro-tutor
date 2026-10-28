@@ -1042,5 +1042,5 @@ accepted tests. Future cache/key schema migrations require versioned contract.
 статические и помечены соответственно. Новые карточки существующих моделей задаются через
 catalog/parameters, без отдельного компонента на карточку.185сюжетов остаются backlog.
 Используем SVG/KaTeX и существующую star-neutral модель; без графического движка/backend.
-Owner deferred all contact/payment connections. Cloudflare Direct Upload — только после
+Owner deferred all contact/payment connections. Owner approved publication and connected Cloudflare Git integration; production main, pnpm build→dist (Node22.23.1/pnpm11.23.0). Historical Direct Upload preparation — только после
 единого approval на exact feature-branch push + artifact; GitHub main workflow не меняется.

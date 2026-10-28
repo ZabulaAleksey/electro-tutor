@@ -1,7 +1,7 @@
 # Дорожная карта Electro Tutor
 
 ET-SHOWCASE-001: validated locally — инженерная главная8сюжетов/3dynamic, catalog12/
-5templates, software/занятия/запись. Публикация ожидает разрешения;185будущих сюжетов — backlog.
+5templates, software/занятия/запись. Push feature/deploy разрешены; local main merged, public verification pending;185будущих сюжетов — backlog.
 
 MVP NOW (2026-10-28): существующий статический учебный сценарий опубликован на
 https://electrotutor.pages.dev/ и проверен в обычном Chrome. Для урока backend не нужен;

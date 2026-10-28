@@ -1,3 +1,13 @@
+## Public address electrotutor.pages.dev — 2026-10-28
+
+Owner approved creating a free second Pages project; display rename alone preserves hostnames.
+Source `e62a7cc`, product code unchanged. Exact pnpm11.23 build with new SITE_URL PASS:
+25pages/24localized routes/121artifacts; WASM/locales/site audits PASS.
+Pages Direct Upload121/121files; production deployment `14ca5990-5285-40db-bb01-6e8bd481c060`.
+Chrome https://electrotutor.pages.dev/: home→mesh lesson→2.18A correct feedback→direct reload PASS;
+completion retained, SVG visible,9KaTeX/no parse errors, zero captured browser errors.
+Lesson canonical URL matches new origin. Old https://electrotutor-mvp.pages.dev/ru/ remains live.
+Create failed once with provider unknown error; no project in inventory, one successful retry.
 ## Static MVP / Cloudflare Pages public acceptance — 2026-10-28
 
 Source `0d4061e`, existing `feature/return-local-dev-consumer`; product code/tests unchanged.

@@ -1,6 +1,7 @@
 # Потенциал
 
-Публичный MVP: https://electrotutor-mvp.pages.dev/ — Cloudflare Pages, 2026-10-28.
+Публичный MVP: https://electrotutor.pages.dev/ — Cloudflare Pages, 2026-10-28.
+Первый адрес https://electrotutor-mvp.pages.dev/ также сохранён. Прогресс хранится отдельно для каждого адреса.
 Начните с урока «Метод контурных токов»: RU/UK, схема, формулы, проверка ответа
 и прогресс на этом устройстве. Регистрация и настройка сервера для урока не нужны.
 Сборка и реальный публичный сценарий проверены; evidence — `docs/STAGES.md` и `docs/TESTING.md`.

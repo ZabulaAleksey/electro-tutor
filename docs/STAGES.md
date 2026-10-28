@@ -135,8 +135,8 @@
 
 ## ET-MICRO-001 — Micro Labs на главной
 
-- Status: partial
-- Lifecycle: in_progress; evidence: implemented and validated locally2026-10-29; publication permission pending.
+- Status: verified
+- Lifecycle: completed; evidence: merged, pushed, deployed and verified publicly2026-10-29.
 - SPEC: specs/features/engineering-showcase.spec.md; SHOW-008..011.
 - Dependencies: ET-SHOWCASE-001 verified/released, clean main e2e0497. Existing checkout/new feature/micro-labs; no worktree.
 - Slice: home→14micro models/8groups→physical parameter→computed result/plot→reset/filter/permalink/locale. Neutral engineering symbols; existing3advanced routes preserved.
@@ -145,8 +145,11 @@
 - Blockers: none for Micro MVP. Advanced multi-line owner prompt/reference not supplied; that future scope is deferred, not a dependency. No 3D needed for chosen2D models.
 - Local evidence:213unit/29files PASS, lint PASS, Astro158files/0errors/0warnings/2existingWASM hints, build25pages/126artifacts PASS.17combined browser checks PASS/37.4s; final7micro PASS/17.6s after multiline/390px formula fix. Physics14invariants/control corners PASS. Actual local Chrome desktop/mobile,14cards/8groups,390px width375,KaTeX/errors0; source-only105topics/14real/91planned. Existing accepted tests unchanged. Evidence:docs/TESTING.md.
 - Documentation sync:README/STAGES/ROADMAP/TESTING/feature SPEC/index/ARCHITECTURE/ADR-037/DESIGN/SHOW ledger updated; SECURITY/API/DATA_MODEL/dependency/SW contracts checked unchanged within this frontend delta.
-- ET-MICRO-PUBLISH-01 / READY: owner must grant ONE permission for fast-forward feature/micro-labs release candidate→main, ordinary origin/main push in ZabulaAleksey/electro-tutor and existing Cloudflare electrotutor production build https://electrotutor.pages.dev/. Exact candidate SHA will be shown after local commit. Expected evidence:remote main SHA, provider source/deployment SUCCESS and public Micro Labs controls/time/filter/hash/RU-UK/mobile/no-error checks. Prior release approvals do not authorize this version. Old electrotutor-mvp/GitHub Pages preserved; [skip actions] keeps legacy GitHub deploy independent. Own review preview4325 retained; no new worktree.
-- NEXT: ET-MICRO-PUBLISH-01
+- ET-MICRO-PUBLISH-01 / DONE 2026-10-29: прямой ответ владельца «Разрешаю merge, push и публикацию». Clean main e2e0497 fast-forward→9cacf22fd932ff8e3e65660112094a44468e2514 без конфликтов; обычный exact-SHA push origin/main и ls-remote read-back PASS. Post-merge213tests/29files и context/diff PASS. Cloudflare Git deployment76b3eaf7-f68e-48f6-b734-31698b68da31, source main9cacf22, SUCCESS/1m26s (build1m8s/deploy12s), Node22.23.1/pnpm11.23.0. Primary https://electrotutor.pages.dev/ru/; immutable https://76b3eaf7.electrotutor.pages.dev/. Existing electrotutor-mvp/GitHub Pages/secrets unchanged. Local feature/micro-labs retained as recovery ref; remote feature not created. No cleanup approval inferred.
+- NEXT: NONE
+
+- Public evidence: fresh Chrome14cards, all14first-parameter changes and resets PASS. RC t0→5s gives0→11.919V; C2000µF givesτ2s/t5s/uC11.015V; category drive1card/searchRC1card. Direct #micro reload and ordinary RU→UK preserve selected capacitor-charge. Clean navigation browser errors0, KaTeX errors0,390px page375px/formula overflow0. Desktop/mobile public SVG/plot/formulas reviewed; actual screenshots saved in chat outputs/published-micro-labs-*.jpg. Main UI and useful calculations available without login/backend/manual configuration.
+- User actions: none. Current Micro MVP released;105-topic roadmap/advanced arbitrary topology editor/3D remain future-only. Own preview4325 stopped after acceptance; pre-existing4322 preserved.
 
 ## ET-SHOWCASE-001 — Инженерная витрина главной
 

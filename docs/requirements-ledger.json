@@ -120,7 +120,7 @@
         "SHOW-007"
       ],
       "domain": "engineering-home-showcase",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
         "src/showcase",
         "src/pages/[lang]/index.astro"
@@ -135,12 +135,12 @@
         "tests/e2e/engineering-showcase.spec.ts",
         "tests/e2e/learning-journey.spec.ts"
       ],
-      "runtime": "Validated locally; Cloudflare publication pending exact owner approval.",
+      "runtime": "Local/model/browser PASS; merged/pushed main; Cloudflare bb3428b1 SUCCESS and public Chrome DC/RLC/RC/hash/mobile PASS 2026-10-29.",
       "security": "No backend/dependency/auth change; typed catalog IDs and escaped locale resources; no external booking connection.",
       "a11y": "RU/UK keyboard controls, reduced motion, 390px/1440px and clipped-content checks PASS; prior private Session voice behavior untouched.",
       "observability": "Content-free model results and explicit static/illustration labels; no telemetry added.",
-      "gap": "Exact feature-branch push and primary Pages Direct Upload require owner approval; public verification pending.",
-      "action": "ET-SHOWCASE-PUBLISH-01 then public model/catalog/hash/reload checks."
+      "gap": "None for approved release; 185 future topics remain optional backlog.",
+      "action": "Completed; preserve verified behavior. Contacts/payment remain owner-deferred."
     },
     {
       "requirement_ids": [

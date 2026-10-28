@@ -1042,5 +1042,4 @@ accepted tests. Future cache/key schema migrations require versioned contract.
 статические и помечены соответственно. Новые карточки существующих моделей задаются через
 catalog/parameters, без отдельного компонента на карточку.185сюжетов остаются backlog.
 Используем SVG/KaTeX и существующую star-neutral модель; без графического движка/backend.
-Owner deferred all contact/payment connections. Owner approved publication and connected Cloudflare Git integration; production main, pnpm build→dist (Node22.23.1/pnpm11.23.0). Historical Direct Upload preparation — только после
-единого approval на exact feature-branch push + artifact; GitHub main workflow не меняется.
+Владелец отложил все контакты/оплату, разрешил публикацию и сам подключил Cloudflare Git integration. Production main → pnpm build → dist (Node22.23.1/pnpm11.23.0); merge/push/удаление временной ветки разрешены отдельно и выполнены. GitHub workflow не меняется; [skip actions] запускает только Cloudflare. Public Chrome PASS2026-10-29, deployment bb3428b1.

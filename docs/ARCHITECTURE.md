@@ -1,6 +1,6 @@
 # Архитектура Electro Tutor
 
-Public static MVP (2026-10-28): тот же Astro `dist/` опубликован Direct Upload в
+Public static MVP: первоначальный Direct Upload2026-10-28; инженерная витрина2026-10-29 публикуется через подключённый владельцем GitHub main → Cloudflare build (Node22.23.1/pnpm11.23.0), pnpm build → `dist/`, в
 Cloudflare Pages: https://electrotutor.pages.dev/, `BASE_PATH=/`, без API origin.
 Первый Pages-проект electrotutor-mvp и GitHub Pages сохранены. Backend/OIDC/PKCE topology не менялась; lesson/practice работает локально в браузере.
 

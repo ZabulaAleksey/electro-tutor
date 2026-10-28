@@ -15,7 +15,13 @@ stars KCL/phase voltages, diode PWL/load intersection, magnetic MMF/flux and lin
 Static examples are not presented as simulators; software figures are own task illustrations.
 Final normalized AC phasors/short viewport checks2PASS/4.1s. Context route PASS with registered
 SHOW namespace and canonical Status/NEXT. Artifact SHA256697feca01df6a7ce3cc238f83fc35e33bc65c649a45aac4bb0a29370f9b16d7f.
-Post-merge 2026-10-29: main fast-forward7d63a28→06a1802,199tests/28files PASS, build25pages/126artifacts PASS, context/diff PASS. Local feature branch deleted after ancestry check. Public deployment acceptance pending; backend/OIDC/booking are outside this UI delta.
+Post-merge 2026-10-29: main fast-forward7d63a28→06a1802,199tests/28files PASS, build25pages/126artifacts PASS, context/diff PASS. Local feature branch deleted after ancestry check. Public acceptance PASS below; backend/OIDC/booking are outside this UI delta.
+## Engineering showcase / public acceptance —2026-10-29
+
+Cloudflare Git production main@bbe6c0210b72ca55fc6de0400ae2ea4016d0fe7c; deployment bb3428b1-8dc9-48b5-923c-c822bc4ce346 SUCCESS. Primary https://electrotutor.pages.dev/ru/; immutable https://bb3428b1.electrotutor.pages.dev/. Actual Node22.23.1/pnpm11.23.0 installed; build36s/deploy7s. Correct dist output replaces initial raw-repository deployment09b61d1. Old retry was rejected and not performed; new Git build used current merged source.
+Fresh Chrome public consumer path PASS: DC48V→0.48A; AC50→51Hz gives4.545→4.442A; RC2000µF→τ2s, clock advances, pause stable0.58s. Hash rc-charge survives reload and RU→UK; Python search1card; SVG/KaTeX/plots visually checked in dark/light, mobile390px document375px no overflow; KaTeX errors0, console errors0. Desktop/mobile public screenshots are user-facing chat outputs. Local199tests and build re-run after fast-forward merge; all passed. No assertion that private backend/OIDC was retested.
+Owner merge, push main and branch cleanup approvals completed; local and remote temporary feature absent, all feature commits retained in main ancestry. Existing GitHub Pages workflow/source config untouched; [skip actions] keeps that deployment independent. User action:none.
+
 ## Public address electrotutor.pages.dev — 2026-10-28
 
 Owner approved creating a free second Pages project; display rename alone preserves hostnames.

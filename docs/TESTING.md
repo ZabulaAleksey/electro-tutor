@@ -13,6 +13,8 @@ swipe,7.5s autoplay, hidden/offscreen/reduced-motion. Earlier bounded14test run 
 Model invariants: DC KVL/power, AC instantaneous KVL and S²=P²+Q², RC initial/derivative/limit,
 stars KCL/phase voltages, diode PWL/load intersection, magnetic MMF/flux and line reflection/load.
 Static examples are not presented as simulators; software figures are own task illustrations.
+Final normalized AC phasors/short viewport checks2PASS/4.1s. Context route PASS with registered
+SHOW namespace and canonical Status/NEXT. Artifact SHA256697feca01df6a7ce3cc238f83fc35e33bc65c649a45aac4bb0a29370f9b16d7f.
 Public deployment acceptance pending; backend/OIDC/booking are outside this UI delta.
 ## Public address electrotutor.pages.dev — 2026-10-28
 

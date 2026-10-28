@@ -1,3 +1,19 @@
+## Engineering showcase / local acceptance —2026-10-28
+
+Stage ET-SHOWCASE-001; initial clean dc480b3, same checkout/feature branch; code under src/showcase.
+`pnpm test`:199PASS/28files, including10physics/catalog tests. `pnpm lint`:PASS.
+`pnpm check`:151files,0errors/0warnings,2pre-existing generated WASM hints.
+`SITE_URL=https://electrotutor.pages.dev BASE_PATH=/ pnpm build`:25pages/126artifacts PASS,
+WASM integrity + locale/lesson/site audits PASS. No dependency or lockfile change.
+`pnpm exec playwright test tests/e2e/engineering-showcase.spec.ts --workers=2`:11PASS/16.2s;
+8scenes RU/UK light/dark390/1440px + short1440×768, no page overflow or clipped plots/footer,
+DC/RLC controls, RC pause/time, retained scene state, search/filter, hash/reload/locale,
+swipe,7.5s autoplay, hidden/offscreen/reduced-motion. Earlier bounded14test run also passed
+4existing guest learner/completion/resume/level scenarios; accepted tests unchanged.
+Model invariants: DC KVL/power, AC instantaneous KVL and S²=P²+Q², RC initial/derivative/limit,
+stars KCL/phase voltages, diode PWL/load intersection, magnetic MMF/flux and line reflection/load.
+Static examples are not presented as simulators; software figures are own task illustrations.
+Public deployment acceptance pending; backend/OIDC/booking are outside this UI delta.
 ## Public address electrotutor.pages.dev — 2026-10-28
 
 Owner approved creating a free second Pages project; display rename alone preserves hostnames.

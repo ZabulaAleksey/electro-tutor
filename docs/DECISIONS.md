@@ -1034,3 +1034,13 @@ hashed asset names avoid stale code; installed v1-to-v2 migration/update
 acceptance remains unchanged/PASS. An early RC1 v3 bump conflicted with accepted
 FR-008 cache consumer contract and was corrected in source, rather than rewriting
 accepted tests. Future cache/key schema migrations require versioned contract.
+
+## ADR-036 — Инженерная витрина как локальная React island
+
+Принято по запросу владельца2026-10-28. Данные сюжетов отделены от пяти типов представления;
+восемь featured и12опубликованных карточек,3динамические модели. Остальные5инженерных сюжетов
+статические и помечены соответственно. Новые карточки существующих моделей задаются через
+catalog/parameters, без отдельного компонента на карточку.185сюжетов остаются backlog.
+Используем SVG/KaTeX и существующую star-neutral модель; без графического движка/backend.
+Owner deferred all contact/payment connections. Cloudflare Direct Upload — только после
+единого approval на exact feature-branch push + artifact; GitHub main workflow не меняется.

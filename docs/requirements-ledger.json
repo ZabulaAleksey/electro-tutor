@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/engineering-showcase.spec.md",
       "specs/features/productization-rc1.spec.md",
       "specs/features/booking-reminders.spec.md",
       "specs/system.spec.md",
@@ -108,6 +109,39 @@
     "UNAVAILABLE"
   ],
   "rows": [
+    {
+      "requirement_ids": [
+        "SHOW-001",
+        "SHOW-002",
+        "SHOW-003",
+        "SHOW-004",
+        "SHOW-005",
+        "SHOW-006",
+        "SHOW-007"
+      ],
+      "domain": "engineering-home-showcase",
+      "status": "PARTIAL",
+      "code": [
+        "src/showcase",
+        "src/pages/[lang]/index.astro"
+      ],
+      "unit": [
+        "src/showcase/physics.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md: production static build126artifacts/local browser"
+      ],
+      "e2e": [
+        "tests/e2e/engineering-showcase.spec.ts",
+        "tests/e2e/learning-journey.spec.ts"
+      ],
+      "runtime": "Validated locally; Cloudflare publication pending exact owner approval.",
+      "security": "No backend/dependency/auth change; typed catalog IDs and escaped locale resources; no external booking connection.",
+      "a11y": "RU/UK keyboard controls, reduced motion, 390px/1440px and clipped-content checks PASS; prior private Session voice behavior untouched.",
+      "observability": "Content-free model results and explicit static/illustration labels; no telemetry added.",
+      "gap": "Exact feature-branch push and primary Pages Direct Upload require owner approval; public verification pending.",
+      "action": "ET-SHOWCASE-PUBLISH-01 then public model/catalog/hash/reload checks."
+    },
     {
       "requirement_ids": [
         "RC1-001",

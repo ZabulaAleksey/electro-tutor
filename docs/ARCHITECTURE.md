@@ -580,3 +580,8 @@ Home/catalog/authored lesson/account form one common shell; home/account render 
 `PUBLIC_API_ORIGIN` is a public deployment input: HTTPS, or exact loopback HTTP; no credentials/path/query/fragment. Unconfigured non-loopback builds show localized unavailable state; loopback4321/4322 can resolve existing API8000. No secrets in metadata. Contracts bound requests to10s and preserve cancellation. `PUBLIC_CALCOM_URL` optional validated HTTPS; absence shows unavailable + local product next action.
 
 PWA reuses existing v2 public cache/migration contract, adds raster192/512/maskable assets and same-origin worker/WASM assets for visited offline labs. API/auth/private/no-store responses never cached. No Electron/Tauri or new offline database. Source/lock/security/browser acceptance — evidence/rc1/readiness.json; deployment topology remains ET-18.2.
+
+Главная витрина: одна SSR+hydrated React island `src/showcase/EngineeringShowcase.tsx`;
+локальный typed catalog/physics/SVG renderer. Три bounded dynamic модели, five static examples;
+open-star переиспользует `models/star-neutral.ts`. Поиск/категории/пагинация и #story IDs живут
+на главной; существующий Astro router, серверная граница и зависимости сохранены.

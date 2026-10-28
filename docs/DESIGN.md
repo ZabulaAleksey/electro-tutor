@@ -94,7 +94,7 @@ Breakpoint-логика фактически использует `1080px`, `900
 
 ## Страницы и reusable-паттерны
 
-- главная: двухколоночный hero, преимущества и карточки тем;
+- главная: инженерная SVG витрина54/46, формулы/результаты/графики,8миниатюр и data-driven каталог;
 - каталог: разделы curriculum, доступность и длительность темы;
 - урок: sidebar, ограниченная колонка текста, формулы, схема, уровни объяснения;
 - интерактив: панель ввода, SVG-график и live readout;
@@ -197,3 +197,14 @@ and the canonical UA-19 record in `docs/TESTING.md`.
 Account доступен в общей RU/UK desktop/mobile navigation. Home/account показывают device-only summary/resume; урок — подписанное поле числового ответа, invalid/incorrect/correct feedback/live region и completion. Identity-loading блокирует запись; storage unavailable показывает явное предупреждение и правильный ответ без обещания сохранения. Services/contacts без настроенного провайдера дают честное unavailable и переход к каталогу/account.
 
 Новые practice controls/summary actions имеют44px targets и mobile reflow. Общий focus-visible/reduced-motion и подписанный install dialog сохраняют keyboard behavior. Dark primary CTA использует контрастный текст, small accent copy проверена computed sRGB. Existing approved translations and protected Session speech/focus unchanged; no Stage IDs/DEV terminology in built visible public content. Desktop/tablet/mobile + semantic/keyboard automation — TESTING.
+
+## Инженерная витрина / SHOW-001..007
+
+Небольшой h1(22–32px), техника занимает основной экран; слева схема, справа формулы/
+рассчитанные значения/график. Orange — ток; blue — напряжение; violet — фаза/дополнительная
+кривая; green — результат/выбор. Легенды, подписи и dashed линии дополняют цвет.
+DC markers условны, AC замедлен явно, RC сохраняет время/параметры и останавливается после5τ.
+Manual interaction останавливает autoplay7.5s, reduced motion отключает движение; hidden/
+offscreen сцена не анимируется. Mobile390px — один столбец и горизонтальные миниатюры;
+fixed scene geometry и bounds tests защищают plots/footer от обрезания. Сюжеты static и
+software illustrations явно маркированы; неподключённая запись не содержит фиктивных CTA.

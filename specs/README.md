@@ -38,3 +38,5 @@ denominator, но только binding SPEC создаёт обязательс�
 затем архитектуру/план и только после этого код и тесты.
 
 | `features/productization-rc1.spec.md` | Approved 2026-10-02 user contract; execution in ET-RC1 | Existing Web/PWA product journey, shell, bounded local progress/resume, release automation and RC1 report |
+
+| `features/engineering-showcase.spec.md` | Approved user contract2026-10-28 | Data-driven home gallery,8scenes/3dynamic/5static and compact software/learning/booking |

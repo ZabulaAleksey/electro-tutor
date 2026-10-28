@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import EngineeringShowcase from "../../showcase/EngineeringShowcase";
 import { getPublishedLessonManifest } from "../../content/published-lessons";
 import { resolveTopicPublication } from "../../curriculum-publication";
 import { curriculum } from "../../curriculum";
@@ -32,49 +33,9 @@ const primaryPublication = publishedTopics.find(({ publication }) => publication
   active="home"
   alternatePath="/"
 >
-  <section class="hero astro-home">
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow"><i></i>{copy.home.eyebrow}</span>
-        <h1>{copy.home.headingStart} —<br /><em>{copy.home.headingEnd}</em></h1>
-        <p>{copy.home.lead}</p>
-        <div class="hero-actions">
-          <a
-            class="button primary"
-            href={primaryPublication?.available ? primaryPublication.href : localePath(language, "/topics/")}
-          >
-            {copy.home.primary} <span>→</span>
-          </a>
-          <a class="button ghost" href={localePath(language, "/topics/")}>{copy.home.secondary}</a>
-        </div>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="visual-card card-formula">
-          <span>{copy.home.law}</span>
-          <strong>∑ I<sub>k</sub> = 0</strong>
-        </div>
-        <svg viewBox="0 0 490 330">
-          <g fill="none" stroke="currentColor" stroke-width="3">
-            <path d="M50 95 H180 M310 95 H440 V245 H310 M180 245 H50 V95 M180 95 H310 M180 245 H310" />
-            <path d="M245 95 V140 M245 190 V245" />
-          </g>
-          <g fill="none" stroke="currentColor" stroke-width="3">
-            <rect x="95" y="80" width="70" height="30" rx="5" />
-            <rect x="325" y="80" width="70" height="30" rx="5" />
-            <rect x="230" y="135" width="30" height="60" rx="5" />
-            <circle cx="50" cy="170" r="27" />
-            <circle cx="440" cy="170" r="27" />
-          </g>
-        </svg>
-      </div>
-    </div>
-    <div class="feature-strip">
-      <span>RU / UA</span>
-      <span>3 {copy.home.levels}</span>
-      <span>LaTeX</span>
-      <span>{copy.home.visualSchemes}</span>
-    </div>
-  </section>
+  <EngineeringShowcase client:load language={language}
+    lessonHref={primaryPublication?.available ? primaryPublication.href : localePath(language, "/topics/")}
+    lessonLabel={copy.home.primary} />
 
   <section class="section" aria-labelledby="learning-summary-title">
     <div class="learning-summary">

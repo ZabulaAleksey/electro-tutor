@@ -1,0 +1,23 @@
+import type { Parameters, SceneKind } from "./physics";
+export type LocalText = { ru: string; uk: string };
+export type Template = "circuit" | "chart" | "simulation" | "software" | "lesson";
+export type Category = "electrical" | "power" | "drive" | "control" | "electronics" | "math" | "software" | "coding";
+export type Story = { id: string; category: Category; title: LocalText; template: Template; visual: SceneKind; model: string; interaction: "dynamic" | "static" | "illustration" | "lesson"; verification: string; route: string; featured?: boolean; parameters?: { [K in keyof Parameters]?: Partial<Parameters[K]> } };
+export const stories: readonly Story[] = [
+  { id: "dc-series", category: "electrical", title: { ru: "Постоянный ток", uk: "Постійний струм" }, template: "circuit", visual: "dc", model: "series-resistors", interaction: "dynamic", verification: "DC_KVL_POWER", route: "/topics/dc/mesh-current-method/", featured: true },
+  { id: "ac-rlc", category: "electrical", title: { ru: "Переменный ток", uk: "Змінний струм" }, template: "chart", visual: "ac", model: "series-RLC-RMS", interaction: "dynamic", verification: "AC_COMPLEX_POWER", route: "/interactive/circular-diagram/", featured: true },
+  { id: "balanced-star", category: "power", title: { ru: "Трёхфазная звезда", uk: "Трифазна зірка" }, template: "chart", visual: "three", model: "star-ideal-neutral", interaction: "static", verification: "STAR_KCL_POWER", route: "/interactive/star-neutral/", featured: true },
+  { id: "rc-charge", category: "electrical", title: { ru: "Заряд конденсатора", uk: "Заряд конденсатора" }, template: "simulation", visual: "rc", model: "RC-zero-initial", interaction: "dynamic", verification: "RC_INITIAL_KVL_LIMIT", route: "/topics/", featured: true },
+  { id: "diode-load-line", category: "electronics", title: { ru: "Рабочая точка диода", uk: "Робоча точка діода" }, template: "circuit", visual: "diode", model: "diode-PWL-0.7V-10ohm", interaction: "static", verification: "DIODE_LOAD_INTERSECTION", route: "/topics/", featured: true },
+  { id: "magnetic-gap", category: "electrical", title: { ru: "Магнитная цепь", uk: "Магнітне коло" }, template: "circuit", visual: "magnet", model: "linear-core-air-gap", interaction: "static", verification: "MMF_RELUCTANCE", route: "/topics/", featured: true },
+  { id: "floating-neutral", category: "power", title: { ru: "Смещение нейтрали", uk: "Зміщення нейтралі" }, template: "chart", visual: "neutral", model: "existing-star-open", interaction: "static", verification: "OPEN_STAR_KCL", route: "/interactive/star-neutral/", featured: true },
+  { id: "line-reflection", category: "electrical", title: { ru: "Отражение волны", uk: "Відбиття хвилі" }, template: "simulation", visual: "line", model: "lossless-matched-source-RL", interaction: "static", verification: "LINE_LOAD_BOUNDARY", route: "/interactive/transmission-line/", featured: true },
+  { id: "python-rc", category: "coding", title: { ru: "Python · аналитический RC", uk: "Python · аналітичний RC" }, template: "software", visual: "rc", model: "RC-zero-initial", interaction: "illustration", verification: "RC_INITIAL_KVL_LIMIT", route: "/topics/" },
+  { id: "numpy-mesh", category: "math", title: { ru: "NumPy · система уравнений", uk: "NumPy · система рівнянь" }, template: "software", visual: "dc", model: "published-mesh-example", interaction: "illustration", verification: "MESH_LINEAR_SYSTEM", route: "/topics/dc/mesh-current-method/" },
+  { id: "ltspice-rc", category: "software", title: { ru: "LTspice · RC netlist", uk: "LTspice · RC netlist" }, template: "software", visual: "rc", model: "RC-zero-initial", interaction: "illustration", verification: "RC_INITIAL_KVL_LIMIT", route: "/topics/" },
+  { id: "mesh-lesson", category: "electrical", title: { ru: "Метод контурных токов", uk: "Метод контурних струмів" }, template: "lesson", visual: "dc", model: "published-mesh-example", interaction: "lesson", verification: "MESH_LINEAR_SYSTEM", route: "/topics/dc/mesh-current-method/" },
+];
+export const featured = stories.filter(story => story.featured);
+export const categories: Category[] = ["electrical", "power", "drive", "control", "electronics", "math", "software", "coding"];
+export function findStory(hash: string) { return stories.find(story => story.id === new URLSearchParams(hash.replace(/^#/, "")).get("story")); }
+export function filterStories(category: string, query: string, language: "ru" | "uk") { const term = query.trim().toLocaleLowerCase(); return stories.filter(story => (category === "all" || story.category === category) && `${story.title[language]} ${story.id}`.toLocaleLowerCase().includes(term)); }

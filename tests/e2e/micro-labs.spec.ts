@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("all fourteen micro models recalculate and reset real values", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
-  await page.goto("/ru/"); const cards = page.locator("[data-micro]"); await expect(cards).toHaveCount(14);
+  await page.goto("/ru/micro-labs/"); const cards = page.locator("[data-micro]"); await expect(cards).toHaveCount(14);
   for (const card of await cards.all()) {
     const controls = card.getByRole("slider"), first = controls.first(), initial = await first.inputValue();
     const output = card.locator("[data-micro-result]").first().locator("strong"), before = await output.innerText();
@@ -14,7 +14,7 @@ test("all fourteen micro models recalculate and reset real values", async ({ pag
 });
 
 test("categories, keyboard and search preserve edited card state", async ({ page }) => {
-  await page.goto("/ru/"); const section = page.locator("#micro-labs"), ohm = page.locator('[data-micro="ohm-law"]');
+  await page.goto("/ru/micro-labs/"); const section = page.locator("#micro-labs"), ohm = page.locator('[data-micro="ohm-law"]');
   await ohm.getByRole("slider", { name: "U, V", exact: true }).fill("48"); await expect(ohm.locator('[data-micro-result="I"]')).toContainText("0,8");
   await section.getByRole("tab", { name: "Электропривод", exact: true }).click(); await expect(section.locator("[data-micro]")).toHaveCount(1);
   await section.getByRole("tab", { name: "Все эксперименты", exact: true }).click(); await expect(ohm.getByRole("slider", { name: "U, V", exact: true })).toHaveValue("48");
@@ -23,7 +23,7 @@ test("categories, keyboard and search preserve edited card state", async ({ page
 });
 
 test("time is shared by RC result, cursor and physical parameter changes", async ({ page }) => {
-  await page.goto("/ru/#micro=capacitor-charge"); const card = page.locator('[data-micro="capacitor-charge"]');
+  await page.goto("/ru/micro-labs/#micro=capacitor-charge"); const card = page.locator('[data-micro="capacitor-charge"]');
   const time = card.getByRole("slider", { name: "Время t, s", exact: true });
   await time.press("Home"); await expect(card.locator('[data-micro-result="uC(t)"]')).toContainText("0 V");
   await time.press("End"); await expect(card.locator('[data-micro-result="uC(t)"]')).toContainText("11,919");
@@ -32,16 +32,16 @@ test("time is shared by RC result, cursor and physical parameter changes", async
 });
 
 test("permanent micro link survives reload and RU/UK change", async ({ page }) => {
-  await page.goto("/ru/#micro=dc-motor-start"); const card = page.locator('[data-micro="dc-motor-start"]');
+  await page.goto("/ru/micro-labs/#micro=dc-motor-start"); const card = page.locator('[data-micro="dc-motor-start"]');
   await expect(card).toHaveAttribute("data-selected", "true"); await page.reload(); await expect(card).toHaveAttribute("data-selected", "true");
-  await page.locator("a[data-language-link]").click(); await expect(page).toHaveURL(/\/uk\/#micro=dc-motor-start$/);
+  await page.locator("a[data-language-link]").click(); await expect(page).toHaveURL(/\/uk\/micro-labs\/#micro=dc-motor-start$/);
   await expect(card).toHaveAttribute("data-selected", "true"); await expect(card.locator("h3")).toHaveText("Розгін двигуна");
 });
 
 for (const theme of ["light", "dark"] as const) test(`micro cards fit mobile and desktop in ${theme} with reduced motion`, async ({ page }) => {
   await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
   for (const width of [390, 1440]) {
-    await page.setViewportSize({ width, height: 900 }); await page.goto("/ru/#micro=ohm-law"); await expect(page.locator("[data-micro]")).toHaveCount(14);
+    await page.setViewportSize({ width, height: 900 }); await page.goto("/ru/micro-labs/"); await expect(page.locator("[data-micro]")).toHaveCount(14);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     for (const card of await page.locator("[data-micro]").all()) {
       const within = await card.evaluate(element => { const r = element.getBoundingClientRect(); return [...element.querySelectorAll("svg,input,footer")].every(child => { const c = child.getBoundingClientRect(); return c.left >= r.left && c.right <= r.right + 1; }); });
@@ -52,7 +52,7 @@ for (const theme of ["light", "dark"] as const) test(`micro cards fit mobile and
 });
 
 test("micro equations stay fully readable without horizontal formula scrolling at 390px", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/ru/#micro=ohm-law");
+  await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/ru/micro-labs/");
   const overflowing = await page.locator(".micro-formula .katex-display").evaluateAll(elements => elements.filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.closest("[data-micro]")?.getAttribute("data-micro")));
   expect(overflowing).toEqual([]);
 });

@@ -1,6 +1,6 @@
 # Дорожная карта Electro Tutor
 
-ET-BEAM-001: реализован и локально проверен в feature/beam-lab-engineering-symbols; partial до отдельного решения о точечном обновлении принятого тестового контракта. Сопротивление материалов и общие SVG-символы — specs/features/beam-laboratory.spec.md; живой статус/gates — docs/STAGES.md. Поздний пользовательский master явно разрешает эту библиотеку, отложенную предыдущим UI master. Merge/push/deploy не выполнялись.
+ET-BEAM-001: completed/verified locally в feature/beam-lab-engineering-symbols; одобренная синхронизация тестового контракта выполнена,35/35канонических affected browser PASS. Сопротивление материалов и общие SVG-символы — specs/features/beam-laboratory.spec.md; живой статус/gates — docs/STAGES.md. Поздний пользовательский master явно разрешает эту библиотеку, отложенную предыдущим UI master. Merge/push/deploy не выполнялись.
 
 ET-UX-003: completed/published: source9ed98f5, Cloudflare19537dec SUCCESS49s,30primary-domain browser PASS, signed debug APK/native emulator PASS. Отдельная библиотека инженерных компонентов отложена по UI master; MathMorph остаётся неподключённой настройкой.
 

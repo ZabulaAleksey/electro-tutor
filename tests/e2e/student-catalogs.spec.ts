@@ -20,7 +20,7 @@ test("home uses the shared student shell and direct micro-lab cards", async ({ p
 test("laboratory catalogue keeps real tool links and honest services state", async ({ page }) => {
   await page.goto("/ru/interactive/");
   await expect(page.getByRole("heading", { name: "Лаборатория", exact: true })).toBeVisible();
-  await expect(page.locator(".tool-card")).toHaveCount(6);
+  await expect(page.locator(".tool-card")).toHaveCount(7);
   expect(await page.locator("h1").evaluate(e=>parseFloat(getComputedStyle(e).fontSize))).toBeLessThanOrEqual(44);
   await expect(page.locator(".tool-card a[href*='/interactive/star-neutral/']")).toBeVisible();
   await page.goto("/ru/my-services/");
@@ -33,5 +33,5 @@ test("home preview opens the actual selected electrical model",async({page})=>{
 });
 
 test("catalog cards fit phone in both themes and languages; selection stays stable during interaction",async({page})=>{
- await page.setViewportSize({width:390,height:844});for(const lang of ["ru","uk"]){await page.goto(`/${lang}/`);await expect(page.locator("[data-home-ready]")).toHaveAttribute("data-home-ready","true");await expect(page.locator(".micro-preview-card")).toHaveCount(6);const first=await page.locator(".micro-preview-card").evaluateAll(es=>es.map(e=>e.getAttribute("data-micro")));expect(new Set(first).size).toBe(6);await page.locator("#theme-toggle").click();expect(await page.locator(".micro-preview-card").evaluateAll(es=>es.map(e=>e.getAttribute("data-micro")))).toEqual(first);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.goto(`/${lang}/interactive/`);await expect(page.locator(".tool-card")).toHaveCount(6);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);}
+ await page.setViewportSize({width:390,height:844});for(const lang of ["ru","uk"]){await page.goto(`/${lang}/`);await expect(page.locator("[data-home-ready]")).toHaveAttribute("data-home-ready","true");await expect(page.locator(".micro-preview-card")).toHaveCount(6);const first=await page.locator(".micro-preview-card").evaluateAll(es=>es.map(e=>e.getAttribute("data-micro")));expect(new Set(first).size).toBe(6);await page.locator("#theme-toggle").click();expect(await page.locator(".micro-preview-card").evaluateAll(es=>es.map(e=>e.getAttribute("data-micro")))).toEqual(first);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.goto(`/${lang}/interactive/`);await expect(page.locator(".tool-card")).toHaveCount(7);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);}
 });

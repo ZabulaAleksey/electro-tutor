@@ -30,7 +30,7 @@ Stage: ET-BEAM-001. COMPLEX, production frontend/numerical model.
 BEAM-001..005 → numerical kernel + independent JSON goldens: tip force/moment/UDL консоли, центр/произвольное положение силы двухопорной, distributed, multiple, combined axial/transverse/moment, fixed-fixed. Обе ориентации консоли, variable EI, intermediate supports, jumps/continuity, equilibrium/compatibility, unstable/invalid. Goldens записываются из независимых аналитических формул, не solver outputs.
 BEAM-006..009 → React/browser→pure local kernel path, actual pointer drag with intermediate updates, inline changes, UI controls/history/cancel, shared cursor, presets, persistence/invalid import, RU/UK/mobile/theme/keyboard.
 SYMBOL-001..004 → audited inventory/provenance, geometry/SVG snapshots, independent screenshot review and retained MicroLabs/browser regressions.
-Commands come from existing package manifest: pnpm test/lint/check/build/check:context/test:e2e:built. Actual counts and limitations live in TESTING/STAGES. No PASS before execution. Existing routes and accepted tests preserved. No new dependencies expected.
+Commands come from existing package manifest: pnpm test/lint/check/build/check:context/test:e2e:built. Actual counts and limitations live in TESTING/STAGES. No PASS before execution. Existing routes and accepted numerical/control/locale/export assertions preserved; three-file route/count-only synchronization explicitly approved by owner2026-10-29, canonical35/35browser PASS. No new dependencies expected.
 
 ## Security, rollout, rollback
 

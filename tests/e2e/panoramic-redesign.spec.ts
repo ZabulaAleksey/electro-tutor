@@ -42,7 +42,7 @@ test("lossless surface, schematic and time section share boundary and parameter 
 
 test("local board draws, erases, undoes clear/erase, and exports actual SVG", async ({page}) => {
   const errors:string[]=[]; page.on("pageerror",e=>errors.push(e.message));
-  await page.goto("/ru/#engineering-board"); const board=page.locator("#engineering-board"), canvas=board.locator(".board-canvas");
+  await page.goto("/ru/board/"); const board=page.locator("#engineering-board"), canvas=board.locator(".board-canvas");
   await canvas.scrollIntoViewIfNeeded(); const b=(await canvas.boundingBox())!;
   await page.mouse.move(b.x+b.width*.45,b.y+b.height*.45); await page.mouse.down();
   await page.mouse.move(b.x+b.width*.6,b.y+b.height*.6,{steps:8}); await page.mouse.up();

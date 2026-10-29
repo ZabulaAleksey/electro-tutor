@@ -1316,13 +1316,13 @@
       ]
     },
     {
-      "status": "IMPLEMENTED",
-      "runtime": "Implemented and validated locally:360unit,13independent analytic cases,13beam/6visual browser scenarios. Current status owner ET-BEAM-001.",
+      "status": "VERIFIED",
+      "runtime": "Implemented and validated locally:360unit,13independent analytic cases/49assertions,35/35canonical affected browser. Current status owner ET-BEAM-001.",
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
-      "gap": "Accepted route/count test synchronization awaits explicit TEST-CONTRACT-01 approval; historical carousel contract drift separately recorded in TESTING. No publication.",
-      "action": "Apply only owner-approved three-file test delta, rerun canonical regression and synchronize terminal state. Merge/push/deploy require separate approval.",
+      "gap": "No local feature prerequisite remains. Historical carousel test contract drift and verification limits recorded separately in TESTING; no publication.",
+      "action": "Owner review; merge/push/deploy require separate approval. TEST-CONTRACT-01 completed after exact three-file authorization.",
       "domain": "beam-laboratory",
       "requirement_ids": [
         "BEAM-001",
@@ -1352,13 +1352,13 @@
       ]
     },
     {
-      "status": "IMPLEMENTED",
-      "runtime": "Implemented and validated locally:360unit,13independent analytic cases,13beam/6visual browser scenarios. Current status owner ET-BEAM-001.",
+      "status": "VERIFIED",
+      "runtime": "Implemented and validated locally:360unit,13independent analytic cases/49assertions,35/35canonical affected browser. Current status owner ET-BEAM-001.",
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
-      "gap": "Accepted route/count test synchronization awaits explicit TEST-CONTRACT-01 approval; historical carousel contract drift separately recorded in TESTING. No publication.",
-      "action": "Apply only owner-approved three-file test delta, rerun canonical regression and synchronize terminal state. Merge/push/deploy require separate approval.",
+      "gap": "No local feature prerequisite remains. Historical carousel test contract drift and verification limits recorded separately in TESTING; no publication.",
+      "action": "Owner review; merge/push/deploy require separate approval. TEST-CONTRACT-01 completed after exact three-file authorization.",
       "domain": "engineering-symbols",
       "requirement_ids": [
         "SYMBOL-001",

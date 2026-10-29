@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import FourierLab from "../../../components/FourierLab";
+import { localePath } from "../../../site-path";
+import type { Language } from "../../../types";
+export function getStaticPaths(){return [{params:{lang:"ru"}},{params:{lang:"uk"}}];}
+const language=Astro.params.lang as Language;
+const ru=language==="ru";
+const title=ru?"Fourier Sketch — интерактивный контур":"Fourier Sketch — інтерактивний контур";
+const lead=ru?"Рисуйте контур и наблюдайте его разложение на гармоники и эпициклы.":"Малюйте контур і спостерігайте його розклад на гармоніки та епіцикли.";
+---
+<BaseLayout title={title} description={lead} language={language} active="interactive" alternatePath="/interactive/fourier/">
+  <section class="fourier-page"><div class="line-page-intro"><a href={localePath(language,"/interactive/")}>← {ru?"Интерактив":"Інтерактив"}</a><h1>{title}</h1><p>{lead}</p></div><FourierLab client:load language={language}/></section>
+</BaseLayout>

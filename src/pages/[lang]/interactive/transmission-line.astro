@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import TransmissionLineLab from "../../../components/TransmissionLineLab";
-import "../../../components/TransmissionLineLab.css";
+import TransmissionNetworkLab from "../../../components/TransmissionNetworkLab";
+import "../../../components/TransmissionNetworkLab.css";
 import { lineCopy } from "../../../transient/copy";
 import { getLocale } from "../../../i18n";
 import { localePath } from "../../../site-path";
@@ -16,6 +16,6 @@ const copy = lineCopy(language);
   <section class="line-page">
     <div class="line-page-intro"><a href={localePath(language, "/interactive/")}>← {copy.back}</a>
       <h1>{copy.title}</h1><p>{copy.lead}</p></div>
-    <TransmissionLineLab client:load language={language} />
+    <TransmissionNetworkLab client:load language={language} />
   </section>
 </BaseLayout>

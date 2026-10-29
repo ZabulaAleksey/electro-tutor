@@ -102,3 +102,18 @@ quality gates и benchmark. UI/worker не объявляют completion при 
 
 Вне MVP: lossy и неоднородная линия, нелинейные приборы, circuit MNA/DAE,
 WebGPU/threads/SharedArrayBuffer, сохранённые simulation checkpoints.
+
+
+## V2 contract — утверждён прямым пакетом владельца2026-10-29
+
+Новый primary UI supersedes прежний выбор presets/apply/numerical knobs (LINE-007) и обязательность только FDTD для primary path (LINE-001). Legacy Rust/WASM source и тесты сохраняются; точное lossless решение не маркируется FDTD. Старые сценарии buttons/apply описывают прежний UI и не заменяют V2 acceptance.
+
+- `LINE-V2-001`: физическая модель отдельно от clock/render. Идеальные однородные участки с Z0,v,l; L′=Z0/v,C′=1/(Z0v). Ступенчатые фронты primary passive-resistive path вычисляются по временам задержек/граничным условиям без FDTD дисперсии/сплайнов; сохраняются промежуточные отражения и знак I=(U+−U−)/Z0.
+- `LINE-V2-002`: constructor нескольких последовательных участков (включая2/3), истинный накопленный x и границы. Источник step/pulse, Rs и время коммутации; нагрузка строится поддерживаемыми соединениями компонентов/обрывом/проводом. У каждого поддерживаемого узла явные equations; несовместимая схема/параметр блокирует расчёт. Нельзя заявлять arbitrary circuit solver.
+- `LINE-V2-003`: разрешённые физические edits автоматически пересчитывают начальную задачу с валидацией draft; нет Apply/CFL/cells/dt в основном UI. Live изменение поддерживаемого сопротивления/ключа создаёт событие с t/old/new и не переписывает прошлое; параметры самой линии только recalculate. Reactive RLC сохраняют initial/device states и не используют постоянный Γ.
+- `LINE-V2-004`: preview experiment interval определяет диапазоны U/I, общие для связанных пространственных/временных графиков; locked default. MANUAL, one-shot FIT, restore, overflow indicator; t/speed/camera/probe/theme не меняют границы. Nice ticks, SI и локаль из src/engineering.
+- `LINE-V2-005`: clock независимо от физики/FPS,1× default и log0,1–32× с number/−/+; speed edit без reset/t jump. Play/pause/resume/stop/reset/step backward/forward/next-event/seek/duration; bounded background/hidden motion, no timer accumulation.
+- `LINE-V2-006`: topology view с нейтральными УГО, editing/move/grid/undo/redo/save где поддержано; схематические nets соответствуют solver. Probe x/t синхронно управляют U/I epures, U/I traces и дополнительной U(x,t) либо I(x,t) surface; fixed quantitative color scale/units/camera/2D fallback, no fake branch surface.
+- `LINE-V2-007`: independent matched/open/short/impedance-step2/3sections oracles, arrival times, source reflections, KCL/power/energy incl stored energy, device initial states and convergence where numeric. Shared2D/3D values and unchanged axis/clock/speed states tested. No normative certification inferred from calculation.
+
+Первый release охватывает исправления A и законченные поддерживаемые расширения B/C. Потери/плавная неоднородность/произвольные ветвления/nonlinear DAE остаются future и никогда не получают вымышленные результаты. Legacy numerical controls не нужны обычному пользователю V2.

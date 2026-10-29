@@ -1,6 +1,6 @@
 import { engineeringAxis, type AxisOptions } from "./scale";
 export type PlotPoint = readonly [number,number];
-export type EngineeringPlotData = { xLabel:string;yLabel:string;xMin?:number;xMax:number;yMin:number;yMax:number;logarithmic?:boolean;yTickStep?:number;categories?:string[];curves:{label:string;color:string;dash?:boolean;points:PlotPoint[]}[] };
+export type EngineeringPlotData = { xLabel:string;yLabel:string;xMin?:number;xMax:number;yMin:number;yMax:number;logarithmic?:boolean;yTickStep?:number;categories?:string[];curves:{label:string;color:string;dash?:boolean;points:readonly PlotPoint[]}[] };
 export function validatePlotData(plot: EngineeringPlotData) {
   const errors:string[]=[];
   if(!plot.xLabel.trim()||!plot.yLabel.trim()) errors.push("missing-axis-label");

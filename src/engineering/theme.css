@@ -1,0 +1,30 @@
+/* One active data-theme, semantic tokens reused by old and new islands. */
+:root{--surface:#f5f7fb;--surface-elevated:#fff;--surface-canvas:#fff;--surface-plot:#fafcff;--text-primary:#1d293c;--text-secondary:#5c6a80;--border-default:#d5deec;--grid-major:#dce3ee;--grid-minor:#eef2f7;--axis-color:#64748b;--schematic-wire:#253044;--schematic-symbol:#253044;--selection:#286ad8;--accent:#286ad8;--warning:#8d5b12;--error:#af3333;--ink:var(--text-primary);--muted:var(--text-secondary);--paper:var(--surface);--white:var(--surface-elevated);--line:var(--border-default);--curve-blue:#2465cf;--curve-orange:#b95520;--curve-green:#187b60;--curve-violet:#7954bb;--blue:var(--curve-blue);--orange:var(--curve-orange);--green:var(--curve-green);--violet:var(--curve-violet);--plot-u:var(--blue);--plot-i:var(--orange);--plot-back:var(--violet)}
+[data-theme=dark]{--surface:#101927;--surface-elevated:#182538;--surface-canvas:#132031;--surface-plot:#142135;--text-primary:#e8eef8;--text-secondary:#b1bfd4;--border-default:#35465f;--grid-major:#34445c;--grid-minor:#203149;--axis-color:#a5b5cc;--schematic-wire:#d5dfef;--schematic-symbol:#d5dfef;--selection:#8ab7ff;--accent:#8ab7ff;--warning:#e4b966;--error:#ffaaa5;--curve-blue:#83b2ff;--curve-orange:#ffb17c;--curve-green:#77d5b8;--curve-violet:#bc9ff1;--blue:var(--curve-blue);--orange:var(--curve-orange);--green:var(--curve-green);--violet:var(--curve-violet);--ink:var(--text-primary);--muted:var(--text-secondary);--paper:var(--surface);--white:var(--surface-elevated);--line:var(--border-default)}
+html[data-theme] body,html[data-theme] body[data-home=true]{color:var(--text-primary);background:var(--surface)}
+html[data-theme] .astro-header,html[data-theme] .header{background:color-mix(in srgb,var(--surface-elevated) 96%,transparent);color:var(--ink);border-color:var(--line)}
+html[data-theme] .header .brand,html[data-theme] .header .brand strong,html[data-theme] .header nav a,html[data-theme] .header .theme-toggle,html[data-theme] .header .language-link,html[data-theme] .header .app-install-link{color:var(--ink)}
+html[data-theme] .header .brand small{color:var(--muted)}
+html[data-theme] .header .mobile-menu-toggle{background:var(--surface-elevated);border-color:var(--line)}
+html[data-theme] .header .mobile-menu-toggle span{background:var(--ink)}
+html[data-theme] .header .app-install-link,html[data-theme] .header .theme-toggle,html[data-theme] .header .language-link{background:var(--surface-elevated);border-color:var(--line)}
+html[data-theme] .lab-showcase{--ink:var(--text-primary);--muted:var(--text-secondary);--white:var(--surface-elevated);--paper:var(--surface);--line:var(--border-default);color:var(--ink);background:var(--surface-plot);border-color:var(--line)}
+html[data-theme] .lab-showcase .lab-schematic-panel,html[data-theme] .lab-showcase .lab-metric,html[data-theme] .lab-showcase .lab-thumbnails button,html[data-theme] .lab-showcase button{background:var(--surface-elevated);color:var(--ink);border-color:var(--line)}
+html[data-theme] .lab-showcase .lab-schematic-panel:before{background-image:linear-gradient(var(--grid-minor) 1px,transparent 1px),linear-gradient(90deg,var(--grid-minor) 1px,transparent 1px)}
+html[data-theme] .lab-showcase .lab-heading a,html[data-theme] .lab-showcase .section-kicker,html[data-theme] .lab-showcase .lab-slider strong,html[data-theme] .lab-showcase .surface-reading,html[data-theme] .lab-showcase .surface-reading strong,html[data-theme] .lab-showcase .surface-note,html[data-theme] .lab-showcase .surface-scale,html[data-theme] .lab-showcase .surface-top,html[data-theme] .lab-showcase .surface-controls label,html[data-theme] .lab-showcase .surface-controls strong{color:var(--ink)}
+html[data-theme] .lab-showcase .lab-thumbnails button[aria-pressed=true],html[data-theme] .lab-showcase .lab-carousel-controls button[aria-pressed=true]{background:color-mix(in srgb,var(--selection) 14%,var(--surface-elevated));border-color:var(--selection);color:var(--ink)}
+html[data-theme] .board-canvas,html[data-theme] .line-plots canvas,html[data-theme] .circle-plot,html[data-theme] .star-plot,html[data-theme] .surface-svg,html[data-theme] .surface-section{background:var(--surface-canvas);color:var(--ink)}
+html[data-theme] .line-lab button{color:var(--ink);background:var(--surface-elevated);border-color:var(--line)}
+html[data-theme] .engineering-plot{background:var(--surface-plot);color:var(--ink)}
+html[data-theme] .engineering-plot-invalid{color:var(--error)}
+html[data-theme] .micro-card,html[data-theme] .science-card,html[data-theme] .advanced-card{color:var(--ink);background:var(--surface-elevated);border-color:var(--line)}
+html[data-theme] .micro-results,html[data-theme] .micro-parameter input,html[data-theme] .board-toolbar{background:var(--surface-plot);border-color:var(--line)}
+html[data-theme] .engineering-board .board-toolbar button[aria-pressed=true]{background:color-mix(in srgb,var(--selection) 17%,var(--surface-elevated));border-color:var(--selection);color:var(--ink)}
+
+html[data-theme] .lab-showcase{--blue:var(--curve-blue);--orange:var(--curve-orange);--green:var(--curve-green);--violet:var(--curve-violet)}
+.science-home.section{max-width:1500px;padding:40px 24px}.science-home .lab-section-title{margin-bottom:20px}.science-home h2{font-size:27px;margin:0}.science-home .lab-section-title a{color:var(--blue);font-size:13px}.fourier-entry-art{width:100%;height:185px;display:block;background:var(--surface-plot)}
+
+:root{--line-zero:var(--axis-color);--line-grid:var(--grid-major);--line-ink:var(--text-primary)}
+
+.lab-ready-guard { margin: 0; padding: 0; border: 0; min-width: 0; }
+.lab-ready-guard[disabled] { pointer-events: none; }

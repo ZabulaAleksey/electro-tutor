@@ -1,9 +1,9 @@
 export type EngineeringLocale = "ru" | "uk" | "en";
 const locales = { ru: "ru-RU", uk: "uk-UA", en: "en-US" };
 const names: Record<string, readonly [string, string, string]> = {
-  V:["В","В","V"], A:["А","А","A"], Ω:["Ом","Ом","Ω"], F:["Ф","Ф","F"], H:["Гн","Гн","H"], s:["с","с","s"], Hz:["Гц","Гц","Hz"], W:["Вт","Вт","W"], var:["вар","вар","var"], VA:["В·А","В·А","V·A"], T:["Тл","Тл","T"], Wb:["Вб","Вб","Wb"], m:["м","м","m"], rad:["рад","рад","rad"], "°":["град.","град.","°"], "rad/s":["рад/с","рад/с","rad/s"], rpm:["об/мин","об/хв","rpm"], "N·m":["Н·м","Н·м","N·m"], dB:["дБ","дБ","dB"], "1":["1","1","1"]
+  Pa:["Па","Па","Pa"], J:["Дж","Дж","J"], N:["Н","Н","N"], kg:["кг","кг","kg"], "m/s":["м/с","м/с","m/s"], "m²":["м²","м²","m²"], "m³":["м³","м³","m³"], V:["В","В","V"], A:["А","А","A"], Ω:["Ом","Ом","Ω"], F:["Ф","Ф","F"], H:["Гн","Гн","H"], s:["с","с","s"], Hz:["Гц","Гц","Hz"], W:["Вт","Вт","W"], var:["вар","вар","var"], VA:["В·А","В·А","V·A"], T:["Тл","Тл","T"], Wb:["Вб","Вб","Wb"], m:["м","м","m"], rad:["рад","рад","rad"], "°":["град.","град.","°"], "rad/s":["рад/с","рад/с","rad/s"], rpm:["об/мин","об/хв","rpm"], "N·m":["Н·м","Н·м","N·m"], dB:["дБ","дБ","dB"], "1":["1","1","1"]
 };
-const prefixable = new Set(["V","A","Ω","F","H","s","Hz","W","var","VA","T","Wb","m"]);
+const prefixable = new Set(["Pa","J","N","V","A","Ω","F","H","s","Hz","W","var","VA","T","Wb","m"]);
 const prefixes = [{p:"p", ru:"п", exponent:-12},{p:"n",ru:"н",exponent:-9},{p:"µ",ru:"мк",exponent:-6},{p:"m",ru:"м",exponent:-3},{p:"",ru:"",exponent:0},{p:"k",ru:"к",exponent:3},{p:"M",ru:"М",exponent:6},{p:"G",ru:"Г",exponent:9}];
 export type EngineeringUnit = { base: string; factor: number; symbol: string; inputFactor: number };
 function decode(unit: string) {

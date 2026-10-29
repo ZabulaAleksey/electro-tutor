@@ -23,7 +23,8 @@
       "specs/features/profiles-capabilities-audit.spec.md",
       "specs/features/rtc-provider-boundary.spec.md",
       "specs/features/star-neutral-phasors.spec.md",
-      "specs/features/transmission-line-transient.spec.md"
+      "specs/features/transmission-line-transient.spec.md",
+      "specs/features/fourier-laboratory.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1172,6 +1173,106 @@
       "observability": "Raw samples and characteristics available for semantic checks; source scope/SHA in TESTING.",
       "gap": "None in bounded scope. Full normative certification, general transfer-function/advanced editors and future catalog models are not claimed.",
       "action": "Complete; retain existing contracts and add future models only under a new requested scope."
+    },
+    {
+      "domain": "advanced-scientific-labs",
+      "status": "IMPLEMENTED",
+      "runtime": "ET-LABS-002 local validation; exact-SHA public verification pending.",
+      "security": "Bounded local JSON validation; no backend, uploads or new dependencies. Read-only STUD and Fourier source.",
+      "a11y": "RU/UK labels; keyboard controls; reduced-motion/hidden guards; shared semantic light/dark tokens.",
+      "observability": "Pure model samples, exact fronts/residuals, DFT endpoint and error; bounded Worker failure displayed.",
+      "gap": "Public deployment verification pending. Explicit deferred scope remains in SPEC/STAGES.",
+      "action": "Authorized safe main merge/push, hosted verification and integrated feature branch cleanup.",
+      "requirement_ids": [
+        "LINE-V2-001",
+        "LINE-V2-002",
+        "LINE-V2-003",
+        "LINE-V2-004",
+        "LINE-V2-005",
+        "LINE-V2-006",
+        "LINE-V2-007"
+      ],
+      "code": [
+        "src/transient/network.ts",
+        "src/components/TransmissionNetworkLab.tsx",
+        "src/transient/NetworkSurface.tsx"
+      ],
+      "unit": [
+        "src/transient/network.test.ts",
+        "src/transient/network-advanced.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/transmission-network.spec.ts"
+      ]
+    },
+    {
+      "domain": "advanced-scientific-labs",
+      "status": "IMPLEMENTED",
+      "runtime": "ET-LABS-002 local validation; exact-SHA public verification pending.",
+      "security": "Bounded local JSON validation; no backend, uploads or new dependencies. Read-only STUD and Fourier source.",
+      "a11y": "RU/UK labels; keyboard controls; reduced-motion/hidden guards; shared semantic light/dark tokens.",
+      "observability": "Pure model samples, exact fronts/residuals, DFT endpoint and error; bounded Worker failure displayed.",
+      "gap": "Public deployment verification pending. Explicit deferred scope remains in SPEC/STAGES.",
+      "action": "Authorized safe main merge/push, hosted verification and integrated feature branch cleanup.",
+      "requirement_ids": [
+        "FOUR-001",
+        "FOUR-002",
+        "FOUR-003",
+        "FOUR-004",
+        "FOUR-005",
+        "FOUR-006",
+        "FOUR-007"
+      ],
+      "code": [
+        "src/fourier",
+        "src/components/FourierLab.tsx"
+      ],
+      "unit": [
+        "src/fourier/math.test.ts",
+        "src/fourier/bases.test.ts",
+        "src/fourier/config.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/fourier-lab.spec.ts"
+      ]
+    },
+    {
+      "domain": "advanced-scientific-labs",
+      "status": "IMPLEMENTED",
+      "runtime": "ET-LABS-002 local validation; exact-SHA public verification pending.",
+      "security": "Bounded local JSON validation; no backend, uploads or new dependencies. Read-only STUD and Fourier source.",
+      "a11y": "RU/UK labels; keyboard controls; reduced-motion/hidden guards; shared semantic light/dark tokens.",
+      "observability": "Pure model samples, exact fronts/residuals, DFT endpoint and error; bounded Worker failure displayed.",
+      "gap": "Public deployment verification pending. Explicit deferred scope remains in SPEC/STAGES.",
+      "action": "Authorized safe main merge/push, hosted verification and integrated feature branch cleanup.",
+      "requirement_ids": [
+        "SCI-001",
+        "SCI-002",
+        "SCI-003",
+        "THEME-001",
+        "THEME-002"
+      ],
+      "code": [
+        "src/science",
+        "src/components/ScienceMicroLabs.tsx",
+        "src/engineering/theme.css"
+      ],
+      "unit": [
+        "src/science/models.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-standard.spec.ts"
+      ]
     }
   ]
 }

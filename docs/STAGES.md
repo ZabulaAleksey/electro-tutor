@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-VIS-001
+- Stage ID: ET-LABS-002
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -279,3 +279,27 @@
 - Cleanup: feature/panoramic-redesign@26985b6 ancestry proved in main and safely deleted locally; remote exact name absent. Same-name temporary receipt branch holds only this final documentation synchronization and is removed after ordinary integration; no worktree or unrelated ref touched.
 - Documentation synchronization: README/ROADMAP/STAGES/TESTING/requirements ledger updated to actual public release; DESIGN/ADR-039/ARCHITECTURE/SHOW SPEC retained. SECURITY/API/DATA_MODEL/dependency/fallback/traceability/LEARNING_LOG contracts checked unchanged within scope.
 - NEXT: NONE
+
+
+## ET-LABS-002 — Длинные линии V2, Fourier и научные Micro Labs
+
+- Status: partial
+- Lifecycle: locally validated; publication pending in existing checkout/feature/advanced-science-labs from clean main5b070d3; no new worktree.
+- Class: COMPLEX / production frontend + scientific models. User launched all five attached prompts2026-10-29; V2 refines the first line prompt, future phases remain explicitly deferred.
+- Dependencies: ET-VIS-001 verified/deployed; existing shared SVG/scales/format and real WASM numerical lab available.
+- SPEC: transmission-line-transient.spec.md V2 delta; engineering-showcase.spec.md multidisciplinary/theme delta; fourier-laboratory.spec.md. Contracts updated before code.
+- Scope: sharp lossless-wave primary path; fixed/manual/one-shot-fit scales; independent playback; physical line/source/load constructor; supported stepped sections/events/probes; Fourier contour/DFT/epicycles + reusable source features;12scientific micro experiments; complete active-theme adaptation. No new backend/dependencies/worktrees, no writes to STUD/MathMorph/Fourier Sketch.
+- Architecture: shared existing EngineeringPlot/scale/formatter; small pure bounded model modules; separate model state from display/clock. Exact waves for passive resistive step configurations; reactive states require an explicit validated dynamic solver, unsupported combinations reject calculation. Existing numerical WASM remains independently available/verified, not silently relabelled exact.
+- Parallel ownership: root — line V2/shared engineering APIs/theme and integration/canonical docs; Fourier worker — new src/fourier/**, Fourier island/page/tests only; science worker — new src/science/**, science island/page/tests only. Same checkout by explicit no-worktree request; no overlapping writers. Shared graph API remains compatible, extensions root-owned.
+- Scenario: edit2/3lossless sections/load→automatic recalculation→sharp fronts/true cumulative x→play/speed/pause/seek/probe/locked scales→same2D/3D; draw Fourier contour→coefficients→chain endpoint/trace→harmonic edit/basis reconstruction;12cards→parameter/result/reset→both themes/mobile/permalink.
+- PASS: independent wave/reflection/Kirchhoff/energy/state/scale tests; small known DFT/basis/endpoint/error oracles;12analytic science controls/extremes; component types/lint/build; focused live built browser, RU/UK/theme/state/mobile; exact-SHA Cloudflare success and real primary URL smoke.
+- Source boundaries: STUD resolved read-only via environment/storage/index; generic knowledge/verified methods only, no student materials. Fourier current local/GitHub identity verified read-only; adapt suitable math to TypeScript, no whole project copy or desktop widgets.
+- Contract changes: current user explicitly supersedes LINE-001-only-FDTD primary engine and old load-preset/apply/grid-controls UI for new V2; retain existing source/solver and distinguish its compatibility checks from new primary acceptance. Do not weaken accepted physics tests. Any UI-specific supersession is explicit in SPEC, not silently counted PASS.
+- Deferred: losses, smooth variable distributed parameters, arbitrary branched/nonlinear networks/general SPICE; extra140topics; video/GIF export. These are not prerequisites for the attached first-release scopes.
+- Approval ET-LABS-PUBLISH-01: DONE authorization «После можешь делать мерже пуш делете»; after validated payload allow safe main integration, ordinary origin/main push ZabulaAleksey/electro-tutor (existing automatic Cloudflare deploy), primary URL verification and deletion only integrated feature/advanced-science-labs local/remote if present. No force/reset/unrelated refs/resources/secrets.
+- User actions: none for authorized integration/publication/temporary-branch cleanup. Unanticipated external access is conditional, not assumed.
+- Blockers: none at intake; unavailable capabilities or unsupported physics remain visible rather than simulated.
+- Evidence local2026-10-29:282Vitest/37files PASS; Astro199files/0errors/0warnings/2generated WASM hints; lint PASS; production31pages/30localized/146artifacts PASS. New/affected28browser PASS plus new primary offline1PASS; unaffected17browser PASS in combined run; retained-reference route-adjusted compatibility7PASS incl real Worker/WASM/offline. Accepted test sources unchanged. Initial new-role/export-scale regressions fixed and affected suite rerun PASS.
+- Review: bounded physical and untrusted-import/resource reviews completed, confirmed defects corrected; no remaining high-confidence blocker in supported scope.
+- Documentation sync: README/STAGES/ROADMAP/SPEC/index/ledger/ARCHITECTURE/DESIGN/SECURITY/TESTING and ADR-040 updated; API/DATA_MODEL/DEPENDENCIES checked (FALLBACKS absent) for this frontend-only delta, no contract or dependency changes required. No LEARNING_LOG churn.
+- NEXT: ET-LABS-PUBLISH

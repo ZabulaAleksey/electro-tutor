@@ -1,0 +1,44 @@
+.fourier-config-error{margin:0;padding:.55rem .7rem;border-left:3px solid var(--orange);background:color-mix(in srgb,var(--orange) 10%,transparent);color:var(--ink);font-size:.82rem}
+.fourier-table{max-height:28rem;overflow:auto;overscroll-behavior:contain}
+.fourier-playground-plots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media (max-width:700px){.fourier-playground-plots{grid-template-columns:1fr}.fourier-table{max-height:22rem}}
+.fourier-lab {max-width:1440px;margin:auto;color:var(--ink)}
+.fourier-page {max-width:1500px;margin:auto;padding:1.5rem clamp(1rem,3vw,3rem) 4rem}
+.fourier-page .line-page-intro h1 {font-size:clamp(1.5rem,3vw,2.3rem);margin:.6rem 0}
+.fourier-heading {display:flex;justify-content:space-between;gap:1rem;align-items:center}
+.fourier-heading h2 {font-size:1.3rem;margin:1rem 0 .3rem}
+.fourier-heading p {margin:0 0 1rem;color:var(--muted)}
+.fourier-status {font-size:.75rem;border:1px solid var(--line);padding:.4rem .7rem;border-radius:2rem;white-space:nowrap}
+.fourier-toolbar,.fourier-view-controls,.playground-controls {display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:.7rem 0}
+.fourier-lab button,.fourier-lab select,.fourier-lab input[type=number] {font:inherit;color:var(--ink);background:var(--surface-elevated);border:1px solid var(--line);border-radius:.5rem;padding:.5rem .65rem;min-height:40px;max-width:100%}
+.fourier-lab button {cursor:pointer}.fourier-lab button:hover {border-color:var(--blue)}
+.fourier-lab input[type=range] {width:100%;accent-color:var(--blue);min-height:32px}
+.fourier-lab input[type=checkbox] {accent-color:var(--blue);margin-right:.4rem}
+.fourier-layout {display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:1rem}
+.fourier-visual,.fourier-panel,.fourier-card,.fourier-playground {background:var(--surface-elevated);border:1px solid var(--line);border-radius:1rem;min-width:0;padding:1rem}
+.fourier-visual {padding:.5rem}
+.fourier-canvas {display:block;width:100%;height:auto;max-height:65vh;background:var(--surface-canvas);border-radius:.6rem;touch-action:none;cursor:crosshair}
+.fourier-axis {stroke:var(--line);stroke-width:1}
+.fourier-circle {fill:none;stroke:var(--muted);stroke-width:.7;opacity:.55}
+.fourier-vector {stroke:var(--orange);stroke-width:1.5}
+.fourier-original {stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
+.fourier-reconstructed {stroke:var(--blue);stroke-width:1.6}
+.fourier-trace {stroke:var(--green);stroke-width:2.4}
+.fourier-endpoint {fill:var(--orange);stroke:var(--surface-canvas);stroke-width:1}
+.fourier-hint,.fourier-note {font-size:.78rem;line-height:1.5;color:var(--muted);margin:.6rem}
+.fourier-panel {display:flex;flex-direction:column;gap:.65rem;font-size:.86rem}
+.fourier-panel label {display:flex;align-items:center;flex-wrap:wrap;gap:.35rem}
+.fourier-panel label:has(input[type=range]) {display:grid;grid-template-columns:1fr auto}
+.fourier-panel label input[type=range] {grid-column:1/-1}
+.fourier-panel select {margin-left:auto}
+.fourier-error {margin-top:auto;display:grid;gap:.5rem;padding:.7rem;background:var(--surface-canvas);border-radius:.5rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fourier-lower {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin:1rem 0}
+.fourier-card h3 {font-size:1rem;margin:0 0 .7rem}
+.fourier-row {display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;align-items:center;border-bottom:1px solid var(--line);padding:.4rem 0;font-size:.8rem}
+.fourier-row label {min-width:0}.fourier-row input[type=number] {width:100%;font-variant-numeric:tabular-nums}
+.fourier-playground summary {cursor:pointer;font-weight:650}
+.playground-controls label {display:grid;gap:.25rem;min-width:120px;flex:1}
+.fourier-lab :focus-visible {outline:2px solid var(--blue);outline-offset:3px}
+@media(max-width:850px){.fourier-layout{grid-template-columns:minmax(0,1fr)}.fourier-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.fourier-error{grid-column:1/-1}.fourier-lower{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:480px){.fourier-toolbar button{min-height:44px;font-size:.8rem}.fourier-heading p{font-size:.8rem}.fourier-panel{padding:.7rem}.fourier-status{display:none}.fourier-page{padding:.8rem}.fourier-lab select{width:100%}.fourier-row{grid-template-columns:75px minmax(0,1fr) minmax(0,1fr)}}

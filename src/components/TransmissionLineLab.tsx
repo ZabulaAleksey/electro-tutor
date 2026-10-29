@@ -70,9 +70,9 @@ export default function TransmissionLineLab({ language }: { language: Language }
           grid: styles.getPropertyValue("--line-grid").trim() || "#d1d5db",
           ink: styles.getPropertyValue("--line-ink").trim() || "#22303a" };
         if (voltageCanvas.current) geometry.current.v=drawSpatial(voltageCanvas.current, frame.voltages,
-          { ...common, title: t.scopeV, unit: "V", color: "#dc564e", language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV });
+          { ...common, title: t.scopeV, unit: "V", color: styles.getPropertyValue("--curve-blue").trim(), language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV });
         if (currentCanvas.current) geometry.current.i=drawSpatial(currentCanvas.current, frame.currents,
-          { ...common, title: t.scopeI, unit: "A", color: "#167cbd", language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV/appliedRef.current.line.impedanceOhm });
+          { ...common, title: t.scopeI, unit: "A", color: styles.getPropertyValue("--curve-orange").trim(), language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV/appliedRef.current.line.impedanceOhm });
         const d = frame.diagnostics;
         setStatus({ time: d[D.time], step: d[D.step], sourceV: d[D.sourceVoltage], sourceI: d[D.sourceCurrent],
           loadV: d[D.loadVoltage], loadI: d[D.loadCurrent], energy: d[D.lineEnergy] + d[D.deviceEnergy],
@@ -88,6 +88,8 @@ export default function TransmissionLineLab({ language }: { language: Language }
     worker.postMessage({ type: "configure", config: OPEN_PRESET, stopTimeS: 0.02 } satisfies WorkerCommand);
     return () => { if (frameRef.current !== null) cancelAnimationFrame(frameRef.current); worker.terminate(); workerRef.current = null; };
   }, [t.scopeV, t.scopeI, language]);
+
+  useEffect(()=>{const redraw=()=>{const frame=latestRef.current;if(!frame)return;const styles=getComputedStyle(document.documentElement),common={zero:styles.getPropertyValue("--axis-color").trim(),grid:styles.getPropertyValue("--grid-major").trim(),ink:styles.getPropertyValue("--text-primary").trim(),language,lengthM:appliedRef.current.line.lengthM};if(voltageCanvas.current)geometry.current.v=drawSpatial(voltageCanvas.current,frame.voltages,{...common,title:t.scopeV,unit:"V",color:styles.getPropertyValue("--curve-blue").trim(),reference:appliedRef.current.source.voltageV});if(currentCanvas.current)geometry.current.i=drawSpatial(currentCanvas.current,frame.currents,{...common,title:t.scopeI,unit:"A",color:styles.getPropertyValue("--curve-orange").trim(),reference:appliedRef.current.source.voltageV/appliedRef.current.line.impedanceOhm});};const observer=new MutationObserver(redraw);observer.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});return()=>observer.disconnect();},[language,t.scopeV,t.scopeI]);
 
   const edit = (section: keyof TransientConfig, key: string, value: number | string) => {
     setDraft(previous => ({ ...previous, [section]: { ...previous[section], [key]: value } }));

@@ -592,3 +592,6 @@ Micro Labs / ET-MICRO-001: внутри той же React island добавле�
 
 
 Общий слой SHOW-016..019: `src/engineering/{scale,format,plot,geometry,bode}.ts` и `EngineeringPlot`/`BodeView` переиспользуются текущими islands. Pure functions хранят physical numbers отдельно от presentation; Canvas использует те же scales/units. STUD не runtime dependency. Worker/WASM solver и auth/backend contracts неизменны.
+
+
+ET-LABS-002: existing islands/shared engineering layer reused. New src/fourier pure TypeScript adaptation and src/science data/models remain independent of src/transient physical engine. A bounded characteristic-wave engine extends supported ideal sections; legacy Rust/WASM retained. One active theme and shared plot/clock contracts; no services/dependencies. UI edits serialize physical topology; display state never mutates solver history.

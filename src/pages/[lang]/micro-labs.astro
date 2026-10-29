@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ScienceMicroLabs from "../../components/ScienceMicroLabs";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang === "uk" ? "uk" : "ru";
+const title = language === "ru" ? "Научные микролаборатории" : "Наукові мікролабораторії";
+---
+
+<BaseLayout {title} description={language === "ru" ? "Интерактивные научные микролаборатории ElectroTutor" : "Інтерактивні наукові мікролабораторії ElectroTutor"} language={language} active="interactive" alternatePath="/micro-labs/">
+  <section class="section container micro-labs-page">
+    <p class="eyebrow">{language === "ru" ? "Инженерная визуализация" : "Інженерна візуалізація"}</p>
+    <h1>{title}</h1>
+    <p class="page-lead">{language === "ru" ? "Меняйте параметры и сразу проверяйте формулу, единицы и график." : "Змінюйте параметри та одразу перевіряйте формулу, одиниці й графік."}</p>
+    <ScienceMicroLabs client:load language={language} />
+  </section>
+</BaseLayout>

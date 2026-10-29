@@ -40,6 +40,8 @@ const line = lineCopy(language);
       <p>{line.circularCard}</p><a href={localePath(language, "/interactive/circular-diagram/")}>{line.circularOpen} →</a></article>
     <article><span class="section-kicker">{line.line}</span><h2>{line.title}</h2>
       <p>{line.card}</p><a href={localePath(language, "/interactive/transmission-line/")}>{line.open} →</a></article>
+    <article><span class="section-kicker">FOURIER LAB</span><h2>{language==="ru"?"Фурье и эпициклы":"Фур’є та епіцикли"}</h2><p>{language==="ru"?"Рисуйте контур, исследуйте спектр и управляйте коэффициентами разложения.":"Малюйте контур, досліджуйте спектр і керуйте коефіцієнтами розкладу."}</p><a href={localePath(language,"/interactive/fourier/")}>{language==="ru"?"Открыть лабораторию Фурье":"Відкрити лабораторію Фур’є"} →</a></article>
+    <article><span class="section-kicker">SCIENCE MICRO LABS</span><h2>{language==="ru"?"12 научных экспериментов":"12 наукових експериментів"}</h2><p>{language==="ru"?"Математика, механика, жидкости, волны, термодинамика и оптика.":"Математика, механіка, рідини, хвилі, термодинаміка та оптика."}</p><a href={localePath(language,"/micro-labs/")}>{language==="ru"?"Открыть научный каталог":"Відкрити науковий каталог"} →</a></article>
     </div>
     <CircularDiagram client:load transition:persist="circular-diagram" language={language} />
   </div>

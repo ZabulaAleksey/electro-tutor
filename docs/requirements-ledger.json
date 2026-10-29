@@ -1277,13 +1277,13 @@
     },
     {
       "domain": "student-workspaces",
-      "status": "PARTIAL",
-      "runtime": "293 unit PASS; scoped browser and native emulator acceptance in progress; not yet published.",
+      "status": "VERIFIED",
+      "runtime": "Source9ed98f5af48ab6d5d2863715a2e8afc527aa11b1; Cloudflare19537dec-58fb-405e-a034-38979e42270f SUCCESS49s;293unit,30initial primary-domain browser PASS and final10/10affected primary-domain PASS; signed debug APK/native WebView offline smoke PASS2026-10-29.",
       "security": "Local bounded storage, no JS bridge/TLS bypass/backend/auth changes. Separate component library deferred.",
       "a11y": "RU/UK, native modal, keyboard zoom, local drawing touch action.",
       "observability": "Preview/committed-point attributes; signed Android debug package and real WebView smoke.",
-      "gap": "Final native/hosted acceptance and authorized integration.",
-      "action": "Validate and publish current bounded slice.",
+      "gap": "Physical Android device and release/store signing NOT_RUN. Separate component library deferred; MathMorph URL not configured.",
+      "action": "Complete bounded student-workspaces release; preserve external boundaries.",
       "requirement_ids": [
         "UX-001",
         "UX-002",

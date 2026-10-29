@@ -304,7 +304,7 @@
 ## ET-UX-003 — Student workspaces, gestures and catalogs
 
 - Status: verified
-- Lifecycle: completed/published2026-10-29; approved FF merge and ordinary origin/main push completed; source44dc1ecb294f8c9115fa0566484913f364c805c3; Cloudflarec73a875c-8be0-4253-80bd-595cd6844f40 SUCCESS58s (build44s/deploy9s). Existing feature/student-workspaces from clean synced main76b5c9d; COMPLEX production frontend/native packaging. No worktree.
+- Lifecycle: completed/published2026-10-29; approved FF merge and ordinary origin/main push completed; source9ed98f5af48ab6d5d2863715a2e8afc527aa11b1; Cloudflare19537dec-58fb-405e-a034-38979e42270f SUCCESS49s (build38s/deploy7s). Existing feature/student-workspaces from clean synced main76b5c9d; COMPLEX production frontend/native packaging. No worktree.
 - Dependencies: ET-LABS-002 verified/public. Existing models/shared presentation remain authoritative.
 - Scope/SPEC: student-workspaces.spec.md UX-001..010; all attached UI master points plus latest drawing/card refinements. Standalone component library explicitly deferred by later master; no other-project/STUD writes. Web release independent of native toolchain availability.
 - Plan: root shared pointer/zoom + Fourier/surfaces/docs/native; UI writer shared header/cards/catalog/home/services; board writer board/calc workspaces and guards. Non-overlapping files/contracts, no dependency changes without evidenced gap.
@@ -312,10 +312,10 @@
 - PASS: semantic/unit gesture math + focused browser + type/lint/build/context, relevant retained model tests; exact-SHA hosted acceptance. Android gate separately PASS/BLOCKED; no global audits.
 - Approval ET-UX-PUBLISH-01: DONE explicit owner reply2026-10-29 «Разрешаю merge, push, деплой и удаление слитой ветки». After validation: safe FFmain/ordinary origin/main push ZabulaAleksey/electro-tutor, existing Cloudflare auto deploy, real URL checks, delete only integrated feature/student-workspaces. No force/other refs/cloud resources/secrets.
 - User actions: none; exact release approval recorded above. Installed Android toolchain verified, real debug APK/native emulator acceptance available.
-- Evidence:293unit/41files;15new browser PASS and24retained browser scenarios PASS; lint/type/context/CI/hygiene/build PASS. Two bounded reviewer cycles, confirmed storage/guard/mobile zoom defects resolved. Android debug SHA85853366 built/signed/installed; own emulator WebView/offline smoke PASS повторно на финальном APK. Moved MicroLabs7/7PASS.
+- Evidence:293unit/41files;15new browser PASS and24retained browser scenarios PASS; lint/type/context/CI/hygiene/build PASS. Two bounded reviewer cycles, confirmed storage/guard/mobile zoom defects resolved. Android debug SHA835D08B6 built/signed/installed; own emulator WebView/offline smoke PASS повторно на финальном APK. Moved MicroLabs7/7PASS.
 - Documentation sync: README/STAGES/ROADMAP/SPEC/index/ledger/ARCHITECTURE/DESIGN/SECURITY/TESTING/ADR-041 updated; API/DATA_MODEL/DEPENDENCIES retained (no dependency/backend contract change); no fallback owner exists; LEARNING_LOG unchanged.
 - Public evidence:30/30primary-domain Chromium PASS/27.6s; same gesture/board/catalog/Fourier/science/line scenarios incl offline Worker. Normal Chrome direct Ohm link: U48V/R60Ohm=0.8A and38.4W, reload preserves selected model, no captured errors. Initial restricted-shell run had ERR_NETWORK_ACCESS_DENIED; network-authorized identical rerun passed, no source/test changes.
 - Cleanup: only integrated feature/student-workspaces after receipt ancestry/remote read-back; remote branch never created. Own ElectroTutorSmoke emulator/forward stopped, unowned preview4321 preserved. APK retained in ignored build and user chat output, no signing key/binary bundled in Git.
 - Remaining: physical Android device/release signing/store NOT_RUN; standalone component library explicitly deferred; MathMorph external URL not configured, honest disabled card. No owner action required for current release.
-- Follow-up: compact catalog/workspace intro CSS and heading-size regression10affected browser PASS; permitted same release publication pending.
-- NEXT: ET-UX-COMPACT-PUBLISH
+- Follow-up: compact catalog/workspace intro CSS and heading-size regression10affected local browser PASS; final deployment receipt above;10/10primary affected browser PASS/8.6s. Final APK SHA835D08B6271A2D1404A80D0E97E2C5035DA99D722D174211F71D67D06A0713E3 signed/installed and full native WebView smoke repeated PASS.
+- NEXT: NONE

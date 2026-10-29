@@ -7,7 +7,7 @@ const {chromium,expect}=createRequire(path.join(__dirname,"../package.json"))("@
 const serial=process.argv[2];if(!/^emulator-\d+$/.test(serial||""))throw Error("Pass an explicit ElectroTutorSmoke emulator serial");
 const sdk=process.env.ANDROID_SDK_ROOT||path.join(process.env.LOCALAPPDATA,"Android/Sdk");const adb=path.join(sdk,"platform-tools/adb.exe");
 const command=(...args)=>execFileSync(adb,["-s",serial,...args],{encoding:"utf8"}).trim();
-if(!command("emu","avd","name").startsWith("ElectroTutorSmoke"))throw Error("Refusing unrelated emulator");
+if(command("shell","getprop","ro.boot.qemu.avd_name")!=="ElectroTutorSmoke")throw Error("Refusing unrelated emulator");
 const pid=command("shell","pidof","dev.electrotutor.app");if(!/^\d+$/.test(pid))throw Error("Start the debug app first");
 command("forward","tcp:9223",`localabstract:webview_devtools_remote_${pid}`);
 const origin="https://appassets.androidplatform.net";

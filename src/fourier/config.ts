@@ -10,6 +10,7 @@ export const MAX_CONFIG_HARMONICS = 128;
 
 export type FourierConfig = {
   points: Complex[];
+  playground?: { active: boolean; preset: "square" | "saw" | "triangle" | "beats"; amplitude: number; phase: number };
   closed: boolean;
   count: number;
   phase: number;
@@ -29,8 +30,9 @@ const validEditedMap = (value: unknown): value is Record<number, { amplitude: nu
 
 export function validateFourierConfig(value: unknown): value is FourierConfig {
   if (!isRecord(value) || !Array.isArray(value.points) || value.points.length > MAX_CONFIG_POINTS) return false;
-  const allowedKeys = new Set(["points", "closed", "count", "phase", "speed", "loop", "basis", "order", "enabled", "edited"]);
+  const allowedKeys = new Set(["points", "closed", "count", "phase", "speed", "loop", "basis", "order", "enabled", "edited", "playground"]);
   if (Object.keys(value).some((key) => !allowedKeys.has(key))) return false;
+  if (value.playground !== undefined && (!isRecord(value.playground) || typeof value.playground.active !== "boolean" || !["square","saw","triangle","beats"].includes(String(value.playground.preset)) || !finiteBounded(value.playground.amplitude, .2, 1.8) || !finiteBounded(value.playground.phase, -Math.PI, Math.PI))) return false;
   if (!value.points.every((point) => isRecord(point) && finiteBounded(point.re, -MAX_CONFIG_COORDINATE, MAX_CONFIG_COORDINATE) && finiteBounded(point.im, -MAX_CONFIG_COORDINATE, MAX_CONFIG_COORDINATE))) return false;
   return typeof value.closed === "boolean" && finiteBounded(value.count, 1, MAX_CONFIG_HARMONICS) && Number.isInteger(value.count)
     && finiteBounded(value.phase, 0, 1) && finiteBounded(value.speed, 0, .4) && typeof value.loop === "boolean"

@@ -27,3 +27,5 @@ describe("Fourier config validation", () => {
 });
 
 it("roundtrips enabled high-index basis functions", () => { expect(validateFourierConfig({ ...valid, basis: "walsh", enabled: { "127": false } })).toBe(true); expect(validateFourierConfig({ ...valid, enabled: { "128": true } })).toBe(false); });
+
+it("validates optional playground state before restoring it", () => { expect(validateFourierConfig({...valid, playground:{active:true,preset:"triangle",amplitude:1.5,phase:-1}})).toBe(true);expect(validateFourierConfig({...valid,playground:{active:true,preset:"unsafe",amplitude:1,phase:0}})).toBe(false); });

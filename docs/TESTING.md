@@ -935,3 +935,5 @@ Accepted historical tests remain unchanged. V2 explicitly supersedes preset/appl
 Local browser receipt:28new/affected PASS after role/export regressions fixed;17unaffected PASS in initial combined run (micro/panorama/star/circular). New primary offline1PASS after corrected probe time4ms (arrival3.75ms). Route-adjusted retained-reference harness7PASS including real WASM load/device/source and offline; original accepted files unchanged. Science2PASS after final card class/style fix. No full auth/backend audit or hosted PASS inferred.
 
 Hosted checkpoint3641aab/15a8bedf:15/16PASS. Offline race: data-ready was true from SSR initial run before Worker fetch/first reply. Fix initializes pending and requires mounted+completed reply; no SW/cache policy change. Line6browser PASS after fix; hosted retry pending.
+
+Final prepublication:283unit/37files PASS after Playground config validator; Fourier7browser PASS incl negative phase draft, disable-without-hidden-substitution and full Playground state roundtrip. Hosted offline after27b2854 PASS. Production build unchanged31pages/30localized/146artifacts PASS; lint PASS.

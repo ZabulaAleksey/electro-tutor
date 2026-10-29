@@ -63,3 +63,18 @@ test("negative phase entry preserves a composable numeric draft", async ({ page 
   await field.press("Tab");
   await expect(field).toHaveValue("-1.25");
 });
+
+test("disabling a selected harmonic removes its vector without substituting a hidden one", async ({ page }) => {
+ await page.emulateMedia({ reducedMotion: "reduce" }); await page.goto("/ru/interactive/fourier/");
+ const lab=page.locator("[data-fourier-lab]");await expect(lab.locator(".fourier-vector")).toHaveCount(16);
+ await lab.locator(".fourier-table input[type=checkbox]").first().uncheck();await expect(lab.locator(".fourier-vector")).toHaveCount(15);
+ await lab.locator(".fourier-table input[type=checkbox]").first().check();await expect(lab.locator(".fourier-vector")).toHaveCount(16);
+});
+
+test("playground configuration restores the actual signal after leaving its mode", async ({ page }) => {
+ await page.emulateMedia({ reducedMotion: "reduce" }); await page.goto("/ru/interactive/fourier/");const lab=page.locator("[data-fourier-lab]");
+ await lab.locator("summary",{hasText:"Harmonic Playground"}).click();await lab.getByRole("button",{name:"Сигнал",exact:true}).click();
+ await lab.locator(".playground-controls select").selectOption("triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
+ await lab.getByRole("button",{name:"Сохранить",exact:true}).click();await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
+ await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);
+});

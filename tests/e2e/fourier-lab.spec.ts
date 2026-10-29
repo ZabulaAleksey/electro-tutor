@@ -1,3 +1,4 @@
+import { validateFourierConfig } from "../../src/fourier/config";
 import { expect, test } from "@playwright/test";
 
 for (const language of ["ru", "uk"] as const) {
@@ -75,6 +76,6 @@ test("playground configuration restores the actual signal after leaving its mode
  await page.emulateMedia({ reducedMotion: "reduce" }); await page.goto("/ru/interactive/fourier/");const lab=page.locator("[data-fourier-lab]");
  await lab.locator("summary",{hasText:"Harmonic Playground"}).click();await lab.getByRole("button",{name:"Сигнал",exact:true}).click();
  await lab.locator(".playground-controls select").selectOption("triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
- await lab.getByRole("button",{name:"Сохранить",exact:true}).click();await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
+ await lab.getByRole("button",{name:"Сохранить",exact:true}).click();const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-fourier-config")!));expect(validateFourierConfig(saved),JSON.stringify({...saved,points:saved?.points?.length})).toBe(true);await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
  await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);
 });

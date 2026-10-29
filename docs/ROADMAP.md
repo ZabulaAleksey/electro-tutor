@@ -1,6 +1,6 @@
 # Дорожная карта Electro Tutor
 
-ET-LABS-002: локально реализован первый релиз линий V2/Fourier/12science Micro Labs и общая тема. Произвольные разветвлённые/нелинейные линии, потери,140дополнительных тем и растровый импорт Фурье остаются будущими; статус публикации — выбранный STAGES record.
+ET-LABS-002: первый релиз опубликован и проверен2026-10-29 — длинные линии V2, Fourier Sketch,12научных Micro Labs и общая тема.283unit/18public-browser PASS; source64a6ba0, Cloudflarebc8455b3 SUCCESS72s. Точный scope/receipt и будущие возможности — docs/STAGES.md. Исторические релизы ниже сохранены.
 
 ET-VIS-001 / ET-PANORAMA-001: verified publicly2026-10-29. Source26985b6, Cloudflare12ca3006 SUCCESS;231unit/41local-browser и15public-browser PASS. Общие nice axes/SI/локаль/Bode/фазоры/сечения; ранний ввод защищён до hydration. Точный receipt — STAGES/TESTING. Исторические релизы ниже сохранены.
 

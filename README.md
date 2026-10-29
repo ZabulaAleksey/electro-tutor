@@ -1,6 +1,6 @@
 # ElectroTutor
 
-ET-LABS-002: реализованы лаборатория длинных линий V2, Fourier Sketch и12научных Micro Labs. Локально282unit PASS, сборка31страница; публикация нового релиза ожидает проверки. Действующий публичный receipt предыдущего релиза сохранён ниже.
+ET-LABS-002: первый релиз опубликован и проверен2026-10-29 — длинные линии V2, Fourier Sketch,12научных Micro Labs и общая тема.283unit/18public-browser PASS; source64a6ba0, Cloudflarebc8455b3 SUCCESS72s. Точный scope/receipt и будущие возможности — docs/STAGES.md. Исторические релизы ниже сохранены.
 
 Панорамный редизайн и общий инженерный стандарт опубликованы: [ElectroTutor](https://electrotutor.pages.dev/ru/).14Micro Labs, удобные шкалы/СИ/локаль, Bode, исправленная геометрия фазоров и синхронные2D/3D-сечения.231unit/41local-browser/15public-browser PASS; source26985b6, Cloudflare12ca3006. Подробный receipt — `docs/STAGES.md`.
 

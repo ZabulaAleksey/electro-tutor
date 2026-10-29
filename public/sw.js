@@ -1,3 +1,4 @@
+// ElectroTutor identity assets refreshed; preserve v2 cache strategy and private-route guards.
 const CACHE_PREFIX = "potential-pwa-";
 const CACHE = `${CACHE_PREFIX}v2`;
 const SCOPE_URL = new URL("./", self.registration.scope);

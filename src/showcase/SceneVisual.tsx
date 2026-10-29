@@ -50,7 +50,7 @@ export function Phasors({ kind, parameters, time = 0 }: { kind: SceneKind; param
   }
   return <g transform={isAc ? "translate(315 183)" : "translate(280 78)"} className="lab-phasors">
     <circle r="48" fill="none" stroke="var(--line)" /><path d="M-55 0 H55 M0 -55 V55" stroke="var(--line)" fill="none" />
-    {values.map(v => { const x = Math.cos(v.angle) * v.length, y = -Math.sin(v.angle) * v.length; return <g key={v.label}><path d={`M0 0 L${x} ${y}`} stroke={color(v.tone)} strokeWidth="3" fill="none" /><circle cx={x} cy={y} r="3.5" fill={color(v.tone)} /><text x={x + 5} y={y - 6 + (isAc && v.tone === "orange" ? 18 : 0)} fontSize="12" fill={color(v.tone)}>{v.label}</text></g>; })}
+    {values.map(v => { const x = Number((Math.cos(v.angle) * v.length).toFixed(3)), y = Number((-Math.sin(v.angle) * v.length).toFixed(3)); return <g key={v.label}><path d={`M0 0 L${x} ${y}`} stroke={color(v.tone)} strokeWidth="3" fill="none" /><circle cx={x} cy={y} r="3.5" fill={color(v.tone)} /><text x={x + 5} y={y - 6 + (isAc && v.tone === "orange" ? 18 : 0)} fontSize="12" fill={color(v.tone)}>{v.label}</text></g>; })}
     {!isAc && kind === "neutral" && <text x="-55" y="72" fontSize="12" fill={color("green")}>|Un| = {n(Math.hypot(s!.displacement.re, s!.displacement.im))} V</text>}
   </g>;
 }

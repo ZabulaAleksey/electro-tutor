@@ -2,6 +2,7 @@
 import "katex/dist/katex.min.css";
 import "../styles.css";
 import "../pwa.css";
+import "../landing.css";
 import type { Language } from "../types";
 import { getLocale, getOtherLanguage } from "../i18n";
 import { localePath, SITE_BASE_PATH, withBasePath } from "../site-path";
@@ -24,7 +25,7 @@ const webFontScriptPath = withBasePath("/scripts/web-font.js");
 const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
-const nav = [
+const standardNav = [
   { id: "home", href: localePath(language), label: copy.nav.home },
   { id: "topics", href: localePath(language, "/topics/"), label: copy.nav.topics },
   { id: "interactive", href: localePath(language, "/interactive/"), label: copy.nav.interactive },
@@ -33,6 +34,11 @@ const nav = [
   { id: "account", href: localePath(language, "/account/"), label: copy.account.heading },
   { id: "contacts", href: localePath(language, "/contacts/"), label: copy.nav.contacts },
 ];
+const nav = active === "home" ? [standardNav[0], standardNav[1],
+  {id:"micro", href:localePath(language)+"#micro-labs", label:"Micro Labs"},standardNav[2],
+  {id:"software", href:localePath(language)+"#engineering-software", label:language === "ru" ? "Инженерное ПО" : "Інженерне ПЗ"},
+  {id:"sessions", href:localePath(language)+"#learning-sessions", label:language === "ru" ? "Занятия" : "Заняття"},standardNav[5]
+] : standardNav;
 ---
 <!doctype html>
 <html lang={language} data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>
@@ -40,11 +46,11 @@ const nav = [
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="electro-tutor-api-origin" content={publicApiOrigin} />
-  <meta name="theme-color" content="#246b54" />
+  <meta name="theme-color" content="#071328" />
   <meta name="description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content={copy.brand.name} />
+  <meta name="apple-mobile-web-app-title" content={copy.brand.display} />
   {keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
   <link rel="manifest" href={manifestPath} />
   <link rel="icon" href={iconPath} type="image/svg+xml" />
@@ -71,10 +77,10 @@ const nav = [
     })();
   </script>
 </head>
-<body>
+<body data-home={active === "home" ? "true" : undefined}>
   <header class="header astro-header">
-    <a class="brand" href={localePath(language)} aria-label={copy.brand.name}>
-      <span class="brand-mark" aria-hidden="true">∿</span>
+    <a class="brand" href={localePath(language)} aria-label={copy.brand.display}>
+      <svg class="brand-mark" viewBox="0 0 72 48" aria-hidden="true"><defs><linearGradient id="brand-wave" x2="1" y2=".2"><stop stop-color="#45d4ff"/><stop offset="1" stop-color="#874fff"/></linearGradient></defs><path d="M4 36 L16 12 Q21 2 25 13 L31 35 Q35 45 40 30 L47 13 Q52 3 56 18 L61 33 Q65 43 69 21" fill="none" stroke="url(#brand-wave)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span><strong>{copy.brand.display}</strong><small>{copy.brand.tagline}</small></span>
     </a>
     <nav aria-label={copy.nav.label}>
@@ -92,7 +98,7 @@ const nav = [
     <a class="language-link" data-language-link href={localePath(otherLanguage, alternatePath)}>{language === "ru" ? "UA" : "RU"}</a>
   </header>
   <main><slot /></main>
-  <footer><span>© 2026 {copy.brand.name}</span><span>{copy.brand.motto}</span></footer>
+  <footer><span>© 2026 {copy.brand.display}</span><span>{copy.brand.motto}</span></footer>
 
   <dialog class="install-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
     <div class="install-dialog-content">

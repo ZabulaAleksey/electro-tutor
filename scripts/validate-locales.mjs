@@ -3,6 +3,8 @@ import { flattenLocale, validateLocaleCatalogs } from "./locale-contract.mjs";
 
 const localeFiles = { ru: "src/i18n/ru.json", uk: "src/i18n/uk.json" };
 const approvedIdenticalKeys = new Set([
+  "brand.display", // ElectroTutor is an invariant product name in RU/UK.
+  "lesson.brandSeparator",
   "account.booking.currencyLabel",
   "diagram.magnitude",
   "services.online",

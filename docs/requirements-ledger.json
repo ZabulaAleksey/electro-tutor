@@ -110,13 +110,29 @@
   ],
   "rows": [
     {
-      "requirement_ids": ["SHOW-008", "SHOW-009", "SHOW-010", "SHOW-011"],
+      "requirement_ids": [
+        "SHOW-008",
+        "SHOW-009",
+        "SHOW-010",
+        "SHOW-011"
+      ],
       "domain": "micro-labs-home",
       "status": "VERIFIED",
-      "code": ["src/showcase/MicroLabs.tsx", "src/showcase/MicroVisual.tsx", "src/showcase/micro-models.ts", "src/showcase/micro-catalog.ts"],
-      "unit": ["src/showcase/micro-models.test.ts"],
-      "integration": ["docs/TESTING.md"],
-      "e2e": ["tests/e2e/micro-labs.spec.ts"],
+      "code": [
+        "src/showcase/MicroLabs.tsx",
+        "src/showcase/MicroVisual.tsx",
+        "src/showcase/micro-models.ts",
+        "src/showcase/micro-catalog.ts"
+      ],
+      "unit": [
+        "src/showcase/micro-models.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/micro-labs.spec.ts"
+      ],
       "runtime": "Merged/pushed main9cacf22; Cloudflare76b3eaf7 SUCCESS;213unit and7micro+11existing local browser scenarios PASS; public14controls/reset/time/filter/hash/RU-UK/mobile PASS2026-10-29.",
       "security": "Local bounded analytic models; no new dependencies/services/auth; only existing relative routes.",
       "a11y": "Keyboard category tabs, native labelled sliders, reduced-motion/no autonomous card loops.",
@@ -1087,6 +1103,42 @@
       "observability": "Request/correlation/audit foundation only.",
       "gap": "Application layer still directly imports identity adapters; DTOs are manually duplicated across backend/frontend.",
       "action": "After ET-10.3, introduce system-owned identity ports and import/DTO compatibility guards without new frameworks."
+    },
+    {
+      "requirement_ids": [
+        "SHOW-012",
+        "SHOW-013",
+        "SHOW-014",
+        "SHOW-015"
+      ],
+      "domain": "panoramic-redesign",
+      "status": "IMPLEMENTED",
+      "code": [
+        "src/landing.css",
+        "src/showcase/panoramic.css",
+        "src/showcase/MicroLabs.tsx",
+        "src/showcase/LineSurface.tsx",
+        "src/showcase/line-surface.ts",
+        "src/showcase/EngineeringBoard.tsx"
+      ],
+      "unit": [
+        "src/showcase/line-surface.test.ts",
+        "src/showcase/micro-models.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/panoramic-redesign.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/engineering-showcase.spec.ts"
+      ],
+      "runtime": "Locally validated production build;216unit/30files,21built-browser PASS. Not merged/pushed/deployed; exact approval pending.",
+      "security": "Existing static site, no provider/auth/secret changes. Local SVG export, no external board data transmission.",
+      "a11y": "Native labelled sliders; keyboard camera, expansion/reset/filter, theme/RU-UK/reduced motion; preserved accepted tests.",
+      "observability": "One exact lineStep model for reading, surface and sections; stated assumptions and SI axes.",
+      "gap": "Owner publication approval; public new release not yet verified. No blanket normative certification or counterfeit software/teacher claims.",
+      "action": "ET-PANORAMA-PUBLISH-01 after concrete local commit."
     }
   ]
 }

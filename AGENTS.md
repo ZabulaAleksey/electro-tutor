@@ -8,7 +8,7 @@ workflow и правила качества наследуются и здесь
 
 ## Границы проекта
 
-- Название продукта: «Потенциал» / «Потенціал»; репозиторий: `electro-tutor`.
+- Название продукта: ElectroTutor; репозиторий: `electro-tutor`. Исторические technical keys `potential-*` и compatibility `brand.name` сохраняются; видимая идентичность использует `brand.display`.
 - Astro 7 static site, React 19 islands, TypeScript, Content Collections/MDX.
 - Поддерживаемые языки: русский и украинский; route/data codes — `ru` и `uk`,
   UI-метка украинского языка может быть `UA`.

@@ -257,7 +257,7 @@ PWA has manifest/raster/maskable icons, installability/offline public shell and 
 
 ## Лаборатория «Сопротивление материалов»
 
-В локальной `main` доступна `/{lang}/interactive/beam/` (RU/UK), ссылка — в «Лаборатории».
+Опубликована `/{lang}/interactive/beam/` (RU/UK) на https://electrotutor.pages.dev/ru/interactive/beam/; ссылка — в «Лаборатории».
 Прямые балки Эйлера–Бернулли: консоли с обеих сторон, шарнир/ролик, защемления,
 промежуточные опоры, кусочно-постоянные EI/EA; сосредоточенные F/Fx/M и линейная q.
 Перетаскивание/ввод рядом с элементом обновляют реакции и N/Q/M. Есть история,

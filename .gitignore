@@ -23,3 +23,7 @@ transient-core/target/
 
 # Verified local recovery payloads are runtime data, not source.
 .worktree-archives/
+
+# Reproducible Android debug outputs and local-only debug signing key.
+android/build/
+android/local.properties

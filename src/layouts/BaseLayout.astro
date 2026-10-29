@@ -8,10 +8,11 @@ import type { Language } from "../types";
 import { getLocale, getOtherLanguage } from "../i18n";
 import { localePath, SITE_BASE_PATH, withBasePath } from "../site-path";
 import { ClientRouter } from "astro:transitions";
+import { publicSurface } from "../public-surface";
 
 interface Props {
   title: string; description: string; language: Language;
-  active?: "home" | "topics" | "interactive" | "classroom" | "services" | "contacts" | "account";
+  active?: "home" | "topics" | "interactive" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
   alternatePath?: string; keywords?: string[];
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
@@ -26,20 +27,26 @@ const webFontScriptPath = withBasePath("/scripts/web-font.js");
 const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
+const laboratoryLabel = language === "ru" ? "Лаборатория" : "Лабораторія";
+const myServicesLabel = language === "ru" ? "Мои сервисы" : "Мої сервіси";
+// Public MVP surface: private/auth and commercial entry points stay implemented,
+// but are intentionally hidden until their public contracts are ready.
+const publicNavigation = { classroom:publicSurface.showAuth, account: publicSurface.showAuth, contacts: publicSurface.showContacts, services: publicSurface.showCommercial } as const;
 const standardNav = [
   { id: "home", href: localePath(language), label: copy.nav.home },
   { id: "topics", href: localePath(language, "/topics/"), label: copy.nav.topics },
-  { id: "interactive", href: localePath(language, "/interactive/"), label: copy.nav.interactive },
+  { id: "interactive", href: localePath(language, "/interactive/"), label: laboratoryLabel },
+  { id: "engineering-board", href: localePath(language, "/engineering-board/"), label: language === "ru" ? "Расчёт" : "Розрахунок" },
+  { id: "board", href: localePath(language, "/board/"), label: language === "ru" ? "Доска" : "Дошка" },
   { id: "classroom", href: localePath(language, "/classroom/"), label: copy.nav.classroom },
   { id: "services", href: localePath(language, "/services/"), label: copy.nav.services },
+  { id: "my-services", href: localePath(language, "/my-services/"), label: myServicesLabel },
   { id: "account", href: localePath(language, "/account/"), label: copy.account.heading },
   { id: "contacts", href: localePath(language, "/contacts/"), label: copy.nav.contacts },
 ];
-const nav = active === "home" ? [standardNav[0], standardNav[1],
-  {id:"micro", href:localePath(language)+"#micro-labs", label:"Micro Labs"},standardNav[2],
-  {id:"software", href:localePath(language)+"#engineering-software", label:language === "ru" ? "Инженерное ПО" : "Інженерне ПЗ"},
-  {id:"sessions", href:localePath(language)+"#learning-sessions", label:language === "ru" ? "Занятия" : "Заняття"},standardNav[5]
-] : standardNav;
+const visibleStandardNav = standardNav.filter(item => publicNavigation[item.id as keyof typeof publicNavigation] !== false);
+// Home and internal pages deliberately share the same shell navigation.
+const nav = visibleStandardNav;
 ---
 <!doctype html>
 <html lang={language} data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>

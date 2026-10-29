@@ -3,6 +3,8 @@ import type { Language } from "../types";
 import { formatNumber } from "../i18n";
 import { lineStep } from "./line-surface";
 import {downloadSvg} from "../engineering/exportSvg";
+import {useLocalZoom} from "../engineering/useLocalZoom";
+import {zoomAt} from "../engineering/gestures";
 import Formula from "../components/Formula";
 import EngineeringPlot from "../engineering/EngineeringPlot";
 import { engineeringAxis } from "../engineering/scale";
@@ -15,7 +17,9 @@ export type SurfaceState = {load:number;time:number;point:number;angle:number;zo
 export default function LineSurface({ language, store }: { language: Language; store?: {lineSurface?:SurfaceState} }) {
   const ru = language === "ru", [load, setLoad] = useState(store?.lineSurface?.load ?? 100), [time, setTime] = useState(store?.lineSurface?.time ?? 0.75), [point, setPoint] = useState(store?.lineSurface?.point ?? 75);
   const [angle, setAngle] = useState(store?.lineSurface?.angle ?? -0.48), [zoom, setZoom] = useState(store?.lineSurface?.zoom ?? 1), [flat, setFlat] = useState(store?.lineSurface?.flat ?? false);
+  const [pan,setPan]=useState({x:0,y:0});
   const surfaceSvg=useRef<SVGSVGElement>(null);
+  useLocalZoom(surfaceSvg,(anchor,factor)=>{const value=zoomAt(zoom,pan,anchor,{x:340,y:260},factor,.5,1.5);setZoom(value.zoom);setPan(value.pan);},!flat);
   const drag = useRef<{ x: number; angle: number } | null>(null);
   const reading = lineStep(point * 1000, time / 1000, load);
   useEffect(()=>{if(store)store.lineSurface={load,time,point,angle,zoom,flat};},[load,time,point,angle,zoom,flat,store]);
@@ -33,7 +37,7 @@ export default function LineSurface({ language, store }: { language: Language; s
   const temporalPoints=knots([point/200,1-point/200]);
   const project = (x: number, t: number, u: number) => {
     const a = (x - 0.5) * 370, b = (t - 0.5) * 280;
-    return [Number((340 + (a * Math.cos(angle) - b * Math.sin(angle)) * zoom).toFixed(3)), Number((260 + (a * Math.sin(angle) + b * Math.cos(angle)) * 0.47 * zoom - u * 2.05 * zoom).toFixed(3))];
+    return [Number((340 + pan.x + (a * Math.cos(angle) - b * Math.sin(angle)) * zoom).toFixed(3)), Number((260 + pan.y + (a * Math.sin(angle) + b * Math.cos(angle)) * 0.47 * zoom - u * 2.05 * zoom).toFixed(3))];
   };
   const xyz = (x: number, t: number, u: number) => project(x, t, u).join(",");
   const xScale=engineeringAxis(0,100,{targetTicks:5}),tScale=engineeringAxis(0,1,{targetTicks:6}),uScale=engineeringAxis(0,100,{targetTicks:6});
@@ -42,10 +46,10 @@ export default function LineSurface({ language, store }: { language: Language; s
   function exportImage(){if(!surfaceSvg.current)return;const clone=surfaceSvg.current.cloneNode(true) as SVGSVGElement;clone.setAttribute("viewBox","0 0 680 410");clone.insertAdjacentHTML("afterbegin",'<rect width="680" height="410" fill="var(--surface-plot)"/>');clone.insertAdjacentHTML("beforeend",'<g id="export-scale" fill="var(--ink)" font-size="12"><text x="190" y="385">0 V → 100 V</text><text x="350" y="385">U(x,t) · V</text></g>');const original=surfaceSvg.current;original.appendChild(clone);downloadSvg(clone,"electrotutor-U-x-t.svg");original.removeChild(clone);}
 
   return <div className="line-surface" data-line-surface>
-    <div className="surface-top"><span>U(x,t) · {ru ? "линия без потерь" : "лінія без втрат"}</span><button type="button" onClick={() => setFlat(v => !v)}>{flat ? "3D" : ru ? "2D-сечение" : "2D-переріз"}</button><button type="button" aria-label={ru ? "Сброс камеры" : "Скидання камери"} onClick={() => { setAngle(-0.48); setZoom(1); }}>↺</button><button type="button" onClick={exportImage} disabled={flat}>{ru?"Экспорт SVG":"Експорт SVG"} ↓</button></div>
+    <div className="surface-top"><button type="button" aria-label={ru?"Приблизить поверхность":"Наблизити поверхню"} onClick={()=>setZoom(z=>Math.min(1.5,z+.1))}>+</button><button type="button" aria-label={ru?"Отдалить поверхность":"Віддалити поверхню"} onClick={()=>setZoom(z=>Math.max(.5,z-.1))}>−</button><span>U(x,t) · {ru ? "линия без потерь" : "лінія без втрат"}</span><button type="button" onClick={() => setFlat(v => !v)}>{flat ? "3D" : ru ? "2D-сечение" : "2D-переріз"}</button><button type="button" aria-label={ru ? "Сброс камеры" : "Скидання камери"} onClick={() => { setAngle(-0.48); setZoom(1); setPan({x:0,y:0}); }}>↺</button><button type="button" onClick={exportImage} disabled={flat}>{ru?"Экспорт SVG":"Експорт SVG"} ↓</button></div>
     <div className="surface-circuit"><svg className="lab-circuit" viewBox="0 0 400 230" role="img" aria-label={ru?"Схема линии с согласованным источником и резистивной нагрузкой":"Схема лінії з узгодженим джерелом і резистивним навантаженням"}><g fill="none" stroke="var(--schematic-wire)" strokeWidth="2"><path d="M35 65 H75 M125 65 H345 V103 M345 145 V185 H35 V147 M35 103 V65"/><rect x="75" y="56" width="50" height="18" fill="var(--surface-plot)"/><rect x="336" y="103" width="18" height="42" fill="var(--surface-plot)"/><circle cx="35" cy="125" r="22"/><path d="M28 125 H42 M35 118 V132 M180 80 H270 M260 75 L270 80 L260 85 M270 165 H180 M190 160 L180 165 L190 170"/></g><g fill="var(--schematic-wire)" fontSize="14"><text x="72" y="43">Rₛ = 50 Ω</text><text x="226" y="43">Rᴸ = {load} Ω</text><text x="155" y="120">Z₀ = 50 Ω</text><text x="155" y="142">l = 100 km</text><text x="12" y="214">E = 100 V</text><text x="220" y="214">v = 200 000 km/s</text></g></svg><p>{ru?"Падающая + отражённая волна":"Падна + відбита хвиля"}</p></div>
     {!flat ? <svg ref={surfaceSvg} viewBox="0 0 680 360" className="surface-svg" role="img" aria-label={ru ? "Поверхность напряжения U(x,t), перетащите для поворота" : "Поверхня напруги U(x,t), перетягніть для обертання"} style={{ touchAction: "pan-y" }}
-      onPointerDown={e => { drag.current = { x: e.clientX, angle }; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={e => { if (drag.current) setAngle(Math.max(-1.1, Math.min(0.8, drag.current.angle + (e.clientX - drag.current.x) / 230))); }} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}>
+      onPointerDown={e => { if(!e.isPrimary||e.pointerType==="touch")return;drag.current = { x: e.clientX, angle }; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={e => { if (drag.current) setAngle(Math.max(-1.1, Math.min(0.8, drag.current.angle + (e.clientX - drag.current.x) / 230))); }} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }} onLostPointerCapture={() => {drag.current=null;}} data-zoom={zoom}>
       <g fill="none" stroke="var(--grid-major)" strokeWidth="0.7">{[0, .25, .5, .75, 1].map(v => <path key={v} d={`M${xyz(v,0,0)} L${xyz(v,1,0)} M${xyz(0,v,0)} L${xyz(1,v,0)}`} />)}</g>
       {faces.map((face,j)=><polygon key={j} points={face.points.map(p=>xyz(p[0],p[1],p[2])).join(" ")} fill={`hsl(${210+face.u*.85} 78% ${35+face.u*.19}%)`} stroke="var(--line)" strokeOpacity=".35" strokeWidth=".7"/>)}
       {Array.from({length:17},(_,k)=>k/16).map(t=><polyline key={t} points={spatial(t).map(p=>xyz(p.x,p.t,p.u)).join(" ")} fill="none" stroke="#c7e6ff" strokeOpacity=".18" strokeWidth=".7"/>)}

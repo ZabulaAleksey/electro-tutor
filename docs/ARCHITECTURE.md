@@ -595,3 +595,7 @@ Micro Labs / ET-MICRO-001: внутри той же React island добавле�
 
 
 ET-LABS-002: existing islands/shared engineering layer reused. New src/fourier pure TypeScript adaptation and src/science data/models remain independent of src/transient physical engine. A bounded characteristic-wave engine extends supported ideal sections; legacy Rust/WASM retained. One active theme and shared plot/clock contracts; no services/dependencies. UI edits serialize physical topology; display state never mutates solver history.
+
+## ET-UX-003 — рабочие области
+
+Существующие Astro ClientRouter и React islands сохранены. ToolCard задаёт общий каталог; домашние previews ведут к реальным MicroLabs, legacy hash/query маршруты совместимы. usePointerStroke хранит draft в ref/SVG-слое и фиксирует модель одним действием; useLocalZoom обрабатывает только локальный Ctrl-wheel. Shared unsaved guard сохраняет локальные документы до перехода. Android — отдельная тонкая debug-упаковка текущего dist, без новых web/server dependencies.

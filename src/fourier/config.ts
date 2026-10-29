@@ -1,7 +1,7 @@
 import type { BasisName } from "./bases";
 import type { Complex } from "./math";
 
-export const MAX_CONFIG_POINTS = 2048;
+export const MAX_CONFIG_POINTS = 65536;
 export const MAX_CONFIG_COORDINATE = 1e6;
 export const MAX_CONFIG_FREQUENCY = 64;
 export const MAX_CONFIG_AMPLITUDE = 10;
@@ -39,4 +39,8 @@ export function validateFourierConfig(value: unknown): value is FourierConfig {
     && (value.basis === "fourier" || value.basis === "haar" || value.basis === "dct" || value.basis === "walsh")
     && (value.order === "amplitude" || value.order === "frequency" || value.order === "interleaved")
     && validEnabledMap(value.enabled) && validEditedMap(value.edited);
+}
+
+export function fourierDocumentSignature(value: Pick<FourierConfig,"points"|"closed"|"enabled"|"edited"|"playground">) {
+ return JSON.stringify({points:value.points,closed:value.closed,enabled:value.enabled,edited:value.edited,playground:value.playground?.active?value.playground:null});
 }

@@ -1,4 +1,5 @@
 ---
+import ToolCard, {ToolArt} from "../../../components/ToolCard";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getPublishedLessonManifest } from "../../../content/published-lessons";
 import { resolveTopicPublication } from "../../../curriculum-publication";
@@ -45,16 +46,9 @@ const publishedCurriculum = curriculum.map((section) => ({
             <span class="curriculum-count">{formatTopicCount(language, section.topics.length)}</span>
             <span class="curriculum-chevron">⌄</span>
           </summary>
-          <div class="curriculum-static-topics">
+          <div class="curriculum-static-topics catalog-card-grid">
             {section.topics.map((topic) => (
-              <article class="curriculum-topic">
-                <span class="curriculum-topic-number">{section.index}.{topic.index}</span>
-                <div><h3>{topic.title[language]}</h3><p>{topic.description[language]}</p></div>
-                <span class="duration">{formatMinutes(language, topic.duration)}</span>
-                {topic.publication.available
-                  ? <a class="round-button" href={topic.publication.href}>→</a>
-                  : <span class="soon-label">{copy.actions.soon}</span>}
-              </article>
+              <ToolCard title={topic.title[language]} category={`${section.index}.${topic.index} · ${formatMinutes(language,topic.duration)}`} href={topic.publication.available?topic.publication.href:undefined} description={topic.description[language].split(/[.!?]/)[0]} action={topic.publication.available?copy.actions.startLearning:copy.actions.soon}><ToolArt kind="circuit"/></ToolCard>
             ))}
           </div>
         </details>

@@ -6,8 +6,8 @@ import type { EngineeringLocale, EngineeringUnit } from "./format";
 
 export type PlotMarker = { point: PlotPoint; label: string };
 const screen = (v: number) => Number(v.toFixed(3));
-export default function EngineeringPlot({ plot, language, compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering" }: {
-  plot: EngineeringPlotData; language: EngineeringLocale; compact?: boolean; svgClass?: string; legendClass?: string;
+export default function EngineeringPlot({ plot, language, kind="line", compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering" }: {
+  kind?:"line"|"stem"; plot: EngineeringPlotData; language: EngineeringLocale; compact?: boolean; svgClass?: string; legendClass?: string;
   area?:{points:readonly PlotPoint[];baseline?:number;color?:string}; domains?: {x?:readonly[number,number];y?:readonly[number,number]}; onSelect?:(point:PlotPoint)=>void; verticals?:{x:number;label:string}[];
   selected?: PlotPoint; characteristic?: PlotMarker; cursorTime?: number; label: string; showLegend?: boolean; gridMode?: "engineering" | "millimeter";
 }) {
@@ -42,7 +42,7 @@ export default function EngineeringPlot({ plot, language, compact = false, svgCl
       <g clipPath={`url(#engineering-clip-${id})`}>
         {axes.y.domain[0]<0&&axes.y.domain[1]>0&&<path d={`M62 ${y(0)} H404`} stroke="var(--muted)" strokeDasharray="3 3"/>}
         {area&&area.points.length>1&&<polygon data-plot-area points={`${x(area.points[0][0])},${y(area.baseline??0)} ${area.points.map(p=>`${x(p[0])},${y(p[1])}`).join(" ")} ${x(area.points.at(-1)![0])},${y(area.baseline??0)}`} fill={`var(--${area.color??"blue"})`} opacity=".18"/>}
-        {plot.curves.map((c,k)=><polyline key={c.label} data-plot-curve={c.label} points={c.points.map(p=>`${x(p[0])},${y(p[1])}`).join(" ")} fill="none" stroke={`var(--${c.color})`} strokeWidth="2.4" strokeDasharray={c.dash?k===2?"2 4":"7 4":undefined}/>)}
+        {kind==="stem"?plot.curves.map(c=><g key={c.label} data-stem-series={c.label} stroke={`var(--${c.color})`}>{c.points.map((p,j)=><g key={j} data-stem-frequency={p[0]} data-stem-amplitude={p[1]}><line x1={x(p[0])} x2={x(p[0])} y1={y(0)} y2={y(p[1])} strokeWidth="1.8"/><circle cx={x(p[0])} cy={y(p[1])} r="3" fill={`var(--${c.color})`}/><title>{coordinates(p)}</title></g>)}</g>):plot.curves.map((c,k)=><polyline key={c.label} data-plot-curve={c.label} points={c.points.map(p=>`${x(p[0])},${y(p[1])}`).join(" ")} fill="none" stroke={`var(--${c.color})`} strokeWidth="2.4" strokeDasharray={c.dash?k===2?"2 4":"7 4":undefined}/>)}
         {verticals.map((v,k)=><g key={`${v.label}-${k}`}><path d={`M${x(v.x)} 39 V190`} stroke="var(--muted)" strokeDasharray="2 4"/><title>{v.label}</title></g>)}
         {cursorTime!==undefined&&<path data-time-cursor d={`M${x(cursorTime)} 39 V190`} stroke="var(--green)" strokeDasharray="3 3"/>}
         {characteristic&&<g data-characteristic-x={characteristic.point[0]} data-characteristic-y={characteristic.point[1]}><path d={`M${x(characteristic.point[0])} 39 V190`} stroke="var(--muted)" opacity=".7" strokeDasharray="2 4"/><rect x={x(characteristic.point[0])-3.5} y={y(characteristic.point[1])-3.5} width="7" height="7" fill="var(--white)" stroke="var(--ink)"/><title>{`${characteristic.label}: ${coordinates(characteristic.point)}`}</title></g>}

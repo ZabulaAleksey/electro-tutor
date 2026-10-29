@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LABS-002
+- Stage ID: ET-UX-003
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -300,3 +300,18 @@
 - User actions/blockers: none for this first release.
 - NEXT: NONE
 - Next action: none in bounded ET-LABS-002; future extensions require their own requested scope.
+
+## ET-UX-003 — Student workspaces, gestures and catalogs
+
+- Status: partial
+- Lifecycle: validated locally; publication pending in existing feature/student-workspaces from clean synced main76b5c9d; COMPLEX production frontend/native packaging. No worktree.
+- Dependencies: ET-LABS-002 verified/public. Existing models/shared presentation remain authoritative.
+- Scope/SPEC: student-workspaces.spec.md UX-001..010; all attached UI master points plus latest drawing/card refinements. Standalone component library explicitly deferred by later master; no other-project/STUD writes. Web release independent of native toolchain availability.
+- Plan: root shared pointer/zoom + Fourier/surfaces/docs/native; UI writer shared header/cards/catalog/home/services; board writer board/calc workspaces and guards. Non-overlapping files/contracts, no dependency changes without evidenced gap.
+- Scenario: catalog -> direct tool -> draft drawing/one commit/cancel -> Ctrl-wheel/mobile zoom -> fullscreen -> save board/navigation guard; RU/UK/theme/mobile; real published same path. Native build/launch only if environment supports it.
+- PASS: semantic/unit gesture math + focused browser + type/lint/build/context, relevant retained model tests; exact-SHA hosted acceptance. Android gate separately PASS/BLOCKED; no global audits.
+- Approval ET-UX-PUBLISH-01: DONE explicit owner reply2026-10-29 «Разрешаю merge, push, деплой и удаление слитой ветки». After validation: safe FFmain/ordinary origin/main push ZabulaAleksey/electro-tutor, existing Cloudflare auto deploy, real URL checks, delete only integrated feature/student-workspaces. No force/other refs/cloud resources/secrets.
+- User actions: none; exact release approval recorded above. Installed Android toolchain verified, real debug APK/native emulator acceptance available.
+- Evidence:293unit/41files;15new browser PASS and24retained browser scenarios PASS; lint/type/context/CI/hygiene/build PASS. Two bounded reviewer cycles, confirmed storage/guard/mobile zoom defects resolved. Android debug SHA85853366 built/signed/installed; own emulator WebView/offline smoke PASS повторно на финальном APK. Moved MicroLabs7/7PASS.
+- Documentation sync: README/STAGES/ROADMAP/SPEC/index/ledger/ARCHITECTURE/DESIGN/SECURITY/TESTING/ADR-041 updated; API/DATA_MODEL/DEPENDENCIES retained (no dependency/backend contract change); no fallback owner exists; LEARNING_LOG unchanged.
+- NEXT: ET-UX-PUBLISH

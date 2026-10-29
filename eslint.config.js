@@ -11,6 +11,7 @@ export default defineConfig(
       '.astro/**',
       'blob-report/**',
       'dist/**',
+      'android/build/**',
       '.cargo-home/**',
       '.tools/**',
       'node_modules/**',
@@ -28,7 +29,7 @@ export default defineConfig(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['*.{js,mjs,cjs}', 'scripts/**/*.{js,mjs,cjs}'],
+    files: ['*.{js,mjs,cjs}', 'scripts/**/*.{js,mjs,cjs}', 'android/**/*.{mjs,cjs}'],
     languageOptions: {
       globals: globals.node,
     },

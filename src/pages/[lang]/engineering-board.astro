@@ -1,0 +1,11 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import EngineeringCalculator from "../../components/EngineeringCalculator";
+import type { Language } from "../../types";
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+---
+<BaseLayout title={language === "ru" ? "Инженерный калькулятор" : "Інженерний калькулятор"} description={language === "ru" ? "Расчёт закона Ома и RC-переходного процесса" : "Розрахунок закону Ома та RC-перехідного процесу"} language={language} active="engineering-board" alternatePath="/engineering-board/">
+  <section class="section info-page"><span class="eyebrow"><i></i>ENGINEERING LAB</span><h1>{language === "ru" ? "Инженерный калькулятор" : "Інженерний калькулятор"}</h1><p>{language === "ru" ? "Изменяйте параметры и сразу проверяйте результат по физической модели." : "Змінюйте параметри та одразу перевіряйте результат за фізичною моделлю."}</p></section>
+  <section class="section"><EngineeringCalculator client:load language={language} /></section>
+</BaseLayout>

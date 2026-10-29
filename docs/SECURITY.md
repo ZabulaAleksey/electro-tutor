@@ -253,3 +253,7 @@ Public API config rejects credentialed/nonloopback HTTP URLs; no private API cac
 ## Локальные научные лаборатории / ET-LABS-002
 
 JSON импорты Fourier и линий остаются в браузере: размер/число точек/узлов, типы, конечность и физические диапазоны проверяются до применения. Нет HTML/SVG injection, удалённых импортов, исполнения кода либо передачи файлов. Расчёт линий выполняется в отдельном Worker с ограничениями событий/шагов/вложенности; неподдерживаемая или слишком жёсткая задача завершается видимой ошибкой. Экспортируются только собственные данные/доверенный SVG приложения. Проверка import/resource boundaries выполнена readonly review; production credentials и source projects не изменялись.
+
+## ET-UX-003 — локальные документы и Android debug
+
+Доска валидирует весь bounded payload атомарно и не обрезает данные молча; ошибки чтения/квоты отображаются. Калькулятор не исполняет код. Android обслуживает только свои bundled HTTPS assets, запрещает file-access/mixed-content, не имеет JavaScript bridge/TLS bypass. File picker/export требуют системный выбор пользователем; blob экспорт ограничен своим origin и2MB. Debug package явно debuggable; release signing/store distribution не выполнены. Production secrets, OIDC/PKCE и MathMorph не изменены.

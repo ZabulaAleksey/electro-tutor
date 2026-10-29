@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import CircularDiagram from "../../components/CircularDiagram";
+import LegacyCircularRoute from "../../components/LegacyCircularRoute";
 import "../../components/CircularDiagram.css";
 import "../../components/CircularDiagramMath.css";
 import type { Language } from "../../types";
@@ -8,6 +8,7 @@ import { getLocale } from "../../i18n";
 import { localePath } from "../../site-path";
 import "../../components/StarNeutralLab.css";
 import "../../components/TransmissionLineLab.css";
+import ToolCard, {ToolArt} from "../../components/ToolCard";
 import { lineCopy } from "../../transient/copy";
 
 export function getStaticPaths() {
@@ -27,22 +28,18 @@ const line = lineCopy(language);
 >
   <section class="section info-page interactive-intro">
     <span class="eyebrow"><i></i>{copy.interactive.eyebrow}</span>
-    <h1>{copy.interactive.heading}</h1>
-    <p>{copy.interactive.lead}</p>
+    <h1>{language === "ru" ? "Лаборатория" : "Лабораторія"}</h1>
+    <p class="catalog-page-lead">{language === "ru" ? "Схемы, графики и расчёты — в одном месте." : "Схеми, графіки й розрахунки — в одному місці."}</p>
   </section>
-  <div class="section interactive-section">
-    <div class="interactive-links">
-    <article class="star-entry"><span class="section-kicker">{copy.star.kicker}</span>
-      <h2>{copy.star.title}</h2><p>{copy.star.cardLead}</p>
-      <a href={localePath(language, "/interactive/star-neutral/")}>{copy.star.open} →</a>
-    </article>
-    <article><span class="section-kicker">{copy.diagram.kicker}</span><h2>{copy.diagram.title}</h2>
-      <p>{line.circularCard}</p><a href={localePath(language, "/interactive/circular-diagram/")}>{line.circularOpen} →</a></article>
-    <article><span class="section-kicker">{line.line}</span><h2>{line.title}</h2>
-      <p>{line.card}</p><a href={localePath(language, "/interactive/transmission-line/")}>{line.open} →</a></article>
-    <article><span class="section-kicker">FOURIER LAB</span><h2>{language==="ru"?"Фурье и эпициклы":"Фур’є та епіцикли"}</h2><p>{language==="ru"?"Рисуйте контур, исследуйте спектр и управляйте коэффициентами разложения.":"Малюйте контур, досліджуйте спектр і керуйте коефіцієнтами розкладу."}</p><a href={localePath(language,"/interactive/fourier/")}>{language==="ru"?"Открыть лабораторию Фурье":"Відкрити лабораторію Фур’є"} →</a></article>
-    <article><span class="section-kicker">SCIENCE MICRO LABS</span><h2>{language==="ru"?"12 научных экспериментов":"12 наукових експериментів"}</h2><p>{language==="ru"?"Математика, механика, жидкости, волны, термодинамика и оптика.":"Математика, механіка, рідини, хвилі, термодинаміка та оптика."}</p><a href={localePath(language,"/micro-labs/")}>{language==="ru"?"Открыть научный каталог":"Відкрити науковий каталог"} →</a></article>
-    </div>
-    <CircularDiagram client:load transition:persist="circular-diagram" language={language} />
-  </div>
+  <section class="section interactive-section">
+    <h2>MicroLabs</h2><div class="catalog-card-grid"><ToolCard category={language==="ru"?"Электротехника":"Електротехніка"} title={language==="ru"?"14 мини-экспериментов":"14 мініекспериментів"} href={localePath(language,"/micro-labs/")} action={language==="ru"?"Выбрать эксперимент":"Обрати експеримент"}><ToolArt kind="circuit"/></ToolCard></div>
+    <h2>{language==="ru"?"Инженерные лаборатории":"Інженерні лабораторії"}</h2><div class="catalog-card-grid">
+      <ToolCard category="AC / 3φ" title={copy.star.title} href={localePath(language,"/interactive/star-neutral/")} action={copy.star.open}><ToolArt kind="phasors"/></ToolCard>
+      <ToolCard category="AC" title={copy.diagram.title} href={localePath(language,"/interactive/circular-diagram/")} action={line.circularOpen}><ToolArt kind="phasors"/></ToolCard>
+      <ToolCard category={language==="ru"?"Волны":"Хвилі"} title={line.title} href={localePath(language,"/interactive/transmission-line/")} action={line.open}><ToolArt kind="waves"/></ToolCard>
+    </div><h2>{language==="ru"?"Математика и естественные науки":"Математика та природничі науки"}</h2><div class="catalog-card-grid">
+      <ToolCard category="FOURIER" title={language==="ru"?"Фурье и эпициклы":"Фур’є та епіцикли"} href={localePath(language,"/interactive/fourier/")} action={language==="ru"?"Открыть лабораторию Фурье":"Відкрити лабораторію Фур’є"}><ToolArt kind="fourier"/></ToolCard>
+      <ToolCard category="SCIENCE" title={language==="ru"?"12 научных MicroLabs":"12 наукових MicroLabs"} href={localePath(language,"/micro-labs/#science=derivative-tangent")} action={language==="ru"?"Открыть каталог":"Відкрити каталог"}><ToolArt kind="science"/></ToolCard>
+    </div><LegacyCircularRoute client:load language={language}/>
+  </section>
 </BaseLayout>

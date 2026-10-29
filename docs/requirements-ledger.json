@@ -24,7 +24,8 @@
       "specs/features/rtc-provider-boundary.spec.md",
       "specs/features/star-neutral-phasors.spec.md",
       "specs/features/transmission-line-transient.spec.md",
-      "specs/features/fourier-laboratory.spec.md"
+      "specs/features/fourier-laboratory.spec.md",
+      "specs/features/student-workspaces.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1272,6 +1273,45 @@
       "e2e": [
         "tests/e2e/science-micro-labs.spec.ts",
         "tests/e2e/engineering-standard.spec.ts"
+      ]
+    },
+    {
+      "domain": "student-workspaces",
+      "status": "PARTIAL",
+      "runtime": "293 unit PASS; scoped browser and native emulator acceptance in progress; not yet published.",
+      "security": "Local bounded storage, no JS bridge/TLS bypass/backend/auth changes. Separate component library deferred.",
+      "a11y": "RU/UK, native modal, keyboard zoom, local drawing touch action.",
+      "observability": "Preview/committed-point attributes; signed Android debug package and real WebView smoke.",
+      "gap": "Final native/hosted acceptance and authorized integration.",
+      "action": "Validate and publish current bounded slice.",
+      "requirement_ids": [
+        "UX-001",
+        "UX-002",
+        "UX-003",
+        "UX-004",
+        "UX-005",
+        "UX-006",
+        "UX-007",
+        "UX-008",
+        "UX-009",
+        "UX-010"
+      ],
+      "code": [
+        "src/engineering/usePointerStroke.ts",
+        "src/components/ToolCard.tsx",
+        "android"
+      ],
+      "unit": [
+        "src/engineering/gestures.test.ts",
+        "src/showcase/EngineeringBoardModel.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/workspace-gestures.spec.ts",
+        "tests/e2e/board-workspaces.spec.ts",
+        "tests/e2e/student-catalogs.spec.ts"
       ]
     }
   ]

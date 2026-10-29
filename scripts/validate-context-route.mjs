@@ -92,6 +92,7 @@ const ledgerTextFields = [
   "action",
 ];
 const requirementIdPrefixes = [
+  "UX",
   "SHOW",
   "RC1",
   "ET10.2-AC",

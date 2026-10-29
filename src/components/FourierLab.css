@@ -42,3 +42,5 @@
 .fourier-lab :focus-visible {outline:2px solid var(--blue);outline-offset:3px}
 @media(max-width:850px){.fourier-layout{grid-template-columns:minmax(0,1fr)}.fourier-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.fourier-error{grid-column:1/-1}.fourier-lower{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:480px){.fourier-toolbar button{min-height:44px;font-size:.8rem}.fourier-heading p{font-size:.8rem}.fourier-panel{padding:.7rem}.fourier-status{display:none}.fourier-page{padding:.8rem}.fourier-lab select{width:100%}.fourier-row{grid-template-columns:75px minmax(0,1fr) minmax(0,1fr)}}
+
+.fourier-fullscreen,.fourier-visual:fullscreen{position:fixed;inset:0;z-index:1000;background:var(--surface-canvas);display:flex;flex-direction:column;padding:1rem;overflow:auto;border-radius:0}.fourier-fullscreen .fourier-canvas{flex:1;min-height:0;height:75vh;max-height:none}.fourier-fullscreen .fourier-view-controls{flex:none}

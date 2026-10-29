@@ -1,0 +1,5 @@
+.unsaved-changes-dialog { position:fixed; inset:0; z-index:20; display:grid; place-items:center; padding:1rem; background:color-mix(in srgb,#071328 54%,transparent); }
+.unsaved-changes-dialog > div { max-width:28rem; padding:1.25rem; border:1px solid var(--line); border-radius:1rem; background:var(--surface); color:var(--text); box-shadow:0 1rem 3rem #07132844; }
+.unsaved-changes-dialog h2 { margin-top:0; }.unsaved-changes-dialog button { margin:.25rem; }
+
+.unsaved-changes-dialog{width:100vw;max-width:none;height:100dvh;max-height:none;box-sizing:border-box;margin:0;border:0}.unsaved-changes-dialog::backdrop{background:transparent}

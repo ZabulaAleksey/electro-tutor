@@ -7,6 +7,7 @@ import { curriculum } from "../../curriculum";
 import type { Language } from "../../types";
 import { formatMinutes, getLocale } from "../../i18n";
 import { localePath } from "../../site-path";
+import { publicSurface } from "../../public-surface";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
@@ -37,12 +38,12 @@ const primaryPublication = publishedTopics.find(({ publication }) => publication
     lessonHref={primaryPublication?.available ? primaryPublication.href : localePath(language, "/topics/")}
     lessonLabel={copy.home.primary} />
 
-  <section class="section" aria-labelledby="learning-summary-title">
+  {publicSurface.showProgress && <section class="section" aria-labelledby="learning-summary-title">
     <div class="learning-summary">
       <h2 id="learning-summary-title">{copy.learning.summaryDevice}</h2>
       <div data-learning-summary></div>
     </div>
-  </section>
+  </section>}
 
   <section class="section topic-preview">
     <div class="section-heading">

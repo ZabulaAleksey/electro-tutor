@@ -1060,3 +1060,7 @@ catalog/parameters, без отдельного компонента на кар
 ## ADR-040 — Ограниченное характеристическое ядро V2 и сохранение численного эталона
 
 Принято по прямому user contract2026-10-29, ET-LABS-002/LINE-V2. Дополняет ADR-031: новый основной маршрут использует самостоятельное TypeScript characteristic ядро идеальной последовательной цепочки, точные ступенчатые фронты для R и явно численную трапецеидальную модель состояний RLC. Один Worker, конечные бюджеты, видимый отказ неподдерживаемых сочетаний. Это не универсальный SPICE и не подмена Rust-расчёта. Исходный Rust/WASM и проверенные методы сохраняются по transmission-line-reference; UI-specific preset/apply/grid acceptance относится к эталону. Общий display/clock/3D слой читает неизменяемый результат модели. Fourier/science самостоятельны, общий только инженерный presentation/theme слой; новых зависимостей/backend нет.
+
+## ADR-041 — Единые карточки и атомарные жесты
+
+Прямой UI master и refinements2026-10-29: общий небольшой ToolCard, два самостоятельных workspace и shared pointer/zoom/save guards в существующем frontend. Статические домашние превью ведут к реальным инструментам; legacy routes сохранены. Drawing transient preview не меняет математическое состояние до pointerup. Native debug упаковка использует установленный Android SDK/JDK без новых зависимостей. Standalone engineering component library явно отложена по позднему master и запрету менять другие проекты. Публикация текущего release и удаление только интегрированной feature/student-workspaces разрешены владельцем отдельно.

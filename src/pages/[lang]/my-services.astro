@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Language } from "../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+
+const language = Astro.params.lang as Language;
+const russian = language === "ru";
+const configuredUrl = import.meta.env.PUBLIC_MATHMORPH_URL;
+let mathMorphUrl: string | undefined;
+try {
+  const url = new URL(configuredUrl || "");
+  if (url.protocol === "https:" && !url.username && !url.password) mathMorphUrl = url.href;
+} catch {}
+---
+
+<BaseLayout
+  title={russian ? "Мои сервисы — ElectroTutor" : "Мої сервіси — ElectroTutor"}
+  description={russian ? "Подключённые инженерные сервисы ElectroTutor." : "Підключені інженерні сервіси ElectroTutor."}
+  language={language}
+  active="my-services"
+  alternatePath="/my-services/"
+>
+  <section class="section catalog-page my-services-page">
+    <span class="eyebrow"><i></i>{russian ? "Сервисы" : "Сервіси"}</span>
+    <h1>{russian ? "Мои сервисы" : "Мої сервіси"}</h1>
+    <p class="catalog-page-lead">{russian ? "Доступные инженерные инструменты." : "Доступні інженерні інструменти."}</p>
+    <div class="catalog-card-grid service-card-grid">
+      <article class="tool-card service-tool-card">
+        <span class="section-kicker">MATHMORPH</span>
+        <h2>MathMorph</h2>
+        <p>{mathMorphUrl
+          ? (russian ? "Преобразование математических документов." : "Перетворення математичних документів.")
+          : (russian ? "Сервис пока не подключён." : "Сервіс поки не підключений.")}</p>
+        {mathMorphUrl
+          ? <a class="tool-card-action" href={mathMorphUrl} target="_blank" rel="noreferrer">{russian ? "Открыть сервис" : "Відкрити сервіс"} →</a>
+          : <span class="integration-note">{russian ? "Ссылка появится после настройки владельцем." : "Посилання з’явиться після налаштування власником."}</span>}
+      </article>
+    </div>
+  </section>
+</BaseLayout>

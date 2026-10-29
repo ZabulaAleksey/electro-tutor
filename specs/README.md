@@ -42,3 +42,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/engineering-showcase.spec.md` | Approved user contracts2026-10-28/29 | SHOW-001..011: home gallery8scenes,14Micro Labs, neutral scientific graphics and source-only105topic roadmap |
 
 | `features/fourier-laboratory.spec.md` | Approved user contract2026-10-29 | FOUR-001..007: local contour/spectrum/epicycle and verified source basis adaptation |
+
+| `features/student-workspaces.spec.md` | Approved user master2026-10-29 | UX-001..010: student navigation/cards/gestures/Fourier/boards/services and bounded Android packaging |

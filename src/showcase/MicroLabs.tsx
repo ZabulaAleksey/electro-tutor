@@ -45,6 +45,8 @@ const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected
 });
 
 export default memo(function MicroLabs({ language }: { language: Language }) {
+  const [ready,setReady] = useState(false);
+  useEffect(()=>setReady(true),[]);
   const copy = microCopy[language], [category, setCategory] = useState<MicroGroup | "all">("all"), [query, setQuery] = useState(""), [limit, setLimit] = useState(14), [selected, setSelected] = useState("");
   const [states, setStates] = useState<Record<string, CardState>>(() => Object.fromEntries(microLabs.map(lab => [lab.id, initial(lab)])));
   const update = useCallback((id: string, state: CardState) => setStates(previous => ({ ...previous, [id]: state })), []);
@@ -64,11 +66,11 @@ export default memo(function MicroLabs({ language }: { language: Language }) {
     return () => { cancelAnimationFrame(frame); window.removeEventListener("hashchange", fromHash); };
   }, [language]);
   const groups: (MicroGroup | "all")[] = ["all", ...Object.keys(microGroups) as MicroGroup[]];
-  return <section className="micro-labs section" id="micro-labs" aria-labelledby="micro-heading">
+  return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard"><section className="micro-labs section" id="micro-labs" aria-labelledby="micro-heading">
     <div className="micro-heading"><div><span className="section-kicker">01 / INTERACTIVE MODELS</span><h2 id="micro-heading">{language === "ru" ? "Микролаборатории" : "Мікролабораторії"}</h2><p>{copy.intro}</p></div><span>{visible.length} / {microLabs.length}</span></div>
     <div className="micro-toolbar"><label className="micro-search">{copy.search}<input type="text" placeholder={copy.search} value={query} onChange={event => { setQuery(event.target.value); setLimit(14); }} /></label><div className="micro-categories" role="tablist" aria-label="Micro Labs">{groups.map(group => <button type="button" role="tab" aria-selected={category === group} tabIndex={category === group ? 0 : -1} key={group} onClick={() => { setCategory(group); setLimit(14); }} onKeyDown={event => { if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return; event.preventDefault(); const index = groups.indexOf(group), next = event.key === "Home" ? 0 : event.key === "End" ? groups.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + groups.length) % groups.length; setCategory(groups[next]); (event.currentTarget.parentElement?.children[next] as HTMLButtonElement)?.focus(); }}>{group === "all" ? copy.all : microGroups[group][language]}</button>)}</div></div>
     <div className="micro-grid">{visible.slice(0, limit).map(lab => <MicroLabCard key={lab.id} lab={lab} state={states[lab.id]} language={language} selected={selected === lab.id} update={update} />)}</div>
     {!visible.length && <p role="status">{copy.empty}</p>}{visible.length > limit && <button type="button" className="micro-more" onClick={() => setLimit(value => value + 12)}>{copy.more}</button>}
     <aside className="micro-advanced"><div><h3>{copy.advanced}</h3><p>{copy.existing}</p></div><a className="button" href={localePath(language, "/interactive/")}>{language === "ru" ? "Открыть лаборатории" : "Відкрити лабораторії"} →</a></aside>
-  </section>;
+  </section></fieldset>;
 });

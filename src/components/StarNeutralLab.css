@@ -80,3 +80,5 @@
   .star-results tbody th { grid-row: 1 / span 2; align-self: center; border: 0; padding: 4px; }
   .star-results tbody td { border: 0; padding: 3px 4px; white-space: normal; }
 }
+
+.lab-hydration-guard{display:contents}

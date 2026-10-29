@@ -262,7 +262,7 @@
 ## ET-VIS-001 — Общий инженерный слой визуализации
 
 - Status: partial
-- Lifecycle: implementing in existing feature/panoramic-redesign on3e4f6e9; public baseline unchanged.
+- Lifecycle:158cc9c merged/pushed; Cloudflare05bd5003 success37s. Initial public suite13PASS/2FAIL exposed pre-hydration edits discarded in Micro Labs/star inputs; narrow native-disabled readiness fix in same branch, repeat hosted verification pending.
 - Dependencies: ET-MICRO-001 verified; original analytic micro/advanced models available. Existing3e4f6e9 candidate is the code baseline, no future stage prerequisite.
 - SPEC: specs/features/engineering-showcase.spec.md, SHOW-016..019.
 - Scope: read-only scoped STUD extraction/classification; shared nice linear/log axes, SI units/display formatting, validated plot data, meaningful point readouts; representative Ohm/RC/RLC/diode/phasors/first-order Bode/existing line surface. Reuse current island and models; no new dependency/backend/worktree/MathMorph changes.
@@ -274,4 +274,5 @@
 - Blockers: none for implementation; full legal/normative certification and all future models are not claimed.
 - Local evidence:231unit/32files, lint, Astro173files/0errors/0warnings (2known generated-WASM hints), production25pages/24localized routes/129artifacts,41built-browser scenarios PASS. Source IDs/scope/SHA in TESTING; shared-layer decision ADR-039.
 - Release sequence: validated commit→authorized fast-forward/push→exact-SHA Cloudflare/public smoke→delete only integrated temporary branch.
+- Hydration correction local evidence:231unit,20affected browser,type/lint/build PASS; same accepted tests. Native fieldset readiness protects model inputs until handlers mount; accessibility tree does not advertise disabled pre-hydration controls.
 - NEXT: ET-VIS-PUBLISH

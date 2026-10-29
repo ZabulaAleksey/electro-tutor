@@ -77,6 +77,8 @@ function ComplexReadout({ label, value, unit }: { label: string; value: Complex;
 }
 
 export default function StarNeutralLab({ language }: { language: Language }) {
+  const [ready,setReady] = useState(false);
+  useEffect(()=>setReady(true),[]);
   const copy = getLocale(language).star;
   const [parameters, setParameters] = useState<StarParameters>(STAR_PRESETS.unbalanced);
   const calculation = useMemo(() => calculateStar(parameters), [parameters]);
@@ -84,7 +86,7 @@ export default function StarNeutralLab({ language }: { language: Language }) {
     setParameters(current => ({ ...current, phases: { ...current.phases, [phase]: value } }));
   const selectPreset = (key: keyof typeof STAR_PRESETS) => setParameters(STAR_PRESETS[key]);
 
-  return <div className="star-lab">
+  return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard"><div className="star-lab">
     <div className="star-presets"><h2>{copy.presets}</h2><div>
       <button type="button" onClick={() => selectPreset("balanced")}>{copy.balanced}</button>
       <button type="button" onClick={() => selectPreset("unbalanced")}>{copy.unbalanced}</button>
@@ -123,5 +125,5 @@ export default function StarNeutralLab({ language }: { language: Language }) {
         disabled={parameters.mode !== "finite"}
         onChange={neutral => setParameters(current => ({ ...current, neutral }))} />
     </section>
-  </div>;
+  </div></fieldset>;
 }

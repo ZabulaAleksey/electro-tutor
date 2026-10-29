@@ -1,3 +1,7 @@
+import { complexPlanePoint, nicePixelsPerUnit } from "../engineering/geometry";
+import { engineeringAxis } from "../engineering/scale";
+import { formatEngineeringNumber } from "../engineering/format";
+import type { Language } from "../types";
 import { useRef, useState } from "react";
 import { complexMagnitude, type Complex } from "../models/circular-diagram";
 import { MAX_INPUT, PHASES, type Phase, type PhaseValues, type StarResult } from "../models/star-neutral";
@@ -9,43 +13,17 @@ type Copy = {
   displacementVector: string; currentVectors: string;
 };
 
-function tickLabel(value: number): string {
-  const absolute = Math.abs(value);
-  return absolute >= 1e4 || absolute < 1e-3
-    ? value.toExponential(1)
-    : Number(value.toPrecision(3)).toString();
+function tickLabel(value:number,language:Language="ru"){return formatEngineeringNumber(value,language);}
+
+function zPoint(value:Complex,extent:number){return complexPlanePoint(value,{x:250,y:250},190/extent);}
+
+function ZAxes({extent,language}:{extent:number;language:Language}) {
+  const scale=engineeringAxis(-extent,extent,{symmetric:true,targetTicks:5}),ticks=scale.ticks.filter(v=>Math.abs(v)<=extent);
+  return <g className="star-axes">{ticks.map(v=>{const x=zPoint({re:v,im:0},extent).x,y=zPoint({re:0,im:v},extent).y;return <g key={v}><path className="star-grid-line" d={`M${x} 40 V460 M40 ${y} H460`}/>{v!==0&&<><text x={x+3} y="266">{tickLabel(v,language)}</text><text x="256" y={y-4}>{tickLabel(v,language)}</text></>}</g>;})}<path className="star-axis" d="M40 250 H460 M250 40 V460"/><text className="star-axis-label" x="380" y="239">R, Ω</text><text className="star-axis-label" x="257" y="35">X, Ω</text><text x="235" y="265">0</text></g>;
 }
 
-function zPoint(value: Complex, extent: number) {
-  return { x: 50 + value.re / extent * 390, y: 250 - value.im / extent * 190 };
-}
-
-function ZAxes({ extent }: { extent: number }) {
-  const power = 10 ** Math.floor(Math.log10(extent / 4));
-  const step = [1, 2, 5, 10].map(factor => factor * power).find(value => value >= extent / 4) ?? power * 10;
-  const horizontal = Array.from({ length: Math.floor(extent / step) + 1 }, (_, index) => index * step);
-  const vertical = Array.from({ length: Math.floor(extent / step) * 2 + 1 }, (_, index) =>
-    (index - Math.floor(extent / step)) * step);
-  return <g className="star-axes">
-    {horizontal.map(tick => {
-      const x = zPoint({ re: tick, im: 0 }, extent).x;
-      return <g key={`x-${tick}`}><line className="star-grid-line" x1={x} y1="40" x2={x} y2="460" />
-        {tick > 0 && <text x={x + 2} y="265">{tickLabel(tick)}</text>}</g>;
-    })}
-    {vertical.map(tick => {
-      const y = zPoint({ re: 0, im: tick }, extent).y;
-      return <g key={`y-${tick}`}><line className="star-grid-line" x1="40" y1={y} x2="460" y2={y} />
-        {tick !== 0 && <text x="54" y={y - 4}>{tickLabel(tick)}</text>}</g>;
-    })}
-    <line className="star-axis" x1="40" y1="250" x2="460" y2="250" />
-    <line className="star-axis" x1="50" y1="30" x2="50" y2="470" />
-    <text className="star-axis-label" x="365" y="239">R, Ω</text>
-    <text className="star-axis-label" x="57" y="42">X, Ω</text>
-    <text x="35" y="265">0</text>
-  </g>;
-}
-
-export function ImpedancePlane({ phases, onChange, copy }: {
+export function ImpedancePlane({ phases, onChange, copy, language = "ru" }: {
+  language?:Language;
   phases: PhaseValues; onChange: (phase: Phase, value: Complex) => void; copy: Copy;
 }) {
   const svg = useRef<SVGSVGElement>(null);
@@ -61,7 +39,7 @@ export function ImpedancePlane({ phases, onChange, copy }: {
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return;
     const local = new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse());
-    const re = Math.max(0, Math.min(MAX_INPUT, (local.x - 50) / 390 * fixedExtent));
+    const re = Math.max(0, Math.min(MAX_INPUT, (local.x - 250) / 190 * fixedExtent));
     const im = Math.max(-MAX_INPUT, Math.min(MAX_INPUT, (250 - local.y) / 190 * fixedExtent));
     onChange(phase, { re, im });
   };
@@ -84,7 +62,7 @@ export function ImpedancePlane({ phases, onChange, copy }: {
         setDragExtent(null);
       }}
       onPointerCancel={() => { drag.current = null; setDragExtent(null); }}>
-      <ZAxes extent={extent} />
+      <ZAxes extent={extent} language={language} />
       {PHASES.map(phase => {
         const p = zPoint(phases[phase], extent);
         const coincident = PHASES.filter(other => {
@@ -130,14 +108,14 @@ function Vector({ id, from, to, label, kind, offset = 0 }: {
   </g>;
 }
 
-export function StarVectorDiagram({ result, copy }: { result: StarResult; copy: Copy }) {
+export function StarVectorDiagram({ result, copy, language = "ru" }: { result: StarResult; copy: Copy; language?:Language }) {
   const origin = { x: 250, y: 250 };
   const maxVoltage = Math.max(1, ...PHASES.map(phase => complexMagnitude(result.sources[phase])),
     complexMagnitude(result.displacement));
-  const voltagePixels = 175 / (maxVoltage * 1.15);
+  const voltagePixels = nicePixelsPerUnit(maxVoltage,175);
   const maxCurrent = Math.max(1, ...PHASES.map(phase => complexMagnitude(result.currents[phase])),
     complexMagnitude(result.neutralCurrent));
-  const currentPixels = 105 / maxCurrent;
+  const currentPixels = nicePixelsPerUnit(maxCurrent,Math.max(25,190-complexMagnitude(result.displacement)*voltagePixels));
   const placeVoltage = (value: Complex): DiagramPoint => ({
     x: origin.x + value.re * voltagePixels, y: origin.y - value.im * voltagePixels,
   });
@@ -154,6 +132,7 @@ export function StarVectorDiagram({ result, copy }: { result: StarResult; copy: 
         <marker key={kind} id={`star-arrow-${kind}`} markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
           <path className={`star-marker star-marker-${kind}`} d="M0 0 L7 3.5 L0 7 Z" />
         </marker>)}</defs>
+      {Array.from({length:17},(_,k)=>50+k*25).map(v=><path key={v} className="star-grid-line" opacity=".45" d={`M${v} 50 V450 M50 ${v} H450`}/>)}
       <line className="star-guide" x1="35" y1="250" x2="465" y2="250" />
       <line className="star-guide" x1="250" y1="35" x2="250" y2="465" />
       {PHASES.map(phase => <Vector key={`source-${phase}`} id={`source-${phase}`} from={origin} to={source[phase]}
@@ -173,8 +152,8 @@ export function StarVectorDiagram({ result, copy }: { result: StarResult; copy: 
           <text x={point.x + 7} y={point.y - 8 + shift}>{name}</text></g>;
       })}
     </svg>
-    <div className="star-scales"><span>{copy.voltageScale}: {tickLabel(100 / voltagePixels)} V / 100 px</span>
-      <span>{copy.currentScale}: {tickLabel(100 / currentPixels)} A / 100 px</span></div>
+    <div className="star-scales"><span>{copy.voltageScale}: {tickLabel(25 / voltagePixels,language)} V / {language==="ru"?"клетку":"клітинку"}</span>
+      <span>{copy.currentScale}: {tickLabel(25 / currentPixels,language)} A / {language==="ru"?"клетку":"клітинку"}</span></div>
     <div className="star-legend">
       <span className="star-key-source">{copy.sourceVectors} UA · UB · UC</span>
       <span className="star-key-line">{copy.lineVectors} UAB · UBC · UCA</span>

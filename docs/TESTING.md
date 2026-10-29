@@ -877,3 +877,31 @@ Frontend/auth/cold acceptance и весь infrastructure MASTER остаются
 - Identity/PWA terminal checks: unchanged product-pwa2PASS, actual FR-008 update/offline lifecycle1PASS/5.8s. The latter fixture hardcodes upstream4322; first attempt against4328-only was an environment502/timeout, resolved by an owned loopback static server serving the same dist on4322. Accepted tests/config unchanged;3PWA scenarios cover raster dimensions/installability, actual offline WASM/lesson, safe migration/private guard. Independent scoped reviewer reported no critical blockers; pointer-only drawing is a stated limitation. Manual390px image exposed collapsed hamburger spans and inherited footer stacking; local CSS corrected to a visible44px menu and row footer.
 
 - Final CSS smoke:10micro/panoramic browser checks PASS/14.9s after mobile menu/footer fix; actual Chrome390px document375px, visible44px hamburger and real menu expansion PASS, native PNG saved in chat outputs/panoramic-micro-mobile.png. Desktop4columns and light scientific cards visually compared with attached reference; outputs/panoramic-micro-desktop.png. Clean proof tab errors0. Browser screenshot captureBeyondViewport timed out; native viewport screenshots used, no evidence inferred from timeout. Fresh screenshots are local candidate evidence, not hosted acceptance.
+
+
+## ET-VIS-001 — проверенные инженерные источники
+
+Read-only router: `${STUD_ROOT}/AGENTS.md` → `.codex/00_SYSTEM/STUD_RULES_INDEX.md`, корень проверен через STUD_STORAGE. Только применимые owners; исходные задания, персональные данные и внутренние каталоги не публикуются. Таблица — provenance применённых требований, не копия правил.
+
+| Owner относительно `${STUD_ROOT}/.codex/` | Scope / IDs | SHA256 |
+|---|---|---|
+| `05_FORMATTING/FIGURE_POLICY.md` | GLOBAL / contextual; FMT-FIG-030..035; AXIS-001..008; LL-001..006 | `3aeb7915abb352053aeda7fe693a8cec755f816582f1aac63cbbf31bfca71905` |
+| `02_GLOBAL/CALCULATION_CORE.md` | GLOBAL; G-CALC-001..009 | `37b36502ec8e664f0ad5326b1053d01b6705ed2016f75d7f2f8f40eb247bdcce` |
+| `02_GLOBAL/SYMBOLIC_BEFORE_NUMERIC.md` | GLOBAL; G-SYM-001..018 | `564a40972dff38c271336c47fc1579c577d01d0f0e15b5db09f0fdd7309f8c0a` |
+| `02_GLOBAL/UNITS_AND_DIMENSIONS.md` | GLOBAL; G-UNIT-001..014 | `d6563edcc86d95a29801aa6afe98f9526e8bc06b67259ffe74bd252682c2efcd` |
+| `04_NOTATION/DECIMAL_LOCALE.md` | GLOBAL; NOT-LOC-001..010 | `d6f63d7f9edc3972391cd8ae6850364c15a14c102402026e8ba37a969d4183f5` |
+| `04_NOTATION/UNITS_RENDERING.md` | GLOBAL; NOT-UR | `64c84408b1ed98e48e61d58a574531d0b29435a1ce3a45d3090c2156d0de0805` |
+| `02_GLOBAL/BODE_ALGORITHM.md` | CONTEXTUAL; G-BODE-001..006; one-pole adaptation | `e22b49d03383dd0adce385d57603dce2f8ca096db83422e145a7a22d7d2095a4` |
+| `07_VISIO/VECTOR_DIAGRAM_SEMANTICS.md` | CONTEXTUAL; VIS-VEC-001..029 | `f421439121582c42c57cdc7cdcae0e38151ffdfbd670afbbc20f88f2692ff0d2` |
+| `07_VISIO/COORDINATES_AND_SCALE.md` | CONTEXTUAL; VIS-SCL-001..018 | `c24a5a24c0f9d67befbd463e1566c9b379df3cfab6bf6188f7d10b394b26dd7b` |
+| `13_DOMAINS/electrical_engineering/CIRCUIT_VERIFICATION.md` | CONTEXTUAL; EE-CIR-001..015 | `4d9a93112b505c69361541e2f02e6c5e70ac4e0b2848c54a0a9d5acf68dd9536` |
+| `${STUD_ROOT}/НИУ МЭИ/AGENTS.md` | UNIVERSITY-SPECIFIC; STUD-MPEI-GRAPH-PAPER-001, academic document only | `5c936198896ee6550621af3372a48102ef544abf586573a69c54482b59ec8a80` |
+
+REFERENCE-SPECIFIC требования номера/точки A/референсного масштаба не обобщаются. STUD Bode T03: один полюс τ=0,1с, ωc=10рад/с, Lc=−3,0102999566дБ, φc=−45° независимо воспроизведён аналитическим комплексным ответом. Общий Python-engine/исполнение учебной работы не переносится. Нормативный документ MPEI/DOCX и полная ГОСТ-сертификация не заявлены.
+
+Локальная приёмка2026-10-29:231unit/32files PASS (15новых предметных:12axis/units/plot/Bode/phasor/sample +3rendered-primary-circuit topology); lint PASS; Astro173files/0errors/0warnings/2pre-existing generated-WASM hints; production25pages/24localized routes/129artifacts PASS. Built Chromium41PASS/51,4с:11showcase +7micro +3panoramic +5engineering-standard +5star +4circular-state +6transmission-line. Accepted tests не изменялись. Ошибка раннего invalid-data Canvas branch (left до объявления) устранена; итоговая type/build проверка PASS. Исходная новая3D-проверка дождалась hash hydration до чтения DOM; числовой контракт не ослаблялся.
+
+Scope evidence: AXIS-001..005; PLOT-001..005; CIRCUIT-001..003 для Ohm/RLC/RC; PHYSICS-001; 3D axes/units/export/shared t/x проверены. Данные не округляются ради оси, tooltip содержит исходные samples; RC τ/initial/final и RLC f0/diode KVL проверены, комплексная геометрия изотропна. Canvas cursor соответствует фактическому sample x. Source equations/solver/worker/auth не переписывались. Это предметные frontend-проверки, не аудит всех STUD работ и не новое full backend E2E.
+
+Final UI: actual Chrome390px/document375px, stacked Bode plots/axes visible, no KaTeX errors/console errors; screenshot chat outputs/engineering-standard-mobile.png. Desktop exact/asymptotic curves, cutoff marks and45° phase ticks visually checked. Scoped reviewer second pass confirms measured Canvas Y margin/right alignment and early invalid-data fallback fixed; no blocking findings.
+Completion sync: README/STAGES/ROADMAP/DESIGN/TESTING/ARCHITECTURE/DECISIONS/requirements-ledger and SHOW SPEC updated. SECURITY/API/DATA_MODEL/DEPENDENCIES/FALLBACKS/TRACEABILITY/LEARNING_LOG checked by affected scope, unchanged contracts/no new runtime or learned diagnostic warranting duplicate record.

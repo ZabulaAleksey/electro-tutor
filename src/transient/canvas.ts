@@ -1,61 +1,30 @@
-type PlotOptions = { title: string; unit: string; color: string; zero: string; grid: string; ink: string };
-
-/** Presentation only: the solver's Float64Array is never changed or retained here. */
-export function drawSpatial(canvas: HTMLCanvasElement, values: Float64Array, options: PlotOptions): void {
-  const width = Math.max(320, Math.round(canvas.getBoundingClientRect().width));
-  const height = 220;
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  canvas.width = Math.round(width * dpr);
-  canvas.height = Math.round(height * dpr);
-  const context = canvas.getContext("2d");
-  if (!context) return;
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-  context.clearRect(0, 0, width, height);
-  const left = 49, right = width - 17, top = 24, bottom = height - 31;
-  let low = 0, high = 0;
-  for (const value of values) {
-    low = Math.min(low, value);
-    high = Math.max(high, value);
-  }
-  const span = Math.max(1e-9, high - low);
-  low -= span * 0.12;
-  high += span * 0.12;
-  if (high - low < 0.2) { low -= 0.1; high += 0.1; }
-  const y = (value: number) => bottom - (value - low) / (high - low) * (bottom - top);
-  context.lineWidth = 1;
-  context.strokeStyle = options.grid;
-  context.fillStyle = options.ink;
-  context.font = "12px system-ui, sans-serif";
-  for (let index = 0; index <= 4; index++) {
-    const value = low + (high - low) * index / 4;
-    const py = y(value);
-    context.beginPath();
-    context.moveTo(left, py);
-    context.lineTo(right, py);
-    context.stroke();
-    context.fillText(Number(value.toPrecision(3)).toString(), 3, py + 4);
-  }
-  context.strokeStyle = options.zero;
-  context.lineWidth = 1.5;
-  context.beginPath();
-  context.moveTo(left, y(0));
-  context.lineTo(right, y(0));
-  context.stroke();
-  context.fillStyle = options.ink;
-  context.fillText(options.title, left, 15);
-  context.fillText(`0 ${options.unit}`, left, height - 8);
-  context.fillText("x = l", right - 33, height - 8);
-
-  if (values.length < 2) return;
-  context.strokeStyle = options.color;
-  context.lineWidth = 2.5;
-  context.lineJoin = "round";
-  context.beginPath();
-  for (let index = 0; index < values.length; index++) {
-    const px = left + (right - left) * index / (values.length - 1);
-    const py = y(values[index]);
-    if (index === 0) context.moveTo(px, py);
-    else context.lineTo(px, py);
-  }
-  context.stroke();
+import { engineeringAxis } from "../engineering/scale";
+import { chooseEngineeringUnit, formatEngineeringNumber, inEngineeringUnit, type EngineeringLocale } from "../engineering/format";
+export type PlotGeometry={left:number;right:number;domainX:readonly[number,number]};
+type PlotOptions = { title:string;unit:string;color:string;zero:string;grid:string;ink:string;lengthM?:number;language?:EngineeringLocale;reference?:number };
+export function sampleAtFraction(fraction:number,count:number,lengthM:number,domainMax=lengthM){const index=Math.max(0,Math.min(count-1,Math.round(Math.max(0,Math.min(1,fraction))*domainMax/lengthM*(count-1))));return {index,x:count>1?index/(count-1)*lengthM:0};}
+/** Only presentation: the solver's Float64Array is never changed. */
+export function drawSpatial(canvas:HTMLCanvasElement,values:Float64Array,options:PlotOptions):PlotGeometry|undefined {
+ const width=Math.max(320,Math.round(canvas.getBoundingClientRect().width)),height=240,dpr=Math.min(2,window.devicePixelRatio||1);
+ canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);const c=canvas.getContext("2d");if(!c)return;
+ c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,width,height);
+ const right=width-22,top=30,bottom=height-36,language=options.language??"ru",length=options.lengthM??1;
+ c.font="12px system-ui, sans-serif";
+ let low=0,high=0;for(const value of values){if(!Number.isFinite(value)){c.fillStyle=options.ink;c.fillText("Invalid plot data",58,top);return;}low=Math.min(low,value);high=Math.max(high,value);}
+ const ya=engineeringAxis(low,high,{pixels:bottom-top,includeZero:true,targetTicks:5});
+ const u=chooseEngineeringUnit(options.unit,options.reference||Math.max(Math.abs(low),Math.abs(high)),language),xu=chooseEngineeringUnit("m",length,language);
+ const labels=ya.ticks.map(v=>formatEngineeringNumber(inEngineeringUnit(v,u),language));
+ const left=Math.min(width*.4,Math.max(58,...labels.map(v=>c.measureText(v).width+14))),xa=engineeringAxis(0,length,{pixels:right-left});
+ canvas.dataset.axisXUnit=xu.symbol;canvas.dataset.axisYUnit=u.symbol;canvas.setAttribute("aria-description",`x, ${xu.symbol}; ${options.title}, ${u.symbol}`);
+ const x=(v:number)=>left+xa.position(v)*(right-left),y=(v:number)=>bottom-ya.position(v)*(bottom-top),zeroY=y(0);
+ c.lineWidth=.6;c.strokeStyle=options.grid;c.globalAlpha=.35;
+ for(const v of ya.minorTicks){c.beginPath();c.moveTo(left,y(v));c.lineTo(right,y(v));c.stroke();}for(const v of xa.minorTicks){c.beginPath();c.moveTo(x(v),top);c.lineTo(x(v),bottom);c.stroke();}
+ c.globalAlpha=1;c.lineWidth=1;c.fillStyle=options.ink;c.font="12px system-ui, sans-serif";
+ for(const v of ya.ticks){const py=y(v);c.beginPath();c.moveTo(left,py);c.lineTo(right,py);c.stroke();c.textAlign="right";c.fillText(formatEngineeringNumber(inEngineeringUnit(v,u),language),left-9,py+4);c.textAlign="left";}
+ for(const v of xa.ticks){const px=x(v);c.beginPath();c.moveTo(px,top);c.lineTo(px,bottom);c.stroke();c.fillText(formatEngineeringNumber(inEngineeringUnit(v,xu),language),px-4,Math.min(height-10,zeroY+16));}
+ c.strokeStyle=options.zero;c.lineWidth=1.5;c.beginPath();c.moveTo(left,zeroY);c.lineTo(right,zeroY);c.stroke();
+ c.fillText(`${options.title}, ${u.symbol}`,left,17);c.fillText(`x, ${xu.symbol}`,right-48,height-4);
+ if(values.length>=2){c.strokeStyle=options.color;c.lineWidth=2.5;c.lineJoin="round";c.beginPath();for(let k=0;k<values.length;k++){const px=x(k/(values.length-1)*length),py=y(values[k]);if(k)c.lineTo(px,py);else c.moveTo(px,py);}c.stroke();
+  c.fillStyle=options.color;for(const k of [0,values.length-1])if(values[k]!==0){const text=formatEngineeringNumber(inEngineeringUnit(values[k],u),language);c.fillText(text,Math.max(left+5,Math.min(right-c.measureText(text).width-4,x(k/(values.length-1)*length)+5)),Math.max(top+12,Math.min(bottom-5,y(values[k])-9)));}}
+ return {left,right,domainX:xa.domain};
 }

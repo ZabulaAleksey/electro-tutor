@@ -1,6 +1,6 @@
 # Дорожная карта Electro Tutor
 
-ET-PANORAMA-001: локально проверенный редизайн ElectroTutor;216unit/21browser/build PASS. Следующий шаг — отдельное разрешение на merge/push/Cloudflare и проверка опубликованного сайта. Текущий публичный Micro Labs релиз ниже сохранён.
+ET-VIS-001: общий инженерный слой поверх панорамного редизайна; локальная проверка и разрешённая интеграция/публикация в процессе. Nice axes/SI/локаль/Bode/фазоры/сечения; точный public receipt — STAGES/TESTING. Предыдущий публичный Micro Labs релиз ниже сохранён.
 
 ET-MICRO-001: verified publicly2026-10-29 —14 Micro Labs/8групп,213 unit PASS,7 новых и11 существующих browser scenarios PASS; approved main merge/push и Cloudflare76b3eaf7 SUCCESS, public14controls/reset/time/filter/hash/RU-UK/mobile PASS.105 тем сохранены в source-only каталоге,91 — planned. Advanced Labs/editor/3D не блокируют этот релиз.
 

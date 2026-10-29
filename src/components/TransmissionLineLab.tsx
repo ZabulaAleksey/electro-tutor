@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Language } from "../types";
-import { drawSpatial } from "../transient/canvas";
+import { formatEngineeringNumber } from "../engineering/format";
+import { drawSpatial, sampleAtFraction, type PlotGeometry } from "../transient/canvas";
 import { lineCopy } from "../transient/copy";
 import { D, OPEN_PRESET, type LoadKind, type TransientConfig, type WorkerCommand, type WorkerReply } from "../transient/types";
 import "./TransmissionLineLab.css";
@@ -23,10 +24,12 @@ function field(label: string, value: number, set: (value: number) => void, min: 
     onChange={event => set(Number(event.currentTarget.value))} /></label>;
 }
 
-const fmt = (value: number, digits = 4) => Number.isFinite(value) ? Number(value.toPrecision(digits)).toString() : "—";
+
 
 export default function TransmissionLineLab({ language }: { language: Language }) {
   const t = lineCopy(language);
+  const fmt=(value:number,digits=4)=>formatEngineeringNumber(value,language,{significantDigits:digits});
+  const appliedRef=useRef<TransientConfig>(OPEN_PRESET), geometry=useRef<{v?:PlotGeometry;i?:PlotGeometry}>({});
   const [draft, setDraft] = useState<TransientConfig>(OPEN_PRESET);
   const [applied, setApplied] = useState<TransientConfig>(OPEN_PRESET);
   const [stopMs, setStopMs] = useState(20);
@@ -66,10 +69,10 @@ export default function TransmissionLineLab({ language }: { language: Language }
         const common = { zero: styles.getPropertyValue("--line-zero").trim() || "#9ca3af",
           grid: styles.getPropertyValue("--line-grid").trim() || "#d1d5db",
           ink: styles.getPropertyValue("--line-ink").trim() || "#22303a" };
-        if (voltageCanvas.current) drawSpatial(voltageCanvas.current, frame.voltages,
-          { ...common, title: t.scopeV, unit: "В", color: "#dc564e" });
-        if (currentCanvas.current) drawSpatial(currentCanvas.current, frame.currents,
-          { ...common, title: t.scopeI, unit: "А", color: "#167cbd" });
+        if (voltageCanvas.current) geometry.current.v=drawSpatial(voltageCanvas.current, frame.voltages,
+          { ...common, title: t.scopeV, unit: "V", color: "#dc564e", language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV });
+        if (currentCanvas.current) geometry.current.i=drawSpatial(currentCanvas.current, frame.currents,
+          { ...common, title: t.scopeI, unit: "A", color: "#167cbd", language, lengthM:appliedRef.current.line.lengthM, reference:appliedRef.current.source.voltageV/appliedRef.current.line.impedanceOhm });
         const d = frame.diagnostics;
         setStatus({ time: d[D.time], step: d[D.step], sourceV: d[D.sourceVoltage], sourceI: d[D.sourceCurrent],
           loadV: d[D.loadVoltage], loadI: d[D.loadCurrent], energy: d[D.lineEnergy] + d[D.deviceEnergy],
@@ -84,7 +87,7 @@ export default function TransmissionLineLab({ language }: { language: Language }
     };
     worker.postMessage({ type: "configure", config: OPEN_PRESET, stopTimeS: 0.02 } satisfies WorkerCommand);
     return () => { if (frameRef.current !== null) cancelAnimationFrame(frameRef.current); worker.terminate(); workerRef.current = null; };
-  }, [t.scopeV, t.scopeI]);
+  }, [t.scopeV, t.scopeI, language]);
 
   const edit = (section: keyof TransientConfig, key: string, value: number | string) => {
     setDraft(previous => ({ ...previous, [section]: { ...previous[section], [key]: value } }));
@@ -114,10 +117,11 @@ export default function TransmissionLineLab({ language }: { language: Language }
     const snapshot = latestRef.current;
     if (!snapshot) return;
     const bounds = event.currentTarget.getBoundingClientRect();
-    const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left - 49) / Math.max(1, bounds.width - 66)));
-    const v = snapshot.voltages[Math.round(fraction * (snapshot.voltages.length - 1))];
-    const i = snapshot.currents[Math.round(fraction * (snapshot.currents.length - 1))];
-    setHover({ x: fraction * applied.line.lengthM, v, i });
+    const g=event.currentTarget===voltageCanvas.current?geometry.current.v:geometry.current.i;
+    if(!g)return;
+    const fraction=Math.max(0,Math.min(1,(event.clientX-bounds.left-g.left)/(g.right-g.left)));
+    const sample=sampleAtFraction(fraction,snapshot.voltages.length,applied.line.lengthM,g.domainX[1]);
+    setHover({x:sample.x,v:snapshot.voltages[sample.index],i:snapshot.currents[sample.index]});
   };
 
   return <div className="line-lab">
@@ -197,7 +201,7 @@ export default function TransmissionLineLab({ language }: { language: Language }
           {hasL && field(t.initialI, draft.load.initialCurrentA, v => edit("load", "initialCurrentA", v), -1e6, 1e6)}
         </fieldset>
       </div>
-      <button type="button" disabled={!ready || busy} onClick={() => { setMessage(""); setApplied(draft); make({ type: "configure", config: draft, stopTimeS: stopMs / 1000 }); }}>{t.apply}</button>
+      <button type="button" disabled={!ready || busy} onClick={() => { setMessage(""); setApplied(draft); appliedRef.current=draft; make({ type: "configure", config: draft, stopTimeS: stopMs / 1000 }); }}>{t.apply}</button>
       {!ready && <p role="alert">{t.error}</p>}
     </section>
   </div>;

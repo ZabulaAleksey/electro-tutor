@@ -1133,12 +1133,45 @@
         "tests/e2e/micro-labs.spec.ts",
         "tests/e2e/engineering-showcase.spec.ts"
       ],
-      "runtime": "Locally validated production build;216unit/30files,21built-browser PASS. Not merged/pushed/deployed; exact approval pending.",
+      "runtime": "Local production candidate3e4f6e9; superseding shared visualization layer under ET-VIS-001. Owner approved integration/publication2026-10-29.",
       "security": "Existing static site, no provider/auth/secret changes. Local SVG export, no external board data transmission.",
       "a11y": "Native labelled sliders; keyboard camera, expansion/reset/filter, theme/RU-UK/reduced motion; preserved accepted tests.",
       "observability": "One exact lineStep model for reading, surface and sections; stated assumptions and SI axes.",
-      "gap": "Owner publication approval; public new release not yet verified. No blanket normative certification or counterfeit software/teacher claims.",
-      "action": "ET-PANORAMA-PUBLISH-01 after concrete local commit."
+      "gap": "Exact candidate deployment and public verification pending; no blanket normative certification.",
+      "action": "ET-VIS-001 authorized integration/publication."
+    },
+    {
+      "requirement_ids": [
+        "SHOW-016",
+        "SHOW-017",
+        "SHOW-018",
+        "SHOW-019"
+      ],
+      "domain": "engineering-visualization",
+      "status": "IMPLEMENTED",
+      "code": [
+        "src/engineering",
+        "src/showcase/MicroVisual.tsx",
+        "src/components/StarNeutralPlots.tsx",
+        "src/transient/canvas.ts",
+        "src/showcase/LineSurface.tsx"
+      ],
+      "unit": [
+        "src/engineering/engineering.test.ts",
+        "src/engineering/circuit-render.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/engineering-standard.spec.ts"
+      ],
+      "runtime": "Local production validation; authorized integration and public verification pending.",
+      "security": "STUD read-only; no private source/course material copied. Static frontend, no new dependencies or credential changes.",
+      "a11y": "Keyboard sample cursor, labelled physical axes and controls; optional screen grid, existing motion guards retained.",
+      "observability": "Raw samples and characteristics available for semantic checks; source scope/SHA in TESTING.",
+      "gap": "Public exact-SHA deployment/Chrome acceptance pending; no blanket normative certification.",
+      "action": "ET-VIS-VERIFY then authorized merge/push/publication and exact temporary-branch cleanup."
     }
   ]
 }

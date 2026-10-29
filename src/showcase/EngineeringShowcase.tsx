@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { Language } from "../types";
 import { formatNumber } from "../i18n";
 import { localePath } from "../site-path";
+import { localizeLatexNumbers } from "../engineering/format";
 import Formula from "../components/Formula";
 import CircuitDiagram from "../components/CircuitDiagram";
 import { categories, featured, filterStories, findStory, stories, type Story } from "./catalog";
@@ -56,7 +57,7 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
     <div className="lab-schematic-panel">
       <div className="lab-panel-kicker"><span>01 / {copy.scheme}</span><span>{dynamic ? copy.animation : copy.snapshot}</span></div>
       {mesh ? <CircuitDiagram language={language} /> : <CircuitVisual kind={story.visual} parameters={parameters} time={time} language={language} />}
-      {(story.visual === "three" || story.visual === "neutral") && <svg className="lab-vector-inset" viewBox="180 0 200 165" role="img" aria-label={story.visual === "neutral" ? (language === "ru" ? "Фазоры напряжений и смещение нейтрали" : "Фазори напруг і зміщення нейтралі") : (language === "ru" ? "Фазоры токов RMS" : "Фазори струмів RMS")}><Phasors kind={story.visual} parameters={parameters} /></svg>}
+      {(story.visual === "three" || story.visual === "neutral") && <svg className="lab-vector-inset" viewBox="180 0 200 165" role="img" aria-label={story.visual === "neutral" ? (language === "ru" ? "Фазоры напряжений и смещение нейтрали" : "Фазори напруг і зміщення нейтралі") : (language === "ru" ? "Фазоры токов RMS" : "Фазори струмів RMS")}><Phasors kind={story.visual} parameters={parameters} language={language} /></svg>}
       <div className={dynamic ? "lab-controls" : "lab-controls-static"}>
         {dynamic && story.visual === "dc" && <>{slider(copy.source, parameters.dc.e, 12, 48, 1, e => change({ ...parameters, dc: { ...parameters.dc, e } }))}{slider(copy.firstResistance, parameters.dc.r1, 20, 120, 5, r1 => change({ ...parameters, dc: { ...parameters.dc, r1 } }))}</>}
         {dynamic && story.visual === "ac" && <>{slider(copy.frequency, parameters.ac.frequency, 25, 100, 1, frequency => change({ ...parameters, ac: { ...parameters.ac, frequency } }))}{slider(copy.resistance, parameters.ac.resistance, 10, 100, 1, resistance => change({ ...parameters, ac: { ...parameters.ac, resistance } }))}</>}
@@ -73,7 +74,7 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
     <div className="lab-results-panel">
       <div className="lab-panel-kicker"><span>02 / {copy.calculation}</span><span>{mesh ? "KVL" : story.visual === "rc" ? "uC(0) = 0 V" : "SI"}</span></div>
       <div className="lab-equations">
-        {mesh ? <><CachedFormula>{String.raw`\begin{bmatrix}6&-2\\-2&8\end{bmatrix}\begin{bmatrix}I_1\\I_2\end{bmatrix}=\begin{bmatrix}24\\12\end{bmatrix}`}</CachedFormula><CachedFormula>{String.raw`I_1=\frac{54}{11}\,\mathrm A,\quad I_2=\frac{30}{11}\,\mathrm A`}</CachedFormula></> : <><CachedFormula>{view.formula}</CachedFormula><CachedFormula>{view.substitution}</CachedFormula></>}
+        {mesh ? <><CachedFormula>{String.raw`\begin{bmatrix}6&-2\\-2&8\end{bmatrix}\begin{bmatrix}I_1\\I_2\end{bmatrix}=\begin{bmatrix}24\\12\end{bmatrix}`}</CachedFormula><CachedFormula>{String.raw`I_1=\frac{54}{11}\,\mathrm A,\quad I_2=\frac{30}{11}\,\mathrm A`}</CachedFormula></> : <><CachedFormula>{localizeLatexNumbers(view.formula,language)}</CachedFormula><CachedFormula>{localizeLatexNumbers(view.substitution,language)}</CachedFormula></>}
       </div>
       <div className="lab-metrics">
         {(mesh ? [{ label: "I₁", value: 54 / 11, unit: "A", color: "orange" }, { label: "I₂", value: 30 / 11, unit: "A", color: "violet" }, { label: "I₃", value: 24 / 11, unit: "A", color: "green" }] : metrics).map(metric => <div key={metric.label} className={`lab-metric ${metric.color ?? ""}`}><span>{metric.label}</span><strong data-result={metric.label}>{formatNumber(language, metric.value, 3)} <small>{metric.unit}</small></strong></div>)}

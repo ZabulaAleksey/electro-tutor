@@ -1,11 +1,14 @@
 import { useId, useMemo } from "react";
-import { ac, dc, diode, line, n, rc, star, type Parameters, type Plot, type SceneKind } from "./physics";
+import { ac, dc, diode, line, rc, star, type Parameters, type Plot, type SceneKind } from "./physics";
 import type { Language } from "../types";
 import { showcaseCopy } from "./copy";
+import { formatEngineeringNumber } from "../engineering/format";
+import EngineeringPlot from "../engineering/EngineeringPlot";
 
 const ink = "var(--ink)", paper = "var(--white)";
 const color = (tone: string) => `var(--${tone})`;
 export function CircuitVisual({ kind, parameters, time = 0, mini = false, language }: { kind: SceneKind; parameters: Parameters; time?: number; mini?: boolean; language: Language }) {
+  const n=(value:number,digits=2)=>formatEngineeringNumber(value,language,{maximumFractionDigits:digits});
   const id = useId().replace(/:/g, "");
   const arrow = `lab-arrow-${id}`;
   const d = dc(parameters.dc.e, parameters.dc.r1), a = ac(parameters.ac.frequency, parameters.ac.resistance), r = rc(time, parameters.rc.resistance, parameters.rc.capacitance);
@@ -30,7 +33,7 @@ export function CircuitVisual({ kind, parameters, time = 0, mini = false, langua
     </g>
     <g fontFamily="inherit" fontSize="16" fontWeight="600" fill={ink}>
       {kind === "dc" && <>{source(`E = ${n(d.e)} V`)}{resistor(170, 80, `R₁ = ${n(d.r1)} Ω`)}{resistor(355, 80, "R₂ = 40 Ω", "violet")}<circle cx="70" cy="80" r="4" fill={ink} /><circle cx="304" cy="80" r="4" fill={ink} /><circle cx="510" cy="300" r="4" fill={ink} /><text x="78" y="55">A</text><text x="299" y="55">B</text><text x="524" y="306">0</text><text x="235" y="206" fontSize="40" fill={color("orange")}>{n(d.i, 3)} A</text><path d="M170 120 H250" fill="none" stroke={color("orange")} strokeWidth="2.5" markerEnd={`url(#${arrow})`} /><text x="170" y="147" fill={color("orange")}>I →</text><text x="175" y="272" fill={color("blue")}>+ Uᵣ₁ −</text><text x="350" y="272" fill={color("violet")}>+ Uᵣ₂ −</text>{!mini && <circle cx={marker[0]} cy={marker[1]} r="5" fill={color("orange")} />}</>}
-      {kind === "ac" && <>{source("U = 230 V RMS", true)}{resistor(128, 80, `R = ${a.resistance} Ω`)}<text x="258" y="43" fill={color("violet")}>L = 0.2 H</text><text x="385" y="43" fill={color("blue")}>C = 100 µF</text><path d="M151 124 H213" stroke={color("orange")} fill="none" markerEnd={`url(#${arrow})`} /><text x="154" y="150" fill={color("orange")}>i(t)</text><text x="206" y="258" fill={color("blue")}>u(t) = √2 U sin(ωt)</text><text x="215" y="333">f = {a.frequency} Hz</text><Phasors kind="ac" parameters={parameters} time={time} /></>}
+      {kind === "ac" && <>{source("U = 230 V RMS", true)}{resistor(128, 80, `R = ${a.resistance} Ω`)}<text x="258" y="43" fill={color("violet")}>L = {n(.2)} H</text><text x="385" y="43" fill={color("blue")}>C = 100 µF</text><path d="M151 124 H213" stroke={color("orange")} fill="none" markerEnd={`url(#${arrow})`} /><text x="154" y="150" fill={color("orange")}>i(t)</text><text x="206" y="258" fill={color("blue")}>u(t) = √2 U sin(ωt)</text><text x="215" y="333">f = {a.frequency} Hz</text><Phasors kind="ac" parameters={parameters} time={time} language={language} /></>}
       {kind === "rc" && <>{source("E = 12 V")}{resistor(220, 80, `R = ${parameters.rc.resistance} Ω`)}<text x="116" y="51" fill={color("green")}>t = 0</text><text x="352" y="155" fill={color("blue")}>+</text><text x="354" y="218" fill={color("blue")}>−</text><text x="363" y="257" fill={color("blue")}>C = {n(parameters.rc.capacitance * 1e6)} µF</text><rect x="455" y={197 - 35 * r.uc / 12} width="50" height={35 * r.uc / 12} fill={color("blue")} opacity=".18" /><text x="210" y="193" fill={color("blue")} fontSize="35">{n(r.uc)} V</text><text x="210" y="225" fill={color("orange")}>i = {n(r.i * 1000)} mA</text><text x="200" y="333">uC(0) = 0 V</text></>}
       {kind === "diode" && <>{source("E = 5 V")}{resistor(170, 80, "R = 1 kΩ")}<text x="373" y="47" fill={color("orange")}>D</text><text x="354" y="127" fill={color("blue")}>+ uD −</text><text x="220" y="199" fill={color("orange")} fontSize="35">{n(diode().i * 1000, 3)} mA</text><text x="204" y="238">uD = {n(diode().ud, 3)} V</text><path d="M275 118 H335" stroke={color("orange")} fill="none" markerEnd={`url(#${arrow})`} /><text x="280" y="144" fill={color("orange")}>iD</text></>}
       {(kind === "three" || kind === "neutral") && <>{[90, 180, 270].map((y, k) => <g key={y}><text x="30" y={y + 5} fill={color(["orange", "blue", "violet"][k])}>{"ABC"[k]}</text>{resistor(220, y, kind === "three" ? "46 Ω" : ["ZA", "ZB", "ZC"][k], ["orange", "blue", "violet"][k])}<text x="110" y={y + 27} fill={color(["orange", "blue", "violet"][k])}>I{"ABC"[k]}</text></g>)}<text x="486" y="186">n</text>{kind === "three" ? <text x="28" y="331" fill={color("green")}>N</text> : <text x="170" y="326">N ≠ n · IN = 0 A</text>}<text x="25" y="27">Uφ = 230 V RMS</text></>}
@@ -40,7 +43,8 @@ export function CircuitVisual({ kind, parameters, time = 0, mini = false, langua
   </svg>;
 }
 
-export function Phasors({ kind, parameters, time = 0 }: { kind: SceneKind; parameters: Parameters; time?: number }) {
+export function Phasors({ kind, parameters, time = 0, language = "ru" }: { kind: SceneKind; parameters: Parameters; time?: number; language?:Language }) {
+  const n=(value:number,digits=2)=>formatEngineeringNumber(value,language,{maximumFractionDigits:digits});
   const isAc = kind === "ac", a = ac(parameters.ac.frequency, parameters.ac.resistance);
   const s = isAc ? null : star(kind === "neutral");
   const values = isAc ? [{ angle: Math.PI * time / 2, length: 45, label: "u / Û", tone: "blue" }, { angle: Math.PI * time / 2 - a.phi, length: 45, label: "i / Î", tone: "orange" }] : Object.values(s!.currents).map((v, k) => ({ angle: Math.atan2(v.im, v.re), length: Math.hypot(v.re, v.im) * 4.5, label: `I${"ABC"[k]}`, tone: ["orange", "blue", "violet"][k] }));
@@ -56,21 +60,8 @@ export function Phasors({ kind, parameters, time = 0 }: { kind: SceneKind; param
 }
 
 export function ScenePlot({ plot, kind, parameters, time = 0, language }: { plot: Plot; kind: SceneKind; parameters: Parameters; time?: number; language: Language }) {
-  const id = useId().replace(/:/g, ""), clip = `lab-plot-${id}`;
-  const polylinePoints = useMemo(() => plot.curves.map(curve => curve.points.map(([px, py]) => `${(53 + px / plot.xMax * 460).toFixed(3)},${(184 - (py - plot.yMin) / (plot.yMax - plot.yMin) * 142).toFixed(3)}`).join(" ")), [plot]);
-  const x = (v: number) => 53 + v / plot.xMax * 460, y = (v: number) => 184 - (v - plot.yMin) / (plot.yMax - plot.yMin) * 142;
-  const cursor = kind === "rc" ? Math.min(time, plot.xMax) : kind === "ac" ? (time / 4 % 2) / 2 * plot.xMax : null;
-  const d = diode();
-  return <svg className="lab-plot" viewBox="0 0 550 235" role="img" aria-label={`${showcaseCopy[language].graphs}: ${kind}`}>
-    <defs><clipPath id={clip}><rect x="52" y="40" width="463" height="146" /></clipPath></defs>
-    {[0, 1, 2, 3, 4].map(k => <g key={k} fill="var(--muted)" fontSize="12"><path d={`M53 ${42 + k * 35.5} H513 M${53 + k * 115} 42 V184`} stroke="var(--line)" strokeWidth="1" /><text x="46" y={46 + k * 35.5} textAnchor="end">{n(plot.yMax - k * (plot.yMax - plot.yMin) / 4)}</text><text x={53 + k * 115} y="204" textAnchor="middle">{n(k * plot.xMax / 4)}</text></g>)}
-    <path d="M53 40 V184 H516" fill="none" stroke="var(--muted)" strokeWidth="1.3" /><text x="53" y="22" fill="var(--muted)" fontSize="12">{plot.yLabel}</text><text x="514" y="227" textAnchor="end" fill="var(--muted)" fontSize="12">{plot.xLabel}</text>
-    <g clipPath={`url(#${clip})`}>
-      {plot.curves.map((curve, index) => <polyline key={curve.label} points={polylinePoints[index]} fill="none" stroke={color(curve.color)} strokeWidth="2.8" strokeDasharray={curve.dash ? index === 2 ? "2 4" : "8 5" : undefined} />)}
-      {cursor !== null && <path d={`M${x(cursor)} 40 V186`} stroke={color("green")} strokeWidth="1.5" strokeDasharray="3 4" />}
-      {kind === "diode" && <><circle cx={x(d.ud)} cy={y(d.i * 1000)} r="6" fill={color("green")} /><text x={x(d.ud) - 13} y={y(d.i * 1000) - 13} fill={color("green")} fontSize="14">Q</text></>}
-      {kind === "ac" && <circle cx={x(cursor ?? 0)} cy={y(Math.sin(Math.PI * time / 2))} r="4.5" fill={color("blue")} />}
-      {kind === "rc" && <circle cx={x(cursor ?? 0)} cy={y(rc(time, parameters.rc.resistance, parameters.rc.capacitance).uc / 12)} r="4.5" fill={color("blue")} />}
-    </g>
-  </svg>;
+  const data=useMemo(()=>kind==="dc"?{...plot,categories:["A","B","0"]}:plot,[plot,kind]);
+  const cursor=kind==="rc"?Math.min(time,plot.xMax):kind==="ac"?(time/4%2)/2*plot.xMax:undefined;
+  const d=diode(), point=kind==="diode"?[d.ud,d.i*1000] as const:kind==="rc"?[cursor??0,rc(time,parameters.rc.resistance,parameters.rc.capacitance).uc/12] as const:kind==="ac"?[cursor??0,Math.sin(Math.PI*time/2)] as const:undefined;
+  return <EngineeringPlot plot={data} language={language} svgClass="lab-plot" selected={point} cursorTime={cursor} label={`${showcaseCopy[language].graphs}: ${kind}`} showLegend={false} />;
 }

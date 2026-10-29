@@ -92,8 +92,8 @@ export default function StarNeutralLab({ language }: { language: Language }) {
       <button type="button" onClick={() => selectPreset("rlc")}>{copy.rlc}</button>
     </div></div>
     <div className="star-top-grid">
-      <ImpedancePlane phases={parameters.phases} onChange={updatePhase} copy={copy} />
-      {calculation.ok ? <StarVectorDiagram result={calculation.result} copy={copy} /> :
+      <ImpedancePlane language={language} phases={parameters.phases} onChange={updatePhase} copy={copy} />
+      {calculation.ok ? <StarVectorDiagram language={language} result={calculation.result} copy={copy} /> :
         <section className="star-card star-phasors"><h2>{copy.combinedPlot}</h2>
           <p role="alert" className="star-error">{copy[calculation.reason === "phase-short" ? "phaseShort" : calculation.reason]}</p>
         </section>}

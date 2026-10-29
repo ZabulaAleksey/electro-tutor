@@ -1,3 +1,5 @@
+import { engineeringAxis } from "../engineering/scale";
+import { chooseEngineeringUnit, formatEngineeringNumber, inEngineeringUnit } from "../engineering/format";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CIRCULAR_DIAGRAM_DEFAULTS,
@@ -18,7 +20,7 @@ import type { Language } from "../types";
 
 export default function CircularDiagram({ language }: { language: Language }) {
   const copy = getLocale(language);
-  const fmt = (value: number, digits = 2) => Number(value.toFixed(digits)).toString();
+  const fmt = (value:number,digits=2)=>formatEngineeringNumber(value,language,{maximumFractionDigits:digits});
   const [parameters, setParameters] = useState<CircularDiagramState>({
     ...CIRCULAR_DIAGRAM_DEFAULTS,
   });
@@ -76,9 +78,8 @@ export default function CircularDiagram({ language }: { language: Language }) {
     { id: "short", label: "Iк", value: model.ik },
     ...(model.current ? [{ id: "active", label: "I(R)", value: model.current }] : []),
   ];
-  const step = model.extent <= 3 ? 1 : model.extent <= 8 ? 2 : 5, ticks: number[] = [];
-  for (let n = -Math.floor(model.extent / step) * step; n <= model.extent; n += step) ticks.push(n);
-
+  const axis=engineeringAxis(-model.extent,model.extent,{symmetric:true,targetTicks:7}),ticks=axis.ticks.filter(v=>Math.abs(v)<=model.extent);
+  const axisUnit=chooseEngineeringUnit("A",model.extent,language);
   const field = (key: keyof CircularDiagramState) => ({
     value: parameters[key],
     min: CIRCULAR_DIAGRAM_LIMITS[key].min,
@@ -105,8 +106,8 @@ export default function CircularDiagram({ language }: { language: Language }) {
       <div className="circle-plot">
         <svg viewBox="0 0 720 520" role="img" aria-label={copy.diagram.aria}>
           <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="12" markerHeight="7" refX="10.5" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5,.8 L11,3.5 L.5,6.2 L3,3.5 Z" className={`math-arrow arrow-head ${v.id}`}/></marker>)}</defs>
-          <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{t}</text><text x="367" y={y - 6}>{t}</text></>}</g>; })}</g>
-          <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">Re I, A</text><text x="370" y="38">Im I, A</text></g>
+          <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{formatEngineeringNumber(inEngineeringUnit(t,axisUnit),language)}</text><text x="367" y={y - 6}>{formatEngineeringNumber(inEngineeringUnit(t,axisUnit),language)}</text></>}</g>; })}</g>
+          <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">{`Re I, ${axisUnit.symbol}`}</text><text x="370" y="38">{`Im I, ${axisUnit.symbol}`}</text></g>
           <path d={model.path} className="current-locus"/>
           {vectors.map(v => { const p = model.xy(v.value); return <g className={`current-vector ${v.id}`} key={v.id}><line x1="360" y1="260" x2={p.x} y2={p.y} markerEnd={`url(#arrow-${v.id})`}/><circle cx={p.x} cy={p.y} r={v.id === "active" ? 6 : 4}/><text x={p.x + 10} y={p.y - 10}>{v.label}</text></g>; })}
         </svg>

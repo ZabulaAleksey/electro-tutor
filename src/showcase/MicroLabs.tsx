@@ -6,6 +6,8 @@ import Formula from "../components/Formula";
 import { microLabs } from "./catalog";
 import { microCopy, microGroups, type LiveParameterSpec, type MicroGroup, type MicroLab } from "./micro-catalog";
 import { microModel } from "./micro-models";
+import { formatEngineeringNumber, localizeLatexNumbers } from "../engineering/format";
+import BodeView from "../engineering/BodeView";
 import { CircuitView, LivePlot } from "./MicroVisual";
 import "./micro-labs.css";
 const CachedFormula = memo(Formula);
@@ -20,7 +22,7 @@ export function TimeController({ time, max, language, onChange }: { time: number
   return <label className="micro-time"><span>{microCopy[language].time}<span className="micro-value" data-micro-time>{formatNumber(language, time, 3)}</span></span><input style={{"--fill":`${time/max*100}%`} as CSSProperties} aria-label={microCopy[language].time} type="range" min={0} max={max} step={max / 100} value={time} onChange={event => onChange(Number(event.target.value))} /></label>;
 }
 const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected, update }: { lab: MicroLab; state: CardState; language: Language; selected: boolean; update: (id: string, state: CardState) => void }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false), [paper,setPaper] = useState(false);
   const copy = microCopy[language], view = useMemo(() => microModel(lab.model, state.a, state.b, state.time), [lab.model, state.a, state.b, state.time]);
   function parameter(key: "a" | "b", value: number) {
     const next = { ...state, [key]: value }, nextModel = microModel(lab.model, next.a, next.b, next.time);
@@ -29,13 +31,15 @@ const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected
   return <article className="micro-card" id={`micro-${lab.id}`} data-expanded={expanded ? "true" : "false"} data-micro={lab.id} data-micro-model={lab.model} data-selected={selected ? "true" : "false"} aria-labelledby={`micro-title-${lab.id}`}>
     <header><span className="micro-badge">{String(microLabs.indexOf(lab) + 1).padStart(2,"0")}</span><span>{microGroups[lab.category][language]}</span><a href={`#micro=${lab.id}`} aria-label={`${copy.link}: ${lab.title[language]}`}>↗</a></header>
     <h3 id={`micro-title-${lab.id}`}>{lab.title[language]}</h3>
-    <div className="micro-visual-pair"><CircuitView lab={lab} a={state.a} b={state.b} language={language} /><LivePlot view={view} language={language} /></div>
+    <div className="micro-visual-pair"><CircuitView lab={lab} a={state.a} b={state.b} language={language} /><LivePlot view={view} language={language} paper={paper} /></div>
     <div className="micro-console"><div className="micro-parameters">{lab.parameters.map((spec, k) => <LiveParameter key={spec.symbol} spec={spec} value={k === 0 ? state.a : state.b} language={language} onChange={value => parameter(k === 0 ? "a" : "b", value)} />)}</div>
-    <div className="micro-results" aria-live="off">{view.metrics.map(m => <span key={m.label} data-micro-result={m.label}><span>{m.label}</span><strong>{formatNumber(language, m.value, 3)} <small>{m.unit}</small></strong></span>)}</div></div>
+    <div className="micro-results" aria-live="off">{view.metrics.map(m => <span key={m.label} data-micro-result={m.label}><span>{m.label}</span><strong>{formatEngineeringNumber(m.value,language,{maximumFractionDigits:3})} <small>{m.unit}</small></strong></span>)}</div></div>
     {view.timeMax !== undefined && <TimeController time={view.time} max={view.timeMax} language={language} onChange={time => update(lab.id, { ...state, time })} />}
-    <div className="micro-formula"><CachedFormula>{view.formula}</CachedFormula></div>
+    <div className="micro-formula"><CachedFormula>{localizeLatexNumbers(view.formula,language)}</CachedFormula></div>
     <details className="micro-assumption"><summary>{copy.reference}</summary><p>{lab.assumption[language]}</p></details>
     <footer><button type="button" onClick={() => update(lab.id, initial(lab))}>{copy.reset} ↺</button><button type="button" className="micro-explore" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded ? (language==="ru"?"Свернуть":"Згорнути") : (language==="ru"?"Исследовать":"Дослідити")} {expanded ? "↑" : "→"}</button></footer>
+    {expanded && <button type="button" className="engineering-grid-toggle" aria-pressed={paper} onClick={()=>setPaper(v=>!v)}>{language==="ru"?"Миллиметровая сетка · экранный режим":"Міліметрова сітка · екранний режим"}</button>}
+    {expanded && lab.model === "filter" && <BodeView tau={state.b/1000} language={language} />}
     {expanded && lab.route && <a className="micro-material" href={localePath(language,lab.route)}>{copy.material} ↗</a>}
   </article>;
 });

@@ -44,7 +44,7 @@ export function microModel(kind: MicroKind, a: number, b: number, requestedTime 
     return { ...base, time, timeMax: 5 * tau, formula: charging ? "u_C=12(1-e^{-t/RC})" : "u_C=12e^{-t/RC}", metrics: [metric("uC(t)", uc, "V"), metric("iR(t)", i * 1000, "mA"), metric("τ", tau, "s")], plot: plot("t, s", "uC, V", 5 * tau, 13.2, [curve("uC", fn, 5 * tau), curve(charging ? "uC(∞)" : "uC(0)", () => 12, 5 * tau, "orange", true)]), point: [time, uc] };
   }
   if (kind === "diode") {
-    const d = diode(a, b), max = Math.max(1.2, d.ud * 1.2), c = curve("iD", u => Math.max(0, (u - 0.7) / 10) * 1000, max); c.points.push([0.7, 0]); c.points.sort((p, q) => p[0] - q[0]);
+    const d = diode(a, b), max = Math.max(0.75, 0.7 + 2 * d.i * 10), c = curve("iD", u => Math.max(0, (u - 0.7) / 10) * 1000, max); c.points.push([0.7, 0]); c.points.sort((p, q) => p[0] - q[0]);
     return { ...base, formula: "i_D=\\max(0,(E-0.7)/(R+10))", metrics: [metric("iD", d.i * 1000, "mA"), metric("uD", d.ud, "V")], plot: plot("uD, V", "iD, mA", max, Math.max(a / b * 1100, 1), [c, curve("(E−uD)/R", u => (a - u) / b * 1000, max, "orange", true)]), point: [d.ud, d.i * 1000] };
   }
   if (kind === "filter") {

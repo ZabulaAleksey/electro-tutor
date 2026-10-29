@@ -1,13 +1,14 @@
 import { useId } from "react";
 import type { Language } from "../types";
-import { formatNumber } from "../i18n";
 import type { MicroLab } from "./micro-catalog";
 import { microCopy } from "./micro-catalog";
 import type { MicroModel } from "./micro-models";
-import { n } from "./physics";
+import { formatEngineeringNumber } from "../engineering/format";
+import EngineeringPlot from "../engineering/EngineeringPlot";
 
 /** Neutral schematic symbols; colour reserved for selected measurements. */
 export function CircuitView({ lab, a, b, language }: { lab: MicroLab; a: number; b: number; language: Language }) {
+  const n=(v:number,digits=2)=>formatEngineeringNumber(v,language,{maximumFractionDigits:digits});
   const kind = lab.model, id = useId().replace(/:/g, ""), arrow = `micro-arrow-${id}`;
   const capacitor = kind === "charge" || kind === "discharge" || kind === "filter";
   const source = kind === "ohm" ? `U = ${n(a)} V` : kind === "diode" ? `E = ${n(a)} V` : kind === "drive" ? `U = ${n(a)} V` : capacitor ? kind === "filter" ? "U = 1 V RMS" : "E = 12 V" : "E = 24 V";
@@ -18,7 +19,7 @@ export function CircuitView({ lab, a, b, language }: { lab: MicroLab; a: number;
     <g stroke="var(--ink)" strokeWidth="1.7" fill="none" strokeLinejoin="round">
       {!special && <>
         <path d={`M36 31 H${kind === "resonance" ? 95 : 115} M${kind === "resonance" ? 145 : 173} 31 H${kind === "resonance" ? 180 : kind === "divider" || kind === "power" || kind === "diode" ? 235 : 314}`} />
-        {kind === "divider" || kind === "power" ? <><path d="M293 31 H314 V115 H36 V95 M36 51 V31" />{resistor(115, kind === "power" ? `r = ${n(a)} Ω` : `R₁ = ${n(a)} Ω`)}{resistor(235, kind === "power" ? `Rᴸ = ${n(b)} Ω` : `R₂ = ${n(b)} Ω`)}<circle cx="204" cy="31" r="3" fill="var(--ink)" />{kind === "divider" && <text x="237" y="59">+ U₂ −</text>}</> : kind === "resonance" ? <><path d="M180 31 a9 13 0 0 1 18 0 a9 13 0 0 1 18 0 a9 13 0 0 1 18 0 M234 31 H271 M271 18 V44 M283 18 V44 M283 31 H314 V115 H36 V95 M36 51 V31" />{resistor(95, `R = ${n(b)} Ω`, 50)}<text x="202" y="15" textAnchor="middle">0.2 H</text><text x="279" y="15" textAnchor="middle">100 µF</text></> : kind === "diode" ? <><path d="M235 18 L256 31 L235 44 Z M258 18 V44 M258 31 H314 V115 H36 V95 M36 51 V31" />{resistor(115, `R = ${n(b)} Ω`)}<text x="277" y="60">D</text><text x="237" y="100">+ uD −</text></> : capacitor ? <><path d="M314 31 V62 M296 62 H332 M296 82 H332 M314 82 V115 H36" />{kind === "discharge" ? <path d="M36 115 V31" /> : <path d="M36 115 V95 M36 51 V31" />}{resistor(115, kind === "filter" ? "R = 1 kΩ" : `R = ${n(a)} Ω`)}<text x="333" y="72">+</text><text x="333" y="96">−</text><text x="220" y="135">C = {n(b)} µF</text><circle cx="314" cy="50" r="3" fill="var(--green)" stroke="var(--green)" /><text x="232" y="78" fill="var(--blue)" stroke="none">uC</text></> : kind === "drive" ? <><path d="M314 31 V51 M314 95 V115 H36 V95 M36 51 V31" />{resistor(115, "Ra = 1 Ω")}<circle cx="314" cy="73" r="22" /><text x="314" y="78" textAnchor="middle">M</text><path d="M337 73 H365" markerEnd={`url(#${arrow})`} /><text x="272" y="135">Mᴸ = {n(b)} N·m</text></> : <><path d="M314 31 V115 H36 V95 M36 51 V31" />{resistor(115, `R = ${n(b)} Ω`)}</>}
+        {kind === "divider" || kind === "power" ? <><path d="M293 31 H314 V115 H36 V95 M36 51 V31" />{resistor(115, kind === "power" ? `r = ${n(a)} Ω` : `R₁ = ${n(a)} Ω`)}{resistor(235, kind === "power" ? `Rᴸ = ${n(b)} Ω` : `R₂ = ${n(b)} Ω`)}<circle cx="204" cy="31" r="3" fill="var(--ink)" />{kind === "divider" && <text x="237" y="59">+ U₂ −</text>}</> : kind === "resonance" ? <><path d="M180 31 a9 13 0 0 1 18 0 a9 13 0 0 1 18 0 a9 13 0 0 1 18 0 M234 31 H271 M271 18 V44 M283 18 V44 M283 31 H314 V115 H36 V95 M36 51 V31" />{resistor(95, `R = ${n(b)} Ω`, 50)}<text x="202" y="15" textAnchor="middle">{n(.2)} H</text><text x="279" y="15" textAnchor="middle">100 µF</text></> : kind === "diode" ? <><path d="M235 18 L256 31 L235 44 Z M258 18 V44 M258 31 H314 V115 H36 V95 M36 51 V31" />{resistor(115, `R = ${n(b)} Ω`)}<text x="277" y="60">D</text><text x="237" y="100">+ uD −</text></> : capacitor ? <><path d="M314 31 V62 M296 62 H332 M296 82 H332 M314 82 V115 H36" />{kind === "discharge" ? <path d="M36 115 V31" /> : <path d="M36 115 V95 M36 51 V31" />}{resistor(115, kind === "filter" ? "R = 1 kΩ" : `R = ${n(a)} Ω`)}<text x="333" y="72">+</text><text x="333" y="96">−</text><text x="220" y="135">C = {n(b)} µF</text><circle cx="314" cy="50" r="3" fill="var(--green)" stroke="var(--green)" /><text x="232" y="78" fill="var(--blue)" stroke="none">uC</text></> : kind === "drive" ? <><path d="M314 31 V51 M314 95 V115 H36 V95 M36 51 V31" />{resistor(115, "Ra = 1 Ω")}<circle cx="314" cy="73" r="22" /><text x="314" y="78" textAnchor="middle">M</text><path d="M337 73 H365" markerEnd={`url(#${arrow})`} /><text x="272" y="135">Mᴸ = {n(b)} N·m</text></> : <><path d="M314 31 V115 H36 V95 M36 51 V31" />{resistor(115, `R = ${n(b)} Ω`)}</>}
         {kind !== "discharge" && <><circle cx="36" cy="73" r="22" fill="var(--white)" /><text x="36" y={kind === "resonance" || kind === "filter" ? 78 : 68} textAnchor="middle">{kind === "resonance" || kind === "filter" ? "∿" : "+"}</text>{kind !== "resonance" && kind !== "filter" && <text x="36" y="86" textAnchor="middle">−</text>}<text x="4" y="137">{kind === "resonance" ? "230 V RMS" : source}</text></>}
         <path d={kind === "discharge" ? "M201 73 H139" : "M145 73 H207"} stroke="var(--blue)" markerEnd={`url(#${arrow})`} /><text x="173" y="97" textAnchor="middle" stroke="none" fill="var(--blue)">{kind === "discharge" ? "iR ←" : "iR →"}</text>
       </>}
@@ -31,21 +32,10 @@ export function CircuitView({ lab, a, b, language }: { lab: MicroLab; a: number;
   </svg>;
 }
 
-export function LivePlot({ view, language }: { view: MicroModel; language: Language }) {
-  const id = useId().replace(/:/g, ""), p = view.plot, copy = microCopy[language];
-  const x = (v: number) => Number((54 + v / p.xMax * 346).toFixed(3)), y = (v: number) => Number((164 - (v - p.yMin) / (p.yMax - p.yMin) * 126).toFixed(3));
-  const coords = (point: readonly [number, number]) => `${formatNumber(language, point[0], 3)}; ${formatNumber(language, point[1], 3)}`;
-  return <div className="micro-plot-wrap"><svg className="micro-plot" viewBox="0 0 440 205" role="img" aria-label={`${copy.plot}: ${p.yLabel} / ${p.xLabel}`}>
-    <defs><clipPath id={`micro-clip-${id}`}><rect x="52" y="36" width="351" height="130" /></clipPath></defs>
-    {Array.from({ length: 9 }, (_, k) => <path key={k} d={`M54 ${38 + k * 15.75} H400 M${54 + k * 43.25} 38 V164`} stroke="var(--line)" opacity={k % 2 ? 0.45 : 1} strokeWidth={k % 2 ? 0.6 : 1} />)}
-    {[0, 1, 2, 3, 4].map(k => <g key={k} fill="var(--muted)" fontSize="12"><text x="47" y={42 + k * 31.5} textAnchor="end">{formatNumber(language, p.yMax - k * (p.yMax - p.yMin) / 4, 2)}</text><text x={54 + k * 86.5} y="182" textAnchor="middle">{formatNumber(language, k * p.xMax / 4, 2)}</text></g>)}
-    <path d="M54 36 V164 H403" stroke="var(--muted)" fill="none" /><text x="54" y="21" fill="var(--ink)" fontSize="13">{p.yLabel}</text><text x="402" y="201" textAnchor="end" fill="var(--ink)" fontSize="13">{p.xLabel}</text>
-    <g clipPath={`url(#micro-clip-${id})`}>
-      {p.yMin < 0 && <path d={`M54 ${y(0)} H400`} stroke="var(--muted)" strokeDasharray="2 3" />}
-      {p.curves.map((c, k) => <polyline key={c.label} fill="none" stroke={`var(--${c.color})`} strokeWidth="2.4" strokeDasharray={c.dash ? k === 2 ? "2 4" : "7 4" : undefined} points={c.points.map(([px, py]) => `${x(px)},${y(py)}`).join(" ")} />)}
-      {view.timeMax !== undefined && <path d={`M${x(view.time)} 37 V164`} stroke="var(--green)" strokeDasharray="3 3" />}
-      {view.characteristic && <rect x={x(view.characteristic[0]) - 3.5} y={y(view.characteristic[1]) - 3.5} width="7" height="7" fill="var(--white)" stroke="var(--ink)"><title>{`${copy.characteristic}: ${coords(view.characteristic)}`}</title></rect>}
-      <circle cx={x(view.point[0])} cy={y(view.point[1])} r="4.5" fill="var(--green)" stroke="var(--white)" strokeWidth="1.5"><title>{`${copy.selected}: ${coords(view.point)}`}</title></circle>
-    </g>
-  </svg><div className="micro-legend">{p.curves.map((c, k) => <span key={c.label}><i style={{ color: `var(--${c.color})`, borderTopStyle: c.dash ? k === 2 ? "dotted" : "dashed" : "solid" }} />{c.label}</span>)}<span>● {copy.selected}</span>{view.characteristic && <span>□ {copy.characteristic}</span>}</div></div>;
+export function LivePlot({ view, language, paper = false }: { view: MicroModel; language: Language; paper?:boolean }) {
+  const copy=microCopy[language];
+  const label=view.plot.xLabel.startsWith("f,")?(view.plot.yLabel.startsWith("|H|")?"fc":"f₀"):view.plot.yLabel.startsWith("P")?"Pmax":copy.characteristic;
+  const tau=view.metrics.find(m=>m.label==="τ")?.value;
+  const rcMark=tau!==undefined&&view.plot.yLabel.startsWith("uC")?{point:[tau,view.formula.includes("1-e")?12*(1-Math.exp(-1)):12*Math.exp(-1)] as const,label:"τ"}:undefined;
+  return <EngineeringPlot plot={view.plot} language={language} compact gridMode={paper?"millimeter":"engineering"} svgClass="micro-plot" legendClass="micro-legend" selected={view.point} characteristic={view.characteristic?{point:view.characteristic,label}:rcMark} cursorTime={view.timeMax!==undefined?view.time:undefined} label={`${copy.plot}: ${view.plot.yLabel} / ${view.plot.xLabel}`} />;
 }

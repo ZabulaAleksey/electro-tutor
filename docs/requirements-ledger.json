@@ -1389,12 +1389,12 @@
     {
       "domain": "panoramic-visual-system",
       "status": "PARTIAL",
-      "runtime": "381unit/49files and61affected Chromium PASS; lint/check/build PASS. Validated and merged locally into main from tested1a283b2, not pushed/published.",
+      "runtime": "Published source c5ac7b8: Cloudflare41ad6330 SUCCESS;61/61primary-domain Chromium PASS/47.1s.382unit/50files, lint/check/build PASS.",
       "security": "Original local art; STUD read-only, no backend/auth/credential changes; video independent blocked provider gate.",
       "a11y": "Whole-card semantic links; keyboard/pause/reduced-motion; local pointer gestures, RU/UK.",
       "observability": "Carousel active index and autoplay state, actual plots; board undo/save and eraser budgets.",
-      "gap": "No controlled video provider or two-client acceptance; local merge approved/completed, publication/cleanup permission pending. Old home-gallery UI contract superseded explicitly, accepted tests unchanged.",
-      "action": "Owner publication/cleanup decision PAN-RELEASE-01; independent video provider decision PAN-VIDEO-01 only for subsequent AV work.",
+      "gap": "Independent controlled video provider/two-client acceptance absent; web release verified. Historical superseded UI tests and backend CI-01 limitations remain explicit.",
+      "action": "Approved push/deploy complete; safe integrated task branch cleanup only. PAN-VIDEO-01 is separate future AV work.",
       "requirement_ids": [
         "PAN-001",
         "PAN-002",

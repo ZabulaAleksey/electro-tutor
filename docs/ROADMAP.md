@@ -1,6 +1,6 @@
 # Дорожная карта Electro Tutor
 
-ET-PAN-004: web-реализация локально интегрирована в main через разрешённый fast-forward adcd5ae→1a283b2; push/публикация ещё не разрешены и не выполнены. Панорамы4тем, каталог31инструмента, общие карточки/навигация и частичный ластик. Контролируемая видеосвязь — отдельный BLOCKED_BY_PROVIDER; не блокирует использование локальной web-части. Результаты и NEXT — selected STAGES record.
+ET-PAN-004: web slice published/verified2026-10-30. Approved ordinary main push c5ac7b8, Cloudflare41ad6330-241f-4ffd-9f53-58560167b806 SUCCESS;61/61primary HTTPS browser PASS/47.1s. Панорамы4тем, каталог31инструмента, общие карточки/навигация, частичный ластик. Independent controlled video BLOCKED_BY_PROVIDER remains future work; overall master status/scope in selected STAGES. Cleanup only integrated task feature, no worktree.
 
 ET-BEAM-001: completed/published: sourcea942ace, Cloudflare479fd3f8-95de-48a9-8c65-420f22d0b3f4 SUCCESS,35/35primary-domain browser PASS/46.3s; main safely merged/pushed по прямому разрешению владельца; одобренная синхронизация тестового контракта выполнена,35/35канонических affected browser PASS. Сопротивление материалов и общие SVG-символы — specs/features/beam-laboratory.spec.md; живой статус/gates — docs/STAGES.md. Поздний пользовательский master явно разрешает эту библиотеку, отложенную предыдущим UI master. Local merge и ordinary origin/main push выполнены; primary Cloudflare publication проверена. Отдельный GitHub Pages CI FAIL на неизменённом backend certifi audit; details в STAGES/TESTING.
 

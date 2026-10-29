@@ -254,3 +254,19 @@ Canonical current status/evidence: `docs/STAGES.md` ET-RC1, `docs/TESTING.md`, `
 Repeat public candidate locally with pinned Node/pnpm: `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm preview --host 127.0.0.1 --port 4322`; open `/ru/` or `/uk/`, catalog -> mesh lesson -> answer -> return/resume/account. Public deployment build supplies `SITE_URL`, `BASE_PATH` and, when backend is configured, safe `PUBLIC_API_ORIGIN`; secrets never belong in PUBLIC variables. Account needs the separately configured API/Keycloak/PostgreSQL, not a fake static login. Ordinary provider signup creates a Student, never Tutor rights. The isolated registration runner uses explicitly owned stopped disposable DB55437/IdP58181 and stops only its own processes.
 
 PWA has manifest/raster/maskable icons, installability/offline public shell and visited offline Worker/WASM lab acceptance. This is a local production-like release candidate; deployment/publication are not performed. Next bounded stage — ET-18.2 hosting/runtime/HTTPS IAM/backup plan.
+
+## Лаборатория «Сопротивление материалов»
+
+В feature-ветке доступна `/{lang}/interactive/beam/` (RU/UK), ссылка — в «Лаборатории».
+Прямые балки Эйлера–Бернулли: консоли с обеих сторон, шарнир/ролик, защемления,
+промежуточные опоры, кусочно-постоянные EI/EA; сосредоточенные F/Fx/M и линейная q.
+Перетаскивание/ввод рядом с элементом обновляют реакции и N/Q/M. Есть история,
+общий курсор с пределами слева/справа, m/cm/mm, JSON-файл и сохранение в браузере.
+Схемы Micro Labs используют общие SVG-символы; происхождение геометрии и область
+применимости стандартов — `docs/notes/engineering-symbol-audit.md`.
+Текущая проверка/ограничения и интеграция этой ветки — `docs/STAGES.md`, ET-BEAM-001.
+
+Для повторения: `pnpm dev` → `/ru/interactive/beam/` → выберите пример →
+переместите F → измените знак/величину → сохраните JSON и загрузите его.
+`pnpm test`, `pnpm lint`, `pnpm check`, `pnpm build`, затем `pnpm test:e2e:built`.
+Числа золотых эталонов дополнительно пересчитывает независимый аналитический скрипт.

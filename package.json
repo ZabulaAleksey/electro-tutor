@@ -42,7 +42,7 @@
         "backend:db:catalog:diagnose": "node scripts/backend.mjs db-status catalog-diagnose",
         "backend:notifications:worker": "uv run --project services/api python -m electro_tutor_api.notification_worker",
         "backend:db:reset-local": "node scripts/backend.mjs db-reset-local",
-        "test": "vitest run",
+        "test": "node scripts/verify-beam-goldens.mjs && vitest run",
         "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
         "test:e2e:built": "node scripts/run-e2e.mjs",
         "test:e2e:production-smoke": "node scripts/run-production-e2e-smoke.mjs",

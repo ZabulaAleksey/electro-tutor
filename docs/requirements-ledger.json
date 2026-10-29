@@ -25,7 +25,8 @@
       "specs/features/star-neutral-phasors.spec.md",
       "specs/features/transmission-line-transient.spec.md",
       "specs/features/fourier-laboratory.spec.md",
-      "specs/features/student-workspaces.spec.md"
+      "specs/features/student-workspaces.spec.md",
+      "specs/features/beam-laboratory.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1312,6 +1313,76 @@
         "tests/e2e/workspace-gestures.spec.ts",
         "tests/e2e/board-workspaces.spec.ts",
         "tests/e2e/student-catalogs.spec.ts"
+      ]
+    },
+    {
+      "status": "IMPLEMENTED",
+      "runtime": "Implemented and validated locally:360unit,13independent analytic cases,13beam/6visual browser scenarios. Current status owner ET-BEAM-001.",
+      "security": "Bounded local JSON, no new backend/auth/network.",
+      "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
+      "observability": "Reactions/residuals and real browser attributes; no telemetry.",
+      "gap": "Accepted route/count test synchronization awaits explicit TEST-CONTRACT-01 approval; historical carousel contract drift separately recorded in TESTING. No publication.",
+      "action": "Apply only owner-approved three-file test delta, rerun canonical regression and synchronize terminal state. Merge/push/deploy require separate approval.",
+      "domain": "beam-laboratory",
+      "requirement_ids": [
+        "BEAM-001",
+        "BEAM-002",
+        "BEAM-003",
+        "BEAM-004",
+        "BEAM-005",
+        "BEAM-006",
+        "BEAM-007",
+        "BEAM-008",
+        "BEAM-009"
+      ],
+      "code": [
+        "src/models/beam.ts",
+        "src/beam/BeamLab.tsx",
+        "src/beam/BeamDiagram.tsx"
+      ],
+      "unit": [
+        "src/models/beam.test.ts",
+        "src/beam/state.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/beam-laboratory.spec.ts"
+      ]
+    },
+    {
+      "status": "IMPLEMENTED",
+      "runtime": "Implemented and validated locally:360unit,13independent analytic cases,13beam/6visual browser scenarios. Current status owner ET-BEAM-001.",
+      "security": "Bounded local JSON, no new backend/auth/network.",
+      "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
+      "observability": "Reactions/residuals and real browser attributes; no telemetry.",
+      "gap": "Accepted route/count test synchronization awaits explicit TEST-CONTRACT-01 approval; historical carousel contract drift separately recorded in TESTING. No publication.",
+      "action": "Apply only owner-approved three-file test delta, rerun canonical regression and synchronize terminal state. Merge/push/deploy require separate approval.",
+      "domain": "engineering-symbols",
+      "requirement_ids": [
+        "SYMBOL-001",
+        "SYMBOL-002",
+        "SYMBOL-003",
+        "SYMBOL-004"
+      ],
+      "code": [
+        "src/engineering/symbols.tsx",
+        "src/showcase/MicroVisual.tsx",
+        "docs/notes/engineering-symbol-audit.md",
+        "src/showcase/SceneVisual.tsx",
+        "src/components/CircuitDiagram.tsx"
+      ],
+      "unit": [
+        "src/engineering/symbols.test.tsx",
+        "src/engineering/circuit-render.test.ts",
+        "src/engineering/symbol-topology.test.tsx"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/engineering-symbol-visual.spec.ts"
       ]
     }
   ]

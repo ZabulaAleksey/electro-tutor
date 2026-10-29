@@ -41,3 +41,6 @@ backend/IAM deployment не выполнялся и не следует из э�
 ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded SPEC already implemented/verified on `feature/et-14-2-reminders`; `/ru/account/` and `/uk/account/` contain settings + inbox there. Integration DONE local main19c6ea2; both ancestries retained; post-integration live/DB PASS. UA-19 / Narrator and RU/UK voice PASS; evidence — `evidence/manual-gates-20261002/reconciliation.json`.
 
 | `RC1-001..010` | connected shell/learning/auth/resume/inbox/PWA candidate, truthful content and runtime scope | productization-rc1.spec.md, ADR-035 | unit189/backend208/PG83/built128/live registration1/base-path5 | VERIFIED locally; evidence/rc1/readiness.json; no deploy |
+
+| BEAM-001..009 | beam-laboratory.spec.md | ADR-042; models/beam + beam/ | ET-BEAM-001; independent analytic goldens, state tests, real browser/persistence | current evidence in STAGES/TESTING |
+| SYMBOL-001..004 | beam-laboratory.spec.md | engineering/symbols + audit | geometry/SVG and26visual goldens/responsive checks | current evidence in STAGES/TESTING |

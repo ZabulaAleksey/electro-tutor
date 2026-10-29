@@ -257,3 +257,13 @@ JSON импорты Fourier и линий остаются в браузере: 
 ## ET-UX-003 — локальные документы и Android debug
 
 Доска валидирует весь bounded payload атомарно и не обрезает данные молча; ошибки чтения/квоты отображаются. Калькулятор не исполняет код. Android обслуживает только свои bundled HTTPS assets, запрещает file-access/mixed-content, не имеет JavaScript bridge/TLS bypass. File picker/export требуют системный выбор пользователем; blob экспорт ограничен своим origin и2MB. Debug package явно debuggable; release signing/store distribution не выполнены. Production secrets, OIDC/PKCE и MathMorph не изменены.
+
+## ET-BEAM-001 — локальный JSON и numerical failure
+
+Новый beam import ограничен200000символов/байт файла до parse, version1, конечными
+числами, диапазонами длины/жёсткости/нагрузки,16участками/12опорами/32нагрузками.
+Нормализатор создаёт только известные поля; чужие HTML/результаты/прототипы не
+исполняются и не становятся authoritative state. Invalid import сохраняет схему.
+Нестабильная/плохо обусловленная система не получает псевдо-реакций. Storage denial
+даёт сообщение и сохраняет JSON download как доступный путь. Нет нового API,
+телеметрии, внешнего provider, credentials, auth или worker/cache-policy change.

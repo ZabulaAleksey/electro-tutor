@@ -50,3 +50,7 @@
 @media (max-width: 1050px) { .science-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .science-grid { grid-template-columns: 1fr; } .science-toolbar { align-items: stretch; } .science-toolbar > input { flex-basis: 100%; } .science-categories { overflow-x: auto; flex-wrap: nowrap; padding-bottom: .25rem; } .science-categories button { flex: 0 0 auto; } .science-card { padding: .8rem; } }
 @media (prefers-reduced-motion: reduce) { .science-card, .science-categories button { transition: none; } }
+
+.science-plot-legend { display:flex; flex-wrap:wrap; gap:5px 12px; color:var(--muted); font-size:11px; line-height:1.5; padding:6px 8px; }
+.science-plot-legend span { display:inline-flex; align-items:center; gap:5px; min-width:0; overflow-wrap:anywhere; }
+.science-plot-legend i { display:inline-block; width:14px; flex:none; border-top-width:2px; }

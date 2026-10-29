@@ -92,6 +92,8 @@ const ledgerTextFields = [
   "action",
 ];
 const requirementIdPrefixes = [
+  "BEAM",
+  "SYMBOL",
   "UX",
   "SHOW",
   "RC1",

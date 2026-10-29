@@ -212,3 +212,12 @@ The 0014 catalog manifest was captured from an independently fresh migrated disp
 ## RC1 browser learning record
 
 Server migration head remains0014; no new server progress schema. Learning localStorage key `potential-learning:v1:guest` or `potential-learning:v1:subject:<sha256>`, payload `{version:1,lessons:{"mesh-current-method":{highestStep:1..5,completed:boolean,lastVisitedAt:ISO,completedAt?:ISO}}}`. At most4096 serialized bytes/12 entries, only published lesson IDs; nested malformed record rejected without overwriting it. Completion timestamp is idempotent; highestStep is monotonic. No PII, tokens, password or email. Device-only records survive same-browser logout/login and are not a cloud backup. Explanation level retains existing `potential-level` device preference.
+
+## Локальная схема балки v1
+
+Входной DTO `BeamScheme` принадлежит `src/models/beam.ts` и feature-SPEC
+`beam-laboratory.spec.md`. Сохраняются SI length, contiguous EI/EA segments,
+typed supports и point/linear loads с уникальными IDs. Производные реакции,
+эпюры и перемещения не хранятся как входные данные. Browser namespace:
+`electrotutor-beam-v1`; переносимый файл `ElectroTutor-beam.json`.
+Backend schema/migrations и существующие account storage keys не меняются.

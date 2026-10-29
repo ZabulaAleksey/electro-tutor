@@ -195,3 +195,14 @@ DEV-LDC: две исходные `test_same_version_accept_cancel_has_one_atomic
 Evidence: `ELECTRO_DISPOSABLE_RACES_TERMINAL_V1` в текущей DEV-LDC Task.
 V23 потерявшая token BACKUP/session остаётся UNKNOWN_HOLD; GER-15 неизменён.
 Frontend/auth/cold acceptance и весь infrastructure MASTER остаются partial.
+
+## ET-BEAM-001 delta
+
+Самостоятельный frontend/numerical scope, BDX-L0 для нового компонента: существующий
+backend developer workflow не меняется. Нет новых dependencies/lockfile changes.
+ENV-01: по явному ответу владельца эта задача использует текущий CODEX_HOME несмотря
+на local resolver namespace conflict; конфигурация/runtime не переносились.
+Численное ядро/JSON parser, общий SVG слой и тесты размещены внутри ElectroTutor.
+Spec execution route: dev-karkas/project.framework.governance; placement project;
+Automation Promotion Review → existing project validator/test, без global Skill/hook.
+Существующие API/DATA backend/dependency owners проверяются при final docs gate.

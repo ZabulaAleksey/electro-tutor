@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UX-003
+- Stage ID: ET-BEAM-001
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -319,3 +319,24 @@
 - Remaining: physical Android device/release signing/store NOT_RUN; standalone component library explicitly deferred; MathMorph external URL not configured, honest disabled card. No owner action required for current release.
 - Follow-up: compact catalog/workspace intro CSS and heading-size regression10affected local browser PASS; final deployment receipt above;10/10primary affected browser PASS/8.6s. Final APK SHA835D08B6271A2D1404A80D0E97E2C5035DA99D722D174211F71D67D06A0713E3 signed/installed and full native WebView smoke repeated PASS.
 - NEXT: NONE
+
+## ET-BEAM-001 — Сопротивление материалов и инженерные символы
+
+- Status: partial
+- Lifecycle: implemented and validated locally; checkpoint in feature/beam-lab-engineering-symbols. Overall partial until the accepted-test contract decision below; no merge/push/publication.
+- Dependencies: ET-UX-003 and ET-LABS-002 terminal verified. No backend/new infrastructure required.
+- Scope/SPEC: specs/features/beam-laboratory.spec.md BEAM-001..009 / SYMBOL-001..004; user master is approval. STUD strictly read-only.
+- Environment decision ENV-01: DONE owner explicitly permits current CODEX_HOME=C:/Users/aleks/.codex for this task despite local resolver `CODEX_HOME must equal runtimeCodex namespace`; DEV_ROOT/DEV_SOURCE_ROOT/PROJECTS_ROOT confirmed, no config/runtime/environment migration. Resolver error retained as evidence, not relabelled PASS.
+- Plan: pure stiffness kernel and independent numerical goldens; RU/UK editable beam + synchronized epures/persistence; canonical SVG geometry and full MicroLabs inventory/provenance; browser/geometry/visual/retained regression; docs and atomic commit.
+- Runnable vertical slice: /ru/interactive/ → beam lab → preset → drag F during pointermove → reactions/N/Q/M update → sign/edit/Undo/Redo → save/load → same uk/mobile path. Static browser→local numerical kernel is the actual consumer path.
+- PASS contract: numerical goldens/equilibrium/compatibility/instability, UI/persistence browser interactions, all scoped geometry/SVG/visual/card bounds gates, existing regression, lint/check/build/context, final documentation/diff review.
+- Temporary implementation: none. Deferred scope: optional displacements/stress, nonlinear/frame/internal-hinge solver, formal drawing certification; missing requested verification is never considered deferred/completed.
+- Evidence: main@a26437b was clean, sole checkout. Independent analytic verifier13cases/49assertions PASS (no solver import);360unit/45files PASS; Astro235files/0errors/0warnings/3pre-existing hints; lint/context/hygiene/CI contract PASS. Production39pages/38localized routes/168artifacts PASS. Final combined Chromium50/51PASS: all13beam and4Microvisual passed; one legacy board address fails. Extended actual shared-render suite6/6PASS includes2additional RU/UK catalog/lesson checks.26Micro PNG +1beam mobile PNG reviewed;23SVG snapshots and actual20circuit terminal graphs checked. Scoped final read-only review: no concrete P1/P2. Details and baseline failures in TESTING.
+- User action TEST-CONTRACT-01: PENDING explicit owner approval for exact three-file delta: tests/e2e/micro-labs.spec.ts addresses→/micro-labs/; tests/e2e/panoramic-redesign.spec.ts board address /ru/#engineering-board→/ru/board/; tests/e2e/student-catalogs.spec.ts tool count6→7 (two assertions). All numerical/control/locale/export checks retained. Trigger: earlier page relocation plus this new tool. Reviewable patch exists in task outputs; temporary copied harness14/14PASS. These three accepted source files remain byte-equivalent to HEAD. Expected evidence: explicit approval, exact patch, canonical browser PASS. Unlock: accepted regression synchronization; this is the current stop condition, not a calculation defect.
+- User action FINAL-01: CONDITIONAL after all local gates/commit; exact «Да, сливай» permits merge to main. Expected evidence: explicit reply + clean integration preflight. Unlock: local merge only; push/deploy separately unapproved.
+- NEXT: ET-BEAM-001
+- Next action: await TEST-CONTRACT-01; after approval apply only reviewed delta, run canonical affected tests, synchronize terminal state and commit. Do not merge without separate exact «Да, сливай».
+- Verification limits: straight linear Euler–Bernoulli beam, piecewise constant EI/EA; optional displacement/stress UI, frames/internal hinges/nonlinear effects absent. No matching verified individual STUD geometry established for every screen symbol; sources and chosen SVG dimensions are distinguished in audit. Linux pixel parity, physical touch device and new native APK NOT_RUN; no backend/auth changes or full backend E2E claim.
+- Baseline distinction: engineering-showcase.spec.ts11/11FAIL on removed legacy carousel selectors/autoplay; owning EngineeringShowcase.tsx is unchanged from HEAD. Retained as pre-existing contract drift, not silently rewritten or reported PASS. Current consumer paths have actual browser and topology evidence above.
+- Documentation synchronization: README, STAGES, ROADMAP, feature SPEC/index, ARCHITECTURE, ADR-042, DESIGN, SECURITY, DATA_MODEL, TESTING, TRACEABILITY, project-context, requirements ledger and scoped audit updated. API/DEPENDENCIES/LEARNING_LOG and existing auth/service-worker contracts checked unchanged; no additional framework/status source created.
+- Local review: own hidden preview http://127.0.0.1:4323/ru/interactive/beam/ retained (launcher PID39864); browser screenshot in task outputs. Test-owned4322 stopped by runner; unrelated4321 untouched. STUD7source hashes rechecked unchanged; no copying or writes to STUD.

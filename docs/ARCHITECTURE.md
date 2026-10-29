@@ -599,3 +599,23 @@ ET-LABS-002: existing islands/shared engineering layer reused. New src/fourier p
 ## ET-UX-003 — рабочие области
 
 Существующие Astro ClientRouter и React islands сохранены. ToolCard задаёт общий каталог; домашние previews ведут к реальным MicroLabs, legacy hash/query маршруты совместимы. usePointerStroke хранит draft в ref/SVG-слое и фиксирует модель одним действием; useLocalZoom обрабатывает только локальный Ctrl-wheel. Shared unsaved guard сохраняет локальные документы до перехода. Android — отдельная тонкая debug-упаковка текущего dist, без новых web/server dependencies.
+
+## ET-BEAM-001 — балка и семантические SVG-символы
+
+Astro RU/UK route → React `src/beam/BeamLab.tsx` → pure `src/models/beam.ts`.
+Расчёт независим от DOM, React, сети и LLM. Прямая жёсткость собирает осевые и
+Hermite bending DOF в узлах всех разрывов. Согласованные линейные нагрузки,
+масштабирование свободной системы и контроль residual заменяют прежние узкие
+аналитические подстановки; физический отказ явно скрывает эпюры.
+Точные нагрузочные примитивы/полиномы определяют N/Q/M, их пределы/нули/экстремумы.
+`src/beam/BeamDiagram.tsx` использует существующие `engineeringAxis`, SI/locale
+format и `useLocalZoom`; одно SVG-полотно гарантирует общую координату всех эпюр.
+Новый renderer специализирован на редакторе расчётной схемы, не заменяет общий
+EngineeringPlot. История pure reducer отделяет live draft от одной команды drag.
+Versioned JSON содержит только вход, а результаты всегда пересчитываются.
+
+`src/engineering/symbols.tsx` владеет геометрией/терминалами и provenance.
+MicroVisual/SceneVisual/ToolArt, пример CircuitDiagram и механические опоры используют этот слой. Complex impedance Z и reference-specific EMF остаются семантически отдельными glyphs; обмотка на магнитопроводе и блоки редактора не подменяются lumpedL/R. Режимы
+full/thumbnail/export имеют одну геометрию; масштаб меняет весь символ. Профили
+в SVG units не являются произвольными заявлениями о нормативных миллиметрах.
+Внешние пакеты, backend, auth, deployment и service-worker policy не изменены.

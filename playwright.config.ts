@@ -15,6 +15,7 @@ const liveNotificationPhase =
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  expect: { toHaveScreenshot: { pathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}" } },
   // Secret-bearing Session and notification scenarios require explicit live phases.
   // Ordinary static/root E2E excludes both.
   testIgnore: liveLessonSessionPhase || liveNotificationPhase || liveReminderPhase

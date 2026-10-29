@@ -34,6 +34,7 @@ const line = lineCopy(language);
   <section class="section interactive-section">
     <h2>MicroLabs</h2><div class="catalog-card-grid"><ToolCard category={language==="ru"?"Электротехника":"Електротехніка"} title={language==="ru"?"14 мини-экспериментов":"14 мініекспериментів"} href={localePath(language,"/micro-labs/")} action={language==="ru"?"Выбрать эксперимент":"Обрати експеримент"}><ToolArt kind="circuit"/></ToolCard></div>
     <h2>{language==="ru"?"Инженерные лаборатории":"Інженерні лабораторії"}</h2><div class="catalog-card-grid">
+      <ToolCard category={language==="ru"?"Механика":"Механіка"} title={language==="ru"?"Сопротивление материалов":"Опір матеріалів"} href={localePath(language,"/interactive/beam/")} action={language==="ru"?"Собрать балку":"Зібрати балку"}><ToolArt kind="beam"/></ToolCard>
       <ToolCard category="AC / 3φ" title={copy.star.title} href={localePath(language,"/interactive/star-neutral/")} action={copy.star.open}><ToolArt kind="phasors"/></ToolCard>
       <ToolCard category="AC" title={copy.diagram.title} href={localePath(language,"/interactive/circular-diagram/")} action={line.circularOpen}><ToolArt kind="phasors"/></ToolCard>
       <ToolCard category={language==="ru"?"Волны":"Хвилі"} title={line.title} href={localePath(language,"/interactive/transmission-line/")} action={line.open}><ToolArt kind="waves"/></ToolCard>

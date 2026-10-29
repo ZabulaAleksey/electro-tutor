@@ -20,7 +20,7 @@ const fmt = (value: number, language: Language, digits = 3) => formatEngineering
 const finite = (value: number) => Number.isFinite(value);
 
 function plotFor(id: ScienceId, result: ScienceResult, language: Language) {
-  const plotPoints = result.points.filter((point) => finite(point.x) && finite(point.y)).map((point) => [point.x, point.y] as const);
+  const plotPoints = result.points.filter((point) => finite(point.x) && finite(point.y)).map((point) => [point.x, id === "beats" ? Math.abs(point.y) : point.y] as const);
   if (!plotPoints.length) return null;
   // Domains cover the declared parameter ranges, so a slider changes the curve rather than the coordinate frame.
   const fixedDomains: Partial<Record<ScienceId, { x: readonly [number, number]; y: readonly [number, number] }>> = {
@@ -35,7 +35,7 @@ function plotFor(id: ScienceId, result: ScienceResult, language: Language) {
   };
   const [xLabel, yLabel] = axes[id];
   const curves = [{ label: getScienceDefinition(id).title[language], color: "blue", points: plotPoints }, ...(result.secondaryPoints ? [{ label: language === "ru" ? "Касательная" : "Дотична", color: "orange", dash: true, points: result.secondaryPoints.filter((point) => finite(point.x) && finite(point.y)).map((point) => [point.x, point.y] as const) }] : [])];
-  return <EngineeringPlot language={language} label={getScienceDefinition(id).title[language]} compact plot={{ xLabel, yLabel, xMin: domain.x[0], xMax: domain.x[1], yMin: domain.y[0], yMax: domain.y[1], curves }} domains={domain} characteristic={result.characteristic ? { point: [result.characteristic.x, result.characteristic.y], label: "A" } : undefined} area={id === "definite-integral" ? { points: plotPoints, baseline: 0, color: "blue" } : undefined} />;
+  return <EngineeringPlot language={language} label={getScienceDefinition(id).title[language]} compact legendClass="science-plot-legend" plot={{ xLabel, yLabel, xMin: domain.x[0], xMax: domain.x[1], yMin: domain.y[0], yMax: domain.y[1], curves }} domains={domain} characteristic={result.characteristic ? { point: [result.characteristic.x, result.characteristic.y], label: "A" } : undefined} area={id === "definite-integral" ? { points: plotPoints, baseline: 0, color: "blue" } : undefined} />;
 }
 
 function linePath(points: Point[], width: number, height: number, minX: number, maxX: number, minY: number, maxY: number) {

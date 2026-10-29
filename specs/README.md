@@ -44,3 +44,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/fourier-laboratory.spec.md` | Approved user contract2026-10-29 | FOUR-001..007: local contour/spectrum/epicycle and verified source basis adaptation |
 
 | `features/student-workspaces.spec.md` | Approved user master2026-10-29 | UX-001..010: student navigation/cards/gestures/Fourier/boards/services and bounded Android packaging |
+
+| `features/beam-laboratory.spec.md` | Approved user master2026-10-29 | BEAM-001..009 / SYMBOL-001..004: Euler–Bernoulli beam lab and canonical engineering SVG geometry |

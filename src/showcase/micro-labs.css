@@ -21,3 +21,9 @@
 .micro-card footer { flex-direction:row; text-align:left; }
 
 .micro-card[data-expanded=true] { grid-column:1/-1; }.micro-card[data-expanded=true] .micro-visual-pair { min-height:260px; }.micro-card[data-expanded=true] .micro-circuit { max-height:240px; }.micro-card[data-expanded=true] .micro-plot { max-height:250px; }@media(max-width:650px){.micro-card[data-expanded=true] .micro-circuit { max-height:150px; }}
+
+/* Canonical diagrams scale as a whole. Give labels a full card width instead
+   of stretching symbols or changing font/symbol ratios per breakpoint. */
+html .micro-card .micro-visual-pair { grid-template-columns:1fr; gap:8px; min-height:0; }
+html .micro-card .micro-circuit { width:100%; height:auto; max-height:none; aspect-ratio:380/145; }
+html .micro-card .micro-circuit text { font-size:14px; }

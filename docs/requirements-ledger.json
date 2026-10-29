@@ -26,7 +26,8 @@
       "specs/features/transmission-line-transient.spec.md",
       "specs/features/fourier-laboratory.spec.md",
       "specs/features/student-workspaces.spec.md",
-      "specs/features/beam-laboratory.spec.md"
+      "specs/features/beam-laboratory.spec.md",
+      "specs/features/panoramic-visual-system.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1383,6 +1384,45 @@
       ],
       "e2e": [
         "tests/e2e/engineering-symbol-visual.spec.ts"
+      ]
+    },
+    {
+      "domain": "panoramic-visual-system",
+      "status": "PARTIAL",
+      "runtime": "381unit/49files and61affected Chromium PASS; lint/check/build PASS. Validated locally, not published.",
+      "security": "Original local art; STUD read-only, no backend/auth/credential changes; video independent blocked provider gate.",
+      "a11y": "Whole-card semantic links; keyboard/pause/reduced-motion; local pointer gestures, RU/UK.",
+      "observability": "Carousel active index and autoplay state, actual plots; board undo/save and eraser budgets.",
+      "gap": "No controlled video provider or two-client acceptance; current merge/publication permission pending. Old home-gallery UI contract superseded explicitly, accepted tests unchanged.",
+      "action": "Owner integration decision PAN-RELEASE-01; independent video provider decision PAN-VIDEO-01 only for subsequent AV work.",
+      "requirement_ids": [
+        "PAN-001",
+        "PAN-002",
+        "PAN-003",
+        "PAN-004",
+        "PAN-005",
+        "PAN-006",
+        "PAN-007",
+        "PAN-008",
+        "PAN-009",
+        "PAN-010"
+      ],
+      "code": [
+        "src/showcase/PanoramicCarousel.tsx",
+        "src/catalogue",
+        "src/showcase/EngineeringBoardEraser.ts"
+      ],
+      "unit": [
+        "src/showcase/PanoramicCarousel.test.ts",
+        "src/showcase/EngineeringBoardEraser.test.ts"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/panoramic-home.spec.ts",
+        "tests/e2e/panoramic-catalog.spec.ts",
+        "tests/e2e/board-eraser.spec.ts"
       ]
     }
   ]

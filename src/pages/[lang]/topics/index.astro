@@ -1,11 +1,13 @@
 ---
-import ToolCard, {ToolArt} from "../../../components/ToolCard";
+import ToolCard from "../../../components/ToolCard";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getPublishedLessonManifest } from "../../../content/published-lessons";
 import { resolveTopicPublication } from "../../../curriculum-publication";
 import { curriculum } from "../../../curriculum";
 import type { Language } from "../../../types";
-import { formatMinutes, formatTopicCount, getLocale } from "../../../i18n";
+import { formatTopicCount, getLocale } from "../../../i18n";
+import type { ToolArtKind } from "../../../components/ToolCard";
+import TopicCover from "../../../catalogue/TopicCover";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
@@ -21,22 +23,20 @@ const publishedCurriculum = curriculum.map((section) => ({
     publication: resolveTopicPublication(lessonManifest, language, section.id, topic),
   })),
 }));
+const topicArt: Record<string, ToolArtKind> = { ohm: "ohm", kirchhoff: "kirchhoff", mesh: "mesh", nodes: "nodes", thevenin: "thevenin", "power-transfer": "power", "linear-relations": "plot", sinusoidal: "phasors", "complex-method": "phasors", "rlc-series": "rlc", "ac-power": "power", resonance: "plot", "three-phase": "phasors", "switching-laws": "kirchhoff", "first-order": "waves", "second-order": "plot", laplace: "fourier", "magnetic-basics": "neutral", "magnetic-two-nodes": "nodes", "nonlinear-magnetic": "plot", machines: "neutral" };
+const topicPanorama: Partial<Record<string, "dc" | "transient" | "machines" | "lines">> = { dc: "dc", transients: "transient", waves: "lines", machines: "machines" };
 
 ---
 
 <BaseLayout
-  title={copy.topics.title}
+  title={language === "ru" ? "Учебник по электротехнике — ElectroTutor" : "Підручник з електротехніки — ElectroTutor"}
   description={copy.topics.description}
   language={language}
   active="topics"
   alternatePath="/topics/"
 >
   <section class="section catalog-page">
-    <span class="eyebrow"><i></i>{copy.topics.eyebrow}</span>
-    <h1>{copy.topics.heading}</h1>
-    <p class="page-lead">
-      {copy.topics.lead}
-    </p>
+    <h1>{language === "ru" ? "Учебник" : "Підручник"}</h1>
     <div class="curriculum">
       {publishedCurriculum.map((section, index) => (
         <details class="curriculum-section" open={index === 0}>
@@ -48,7 +48,7 @@ const publishedCurriculum = curriculum.map((section) => ({
           </summary>
           <div class="curriculum-static-topics catalog-card-grid">
             {section.topics.map((topic) => (
-              <ToolCard title={topic.title[language]} category={`${section.index}.${topic.index} · ${formatMinutes(language,topic.duration)}`} href={topic.publication.available?topic.publication.href:undefined} description={topic.description[language].split(/[.!?]/)[0]} action={topic.publication.available?copy.actions.startLearning:copy.actions.soon}><ToolArt kind="circuit"/></ToolCard>
+              <ToolCard title={topic.title[language]} category={`${section.index}.${topic.index}`} href={topic.publication.available?topic.publication.href:undefined} description={topic.description[language].split(/[.!?]/)[0]} action={topic.publication.available?copy.actions.startLearning:copy.actions.soon}><TopicCover kind={topicArt[topic.id] ?? "neutral"} panorama={topicPanorama[section.id]}/></ToolCard>
             ))}
           </div>
         </details>

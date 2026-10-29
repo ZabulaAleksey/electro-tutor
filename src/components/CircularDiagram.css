@@ -1,4 +1,3 @@
-.interactive-intro { min-height: auto; padding-bottom: 70px; }
 .interactive-section { padding-top: 0; }
 .circle-lab { border-top: 1px solid var(--line); padding-top: 72px; }
 .circle-lab-heading { display: flex; justify-content: space-between; align-items: end; gap: 36px; margin-bottom: 34px; }
@@ -27,7 +26,6 @@
   .resistance-control { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
-  .interactive-intro { padding-bottom: 50px; }
   .circle-lab { padding-top: 52px; }
   .circle-lab-heading { display: block; }
   .circle-lab-heading h2 { font-size: 29px; }

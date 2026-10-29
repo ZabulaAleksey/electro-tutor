@@ -35,7 +35,7 @@ export default function FourierLab({ language = "ru" }: { language?: Language })
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
   const [points, setPoints] = useState<Complex[]>(demo), [history, setHistory] = useState<Complex[][]>([]), [closed, setClosed] = useState(true);
-  const [count, setCount] = useState(16), [phase, setPhase] = useState(0), [speed, setSpeed] = useState(.08), [playing, setPlaying] = useState(true), [loop, setLoop] = useState(true), [motionAllowed, setMotionAllowed] = useState(true);
+  const [count, setCount] = useState(16), [phase, setPhase] = useState(0), [speed, setSpeed] = useState(.08), [playing, setPlaying] = useState(true), [loop, setLoop] = useState(true), [motionAllowed, setMotionAllowed] = useState(false);
   const [showOriginal, setShowOriginal] = useState(true), [showVectors, setShowVectors] = useState(true), [showTrace, setShowTrace] = useState(true), [order, setOrder] = useState<FourierOrder>("amplitude");
   const [enabled, setEnabled] = useState<Record<number, boolean>>({}), [edited, setEdited] = useState<Record<number, { amplitude: number; phase: number }>>({}), [basis, setBasis] = useState<BasisName>("fourier");
   const [zoom, setZoom] = useState(1), [pan, setPan] = useState({ x: 0, y: 0 }), [dragging, setDragging] = useState(false), [panning, setPanning] = useState(false);
@@ -60,7 +60,7 @@ export default function FourierLab({ language = "ru" }: { language?: Language })
   const endpoint = basis === "fourier" ? reconstruct(fourierCoefficients, phase) : basisReconstruction[Math.floor(phase * Math.max(0, basisReconstruction.length - 1))] ?? { re: 0, im: 0 };
   useEffect(() => { const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)"); const update = () => setMotionAllowed(!document.hidden && !reduced?.matches); update(); reduced?.addEventListener?.("change", update); document.addEventListener("visibilitychange", update); return () => { reduced?.removeEventListener?.("change", update); document.removeEventListener("visibilitychange", update); }; }, []);
   useEffect(() => { phaseRef.current = phase; }, [phase]);
-  useEffect(() => { if (!playing || !motionAllowed) return; let frame = 0; let last = performance.now(); let current = phaseRef.current; const tick = (now: number) => { current += (now - last) / 1000 * speed; last = now; setPhase(loop ? current % 1 : Math.min(current, 1)); if (loop || current < 1) frame = requestAnimationFrame(tick); else setPlaying(false); }; frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame); }, [playing, motionAllowed, speed, loop]);
+  useEffect(() => { if (!playing || !motionAllowed) return; let frame = 0; let last: number | undefined; let current = phaseRef.current; const tick = (now: number) => { current += Math.max(0, now - (last ?? now)) / 1000 * speed; last = now; setPhase(loop ? current % 1 : Math.min(current, 1)); if (loop || current < 1) frame = requestAnimationFrame(tick); else setPlaying(false); }; frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame); }, [playing, motionAllowed, speed, loop]);
   const pushHistory = () => setHistory((items) => [...items.slice(-19), points]);
   const stroke = usePointerStroke({ svgRef:svg, previewRef:preview,
     toPoint:event=>svg.current?svgPoint(svg.current,event.clientX,event.clientY):{x:0,y:0},

@@ -1,0 +1,65 @@
+{
+  "origin": "Original AI-generated illustrative artwork, ElectroTutor 2026-10-30. Not a photograph of a performed experiment; no measured data baked into imagery. Text, charts and formulas are rendered independently by the application.",
+  "assets": [
+    {
+      "file": "dc-1280.webp",
+      "bytes": 60078,
+      "sha256": "ed071a1d78b69ad72b007521885f648ad1d79f81103e5158e03e8826976aefb5"
+    },
+    {
+      "file": "dc-1920.webp",
+      "bytes": 107632,
+      "sha256": "e91793a6ba038ce0981891d08f6a063cb493cbe72985c11c8b63340afe9a098c"
+    },
+    {
+      "file": "dc-640.webp",
+      "bytes": 19562,
+      "sha256": "a0bdb8982129e47df19584c4e8167099bd2e2905c6c65b4f94bc8dff368e03b6"
+    },
+    {
+      "file": "lines-1280.webp",
+      "bytes": 89980,
+      "sha256": "10dd2d215c21086bf45635c68315fb30d131c28ebe02b33b0a32fef094b56f6c"
+    },
+    {
+      "file": "lines-1920.webp",
+      "bytes": 153688,
+      "sha256": "b90df7700641e1630807b9ef632784bde8aa428d817c3ed4a96cae23f4e63e48"
+    },
+    {
+      "file": "lines-640.webp",
+      "bytes": 27626,
+      "sha256": "d631b1900642266290dd3abce45c9b48f994093fe5f04277a462a647a9ad2eb4"
+    },
+    {
+      "file": "machines-1280.webp",
+      "bytes": 96030,
+      "sha256": "7e45ecf8da0bb1a03a89c85e45f88f3d0f47cd13f68156cfeff0c486a55412b9"
+    },
+    {
+      "file": "machines-1920.webp",
+      "bytes": 167736,
+      "sha256": "f1c57b8323f59a875a7e116e6d550a271f17fa0f39f6e34d5d9b17b14aff6410"
+    },
+    {
+      "file": "machines-640.webp",
+      "bytes": 30878,
+      "sha256": "3586e09b4d79d1a3c455e1f13541dbc3e0770e7f4c8ed3bea3ca8be9edf54700"
+    },
+    {
+      "file": "transient-1280.webp",
+      "bytes": 39100,
+      "sha256": "36165a9b39b4885acfd2769c7ac561833e10bd1cc06fe5c18d7ee84e99833a20"
+    },
+    {
+      "file": "transient-1920.webp",
+      "bytes": 66164,
+      "sha256": "06b8ca0af5788a69164b5a6870610eb9194db6ef0dfa17327d0b23f14c7ab602"
+    },
+    {
+      "file": "transient-640.webp",
+      "bytes": 14778,
+      "sha256": "4a866189222bdcc9497c61318b9b9ede95f8d8fc219370142277768ffc5db70c"
+    }
+  ]
+}

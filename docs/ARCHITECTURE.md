@@ -1,5 +1,7 @@
 # Архитектура Electro Tutor
 
+ET-PAN-004: `showcase/PanoramicCarousel` использует существующие модели и EngineeringPlot; `panorama-model` содержит параметры/метаданные. Четыре локальные иллюстрации в responsive WebP отделены от настоящих SVG-графиков. `catalogue/catalog` — источник31инструмента для домашней подборки8 и фильтруемого каталога; ToolCard/TopicCover/TechnicalThumbnail используют существующие символы. Новые URL/API/зависимости отсутствуют; старые story/hash/query и calculator URL сохранены. EngineeringBoardEraser отделяет preview от ограниченного атомарного commit; формат хранения совместим.
+
 Public static MVP: первоначальный Direct Upload2026-10-28; инженерная витрина2026-10-29 публикуется через подключённый владельцем GitHub main → Cloudflare build (Node22.23.1/pnpm11.23.0), pnpm build → `dist/`, в
 Cloudflare Pages: https://electrotutor.pages.dev/, `BASE_PATH=/`, без API origin.
 Первый Pages-проект electrotutor-mvp и GitHub Pages сохранены. Backend/OIDC/PKCE topology не менялась; lesson/practice работает локально в браузере.

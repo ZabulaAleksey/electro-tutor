@@ -46,3 +46,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/student-workspaces.spec.md` | Approved user master2026-10-29 | UX-001..010: student navigation/cards/gestures/Fourier/boards/services and bounded Android packaging |
 
 | `features/beam-laboratory.spec.md` | Approved user master2026-10-29 | BEAM-001..009 / SYMBOL-001..004: Euler–Bernoulli beam lab and canonical engineering SVG geometry |
+
+| `features/panoramic-visual-system.spec.md` | Approved user master2026-10-30 | PAN-001..010: panoramic covers, shared catalogue/navigation, partial eraser and independent video gate |

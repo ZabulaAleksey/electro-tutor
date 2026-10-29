@@ -44,3 +44,4 @@ ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded S
 
 | BEAM-001..009 | beam-laboratory.spec.md | ADR-042; models/beam + beam/ | ET-BEAM-001; independent analytic goldens, state tests, real browser/persistence | current evidence in STAGES/TESTING |
 | SYMBOL-001..004 | beam-laboratory.spec.md | engineering/symbols + audit | geometry/SVG and26visual goldens/responsive checks | current evidence in STAGES/TESTING |
+| PAN-001..010 | panoramic-visual-system.spec.md | ADR-043; showcase/PanoramicCarousel, catalogue, EngineeringBoardEraser | analytical curves/terminal topology, carousel/catalog/eraser browser scenarios | local web evidence in STAGES/TESTING; video blocked; not published |

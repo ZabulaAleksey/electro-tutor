@@ -1,5 +1,7 @@
 # ElectroTutor
 
+ET-PAN-004 — панорамный интерфейс реализован локально в `feature/panoramic-visual-system`: четыре оригинальные иллюстрации, единый каталог31лаборатории и частичный ластик доски. Это ещё не опубликованная версия; receipts ниже относятся к предыдущим релизам. Проверки и отдельный блокер видеосвязи — `docs/STAGES.md` / `docs/TESTING.md`. Просмотр: `pnpm build`, затем `pnpm preview`; текущая сборка — http://127.0.0.1:4325/ru/.
+
 ET-UX-003: локально проверены карточные каталоги и прямые инструменты, общий header, Fourier preview/масштаб/полный экран/stem-спектр, доска с сохранением и небольшой калькулятор. Android debug APK собран и проверен в отдельном эмуляторе; команды — android/README.md. Опубликовано на https://electrotutor.pages.dev/ru/: source9ed98f5, Cloudflare19537dec SUCCESS,30public-browser PASS; актуальный receipt — docs/STAGES.md.
 
 ET-LABS-002: первый релиз опубликован и проверен2026-10-29 — длинные линии V2, Fourier Sketch,12научных Micro Labs и общая тема.283unit/18public-browser PASS; source64a6ba0, Cloudflarebc8455b3 SUCCESS72s. Точный scope/receipt и будущие возможности — docs/STAGES.md. Исторические релизы ниже сохранены.

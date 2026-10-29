@@ -17,19 +17,24 @@ try {
 ---
 
 <BaseLayout
-  title={russian ? "Мои сервисы — ElectroTutor" : "Мої сервіси — ElectroTutor"}
+  title={russian ? "Дополнительные сервисы — ElectroTutor" : "Додаткові сервіси — ElectroTutor"}
   description={russian ? "Подключённые инженерные сервисы ElectroTutor." : "Підключені інженерні сервіси ElectroTutor."}
   language={language}
   active="my-services"
   alternatePath="/my-services/"
 >
   <section class="section catalog-page my-services-page">
-    <span class="eyebrow"><i></i>{russian ? "Сервисы" : "Сервіси"}</span>
-    <h1>{russian ? "Мои сервисы" : "Мої сервіси"}</h1>
-    <p class="catalog-page-lead">{russian ? "Доступные инженерные инструменты." : "Доступні інженерні інструменти."}</p>
-    <div class="catalog-card-grid service-card-grid">
+    <h1>{russian ? "Дополнительные сервисы" : "Додаткові сервіси"}</h1>
+    <p class="catalog-page-lead">{russian ? "Установить приложение и открыть подключённые инструменты." : "Установити застосунок і відкрити підключені інструменти."}</p>
+      <div class="catalog-card-grid service-card-grid">
+      <article class="tool-card service-tool-card app-install-card" id="install">
+        <span class="section-kicker">ELECTROTUTOR</span>
+        <h2>{russian ? "Приложение" : "Застосунок"}</h2>
+        <p>{russian ? "Добавьте учебник на главный экран для быстрого доступа." : "Додайте підручник на головний екран для швидкого доступу."}</p>
+        <button class="tool-card-action app-install-link" id="app-install" type="button">{russian ? "Установить приложение" : "Встановити застосунок"} →</button>
+      </article>
       <article class="tool-card service-tool-card">
-        <span class="section-kicker">MATHMORPH</span>
+        <span class="section-kicker" id="mathmorph">MATHMORPH</span>
         <h2>MathMorph</h2>
         <p>{mathMorphUrl
           ? (russian ? "Преобразование математических документов." : "Перетворення математичних документів.")
@@ -38,6 +43,13 @@ try {
           ? <a class="tool-card-action" href={mathMorphUrl} target="_blank" rel="noreferrer">{russian ? "Открыть сервис" : "Відкрити сервіс"} →</a>
           : <span class="integration-note">{russian ? "Ссылка появится после настройки владельцем." : "Посилання з’явиться після налаштування власником."}</span>}
       </article>
-    </div>
+      <article class="tool-card service-tool-card" aria-label={russian ? "Видеокабинет недоступен" : "Відеокабінет недоступний"}>
+        <span class="section-kicker">VIDEO</span>
+        <h2>{russian ? "Видеокабинет" : "Відеокабінет"}</h2>
+        <p>{russian ? "Не подключено: для публичного запуска провайдер и модерация ещё не настроены." : "Не підключено: для публічного запуску провайдер і модерація ще не налаштовані."}</p>
+        <span class="tool-card-disabled">{russian ? "Недоступно" : "Недоступно"}</span>
+      </article>
+
+      </div>
   </section>
 </BaseLayout>

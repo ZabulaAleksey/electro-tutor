@@ -5,7 +5,7 @@ import { getPublishedLessonManifest } from "../../content/published-lessons";
 import { resolveTopicPublication } from "../../curriculum-publication";
 import { curriculum } from "../../curriculum";
 import type { Language } from "../../types";
-import { formatMinutes, getLocale } from "../../i18n";
+import { getLocale } from "../../i18n";
 import { localePath } from "../../site-path";
 import { publicSurface } from "../../public-surface";
 
@@ -45,22 +45,4 @@ const primaryPublication = publishedTopics.find(({ publication }) => publication
     </div>
   </section>}
 
-  <section class="section topic-preview">
-    <div class="section-heading">
-      <div><span class="section-kicker">01 — DC</span><h2>{copy.home.section}</h2></div>
-      <p>{copy.home.sectionLead}</p>
-    </div>
-    <div class="topic-grid">
-      {publishedTopics.map(({ topic, publication }) => (
-        <article class={`topic-card ${topic.accent}`}>
-          <div class="topic-card-top"><span>{topic.index}</span><small>{formatMinutes(language, topic.duration)}</small></div>
-          <h3>{topic.title[language]}</h3>
-          <p>{topic.description[language]}</p>
-          {publication.available
-            ? <a href={publication.href}>{copy.actions.startLearning} →</a>
-            : <span class="soon-label">{copy.actions.soon}</span>}
-        </article>
-      ))}
-    </div>
-  </section>
 </BaseLayout>

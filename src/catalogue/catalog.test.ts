@@ -1,0 +1,4 @@
+import {expect,it} from "vitest";
+import {catalogueItems,filterCatalogue} from "./catalog";
+it("indexes the published local tools once and preserves deep-link identities",()=>{expect(catalogueItems).toHaveLength(31);expect(new Set(catalogueItems.map(i=>i.id)).size).toBe(31);for(const i of catalogueItems){expect(i.available).toBe(true);expect(i.href).toMatch(/^\/(micro-labs\/#(?:micro|science)=|interactive\/[a-z-]+\/)/);expect(i.title.ru.trim()).not.toBe("");expect(i.title.uk.trim()).not.toBe("");}expect(filterCatalogue(catalogueItems,"ru","all","балка").map(i=>i.href)).toEqual(["/interactive/beam/"]);});
+it("does not label science experiments with unrelated electrical equipment photos",()=>{const science=catalogueItems.filter(i=>i.source==="science");expect(science).toHaveLength(12);for(const i of science)expect(i.panorama).toBeUndefined();});

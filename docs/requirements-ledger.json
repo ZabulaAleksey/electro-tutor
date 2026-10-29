@@ -1112,7 +1112,7 @@
         "SHOW-015"
       ],
       "domain": "panoramic-redesign",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "code": [
         "src/landing.css",
         "src/showcase/panoramic.css",
@@ -1133,12 +1133,12 @@
         "tests/e2e/micro-labs.spec.ts",
         "tests/e2e/engineering-showcase.spec.ts"
       ],
-      "runtime": "Local production candidate3e4f6e9; superseding shared visualization layer under ET-VIS-001. Owner approved integration/publication2026-10-29.",
+      "runtime": "Published source26985b68895d9aad648ba792cfaa2465200b8f52; Cloudflare12ca3006-7c24-41d5-82cd-4e01c2e647ca SUCCESS40s (build30s/deploy7s),2026-10-29;231unit/41local-browser baseline,20affected after hydration fix and15public-browser PASS.",
       "security": "Existing static site, no provider/auth/secret changes. Local SVG export, no external board data transmission.",
       "a11y": "Native labelled sliders; keyboard camera, expansion/reset/filter, theme/RU-UK/reduced motion; preserved accepted tests.",
       "observability": "One exact lineStep model for reading, surface and sections; stated assumptions and SI axes.",
-      "gap": "Exact candidate deployment and public verification pending; no blanket normative certification.",
-      "action": "ET-VIS-001 authorized integration/publication."
+      "gap": "None in bounded scope. Full normative certification, general transfer-function/advanced editors and future catalog models are not claimed.",
+      "action": "Complete; retain existing contracts and add future models only under a new requested scope."
     },
     {
       "requirement_ids": [
@@ -1148,7 +1148,7 @@
         "SHOW-019"
       ],
       "domain": "engineering-visualization",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "code": [
         "src/engineering",
         "src/showcase/MicroVisual.tsx",
@@ -1166,12 +1166,12 @@
       "e2e": [
         "tests/e2e/engineering-standard.spec.ts"
       ],
-      "runtime": "Local production validation; authorized integration and public verification pending.",
+      "runtime": "Published source26985b68895d9aad648ba792cfaa2465200b8f52; Cloudflare12ca3006-7c24-41d5-82cd-4e01c2e647ca SUCCESS40s (build30s/deploy7s),2026-10-29;231unit/41local-browser baseline,20affected after hydration fix and15public-browser PASS.",
       "security": "STUD read-only; no private source/course material copied. Static frontend, no new dependencies or credential changes.",
       "a11y": "Keyboard sample cursor, labelled physical axes and controls; optional screen grid, existing motion guards retained.",
       "observability": "Raw samples and characteristics available for semantic checks; source scope/SHA in TESTING.",
-      "gap": "Public exact-SHA deployment/Chrome acceptance pending; no blanket normative certification.",
-      "action": "ET-VIS-VERIFY then authorized merge/push/publication and exact temporary-branch cleanup."
+      "gap": "None in bounded scope. Full normative certification, general transfer-function/advanced editors and future catalog models are not claimed.",
+      "action": "Complete; retain existing contracts and add future models only under a new requested scope."
     }
   ]
 }

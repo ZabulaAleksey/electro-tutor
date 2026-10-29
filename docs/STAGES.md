@@ -240,8 +240,8 @@
 
 ## ET-PANORAMA-001 — Панорамный редизайн ElectroTutor
 
-- Status: partial
-- Lifecycle: validated locally; public release remains main@9cacf22 (documentation main@1a23a2e); not merged/pushed/deployed.
+- Status: verified
+- Lifecycle: completed/published with ET-VIS-001; source26985b68895d9aad648ba792cfaa2465200b8f52; Cloudflare12ca3006-7c24-41d5-82cd-4e01c2e647ca SUCCESS40s (build30s/deploy7s),2026-10-29.
 - SPEC: specs/features/engineering-showcase.spec.md; SHOW-012..015; прямой запрос владельца и три приложения2026-10-29.
 - Dependencies: ET-MICRO-001 verified/public. Existing checkout, clean main1a23a2e; feature/panoramic-redesign, no new worktree.
 - Scope: ElectroTutor vector identity/header; dark panoramic existing analytic scenes + one lossless-line SVG projected U(x,t) surface; light compact14micro grid; existing advanced links; local drawing/erase/undo/export board; software/lesson/booking presentation. No new dependencies/backend/secret/hosting changes. Existing routes/calculations/RU-UK/hash preserved.
@@ -249,20 +249,20 @@
 - Verification: pnpm test/lint/check/build; accepted micro/showcase E2E unchanged; new focused surface/boundary and board checks; desktop/mobile screenshots and browser errors. Published check only after new approval.
 - Reference: attached Micro Labs image available; second historical panoramic image absent, textual composition used. Existing original analytic models reused. STUD read-only route via registry; no local source/runtime path published. Normative applicability and topology checked separately; no blanket GOST certification.
 - Blockers: none for local implementation. No prices/contact/payment/provider/advanced editor invented.
-- User actions: ET-PANORAMA-PUBLISH-01 / DONE; owner authorized integration/push/temporary branch cleanup after ET-VIS implementation2026-10-29; publication receipt pending; owner to approve merge/push main→existing Cloudflare electrotutor; evidence explicit response + provider success + live browser; unlock public release. Prior approval applies only to9cacf22.
-- NEXT: ET-PANORAMA-PUBLISH-01
+- User actions: ET-PANORAMA-PUBLISH-01 / DONE. Owner explicitly approved current integration/push/deletion; provider success and public15browser PASS recorded under ET-VIS-001. No pending owner approval.
+- NEXT: NONE
 
 - Local evidence:216unit/30files PASS; lint PASS; Astro163files/0errors/0warnings/2existingWASM hints; production25pages/128artifacts PASS;21combined built Chromium PASS/43.1s, final3new PASS/6.1s after pointer fix. Neutral Ohm/RLC/RC topology and mathematical invariants checked; standards applicability bibliography only, full normative conformance NOT_RUN. Relevant-only route/implement-stage + bounded independent reviewer: no critical findings; board drawing is pointer-only (keyboard users can operate toolbar/experiments), explicit limitation retained.
 - Documentation sync: README/STAGES/ROADMAP/TESTING/SHOW ledger/SPEC/system brand/ARCHITECTURE/ADR-038/DESIGN/AGENTS brand updated. SECURITY/API/DATA_MODEL/dependency/fallback/traceability owners checked within frontend scope; no provider/auth changes. Service-worker strategy/key unchanged; identity-only script-byte refresh re-runs existing CORE install to refresh SVG/PNG/manifest for installed clients. No extra worktree or architecture document.
 
-- Final local acceptance: final10micro/panorama PASS after mobile hamburger/footer fix; existing3PWA scenarios PASS (fixture upstream4322 served same dist), local390px width375px and44px working menu, desktop4columns/light/dark reviewed. Snapshots in chat outputs/panoramic-micro-*.png; no critical scoped review findings. Own preview4328 retained for owner review until release decision; own diagnostic dev4327/test4322 stopped after verification. New public smoke covered by the subsequent ET-VIS-001 authorization, pending successful deployment.
+- Final local acceptance: final10micro/panorama PASS after mobile hamburger/footer fix; existing3PWA scenarios PASS (fixture upstream4322 served same dist), local390px width375px and44px working menu, desktop4columns/light/dark reviewed. Snapshots in chat outputs/panoramic-micro-*.png; no critical scoped review findings. Own preview4328 retained for owner review until release decision; own diagnostic dev4327/test4322 stopped after verification. New public smoke PASS under ET-VIS-001.
 
 - ET-PANORAMA-PUBLISH-01 payload: current feature/panoramic-redesign release commit, fast-forward main1a23a2e; ordinary push origin/main in ZabulaAleksey/electro-tutor; existing Git integration publishes https://electrotutor.pages.dev/ru/. Expected receipt: Cloudflare success for exact source SHA and repeat public card/surface/mobile/hash scenario. Superseded by ET-VIS-001 owner approval for exact integrated temporary-branch deletion; history rewrite/new cloud resource/secret changes remain outside scope.
 
 ## ET-VIS-001 — Общий инженерный слой визуализации
 
-- Status: partial
-- Lifecycle:158cc9c merged/pushed; Cloudflare05bd5003 success37s. Initial public suite13PASS/2FAIL exposed pre-hydration edits discarded in Micro Labs/star inputs; narrow native-disabled readiness fix in same branch, repeat hosted verification pending.
+- Status: verified
+- Lifecycle: completed; main merged/pushed; source26985b68895d9aad648ba792cfaa2465200b8f52; Cloudflare12ca3006-7c24-41d5-82cd-4e01c2e647ca SUCCESS40s (build30s/deploy7s),2026-10-29.
 - Dependencies: ET-MICRO-001 verified; original analytic micro/advanced models available. Existing3e4f6e9 candidate is the code baseline, no future stage prerequisite.
 - SPEC: specs/features/engineering-showcase.spec.md, SHOW-016..019.
 - Scope: read-only scoped STUD extraction/classification; shared nice linear/log axes, SI units/display formatting, validated plot data, meaningful point readouts; representative Ohm/RC/RLC/diode/phasors/first-order Bode/existing line surface. Reuse current island and models; no new dependency/backend/worktree/MathMorph changes.
@@ -271,8 +271,11 @@
 - Rule scope: universal numeric/units/provenance; contextual Bode/phase/transient; reference-specific source labels/scales; university-specific MPEI graph-paper rule optional view only. No STUD source or personal data copied to product; rule source pointers/hashes kept only in existing DESIGN/TESTING.
 - Owner approval2026-10-29: «После этого разрешаю делать мердж, пуш, делете». After validated commit, fast-forward main and ordinary push ZabulaAleksey/electro-tutor origin/main (existing automatic Cloudflare publication), verify live site, delete only integrated feature/panoramic-redesign local/remote if present. No unrelated branch/resource/data deletion or secret mutation.
 - User actions: none for scoped integration/publication/temporary-branch cleanup; approval above supersedes the earlier pending candidate permission.
-- Blockers: none for implementation; full legal/normative certification and all future models are not claimed.
+- Blockers: none in this bounded implementation/publication. Full normative certification and future arbitrary-model solvers remain outside scope.
 - Local evidence:231unit/32files, lint, Astro173files/0errors/0warnings (2known generated-WASM hints), production25pages/24localized routes/129artifacts,41built-browser scenarios PASS. Source IDs/scope/SHA in TESTING; shared-layer decision ADR-039.
 - Release sequence: validated commit→authorized fast-forward/push→exact-SHA Cloudflare/public smoke→delete only integrated temporary branch.
 - Hydration correction local evidence:231unit,20affected browser,type/lint/build PASS; same accepted tests. Native fieldset readiness protects model inputs until handlers mount; accessibility tree does not advertise disabled pre-hydration controls.
-- NEXT: ET-VIS-PUBLISH
+- Public evidence: primary https://electrotutor.pages.dev/ru/ real Chrome calculations/reset/cursor/Bode/390px width375px/0KaTeX/0console errors;15unchanged public browser scenarios PASS/24,7s, including all14controls, RU-UK/direct hash reload, exact log/cutoff, star isotropy,3D shared x/t/sections/export and board. Initial13PASS/2FAIL resolved by ready guard; no tests changed.
+- Cleanup: feature/panoramic-redesign@26985b6 ancestry proved in main and safely deleted locally; remote exact name absent. Same-name temporary receipt branch holds only this final documentation synchronization and is removed after ordinary integration; no worktree or unrelated ref touched.
+- Documentation synchronization: README/ROADMAP/STAGES/TESTING/requirements ledger updated to actual public release; DESIGN/ADR-039/ARCHITECTURE/SHOW SPEC retained. SECURITY/API/DATA_MODEL/dependency/fallback/traceability/LEARNING_LOG contracts checked unchanged within scope.
+- NEXT: NONE

@@ -1,6 +1,6 @@
 # ElectroTutor
 
-Кандидат `ET-VIS-001` включает панорамный редизайн,14Micro Labs и общий слой инженерных шкал/СИ/локали, Bode, фазоров и синхронных2D/3D-сечений.231unit/41browser/build PASS; разрешённые merge/push/публикация в процессе, точный receipt — `docs/STAGES.md`.
+Панорамный редизайн и общий инженерный стандарт опубликованы: [ElectroTutor](https://electrotutor.pages.dev/ru/).14Micro Labs, удобные шкалы/СИ/локаль, Bode, исправленная геометрия фазоров и синхронные2D/3D-сечения.231unit/41local-browser/15public-browser PASS; source26985b6, Cloudflare12ca3006. Подробный receipt — `docs/STAGES.md`.
 
 Публичный MVP: https://electrotutor.pages.dev/ — Cloudflare Pages, 2026-10-28.
 Инженерная витрина опубликована и проверена 2026-10-29: 8 сюжетов, 3 динамические модели DC/RLC/RC, каталог12карточек, RU/UK. Исходный код слит и отправлен в main; временная ветка удалена локально и на GitHub. Cloudflare Git integration собирает pnpm build → dist.

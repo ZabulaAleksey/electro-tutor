@@ -356,3 +356,11 @@ button { min-height: 24px; }
 [data-theme="dark"] .button.primary { color: var(--paper); }
 
 .tool-card-visual{width:100%;min-height:130px}.tool-card-art{width:100%;height:140px;display:block;background:var(--surface-plot);border-radius:.65rem}.tool-card-category{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.tool-card h3{font-size:1.12rem;line-height:1.3;margin:.65rem 0}.tool-card p{font-size:.86rem;line-height:1.45}.catalog-card-grid .tool-card{height:100%}.tool-card-visual .micro-visual-pair{height:150px}.micro-preview-card h3{min-height:2.7rem}.tool-card-disabled{margin-top:auto;color:var(--muted);font-size:.85rem}
+
+/* Tool entry pages keep the working controls above the fold. */
+.interactive-intro,.workspace-intro{min-height:0;padding-block:32px 16px}
+.interactive-intro h1,.workspace-intro h1,.catalog-page>h1{font-size:clamp(28px,3vw,40px);margin:12px 0;letter-spacing:-.035em}
+.interactive-intro>p,.workspace-intro>p{font-size:15px;line-height:1.5;margin-bottom:0}
+.interactive-intro+.interactive-section,.workspace-intro+.section{padding-top:16px;padding-bottom:40px}
+.interactive-section>h2{font-size:22px;margin:24px 0 14px}
+.catalog-page{padding-block:36px}

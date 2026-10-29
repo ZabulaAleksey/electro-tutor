@@ -21,6 +21,7 @@ test("laboratory catalogue keeps real tool links and honest services state", asy
   await page.goto("/ru/interactive/");
   await expect(page.getByRole("heading", { name: "Лаборатория", exact: true })).toBeVisible();
   await expect(page.locator(".tool-card")).toHaveCount(6);
+  expect(await page.locator("h1").evaluate(e=>parseFloat(getComputedStyle(e).fontSize))).toBeLessThanOrEqual(44);
   await expect(page.locator(".tool-card a[href*='/interactive/star-neutral/']")).toBeVisible();
   await page.goto("/ru/my-services/");
   await expect(page.getByRole("heading", { name: "Мои сервисы", exact: true })).toBeVisible();

@@ -6,6 +6,6 @@ export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params:
 const language = Astro.params.lang as Language;
 ---
 <BaseLayout title={language === "ru" ? "Интерактивная доска" : "Інтерактивна дошка"} description={language === "ru" ? "Локальная доска для инженерных схем" : "Локальна дошка для інженерних схем"} language={language} active="board" alternatePath="/board/">
-  <section class="section info-page"><span class="eyebrow"><i></i>{language === "ru" ? "Рабочее пространство" : "Робочий простір"}</span><h1>{language === "ru" ? "Интерактивная доска" : "Інтерактивна дошка"}</h1><p>{language === "ru" ? "Нарисуйте схему, сохраните локально или экспортируйте SVG." : "Намалюйте схему, збережіть локально або експортуйте SVG."}</p></section>
+  <section class="section info-page workspace-intro"><span class="eyebrow"><i></i>{language === "ru" ? "Рабочее пространство" : "Робочий простір"}</span><h1>{language === "ru" ? "Интерактивная доска" : "Інтерактивна дошка"}</h1><p>{language === "ru" ? "Нарисуйте схему, сохраните локально или экспортируйте SVG." : "Намалюйте схему, збережіть локально або експортуйте SVG."}</p></section>
   <EngineeringBoard client:load language={language} standalone />
 </BaseLayout>

@@ -1317,12 +1317,12 @@
     },
     {
       "status": "VERIFIED",
-      "runtime": "Implemented and validated locally:360unit,13independent analytic cases/49assertions,35/35canonical affected browser. Current status owner ET-BEAM-001.",
+      "runtime": "Verified locally and merged into local main819896c by approved fast-forward:360unit,13analytic cases/49assertions,35/35canonical affected browser. main tree equals tested source.",
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
       "gap": "No local feature prerequisite remains. Historical carousel test contract drift and verification limits recorded separately in TESTING; no publication.",
-      "action": "Owner review; merge/push/deploy require separate approval. TEST-CONTRACT-01 completed after exact three-file authorization.",
+      "action": "Approved local merge complete; no remaining local prerequisite. Push/deploy require separate authorization.",
       "domain": "beam-laboratory",
       "requirement_ids": [
         "BEAM-001",
@@ -1353,12 +1353,12 @@
     },
     {
       "status": "VERIFIED",
-      "runtime": "Implemented and validated locally:360unit,13independent analytic cases/49assertions,35/35canonical affected browser. Current status owner ET-BEAM-001.",
+      "runtime": "Verified locally and merged into local main819896c by approved fast-forward:360unit,13analytic cases/49assertions,35/35canonical affected browser. main tree equals tested source.",
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
       "gap": "No local feature prerequisite remains. Historical carousel test contract drift and verification limits recorded separately in TESTING; no publication.",
-      "action": "Owner review; merge/push/deploy require separate approval. TEST-CONTRACT-01 completed after exact three-file authorization.",
+      "action": "Approved local merge complete; no remaining local prerequisite. Push/deploy require separate authorization.",
       "domain": "engineering-symbols",
       "requirement_ids": [
         "SYMBOL-001",

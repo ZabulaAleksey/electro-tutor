@@ -80,4 +80,3 @@ describe("micro laboratory physical invariants", () => {
     expect(result("reflection", 50, 50)["Γᴸ"]).toBe(0); expect(result("reflection", 0, 50)["Uᴸ"]).toBe(0);
   });
 });
-

@@ -21,12 +21,12 @@ function PanoramaPlot({ id, language }: { id: PanoramaId; language: Language }) 
 }
 export default function PanoramicCarousel({ language, interval = 8000 }: { language: Language; interval?: number }) {
   const [index, setIndex] = useState(0), [playing, setPlaying] = useState(true), [hover, setHover] = useState(false), [focus, setFocus] = useState(false);
-  const [reduced, setReduced] = useState(true), [visible, setVisible] = useState(false), [hidden, setHidden] = useState(false);
+  const [reduced, setReduced] = useState(true), [visible, setVisible] = useState(false), [hidden, setHidden] = useState(false), [ready, setReady] = useState(false);
   const region = useRef<HTMLElement>(null), touch = useRef<{ x: number; y: number; pointer: number } | null>(null);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => { setReduced(media.matches); setHidden(document.hidden); };
-    sync(); media.addEventListener("change", sync); document.addEventListener("visibilitychange", sync);
+    sync(); setReady(true); media.addEventListener("change", sync); document.addEventListener("visibilitychange", sync);
     const observer = new IntersectionObserver(entries => setVisible(entries[0].isIntersecting), { threshold: .2 });
     if (region.current) observer.observe(region.current);
     return () => { observer.disconnect(); media.removeEventListener("change", sync); document.removeEventListener("visibilitychange", sync); };
@@ -40,7 +40,7 @@ export default function PanoramicCarousel({ language, interval = 8000 }: { langu
   const adjacent = (k: number) => k === index || k === (index + 1) % panoramas.length || k === (index + panoramas.length - 1) % panoramas.length;
   const move = (step: number) => setIndex(i => (i + step + panoramas.length) % panoramas.length);
   const ru = language === "ru";
-  return <section ref={region} className="panorama-showroom" aria-roledescription={ru ? "карусель" : "карусель"} aria-label={ru ? "Инженерная панорама" : "Інженерна панорама"} data-panorama-index={index} data-autoplay={automatic}
+  return <section ref={region} className="panorama-showroom" aria-roledescription={ru ? "карусель" : "карусель"} aria-label={ru ? "Инженерная панорама" : "Інженерна панорама"} data-panorama-index={index} data-autoplay={automatic} data-ready={ready}
     onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocusCapture={() => setFocus(true)} onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocus(false); }}
     onPointerDown={e => { if (e.pointerType === "touch" && e.isPrimary && !(e.target as Element).closest("button,a")) touch.current = { x: e.clientX, y: e.clientY, pointer: e.pointerId }; }}
     onPointerUp={e => { const start = touch.current; touch.current = null; if (start?.pointer !== e.pointerId) return; const dx = e.clientX - start.x, dy = e.clientY - start.y; if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) move(dx > 0 ? -1 : 1); }} onPointerCancel={() => { touch.current = null; }}>
@@ -54,6 +54,6 @@ export default function PanoramicCarousel({ language, interval = 8000 }: { langu
         <small className="panorama-art-note">{ru ? "Художественная иллюстрация оборудования" : "Художня ілюстрація обладнання"}</small>
       </article>)}
     </div>
-    <div className="panorama-controls"><div><button type="button" onClick={() => move(-1)} aria-label={ru ? "Предыдущая панорама" : "Попередня панорама"}>←</button><span aria-live="off">{String(index + 1).padStart(2, "0")} / {String(panoramas.length).padStart(2, "0")}</span><button type="button" onClick={() => move(1)} aria-label={ru ? "Следующая панорама" : "Наступна панорама"}>→</button></div><div className="panorama-dots">{panoramas.map((slide, k) => <button key={slide.id} type="button" onClick={() => setIndex(k)} aria-label={slide.title[language]} aria-pressed={index === k}><span /></button>)}</div><button type="button" disabled={reduced} aria-pressed={playing && !reduced} onClick={() => setPlaying(p => !p)}>{reduced ? (ru ? "Без автосмены" : "Без автозміни") : playing ? (ru ? "Пауза" : "Пауза") : (ru ? "Автосмена" : "Автозміна")}</button></div>
+    <div className="panorama-controls"><div><button type="button" disabled={!ready} onClick={() => move(-1)} aria-label={ru ? "Предыдущая панорама" : "Попередня панорама"}>←</button><span aria-live="off">{String(index + 1).padStart(2, "0")} / {String(panoramas.length).padStart(2, "0")}</span><button type="button" disabled={!ready} onClick={() => move(1)} aria-label={ru ? "Следующая панорама" : "Наступна панорама"}>→</button></div><div className="panorama-dots">{panoramas.map((slide, k) => <button key={slide.id} type="button" disabled={!ready} onClick={() => setIndex(k)} aria-label={slide.title[language]} aria-pressed={index === k}><span /></button>)}</div><button type="button" disabled={!ready || reduced} aria-pressed={playing && !reduced} onClick={() => setPlaying(p => !p)}>{reduced ? (ru ? "Без автосмены" : "Без автозміни") : playing ? (ru ? "Пауза" : "Пауза") : (ru ? "Автосмена" : "Автозміна")}</button></div>
   </section>;
 }

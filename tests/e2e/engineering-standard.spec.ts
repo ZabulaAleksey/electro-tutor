@@ -24,9 +24,9 @@ test("three-phase complex plane has isotropic R/X geometry",async({page})=>{
  await page.goto("/ru/interactive/star-neutral/");const phase=page.getByRole("group",{name:"Фаза A — ZA"});await phase.getByRole("spinbutton",{name:"R, Ω",exact:true}).fill("30");await phase.getByRole("spinbutton",{name:"X, Ω",exact:true}).fill("30");
  const c=page.locator(".star-phase-a circle");const dx=Number(await c.getAttribute("cx"))-250,dy=250-Number(await c.getAttribute("cy"));expect(dx).toBeCloseTo(dy,10);
 });
-test("3D axes/export and 2D section retain the same physical selected state",async({page})=>{
+test("3D axes/export and 2D section retain the same physical selected state",async({page},testInfo)=>{
  await page.goto("/ru/#story=line-reflection");const surface=page.locator("[data-line-surface]");await expect(surface.locator('[data-surface-axis="x"]').first()).toBeVisible();for(const axis of ["x","t","U"])expect(await surface.locator(`[data-surface-axis="${axis}"]`).count()).toBeGreaterThan(2);
- const save=page.waitForEvent("download");await surface.getByRole("button",{name:"Экспорт SVG ↓",exact:true}).click();const svg=await readFile((await(await save).path())!,"utf8");expect(svg).toContain("U, В");expect(svg).toContain("t, мс");expect(svg).toContain("export-scale");
+ const save=page.waitForEvent("download");await surface.getByRole("button",{name:"Экспорт SVG ↓",exact:true}).click();const file=testInfo.outputPath("line-surface.svg");await(await save).saveAs(file);const svg=await readFile(file,"utf8");expect(svg).toContain("U, В");expect(svg).toContain("t, мс");expect(svg).toContain("export-scale");
  await surface.getByRole("button",{name:"2D-сечение",exact:true}).click();const point=surface.locator(".surface-section [data-cursor-x]");expect(Number(await point.getAttribute("data-cursor-x"))).toBe(75);expect(Number(await point.getAttribute("data-cursor-y"))).toBeCloseTo(200/3,10);
  await surface.getByRole("slider",{name:"Rᴸ, Ω",exact:true}).press("Home");expect(Number(await point.getAttribute("data-cursor-y"))).toBe(0);await expect(surface.locator("[data-surface-u]")).toContainText("0 V");
 });

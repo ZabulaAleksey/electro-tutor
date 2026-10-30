@@ -19,6 +19,7 @@ test("reduced motion disables automatic changes; every panorama points to an act
 
 test("touch swipe changes only the panorama and preserves vertical page scrolling",async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/ru/");await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-autoplay","false");
+ await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-ready","true");
  const session=await page.context().newCDPSession(page),area=(await page.locator(".panorama-slides").boundingBox())!,y=area.y+100;
  await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:area.x+280,y,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:area.x+110,y:y+2,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-panorama-index","1");
  expect(await page.locator(".panorama-showroom").evaluate(e=>getComputedStyle(e).touchAction)).toBe("pan-y");

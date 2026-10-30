@@ -28,6 +28,9 @@ export default defineConfig({
   reporter: "line",
   use: {
     baseURL,
+    ...(process.env.PW_TEST_CONNECT_WS_ENDPOINT ? {
+      connectOptions: { wsEndpoint: process.env.PW_TEST_CONNECT_WS_ENDPOINT, exposeNetwork: "<loopback>" },
+    } : {}),
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },

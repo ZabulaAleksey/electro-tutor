@@ -49,21 +49,33 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Start reproducible Chromium
+        run: |
+          core=$(node -p "require('node:path').dirname(require.resolve('playwright-core/package.json', {paths:[require.resolve('playwright',{paths:[require.resolve('@playwright/test')]})]}))")
+          docker run --detach --name electro-tutor-ci-chromium --init --ipc=host \
+            --publish 127.0.0.1:49301:3000 \
+            --mount "type=bind,src=$core,dst=/opt/playwright-core,readonly" \
+            --user pwuser \
+            mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e \
+            node /opt/playwright-core/cli.js run-server --port 3000 --host 0.0.0.0
+          for attempt in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:49301/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          docker logs electro-tutor-ci-chromium
+          exit 1
+
       - name: Run required quality gates
+        env:
+          PW_TEST_CONNECT_WS_ENDPOINT: ws://127.0.0.1:49301/
         run: pnpm run verify:full -- --skip-install
 
-      - name: Preserve public diagram comparison diagnostics
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: public-diagram-comparisons
-          path: |
-            test-results/beam-laboratory-RU-UK-keyb-4bc48-olling-and-theme-keep-state-chromium/beam-mobile-dark-actual.png
-            test-results/beam-laboratory-RU-UK-keyb-4bc48-olling-and-theme-keep-state-chromium/beam-mobile-dark-diff.png
-            test-results/engineering-symbol-visual--97e8b-lectrical-science-thumbnail-chromium/*-actual.png
-            test-results/engineering-symbol-visual--97e8b-lectrical-science-thumbnail-chromium/*-diff.png
-          if-no-files-found: ignore
-          retention-days: 3
+      - name: Stop owned Chromium
+        if: always()
+        run: |
+          if docker container inspect electro-tutor-ci-chromium >/dev/null 2>&1; then
+            docker rm --force electro-tutor-ci-chromium
+          fi
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

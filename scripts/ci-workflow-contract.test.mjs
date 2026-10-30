@@ -87,6 +87,33 @@ describe("GitHub Pages pre-deploy contract", () => {
     expect(() => validatePagesWorkflow(broken)).toThrow(/backend:check/);
   });
 
+  it.each([
+    ["read-write mount", (run) => run.replace(",readonly", "")],
+    ["public bind", (run) => run.replace("127.0.0.1:49301", "0.0.0.0:49301")],
+    ["mutable image", (run) => run.replace(/@sha256:[0-9a-f]{64}/, "")],
+  ])("rejects Chromium %s", (_name, change) => {
+    const broken = mutateWorkflow((workflow) => {
+      const browser = workflow.jobs.verify.steps.find((step) => step.name === "Start reproducible Chromium");
+      browser.run = change(browser.run);
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/Chromium/);
+  });
+
+  it("rejects an external browser endpoint", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.jobs.verify.steps.find((step) => step.name === "Run required quality gates")
+        .env.PW_TEST_CONNECT_WS_ENDPOINT = "ws://external.invalid/";
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/loopback Chromium/);
+  });
+
+  it("requires cleanup after a failed browser test", () => {
+    const broken = mutateWorkflow((workflow) => {
+      workflow.jobs.verify.steps.find((step) => step.name === "Stop owned Chromium").if = "success()";
+    });
+    expect(() => validatePagesWorkflow(broken)).toThrow(/cleanup/);
+  });
+
   it("blocks deploy-side rebuilds", () => {
     const broken = mutateWorkflow((workflow) => {
       workflow.jobs.deploy.steps.unshift({ name: "Rebuild", run: "pnpm run build" });

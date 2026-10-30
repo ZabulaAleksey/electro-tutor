@@ -115,6 +115,20 @@ export function validatePagesWorkflow(source, fullVerificationSteps = fullVerify
     assert(fullSha.test(ref), `${action} must be pinned to a full commit SHA.`);
   }
 
+  const browser = verifySteps.find((step) => step.name === "Start reproducible Chromium");
+  assert(browser && verifySteps.indexOf(browser) < verificationIndex,
+    "Pinned Chromium must start before full verification.");
+  assert(/mcr\.microsoft\.com\/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64}/.test(browser.run),
+    "Chromium image must use a version and immutable digest.");
+  assert(browser.run.includes("--publish 127.0.0.1:49301:3000") &&
+    browser.run.includes('dst=/opt/playwright-core,readonly') && browser.run.includes("--user pwuser"),
+    "Chromium must bind loopback and mount only locked core read-only as pwuser.");
+  assert(verifySteps[verificationIndex].env?.PW_TEST_CONNECT_WS_ENDPOINT === "ws://127.0.0.1:49301/",
+    "Full verification must use the owned loopback Chromium endpoint.");
+  assert(verifySteps.some((step) => step.name === "Stop owned Chromium" && step.if === "always()" &&
+    step.run.includes("docker rm --force electro-tutor-ci-chromium")),
+    "Owned Chromium must have unconditional cleanup.");
+
   return workflow;
 }
 

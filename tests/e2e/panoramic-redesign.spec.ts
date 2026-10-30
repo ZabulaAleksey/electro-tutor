@@ -40,7 +40,7 @@ test("lossless surface, schematic and time section share boundary and parameter 
   expect(errors).toEqual([]);
 });
 
-test("local board draws, erases, undoes clear/erase, and exports actual SVG", async ({page}) => {
+test("local board draws, erases, undoes clear/erase, and exports actual SVG", async ({page},testInfo) => {
   const errors:string[]=[]; page.on("pageerror",e=>errors.push(e.message));
   await page.goto("/ru/board/"); const board=page.locator("#engineering-board"), canvas=board.locator(".board-canvas");
   await canvas.scrollIntoViewIfNeeded(); const b=(await canvas.boundingBox())!;
@@ -54,6 +54,6 @@ test("local board draws, erases, undoes clear/erase, and exports actual SVG", as
   await page.mouse.click(sb.x+sb.width/2,sb.y+sb.height/2); await expect(stroke).toHaveCount(2);
   await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(stroke).toHaveCount(1);await expect(stroke).toHaveAttribute("points",original!);
   const download=page.waitForEvent("download"); await board.getByRole("button",{name:"Сохранить SVG ↓",exact:true}).click();
-  const saved=await download, text=await readFile((await saved.path())!,"utf8");
+  const saved=await download, file=testInfo.outputPath("board.svg"); await saved.saveAs(file); const text=await readFile(file,"utf8");
   expect(saved.suggestedFilename()).toBe("electrotutor-board.svg"); expect(text).toContain("data-board-stroke"); expect(text).toContain("viewBox=\"0 0 1000 420\""); expect(text).not.toContain("<script"); expect(errors).toEqual([]);
 });

@@ -37,6 +37,7 @@ agents, Skills и Git workflow наследуются; локальные коп
   application architecture и не активирует product feature.
 
 ## Backend DX Delta
+ET-CI-001 browser parity2026-10-30: host backend commands/profiles unchanged. Full CI frontend gate uses Playwright1.62.1 Noble image pinned by digest, loopback49301 and only the already-locked playwright-core directory mounted read-only as pwuser; no new npm/runtime dependency or private repository/env mount. Unconditional cleanup removes only its own browser container. Default local browser remains unchanged; optional PW_TEST_CONNECT_WS_ENDPOINT selects this supported test transport. Export tests save actual SVG via saveAs, preserving file-content checks. Actual CI acceptance stays in STAGES/TESTING.
 
 Maintenance closure reuses the canonical root and existing worktree-policy audit. Record exact
 inactive refs/owned helpers and their recovery in selected STAGES; only an approved exact list

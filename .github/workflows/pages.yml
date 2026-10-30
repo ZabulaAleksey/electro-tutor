@@ -52,6 +52,19 @@ jobs:
       - name: Run required quality gates
         run: pnpm run verify:full -- --skip-install
 
+      - name: Preserve public diagram comparison diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: public-diagram-comparisons
+          path: |
+            test-results/beam-laboratory-RU-UK-keyb-4bc48-olling-and-theme-keep-state-chromium/beam-mobile-dark-actual.png
+            test-results/beam-laboratory-RU-UK-keyb-4bc48-olling-and-theme-keep-state-chromium/beam-mobile-dark-diff.png
+            test-results/engineering-symbol-visual--97e8b-lectrical-science-thumbnail-chromium/*-actual.png
+            test-results/engineering-symbol-visual--97e8b-lectrical-science-thumbnail-chromium/*-diff.png
+          if-no-files-found: ignore
+          retention-days: 3
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 

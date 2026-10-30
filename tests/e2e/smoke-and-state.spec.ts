@@ -1,4 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
+import { useUnavailableIdentity } from "./helpers/static-identity";
+
+test.beforeEach(async ({ page }) => useUnavailableIdentity(page));
 
 function captureRuntimeErrors(page: Page) {
   const errors: string[] = [];

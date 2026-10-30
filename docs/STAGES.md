@@ -377,8 +377,8 @@
 
 ## ET-CI-001 — Certifi backend CI repair
 
-- Status: partial
-- Lifecycle: локально проверенный CI repair в fix/backend-certifi-ci от main5468c4d; STANDARD production maintenance, один checkout, без worktree. Реальный GitHub pipeline ещё не запускался на исправлении.
+- Status: partial — PAUSED_BY_OWNER2026-10-30
+- Lifecycle: CI repair интегрирован/pushed по прямому разрешению владельца; main98c95f5. Backend GitHub PASS, полный frontend run40983484472 дал208PASS/8FAIL/6existing skips: Linux/Windows PNG differences, optional local identity API absent, UK reference-line mobile overflow. Исправляются только эти блокеры; STANDARD maintenance, один checkout без worktree.
 - Dependencies/contract: CI-01 подтверждён GitHub40974854026; прежние uv/pnpm locks, обязательные audits/backend:check/full-verify и system/PAN contracts. Гейты не отключаются.
 - Scope: certifi2026.10.23 (остальные72Python records идентичны); подтверждённые Node HIGH patches source-map-js1.2.2/sharp0.35.5/Vite8.2.4/Zod4.6.6/Undici8.12.2; разрешённая UI/locale E2E синхронизация; один реальный readout blur/click defect в EngineeringPlot. Числовые ядра/API/DB schema/auth не менялись.
 - Runnable scenario: frozen install→runtime audit→API/PG migrations/tests/HTTP smoke→frontend quality gates→actual main-only GitHub pipeline and hosted asset smoke.
@@ -388,4 +388,6 @@
 - User action CI-INTEGRATE-01 / APPROVED2026-10-30: owner explicitly authorized fix/backend-certifi-ci@8335577 merge/ordinary origin main push (ZabulaAleksey/electro-tutor), existing automatic Cloudflare/GitHub publication and only integrated task branch cleanup after successful checks. Approval: «Разрешаю merge, push, публикацию и удаление слитой ветки». Expected evidence: exact remote SHA, successful GitHub verify/deploy and provider success/public smoke. Prior panoramic approval not reused.
 - Safety: labelled disposable electro-tutor-et103-test-20261030/127.0.0.1:55439 used by guarded check clone, ownership/sole user checked then only that container/volume removed; exact-name read-back absent. Existing data/volumes/other projects untouched. Current CODEX_HOME/DEV exception retained without config migration.
 - Review/sync: DEPENDENCIES/ROADMAP/STAGES/TESTING and PAN test-contract note updated. README/ARCHITECTURE/DECISIONS/DESIGN/SECURITY/API/DATA_MODEL/project-context/LEARNING_LOG checked unchanged. No workflow/audit threshold/secret/production-infrastructure changes. Earlier exploratory4325 auth mismatch and interrupted runs are not PASS.
-- NEXT: CI-REMOTE-VERIFY — execute approved integration, then verify actual GitHub/hosted result.
+- Local checkpoint: после main98c95f5 ещё не опубликованы min-content/wrapping fix справочной линии, явная empty-identity fixture только static UI specs и unit fallback negatives. Production build PASS; progress unit6/6PASS; static/mobile retained browser27/27PASS/1.4m. Общий pipeline пока FAIL208PASS/8FAIL/6existing skips на прежнем source. Linux candidates ещё не созданы; Windows goldens не изменялись.
+- User action CI-RESUME-01 / PAUSED_BY_OWNER: пользователь прямо попросил «пока остановись ... продолжим потом». Не выполнять дальнейшую разработку, merge/push/deploy/cleanup branch до явного продолжения. Разрешения CI-INTEGRATE-01 сохранены, но пауза имеет приоритет. При возобновлении: воспроизвести PNG differences в Linux1.62.1, просмотреть отдельные кандидаты; любое изменение accepted visual contract требует отдельного решения, thresholds/Windows PNG сохраняются.
+- NEXT: CI-RESUME-01; после явного продолжения — Linux visual baseline decision, полный exact-source pipeline, hosted recheck, только затем удаление слитой ветки.

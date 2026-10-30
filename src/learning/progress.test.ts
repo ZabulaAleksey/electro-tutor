@@ -102,6 +102,16 @@ describe("bounded learning progress", () => {
     expect(createLearningStore(guestNamespace()).load().state).toBe("unavailable");
   });
 
+  it("falls back to guest for an unavailable, empty, or signed-out identity", async () => {
+    const origin = new URL("https://api.example/");
+    await expect(fetchLearningIdentity(async () => new Response(null, { status: 204 }), origin)).resolves.toBeNull();
+    await expect(fetchLearningIdentity(async () => new Response(null, { status: 401 }), origin)).resolves.toBeNull();
+    await expect(fetchLearningIdentity(async () => { throw new TypeError("Network unavailable"); }, origin)).resolves.toBeNull();
+    const fetcher = vi.fn();
+    await expect(fetchLearningIdentity(fetcher, null)).resolves.toBeNull();
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it("uses a credentialed no-store identity read and fails closed on malformed data", async () => {
     let captured: RequestInit | undefined;
     const identity = await fetchLearningIdentity(async (_input, init) => {

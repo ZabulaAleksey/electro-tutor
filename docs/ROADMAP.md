@@ -531,4 +531,4 @@ SPEC/ADR, dependency check и явное одобрение.
 
 ET-CI-001: адресное исправление CI-01 в fix/backend-certifi-ci. certifi2026.10.23, frozen restore/audit/208fast/83PostgreSQL/9catalog/HTTP smoke/image PASS. Полный quality gate и exact-SHA GitHub pipeline отдельно; текущие результаты/разрешения принадлежат STAGES, не прошлому разрешению панорамного релиза.
 
-ET-CI-001 local ready: backend208+83+9, runtime audit, Node HIGH threshold,382unit, types/lint/build and affected19+11browser/goldens PASS. Approved obsolete UI test alignment and one confirmed readout defect included; actual main-only GitHub pipeline awaits bounded integration permission in selected STAGES. No terminal pipeline PASS inferred.
+ET-CI-001 local ready: backend208+83+9, runtime audit, Node HIGH threshold,382unit, types/lint/build and affected19+11browser/goldens PASS. Approved obsolete UI test alignment and one confirmed readout defect included; main98c95f5 pushed under explicit approval: backend PASS, full pipeline FAIL208PASS/8FAIL/6existing skips. Local static/mobile follow-up27PASS, paused by owner; PNG platform work and full rerun remain. No terminal pipeline PASS inferred.

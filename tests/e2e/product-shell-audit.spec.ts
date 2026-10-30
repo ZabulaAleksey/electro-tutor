@@ -11,8 +11,8 @@ for(const viewport of [{width:1440,height:900},{width:768,height:1024},{width:39
   await page.setViewportSize(viewport);
   const errors:string[]=[];page.on("pageerror",error=>errors.push(error.message));
   for(const route of routes){
-   await page.goto(route);await expect(page.locator("main h1"),route).toHaveCount(1);
-   await expect(page.locator('nav a[href$="/account/"]')).toHaveCount(1);
+   await page.goto(route);await expect(page.locator("main h1:visible"),route).toHaveCount(1);
+   await expect(page.locator('nav a[href$="/board/"]')).toHaveCount(1);
    const issues=await page.evaluate(()=>{
     const visible=(e:Element)=>e.getClientRects().length>0 && getComputedStyle(e).visibility!=="hidden";
     const problems:string[]=[];

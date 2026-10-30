@@ -202,7 +202,7 @@ test("FR-008 updates the controlled client and preserves safe offline navigation
 
     await page.goto(`${preview.origin}/ru/topics/`, { waitUntil: "load" });
     await expect(
-      page.getByRole("heading", { level: 1, name: "Карта электротехники" }),
+      page.getByRole("heading", { level: 1, name: "Учебник" }),
     ).toBeVisible();
     await expect
       .poll(() => page.evaluate(async () => Boolean(await caches.match(location.href))))
@@ -227,7 +227,7 @@ test("FR-008 updates the controlled client and preserves safe offline navigation
     await context.setOffline(true);
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(
-      page.getByRole("heading", { level: 1, name: "Карта электротехники" }),
+      page.getByRole("heading", { level: 1, name: "Учебник" }),
     ).toBeVisible();
     expect(await readControllerVersion(page)).toBe("2");
     await context.setOffline(false);

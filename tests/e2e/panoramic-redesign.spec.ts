@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 test("reference grid reflows, expands a real experiment, and retains computed state", async ({page}) => {
   await page.emulateMedia({reducedMotion:"reduce",colorScheme:"light"});
   for(const [width,cols] of [[1600,4],[1300,3],[900,2],[390,1]]) {
-    await page.setViewportSize({width,height:900}); await page.goto("/ru/#micro=ohm-law");
+    await page.setViewportSize({width,height:900}); await page.goto("/ru/micro-labs/");
     await expect(page.locator("[data-micro]")).toHaveCount(14);
     expect(await page.locator(".micro-grid").evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(cols);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -50,9 +50,9 @@ test("local board draws, erases, undoes clear/erase, and exports actual SVG", as
   await board.getByRole("button",{name:"Очистить",exact:true}).click(); await expect(board.locator("[data-board-stroke]")).toHaveCount(0);
   await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(board.locator("[data-board-stroke]")).toHaveCount(1);
   await board.getByRole("button",{name:"Ластик",exact:true}).click();
-  const stroke=board.locator("[data-board-stroke]"); const sb=(await stroke.boundingBox())!;
-  await page.mouse.click(sb.x+sb.width/2,sb.y+sb.height/2); await expect(stroke).toHaveCount(0);
-  await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(stroke).toHaveCount(1);
+  const stroke=board.locator("[data-board-stroke]");const original=await stroke.getAttribute("points"); const sb=(await stroke.boundingBox())!;
+  await page.mouse.click(sb.x+sb.width/2,sb.y+sb.height/2); await expect(stroke).toHaveCount(2);
+  await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(stroke).toHaveCount(1);await expect(stroke).toHaveAttribute("points",original!);
   const download=page.waitForEvent("download"); await board.getByRole("button",{name:"Сохранить SVG ↓",exact:true}).click();
   const saved=await download, text=await readFile((await saved.path())!,"utf8");
   expect(saved.suggestedFilename()).toBe("electrotutor-board.svg"); expect(text).toContain("data-board-stroke"); expect(text).toContain("viewBox=\"0 0 1000 420\""); expect(text).not.toContain("<script"); expect(errors).toEqual([]);

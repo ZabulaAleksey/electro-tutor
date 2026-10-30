@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 const routeMatrix = [
-  { path: "/", ru: "От формулы", uk: "Від формули" },
-  { path: "/topics/", ru: "Карта электротехники", uk: "Мапа електротехніки" },
-  { path: "/interactive/", ru: "Интерактив", uk: "Інтерактив" },
+  { path: "/", ru: "Постоянный ток", uk: "Постійний струм" },
+  { path: "/topics/", ru: "Учебник", uk: "Підручник" },
+  { path: "/interactive/", ru: "Лаборатории", uk: "Лабораторії" },
   { path: "/classroom/", ru: "Кабинет занятия", uk: "Кабінет заняття" },
   { path: "/services/", ru: "Услуги", uk: "Послуги" },
   { path: "/contacts/", ru: "Контакты", uk: "Контакти" },

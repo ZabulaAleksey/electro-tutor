@@ -20,8 +20,8 @@ function captureRuntimeErrors(page: Page) {
 }
 
 const routes = [
-  { language: "ru", surface: "home", path: "/ru/", proof: "main h1" },
-  { language: "uk", surface: "home", path: "/uk/", proof: "main h1" },
+  { language: "ru", surface: "home", path: "/ru/", proof: "main h1:visible" },
+  { language: "uk", surface: "home", path: "/uk/", proof: "main h1:visible" },
   { language: "ru", surface: "catalog", path: "/ru/topics/", proof: ".catalog-page h1" },
   { language: "uk", surface: "catalog", path: "/uk/topics/", proof: ".catalog-page h1" },
   {
@@ -72,7 +72,7 @@ test("interactive query state is restored and survives a language switch", async
 
   await expect(idleMagnitude).toHaveValue("2.75");
   await expect(resistancePosition).toHaveValue("50");
-  await expect(page.locator(".circle-readout")).toContainText("2.75");
+  await expect(page.locator(".circle-readout")).toContainText("2,75");
   await expect(page.locator(".resistance-control strong")).toContainText("4");
 
   await expect

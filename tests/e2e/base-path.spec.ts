@@ -29,7 +29,7 @@ test("base-aware locale switch preserves interactive query and hash", async ({ p
   expect(target.searchParams.get("i0m")).toBe("2.75");
   expect(target.hash).toBe("#base-state");
   await page.reload();
-  await expect(page.locator(".circle-readout")).toContainText("2.75");
+  await expect(page.locator(".circle-readout")).toContainText("2,75");
 });
 
 test("service worker is registered inside the configured base scope", async ({ page }) => {

@@ -50,7 +50,7 @@ test("theme is keyboard operable and persists across reload and navigation", asy
 
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("link", { name: "Все темы", exact: true }).click();
+  await page.getByRole("link", { name: "Учебник", exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/topics\/$/);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await attachViewport(page, testInfo, "dark-theme-catalog");
@@ -74,8 +74,8 @@ test("desktop Tab navigation reaches named controls and activates the theme butt
   }
 
   await expect(page.locator("#theme-toggle")).toBeFocused();
-  expect(reachedNames.some((name) => name.includes("Потенциал"))).toBe(true);
-  expect(reachedNames.some((name) => name.includes("Установить приложение"))).toBe(true);
+  expect(reachedNames.some((name) => name.includes("ElectroTutor"))).toBe(true);
+  expect(reachedNames.some((name) => name.includes("Дополнительные сервисы"))).toBe(true);
   await page.keyboard.press("Enter");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(runtimeErrors).toEqual([]);
@@ -100,7 +100,7 @@ for (const route of mobileRoutes) {
 
     expect(response?.ok()).toBe(true);
     await expect(page.locator("main")).not.toBeEmpty();
-    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(page.locator("main h1:visible")).toHaveCount(1);
     const dimensions = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
@@ -131,11 +131,12 @@ test("essential icon controls and lesson diagrams expose accessible names and li
   await page.goto("/ru/topics/dc/mesh-current-method/");
 
   await expect(page.getByRole("button", { name: "Переключить тему" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Установить приложение" })).toBeVisible();
+  await page.locator(".nav-services summary").click();
+  await expect(page.locator(".nav-services-menu a[href$='/my-services/#install']")).toBeVisible();
   await expect(page.getByRole("link", { name: "UA" })).toBeVisible();
   await expect(page.getByRole("img", { name: /схема|диаграмма/i })).toBeVisible();
 
-  await page.goto("/ru/interactive/");
+  await page.goto("/ru/interactive/circular-diagram/");
   await expect(page.locator("[aria-live='polite'].circle-readout")).toBeVisible();
   await expect(page.locator("[aria-live='polite'].circle-readout")).not.toBeEmpty();
   expect(runtimeErrors).toEqual([]);

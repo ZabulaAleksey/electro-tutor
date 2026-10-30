@@ -528,3 +528,7 @@ SPEC/ADR, dependency check и явное одобрение.
 ## ET-RC1 — Productization / Release Candidate 1
 
 Статус: DONE / RC1_READY, validated locally 2026-10-02. Approved bounded consolidation campaign completed; detailed derived report — docs/notes/productization-report.md, receipt — docs/evidence/rc1/readiness.json. Следующий конкретный этап — ET-18.2 bounded staging/hosting/runtime plan. No production deployment or release publication.  ET-14.2 is locally merged in main19c6ea2 with fresh live reminders/inbox PASS; closed UA-19/voice/policy gates retained. Current stage/automatic findings/NEXT — STAGES ET-RC1; requirements — productization-rc1.spec.md. No new large course/media/payments/native wrapper.
+
+ET-CI-001: адресное исправление CI-01 в fix/backend-certifi-ci. certifi2026.10.23, frozen restore/audit/208fast/83PostgreSQL/9catalog/HTTP smoke/image PASS. Полный quality gate и exact-SHA GitHub pipeline отдельно; текущие результаты/разрешения принадлежат STAGES, не прошлому разрешению панорамного релиза.
+
+ET-CI-001 local ready: backend208+83+9, runtime audit, Node HIGH threshold,382unit, types/lint/build and affected19+11browser/goldens PASS. Approved obsolete UI test alignment and one confirmed readout defect included; actual main-only GitHub pipeline awaits bounded integration permission in selected STAGES. No terminal pipeline PASS inferred.

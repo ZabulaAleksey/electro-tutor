@@ -12,7 +12,7 @@ for(const language of ["ru","uk"] as const){
   await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("potential-learning:v1:guest")||"{}").lessons?.["mesh-current-method"]?.completed)).toBe(true);
   const completedAt=await page.evaluate(()=>JSON.parse(localStorage.getItem("potential-learning:v1:guest")||"{}").lessons?.["mesh-current-method"]?.completedAt);
   await check.click();expect(await page.evaluate(()=>JSON.parse(localStorage.getItem("potential-learning:v1:guest")||"{}").lessons?.["mesh-current-method"]?.completedAt)).toBe(completedAt);
-  await page.goto(`/${language}/`);await expect(page.locator("[data-learning-summary]")).toContainText(copy.summaryComplete);
+  await page.goto(`/${language}/account/`);await expect(page.locator("[data-learning-summary]")).toContainText(copy.summaryComplete);
   await page.getByRole("link",{name:copy.summaryComplete,exact:true}).click();await expect(page).toHaveURL(new RegExp(`/${language}/topics/dc/mesh-current-method/#step-5$`));
   await expect(page.locator("#practice-feedback")).toHaveText(copy.practiceCorrect);
   await page.goto(`/${language}/account/`);await expect(page.locator("[data-learning-summary]")).toContainText(copy.summaryComplete);

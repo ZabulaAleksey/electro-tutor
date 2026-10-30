@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-PAN-004
+- Stage ID: ET-CI-001
 
 ## ET-10.3 — LessonSession lifecycle и reload
 
@@ -374,3 +374,18 @@
 - Release synchronization: README/STAGES/ROADMAP/TESTING/feature SPEC/TRACEABILITY/ledger updated to actual publication; ARCHITECTURE/DECISIONS/DESIGN/SECURITY/API/DATA_MODEL/DEPENDENCIES/project-context/audit checked current. Source/test/asset tree unchanged by final receipt. Documentation-only receipt uses established [skip ci] prefix to avoid a duplicate deployment loop; source check failure remains visible.
 - CI-01 continuation: GitHub Actions40974854026 FAIL at unchanged backend certifi2026.7.22/PYSEC-2026-4320 pip-audit (fixes reported2026.10.18/19); no skip/waiver/backend dependency change. Static Cloudflare site and actual hosted consumer checks independently PASS.
 - Cleanup contract/evidence: sole canonical root checkout, clean task source, feature fully reachable from main; remote exact feature ref absent on ls-remote. After this receipt is merged/pushed, only safe git branch -d feature/panoramic-visual-system is authorized. No temporary worktree or runtime data deletion; unrelated feature/micro-labs and fix/et-fast-uri-pages preserved.
+
+## ET-CI-001 — Certifi backend CI repair
+
+- Status: partial
+- Lifecycle: локально проверенный CI repair в fix/backend-certifi-ci от main5468c4d; STANDARD production maintenance, один checkout, без worktree. Реальный GitHub pipeline ещё не запускался на исправлении.
+- Dependencies/contract: CI-01 подтверждён GitHub40974854026; прежние uv/pnpm locks, обязательные audits/backend:check/full-verify и system/PAN contracts. Гейты не отключаются.
+- Scope: certifi2026.10.23 (остальные72Python records идентичны); подтверждённые Node HIGH patches source-map-js1.2.2/sharp0.35.5/Vite8.2.4/Zod4.6.6/Undici8.12.2; разрешённая UI/locale E2E синхронизация; один реальный readout blur/click defect в EngineeringPlot. Числовые ядра/API/DB schema/auth не менялись.
+- Runnable scenario: frozen install→runtime audit→API/PG migrations/tests/HTTP smoke→frontend quality gates→actual main-only GitHub pipeline and hosted asset smoke.
+- PASS evidence: uv lock/sync/runtime pip-audit0; Ruff92files/mypy52files;208fast+83PostgreSQL+9catalog tests, Alembic0014/current/no differences, API image and live/ready HTTP200. Node frozen restore and audit HIGH exit0 (4LOW/5MODERATE remain visible); frontend lint/types253files/0errors/0warnings/3existing hints,382unit/50files,39pages/38localized routes/184artifacts build PASS.
+- UI evidence: after final fixes19affected browser PASS/31.2s and11physics/visual scenarios PASS/37.8s, including all26unchanged PNG goldens. Full222scenario iterations exposed obsolete expectations and two genuine fixture/layout issues; no claim of a complete final full-verify PASS yet. Exact-SHA GitHub terminal verify/deploy remains required. Details/failed attempts retained in TESTING.
+- User action CI-TEST-CONTRACT-01 / DONE2026-10-30: direct «разрешаю» authorizes obsolete E2E UI/locale alignment, preserving numeric/physical assertions and gates. Existing222scenarios and6pre-existing live-phase skips retained; no new skip/only, no test deletion/golden update. FDTD numerical boundaries/grid/device state stay in real WASM Worker; offline UI tests current characteristic Worker with exact60V/1.2A.
+- User action CI-INTEGRATE-01 / PENDING: owner approval for bounded fix/backend-certifi-ci merge/ordinary origin main push (ZabulaAleksey/electro-tutor), existing automatic Cloudflare/GitHub publication, then only integrated task branch cleanup after terminal checks. Expected evidence: exact remote SHA, successful GitHub verify/deploy and provider success/public smoke. Prior panoramic approval not reused.
+- Safety: labelled disposable electro-tutor-et103-test-20261030/127.0.0.1:55439 used by guarded check clone, ownership/sole user checked then only that container/volume removed; exact-name read-back absent. Existing data/volumes/other projects untouched. Current CODEX_HOME/DEV exception retained without config migration.
+- Review/sync: DEPENDENCIES/ROADMAP/STAGES/TESTING and PAN test-contract note updated. README/ARCHITECTURE/DECISIONS/DESIGN/SECURITY/API/DATA_MODEL/project-context/LEARNING_LOG checked unchanged. No workflow/audit threshold/secret/production-infrastructure changes. Earlier exploratory4325 auth mismatch and interrupted runs are not PASS.
+- NEXT: CI-INTEGRATE-01

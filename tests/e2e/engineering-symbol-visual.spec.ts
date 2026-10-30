@@ -25,10 +25,12 @@ for(const language of ["ru","uk"])test(`shared scene glyphs reach the current ${
   await page.emulateMedia({reducedMotion:"reduce"});
   for(const width of [390,1440]){
     await page.setViewportSize({width,height:1000}); await page.goto(`/${language}/`);
-    for(const kind of ["dc","ac","three","rc","diode","neutral","line"]){
-      const svg=page.locator(`.lab-circuit[aria-label$=": ${kind}"]`).first();
+    for(const [kind,id] of [["dc","dc-series"],["ac","ac-rlc"],["three","balanced-star"],["rc","rc-charge"],["diode","diode-load-line"],["neutral","floating-neutral"],["line","line-reflection"]]){
+      await page.evaluate(id=>{location.hash=`story=${id}`},id);await expect(page.locator(`[data-scene="${id}"]`)).toBeVisible();
+      if(kind==="line")await page.goto(`/${language}/micro-labs/#micro=line-load-reflection`);
+      const svg=page.locator(kind === "line" ? '[data-micro="line-load-reflection"] .micro-circuit' : `.lab-circuit[aria-label$=": ${kind}"]`).first();
       await svg.scrollIntoViewIfNeeded(); await expect(svg).toBeVisible();
-      expect(await svg.locator("[data-symbol]").count()).toBeGreaterThan(0);
+      expect(await svg.locator("[data-symbol]").count(),kind).toBeGreaterThan(0);
       const bounds=await svg.evaluate(node=>{const svg=node as SVGSVGElement,b=svg.getBBox(),v=svg.viewBox.baseVal;return b.x>=-1&&b.y>=-1&&b.x+b.width<=v.width+1&&b.y+b.height<=v.height+1;});
       expect(bounds,`${kind} SVG geometry clipped`).toBe(true);
     }

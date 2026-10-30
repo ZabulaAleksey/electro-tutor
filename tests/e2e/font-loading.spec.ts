@@ -49,7 +49,7 @@ test("NFR-006 renders main content while Google Fonts CSS is held", async ({ pag
     });
 
     expect(response?.ok()).toBe(true);
-    await expect(page.locator("main h1")).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator("main h1:visible")).toBeVisible({ timeout: 5_000 });
     await expect.poll(() => fontRequestSeen).toBe(true);
     const stylesheet = page.locator(
       'link[rel="stylesheet"][href^="https://fonts.googleapis.com/"]',

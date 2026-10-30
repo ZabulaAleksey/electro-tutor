@@ -5,6 +5,7 @@ for (const language of ["ru", "uk"]) test(`RC1 ${language} keyboard dialog, mobi
  await page.keyboard.press("Tab");
  expect(await page.evaluate(()=>document.activeElement?.matches("a,button,input"))).toBe(true);
  expect(await page.evaluate(()=>getComputedStyle(document.activeElement!).outlineStyle)).not.toBe("none");
+ await page.goto(`/${language}/my-services/#install`);
  await page.locator("#app-install").focus();await page.keyboard.press("Enter");
  await expect(page.locator("#install-dialog")).toBeVisible();
  await expect(page.locator("#install-dialog")).toHaveAttribute("aria-labelledby","install-dialog-title");
@@ -13,7 +14,7 @@ for (const language of ["ru", "uk"]) test(`RC1 ${language} keyboard dialog, mobi
  await expect(page.locator("#app-install")).toBeFocused();
  await page.setViewportSize({width:390,height:844});
  await page.locator("#mobile-menu-toggle").click();await expect(page.locator("#mobile-menu-toggle")).toHaveAttribute("aria-expanded","true");
- await page.locator('nav a[href$="/account/"]').click();await expect(page).toHaveURL(new RegExp(`/${language}/account/$`));
+ await page.locator('nav a[href$="/board/"]').click();await expect(page).toHaveURL(new RegExp(`/${language}/board/$`));
  expect(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
 });
 

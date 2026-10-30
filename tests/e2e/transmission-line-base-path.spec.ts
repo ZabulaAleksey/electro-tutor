@@ -1,3 +1,4 @@
+import { wasmLine } from "./helpers/wasm-line";
 import { expect, test } from "@playwright/test";
 
 const rawBasePath = process.env.E2E_BASE_PATH || "/";
@@ -9,7 +10,6 @@ test("transmission-line worker and WASM load under the configured static base pa
     expect((await request.get(route(asset))).ok(), asset).toBe(true);
   }
   await page.goto(route("uk/interactive/transmission-line/"));
-  await expect(page.getByText("Модель готова")).toBeVisible();
-  await page.getByRole("button", { name: "Один крок" }).click();
-  await expect(page.locator(".line-diagnostics dd").nth(1)).toHaveText("1");
+  await expect(page.locator("[data-network-lab]")).toHaveAttribute("data-calculation-ready","true");
+  const [[sample]]=await wasmLine(page,[{step:1}]);expect(sample.step).toBe(1);
 });

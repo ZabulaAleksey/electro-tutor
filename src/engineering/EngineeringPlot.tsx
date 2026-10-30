@@ -12,7 +12,10 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
   selected?: PlotPoint; characteristic?: PlotMarker; cursorTime?: number; label: string; showLegend?: boolean; gridMode?: "engineering" | "millimeter";
 }) {
   const id=useId().replace(/:/g,""), svg=useRef<SVGSVGElement>(null), units=useRef<{x?:EngineeringUnit;y?:EngineeringUnit}>({});
-  const [hover,setHover]=useState<PlotPoint|null>(null);
+  const [hover,setHoverState]=useState<PlotPoint|null>(null);
+  // Keep the last readout on blur so nearby buttons do not move during a click.
+  const lastHover=useRef<PlotPoint|null>(null);
+  const setHover=(point:PlotPoint|null)=>{if(point)lastHover.current=point;setHoverState(point);};
   const errors=validatePlotData(plot), valid=!errors.length;
   const cx=characteristic?.point[0], cy=characteristic?.point[1];
   const axes=useMemo(()=>{if(!valid)return null;const a=plotAxes(plot,cx!==undefined&&cy!==undefined?[[cx,cy]]:[],{targetTicks:compact?4:6});if(domains?.x)a.x=engineeringAxis(...domains.x,{targetTicks:compact?4:6,logarithmic:plot.logarithmic});if(domains?.y)a.y=engineeringAxis(...domains.y,{targetTicks:compact?4:6,step:plot.yTickStep});return a;},[plot,cx,cy,compact,valid,domains]);
@@ -51,6 +54,6 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
       {characteristic&&<text x={Math.min(425-characteristic.label.length*8,Math.max(65,x(characteristic.point[0])+7))} y="33" fill="var(--ink)" fontSize={compact?13:11}>{characteristic.label}</text>}
     </svg>
     {showLegend&&<div className={legendClass}>{plot.curves.map((c,k)=><span key={c.label}><i style={{color:`var(--${c.color})`,borderTopStyle:c.dash?k===2?"dotted":"dashed":"solid"}}/>{c.label}</span>)}{characteristic&&<span>□ {characteristic.label}</span>}</div>}
-    {hover&&<div className="engineering-readout" aria-live="off" data-plot-readout>{language==="en"?"Cursor: ":language==="uk"?"Курсор: ":"Курсор: "}{coordinates(hover)}</div>}
+    {lastHover.current&&<div className="engineering-readout" aria-live="off" aria-hidden={!hover} style={{visibility:hover?"visible":"hidden"}} data-plot-readout={hover?"":undefined}>{language==="en"?"Cursor: ":language==="uk"?"Курсор: ":"Курсор: "}{coordinates(lastHover.current)}</div>}
   </div>;
 }

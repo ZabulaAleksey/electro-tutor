@@ -2,20 +2,20 @@ import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
 test("PLOT-001..005 Ohm cursor shows an actual analytical sample and labelled SI axes",async({page})=>{
- await page.goto("/ru/#micro=ohm-law");const card=page.locator('[data-micro="ohm-law"]'),plot=card.locator(".engineering-plot");
+ await page.goto("/ru/micro-labs/#micro=ohm-law");const card=page.locator('[data-micro="ohm-law"]'),plot=card.locator(".engineering-plot");await expect(card).toHaveAttribute("data-selected","true");
  await plot.press("End");const cursor=card.locator("[data-cursor-x]");const x=Number(await cursor.getAttribute("data-cursor-x")),y=Number(await cursor.getAttribute("data-cursor-y"));expect(y).toBeCloseTo(x/60,12);
  await expect(card.locator('[data-axis-label="x"]')).toContainText("В");await expect(card.locator('[data-axis-label="y"]')).toContainText("А");await expect(card.locator("[data-plot-readout]")).toContainText("Курсор");
  await card.getByRole("button",{name:"Исследовать →",exact:true}).click();await card.getByRole("button",{name:"Миллиметровая сетка · экранный режим",exact:true}).click();await expect(card.locator("[data-engineering-plot]")).toHaveAttribute("data-grid-mode","millimeter");
 });
 test("RC time/constant mark and RLC/diode characteristic results remain numerical",async({page})=>{
- await page.goto("/ru/#micro=capacitor-charge");const rc=page.locator('[data-micro="capacitor-charge"]');
+ await page.goto("/ru/micro-labs/#micro=capacitor-charge");const rc=page.locator('[data-micro="capacitor-charge"]');
  await expect(rc.locator("[data-characteristic-x]")).toHaveAttribute("data-characteristic-x","1");await rc.getByRole("slider",{name:"C, µF",exact:true}).press("End");await expect(rc.locator("[data-characteristic-x]")).toHaveAttribute("data-characteristic-x","2");
  expect(Number(await rc.locator("[data-characteristic-y]").getAttribute("data-characteristic-y"))).toBeCloseTo(12*(1-Math.exp(-1)),11);
- const rlc=page.locator('[data-micro="rlc-resonance"]');expect(Number(await rlc.locator("[data-characteristic-x]").getAttribute("data-characteristic-x"))).toBeCloseTo(1/(2*Math.PI*Math.sqrt(.2*.0001)),10);
- const diode=page.locator('[data-micro="diode-operating-point"]');await diode.locator(".micro-plot").press("Escape");const q=diode.locator("[data-cursor-x]");const ud=Number(await q.getAttribute("data-cursor-x")),id=Number(await q.getAttribute("data-cursor-y"))/1000;expect(5-1000*id-ud).toBeCloseTo(0,11);
+ await page.goto("/ru/micro-labs/#micro=rlc-resonance");const rlc=page.locator('[data-micro="rlc-resonance"]');expect(Number(await rlc.locator("[data-characteristic-x]").getAttribute("data-characteristic-x"))).toBeCloseTo(1/(2*Math.PI*Math.sqrt(.2*.0001)),10);
+ await page.goto("/ru/micro-labs/#micro=diode-operating-point");const diode=page.locator('[data-micro="diode-operating-point"]');await diode.locator(".micro-plot").press("Escape");const q=diode.locator("[data-cursor-x]");const ud=Number(await q.getAttribute("data-cursor-x")),id=Number(await q.getAttribute("data-cursor-y"))/1000;expect(5-1000*id-ud).toBeCloseTo(0,11);
 });
 test("Bode uses shared log frequency, exact cutoff and a clearly separate asymptote",async({page})=>{
- const errors:string[]=[];page.on("pageerror",e=>errors.push(e.message));await page.goto("/ru/#micro=rc-low-pass");const card=page.locator('[data-micro="rc-low-pass"]');await card.getByRole("button",{name:"Исследовать →",exact:true}).click();
+ const errors:string[]=[];page.on("pageerror",e=>errors.push(e.message));await page.goto("/ru/micro-labs/#micro=rc-low-pass");const card=page.locator('[data-micro="rc-low-pass"]');await card.getByRole("button",{name:"Исследовать →",exact:true}).click();
  const bode=card.locator(".engineering-bode");await expect(bode.locator('[data-x-scale="log"]')).toHaveCount(2);const plots=bode.locator("[data-engineering-plot]");expect(await plots.nth(0).getAttribute("data-x-domain")).toBe(await plots.nth(1).getAttribute("data-x-domain"));
  const marks=bode.locator("[data-characteristic-y]");expect(Number(await marks.nth(0).getAttribute("data-characteristic-y"))).toBeCloseTo(-10*Math.log10(2),11);expect(Number(await marks.nth(1).getAttribute("data-characteristic-y"))).toBe(-45);await expect(bode.getByText(/0 → −20/)).toBeVisible();
  await card.getByRole("slider",{name:"C, µF",exact:true}).press("End");expect(Number(await marks.nth(0).getAttribute("data-characteristic-x"))).toBeCloseTo(100,10);await expect(page.locator(".katex-error")).toHaveCount(0);expect(errors).toEqual([]);

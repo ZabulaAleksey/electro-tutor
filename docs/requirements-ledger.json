@@ -1322,8 +1322,8 @@
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
-      "gap": "No scoped frontend prerequisite. Independent unchanged backend certifi audit FAIL in GitHub Pages CI tracked as CI-01; historical carousel/visual/native/source limitations remain in TESTING.",
-      "action": "Approved main merge/push/publication verified; safe cleanup only integrated task branch. CI-01 backend dependency follow-up remains separate.",
+      "gap": "No scoped frontend prerequisite. CI-01 certifi repair verified in ET-CI-001; historical failures and native/source limitations remain in TESTING.",
+      "action": "Publication complete. CI-01 resolved by exact-source GitHub verify/deploy SUCCESS; see STAGES ET-CI-001.",
       "domain": "beam-laboratory",
       "requirement_ids": [
         "BEAM-001",
@@ -1358,8 +1358,8 @@
       "security": "Bounded local JSON, no new backend/auth/network.",
       "a11y": "RU/UK, numeric drag alternatives, explicit error and keyboard controls.",
       "observability": "Reactions/residuals and real browser attributes; no telemetry.",
-      "gap": "No scoped frontend prerequisite. Independent unchanged backend certifi audit FAIL in GitHub Pages CI tracked as CI-01; historical carousel/visual/native/source limitations remain in TESTING.",
-      "action": "Approved main merge/push/publication verified; safe cleanup only integrated task branch. CI-01 backend dependency follow-up remains separate.",
+      "gap": "No scoped frontend prerequisite. CI-01 certifi repair verified in ET-CI-001; historical failures and native/source limitations remain in TESTING.",
+      "action": "Publication complete. CI-01 resolved by exact-source GitHub verify/deploy SUCCESS; see STAGES ET-CI-001.",
       "domain": "engineering-symbols",
       "requirement_ids": [
         "SYMBOL-001",
@@ -1393,7 +1393,7 @@
       "security": "Original local art; STUD read-only, no backend/auth/credential changes; video independent blocked provider gate.",
       "a11y": "Whole-card semantic links; keyboard/pause/reduced-motion; local pointer gestures, RU/UK.",
       "observability": "Carousel active index and autoplay state, actual plots; board undo/save and eraser budgets.",
-      "gap": "Independent controlled video provider/two-client acceptance absent; web release verified. Historical superseded UI tests and backend CI-01 limitations remain explicit.",
+      "gap": "Independent controlled video provider/two-client acceptance absent; web release verified. CI-01 resolved in ET-CI-001; historical failures retained in TESTING.",
       "action": "Approved push/deploy complete; safe integrated task branch cleanup only. PAN-VIDEO-01 is separate future AV work.",
       "requirement_ids": [
         "PAN-001",

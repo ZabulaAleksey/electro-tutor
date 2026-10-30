@@ -269,3 +269,5 @@ JSON импорты Fourier и линий остаются в браузере: 
 Нестабильная/плохо обусловленная система не получает псевдо-реакций. Storage denial
 даёт сообщение и сохраняет JSON download как доступный путь. Нет нового API,
 телеметрии, внешнего provider, credentials, auth или worker/cache-policy change.
+
+ET-CI-001 maintenance2026-10-30: exact c9a43fb GitHub41025558068 verify/deploy SUCCESS; certifi2026.10.23 locked runtime pip-audit0. Current Node audit HIGH gate passes with4LOW/5MODERATE (earlier RC1 audit-zero receipt is historical). CI browser uses immutable Noble image, only locked core read-only, loopback endpoint and unconditional cleanup;5negative contract tests PASS. Temporary public-diagram-only PNG diagnostics removed after use; no ongoing new artifact upload. Details and boundary evidence — STAGES/TESTING/DEPENDENCIES.

@@ -1,5 +1,7 @@
 # ElectroTutor
 
+ET-CI-001: certifi2026.10.23; source `c9a43fbe0149aae5072b02cd04d7268bc743397a`, [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/41025558068) verify/deploy SUCCESS; Cloudflare `a1db51d3-6979-4112-a33e-a007055ef99b` SUCCESS. Backend и полный frontend pipeline проходят; подробности и ограничения — docs/STAGES.md, docs/TESTING.md.
+
 ET-PAN-004 опубликован и проверен2026-10-30: https://electrotutor.pages.dev/ru/ — четыре оригинальные панорамы, каталог31инструмента, тематические карточки и частичный ластик. Source c5ac7b8, Cloudflare41ad6330 SUCCESS;382unit/61primary-domain browser PASS. Контролируемая видеосвязь отдельно BLOCKED_BY_PROVIDER; подробности — docs/STAGES.md и docs/TESTING.md. Предыдущие receipts ниже сохранены.
 
 ET-UX-003: локально проверены карточные каталоги и прямые инструменты, общий header, Fourier preview/масштаб/полный экран/stem-спектр, доска с сохранением и небольшой калькулятор. Android debug APK собран и проверен в отдельном эмуляторе; команды — android/README.md. Опубликовано на https://electrotutor.pages.dev/ru/: source9ed98f5, Cloudflare19537dec SUCCESS,30public-browser PASS; актуальный receipt — docs/STAGES.md.

@@ -1,5 +1,9 @@
 # ElectroTutor
 
+## REL5-CACHE — final edge candidate verified on preview
+
+FR-373 / ADR-050: tiny generated Pages404 handler, four non-overlapping invocation rules for /uk and /ru/interactive roots/subtrees. Existing404HTML, literal404/HEAD empty, all5global security headers +no-store/noindex/diagnostic marker, no input reflection/ASSETS/network. Public7routes/assets bypass handler; no numerical/backend/UI/source locale change. Fresh94file artifact;89original RUN5 files byte identical, delivery metadata+browserSW fingerprint only. Final458unit/59files, Astro318files0errors0warnings3oldhints, lint/build/strictguards PASS. Actual preview8d05c858:24HTTP checks with marker/security headers,90served bytes,7public200/SEO,13/13accepted browser PASS. Production edge publication pending; existing59cfcc84 static attempt remains PARTIAL, not a fix. Owner explicitly approved fail-closed for preview/production; API PATCH changed only2booleans, no DNS/push/tariff changes. Earlier static-preview PASS below did not close the primary blocker; current execution truth in STAGES.
+
 ## Исправление retained CDN routes — проверено на preview
 
 Текущий опубликованный RUN5 остаётся8e96428d. В отдельной fix/mvp-cdn-hidden-routes подготовлены узкие static Pages правила для настоящего404 на /uk/ и /ru/interactive/: без нового backend/Worker, DNS или push. Fresh92file build/452unit/types/lint и actual Pages preview ffba754f:13/13browser +24HTTP variants +90served bytes PASS. Production исправление пока не опубликовано; статус и следующий шаг — STAGES REL5-CACHE. Ниже сохранён receipt первоначальной публикации.

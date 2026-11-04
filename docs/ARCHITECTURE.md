@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## REL5-CACHE — narrow provider delivery exception
+
+FR-373 / ADR-050: tiny generated Pages404 handler, four non-overlapping invocation rules for /uk and /ru/interactive roots/subtrees. Existing404HTML, literal404/HEAD empty, all5global security headers +no-store/noindex/diagnostic marker, no input reflection/ASSETS/network. Public7routes/assets bypass handler; no numerical/backend/UI/source locale change. Fresh94file artifact;89original RUN5 files byte identical, delivery metadata+browserSW fingerprint only. Final458unit/59files, Astro318files0errors0warnings3oldhints, lint/build/strictguards PASS. Actual preview8d05c858:24HTTP checks with marker/security headers,90served bytes,7public200/SEO,13/13accepted browser PASS. Production edge publication pending; existing59cfcc84 static attempt remains PARTIAL, not a fix. Static _redirects kept as defense-in-depth but observed primary cache bypass makes them insufficient. All generated transport files precede SW fingerprint. No application port/SDK needed for a constant delivery404 adapter; no private/domain computations in provider code. Fail-closed explicitly approved; quota exhaustion may affect project availability, no physical quota exhaustion test.
+
 ## REL5-CACHE — static routing before retained asset lookup
 
 REL5-CACHE / FR-370..372: four generated MVP-only static proxies to absent /__mvp_not_found__ with mandatory404.html/exact-policy/collision guards and no-store/noindex. No Function/Worker/new dependency/paid resource, no DNS/push/kernel/full-source change. Fresh92file artifact differs from accepted RUN5 only _redirects(new), _headers and sw.js fingerprint; other89files byte identical. Existing releaseHeadersIntegration owns generated Pages transport config before browser SW fingerprint. Root/non-root base policy tests inspect physical output paths without base prefix. ADR-049. Production pending hosted terminal gate; preview ffba754f successful.

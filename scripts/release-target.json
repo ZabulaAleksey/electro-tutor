@@ -41,10 +41,23 @@
   "lastDeploymentAuthorizedAndCompleted": true,
   "futureDeploymentRequiresOwnerApproval": true,
   "deployment": {
-    "id": "8e96428d-7051-4c23-bdaf-9b350f1afb49",
+    "id": "59cfcc84-4b53-4597-981c-e7cef0493134",
     "environment": "production",
-    "sourceCommit": "373f5b84c6109bab8f0469e833593d916c4dc6be",
+    "sourceCommit": "0d1227add6f649bb3152fb0f3f8697f87f67905e",
     "hostedAcceptance": "partial",
-    "blocker": "retained old /uk/ and /ru/interactive/ return200/noindex on primary"
+    "blocker": "static rewrite did not suppress all retained primary GET200/304; exact edge candidate pending"
+  },
+  "deliveryPolicy": {
+    "kind": "bounded-pages-404-handler",
+    "version": 1,
+    "invocationRoots": [
+      "/uk",
+      "/ru/interactive"
+    ],
+    "previewFailOpen": false,
+    "productionFailOpen": false,
+    "ownerApprovedFailClosed": true,
+    "publicPagesRemainStatic": true,
+    "paidPlanUpgradeRequired": false
   }
 }

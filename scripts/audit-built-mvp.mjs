@@ -3,10 +3,13 @@ import {assertPublicText} from './release-policy.mjs';
 import {readdir,readFile} from 'node:fs/promises';
 import {join,relative,resolve} from 'node:path';
 import {publicRoutes,publicPath,mvpManifest} from './public-mvp-contract.mjs';
+import {assertEdge404} from './mvp-edge-404.mjs';
 const root=resolve(process.env.BUILD_OUTPUT_DIR||'dist'),base=process.env.BASE_PATH||'/',files=[];
 async function walk(p){for(const item of await readdir(p,{withFileTypes:true})){const f=join(p,item.name);if(item.isDirectory())await walk(f);else files.push(relative(root,f).replaceAll('\\','/'));}}
 await walk(root);
 assert.ok(!files.some(f=>f.endsWith(".map")),"No public source maps");
+assert.ok(files.includes('_routes.json'), 'Edge route policy is required');
+await assertEdge404(root,process.env.BASE_PATH||'/');
 const expected=['index.html','404.html','offline.html',...publicRoutes.map(p=>p.slice(1)+'index.html')].sort();
 assert.deepEqual(files.filter(f=>f.endsWith('.html')).sort(),expected,'MVP must physically contain only the approved pages');
 assert.deepEqual(JSON.parse(await readFile(join(root,'manifest.webmanifest'),'utf8')),mvpManifest(base));
@@ -16,7 +19,7 @@ assert.deepEqual(paths,publicRoutes.map(p=>publicPath(p,base)).sort(),'Only seve
 assert.match(await readFile(join(root,'robots.txt'),'utf8'),/Sitemap: https?:\/\//);
 for(const file of files.filter(f=>/\.(html|js|json|webmanifest|css|svg|xml|txt)$/.test(f))){
  const source=await readFile(join(root,file),'utf8');assertPublicText(source,file);
- assert.doesNotMatch(source,/\/api\/v1\/|\/uk\/|["'](?:https?:\/\/[^"']+)?\/ru\/(?:account|services|interactive|board|my-services|classroom)\//,`${file}: hidden/auth subsystem leaked`);
+ if(file!=='_routes.json') assert.doesNotMatch(source,/\/api\/v1\/|\/uk\/|["'](?:https?:\/\/[^"']+)?\/ru\/(?:account|services|interactive|board|my-services|classroom)\//,`${file}: hidden/auth subsystem leaked`);
  if(file.endsWith('.html')&&!['index.html','404.html','offline.html'].includes(file)){
   assert.match(source,/<html[^>]*lang="ru"/);
   assert.doesNotMatch(source,/hreflang="uk"|fonts\.googleapis\.com/);

@@ -53,3 +53,5 @@ ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded S
 | PAN-001..010 | panoramic-visual-system.spec.md | ADR-043; showcase/PanoramicCarousel, catalogue, EngineeringBoardEraser | analytical curves/terminal topology, carousel/catalog/eraser browser scenarios | published source c5ac7b8/Cloudflare41ad6330;61primary-domain browser PASS; video independently blocked |
 
 | FR-370..372 | release-readiness-run5.spec.md / ADR-049 | mvp-retired-routes + release-policy/audit-release | exact policy/collision3unit, real preview24HTTP+13browser+90SHA; production pending | STAGES REL5-CACHE |
+
+| FR-373 | release-readiness-run5.spec.md / ADR-050 | generated mvp-edge-404 + guarded _routes |458unit/6new executable, preview24HTTP/90SHA/13browser; primary pending | STAGES REL5-CACHE |

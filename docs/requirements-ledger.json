@@ -1661,21 +1661,25 @@
       "requirement_ids": [
         "FR-370",
         "FR-371",
-        "FR-372"
+        "FR-372",
+        "FR-373"
       ],
-      "runtime": "REL5-CACHE / FR-370..372: four generated MVP-only static proxies to absent /__mvp_not_found__ with mandatory404.html/exact-policy/collision guards and no-store/noindex. No Function/Worker/new dependency/paid resource, no DNS/push/kernel/full-source change. Fresh92file artifact differs from accepted RUN5 only _redirects(new), _headers and sw.js fingerprint; other89files byte identical.",
-      "security": "Exact static policy, no Function/SDK/quota/secrets; unchanged global CSP. Real preview404/no-store/noindex.",
+      "runtime": "FR-373 / ADR-050: tiny generated Pages404 handler, four non-overlapping invocation rules for /uk and /ru/interactive roots/subtrees. Existing404HTML, literal404/HEAD empty, all5global security headers +no-store/noindex/diagnostic marker, no input reflection/ASSETS/network. Public7routes/assets bypass handler; no numerical/backend/UI/source locale change.",
+      "security": "Exact generated worker +narrow4routes, full headers/no-store/noindex; owner approved failclosed PATCH only2fields, no billing/DNS mutation.",
       "a11y": "No UI/focus/content change; all89unchanged artifact bytes preserved.",
-      "observability": "452unit/types/lint/fresh release; real preview13browser+24HTTP+90served SHA PASS; production pending.",
-      "gap": "Production publication/anonymous primary route checks pending.",
-      "action": "Owner explicit bounded fix authorization; publish committed same artifact then reconcile and verify, no push/DNS/merge.",
+      "observability": "Fresh94file artifact;89original RUN5 files byte identical, delivery metadata+browserSW fingerprint only. Final458unit/59files, Astro318files0errors0warnings3oldhints, lint/build/strictguards PASS. Actual preview8d05c858:24HTTP checks with marker/security headers,90served bytes,7public200/SEO,13/13accepted browser PASS. Production edge publication pending; existing59cfcc84 static attempt remains PARTIAL, not a fix.",
+      "gap": "Primary edge publication/raw404 terminal checks pending; previous static candidate failed.",
+      "action": "Publish clean committed same preview-verified artifact then reconcile/verify. No push/DNS/auto merge.",
       "code": [
         "scripts/mvp-retired-routes.mjs",
         "scripts/release-policy.mjs",
-        "scripts/audit-release.mjs"
+        "scripts/audit-release.mjs",
+        "scripts/mvp-edge-404.mjs",
+        "scripts/audit-built-mvp.mjs"
       ],
       "unit": [
-        "scripts/mvp-retired-routes.test.mjs"
+        "scripts/mvp-retired-routes.test.mjs",
+        "scripts/mvp-edge-404.test.mjs"
       ],
       "integration": [
         "scripts/audit-release.mjs"

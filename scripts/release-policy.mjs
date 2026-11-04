@@ -4,6 +4,7 @@ import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {retiredPolicy} from './mvp-retired-routes.mjs';
+import {edgeWorkerSource,edgeRoutes} from './mvp-edge-404.mjs';
 import {publicRoutes, publicPath} from './public-mvp-contract.mjs';
 
 export function releaseOrigin(value) {
@@ -54,5 +55,8 @@ export function releaseHeadersIntegration(base) {
     const html=await Promise.all(files.filter(f=>f.endsWith('.html')).map(f=>readFile(join(root,f),'utf8')));
     await writeFile(join(root,'_headers'),securityHeaders(html,base));
     await writeFile(join(root,'_redirects'),retiredPolicy(base).redirects);
+    const headerText=await readFile(join(root,'_headers'),'utf8'), notFound=await readFile(join(root,'404.html'),'utf8');
+    await writeFile(join(root,'_worker.js'),edgeWorkerSource({html:notFound,headers:headerText}));
+    await writeFile(join(root,'_routes.json'),JSON.stringify(edgeRoutes(base),null,2)+'\n');
   }}};
 }

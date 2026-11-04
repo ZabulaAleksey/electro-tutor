@@ -5,17 +5,19 @@ import {pathToFileURL} from 'node:url';
 import {releaseOrigin,filesUnder,assertPublicText,securityHeaders} from './release-policy.mjs';
 import {publicRoutes,publicPath} from './public-mvp-contract.mjs';
 import {assertRetiredRoutes} from './mvp-retired-routes.mjs';
+import {assertEdge404} from './mvp-edge-404.mjs';
 
 export async function auditRelease({root,site,base='/'}) {
   const origin=releaseOrigin(site);
   const files=await filesUnder(root),documents=[];
-  assert.ok(!files.some(f=>f.endsWith('.map')||f.startsWith('_worker')||f.startsWith('functions/')),'Static release must have no source maps/Functions/worker backend');
+  assert.ok(!files.some(f=>f.endsWith('.map')||(f.startsWith('_worker')&&f!=='_worker.js')||f.startsWith('functions/')),'Static release must have no source maps/Functions/worker backend');
   for(const file of files.filter(f=>/\.(html|js|json|css|svg|webmanifest|xml|txt)$/.test(f))) {
     const source=await readFile(join(root,file),'utf8');assertPublicText(source,file);
     if(file.endsWith('.html'))documents.push(source);
   }
   const headers=await readFile(join(root,'_headers'),'utf8');assert.equal(headers,securityHeaders(documents,base),'Headers must match actual script hashes and current route graph');
   await assertRetiredRoutes(root,base);
+  await assertEdge404(root,base,headers);
   const titles=new Set();
   for(const route of publicRoutes) {
     const source=await readFile(join(root,route.slice(1),'index.html'),'utf8'),url=origin+publicPath(route,base);

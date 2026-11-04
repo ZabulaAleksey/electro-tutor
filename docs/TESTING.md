@@ -1,3 +1,28 @@
+## ET-MESH-003D — RUN3D acceptance2026-11-04
+
+Git: owner-authorized exact FF clean main186013d→99b9302 PASS, feat/mesh-lesson-run3c retained; new feat/mesh-lesson-run3d on root checkout. main remains99b9302. No force/rebase/branch deletion/push/deploy. Installed Node22.23.1/pnpm11.23.0, no install. Process-only exact safe.directory, build/browser output outside repository in current chat work/run3d.
+
+| Command/check | Verified result |
+|---|---|
+| `pnpm test` |439PASS/54files; old395+44new, beam13cases/49independent assertions |
+| `pnpm check` |273files/0errors/0warnings/3pre-existing hints |
+| `pnpm lint` |PASS |
+| `pnpm build` |41pages/40localized routes/190artifacts/395paired keys;WASM/hash/locale/lesson/site audits PASS |
+| `playwright test --workers=2 --retries=1 --update-snapshots=none` against owned built127.0.0.1:4322 |264PASS/6expected pre-existing live-auth skips,270total,0flaky;20newtarget scenarios; retry budget1 unused |
+| New unit/component tests |16independent fixture matches,4preset/draft checks, absorbingJ,4×inconsistent/4×underdetermined,rank contrast,4individual ideal-wire cases,invalid/nonfinite/ranges/precision,4source+impedance scaling,4SVG actual-port/no-bypass checks |
+| Independent oracle.py |16exact nodal cases (4published+12modified),72exact-zero KCL/KVL/power/constraint residuals. No product imports; immutable fixture JSON derived independently |
+| Real browser operations |All16fixture circuits checked from live input edits without document reload, sourcesreverse/polarity/J arrow/power,all4rank/error/reset,preset context,reload/back,keyboard/touch/noJS PASS |
+| Visual/manual |48states=4presets×6widths×2themes,192captures incl144bounded regions viewed before new goldens.0pageoverflow/labeloverlap/outside/KaTeXerrors/pageerrors;minSVGlabel13.9CSSpx,maxworkbench788px; input+SVG+readings simultaneously visible at900px viewport after alignment |
+| Preservation |390oldPNG+193protected sources SHA-256 unchanged; no existing test/golden weakened or updated |
+
+Runtime KCL is re-evaluated through node potential/Ohm, not telescoping mesh differences; branch constitutive residual and supermesh constraint are distinct. Ideal-wire branches retain mesh current because U/R undefined, voltage checked by KVL. Full power includes current-source absorption/generation; scalar display3significant digits, internal full precision/raw inputs unchanged. Matrix detail local horizontal scroll allowed for extreme coefficients, page overflow forbidden.
+
+Review: four P2/P3 findings addressed: undefinedJ arrow, independent nodal/constitutive KCL, separate constraint, aria locale resources; bounded rereview found no new numerical defects. Rereview's stale-noscript test report referred to old scratch; actual test source .mesh-nojs confirmed and all20target scenarios passed. No code edited by reviewer. Accepted old models/UK/backend/auth/DB/infra/deps unchanged.
+
+Initial issues retained in evidence: new Playwright JSON ESM import required fs; first no-JS notice browser assertion failed and replaced with visible ordinary SSR paragraph, disabled controls unchanged; style Node.remove type fixed with parentNode.removeChild; one first capture's last1920dark hydration wait timed out, not reproduced in isolated4state repeat/final48state capture/target/full suites. No root-cause claim for that isolated timeout. First full suite also revealed neutral-vs-focused input screenshot setup; new test explicitly blurs before matching already reviewed unchanged PNG. One unchanged legacy home panorama touch scenario failed once, isolated unchanged repeat3/3PASS, both legacy gestures repeated unchanged3/3PASS; final full suite uses two workers and one explicit bounded retry, flaky counts recorded separately; no old test changed. Second full run had one unchanged legacy beam Ctrl-wheel deviation3.32px vs3px; isolated3/3PASS. Final264PASS/0flaky used no retries despite explicit budget1. Initial failed logs not deleted. Final mandatory gates PASS.
+
+Evidence/report/gallery/math/patch/receipts: current chat outputs/ElectroTutor_run3d_evidence.zip and ElectroTutor_run3d_laboratory_2026-11-04.md. Own preview stopped after work. Generated .astro/Vite files inventoried separately, no cleanup. check:context/ci-workflow/hygiene and exact diff/ref/hash guards before atomic commit. Windows Chromium raster only; physical iOS/Android/Linux raster/fullNarrator/hosted deployment/live backend NOT_RUN. Static path does not require backend, six live-auth skips are unrelated service scenarios. RUN4/release remain future; fullMVP PARTIAL.
+
 ## ET-MESH-003C — RUN3C acceptance 2026-11-04
 
 Owner authorized exact FF preflight: clean refs; main contains e743df5, source feat/mesh-lesson-run3b contains186013d; `git switch main` and `git merge --ff-only feat/mesh-lesson-run3b` PASS. main=186013d75587564f00578a772bc1f15b0187401b, sourcebranch retained. New branch feat/mesh-lesson-run3c reuses root checkout. No force/rebase/push/deploy. Pinned Node22.23.1/pnpm11.23.0 and installed dependencies; no install. Process-only safe.directory for this exact repository.

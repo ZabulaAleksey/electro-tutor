@@ -1,0 +1,7 @@
+---
+import BaseLayout from "../../../../../../layouts/BaseLayout.astro";
+import MeshLab from "../../../../../../mesh/MeshLab";
+---
+<BaseLayout title="Лаборатория контурных токов — ElectroTutor" description="Четыре интерактивные схемы: меняйте сопротивления, ЭДС и ток источника, наблюдайте контурные и ветвевые токи, напряжения и баланс мощности." language="ru" active="topics" alternatePath="/topics/dc/mesh-current-method/lab/" hasTranslation={false}>
+  <MeshLab client:load />
+</BaseLayout>

@@ -30,7 +30,8 @@
       "specs/features/panoramic-visual-system.spec.md",
       "specs/features/mesh-lesson-visual-repair.spec.md",
       "specs/features/mesh-textbook.spec.md",
-      "specs/features/mesh-worked-examples.spec.md"
+      "specs/features/mesh-worked-examples.spec.md",
+      "specs/features/mesh-laboratory.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1438,8 +1439,8 @@
       "security": "Static presentation only; no API/auth/DB/infra changes.",
       "a11y": "12 width/theme states: geometry, contrast, polarity, meaningful labels >=12CSSpx, localized aria; no full screen-reader certification claim.",
       "observability": "60 manually reviewed Windows PNG baselines; unchanged 54 historic PNG; exact independent rational oracle and 187 protected file hashes.",
-      "gap": "No gap in bounded RUN3A acceptance. Full detailed theory/examples/journey/mesh lab and release visibility remain future scope; Linux raster NOT_RUN.",
-      "action": "One atomic RUN3A commit after terminal PASS; merge/push/deploy require separate permission.",
+      "gap": "Bounded RUN3A complete; subsequent theory/examples/lab verified as separate stages. RUN4/release visibility/Linux raster remain future.",
+      "action": "RUN3A e743df5 committed and owner-authorized ff integrated; no outstanding merge action for this slice, no deployment claim.",
       "requirement_ids": [
         "FR-301",
         "FR-302",
@@ -1466,12 +1467,12 @@
     {
       "domain": "mesh-textbook",
       "status": "VERIFIED",
-      "runtime": "Static RU MDX11chapters/129formulas;390unit/check/lint/build and230Chromium PASS/6oldlive skips; not merged/deployed.",
+      "runtime": "Static RU MDX11chapters/129formulas;390unit/check/lint/build and230Chromium PASS/6oldlive skips; RUN3B186013d accepted and owner-authorized ff merged; not deployed.",
       "security": "Static authored content; kernel/API/auth/DB/infra unchanged.",
       "a11y": "No-JS text/scheme, mobile keyboard/native scroll/anchors/progress;6width×2theme geometry/contrast PASS. Physical screen-reader NOT_RUN.",
       "observability": "132manually reviewed bounded Windows PNG;114historic PNG unchanged; exact independent14zero-residual oracle.",
-      "gap": "No bounded textbook gap. Separate examples/lab/horizontal/release visibility and new Linux raster remain future.",
-      "action": "One atomic RUN3B commit after PASS; owner decides later integration; no push/deploy.",
+      "gap": "Bounded textbook complete; examples/lab subsequently verified separately. RUN4/release/newLinux raster deferred.",
+      "action": "RUN3B integration done; sourcebranch retained, no push/deploy.",
       "requirement_ids": [
         "FR-311",
         "FR-312",
@@ -1513,12 +1514,12 @@
         "FR-328",
         "FR-329"
       ],
-      "runtime": "4complete static RU worked examples,129formulas; real textbook↔examples/no-JS path PASS. Source main186013d; separate RUN3C feature checkpoint.",
+      "runtime": "4complete static RU worked examples,129formulas; real textbook↔examples/no-JS path PASS. Source main186013d; separate RUN3C feature checkpoint. RUN3C99b9302 subsequently accepted and ff merged main2026-11-04; sourcebranch retained.",
       "security": "Trusted static content, no backend/kernel/infra changes.",
       "a11y": "6width×2themes reviewed,13.9px minimum SVG label, no overflow/overlap, native keyboard/wheel/anchors, named SVG and label contrast>=4.5 PASS; physical/Narrator NOT_RUN.",
       "observability": "26exact-zero independent nodal/mesh/KVL/power residuals;395unit,244Chromium PASS/6unrelated live-auth skips; check/lint/build PASS;144newreviewed PNG,246oldPNG/191source hashes unchanged.",
-      "gap": "Bounded examples complete locally. NewUK translation/lab/global sequence/release visibility deferred; no release claim.",
-      "action": "Owner may inspect report then explicitly authorize integration; no automatic merge/push/deploy.",
+      "gap": "Bounded examples complete; lab subsequently verified as RUN3D. UK translation/RUN4/release visibility deferred.",
+      "action": "RUN3C integration DONE by explicit owner authorization; no push/deploy.",
       "code": [
         "src/content/mesh-examples/ru.mdx",
         "src/components/MeshExampleDiagram.tsx"
@@ -1531,6 +1532,40 @@
       ],
       "e2e": [
         "tests/e2e/mesh-examples.spec.ts"
+      ]
+    },
+    {
+      "domain": "mesh-laboratory",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-331",
+        "FR-332",
+        "FR-333",
+        "FR-334",
+        "FR-335",
+        "FR-336",
+        "FR-337",
+        "FR-338",
+        "FR-339"
+      ],
+      "runtime": "4exact preset actual DC model, live R/E/J/source reversal, matrices/currents/voltages/signed power/nodal/constitutive residuals. Source main99b9302; separate RUN3D atomic feature checkpoint.",
+      "security": "Pure local static model, bounded finite inputs, no backend/provider/storage.",
+      "a11y": "48width/theme/preset states reviewed; input/SVG/live readings together at900px height; minSVGlabel13.9px. Keyboard/touch/noJS/negative/error/reset/preset/browser parameter updates PASS; physical/Narrator NOT_RUN.",
+      "observability": "Independent nodal16sets/72exact-zero residuals,439unit/54files,273-file types/lint/build,264Chromium PASS/6unrelated live-auth skips;144newreviewedPNG,390oldPNG/193sources unchanged.",
+      "gap": "No bounded RUN3D gap locally. RUN4 navigation/release visibility/hosted/physical-device/Linux raster/newUK resources deferred.",
+      "action": "Owner may inspect report then authorize main integration; no auto merge/push/deploy.",
+      "code": [
+        "src/models/mesh-current.ts",
+        "src/mesh/MeshLab.tsx"
+      ],
+      "unit": [
+        "src/models/mesh-current.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-locales.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/mesh-lab.spec.ts"
       ]
     }
   ]

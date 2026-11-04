@@ -18,8 +18,8 @@ await walk(root);
 
 const routes = new Set(htmlFiles.map((file) => `/${relative(root, file).split(sep).slice(0, -1).join("/")}/`.replace("//", "/")));
 const localizedRoutes = [...routes].filter((route) => /^\/(ru|uk)\//.test(route));
-// Owner-authorized RUN3C: examples resource is RU-only; every other route remains paired.
-const ruOnlyRoutes = new Set(["/ru/topics/dc/mesh-current-method/examples/"]);
+// Owner-authorized RUN3C/3D: two mesh resources are RU-only; all other routes stay paired.
+const ruOnlyRoutes = new Set(["/ru/topics/dc/mesh-current-method/examples/", "/ru/topics/dc/mesh-current-method/lab/"]);
 const errors = [];
 for (const route of routes) {
   if (route !== "/" && !/^\/(ru|uk)\//.test(route)) errors.push(`unexpected locale route in artifact: ${route}`);

@@ -1,11 +1,33 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-MESH-003C
+- Stage ID: ET-MESH-003D
+
+## ET-MESH-003D — RUN3D: интерактивная mesh лаборатория
+
+- Status: verified
+- Lifecycle: completed locally on feat/mesh-lesson-run3d, source/main99b9302, existing root checkout. One authorized atomic RUN3D checkpoint contains this record, exact SHA in Git log/external receipt. No RUN3D merge/push/deploy.
+- Goal/scope: FR-331..339 mesh-laboratory SPEC;4exact RUN3C presets, live R/E/J edits, actual matrix/branches/voltages/signed power/residuals. STANDARD production frontend/model slice.
+- Dependencies/DAG: ET-MESH-003C verified/owner accepted/ff merged main99b9302; no future RUN4 or backend prerequisite.
+- Entry: clean refs, installed pinned deps, shared symbols/Formula/islands available. No generic electrical solver found; beam private stiffness solver cannot solve mixed-unit supermesh/classify rank. New bounded numerical module necessary; accepted kernels remain unchanged.
+- Plan: contract→independent reference→model/SVG/compact editor→unit/browser errors/edits→6width×2theme review→full checks→sync→atomic commit.
+- Runnable vertical slice/E2E: real textbook→examples→lab/preset→edit resistor/source→immediate physical currents/voltage/matrix/power→flip source→invalid/singular/inconsistent states→reset→return same worked example.
+- PASS/DoD:4defaults+modified exact nodal references, meaningful error states without stale results, all mandatory checks PASS,6width×2theme actual images reviewed and editor/figure/live readings simultaneously visible, old390PNG and protected sources unchanged.
+- Interfaces: no accepted numerical kernel/backend/DB/auth/infra/deps/UK changes; exact lab-only RU route exception, old catalogue preserved. No mock solver/dummy playback/new design system.
+- Temporary/fallback: none; invalid/rank/numerical failure is explicit, no arbitrary currents. No-JS baseline readable with disabled controls. Linux raster/physical devices/fullNarrator NOT_RUN unless evidence available.
+- Evidence: clean ff main/source99b9302;439unit/54files,273-file Astro0errors0warnings3oldhints, lint/build41pages40locale190artifacts395keys PASS; fullChromium264PASS/6oldlive-auth skips.16independent exact nodal sets/72zero residuals, runtime Ohm/nodal/KVL/power checks, browser edits/errors/touch/keyboard/noJS PASS.48visual states minfont13.9CSSpx maxworkbench788px,144reviewed newPNG;390oldPNG/193protected hashes unchanged. Read-only review findings addressed and rereviewed; TESTING/current chat outputs/ElectroTutor_run3d_evidence.zip.
+- User action MESH-3C-MERGE / DONE: explicit user ff authorization, main186013d→99b9302 PASS, sourcebranch retained; no push/deploy.
+- User action MESH-3D-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one atomic commit after mandatory checks passed; exact SHA in Git log/receipt.
+- User action MESH-3D-INTEGRATION / CONDITIONAL: explicit owner authorization after report review unlocks main merge only; no auto merge/push/deploy.
+- Blockers: none for locally verified RUN3D; future RUN4/release and physical-device/Linux-raster/fullNarrator not claimed.
+- Verification observations MESH-3D-OBS-01/02 / NON_BLOCKING: unchanged homepage touch and beam Ctrl-wheel each failed once on the same artifact, then isolated3/3PASS each; final full264PASS/0flaky/0retries used. Traces/logs retained, root cause not established. No RUN3D owner action; if reproduced during release acceptance, investigate as a separate scoped component check. No old source/test threshold changed.
+- Deferred: RUN4 global horizontal sequence, release visibility/hosted acceptance, UK new resources. FullMVP PARTIAL.
+- NEXT: none
+- Next action: owner reviews report/images and explicitly decides integration; recommended next separate RUN4 navigation/release readiness, no automatic start.
 
 ## ET-MESH-003C — RUN3C: примеры решений метода контурных токов
 
 - Status: verified
-- Lifecycle: completed locally; source/main186013d, feat/mesh-lesson-run3c existing root checkout. One authorized atomic RUN3C checkpoint contains this record; exact SHA in Git log/external receipt. No RUN3C merge/push/deploy.
+- Lifecycle: completed locally; source/main186013d, feat/mesh-lesson-run3c existing root checkout. One authorized atomic RUN3C checkpoint contains this record; exact SHA in Git log/external receipt. RUN3C99b9302 subsequently accepted and ff merged local main by owner authorization2026-11-04; sourcebranch retained. No push/deploy.
 - Goal/scope:4detailed RU worked examples with progressively harder circuits, FR-321..329 specs/features/mesh-worked-examples.spec.md. STANDARD production content/frontend slice.
 - Dependencies/DAG: ET-MESH-003B verified, owner accepted and ff merged main186013d; branch preserved. No future lab prerequisite.
 - Entry: clean expected refs, installed pinned deps, static MDX/Katex/symbol infrastructure available; independent exact nodal reference all4cases PASS before implementation.
@@ -18,11 +40,11 @@
 - Evidence: merge-receipt.json main/source186013d clean; Fraction oracle all4cases beforeimplementation. 395unit/52files,264-file Astro0errors0warnings3oldhints, ESLint/build40pages39locale187artifacts395keys PASS;244Chromium PASS/6oldlive-auth skips.26exact-zero residuals,129strict formulas,6width×2theme review144bounded PNG;246oldPNG/191protected hashes unchanged. Native wheel/PageDown/Home/keyboard anchors and SVG label contrast PASS. Details TESTING/current chat outputs/ElectroTutor_run3c_evidence.zip.
 - User action MESH-3B-MERGE / DONE: owner explicitly accepted RUN3B and authorized ff; maine743df5→186013d PASS, clean, feat/mesh-lesson-run3b retained. No push/deploy.
 - User action MESH-3C-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one separate atomic RUN3C commit after mandatory PASS; no automatic integration.
-- User action MESH-3C-INTEGRATION / CONDITIONAL: owner may inspect output/report then explicitly authorize main merge; expected evidence explicit request, unlock integration only; no merge/push/deploy in this run.
-- Deferred/overall: mesh lab, horizontal context UI and finalRU-only release visibility remainfuture; fullMVP PARTIAL. NewUKexamples translation not claimed.
+- User action MESH-3C-INTEGRATION / DONE: explicit owner Merge RUN3C+RUN3D request; clean ff-only main186013d→99b9302 PASS, branch retained. No push/deploy.
+- Deferred/overall: mesh lab subsequently verified locally by ET-MESH-003D. Horizontal context UI/RU-only release visibility/newUK translation remain future; fullMVP PARTIAL.
 - Blockers: none for this locally verified slice. Future lab/global sequence/release and Linux raster/physical/Narrator coverage not claimed complete.
 - NEXT: none
-- Next action: owner reviews report/visuals; explicit main integration decision per MESH-3C-INTEGRATION. Recommended next bounded stage is a physically verified mesh laboratory; no automatic start.
+- Next action: none for RUN3C; accepted/ff merged main99b9302, continuation ET-MESH-003D verified separately.
 
 ## ET-MESH-003B — RUN3B: подробный русский учебник
 

@@ -1,5 +1,11 @@
 # Дизайн и UX «Потенциала»
 
+## RUN3D — схема и органы управления в одной панели
+
+Preset/reset и parameter selector + raw numeric editor/sign reversal расположены непосредственно над SVG; mesh loop buttons, branch currents, resistor voltages, power/residual summary — рядом или сразу под ним. Мобильная панель редактирует один выбранный параметр, избегая длинного списка настроек. I — вспомогательные контуры clockwise, i — ветви; отрицательный ответ явно объяснён. +/− источников и J arrow отражают знак, неверный J даёт ? без выдуманного направления. Источник J допускает положительную поглощаемую мощность. В UI отдельны nodal KCL и supermesh constraint.
+
+Фактические48states:320/375/390/768/1280/1920light/dark ×4presets, max workbench height788px при900px viewport, min meaningful SVGlabel13.9CSSpx. Editor+figure+readings одновременно видны после перехода к панели;0label overlap/outside/page overflow.144new PNG просмотрены до принятия;390oldPNG unchanged. Native keyboard/touch controls и no-JS initial disabled/readable state проверены. Более длинная матрица может прокручиваться локально, page overflow запрещён. GOST glyph profile переиспользован; полного screen-reader/physical-device/print certification не заявляется.
+
 ## RUN3C acceptance 2026-11-04 — читаемые решения
 
 4подробных вертикальных примера с native anchors, ссылками учебник↔примеры и полной статической математикой. Все численные схемы имеют единый словарь: I — контуры, i — ветви, J — заданный ток; source +/− явно показаны. ИсточникJ направлен A→B, пунктир суперконтуров отделён от проводов. Нативный текст16px/1.8, кликабельные anchors44px, видимый focus; никаких уровней/scroll traps.320/375/390/768/1280/1920light/dark просмотрены:48схем, минимум подписи13.9CSSpx, без перекрытий/обрезания/переполнения129формул. Label contrast≥4.5 проверен в browser; exact evidence interaction-proof.json.144bounded visual эталона приняты после просмотра,246старых PNG unchanged. Печатная/ГОСТ certification и physical device/fullNarrator не заявляются.

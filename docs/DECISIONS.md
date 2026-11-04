@@ -1,5 +1,13 @@
 # Журнал решений
 
+## ADR-046 — Мгновенная четырёхсхемная mesh лаборатория
+
+Дата:2026-11-04. Принято прямым owner RUN3D request.
+
+Фиксированным четырём опубликованным топологиям нужен полноценный пересчёт из параметров, не таблица ответов. Generic electrical solver в owning source не найден. Beam private SPD/stiffness routine нельзя безопасно использовать для mixed-unit суперконтуров и разных rank errors без изменения принятого ядра; вводится небольшой отдельный pure circuit model. R=0 явно ideal wire; invalid/inconsistent/underdetermined/numerical-limit fail closed, данные не clamp и старый ответ не остаётся текущим. Nodal Ohm/KCL сверка отделена от telescoping mesh identity; constraint показан отдельно. Exact Python nodal oracle независим от product imports.
+
+Статическая DC модель не получает фиктивный Play/Pause. На мобильном один выбранный параметр редактируется непосредственно над SVG и live readings; подробности ниже. Исходные данные не округляются, вычисленные значения показываются3значащими цифрами. Новый resource /ru/topics/dc/mesh-current-method/lab/ — второе точное RU-only исключение FR-001 рядом с examples; нет фиктивного UK маршрута/alternate и массового изменения каталога. RUN4 horizontal UI и release gate не входят в scope. RUN3C99b9302 owner-authorized ff merged, RUN3D integration отдельным решением.
+
 ## ADR-045 — Отдельные RU примеры и честная доступность перевода
 
 Дата:2026-11-04. Статус: принято прямым RUN3C request владельца и согласованным RU-only MVP.

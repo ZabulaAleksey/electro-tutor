@@ -13,6 +13,11 @@ const textbook = localePath("ru", "/topics/dc/mesh-current-method/");
         <a href="#example-1">1. Один источник</a><a href="#example-2">2. Два источника и отрицательный ток</a><a href="#example-3">3. Три контура</a><a href="#example-4">4. Источник тока и суперконтур</a>
       </nav>
       <Content />
+      <section class="mesh-examples-entry" aria-labelledby="mesh-lab-link-title">
+        <h2 id="mesh-lab-link-title">Проверьте схемы в лаборатории</h2>
+        <p>Изменяйте сопротивления и источники, сравнивайте токи, напряжения и баланс мощности.</p>
+        <nav aria-label="Схемы лаборатории"><ul>{[1,2,3,4].map(n => <li><a href={`${localePath("ru", "/topics/dc/mesh-current-method/lab/")}?example=${n}`}>Открыть в лаборатории пример {n} →</a></li>)}</ul></nav>
+      </section>
       <p><a class="examples-back" href={textbook}>Вернуться к подробному учебнику</a></p>
     </article>
   </div>

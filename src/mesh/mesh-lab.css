@@ -1,0 +1,33 @@
+.mesh-lab{max-width:1100px;margin:auto;padding:20px;--mesh-third:#694da5}
+[data-theme="dark"] .mesh-lab{--mesh-third:#c3a6ff}
+.mesh-lab h1{font-size:30px;line-height:1.15;margin:14px 0;letter-spacing:-.03em}
+.mesh-lab-links{display:flex;gap:22px;flex-wrap:wrap;font-size:14px}
+.mesh-lab a{color:var(--ink);text-decoration:underline;text-underline-offset:.18em}
+.mesh-lab-intro,.mesh-input-hint,.mesh-direction-note{font-size:14px;line-height:1.5;margin:10px 0}
+.mesh-workbench{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);scroll-margin-top:88px}
+.mesh-lab-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mesh-lab :is(input,select,button){font:inherit;min-width:0;min-height:44px;max-width:100%;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px}
+.mesh-lab :is(input,select){width:100%}.mesh-lab button{cursor:pointer}.mesh-lab :disabled{cursor:default;opacity:.65}
+.mesh-lab :is(a,button,input,select,summary,[tabindex]):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mesh-preset-row{display:grid;grid-template-columns:auto minmax(0,1fr) 44px;align-items:center;gap:6px;font-size:14px}
+.mesh-parameter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(70px,100px) 16px 44px;align-items:center;gap:5px;font-size:14px}
+.mesh-workbench-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center;margin-top:8px}
+.mesh-lab-figure{margin:0;--circuit-i1:#1753b8;--circuit-i2:#a84410;--circuit-i3:#17623f}
+[data-theme="dark"] .mesh-lab-figure{--circuit-i1:#8bb6ff;--circuit-i2:#ffad75;--circuit-i3:#7ddbb0}
+.mesh-lab-scheme{display:block;width:100%;max-width:440px;margin:auto;height:auto;overflow:visible}
+.mesh-active-element{--ink:var(--accent)!important;--white:var(--surface)!important}
+.mesh-selected-loop{filter:drop-shadow(0 0 2px var(--mesh-third))}
+.mesh-live-status{font-size:13px;line-height:1.4;margin:4px 0 8px;font-weight:600}
+.mesh-reading-group{margin:5px 0}.mesh-reading-group>p{font-size:12px;line-height:1.35;margin:0 0 3px}
+.mesh-reading-grid{display:flex;gap:4px}.mesh-reading-grid>*{flex:1;min-width:0;padding:3px;text-align:center;border:1px solid var(--line);border-radius:5px}
+.mesh-reading-grid span{display:block;font-size:12px}.mesh-reading-grid strong{display:block;font-size:14px;font-weight:650;white-space:normal;font-variant-numeric:tabular-nums}
+.mesh-reading-grid .mesh-loop-reading{padding:3px;min-height:44px}.mesh-loop-reading[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mesh-summary{display:grid;gap:3px;font-size:12px;line-height:1.4;margin-top:8px}.mesh-summary strong{font-weight:650;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.mesh-direction-note{margin-bottom:0;font-size:12px}.mesh-direction-note a{white-space:nowrap}
+.mesh-lab-error{padding:10px;background:var(--paper);border:1px solid var(--accent);font-size:14px;line-height:1.5}
+.mesh-lab-details{margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}.mesh-lab-details summary{font-size:20px;min-height:44px;cursor:pointer}.mesh-lab-details h2{font-size:22px;line-height:1.3;margin:22px 0 10px}.mesh-lab-details p{font-size:15px;line-height:1.7}
+.mesh-math-scroll{overflow-x:auto;max-width:100%;min-width:0}.mesh-math-scroll .formula-block{width:max-content;min-width:100%;box-sizing:border-box;overflow:visible}
+.mesh-equation-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
+.mesh-lab table{width:100%;border-collapse:collapse;font-size:14px}.mesh-lab :is(th,td){padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}.mesh-lab th:first-child{text-align:left}
+.mesh-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){.mesh-lab{padding:14px 12px}.mesh-lab h1{font-size:26px}.mesh-lab-intro{font-size:13px}.mesh-workbench{padding:8px}.mesh-lab-controls{grid-template-columns:1fr;gap:6px}.mesh-workbench-body{grid-template-columns:1fr;gap:2px}.mesh-lab-scheme{max-width:340px}.mesh-live-status{margin:2px 0 4px}.mesh-reading-group{margin:4px 0}.mesh-direction-note{line-height:1.4}.mesh-reading-grid strong{font-size:13px}.mesh-parameter-row{grid-template-columns:minmax(0,1fr) 76px 15px 44px}}

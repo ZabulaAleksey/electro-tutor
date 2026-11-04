@@ -1,5 +1,11 @@
 # Архитектура Electro Tutor
 
+## RUN3D — ограниченный DC solver и локальный island
+
+`models/mesh-current.ts` собирает настоящую2×2/3×3контурную систему из R/E/J для четырёх топологий. Собственный bounded row-scaled pivot solve нужен: прежнего электрического mesh solver нет, private beam stiffness solver имеет другой symmetric/diagonal/rank contract и остаётся неизменён. Невырожденное решение проверяется KVL, constitutive branch-current crosscheck и nodal KCL через потенциал A/Ohm, full signed power и отдельную I₁−I₂−J связь. При R=0 деление U/R не выполняется, ток идеальной ветви берётся из системы и нулевое падение проверяется KVL. Никакой псевдообратной/подстановки нулей/last-valid fallback.
+
+`mesh/MeshLab` хранит только raw draft/preset/editor/loop state; pure результат вычисляется при render. `MeshLabScheme` SSR использует неизменённые engineering glyphs/порты. RU ресурсы отделены в mesh/ru.ts, presentation отвечает за3significant digits/KaTeX. Новый RU lab route и4ссылки после прежнего examples Content; источники учебника/примеров/UK и31catalogue entries неизменны. Exact RU-only exceptions теперь только examples иlab, BaseLayout default translation contract прежний. Backend/storage/infra/deps отсутствуют в новом path. ADR-046/FR-331..339.
+
 ## RUN3C acceptance 2026-11-04 — статические примеры
 
 `src/pages/ru/topics/dc/mesh-current-method/examples/index.astro` рендерит авторский `src/content/mesh-examples/ru.mdx` вне lesson catalogue collection: это ресурс существующей темы, а не новая тема. `TextbookFormula.astro` компилирует129формул; `MeshExampleDiagram` SSR рисует4схемы через прежние инженерные glyphs, без hydration и нового решателя. CTA после текста `MeshTextbook` и обратные ссылки формируют реальный consumer path. Никаких API/store/kernel/provider/dependency changes. `BaseLayout.hasTranslation` по умолчанию true; false только у этой точной RU-only страницы убирает отсутствующий UK alternate/switch. Artifact audit разрешает только её, прежние пары сохраняются. Source data/полярности и независимая математика — FR-321..329/ADR-045.

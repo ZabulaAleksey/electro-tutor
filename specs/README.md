@@ -54,3 +54,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/mesh-textbook.spec.md` | Утверждённый contract | ET-MESH-003B: единый подробный RU учебник, FR-311..318 |
 
 | `features/mesh-worked-examples.spec.md` | Утверждённый contract | ET-MESH-003C, FR-321..329:4RU worked examples/static graphics/independent math |
+
+| `features/mesh-laboratory.spec.md` | Approved RUN3D owner contract | ET-MESH-003D FR-331..339:4preset live DC mesh/supermesh lab, independent math/browser evidence |

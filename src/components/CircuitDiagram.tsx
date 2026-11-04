@@ -1,5 +1,5 @@
-import type {CSSProperties} from "react";
-import {ResistorGlyph,ReferenceEmfGlyph} from "../engineering/symbols";
+import type { CSSProperties } from "react";
+import { ResistorGlyph, ReferenceEmfGlyph } from "../engineering/symbols";
 import type { Language } from "../types";
 import { getLocale } from "../i18n";
 
@@ -7,61 +7,58 @@ export default function CircuitDiagram({ language }: { language: Language }) {
   const copy = getLocale(language).circuit;
   return (
     <div className="circuit-wrap">
-      <svg
-        className="circuit"
-        style={{"--ink":"#27302d","--white":"white"} as CSSProperties}
-        viewBox="0 0 760 320"
-        role="img"
-        aria-label={copy.aria}
-      >
+      <svg className="circuit" viewBox="0 0 360 340" role="img"
+        aria-label={`${copy.aria}. ${copy.description}`}
+        style={{ "--ink": "var(--circuit-line)", "--white": "var(--circuit-component)" } as CSSProperties}>
         <defs>
-          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L7,3 z" fill="#236bfe" />
+          <marker id="arrow-blue" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="var(--circuit-i1)" />
           </marker>
-          <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L7,3 z" fill="#e66820" />
+          <marker id="arrow-orange" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="var(--circuit-i2)" />
           </marker>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="3" stdDeviation="4" floodOpacity=".08" />
-          </filter>
+          <marker id="arrow-green" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="var(--circuit-i3)" />
+          </marker>
         </defs>
-        <rect x="26" y="24" width="708" height="270" rx="22" fill="#fbfaf7" stroke="#dedbd3" />
-        <g className="wire" fill="none" stroke="#27302d" strokeWidth="3" strokeLinecap="round">
-          <path d="M105 134V85H180 M272 85H350 M350 85H436 M528 85H650V134"/>
-          <path d="M105 194V240H350 M350 240H650V194 M350 85V127 M350 193V240"/>
+        <rect x="8" y="8" width="344" height="324" rx="16" fill="var(--circuit-bg)" stroke="var(--line)" />
+        <g className="wire" fill="none" stroke="var(--circuit-line)" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M40 156V80H80 M152 80H180 M180 80H208 M280 80H320V156" />
+          <path d="M40 216V280H180 M180 280H320V216 M180 80V148 M180 212V280" />
         </g>
-        <g filter="url(#shadow)">
-          <ResistorGlyph x={180} y={85} scale={2} terminalSpan={46}/>
-          <ResistorGlyph x={436} y={85} scale={2} terminalSpan={46}/>
-          <ResistorGlyph x={350} y={127} scale={1.5} terminalSpan={44} orientation="vertical"/>
+        <ResistorGlyph x={80} y={80} terminalSpan={72} />
+        <ResistorGlyph x={208} y={80} terminalSpan={72} />
+        <ResistorGlyph x={180} y={148} terminalSpan={64} orientation="vertical" />
+        <ReferenceEmfGlyph x={40} y={186} />
+        <ReferenceEmfGlyph x={320} y={186} />
+        <g className="circuit-labels" fill="var(--circuit-line)" fontFamily="system-ui, sans-serif" fontSize="18" fontWeight="600" textAnchor="middle">
+          <text x="116" y="57">R₁ = 4 Ω</text>
+          <text x="244" y="57">R₂ = 6 Ω</text>
+          <text x="139" y="174">R₃</text><text x="139" y="198">2 Ω</text>
+          <text x="52" y="310">E₁ = 24 V</text><text x="308" y="310">E₂ = 12 V</text>
+          <text x="180" y="31">A</text><text x="180" y="310">B</text>
         </g>
-        <g fill="#27302d" fontFamily="Inter, sans-serif" fontSize="17" fontWeight="650">
-          <text x="226" y="58" textAnchor="middle">R₁ = 4 Ω</text>
-          <text x="482" y="58" textAnchor="middle">R₂ = 6 Ω</text>
-          <text x="379" y="165">R₃ = 2 Ω</text>
+        <g className="source-polarity" fill="var(--circuit-line)" fontFamily="system-ui, sans-serif" fontSize="22" fontWeight="700" textAnchor="middle">
+          <text x="40" y="176" data-polarity="e1-top-plus">+</text>
+          <text x="40" y="208" data-polarity="e1-bottom-minus">−</text>
+          <text x="320" y="176" data-polarity="e2-top-minus">−</text>
+          <text x="320" y="208" data-polarity="e2-bottom-plus">+</text>
         </g>
-        <g fill="white" stroke="#27302d" strokeWidth="2.5">
-          <ReferenceEmfGlyph x={105} y={164}/>
-          <ReferenceEmfGlyph x={650} y={164}/>
+        <path d="M78 226 C58 130 123 110 142 146" fill="none" stroke="var(--circuit-i1)" strokeWidth="2.5" markerEnd="url(#arrow-blue)" data-loop-current="I1" />
+        <path d="M218 226 C198 130 263 110 282 146" fill="none" stroke="var(--circuit-i2)" strokeWidth="2.5" markerEnd="url(#arrow-orange)" data-loop-current="I2" />
+        <path d="M180 224V258" fill="none" stroke="var(--circuit-i3)" strokeWidth="2.5" markerEnd="url(#arrow-green)" data-branch-current="I3" />
+        <g fontFamily="system-ui, sans-serif" fontSize="20" fontWeight="700" textAnchor="middle">
+          <text x="112" y="256" fill="var(--circuit-i1)">I₁</text>
+          <text x="248" y="256" fill="var(--circuit-i2)">I₂</text>
+          <text x="203" y="254" fill="var(--circuit-i3)">I₃</text>
         </g>
-        <g fill="#27302d" fontFamily="Inter, sans-serif" fontWeight="700" textAnchor="middle">
-          <text x="105" y="158" fontSize="14">E₁</text>
-          <text x="105" y="178" fontSize="13">24 V</text>
-          <text x="650" y="158" fontSize="14">E₂</text>
-          <text x="650" y="178" fontSize="13">12 V</text>
-        </g>
-        <path d="M158 178 C173 127 231 122 250 168" fill="none" stroke="#236bfe" strokeWidth="3" markerEnd="url(#arrow-blue)" />
-        <path d="M450 178 C467 127 526 122 545 168" fill="none" stroke="#e66820" strokeWidth="3" markerEnd="url(#arrow-orange)" />
-        <g fontFamily="Inter, sans-serif" fontSize="18" fontWeight="750">
-          <text x="199" y="142" fill="#236bfe">I₁</text>
-          <text x="492" y="142" fill="#e66820">I₂</text>
-        </g>
-        <circle cx="350" cy="85" r="5" fill="#27302d" />
-        <circle cx="350" cy="240" r="5" fill="#27302d" />
+        <circle cx="180" cy="80" r="4" fill="var(--circuit-line)" />
+        <circle cx="180" cy="280" r="4" fill="var(--circuit-line)" />
       </svg>
       <div className="circuit-legend">
         <span><i className="dot blue" /> I₁ — {copy.left}</span>
         <span><i className="dot orange" /> I₂ — {copy.right}</span>
+        <span><i className="dot green" /> I₃: A → B</span>
       </div>
     </div>
   );

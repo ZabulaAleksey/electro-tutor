@@ -114,7 +114,7 @@ h1, h2, h3 { font-family: "Manrope", system-ui, sans-serif; margin-top: 0; }
 .lesson-sidebar a { text-decoration:none; color:var(--muted); display:flex; align-items:center; gap:12px; padding:11px 10px; border-radius:8px; font-size:13px; }
 .lesson-sidebar a span { width:22px; height:22px; display:grid; place-items:center; font-size:10px; border:1px solid var(--line); border-radius:6px; }
 .lesson-sidebar a.active { color:var(--ink); background:#e8e5de; font-weight:700; }.lesson-sidebar a.active span { background:var(--orange); border-color:var(--orange); color:white; }
-.lesson-content { max-width:850px; padding:45px 75px 100px; }
+.lesson-content { min-width:0; width:100%; max-width:850px; padding:45px 75px 100px; }
 .breadcrumbs { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; }
 .lesson-header { padding:60px 0 45px; }
 .lesson-number { color:var(--orange); font-size:11px; font-weight:800; letter-spacing:.14em; }
@@ -130,20 +130,21 @@ h1, h2, h3 { font-family: "Manrope", system-ui, sans-serif; margin-top: 0; }
 .step-label { color:var(--orange); font-size:10px; letter-spacing:.13em; text-transform:uppercase; font-weight:800; }
 .lesson-section h2 { font-size:32px; letter-spacing:-.035em; margin:18px 0; }
 .lesson-section > p, .research-note p { color:#535e5a; line-height:1.75; font-size:16px; }
-.formula { white-space: nowrap; }.formula-block { display:block; padding:23px; margin:25px 0; text-align:center; overflow-x:auto; background:var(--white); border:1px solid var(--line); border-radius:12px; font-size:1.1em; }
+.formula { white-space: normal; text-transform:none; letter-spacing:normal; font-variant:normal; }
+.formula-block { display:block; padding:23px; margin:25px 0; text-align:center; overflow:visible; background:var(--white); border:1px solid var(--line); border-radius:12px; font-size:1.1em; }
 .insight { display:flex; gap:15px; padding:20px; border-radius:12px; background:#e8f0eb; margin:26px 0; }
 .insight > svg { color:var(--green); flex:none; }.insight strong { color:var(--green); }.insight p { margin:5px 0 0; line-height:1.5; color:#4d5c56; }
 .research-note { border-left:3px solid var(--blue); padding:15px 20px; margin-top:25px; background:#edf2fa; }
-.research-note > span { color:var(--blue); text-transform:uppercase; font-size:10px; font-weight:800; letter-spacing:.1em; }
-.circuit-wrap { margin:30px 0; }.circuit { width:100%; display:block; }
+.research-note-label { color:var(--blue); text-transform:uppercase; font-size:10px; font-weight:800; letter-spacing:.1em; }
+.circuit-wrap { margin:30px 0; overflow:visible; }.circuit { width:100%; min-width:0; display:block; }
 .circuit-legend { display:flex; justify-content:center; gap:28px; color:var(--muted); font-size:12px; margin-top:10px; }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; }.dot.blue { background:var(--blue); }.dot.orange { background:var(--orange); }
 .given-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; }
 .given-grid div { padding:13px; background:var(--white); border:1px solid var(--line); border-radius:9px; text-align:center; }
 .given-grid span { color:var(--muted); font-size:11px; display:block; }.given-grid strong { font-size:15px; display:block; margin-top:4px; }
-.substitution { margin:25px 0; }.substitution > span { font-size:12px; color:var(--muted); font-weight:700; }
-.result-card { display:flex; gap:16px; align-items:center; background:var(--ink); color:white; border-radius:13px; padding:20px; margin-top:30px; }
-.result-card > svg { color:#f6a066; }.result-card span { display:block; color:#bac1be; font-size:11px; margin-bottom:6px; }
+.substitution { margin:25px 0; }.substitution-label { font-size:12px; color:var(--muted); font-weight:700; display:block; }
+.result-card { display:flex; gap:16px; align-items:center; background:#1d293c; color:#f4f7fc; border-radius:13px; padding:20px; margin-top:30px; }
+.result-card > svg { color:#f6a066; }.result-card-label { display:block; color:#ccd7e6; font-size:11px; margin-bottom:6px; }
 .success-note { display:flex; align-items:center; gap:10px; color:var(--green); background:#e6f0ea; padding:17px 20px; border-radius:11px; font-weight:700; margin-top:25px; }
 .success-note svg { width:19px; }
 .lesson-next { border-top:1px solid var(--line); padding-top:30px; display:flex; justify-content:space-between; align-items:center; }
@@ -167,7 +168,7 @@ footer { min-height:80px; padding:25px max(28px, calc((100vw - 1110px) / 2)); ba
   .catalog-item { grid-template-columns:42px 1fr 42px; gap:10px; }.duration { display:none; }.catalog-item p { font-size:13px; }.catalog-page > h1 { font-size:40px; }
   .lesson-content { padding:25px 20px 70px; }.lesson-header { padding:45px 0 30px; }.lesson-header h1 { font-size:39px; }.lesson-header p { font-size:16px; }
   .level-picker { display:block; }.level-label { display:block; margin-bottom:10px; }.level-options { flex-direction:column; }.level-options button { width:100%; }
-  .lesson-section h2 { font-size:27px; }.formula-block { margin:20px -6px; padding:18px 8px; font-size:.92em; }
+  .lesson-section h2 { font-size:27px; }.formula-block { margin:20px 0; padding:16px 8px; font-size:.92em; }
   .given-grid { grid-template-columns:repeat(3, 1fr); }.circuit-legend { flex-direction:column; gap:5px; align-items:center; }
   .catalog-card-grid,.curriculum-static-topics.catalog-card-grid { grid-template-columns:1fr; }
   .tool-card { min-height:185px; padding:20px; }
@@ -258,6 +259,12 @@ body { background: var(--paper); transition: background-color .25s ease, color .
 .circuit g[fill="white"] circle {
   fill: transparent;
 }
+.circuit .wire,
+.circuit [data-symbol],
+.circuit [data-symbol] path,
+.circuit [data-symbol] circle { stroke: var(--circuit-line); }
+.circuit .source-polarity { stroke: none; fill: var(--circuit-line); }
+.circuit .source-polarity text { stroke: none; fill: var(--circuit-line); }
 /* Navigation, active level contrast and information pages */
 [data-theme="dark"] .level-options button.selected,
 [data-theme="dark"] .level-options button.selected span,
@@ -372,3 +379,16 @@ button { min-height: 24px; }
 .nav-services{position:relative;font-size:12px}.nav-services>summary{list-style:none;cursor:pointer;padding:15px 0;color:var(--ink);white-space:nowrap}.nav-services>summary::-webkit-details-marker{display:none}.nav-services>summary:after{content:"⌄";padding-left:6px}.nav-services>summary.active{border-bottom:2px solid var(--accent)}.nav-services-menu{position:absolute;top:100%;right:0;min-width:260px;padding:8px;display:grid;gap:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface-elevated);box-shadow:0 12px 32px #07121a30;z-index:30}.header nav .nav-services-menu a,.nav-services-menu>span{display:block;padding:12px;border-radius:7px;font-size:12px;line-height:1.5;white-space:normal;color:var(--ink)}.nav-services-menu>span{color:var(--muted)}.header nav .nav-services-menu a:hover{background:var(--surface-plot)}.nav-services>summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}@media(max-width:900px){.header.mobile-open .nav-services{width:100%}.header.mobile-open .nav-services>summary{font-size:14px;padding:13px}.nav-services-menu{position:static;box-shadow:none;min-width:0;margin:0 10px 10px}.header.mobile-open nav{max-height:calc(100dvh - 76px);overflow-y:auto}}
 
 #install,#mathmorph{scroll-margin-top:100px}
+
+/* RUN3A: lesson-only diagram geometry and mathematical surfaces. KaTeX owns its internal metrics. */
+.lesson-content .formula-block { min-width:0; max-width:100%; }
+.lesson-content .result-card > div { min-width:0; max-width:100%; }
+.lesson-content .result-card > svg { flex:none; }
+.lesson-content .result-card .formula { display:block; font-size:1rem; }
+.circuit { max-width:520px; margin-inline:auto; }
+.circuit-wrap { --circuit-i1:#1753b8; --circuit-i2:#a84410; --circuit-i3:#17623f; }
+[data-theme="dark"] .circuit-wrap { --circuit-i1:#8bb6ff; --circuit-i2:#ffad75; --circuit-i3:#7ddbb0; }
+.circuit-wrap .dot.blue { background:var(--circuit-i1); }
+.circuit-wrap .dot.orange { background:var(--circuit-i2); }
+.circuit-wrap .dot.green { background:var(--circuit-i3); }
+.circuit-legend { flex-wrap:wrap; gap:8px 20px; }

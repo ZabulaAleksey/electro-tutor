@@ -1,5 +1,7 @@
 # ElectroTutor
 
+ET-MESH-003A / RUN3A acceptance 2026-11-04: локально исправлены формулы и схема русского урока метода контурных токов, включая мобильные экраны и обе темы. 389 unit и 228 Chromium PASS / 6 ожидаемых live-auth skips; Astro/TypeScript, ESLint, production build PASS. Новые 60 PNG просмотрены, прежние 54 PNG сохранены. Один bounded repair в `fix/mesh-lesson-run3a`; публикация не выполнялась. Полноценный эталонный учебный модуль остаётся PARTIAL: подробная теория, отдельные примеры/лаборатория и переходы — последующие задачи. Contract/evidence: `specs/features/mesh-lesson-visual-repair.spec.md`, `docs/STAGES.md`, `docs/TESTING.md`.
+
 ET-CI-001: certifi2026.10.23; source `c9a43fbe0149aae5072b02cd04d7268bc743397a`, [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/41025558068) verify/deploy SUCCESS; Cloudflare `a1db51d3-6979-4112-a33e-a007055ef99b` SUCCESS. Backend и полный frontend pipeline проходят; подробности и ограничения — docs/STAGES.md, docs/TESTING.md.
 
 ET-PAN-004 опубликован и проверен2026-10-30: https://electrotutor.pages.dev/ru/ — четыре оригинальные панорамы, каталог31инструмента, тематические карточки и частичный ластик. Source c5ac7b8, Cloudflare41ad6330 SUCCESS;382unit/61primary-domain browser PASS. Контролируемая видеосвязь отдельно BLOCKED_BY_PROVIDER; подробности — docs/STAGES.md и docs/TESTING.md. Предыдущие receipts ниже сохранены.

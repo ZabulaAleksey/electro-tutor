@@ -104,7 +104,7 @@ export default function MeshLesson({
           )}
           {level === 1 && (
             <div className="research-note">
-              <span>{copy.why}</span>
+              <span className="research-note-label">{copy.why}</span>
               <p>{copy.whyBody}</p>
               <Formula>m=b-n+1</Formula>
             </div>
@@ -129,14 +129,14 @@ export default function MeshLesson({
           {level <= 2 && <p>{copy.resistanceRule}</p>}
           <Formula>{String.raw`\begin{cases}(R_1+R_3)I_1-R_3I_2=E_1\\-R_3I_1+(R_2+R_3)I_2=E_2\end{cases}`}</Formula>
           <div className="substitution">
-            <span>{copy.substitute}</span>
+            <span className="substitution-label">{copy.substitute}</span>
             <Formula>{String.raw`\begin{cases}6I_1-2I_2=24\\-2I_1+8I_2=12\end{cases}`}</Formula>
           </div>
           {level === 1 && <>
             <p>{copy.matrix}</p>
             <Formula>{String.raw`\underbrace{\begin{bmatrix}6&-2\\-2&8\end{bmatrix}}_{\mathbf R}\begin{bmatrix}I_1\\I_2\end{bmatrix}=\begin{bmatrix}24\\12\end{bmatrix}`}</Formula>
             <p>{copy.reciprocity}</p>
-            <Formula>{String.raw`\det\mathbf R=6\cdot8-(-2)^2=44>0`}</Formula>
+            <Formula>{String.raw`\begin{aligned}\det\mathbf R&=6\cdot8-(-2)^2\\&=44>0\end{aligned}`}</Formula>
           </>}
         </section>
 
@@ -145,8 +145,8 @@ export default function MeshLesson({
           <h2>{copy.findCurrents}</h2>
           {level === 3 ? (
             <>
-              <Formula>{String.raw`6I_1-2I_2=24,\qquad -2I_1+8I_2=12`}</Formula>
-              <Formula>{String.raw`I_1=\frac{54}{11}\approx4.91\ \mathrm A,\qquad I_2=\frac{30}{11}\approx2.73\ \mathrm A`}</Formula>
+              <Formula>{String.raw`\begin{aligned}6I_1-2I_2&=24\\-2I_1+8I_2&=12\end{aligned}`}</Formula>
+              <Formula>{String.raw`\begin{aligned}I_1&=\frac{54}{11}\approx4.91\ \mathrm A\\I_2&=\frac{30}{11}\approx2.73\ \mathrm A\end{aligned}`}</Formula>
             </>
           ) : (
             <>
@@ -159,8 +159,8 @@ export default function MeshLesson({
           )}
           <div className="result-card">
             <Target />
-            <div><span>{copy.sharedCurrent}</span>
-              <Formula block={false}>{String.raw`I_3=I_1-I_2=\frac{24}{11}\approx2.18\ \mathrm A`}</Formula>
+            <div><span className="result-card-label">{copy.sharedCurrent}</span>
+              <Formula block={false}>{String.raw`\begin{aligned}I_3&=I_1-I_2\\&=\frac{24}{11}\approx2.18\ \mathrm A\end{aligned}`}</Formula>
             </div>
           </div>
         </section>
@@ -169,8 +169,8 @@ export default function MeshLesson({
           <span className="step-label">05 / {copy.check}</span>
           <h2>{copy.powerBalance}</h2>
           {level === 1 && <p>{copy.powerLead}</p>}
-          <Formula>{String.raw`P_R=I_1^2R_1+I_2^2R_2+(I_1-I_2)^2R_3`}</Formula>
-          <Formula>{String.raw`P_R\approx150.55\ \mathrm W,\qquad P_E=E_1I_1+E_2I_2\approx150.55\ \mathrm W`}</Formula>
+          <Formula>{String.raw`\begin{aligned}P_R&=I_1^2R_1+I_2^2R_2\\&\quad+(I_1-I_2)^2R_3\end{aligned}`}</Formula>
+          <Formula>{String.raw`\begin{aligned}P_R&\approx150.55\ \mathrm W\\P_E&=E_1I_1+E_2I_2\\&\approx150.55\ \mathrm W\end{aligned}`}</Formula>
           <div className="success-note"><Check />{copy.success}</div>
         </section>
         <LessonPractice

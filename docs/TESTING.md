@@ -1,3 +1,26 @@
+## ET-MESH-003A — RUN3A acceptance 2026-11-04
+
+Source baseline `48c3fef`, initial clean `main`; работа в существующем checkout на `fix/mesh-lesson-run3a`. Dependencies не устанавливались; Node22.23.1, pinned Corepack pnpm11.23.0. Production build и browser artifacts направлены в `work/run3a` текущего audit-чата; backend/DB/IdP не запускались.
+
+| Команда / evidence | Результат |
+|---|---|
+| `corepack pnpm test` | 50 files / 389 tests PASS; independent beam references 13 cases / 49 assertions PASS |
+| `corepack pnpm check` | 255 files, 0 errors / 0 warnings / 3 прежние hints: 2 unused generated WASM vars и deprecated beforeunload returnValue |
+| `corepack pnpm lint` | PASS |
+| `corepack pnpm build` с external BUILD_OUTPUT_DIR | PASS: 39 pages, 38 localized routes, 184 audited artifacts; WASM hash/locales/lesson/site audits PASS; 395 paired locale keys |
+| `node node_modules/@playwright/test/cli.js test --workers=2 --update-snapshots=none` на owned preview | 228 PASS / 6 expected live-auth phase skips; no new skips |
+| `... test tests/e2e/mesh-lesson-visual.spec.ts --workers=2 --update-snapshots=none` | 12 PASS: 320/375/390/768/1280/1920 × light/dark |
+| independent exact Fraction nodal/KCL/KVL oracle, no product import | I1=54/11 A, I2=30/11 A, I3=24/11 A, P=1656/11 W; six residuals exactly zero |
+| protected SHA-256 inventory | 187 kernel/backend/auth/route/infra/lock files unchanged; all 54 original PNG unchanged |
+
+Новый test проверяет lowercase math/CSS atoms, матрицу/дроби/степени/скобки и переносы, отсутствие formula/document overflow, SVG label geometry/размеры/пересечения/контраст, полярности и I3. Windows Chromium: 60 новых raster baselines, по 5 regions (scheme/equations/result/power/research) для 12 состояний. Перед принятием просмотрены screenshots всех состояний; floating global header исключён только из bounded component captures временным DOM style tag с finally removal. Обычные whole-page before/after captures сохраняют header. Google Fonts блокируется только в новых raster tests для воспроизводимости; обычные browser suites и отдельные before/after captures сохраняют штатную загрузку. Windows baseline не объявляется Linux raster evidence: portable geometry/semantic checks и attachments исполняются на Linux; новые Linux raster goldens NOT_RUN, старые 27 Linux PNG сохранены.
+
+Golden protocol: старые 54 PNG не обновлялись. Одна из 23 прежних SVG-string entries (`reference lesson uses canonical R geometry`) обновлена адресным Vitest `-t ... -u` после проверки схемы; остальные 22 совпадают. Новые PNG приняты только после image review. Первый creation run сообщает missing snapshots как FAIL и пишет actual; это не terminal acceptance. Обнаруженный неподдерживаемый `style` у screenshot matcher заменён поддерживаемым временным style tag; 12 equation snapshots вручную сопоставлены с просмотренными чистыми candidates: отличалась только 76px полоса sticky header, формулы вне полосы совпадали. Первоначальные captures сохранены. Ни старые tests, ни numeric oracles не ослаблялись.
+
+Воспроизводимые дефекты before: при320px подпись источника 4.76CSSpx, research formula наследует uppercase; длинный power block scrollWidth404 при clientWidth288; общие span selectors ломают KaTeX result. После: существенные SVG labels минимум13.9CSSpx на320px, text-transform none, все проверенные формулы помещаются, source polarities согласованы с прежними уравнениями. Оба контурных направления были clockwise и сохранены.
+
+Evidence bundle пользователя: `ElectroTutor_run3a_evidence.zip`, report `ElectroTutor_run3a_mesh_current_2026-11-04.md`, visual comparison `ElectroTutor_run3a_comparison.html` в outputs текущего чата; исходные logs/captures/oracle/review receipts — work/run3a. Reviewer read-only: новых correctness findings нет. Full ГОСТ certification, physical mobile hardware, Firefox/WebKit, live backend/auth и hosted validation NOT_RUN в RUN3A. Scope этого acceptance — существующий static lesson consumer path, не завершение нового MVP.
+
 ## ET-PAN-004 — локальная приёмка2026-10-30
 
 Existing checkout / feature/panoramic-visual-system, no new worktree/dependencies/backend. Baseline360unit/45files PASS; final `pnpm test`381/381/49files PASS, including independent beam verifier13cases/49assertions. `pnpm lint` PASS; `pnpm check`251files/0errors/0warnings/3existing hints (generated WASM2 and beforeunload1). `pnpm build`39pages/38localized routes/184artifacts PASS, shipped WASM hashes/locales/lesson/site audits PASS.

@@ -27,7 +27,8 @@
       "specs/features/fourier-laboratory.spec.md",
       "specs/features/student-workspaces.spec.md",
       "specs/features/beam-laboratory.spec.md",
-      "specs/features/panoramic-visual-system.spec.md"
+      "specs/features/panoramic-visual-system.spec.md",
+      "specs/features/mesh-lesson-visual-repair.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1423,6 +1424,38 @@
         "tests/e2e/panoramic-home.spec.ts",
         "tests/e2e/panoramic-catalog.spec.ts",
         "tests/e2e/board-eraser.spec.ts"
+      ]
+    },
+    {
+      "domain": "mesh-lesson-visual-repair",
+      "status": "VERIFIED",
+      "runtime": "Existing static RU lesson validated locally: 389 unit; 228 Chromium PASS / 6 existing live-auth skips; check/lint/build PASS. No publication.",
+      "security": "Static presentation only; no API/auth/DB/infra changes.",
+      "a11y": "12 width/theme states: geometry, contrast, polarity, meaningful labels >=12CSSpx, localized aria; no full screen-reader certification claim.",
+      "observability": "60 manually reviewed Windows PNG baselines; unchanged 54 historic PNG; exact independent rational oracle and 187 protected file hashes.",
+      "gap": "No gap in bounded RUN3A acceptance. Full detailed theory/examples/journey/mesh lab and release visibility remain future scope; Linux raster NOT_RUN.",
+      "action": "One atomic RUN3A commit after terminal PASS; merge/push/deploy require separate permission.",
+      "requirement_ids": [
+        "FR-301",
+        "FR-302",
+        "FR-303",
+        "FR-304",
+        "FR-305",
+        "FR-306"
+      ],
+      "code": [
+        "src/components/CircuitDiagram.tsx",
+        "src/legacy-pages/MeshLesson.tsx",
+        "src/styles.css"
+      ],
+      "unit": [
+        "src/engineering/symbols.test.tsx"
+      ],
+      "integration": [
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/mesh-lesson-visual.spec.ts"
       ]
     }
   ]

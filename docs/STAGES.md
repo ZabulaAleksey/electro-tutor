@@ -1,6 +1,27 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-CI-001
+- Stage ID: ET-MESH-003A
+
+## ET-MESH-003A — RUN 3A: формулы и инженерная схема метода контурных токов
+
+- Status: verified
+- Lifecycle: completed; bounded RUN3A implemented and validated locally. One authorized atomic repair commit contains this record; receipt is Git history and external output report. Existing root checkout, branch fix/mesh-lesson-run3a; initial clean main48c3fef. No merge/push/deploy.
+- Goal/scope: устранить подтверждённые RUN2 typography/diagram/mobile defects существующего RU lesson; SPEC specs/features/mesh-lesson-visual-repair.spec.md, FR-301..306. Classification STANDARD production frontend bugfix.
+- Dependencies/DAG: ET-CI-001 verified; RUN2 source/math/hosted audit на48c3fef доступен. Future theory/lab stages не являются prerequisites этого bounded visual slice.
+- Entry evidence: Git clean, Node/pnpm/dependencies уже установлены, Astro static source/routes и current lesson доступны; независимый KCL oracle54/11,30/11,24/11 и1656/11 W. Public backend не нужен для local lesson path.
+- Plan: before capture6widths×2themes → root CSS/schematic repair → failing-to-passing regressions → fresh build/types/lint/unit/browser → manual screenshot review → canonical sync → one atomic commit.
+- Runnable vertical slice/E2E: Astro build/own loopback preview → RU lesson → existing detailed mode → scheme/math/result/power/readable mobile → practice/reload. Без mock solver/backend; new lab не требуется для этого slice.
+- PASS/DoD: исходные уравнения/числа сохранены; E1top+/E2top− и clockwise/I3 согласованы;320/375/390/768/1280/1920light/dark без clipping/overlap/page overflow; meaningful labels≥12CSSpx; reviewed new goldens, all relevant unit/check/lint/build/browser PASS; no source/user-data loss; commit only after all required gates.
+- Interfaces/invariants: API/DB/auth/models/routes unchanged; shared RU/UK component compatibility сохраняется. Existing accepted tests/goldens не ослабляются; targeted CircuitDiagram SVG snapshot допускается обновить только после review в рамках явного исправления схемы. Старые54PNG не перегенерируются.
+- Temporary/fallback: нет mock/stub implementation. Windows Chromium raster review плюс portable layout/geometry assertions; новый Linux raster baseline вне доступного Windows acceptance и не выдумывается. Fail any required local gate → no commit.
+- Documentation/security/performance/migration impact: точечные SPEC/STAGES/TESTING/DESIGN/traceability/readme sync; no deps/DB migration/network write/deploy. SVG/CSS only, без нового тяжёлого runtime.
+- Evidence: 389 unit/50files; check255files/0errors/0warnings/3pre-existing hints; ESLint PASS; production39pages/38locale routes/184artifacts/395locale keys PASS; full Chromium228PASS/6expected live-auth skips plus12focused visual PASS. Six widths×two themes and60new PNG manually reviewed; before/after72+72captures. Existing54PNG and187protected files SHA-256 unchanged;22of23SVGentries unchanged, only lesson entry updated after review. Independent rational KCL/KVL/power six exact-zero residuals. Read-only reviewer: no new correctness findings. Artifact/report/log references: docs/TESTING.md and current chat outputs/ElectroTutor_run3a_evidence.zip.
+- Deferred/overall: полноценный эталонный модуль пока PARTIAL: подробная theory/отмена3levels в UI, examples stage, horizontal route, новая mesh lab и RU-only visibility/SEO не входят в RUN3A. Остальные19тем/31tools/UK не удаляются.
+- USER action MESH-3A-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: прямой RUN3A request разрешает один атомарный commit; все terminal gates PASS до staging/commit. Точный commit SHA хранится в Git log и внешнем report без self-referential hash в этом record.
+- USER action MESH-3A-MERGE / PENDING_AFTER_VALIDATION: merge/push/deploy не разрешены. После commit owner может проверить outputs и отдельно решить integration; ожидаемое разрешение для merge — «Да, сливай». Это не блокирует local repair/checks/commit.
+- Blockers: none for bounded RUN3A. Linux raster/physical devices/live backend/hosted validation NOT_RUN и не объявляются проверенными. UA19/manual voice не открывается повторно без affected-scenario trigger.
+- NEXT: none
+- Next action: owner reviews local screenshots/lesson and decides integration separately; следующий product block — подробная математическая теория и полностью проверенные примеры, без автоматического старта лаборатории/навигации.
 
 ## ET-10.3 — LessonSession lifecycle и reload
 

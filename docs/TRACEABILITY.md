@@ -11,6 +11,7 @@ SPEC-корпусом, binding/architecture-baseline/future-backlog classificati
 
 | Behavior ID | Канонический contract | Architecture / decision | Stage и required evidence | Состояние |
 |---|---|---|---|---|
+| `FR-301..306` | `specs/features/mesh-lesson-visual-repair.spec.md` | existing Astro/React lesson and canonical SVG glyphs; no boundary change | `ET-MESH-003A`: 389 unit, check/lint/build, 228 Chromium PASS/6 expected skips, 12 visual states/60 reviewed PNG, independent KCL oracle, protected hashes; `TESTING.md` | RUN3A acceptance 2026-11-04: bounded visual repair validated locally; full reference module remains PARTIAL |
 | `PLAT-001` | current/target map, выбранный walking-skeleton stack и executable DAG определены до кода | `ARCHITECTURE.md`, ADR-019 | `ET-09.1`: spec/link/context/overlay validators и semantic DAG review | contracted; validated locally |
 | `AUTH-001..004` | real OIDC login, expired/invalid auth fails closed, identity key `(issuer, subject)`, MathMorph isolation | ADR-020/022, `SECURITY.md`, `API.md` | `ET-09.3`: unit crypto/security negatives, real PostgreSQL lifecycle, live Keycloak provisioning and Chromium login→`/me`→logout | implemented; validated locally |
 | `PLAT-003` | application profiles отделены от provider identity/authority; Student и Tutor — composable private personas | `profiles-capabilities-audit.spec.md`, ADR-023/024, `ARCHITECTURE.md` | `ET-09.4a..e`: ordered audit→Account→grant→profile→HTTP→E2E evidence | implemented; live two-user Keycloak/API/PostgreSQL/browser path validated locally |

@@ -1,5 +1,16 @@
 # Учебный журнал
 
+## Pages retained HTML survives a correct restricted deployment (2026-11-05)
+
+- Problem: strict public MVP excludes legacy routes, but successful static upload alone did not make every historic URL404.
+- Symptom: primary /uk/ and /ru/interactive/ returned old HTML200/noindex, CF-Cache-Status HIT/Age/s-maxage604800; same paths on unique deployment404; accepted primary browser12/13 with exact route failure.
+- Root cause: retained primary CDN asset residency is directly demonstrated, despite absence in immutable manifest and all90served bytes matching reviewed input. Attribution to Pages asset retention is an evidence-backed inference consistent with official up-to-week per-PoP policy, not an internal Cloudflare trace.
+- Failed attempts: no mutating fixes tried. Read-only cache-control/default-Python-UA probes received1010 and were not used as a success claim; no repeated deploy or wrong build-cache purge.
+- Fix: NOT_APPLIED within checked-artifact-only deploy authorization. Current module remains live; no guessed/unowned-zone purge, Worker/Functions/changed artifact/DNS or automatic old-full rollback. REL5-CACHE owns follow-up.
+- Verification:90served SHA match,7module pages/security/SEO PASS; primary hidden2×200/noindex, deployment alias accepted route1PASS;16hosted independent maths/currentPWA/CSP PASS. Current controlled SW denies hidden navigation, but anonymous server/cache boundary still partial.
+- Prevention: before claiming a restricted public release, test historic removed URLs anonymously on the primary hostname as well as artifact/unique deployment. Build absence is not immediate CDN eviction or revocation; use only confirmed owned cache controls, distinguish CDN from build cache, preserve actual failure receipt.
+- Links: STAGES REL5-CACHE; TESTING public deploy; https://developers.cloudflare.com/pages/configuration/serving-pages/#asset-retention ; current task work/public_deploy.
+
 ## 2026-11-04 — Проверка очень длинных UI screenshots
 
 - Problem: детальный MDX textbook сделал locator screenshot одного раздела высотой более5000px.

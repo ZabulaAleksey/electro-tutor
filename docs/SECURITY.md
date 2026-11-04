@@ -1,5 +1,9 @@
 # Безопасность и границы доверия
 
+## First hosted RUN5 — partial route restriction
+
+Owner-authorized direct publish2026-11-05 produced canonical8e96428d/source373f5b8 without push/DNS/settings changes. Real primary HTTP enforces exact hashed-script CSP, nosniff/frame/referrer/permissions and cache policy; actual browser16math/negativeinput/theme/offline scenarios have0unexpectedCSP/app errors/externalapprequests; arbitrary untrusted inline blocked.90served bytes equal reviewed artifact. Old retained /uk/ and /ru/interactive/ still200/noindex on primary; all-new alias404. This is a release restriction defect, not evidence of newly leaked secrets/private data or source deletion. No false full-hidden-route PASS. Current SW hides those URLs after control, but build/SW are not revocation of historical public cache. Provider NEL/Report-To headers observed; hosting network error reporting is distinct from application analytics and remains within owner hosting-policy review. No unsupported purge/credential mutation/source workaround.
+
 ## Восстановленный OAuth доступ2026-11-05
 
 Owner explicitly authorized pinned Wrangler4.157.0 installation and official login; browser grant and CLI/whoami/GET accounts+Pages200 verified. Read scopes account/user/zone and the only Pages OAuth catalog scope pages:write were requested; resource inventory performed GET only. No worker/dns-write scopes requested, no deploy/settings/DNS changes. Credentials stored by official CLI; reports contain no token values. Historical expired-OAuth notes below are superseded for access availability; billing/retention/account-wide policy/hosted new-MVP acceptance remain unverified. Product dependency/lockfile/runtime boundaries unchanged.

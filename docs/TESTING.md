@@ -1,5 +1,17 @@
 ## ET-MVP-004 — RUN4 acceptance 2026-11-04
 
+## Public RUN5 deployment verification2026-11-05
+
+- Expanded historical route sweep:35non-MVP routes from retained full artifact,33real404 and2retained200/noindex(/uk/,/ru/interactive/), observed PoP scope only. Receipt work/public_deploy/historical-routes.json.
+
+Owner explicitly approved direct accepted artifact deploy (91SHA match), existing electrotutor/main. Wrangler4.157.0 command exit0;90assets upload plus parsed _headers, production8e96428d-7051-4c23-bdaf-9b350f1afb49/source373f5b8 canonical success. Before production a1db51d3/sourcec9a preserved as historical receipt, not auto rollback. Build/source/domain controls unchanged; no push/DNS/second deploy/source fix.
+
+Fresh primary hosted Playwright accepted tests:12PASS/1FAIL/0retry. Fail public URLs test expects /uk/404, actual retained old200. Independent HTTP probe also /ru/interactive/200; both noindex, HIT/Age and s-maxage604800. Seven other hidden URLs404/security headers. Unique deployment origin same unchanged route test1PASS. All90servable artifact responses match accepted bytes; headers/canonical/OG/titles/descriptions/robots/sitemap7RU/botUA200 PASS. Marker no-store;SW/manifest/HTML no-cache, hashed assets immutable. Some diagnostic requests using default Python UA return403 error1010 and are not substituted for normal audit/browser evidence; no WAF/auth bypass/config changes.
+
+Separate actual hosted Chromium browser:16independent Fraction oracle sets (4baselines+12variants) mesh/branch currents/resistor voltages/signed power display match3significant figures; invalid input/reset/theme/live editing PASS,0pageerrors0unexpectedCSP0externalapprequests. Negative CSP probe injects untrusted inline DOM script: blocked as expected (intentional violation recorded separately, not counted as app failure). Actual current SW installed/controller/offline unseen lab+edit/hidden404 PASS; old already-installed primary client/native device upgrade NOT_RUN, previous localhost legacy migration not relabeled hosted.16screenshots390/1280light/dark viewed; no new goldens/accepted test edits. All source/body math unchanged, no rebuild/unit/types rerun.
+
+Hosted terminal acceptance PARTIAL because provider retention serves deleted pages. Official docs /pages/configuration/serving-pages/#asset-retention plus primary-vs-deployment/HIT/Age evidence; exact internal mechanism inferred, deletion-cache residency directly observed. No supported owned-zone CDN purge available in account; did not confuse Pages build-cache purge with CDN invalidation or issue guessed destructive API. Failure/traces/diagnostic receipts preserved; STAGES REL5-CACHE explicit follow-up.
+
 ## Cloudflare access recovery 2026-11-05
 
 Explicit owner install/login approval; local pnpm11.23.0 install --ignore-scripts installs Wrangler4.157.0 in separate task work/cloudflare-tools (own package/lock; no product dependency change). CLI --version/login help/scopes work, official localhost8976 OAuth completed by owner, Successfully logged in and whoami exit0. No product tests/builds rerun; only CLI/account GET checks. Official CLI credential file changed as authorized; only SHA/expiry/scope metadata recorded, no token copies.

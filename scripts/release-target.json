@@ -37,5 +37,14 @@
   "deployAuthorized": false,
   "accountSettingsVerifiedOn": "2026-11-05",
   "projectName": "electrotutor",
-  "productionBranch": "main"
+  "productionBranch": "main",
+  "lastDeploymentAuthorizedAndCompleted": true,
+  "futureDeploymentRequiresOwnerApproval": true,
+  "deployment": {
+    "id": "8e96428d-7051-4c23-bdaf-9b350f1afb49",
+    "environment": "production",
+    "sourceCommit": "373f5b84c6109bab8f0469e833593d916c4dc6be",
+    "hostedAcceptance": "partial",
+    "blocker": "retained old /uk/ and /ru/interactive/ return200/noindex on primary"
+  }
 }

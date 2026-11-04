@@ -1,5 +1,11 @@
 # Публикация автономного ElectroTutor MVP
 
+## First authorized public deploy2026-11-05
+
+DONE: accepted91file artifact SHA verified then direct uploaded via installed Wrangler4.157.0 to electrotutor/main with source373f5b8. Canonical production8e96428d-7051-4c23-bdaf-9b350f1afb49, https://electrotutor.pages.dev/ru/; no old dist, push/DNS/settings mutation. New deployment is a retained known-MVP target for future rollback review; do not automatically return older full source.
+
+Hosted acceptance PARTIAL: module/CSP/SEO/currentPWA/all16independent browser math cases/90served bytes PASS, primary accepted route test fails old /uk/200 and HTTP probe also finds /ru/interactive/200/noindex from retention cache. Same route test passes on unique deployment alias (alias noindex remains diagnostic). Official [asset retention](https://developers.cloudflare.com/pages/configuration/serving-pages/#asset-retention) may keep deleted resources up to1week per PoP; exact expiry unknown. Account has no managed zone for documented zone purge; build-cache purge is not CDN purge. No guessed endpoint/second deploy/Functions/Worker/changed artifact applied. Resolve STAGES REL5-CACHE separately; don't claim fully restricted release. Main373f5b8 clean; doc receipt branch separate. Earlier no-deploy statements below describe previous checkpoints.
+
 Текущий этап и открытые действия владельца: `../STAGES.md`, ET-REL-005. Этот runbook описывает будущие действия, а не выполненный деплой. RUN5 начат 2026-11-04, локальная приёмка завершена 2026-11-05. Владелец выбрал `https://electrotutor.pages.dev/`; собственный домен позже. Ни DNS, ни настройки Cloudflare, ни remote Git этим этапом не менялись.
 
 ## Восстановленный доступ и actual account inventory (2026-11-05)

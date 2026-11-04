@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## Public deployment state2026-11-05
+
+Existing static Pages electrotutor/main now serves accepted RUN5 source373f5b8, production8e96428d-7051-4c23-bdaf-9b350f1afb49. Direct artifact upload only, not Git push or adapter/runtime change. Primary module7pages/CSP/assets/16math browser cases/PWA work; strict route boundary is PARTIAL on primary due retained old /uk/ and /ru/interactive/200/noindex. Unique deployment404/manifest absence/body hashes prove correct artifact; do not equate build graph with immediate CDN eviction. Original source/frame/kernel/backend unchanged; future cache-delivery fix requires separate bounded scope. STAGES/TESTING.
+
 ## RUN5 — статическая публикация без серверного runtime
 
 Выбранный владельцем первый origin: https://electrotutor.pages.dev/, BASE_PATH=/; custom domain позже. Pure solver/React islands/MDX прежние. `release:build`→обычная static MVP сборка→strict origin/metadata/graph audit; без FastAPI/OIDC/PostgreSQL. `releaseHeadersIntegration` выполняется до worker fingerprint, поэтому CSP/metadata изменения участвуют в новой версии кеша. `_headers` генерируется из объединения SHA256 фактических inline scripts всех страниц для ClientRouter; style-only inline и embedded font data разрешены по фактической необходимости KaTeX. Provider-specific transport metadata находится в scripts; runtime provider port/SDK не нужен для portable static files (YAGNI).

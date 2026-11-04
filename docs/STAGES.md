@@ -5,7 +5,7 @@
 ## ET-REL-005 — RUN5: автономный Web/PWA release preparation
 
 - Status: verified
-- Lifecycle: completed locally/validated on release/electrotutor-mvp-run5; base/main d3da1b9, sourcebranch RUN4 preserved. No push/deploy/DNS changes authorized.
+- Lifecycle: completed locally/validated on release/electrotutor-mvp-run5; RUN5 owner accepted/clean ff merged local main373f5b8 on2026-11-05, sourcebranch release/electrotutor-mvp-run5 retained. Docs receipt only in docs/electrotutor-run5-merge-readiness, no automatic integration of that receipt. No push/deploy/DNS changes authorized.
 - Scope/contract: release-readiness-run5 FR-361..369; inspect existing hosting and dependencies, minimally prepare static artifact security/SEO, actual production consumer checks and safe deploy/rollback runbook. COMPLEX production release/frontend/security; no backend developer workflow change.
 - Dependencies/DAG: ET-MVP-004 locally verified/owner accepted/ff merged main d3da1b9. Existing installed Node/pnpm/Chromium available. Static solver requires no FastAPI/OIDC/PostgreSQL.
 - Entry evidence: clean refs before merge; merge-receipt confirms clean ff d3da1b9, one root checkout, tracked-before hashes1161. Existing Wrangler OAuth expired; GET accounts403 invalid token, no refresh/config rewrite performed.
@@ -16,7 +16,7 @@
 - Security/architecture/migration: portable static HTML/JS/CSS; Cloudflare-specific publication metadata stays build boundary; no runtime provider SDK, domain registration, paid services, secrets, dependency/backend/schema/kernel changes.
 - User action RUN4-MERGE / DONE: explicit user authorization, main56e314c→d3da1b9 clean ff-only; branch retained, no push/deploy.
 - User action REL5-DOMAIN / DONE: owner explicitly selected https://electrotutor.pages.dev/ for initial launch; custom domain later. No domain registration/DNS action required now. Private project settings still need authenticated read-only verification before publication.
-- User action REL5-CF-ACCESS / CONDITIONAL_PENDING: if live account/DNS settings must be certified, owner restores Cloudflare login using official local flow, never sends tokens in chat; audit then performs GET only. Expected current project/build/domain state receipt; unlocks hosted configuration proof.
+- User action REL5-CF-ACCESS / READY: before publication owner restores official local Cloudflare login (never send tokens in chat); current GET accounts403 Invalid access token/expired2026-10-30, no refresh/bypass performed. Re-run GET inventory of exact existing project/branch/build/env/domain/DNS/billing/current production and rollback candidates. Expected authenticated settings receipt; unlocks concrete production target, no deploy permission.
 - User action REL5-DEVICE / NOT_RUN: before release execute short Windows/Android/iOS if available/PWA/update/touch/Narrator checklist. New rail/focus is affected; old acceptance not reused. Expected device/browser/version/results receipt.
 - User action REL5-PUBLISH / CONDITIONAL_PENDING: separate explicit authorization required for merge/push/deploy/domain/DNS mutation. Current task only prepares commands and rollback.
 - User action REL5-LEGAL / PENDING: owner confirms applicable operator/jurisdiction/material rights/hosting retention or justified not-applicable; no invented personal/legal data.
@@ -26,9 +26,12 @@
 - Completion sync: README/STAGES/ROADMAP/feature SPEC/ARCHITECTURE/ADR-048/SECURITY/TESTING/DEPENDENCIES/TRACEABILITY/ledger/runbook updated; systemSPEC/DESIGN/API/DATA_MODEL/FALLBACKS(if absent no new file)/LEARNING_LOG checked without changes. Historical GitHub-only provider claims explicitly classified. No second status source.
 - User action REL5-MAINTENANCE / CONDITIONAL: bounded follow-up for10remaining dependency advisories (including now-stale fast-uri override), update only with lock/full regression; also optional CSP on inert synthetic SW404. No proven current static exploit prerequisite; versions remain affected, no silent tail.
 - User action REL5-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one authorized RUN5 commit after local gates/docs/diff; exact SHA in Git log/external receipt.
-- User action REL5-INTEGRATION / CONDITIONAL: owner reviews final report/screenshots and separately authorizes ff merge of release branch into main; expected clean exact merged SHA. No automatic push/deploy.
+- User action REL5-INTEGRATION / DONE: explicit owner RUN5 Merge+read-only preflight authorization; clean ff-only maind3da1b9→373f5b8, sourcebranch retained. Evidence work/run5_merge/merge-receipt.json. No push/deploy/DNS.
 - NEXT: none
-- Next action: owner review and explicit release-branch integration/publication decision after external gates; preserve branches, caches and evidence.
+- Merge preflight evidence: main/source373f5b8 clean before/after FF; accepted output91SHA match, release+MVP audits PASS. Current dist has UK/no marker/no _headers: DO_NOT_UPLOAD. Node22.23.1, corepack pnpm in project11.23.0 (PATH outside project11.20.0); Wrangler absent PATH/project/global checked locations, nothing installed. Public DNS A resolves; public HTTP from audit environment403 on RU/UK/unknown, cause unknown (not attributed to WAF/deployment). Private domains/project/deployment list NOT_RUN. No prior suites rerun.
+- User action REL5-ARTIFACT / READY_BEFORE_UPLOAD: use retained verified RUN5 artifact or fresh release:build with SITE_URL=https://electrotutor.pages.dev, BASE_PATH=/, MVPtrue, APIempty and re-audit exact upload directory/hash; never upload current legacy dist. Expected91file/7content artifact receipt and known-source SHA. No overwrite/cleanup performed.
+- User action REL5-DOCS / CONDITIONAL: documentation-only receipt remains on its own branch, no auto merge authorized; optional later integration must be explicit. Main remains373f5b8, source release branch preserved.
+- Next action: restore official Cloudflare login then read-only project/rollback-target inventory; keep release deployment/physical/legal gates open and stop after this preparation.
 
 ## ET-MVP-004 — RUN4: единый публичный RU MVP
 

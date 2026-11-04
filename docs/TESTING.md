@@ -1,5 +1,13 @@
 ## ET-MVP-004 — RUN4 acceptance 2026-11-04
 
+## RUN5 merge — read-only publication preflight 2026-11-05
+
+Owner authorized clean ff main d3da1b9→373f5b8; source release/electrotutor-mvp-run5 retained, no push/deploy/DNS. Fresh merge-receipt captured exact refs and clean tree. No unit/types/lint/build/browser suites repeated: production code is exactly accepted RUN5. Only retained91file artifact SHA256 and release/MVP deterministic audits rerun PASS (7RU content/10HTML/SEO/hashed CSP/no hidden graph). Current ignored dist is legacy full/UK without mvp marker/_headers, DO_NOT_UPLOAD; untouched.
+
+Node22.23.1, corepack pnpm in project11.23.0; outside-project PATH pnpm11.20.0 is not the project pin. Wrangler not found in PATH, project node_modules or checked global npm install; no installation/login/refresh. API GET accounts403 Invalid access token, recorded OAuth expiry2026-10-30. No project/deployment/domain/DNS private-state verification claimed. Public DNS A resolves; fresh public GET RU/UK/unknown all403 from audit environment, cause not established or attributed to Cloudflare WAF/account/deployment. Earlier RUN5 hosted200/soft404 receipt remains historical. Physical/hosted/legal gates remain NOT_RUN/open.
+
+Runbook/official rollback semantics rechecked: successful production deployment targets only (preview is not a rollback target), retain compatible MVP artifact/hash and re-upload after separate approval if needed; never silently restore legacy full graph. Documentation receipt on separate docs branch, main unchanged373f5b8; no code/runtime/cache edits.
+
 ## RUN5 — local release preparation 2026-11-04/05
 
 Owner authorized clean RUN4 ff main d3da1b9; separate release/electrotutor-mvp-run5, no push/deploy/DNS. Final artifact work/run5/build-release-verified:91files/10HTML/7indexable RU content,129+129static formulas, valid https://electrotutor.pages.dev canonical/OG/robots/sitemap, generated policy4script hashes; metadata/secret/source-map/public graph guards PASS. Full build41pages40localized190files PASS and all190artifact SHA equal RUN4 build-full-final; full browser264PASS/6skips is prior RUN4 evidence, not rerun in RUN5.

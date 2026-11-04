@@ -2,6 +2,12 @@
 
 Текущий этап и открытые действия владельца: `../STAGES.md`, ET-REL-005. Этот runbook описывает будущие действия, а не выполненный деплой. RUN5 начат 2026-11-04, локальная приёмка завершена 2026-11-05. Владелец выбрал `https://electrotutor.pages.dev/`; собственный домен позже. Ни DNS, ни настройки Cloudflare, ни remote Git этим этапом не менялись.
 
+## Read-only preflight после разрешённого merge (2026-11-05)
+
+RUN5 clean ff merged main373f5b8, source release branch сохранена. Account GET403expired OAuth; Wrangler отсутствует в PATH/project/проверенной global npm установке. Login/refresh/install не выполнялись. Public DNS A resolves, но текущие HTTP GET из среды аудита вернули403 на RU/UK/unknown; причина неизвестна, не приписывается deployment/WAF. Приватный Pages project/branch/domains/DNS/rollback list не подтверждены. Отдельный принятый91file artifact SHA и release/MVP audit PASS; старый текущий dist содержит UK и не имеет marker/_headers — его нельзя публиковать. Ничего не пересобиралось/не очищалось. Corepack в проекте подтверждает pnpm11.23.0; outside-project PATH11.20.0 не использовать как pin.
+
+Сначала восстановить официальный login и GET inventory, затем отдельное разрешение на публикацию конкретного artifact/проекта. Уже слитый RUN5 не требует повторного разрешения merge. Этот doc receipt сам остаётся на отдельной docs branch до явной интеграции.
+
 ## Платформа и границы
 
 Рекомендуется существующий **Cloudflare Pages** со статическим артефактом. Astro `output: static`, HTML/React islands/локальный DC solver не требуют adapter, Functions, Workers compute, FastAPI, OIDC или PostgreSQL. Workers Static Assets тоже подходят для статических файлов, но перенос на новый продукт/проект сейчас увеличит число операций. Pages `_headers` относится именно к Pages; GitHub Pages его не применяет.
@@ -10,7 +16,7 @@
 
 Официальные источники: [Astro на Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/), [лимиты](https://developers.cloudflare.com/pages/platform/limits/), [стоимость статических запросов](https://developers.cloudflare.com/pages/functions/pricing/), [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
 
-Публичный HTTP сейчас показывает старый сайт: `/uk/` доступен, неизвестные пути дают HTTP 200; это **не RUN4/RUN5 acceptance**. Нет `wrangler.jsonc` и Cloudflare deploy workflow в текущем source; сохранён `.github/workflows/pages.yml` с backend/full gates и автоматическим GitHub Pages deploy при push main. Исторически Cloudflare был Git-connected, но текущие private build/branch/domain/env settings не прочитаны: существующий OAuth GET `/accounts` вернул 403, токен истёк. Нельзя предполагать отсутствие custom domains/DNS или считать исторические настройки действующими.
+При исходном RUN5 probe публичный HTTP показывал старый сайт: UK/unknown200; свежий merge-preflight даёт403 из среды проверки, причина не установлена. Ни один receipt не доказывает hosted RUN5 acceptance. Нет `wrangler.jsonc` и Cloudflare deploy workflow в текущем source; сохранён `.github/workflows/pages.yml` с backend/full gates и автоматическим GitHub Pages deploy при push main. Исторически Cloudflare был Git-connected, но текущие private build/branch/domain/env settings не прочитаны: существующий OAuth GET `/accounts` вернул 403, токен истёк. Нельзя предполагать отсутствие custom domains/DNS или считать исторические настройки действующими.
 
 ## Локальная сборка и проверка
 
@@ -115,7 +121,7 @@ Receipt ручной приёмки содержит OS/browser/version, URL/com
 
 ## Откат
 
-До первого запуска сохранить проверенный safe-MVP artifact/hash и сведения текущего deployment. Последующий откат — только к сохранённому совместимому **MVP**, не к прежнему full/UK/catalog artifact. [Pages rollback](https://developers.cloudflare.com/pages/configuration/rollbacks/) возвращает выбранный production deployment целиком; проверить его содержание до действия. Альтернатива — повторно загрузить сохранённый проверенный MVP тем же `pages deploy` после отдельного разрешения.
+До первого запуска сохранить проверенный safe-MVP artifact/hash и сведения текущего deployment. Последующий откат — только к сохранённому совместимому **MVP**, не к прежнему full/UK/catalog artifact. [Pages rollback](https://developers.cloudflare.com/pages/configuration/rollbacks/) возвращает выбранный успешно собранный production deployment целиком; preview deployment не может быть rollback target. Проверить его содержание и точный ID до действия. Альтернатива — повторно загрузить сохранённый проверенный MVP тем же `pages deploy` после отдельного разрешения.
 
 SW получает fingerprint по содержимому финального артефакта; при возврате к другому известному содержимому fingerprint отличается от отменяемого. Старые клиентские offline caches не отзываются мгновенно: требуется сеть/проверка update/controllerchange. Никаких SQL migrations/rollback, reset localStorage или удаления чужих caches. Если нового совместимого fallback ещё нет, не возвращать исторический full release под видом безопасного отката: остановить rollout и подготовить проверенный исправленный MVP. После rollback повторить HTTPS/404/SEO/CSP/cache/math smoke, записать точные deployment/commit/hash, сохранить диагностику.
 

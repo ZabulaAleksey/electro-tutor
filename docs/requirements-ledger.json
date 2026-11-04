@@ -1626,12 +1626,12 @@
         "FR-368",
         "FR-369"
       ],
-      "runtime": "Validated locally:91file static release artifact,7RU content pages/3stage4scheme path, OG/strict origin/hash CSP/HTTP headers; main d3da1b9, separate RUN5 checkpoint. No deployment.",
+      "runtime": "Validated locally:91file static release artifact,7RU content pages/3stage4scheme path, OG/strict origin/hash CSP/HTTP headers; RUN5 accepted/clean ff merged main373f5b8; source release branch retained. No deployment.",
       "security": "Enforced browser CSP27PASS0violations; precise text/graph/secret/map guards. Audit4LOW6MODERATE0HIGH/CRITICAL retained, no patched claim. Cloudflare private settings unavailable403.",
       "a11y": "Native keyboard/touch/scroll/heading scenarios and48unchanged goldens/48fresh six-width two-theme captures PASS; physical/Narrator/manual NOT_RUN.",
       "observability": "449unit/types314files0errors0warnings3oldhints/lint,91release+190full build,27enforced/26normal1policy-skip;16oracle72zero/full190SHA parity; receipts in work/run5 and output report.",
       "gap": "Local preparation complete; private hosting/account, hosted rollout, manual physical/Narrator and owner legal applicability remain explicit release gates. Synthetic inert SW404 lacks host CSP: P3 deferred.",
-      "action": "Owner review/explicit integration/publication authorization and restored local Cloudflare login before authenticated settings proof; no automatic push/deploy/DNS.",
+      "action": "RUN5 integration DONE by explicit owner authorization. Current read-only GET403 expired Cloudflare OAuth; restore official local login before account/project/domain/rollback inventory. Current legacy dist must not be uploaded; retained91file artifact SHA+audits PASS. No push/deploy/DNS or code changes.",
       "code": [
         "scripts/release-policy.mjs",
         "scripts/audit-release.mjs",

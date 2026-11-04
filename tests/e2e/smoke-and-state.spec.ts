@@ -51,12 +51,16 @@ for (const route of routes) {
     await expect(page.locator("html")).toHaveAttribute("lang", route.language);
     await expect(page.locator(route.proof)).toBeVisible();
     await expect(page.locator("main")).not.toBeEmpty();
-    if (route.surface === "lesson") {
+    if (route.surface === "lesson" && route.language === "uk") {
       const levelButtons = page.locator(".level-picker button");
       await expect(levelButtons).toHaveCount(3);
       await levelButtons.nth(2).click();
       await expect(levelButtons.nth(2)).toHaveClass(/selected/);
       await expect(levelButtons.nth(1)).not.toHaveClass(/selected/);
+    }
+    if (route.surface === "lesson" && route.language === "ru") {
+      await expect(page.locator(".level-picker")).toHaveCount(0);
+      await expect(page.locator("#step-5")).toContainText("Типичные ошибки");
     }
     expect(runtimeErrors).toEqual([]);
   });

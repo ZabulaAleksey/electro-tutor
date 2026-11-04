@@ -1,3 +1,30 @@
+## ET-MESH-003B — RUN3B acceptance 2026-11-04
+
+Git preflight: clean fix/mesh-lesson-run3a=e743df5, clean main48c3fef; owner-authorized `git switch main` / `git merge --ff-only fix/mesh-lesson-run3a` PASS, main=e743df5, source branch retained. Затем `feat/mesh-lesson-run3b`, existing root checkout. No force/rebase/conflict resolution, branch deletion, push/deploy. Dependencies уже установлены, Node22.23.1/pinned pnpm11.23.0; build/browser artifacts направлены наружу в work/run3b текущего чата.
+
+| Команда / evidence | Результат |
+|---|---|
+| `corepack pnpm test` |390PASS/51files; existing independent beam verifier13cases/49assertions; новый unit строго рендерит129авторских KaTeX expressions |
+| `corepack pnpm check` |260files,0errors/0warnings/3pre-existing hints (generated WASM2, beforeunload1) |
+| `corepack pnpm lint` |PASS |
+| `corepack pnpm build` external BUILD_OUTPUT_DIR |39pages/38localized routes/186artifacts PASS,395paired locale keys, WASM source hash и publication/site audits PASS |
+| Full Chromium `--workers=2 --update-snapshots=none` |230PASS/6expected live-auth skips/0FAIL; no new skip |
+| No-JS/browser contract |11глав/129формул/схема/anchors присутствуют без JS; старое potential-level=3 не скрываетRUcontent и не удаляется; native wheel/mobile keyboard anchor/progress/reload/practice PASS; UK levels/reload сохранены |
+| Independent Python Fraction reference без product import |14exact-zero residuals: nodal/KCL/KVL/mesh/power, Cramer, elimination/back-substitution, reverse J2=-I2; rounding3significant и опубликованные fragments сверены |
+| SHA-256 boundaries |186protected files unchanged (kernel/backend/auth/infra/locks/routes кроме одного topic presentation renderer), UK MDX/locale/catalogue/tools и circuit source unchanged;114oldPNG unchanged |
+
+Математический oracle: E1top+, E2top−, B=0; VA48/11V, I1=54/11A, I2=30/11A, I3=24/11A; UR1=216/11V, UR2=180/11V, UR3=48/11V; PR1=11664/121W, PR2=5400/121W, PR3=1152/121W; total1656/11W. Determinants44,216,120 с размерностями Ω²/VΩ. Display4.91/2.73/2.18A,19.6/16.4/4.36V,96.4/44.6/9.52W,total151W. Меняется точность вывода прежней мощности, не физическая величина/ядро.
+
+Visual review:320/375/390/768/1280/1920×light/dark,132новых Windows PNG (11bounded regions×12states), все просмотрены до ручного копирования candidates в новые textbook-* baselines. Исходные114PNG не перезаписаны/удалены. All-document и32block formulas overflow проверены во всех состояниях; geometry/contrast/полярности/I3/минимум13.9CSSpx scheme labels сохранены. Native viewport images дополнительно подтверждают обычную прокрутку и отсутствие overlaps. Новые raster PNG честно Windows-only; geometry/assertions/attachments portable, новые Linux raster/physical mobile/Firefox/WebKit/full screen-reader NOT_RUN.
+
+Изменён только отменённый RU depth contract: RU all-level persistence case заменён сильными static/no-JS/preference-invariance tests; UK persistence case сохранён. В smoke RU ожидает отсутствие picker и наличие полного текста, UK по-прежнему3уровня. Publication audit проверяет полный RU статический контент до hydration island,1h1/5sections/11глав, отсутствие KaTeX errors. Старые численные tests/grader/kernels не менялись.
+
+Диагностика до PASS: MDX paragraph boundaries и React string-child/slot mismatch блокировали build; исправлены статической Astro формулой с явным latex prop и MDX structural validation. Первый viewport probe выявил одно длинное узловое преобразование на320px — раскрыто и разбито на строки. First focused contract14PASS/12expected old-golden mismatches показал новый полный content и субпиксельные raster changes при неизменной scheme geometry; старые PNG сохранены. Oversized locator screenshots5199/6798px в отдельных desktop captures показывали дублирование строк/смещённый crop; обычные900px viewport и bounded captures воспроизводят корректный UI. Такие oversized изображения сохранены как diagnostic-only и не приняты в goldens. Точная внутренняя причина Chromium не установлена; production text не скрывался/не упрощался ради screenshot. Final bounded captures≤900px;132goldens приняты после просмотра, финальный suite не обновляет snapshots.
+
+В новых raster tests Google Fonts блокируется для воспроизводимости; bounded captures временно исключают floating header и browser smooth/scroll anchoring, затем удаляют style в finally. Обычные viewport images header сохраняют, native scrolling проверяется отдельно. No mock backend required для static textbook path; существующие component/mock suites не называются live IAM E2E. Шесть ожидаемых пропусков — прежние live-auth/two-user profile/booking/access/email/redirect/registration phases.
+
+Evidence: outputs/ElectroTutor_run3b_textbook_2026-11-04.md, ElectroTutor_run3b_gallery.html, ElectroTutor_run3b_evidence.zip текущего чата; work/run3b содержит команды/logs, old PNG backups, independent reference, manual review receipts и merge receipt. Full MVP остаётся PARTIAL из-за отдельного examples/lab/journey/release scope, не из-за незавершённости textbook acceptance.
+
 ## ET-MESH-003A — RUN3A acceptance 2026-11-04
 
 Source baseline `48c3fef`, initial clean `main`; работа в существующем checkout на `fix/mesh-lesson-run3a`. Dependencies не устанавливались; Node22.23.1, pinned Corepack pnpm11.23.0. Production build и browser artifacts направлены в `work/run3a` текущего audit-чата; backend/DB/IdP не запускались.

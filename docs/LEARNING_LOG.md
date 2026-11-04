@@ -1,5 +1,17 @@
 # Учебный журнал
 
+## 2026-11-04 — Проверка очень длинных UI screenshots
+
+- Problem: детальный MDX textbook сделал locator screenshot одного раздела высотой более5000px.
+- Symptom: отдельные desktop captures содержали дубли строк или crop от середины раздела, хотя обычный viewport того же места отображался правильно.
+- Root cause: установлен capture-level mismatch между oversized element image и обычным900px viewport. Точная внутренняя причина Chromium не установлена; это не evidence ошибки уравнения или production layout.
+- Failed attempts: temporary отключение smooth-scroll/scroll anchoring не устранило oversized artifact; такие изображения не приняты в goldens.
+- Fix: bounded regions≤900px плюс ordinary viewport screenshots при реальной прокрутке. Полная проверка document/formula overflow и статического содержимого сохраняется.
+- Verification:132bounded PNG/12states просмотрены; полный Chromium230PASS/6existing phase skips,390unit/check/lint/build PASS;114старых PNG сохранены.
+- Prevention: visual acceptance требует просмотра самих изображений; успешная команда и giant full-page PNG не доказывают корректный захват каждого элемента.
+- Links: docs/TESTING.md ET-MESH-003B; specs/features/mesh-textbook.spec.md; external outputs/ElectroTutor_run3b_evidence.zip.
+
+
 ## 2026-09-22 — Registered worktree вышел за границу canonical validation
 
 - Problem: root validation commands рекурсивно читали отдельный registered Git

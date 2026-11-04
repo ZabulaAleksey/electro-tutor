@@ -35,7 +35,7 @@ test("RC1 delayed identity cannot write authenticated completion into guest stor
  await page.reload();await expect(page.locator("#practice-feedback")).toContainText("Верно");
 });
 
-for(const language of ["ru","uk"])test(`RC1 ${language} all explanation levels survive reload`,async({page})=>{
+for(const language of ["uk"])test(`RC1 ${language} all explanation levels survive reload`,async({page})=>{
  await page.goto(`/${language}/topics/dc/mesh-current-method/`);
  for(const level of [1,2,3]){
   const button=page.locator(".level-options button").nth(level-1);

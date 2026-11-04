@@ -1,0 +1,20 @@
+# Подробный русский учебник метода контурных токов — RUN3B
+
+Статус: Утверждённый contract по прямому запросу владельца 2026-11-04. Stage ET-MESH-003B; STANDARD production content/frontend slice, prerequisite ET-MESH-003A merged main=e743df5.
+
+- FR-311: один последовательный RU учебник без уровней/скрытых частей; все11пунктов запроса: сущность, применимость, независимые контуры, направления/полярности, KVL derivation, mutual signs, matrix, solution, branch currents, checks, mistakes. Длинный текст хранится в MDX и виден в статическом HTML без JS.
+- FR-312: подробные символические переходы обоих KVL, положительные/отрицательные ЭДС по обходу, противоположные общие токи и согласованный reversal J2=-I2. Схема и исходные E1/E2/R1/R2/R3 из RUN3A не меняются.
+- FR-313: исключение и Cramer, det44, I1=54/11, I2=30/11, I3=24/11, resistor voltages216/11,180/11,48/11, powers11664/121,5400/121,1152/121 и total1656/11. Exact values retained internally/в выводе; десятичные результаты3significant figures, source data не округляются. Independent nodal/KCL/KVL/power и determinant/reversal oracle без import product ядра.
+- FR-314: светлая/тёмная тема и320/375/390/768/1280/1920px, все formulas без clipping/overflow, неизменённая читаемая схема; native vertical scrolling/anchors/keyboard, no scroll trap. No horizontal learning stages/new examples route/lab/ReoCell redesign.
+- FR-315: сохранить существующий practice/grading/progress namespace и5step IDs/anchor resume, гостевой путь/reload/storage-denied; не менять learning kernel/API/backend/DB/OIDC/infra. UK остаётся прежним доступным уроком с legacy depth preference, не становится RU fallback. Старые potential-level values игнорируются только новым RU учебником, не удаляются.
+- FR-316: согласованно изменить только отменённый RU level contract в system FR-004/content guide/затронутых accepted tests и static publication audit; не skip/ослаблять остальные сценарии. Existing114PNG сохраняются byte-equal. Новые RUN3B bounded raster baselines принимаются после просмотра; схема/числа/geometry unchanged. Большие locator screenshots показывают capture-only artifacts, поэтому goldens ограничены читаемыми блоками≤900px, а whole-document overflow и все formulas проверяются полностью. Исходные114PNG сохраняются вне repo как evidence.
+- FR-317: unit/check/lint/production build/полный relevant browser consumer path и visual review PASS, static/no-JS content regression и math checker до одного atomic commit. UK/catalogue/tools остаются доступны.
+- FR-318: separate feat/mesh-lesson-run3b, one commit after PASS, no automatic merge/push/deploy/branch deletion. RUN3A branch retained, main exactlye743df5.
+
+Архитектура: RU MDX → Astro MeshTextbook layout → small MeshTextbookIsland только для progress/practice; UK MeshLessonIsland остаётся. Это уточнение existing Content Collections/React-islands architecture, не новый framework. Одинаковые sections/slug/order/duration pair сохраняются; исключение содержательной RU/UK parity явно разрешено owner RU-first MVP. Остальные19тем/31tools не меняются.
+
+Контракт goldens изменён вследствие прямо разрешённого нового единого материала. В RU больше нет level-picker; UK tests сохраняют3legacy levels. Старый RUN3A visual test проверяет те же geometry/CSS invariants и обновлённый полный текст; новые reviewed regions отражают content delta. Это не обход FAIL и не смена численного ядра.
+
+Next scope: отдельный этап примеров/mesh lab/horizontal route и RU-only release visibility/SEO; не prerequisites этого завершённого textbook slice. Linux raster/physical mobile/full screen-reader certification не выдумываются.
+
+Уточнение capture evidence: RUN3A screenshot assets сохранены; RUN3B добавляет11bounded regions×12states, не перегенерирует старые114PNG. Наблюдаемые raster AA differences схемы в новом текстовом потоке не меняют её source/geometry. Fullscreen viewport captures подтверждают отсутствие overlays в реальном чтении; ошибочные oversized captures сохраняются только как диагностические материалы, не принимаются за UI/goldens.

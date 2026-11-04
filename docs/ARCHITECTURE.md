@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## RUN3B acceptance 2026-11-04 — статический mesh textbook
+
+RU canonical topic route рендерит Content Collections MDX внутри `MeshTextbook.astro`: длинный индексируемый текст/129формул/схема доступны до JavaScript. `TextbookFormula.astro` принимает явный latex string prop и строго компилирует доверенный авторский KaTeX; React children slot не используется как строка формулы. `MeshTextbookIsland` гидратирует только guest progress/practice и подсветку5anchors. Existing learning store/grader/IDs/namespace и физические модели не меняются. UK остаётся `MeshLessonIsland`/legacy renderer и прежним MDX; это owner-authorized RU-first content delta, не fallback перевод. Новых URL/API/providers/dependencies нет; boundary Astro/MDX+React islands прежний. ADR-044 и mesh-textbook SPEC задают scoped delta.
+
 ET-PAN-004: `showcase/PanoramicCarousel` использует существующие модели и EngineeringPlot; `panorama-model` содержит параметры/метаданные. Четыре локальные иллюстрации в responsive WebP отделены от настоящих SVG-графиков. `catalogue/catalog` — источник31инструмента для домашней подборки8 и фильтруемого каталога; ToolCard/TopicCover/TechnicalThumbnail используют существующие символы. Новые URL/API/зависимости отсутствуют; старые story/hash/query и calculator URL сохранены. EngineeringBoardEraser отделяет preview от ограниченного атомарного commit; формат хранения совместим.
 
 Public static MVP: первоначальный Direct Upload2026-10-28; инженерная витрина2026-10-29 публикуется через подключённый владельцем GitHub main → Cloudflare build (Node22.23.1/pnpm11.23.0), pnpm build → `dist/`, в

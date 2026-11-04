@@ -23,7 +23,7 @@ for (const { path, ru, uk } of routeMatrix) {
       for (const hreflang of ["ru", "uk", "x-default"]) {
         await expect(page.locator(`link[rel="alternate"][hreflang="${hreflang}"]`)).toHaveCount(1);
       }
-      await expect(page.getByRole("navigation")).toHaveAttribute("aria-label", language === "ru" ? "Основная навигация" : "Головна навігація");
+      await expect(page.locator(".astro-header").getByRole("navigation")).toHaveAttribute("aria-label", language === "ru" ? "Основная навигация" : "Головна навігація");
     });
   }
 }

@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 const widths = [320, 375, 390, 768, 1280, 1920] as const;
 
 for (const width of widths) for (const theme of ["light", "dark"] as const) {
-  test(`RUN3A mesh ${width}px ${theme}: readable diagram and intact mathematics`, async ({ page }, testInfo) => {
+  test(`RU mesh textbook ${width}px ${theme}: readable diagram and intact mathematics`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     // Keep raster typography reproducible without a remote font dependency.
     await page.route("https://fonts.googleapis.com/**", route => route.abort());
     await page.goto("/ru/topics/dc/mesh-current-method/");
-    await page.locator(".level-options button").first().click();
+    await expect(page.locator(".level-picker")).toHaveCount(0);
     await expect(page.locator(".research-note")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await page.evaluate(() => document.fonts.ready);
@@ -94,22 +94,34 @@ for (const width of widths) for (const theme of ["light", "dark"] as const) {
     expect(typography.atomDisplay).toBe("inline"); expect(typography.atomMargin).toBe("0px");
     expect(typography.noteSize).toBeGreaterThanOrEqual(16);
     expect(typography.result).toContain("24"); expect(typography.result).toContain("2.18");
-    expect(typography.power).toContain("150.55");
+    expect(typography.power).toContain("151");
 
-    const captureStyle = await page.addStyleTag({ content: ".astro-header { visibility: hidden !important; }" });
+    const captureStyle = await page.addStyleTag({ content: "html { scroll-behavior:auto !important; overflow-anchor:none !important; } .astro-header { visibility: hidden !important; }" });
     try {
-      for (const [name, selector] of [["circuit", ".circuit-wrap"], ["equations", "#step-3"],
-        ["result", ".result-card"], ["power", "#step-5"], ["research", ".research-note"]]) {
-        const region = page.locator(selector);
+      const regions = [
+        ["opening", page.locator(".lesson-header")],
+        ["circuit", page.locator(".circuit-wrap")],
+        ["research", page.locator(".research-note .formula-block")],
+        ["left-kvl", page.locator("#step-3 .formula-block").nth(1)],
+        ["right-kvl", page.locator("#step-3 .formula-block").nth(3)],
+        ["matrix", page.locator("#step-3 .formula-block").nth(6)],
+        ["cramer", page.locator("#step-4 .formula-block").nth(5)],
+        ["result", page.locator(".result-card")],
+        ["nodal", page.locator("#step-5 .formula-block").nth(4)],
+        ["power", page.locator("#step-5 .formula-block").nth(6)],
+        ["power-total", page.locator("#step-5 .formula-block").nth(8)],
+      ] as const;
+      // Bounded regions avoid Chromium artifacts when capturing a26kpx-long textbook.
+      // All129formulas and the whole document retain overflow/semantic assertions above.
+      for (const [name, region] of regions) {
         // Exclude the floating global header from bounded component images; the page shell is tested separately.
         const png = await region.screenshot({ animations: "disabled" });
         await testInfo.attach(`${name}-${width}-${theme}`, { body: png, contentType: "image/png" });
         // Accepted raster baselines are Windows-specific; portable visual assertions above run everywhere.
-        if (process.platform === "win32") await expect(region).toHaveScreenshot(`${name}-${width}-${theme}.png`, { animations: "disabled" });
+        if (process.platform === "win32") await expect(region).toHaveScreenshot(`textbook-${name}-${width}-${theme}.png`, { animations: "disabled" });
       }
     } finally { await captureStyle.evaluate(node => node.parentNode?.removeChild(node)); }
-    // Level3 contains a separate long current pair; keep that existing mode readable too.
-    await page.locator(".level-options button").nth(2).click();
+    // The complete RU material is always present; no shortened level may hide long expressions.
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     const overflow = await page.locator(".formula-block").evaluateAll(nodes => nodes.filter(el => el.scrollWidth > el.clientWidth + 2).map(el => el.textContent));
     expect(overflow).toEqual([]);

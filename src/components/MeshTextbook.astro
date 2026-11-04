@@ -1,0 +1,31 @@
+---
+import MeshTextbookIsland from "./MeshTextbookIsland";
+import { localePath } from "../site-path";
+---
+<div class="lesson-page mesh-textbook">
+  <aside class="lesson-sidebar" aria-label="Содержание учебника">
+    <a class="back-link" href={localePath("ru", "/topics/")}>← К темам</a>
+    <span class="sidebar-label">В этой теме</span>
+    <a href="#step-1"><span>1</span>Сущность и применимость</a>
+    <a href="#step-2"><span>2</span>Контуры и направления</a>
+    <a href="#step-3"><span>3</span>Вывод уравнений</a>
+    <a href="#step-4"><span>4</span>Решение и токи ветвей</a>
+    <a href="#step-5"><span>5</span>Проверки и ошибки</a>
+  </aside>
+  <article class="lesson-content">
+    <header class="lesson-header">
+      <span class="lesson-number">ПОСТОЯННЫЙ ТОК · ТЕМА 03</span>
+      <h1>Метод контурных токов</h1>
+      <p>От физического смысла и выбора контуров до уравнений Кирхгофа, токов ветвей и независимой проверки мощности. Один последовательный подробный учебник.</p>
+    </header>
+    <nav class="textbook-toc" aria-label="Разделы учебника">
+      <a href="#step-1">1. Сущность и применимость</a>
+      <a href="#step-2">2. Контуры и направления</a>
+      <a href="#step-3">3. Вывод уравнений</a>
+      <a href="#step-4">4. Решение и токи ветвей</a>
+      <a href="#step-5">5. Проверки и ошибки</a>
+    </nav>
+    <slot />
+    <MeshTextbookIsland client:load />
+  </article>
+</div>

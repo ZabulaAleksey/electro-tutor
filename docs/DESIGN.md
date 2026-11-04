@@ -1,5 +1,9 @@
 # Дизайн и UX «Потенциала»
 
+## RUN3B acceptance 2026-11-04 — длинный вертикальный учебник
+
+Один последовательный RU материал,11глав в5крупных разделах с прежними step IDs; depth picker отсутствует. Пять текстовых anchors доступны и в основном содержимом на телефоне, и в прежнем desktop sidebar; читается обычной вертикальной прокруткой, без scroll trapping. Текст16px/line-height1.8, формулы в естественных переносах, source circuit RUN3A неизменён; ссылки подчёркнуты и контрастны в обеих темах. No-JS сохраняет полный текст/схему/anchors, JavaScript нужен только progress/practice. Проверены320/375/390/768/1280/1920light/dark. Нового глобального дизайна/горизонтального stage navigation нет; UK legacy UI сохранён.
+
 ## RUN3A acceptance 2026-11-04 — математическая типографика и reference circuit
 
 Caption styling привязывается к именованным `.research-note-label`, `.substitution-label`, `.result-card-label`, а не к любому дочернему span: внутренние KaTeX atoms управляют собственными метриками. Формулы не наследуют uppercase/letter spacing; длинные выражения разбиты на математически эквивалентные aligned rows, без уменьшения текста и обрезания. Result surface сохраняет контраст в обеих темах.

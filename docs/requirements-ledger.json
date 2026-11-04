@@ -28,7 +28,8 @@
       "specs/features/student-workspaces.spec.md",
       "specs/features/beam-laboratory.spec.md",
       "specs/features/panoramic-visual-system.spec.md",
-      "specs/features/mesh-lesson-visual-repair.spec.md"
+      "specs/features/mesh-lesson-visual-repair.spec.md",
+      "specs/features/mesh-textbook.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -284,7 +285,9 @@
       "code": [
         "src/components/LevelPicker.tsx",
         "src/components/Formula.tsx",
-        "src/components/CircuitDiagram.tsx"
+        "src/components/CircuitDiagram.tsx",
+        "src/components/MeshTextbook.astro",
+        "src/components/TextbookFormula.astro"
       ],
       "unit": [
         "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
@@ -293,11 +296,12 @@
         "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
       ],
       "e2e": [
-        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS",
+        "RUN3B full230PASS/6expectedlive skips,12width/theme states, no-JS/progress/reload; TESTING.md"
       ],
       "runtime": "Validated locally; no production deploy/publication.",
       "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
-      "a11y": "Keyboard and accessible names automated; real screen-reader and full three-level persistence are not terminally evidenced.",
+      "a11y": "RUN3B: complete RU material without depth picker; UK legacy depth preserved. Automated no-JS/keyboard/native scroll/geometry/contrast PASS; full screen-reader NOT_RUN.",
       "observability": "Browser assertion failures and screenshots.",
       "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
       "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
@@ -1455,6 +1459,42 @@
         "docs/TESTING.md"
       ],
       "e2e": [
+        "tests/e2e/mesh-lesson-visual.spec.ts"
+      ]
+    },
+    {
+      "domain": "mesh-textbook",
+      "status": "VERIFIED",
+      "runtime": "Static RU MDX11chapters/129formulas;390unit/check/lint/build and230Chromium PASS/6oldlive skips; not merged/deployed.",
+      "security": "Static authored content; kernel/API/auth/DB/infra unchanged.",
+      "a11y": "No-JS text/scheme, mobile keyboard/native scroll/anchors/progress;6width×2theme geometry/contrast PASS. Physical screen-reader NOT_RUN.",
+      "observability": "132manually reviewed bounded Windows PNG;114historic PNG unchanged; exact independent14zero-residual oracle.",
+      "gap": "No bounded textbook gap. Separate examples/lab/horizontal/release visibility and new Linux raster remain future.",
+      "action": "One atomic RUN3B commit after PASS; owner decides later integration; no push/deploy.",
+      "requirement_ids": [
+        "FR-311",
+        "FR-312",
+        "FR-313",
+        "FR-314",
+        "FR-315",
+        "FR-316",
+        "FR-317",
+        "FR-318"
+      ],
+      "code": [
+        "src/content/lessons/ru/mesh-current-method.mdx",
+        "src/components/MeshTextbook.astro",
+        "src/components/MeshTextbookIsland.tsx"
+      ],
+      "unit": [
+        "src/learning/practice.test.ts",
+        "src/content/lessons/ru/mesh-textbook.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-lessons.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/mesh-textbook.spec.ts",
         "tests/e2e/mesh-lesson-visual.spec.ts"
       ]
     }

@@ -1,6 +1,7 @@
 ---
 import { render } from "astro:content";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import MeshTextbook from "../../../../components/MeshTextbook.astro";
 import MeshLessonIsland from "../../../../components/MeshLessonIsland";
 import { resolveInteractiveComponent } from "../../../../content/interactive-registry";
 import { getPublishedLessonManifest } from "../../../../content/published-lessons";
@@ -37,9 +38,15 @@ const hasMeshInteractive = registeredInteractive === MeshLessonIsland;
   alternatePath={alternatePath}
   keywords={entry.data.keywords}
 >
-  <article class="lesson-intro">
-    {!registeredInteractive ? <h1>{entry.data.title}</h1> : null}
-    <Content />
-  </article>
-  {hasMeshInteractive ? <MeshLessonIsland language={language} client:load /> : null}
+  {hasMeshInteractive && language === "ru" ? (
+    <MeshTextbook><Content /></MeshTextbook>
+  ) : (
+    <>
+      <article class="lesson-intro">
+        {!registeredInteractive ? <h1>{entry.data.title}</h1> : null}
+        <Content />
+      </article>
+      {hasMeshInteractive ? <MeshLessonIsland language={language} client:load /> : null}
+    </>
+  )}
 </BaseLayout>

@@ -1,5 +1,11 @@
 # Журнал решений
 
+## ADR-044 — Единый RU mesh textbook и статический основной текст
+
+Дата:2026-11-04. Статус: принято прямым RUN3B request владельца.
+
+Три уровня больше не являются требованием к русскому учебнику: нужен один подробный последовательный материал. Основной авторский текст остаётся Content Collections MDX и рендерится Astro; малый React island обслуживает существующий progress/practice. KaTeX получает строку через typed prop Astro adapter, без зависимости текста от hydration. Native vertical scrolling и5старых step IDs сохраняются. Публичный MVP владельца RU-first; существующая UK пара/режимы/настройки/темы/tools не удаляются и не подменяются русским текстом. Перевод новой полной главы и release visibility — отдельный scope. Исторические depth preference tests сохраняются дляUK; RU contract сменён на complete-static/no-JS/legacy-preference-invariance. Новые visual assets сосуществуют со114историческими PNG, принимаются после просмотра. Отдельные examples/lab/horizontal stages сюда не входят. Requirements — FR-311..318; evidence — TESTING и selected STAGES.
+
 Здесь фиксируются только существенные технические и продуктовые решения. Новое
 решение дополняет журнал; исторические записи не переписываются задним числом.
 

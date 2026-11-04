@@ -392,3 +392,19 @@ button { min-height: 24px; }
 .circuit-wrap .dot.orange { background:var(--circuit-i2); }
 .circuit-wrap .dot.green { background:var(--circuit-i3); }
 .circuit-legend { flex-wrap:wrap; gap:8px 20px; }
+
+/* RUN3B: long static textbook; native vertical scroll and readable prose. */
+.mesh-textbook :is(p, li) { font-size:16px; line-height:1.8; }
+.mesh-textbook :is(p, li, h2, h3) { overflow-wrap:break-word; }
+.mesh-textbook .lesson-section h2 { margin-top:38px; }
+.mesh-textbook .lesson-section { scroll-margin-top:100px; }
+.mesh-textbook .lesson-sidebar .back-link { text-decoration:none; }
+.mesh-textbook .textbook-callout { padding:18px; border-left:3px solid var(--accent); background:var(--surface-elevated); margin-block:24px; }
+.mesh-textbook .textbook-next-link { display:grid; place-items:center; width:44px; height:44px; color:var(--ink); border:1px solid var(--line); border-radius:8px; }
+.mesh-textbook :is(.lesson-sidebar a, .textbook-next-link):focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+
+.mesh-textbook .textbook-toc { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:4px 18px; padding-block:18px; border-block:1px solid var(--line); margin-bottom:40px; }
+.mesh-textbook .textbook-toc a { display:flex; align-items:center; min-height:44px; padding:8px 0; color:var(--ink); font-size:14px; }
+.mesh-textbook .textbook-toc a:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+
+.mesh-textbook .lesson-section a { color:var(--ink); text-decoration:underline; text-underline-offset:.18em; }

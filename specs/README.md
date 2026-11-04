@@ -50,3 +50,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/panoramic-visual-system.spec.md` | Approved user master2026-10-30 | PAN-001..010: panoramic covers, shared catalogue/navigation, partial eraser and independent video gate |
 
 | `features/mesh-lesson-visual-repair.spec.md` | Approved RUN3A 2026-11-04 | FR-301..306: typography, polarity/readability, six-width visual regression; no kernel/backend/deploy |
+
+| `features/mesh-textbook.spec.md` | Утверждённый contract | ET-MESH-003B: единый подробный RU учебник, FR-311..318 |

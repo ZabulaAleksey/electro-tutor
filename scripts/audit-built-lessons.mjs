@@ -49,6 +49,19 @@ for (const lesson of lessons) {
     new RegExp(lesson.text),
     `${lesson.language} lesson is missing visible MDX content.`,
   );
+  if (lesson.language === "ru") {
+    requireMatch(lessonHtml, /<div class="lesson-page mesh-textbook">/, "RU mesh needs static textbook layout.");
+    if (countMatches(lessonHtml, /<h1(?:\s|>)/g) !== 1 || countMatches(lessonHtml, /<article class="lesson-content">/g) !== 1) {
+      throw new Error("RU textbook must have one heading and one reading article.");
+    }
+    for (let step = 1; step <= 5; step++) requireMatch(lessonHtml, new RegExp(`id="step-${step}"`), `RU static step${step} absent.`);
+    for (const text of ["Физическая сущность", "Область применимости", "Выбор независимых", "Направления токов", "Второй закон", "взаимное сопротивление", "Матричная форма", "Решение системы", "Действительные токи", "Проверка по Кирхгофу", "Типичные ошибки"]) {
+      requireMatch(lessonHtml, new RegExp(text), `RU static textbook misses ${text}.`);
+    }
+    requireMatch(lessonHtml, /component-url="[^"]*MeshTextbookIsland[^"]*"/, "RU practice island absent.");
+    if (lessonHtml.indexOf('id="step-5"') > lessonHtml.indexOf('<astro-island')) throw new Error("RU main content must precede hydration island.");
+    rejectMatch(lessonHtml, /class="level-picker"|katex-error/, "RU textbook cannot have levels or broken math.");
+  } else {
   requireMatch(
     lessonHtml,
     /<article class="lesson-intro">[\s\S]*?<\/article>[\s\S]*?<astro-island/,
@@ -83,6 +96,8 @@ for (const lesson of lessons) {
     /class="[^"]*sr-only[^"]*"[^>]*>[\s\S]*?Метод контурн/,
     `${lesson.language} lesson hides its primary MDX content from sighted users.`,
   );
+
+  }
 
   const expectedHref = withBase(`/${lesson.language}/topics/dc/mesh-current-method/`);
   for (const page of ["", "topics"]) {

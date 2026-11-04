@@ -54,4 +54,4 @@ ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded S
 
 | FR-370..372 | release-readiness-run5.spec.md / ADR-049 | mvp-retired-routes + release-policy/audit-release | exact policy/collision3unit, real preview24HTTP+13browser+90SHA; production pending | STAGES REL5-CACHE |
 
-| FR-373 | release-readiness-run5.spec.md / ADR-050 | generated mvp-edge-404 + guarded _routes |458unit/6new executable, preview24HTTP/90SHA/13browser; primary pending | STAGES REL5-CACHE |
+| FR-373 | release-readiness-run5.spec.md / ADR-050 | generated mvp-edge-404 + guarded _routes |458unit/6new executable, preview24HTTP/90SHA/13browser; primary24HTTP+35historic+13browser+16math+PWA upgrade PASS | STAGES REL5-CACHE |

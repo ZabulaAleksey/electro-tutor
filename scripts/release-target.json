@@ -41,11 +41,11 @@
   "lastDeploymentAuthorizedAndCompleted": true,
   "futureDeploymentRequiresOwnerApproval": true,
   "deployment": {
-    "id": "59cfcc84-4b53-4597-981c-e7cef0493134",
+    "id": "50a3aa3a-8dc9-44d2-826b-38b66933d1f9",
     "environment": "production",
-    "sourceCommit": "0d1227add6f649bb3152fb0f3f8697f87f67905e",
-    "hostedAcceptance": "partial",
-    "blocker": "static rewrite did not suppress all retained primary GET200/304; exact edge candidate pending"
+    "sourceCommit": "ee38ba3d29a38c8ef32da6054628020a3d662dfa",
+    "hostedAcceptance": "verified-runtime-and-cache404",
+    "blocker": null
   },
   "deliveryPolicy": {
     "kind": "bounded-pages-404-handler",
@@ -59,5 +59,10 @@
     "ownerApprovedFailClosed": true,
     "publicPagesRemainStatic": true,
     "paidPlanUpgradeRequired": false
-  }
+  },
+  "remainingReleaseGates": [
+    "physical-device/native-PWA/Narrator checklist",
+    "owner legal/hosting applicability",
+    "prior low/moderate dependency audit"
+  ]
 }

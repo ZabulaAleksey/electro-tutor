@@ -59,4 +59,4 @@ denominator, но только binding SPEC создаёт обязательс�
 
 | `features/public-mvp-run4.spec.md` | Approved RUN4 owner contract | ET-MVP-004,FR-341..353: safe public RU graph/journey/PWA, full dev retained |
 
-| `features/release-readiness-run5.spec.md` | Approved RUN5 owner contract | ET-REL-005, FR-361..369: static release/hosting/security/SEO/readiness, no deployment |
+| `features/release-readiness-run5.spec.md` | Approved RUN5 owner contract | ET-REL-005, FR-361..373: release/hosting/security/SEO/readiness and bounded owner-authorized cache404 delivery correction; actual evidence in STAGES |

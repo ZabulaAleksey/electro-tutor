@@ -1,5 +1,9 @@
 # Дорожная карта Electro Tutor
 
+## Публичный CDN-блокер закрыт
+
+REL5-CACHE CLOSED / verified2026-11-05: production 50a3aa3a-8dc9-44d2-826b-38b66933d1f9 (https://electrotutor.pages.dev/), sourceee38ba3; generated bounded Pages404 handler for /uk and /ru/interactive trees, four non-overlapping invocation rules. Primary24raw GET/HEAD/query/index/nested/oldETag/Range checks404/no Location/no old body, marker v1/no-store/noindex/all5security headers; six bot/browserUA+oldETag checks404;35historic hidden routes404. Public7pages200/CSP/SEO and90served SHA match fresh94file artifact;89original RUN5files byte identical. Primary accepted Playwright13/13PASS, preview13/13PASS;16independent hosted math cases/CSP/input/theme/current offlinePWA PASS; actual previous production worker→new worker activation/cache removal/offline lab/hidden404 PASS in isolated Chromium profile. Unit458/59files, Astro3180errors0warnings3oldhints, ESLint/build/guards PASS. No push/DNS/kernel/backend/dependency/full-source or billing-plan changes; owner explicitly approved preview+production fail_open=false and GET confirmed only2fields changed. Physical devices/native install/Narrator/legal remain outside this cache fix; quota exhaustion may affect project availability and was not forced. Main373f5b8/source branches retained; fix branch not merged. Следующий выпускной шаг — оставшиеся owner legal/device gates, а интеграция fix-ветки в main требует отдельного разрешения.
+
 ## Первый public RUN5 deploy — 2026-11-05
 
 По явному разрешению владельца принятой91file RUN5 сборкой опубликован https://electrotutor.pages.dev/ru/ — существующий Pages electrotutor/main, ad_hoc deployment8e96428d-7051-4c23-bdaf-9b350f1afb49, metadata source373f5b8. Никакого push/DNS/изменения build/branch controls. Main373f5b8/sourcebranch сохранены; docs receipts отдельно, не слиты.

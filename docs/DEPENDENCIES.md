@@ -1,5 +1,9 @@
 # Dependency contract
 
+## Cache404 delivery follow-up
+
+Existing Wrangler4.157.0 compile/preview/deploy and official runtime bindings verified; no install/manifest/lock change. Tiny Pages handler is a provider delivery exception for two retired trees only, not a computational backend. No paid plan activated; Free documented100000/day shared Functions quota, owner explicitly approved fail-closed availability behavior. Public7routes/assets bypass compute. Actual subscription read403, not certified; prior4LOW/6MODERATE audit unchanged/unpatched. Earlier not-tested/no-handler statements below describe prior checkpoints.
+
 ## Optional publication tool installed after RUN5 (2026-11-05)
 
 By explicit owner request Wrangler4.157.0 was installed using pinned pnpm11.23.0 in a separate task-local tools environment with its own manifest/lock and existing shared pnpm store. Install --ignore-scripts; CLI version/login/whoami/pages list verified. Node22.23.1 compatible; no product package/lock changes, no global PATH shim installed. Previous installed=false evidence below belongs to initial RUN5; current release-target metadata records this authorized follow-up. Native worker/dev/deploy flows were not tested or invoked.

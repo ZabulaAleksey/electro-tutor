@@ -13,9 +13,9 @@ import { publicSurface } from "../public-surface";
 interface Props {
   title: string; description: string; language: Language;
   active?: "home" | "topics" | "interactive" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
-  alternatePath?: string; keywords?: string[];
+  alternatePath?: string; keywords?: string[]; hasTranslation?: boolean;
 }
-const { title, description, language, active = "home", alternatePath = "/", keywords = [] } = Astro.props;
+const { title, description, language, active = "home", alternatePath = "/", keywords = [], hasTranslation = true } = Astro.props;
 const copy = getLocale(language);
 const otherLanguage = getOtherLanguage(language);
 const canonical = new URL(localePath(language, alternatePath), Astro.site);
@@ -59,7 +59,7 @@ const nav = visibleStandardNav;
   <link rel="manifest" href={manifestPath} />
   <link rel="icon" href={iconPath} type="image/svg+xml" />
   <link rel="canonical" href={canonical} />
-  <link rel="alternate" hreflang={otherLanguage} href={alternate} />
+  {hasTranslation && <link rel="alternate" hreflang={otherLanguage} href={alternate} />}
   <link rel="alternate" hreflang={language} href={canonical} />
   <link rel="alternate" hreflang="x-default" href={defaultAlternate} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -96,7 +96,7 @@ const nav = visibleStandardNav;
     <button class="theme-toggle" id="theme-toggle" aria-label={copy.actions.theme} title={copy.actions.themeTitle}>
       <span class="theme-light">☾</span><span class="theme-dark">☀</span>
     </button>
-    <a class="language-link" data-language-link href={localePath(otherLanguage, alternatePath)}>{language === "ru" ? "UA" : "RU"}</a>
+    {hasTranslation && <a class="language-link" data-language-link href={localePath(otherLanguage, alternatePath)}>{language === "ru" ? "UA" : "RU"}</a>}
   </header>
   <main><slot /></main>
   <footer><span>© {new Date().getFullYear()} {copy.brand.display}</span></footer>

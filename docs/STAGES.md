@@ -1,11 +1,33 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-MESH-003B
+- Stage ID: ET-MESH-003C
+
+## ET-MESH-003C — RUN3C: примеры решений метода контурных токов
+
+- Status: verified
+- Lifecycle: completed locally; source/main186013d, feat/mesh-lesson-run3c existing root checkout. One authorized atomic RUN3C checkpoint contains this record; exact SHA in Git log/external receipt. No RUN3C merge/push/deploy.
+- Goal/scope:4detailed RU worked examples with progressively harder circuits, FR-321..329 specs/features/mesh-worked-examples.spec.md. STANDARD production content/frontend slice.
+- Dependencies/DAG: ET-MESH-003B verified, owner accepted and ff merged main186013d; branch preserved. No future lab prerequisite.
+- Entry: clean expected refs, installed pinned deps, static MDX/Katex/symbol infrastructure available; independent exact nodal reference all4cases PASS before implementation.
+- Plan: contract+math/blueprints → static page/4SVG/content → bounded no-JS/journey/locale/geometry regressions → unit/types/lint/build/browser →6×2image review → sync → onecommit.
+- Runnable vertical slice/E2E: actual built RU textbook → examples link →4complete static schemes/derivations/results/checks → native anchors/reload → back textbook; existing practice/progress unaffected. No mock backend required for static path.
+- PASS/DoD: all4physical models/polarities/signs/branch voltages/full signed power correct, sourceJ power included; independent nodal and mesh agree; noJS/static/nooverflow; significant SVG labels>=12CSSpx,6width×2themes, reviewed bounded newPNG; old246PNG and protected source unchanged; all requiredchecks PASS.
+- Interfaces/invariants: no kernels/backend/auth/DB/infra/deps change; oldRU textbook content/progress and UK/19topics/31tools preserved. One exact RU-only resource route with honest alternates, hasTranslation default true for old shell pages; no fakeUKroute.
+- Temporary/fallback:none. Drawio CLI unavailable; editable XML4pages retained, real browser SVG inspected. Linux raster/physical device/fullNarrator NOT_RUN distinct from available Windows evidence.
+- Documentation/security/performance/migration: SPEC/state/architecture/ADR/testing/design/content guide/traceability/readme sync. Author-trusted static MDX, no new provider/runtime; no migration.
+- Evidence: merge-receipt.json main/source186013d clean; Fraction oracle all4cases beforeimplementation. 395unit/52files,264-file Astro0errors0warnings3oldhints, ESLint/build40pages39locale187artifacts395keys PASS;244Chromium PASS/6oldlive-auth skips.26exact-zero residuals,129strict formulas,6width×2theme review144bounded PNG;246oldPNG/191protected hashes unchanged. Native wheel/PageDown/Home/keyboard anchors and SVG label contrast PASS. Details TESTING/current chat outputs/ElectroTutor_run3c_evidence.zip.
+- User action MESH-3B-MERGE / DONE: owner explicitly accepted RUN3B and authorized ff; maine743df5→186013d PASS, clean, feat/mesh-lesson-run3b retained. No push/deploy.
+- User action MESH-3C-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one separate atomic RUN3C commit after mandatory PASS; no automatic integration.
+- User action MESH-3C-INTEGRATION / CONDITIONAL: owner may inspect output/report then explicitly authorize main merge; expected evidence explicit request, unlock integration only; no merge/push/deploy in this run.
+- Deferred/overall: mesh lab, horizontal context UI and finalRU-only release visibility remainfuture; fullMVP PARTIAL. NewUKexamples translation not claimed.
+- Blockers: none for this locally verified slice. Future lab/global sequence/release and Linux raster/physical/Narrator coverage not claimed complete.
+- NEXT: none
+- Next action: owner reviews report/visuals; explicit main integration decision per MESH-3C-INTEGRATION. Recommended next bounded stage is a physically verified mesh laboratory; no automatic start.
 
 ## ET-MESH-003B — RUN3B: подробный русский учебник
 
 - Status: verified
-- Lifecycle: completed; implemented/validated locally on feat/mesh-lesson-run3b, existing root checkout, source main=e743df5. One authorized atomic RUN3B commit contains this record; exact SHA in Git log/external output receipt. No RUN3B merge/push/deploy.
+- Lifecycle: completed; implemented/validated locally on feat/mesh-lesson-run3b, existing root checkout, source main=e743df5. RUN3B commit186013d accepted and ff merged local main2026-11-04 by explicit owner authorization; sourcebranch retained. No push/deploy.
 - Goal/scope: единый подробный RU textbook по11пунктам, FR-311..318 specs/features/mesh-textbook.spec.md; STANDARD production content/frontend. Без3уровней RU, нового examples-stage/lab/глобального redesign.
 - Dependencies/DAG: ET-MESH-003A verified and user-authorized ff merge into main=e743df5. Initial clean tree, source branch retained. No future stage prerequisite.
 - Entry: installed pinned dependencies; static Astro/MDX renderer и guest practice/progress доступны без backend. RUN3A screenshot/math baselines retained.
@@ -18,11 +40,11 @@
 - Evidence: RUN3A ff merge receipt main/source=e743df5 clean;390unit/51files PASS,129strict KaTeX formulas, check260files0errors0warnings3old hints, lint PASS, build39pages38locale routes186artifacts395locale keys PASS; full Chromium230PASS/6oldlive skips. Independent exact Fraction14zero-residual checks incl nodal/Cramer/reversal/power/rounding.6width×2theme/132bounded PNG manually reviewed;114oldPNG+186protected files unchanged. Ordinary viewport screenshots confirm no oversized capture artifacts in actual UI. Details TESTING and current chat outputs/ElectroTutor_run3b_evidence.zip.
 - User action MESH-3A-MERGE / DONE: owner explicitly authorized exact ff; switch main/merge--ff-only succeeded, clean main=e743df5, fix/mesh-lesson-run3a retained. No push/deploy.
 - User action MESH-3B-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one separate atomic RUN3B commit after all mandatory PASS; exact receipt Git history/output report. No automatic merge/push/deploy.
-- User action MESH-3B-INTEGRATION / CONDITIONAL: owner may inspect report/screenshots then separately authorize main merge; no merge is part of RUN3B. Evidence — explicit later request; unlock integration only.
-- Deferred/overall: separate examples stage, mesh lab, horizontal sequence, release visibility/SEO remain future; UK/19topics/31tools retained. Full MVP still PARTIAL.
+- User action MESH-3B-INTEGRATION / DONE 2026-11-04: owner accepted RUN3B; authorized ff-only maine743df5→186013d PASS, clean refs; sourcebranch retained. No push/deploy.
+- Deferred/overall: examples subsequently verified locally by ET-MESH-003C; mesh lab, horizontal sequence, release visibility/SEO remain future. UK/19topics/31tools retained; fullMVP PARTIAL.
 - Blockers: none for bounded textbook. Separate full MVP/examples/lab/journey/release and Linux raster/physical device scope not claimed complete.
 - NEXT: none
-- Next action: owner reviews textbook/report and separately decides integration; no future stage automatic start.
+- Next action: none for RUN3B; accepted and ff merged main186013d, continuation selected ET-MESH-003C.
 
 ## ET-MESH-003A — RUN 3A: формулы и инженерная схема метода контурных токов
 

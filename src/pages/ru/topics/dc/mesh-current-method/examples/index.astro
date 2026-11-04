@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../../../../../../layouts/BaseLayout.astro";
+import Content from "../../../../../../content/mesh-examples/ru.mdx";
+import { localePath } from "../../../../../../site-path";
+const textbook = localePath("ru", "/topics/dc/mesh-current-method/");
+---
+<BaseLayout title="Метод контурных токов — примеры решений — ElectroTutor" description="Четыре подробных примера: один и два источника, отрицательный ток, три контура, источник тока и суперконтур. Проверки Кирхгофа и мощности." language="ru" active="topics" alternatePath="/topics/dc/mesh-current-method/examples/" hasTranslation={false}>
+  <div class="mesh-examples-page">
+    <article class="lesson-content mesh-examples">
+      <a class="examples-back" href={textbook}>← Учебник: метод контурных токов</a>
+      <header class="lesson-header"><span class="lesson-number">ПРИМЕРЫ РЕШЕНИЙ · ПОСТОЯННЫЙ ТОК</span><h1>Метод контурных токов: примеры решений</h1><p>Четыре задачи с последовательным усложнением, полными выводами и независимыми проверками.</p></header>
+      <nav class="textbook-toc" aria-label="Примеры решений">
+        <a href="#example-1">1. Один источник</a><a href="#example-2">2. Два источника и отрицательный ток</a><a href="#example-3">3. Три контура</a><a href="#example-4">4. Источник тока и суперконтур</a>
+      </nav>
+      <Content />
+      <p><a class="examples-back" href={textbook}>Вернуться к подробному учебнику</a></p>
+    </article>
+  </div>
+</BaseLayout>

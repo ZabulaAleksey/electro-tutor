@@ -26,6 +26,11 @@ import { localePath } from "../site-path";
       <a href="#step-5">5. Проверки и ошибки</a>
     </nav>
     <slot />
+    <section class="mesh-examples-entry" aria-labelledby="worked-examples-title">
+      <h2 id="worked-examples-title">Примеры решений</h2>
+      <p>Продолжите изучение на четырёх схемах: от одного источника до трёх контуров и суперконтуров.</p>
+      <a href={localePath("ru", "/topics/dc/mesh-current-method/examples/")}>Перейти к подробным примерам решений →</a>
+    </section>
     <MeshTextbookIsland client:load />
   </article>
 </div>

@@ -52,3 +52,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/mesh-lesson-visual-repair.spec.md` | Approved RUN3A 2026-11-04 | FR-301..306: typography, polarity/readability, six-width visual regression; no kernel/backend/deploy |
 
 | `features/mesh-textbook.spec.md` | Утверждённый contract | ET-MESH-003B: единый подробный RU учебник, FR-311..318 |
+
+| `features/mesh-worked-examples.spec.md` | Утверждённый contract | ET-MESH-003C, FR-321..329:4RU worked examples/static graphics/independent math |

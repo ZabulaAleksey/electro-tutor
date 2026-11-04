@@ -29,7 +29,8 @@
       "specs/features/beam-laboratory.spec.md",
       "specs/features/panoramic-visual-system.spec.md",
       "specs/features/mesh-lesson-visual-repair.spec.md",
-      "specs/features/mesh-textbook.spec.md"
+      "specs/features/mesh-textbook.spec.md",
+      "specs/features/mesh-worked-examples.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1496,6 +1497,40 @@
       "e2e": [
         "tests/e2e/mesh-textbook.spec.ts",
         "tests/e2e/mesh-lesson-visual.spec.ts"
+      ]
+    },
+    {
+      "domain": "mesh-worked-examples",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-321",
+        "FR-322",
+        "FR-323",
+        "FR-324",
+        "FR-325",
+        "FR-326",
+        "FR-327",
+        "FR-328",
+        "FR-329"
+      ],
+      "runtime": "4complete static RU worked examples,129formulas; real textbook↔examples/no-JS path PASS. Source main186013d; separate RUN3C feature checkpoint.",
+      "security": "Trusted static content, no backend/kernel/infra changes.",
+      "a11y": "6width×2themes reviewed,13.9px minimum SVG label, no overflow/overlap, native keyboard/wheel/anchors, named SVG and label contrast>=4.5 PASS; physical/Narrator NOT_RUN.",
+      "observability": "26exact-zero independent nodal/mesh/KVL/power residuals;395unit,244Chromium PASS/6unrelated live-auth skips; check/lint/build PASS;144newreviewed PNG,246oldPNG/191source hashes unchanged.",
+      "gap": "Bounded examples complete locally. NewUK translation/lab/global sequence/release visibility deferred; no release claim.",
+      "action": "Owner may inspect report then explicitly authorize integration; no automatic merge/push/deploy.",
+      "code": [
+        "src/content/mesh-examples/ru.mdx",
+        "src/components/MeshExampleDiagram.tsx"
+      ],
+      "unit": [
+        "src/content/mesh-examples/examples.test.tsx"
+      ],
+      "integration": [
+        "scripts/audit-built-locales.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/mesh-examples.spec.ts"
       ]
     }
   ]

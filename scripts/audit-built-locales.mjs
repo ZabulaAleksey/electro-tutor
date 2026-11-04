@@ -18,6 +18,8 @@ await walk(root);
 
 const routes = new Set(htmlFiles.map((file) => `/${relative(root, file).split(sep).slice(0, -1).join("/")}/`.replace("//", "/")));
 const localizedRoutes = [...routes].filter((route) => /^\/(ru|uk)\//.test(route));
+// Owner-authorized RUN3C: examples resource is RU-only; every other route remains paired.
+const ruOnlyRoutes = new Set(["/ru/topics/dc/mesh-current-method/examples/"]);
 const errors = [];
 for (const route of routes) {
   if (route !== "/" && !/^\/(ru|uk)\//.test(route)) errors.push(`unexpected locale route in artifact: ${route}`);
@@ -29,7 +31,8 @@ for (const route of localizedRoutes) {
   const htmlPath = join(root, ...route.split("/").filter(Boolean), "index.html");
   const html = await readFile(htmlPath, "utf8");
   if (!new RegExp(`<html[^>]+lang=["']${language}["']`).test(html)) errors.push(`${route}: incorrect html lang`);
-  for (const targetLanguage of ["ru", "uk"]) {
+  if (ruOnlyRoutes.has(route) && /hreflang=["']uk["']|<a[^>]+data-language-link/.test(html)) errors.push(`${route}: advertises unavailable translation`);
+  for (const targetLanguage of ruOnlyRoutes.has(route) ? ["ru"] : ["ru", "uk"]) {
     const target = `/${targetLanguage}${semanticPath}`;
     const publicTarget = publicPath(target);
     if (!routes.has(target)) errors.push(`${route}: alternate target is absent: ${target}`);

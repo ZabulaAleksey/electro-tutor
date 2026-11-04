@@ -408,3 +408,20 @@ button { min-height: 24px; }
 .mesh-textbook .textbook-toc a:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
 
 .mesh-textbook .lesson-section a { color:var(--ink); text-decoration:underline; text-underline-offset:.18em; }
+
+/* RUN3C: local worked examples; shell and existing tools keep their layout. */
+.mesh-examples-page { max-width:1200px; margin-inline:auto; border-inline:1px solid var(--line); }
+.mesh-examples { margin-inline:auto; }
+.mesh-examples :is(p,li) { font-size:16px; line-height:1.8; overflow-wrap:break-word; }
+.mesh-examples a,.mesh-examples-entry a { color:var(--ink); text-decoration:underline; text-underline-offset:.18em; }
+.mesh-examples .textbook-toc { display:grid; gap:8px; border-block:1px solid var(--line); padding-block:18px; }
+.mesh-examples .textbook-toc a { display:flex; align-items:center; min-height:44px; }
+.mesh-worked-example { scroll-margin-top:100px; border-top:1px solid var(--line); margin-top:45px; padding-top:25px; }
+.mesh-worked-example h2 { font-size:30px; line-height:1.25; letter-spacing:-.03em; }
+.mesh-worked-example h3 { margin-top:30px; font-size:20px; line-height:1.4; }
+.mesh-example-figure { margin-inline:0; --example-super:#694da5; }
+[data-theme="dark"] .mesh-example-figure { --example-super:#c3a6ff; }
+.mesh-example-figure figcaption { font-size:14px; line-height:1.6; margin-top:14px; color:var(--ink); }
+.mesh-examples-entry { padding-block:24px; border-block:1px solid var(--line); margin-block:28px; }
+.mesh-examples :is(a):focus-visible,.mesh-examples-entry a:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+@media(max-width:600px){.mesh-worked-example h2 {font-size:26px;}}

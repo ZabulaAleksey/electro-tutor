@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## RUN3C acceptance 2026-11-04 — статические примеры
+
+`src/pages/ru/topics/dc/mesh-current-method/examples/index.astro` рендерит авторский `src/content/mesh-examples/ru.mdx` вне lesson catalogue collection: это ресурс существующей темы, а не новая тема. `TextbookFormula.astro` компилирует129формул; `MeshExampleDiagram` SSR рисует4схемы через прежние инженерные glyphs, без hydration и нового решателя. CTA после текста `MeshTextbook` и обратные ссылки формируют реальный consumer path. Никаких API/store/kernel/provider/dependency changes. `BaseLayout.hasTranslation` по умолчанию true; false только у этой точной RU-only страницы убирает отсутствующий UK alternate/switch. Artifact audit разрешает только её, прежние пары сохраняются. Source data/полярности и независимая математика — FR-321..329/ADR-045.
+
 ## RUN3B acceptance 2026-11-04 — статический mesh textbook
 
 RU canonical topic route рендерит Content Collections MDX внутри `MeshTextbook.astro`: длинный индексируемый текст/129формул/схема доступны до JavaScript. `TextbookFormula.astro` принимает явный latex string prop и строго компилирует доверенный авторский KaTeX; React children slot не используется как строка формулы. `MeshTextbookIsland` гидратирует только guest progress/practice и подсветку5anchors. Existing learning store/grader/IDs/namespace и физические модели не меняются. UK остаётся `MeshLessonIsland`/legacy renderer и прежним MDX; это owner-authorized RU-first content delta, не fallback перевод. Новых URL/API/providers/dependencies нет; boundary Astro/MDX+React islands прежний. ADR-044 и mesh-textbook SPEC задают scoped delta.

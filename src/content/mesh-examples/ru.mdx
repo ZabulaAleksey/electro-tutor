@@ -1,0 +1,366 @@
+import Formula from '../../components/TextbookFormula.astro';
+import Diagram from '../../components/MeshExampleDiagram';
+
+Эта серия продолжает учебник: от двух резистивных контуров с одним источником до трёх неизвестных и суперконтуров. Каждый пример содержит исходную модель, вывод уравнений, решение, токи ветвей, напряжения и проверку энергии. Числа выбраны для прозрачного точного расчёта; результаты не получены из интерактивного решателя.
+
+**Обозначения на этой странице:** заглавные <Formula block={false} latex={String.raw`I_1,I_2,I_3`} /> — вспомогательные контурные токи, строчные <Formula block={false} latex={String.raw`i_1,i_2,i_3,i_4`} /> — действительные токи ветвей. Равенство индексов не означает равенства величин. Нумерация ветвей заново показана на каждой схеме. Источник тока обозначается <Formula block={false} latex={String.raw`J`} />. Это отделяет третий контур от тока общей ветви, который в учебнике имел локальное обозначение <Formula block={false} latex={String.raw`I_3`} />.
+
+Все контурные обходы направлены по часовой стрелке. В численных системах сопротивления подразумеваются в Ω, ЭДС — в V, токи — в A; итоговые величины имеют явные единицы. Напряжения резисторов отсчитываются вдоль выбранных стрелок ветвей. Точные дроби используются до конца проверки, десятичные результаты округляются до трёх значащих цифр. Исходные данные не округляются. Отрицательный ток или напряжение сохраняют свой знак.
+
+<section id="example-1" class="mesh-worked-example">
+
+## 1. Один источник: как возникает ток общей ветви
+
+### Схема и исходные данные
+
+Два окна образуют два независимых контура. Источник <Formula block={false} latex={String.raw`E_1=12`} /> V имеет плюс сверху; правая внешняя ветвь замыкается проводом, второго источника нет. Сопротивления: <Formula block={false} latex={String.raw`R_1=2`} /> Ω, <Formula block={false} latex={String.raw`R_2=4`} /> Ω, <Formula block={false} latex={String.raw`R_3=2`} /> Ω. Узел B принимаем за нулевой потенциал. Стрелка <Formula block={false} latex={String.raw`i_1`} /> направлена вверх левой ветви, <Formula block={false} latex={String.raw`i_2`} /> — от A к B через <Formula block={false} latex={String.raw`R_3`} />, <Formula block={false} latex={String.raw`i_3`} /> — вниз правой ветви.
+
+<Diagram example={1} />
+
+### Вывод уравнений
+
+Сначала выразим токи через контурные неизвестные. В левой и правой внешних ветвях только один контур, а в средней токи направлены навстречу:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=I_1\\i_2&=I_1-I_2\\i_3&=I_2\end{aligned}`} />
+
+
+При левом обходе источник повышает потенциал на <Formula block={false} latex={String.raw`E_1`} />, резисторы по ходу своих токов уменьшают его. При правом обходе источник отсутствует, а средний резистор проходится против <Formula block={false} latex={String.raw`i_2`} />:
+
+
+<Formula latex={String.raw`\begin{aligned}E_1-R_1I_1-R_3(I_1-I_2)&=0\\-R_2I_2+R_3(I_1-I_2)&=0\end{aligned}`} />
+
+
+Раскроем скобки и перенесём ЭДС вправо:
+
+
+<Formula latex={String.raw`\begin{aligned}(R_1+R_3)I_1-R_3I_2&=E_1\\-R_3I_1+(R_2+R_3)I_2&=0\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{cases}4I_1-2I_2=12\\-2I_1+6I_2=0\end{cases}`} />
+
+
+Вторая правая часть равна нулю, потому что в правом обходе нет источника, а не потому что ток этого контура должен быть нулевым.
+
+### Решение системы
+
+Из второго уравнения <Formula block={false} latex={String.raw`2I_1=6I_2`} />, значит <Formula block={false} latex={String.raw`I_1=3I_2`} />. Подставляем это в первое:
+
+
+<Formula latex={String.raw`\begin{aligned}4(3I_2)-2I_2&=12\\10I_2&=12\\I_2&=\frac65\,\mathrm A\approx1.20\,\mathrm A\\I_1&=3\frac65\,\mathrm A\\&=\frac{18}5\,\mathrm A\approx3.60\,\mathrm A\end{aligned}`} />
+
+
+### Токи ветвей и напряжения
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=\frac{18}5\,\mathrm A\approx3.60\,\mathrm A\\i_2&=\frac{18-6}5\,\mathrm A\\&=\frac{12}5\,\mathrm A\approx2.40\,\mathrm A\\i_3&=\frac65\,\mathrm A\approx1.20\,\mathrm A\end{aligned}`} />
+
+
+Ток во всех трёх ветвях совпадает с выбранной стрелкой. По закону Ома:
+
+
+<Formula latex={String.raw`\begin{aligned}U_{R_1}&=2\frac{18}5\,\mathrm V\\&=\frac{36}5\,\mathrm V=7.20\,\mathrm V\\U_{R_2}&=4\frac65\,\mathrm V\\&=\frac{24}5\,\mathrm V=4.80\,\mathrm V\\U_{R_3}&=2\frac{12}5\,\mathrm V\\&=\frac{24}5\,\mathrm V=4.80\,\mathrm V\end{aligned}`} />
+
+
+### Независимая узловая проверка и Кирхгоф
+
+Отсчитываем три выходящих тока из A. Верхний вывод источника имеет 12 V, правый провод соединён с B:
+
+
+<Formula latex={String.raw`\frac{V_A-12}{2}+\frac{V_A}{4}+\frac{V_A}{2}=0`} />
+
+
+<Formula latex={String.raw`\begin{aligned}2(V_A-12)+V_A+2V_A&=0\\5V_A&=24\\V_A&=\frac{24}5\,\mathrm V\end{aligned}`} />
+
+
+Теперь <Formula block={false} latex={String.raw`i_1=(12-V_A)/2=18/5`} /> A, <Formula block={false} latex={String.raw`i_2=V_A/2=12/5`} /> A, <Formula block={false} latex={String.raw`i_3=V_A/4=6/5`} /> A. Узловой расчёт не использовал контурную систему и дал те же токи. Прямые невязки:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1-i_2-i_3&=\frac{18-12-6}5\,\mathrm A\\&=0\end{aligned}`} />
+
+<Formula latex={String.raw`\begin{aligned}E_1-U_{R_1}-U_{R_3}&=0\\U_{R_3}-U_{R_2}&=0\end{aligned}`} />
+
+
+### Полный баланс мощности
+
+Мощность каждого резистора рассчитывается по его действительному току. У общего <Formula block={false} latex={String.raw`R_3`} /> это <Formula block={false} latex={String.raw`i_2`} />, а не один из контурных токов:
+
+
+<Formula latex={String.raw`\begin{aligned}P_{R_1}&=2\left(\frac{18}5\right)^2\!\mathrm W\\&=\frac{648}{25}\,\mathrm W\approx25.9\,\mathrm W\\P_{R_2}&=4\left(\frac65\right)^2\!\mathrm W\\&=\frac{144}{25}\,\mathrm W=5.76\,\mathrm W\\P_{R_3}&=2\left(\frac{12}5\right)^2\!\mathrm W\\&=\frac{288}{25}\,\mathrm W\approx11.5\,\mathrm W\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}P_R&=\frac{648+144+288}{25}\,\mathrm W\\&=\frac{216}5\,\mathrm W=43.2\,\mathrm W\\P_E&=12\frac{18}5\,\mathrm W\\&=\frac{216}5\,\mathrm W=P_R\end{aligned}`} />
+
+
+Источник отдаёт энергию: ток входит в его отрицательный вывод. Сумма поглощаемых мощностей всех элементов равна нулю: <Formula block={false} latex={String.raw`P_R-P_E=0`} />.
+</section>
+
+<section id="example-2" class="mesh-worked-example">
+
+## 2. Два источника: отрицательный ответ — допустимый результат
+
+### Схема и исходные данные
+
+Сопротивления прежние: <Formula block={false} latex={String.raw`R_1=2`} /> Ω, <Formula block={false} latex={String.raw`R_2=4`} /> Ω, <Formula block={false} latex={String.raw`R_3=2`} /> Ω. В левой ветви <Formula block={false} latex={String.raw`E_1=12`} /> V, в правой <Formula block={false} latex={String.raw`E_2=24`} /> V. **У обоих источников плюс сверху.** Правый контур по часовой стрелке проходит <Formula block={false} latex={String.raw`E_2`} /> от плюса к минусу. Стрелки ветвей прежние; это выбранные положительные направления, а не заранее известные действительные токи.
+
+<Diagram example={2} />
+
+### Вывод уравнений и знаков
+
+Связи ветвей остаются <Formula block={false} latex={String.raw`i_1=I_1`} />, <Formula block={false} latex={String.raw`i_2=I_1-I_2`} />, <Formula block={false} latex={String.raw`i_3=I_2`} />. Для левого контура ничего не изменилось. В правом при движении вниз через источник потенциал уменьшается на <Formula block={false} latex={String.raw`E_2`} />:
+
+
+<Formula latex={String.raw`\begin{aligned}E_1-R_1I_1-R_3(I_1-I_2)&=0\\-R_2I_2-E_2+R_3(I_1-I_2)&=0\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{cases}4I_1-2I_2=12\\-2I_1+6I_2=-24\end{cases}`} />
+
+
+Минус перед 24 справа — следствие полярности и обхода. Менять его на плюс, чтобы получить положительный ток, нельзя.
+
+### Решение системы
+
+Умножаем первую строку целиком на 3 и складываем со второй:
+
+
+<Formula latex={String.raw`\begin{aligned}12I_1-6I_2&=36\\-2I_1+6I_2&=-24\\\hline10I_1&=12\\I_1&=\frac65\,\mathrm A\approx1.20\,\mathrm A\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}6I_2&=-24+2\frac65\\&=\frac{-120+12}5\\I_2&=-\frac{18}5\,\mathrm A\approx-3.60\,\mathrm A\end{aligned}`} />
+
+
+### Токи ветвей и напряжения
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=\frac65\,\mathrm A\approx1.20\,\mathrm A\\i_2&=\left(\frac65+\frac{18}5\right)\!\mathrm A\\&=\frac{24}5\,\mathrm A\approx4.80\,\mathrm A\\i_3&=-\frac{18}5\,\mathrm A\approx-3.60\,\mathrm A\end{aligned}`} />
+
+
+Правая ветвь действительно проводит ток вверх, от B через <Formula block={false} latex={String.raw`E_2`} /> к A. Контурная стрелка <Formula block={false} latex={String.raw`I_2`} /> была выбрана по часовой стрелке, но фактическая составляющая имеет противоположное направление. Стрелку не нужно стирать: отрицательный знак уже содержит эту информацию.
+
+
+<Formula latex={String.raw`\begin{aligned}U_{R_1}&=2\frac65\,\mathrm V=2.40\,\mathrm V\\U_{R_2}&=4\left(-\frac{18}5\right)\!\mathrm V\\&=-\frac{72}5\,\mathrm V=-14.4\,\mathrm V\\U_{R_3}&=2\frac{24}5\,\mathrm V\\&=\frac{48}5\,\mathrm V=9.60\,\mathrm V\end{aligned}`} />
+
+
+Напряжение <Formula block={false} latex={String.raw`U_{R_2}`} /> отсчитано от A к правому верхнему выводу, вдоль выбранной стрелки <Formula block={false} latex={String.raw`i_3`} />. Оно отрицательно. Вдоль действительного тока падение равно положительным 14.4 V. Не меняем знак только в одном уравнении.
+
+### Независимая узловая проверка и Кирхгоф
+
+Верхние выводы источников имеют 12 V и 24 V относительно B. Поэтому:
+
+
+<Formula latex={String.raw`\frac{V_A-12}{2}+\frac{V_A-24}{4}+\frac{V_A}{2}=0`} />
+
+
+<Formula latex={String.raw`\begin{aligned}&2(V_A-12)+(V_A-24)\\&\quad+2V_A=0\\5V_A&=48\\V_A&=\frac{48}5\,\mathrm V\end{aligned}`} />
+
+
+Из узлового решения <Formula block={false} latex={String.raw`i_1=(12-V_A)/2=6/5`} /> A, <Formula block={false} latex={String.raw`i_2=V_A/2=24/5`} /> A, <Formula block={false} latex={String.raw`i_3=(V_A-24)/4=-18/5`} /> A. Проверки со знаками:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1-i_2-i_3&=\frac{6-24+18}5\,\mathrm A\\&=0\end{aligned}`} />
+
+<Formula latex={String.raw`\begin{aligned}12-\frac{12}5-\frac{48}5&=0\\\frac{72}5-24+\frac{48}5&=0\end{aligned}`} />
+
+
+### Полный баланс мощности
+
+Резистивная мощность остаётся положительной при отрицательном токе, поскольку используется квадрат:
+
+
+<Formula latex={String.raw`\begin{aligned}P_{R_1}&=2\left(\frac65\right)^2\!\mathrm W\\&=\frac{72}{25}\,\mathrm W=2.88\,\mathrm W\\P_{R_2}&=4\left(-\frac{18}5\right)^2\!\mathrm W\\&=\frac{1296}{25}\,\mathrm W\approx51.8\,\mathrm W\\P_{R_3}&=2\left(\frac{24}5\right)^2\!\mathrm W\\&=\frac{1152}{25}\,\mathrm W\approx46.1\,\mathrm W\end{aligned}`} />
+
+
+По пассивному правилу знаков поглощаемая мощность положительна, когда ток входит в плюс. Для <Formula block={false} latex={String.raw`E_1`} /> выбранный <Formula block={false} latex={String.raw`i_1`} /> входит в минус, а для <Formula block={false} latex={String.raw`E_2`} /> выбранный вниз <Formula block={false} latex={String.raw`i_3`} /> входит в плюс:
+
+
+<Formula latex={String.raw`\begin{aligned}P_{E_1}^{\mathrm{abs}}&=-E_1i_1=-\frac{72}5\,\mathrm W\\P_{E_2}^{\mathrm{abs}}&=E_2i_3=-\frac{432}5\,\mathrm W\end{aligned}`} />
+
+
+Обе величины отрицательны: оба источника в этом режиме отдают энергию. Полный точный баланс:
+
+
+<Formula latex={String.raw`\begin{aligned}P_R&=\frac{72+1296+1152}{25}\,\mathrm W\\&=\frac{504}5\,\mathrm W\\P_E&=\frac{72+432}5\,\mathrm W=P_R\\P_E&\approx101\,\mathrm W\end{aligned}`} />
+
+
+Суммируем точные мощности, а не округлённые 51.8 и 46.1. Иначе небольшая разница округления может выглядеть как физическая ошибка.
+</section>
+
+<section id="example-3" class="mesh-worked-example">
+
+## 3. Три контура: построение и исключение в системе 3×3
+
+### Схема и исходные данные
+
+Между A и B четыре ветви. Левая содержит <Formula block={false} latex={String.raw`R_1=2`} /> Ω и <Formula block={false} latex={String.raw`E_1=24`} /> V с плюсом сверху. Средние ветви содержат <Formula block={false} latex={String.raw`R_2=4`} /> Ω и <Formula block={false} latex={String.raw`R_3=6`} /> Ω. Правая содержит <Formula block={false} latex={String.raw`R_4=2`} /> Ω и <Formula block={false} latex={String.raw`E_2=6`} /> V **с плюсом снизу**. Три соседних окна задают <Formula block={false} latex={String.raw`I_1,I_2,I_3`} /> по часовой стрелке. Здесь <Formula block={false} latex={String.raw`I_3`} /> — третий контурный ток, а <Formula block={false} latex={String.raw`i_3`} /> — ток третьей ветви: регистр буквы принципиален.
+
+<Diagram example={3} />
+
+### Вывод уравнений
+
+Четыре ветви и два основных узла дают <Formula block={false} latex={String.raw`m=4-2+1=3`} />. Внешние токи принадлежат одному контуру, во внутренних ветвях вычитаются соседние контурные токи:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=I_1\\i_2&=I_1-I_2\\i_3&=I_2-I_3\\i_4&=I_3\end{aligned}`} />
+
+
+Во втором окне источников нет. Правый источник проходится вниз от минуса к плюсу, поэтому его ЭДС справа положительна. Запишем каждый обход до раскрытия скобок:
+
+
+<Formula latex={String.raw`\begin{aligned}R_1I_1+R_2(I_1-I_2)&=E_1\\R_2(I_2-I_1)+R_3(I_2-I_3)&=0\\R_3(I_3-I_2)+R_4I_3&=E_2\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{cases}6I_1-4I_2=24\\-4I_1+10I_2-6I_3=0\\-6I_2+8I_3=6\end{cases}`} />
+
+
+<Formula latex={String.raw`\mathbf R_{\mathrm m}=\begin{bmatrix}6&-4&0\\-4&10&-6\\0&-6&8\end{bmatrix}\,\Omega`} />
+
+
+Нулевые угловые элементы означают, что первый и третий контуры не имеют общей ветви. Взаимные коэффициенты соседей равны минус сопротивлению их общей ветви. Каждый диагональный элемент — сумма сопротивлений своего окна.
+
+### Решение системы исключением
+
+Из первой строки <Formula block={false} latex={String.raw`I_1=4+(2/3)I_2`} />. Подставим это во вторую, сохраняя численную запись в СИ:
+
+
+<Formula latex={String.raw`\begin{aligned}&-4\left(4+\frac23I_2\right)+10I_2\\&\quad-6I_3=0\\&\frac{22}3I_2-6I_3=16\\&11I_2-9I_3=24\end{aligned}`} />
+
+
+Последняя строка получена умножением предыдущей на 3/2. Третье исходное уравнение делим на 2: <Formula block={false} latex={String.raw`-3I_2+4I_3=3`} />. Умножаем сокращённую вторую строку на 4, третью — на 9 и складываем:
+
+
+<Formula latex={String.raw`\begin{aligned}44I_2-36I_3&=96\\-27I_2+36I_3&=27\\\hline17I_2&=123\\I_2&=\frac{123}{17}\,\mathrm A\approx7.24\,\mathrm A\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}I_3&=\frac{3+3(123/17)}4\,\mathrm A\\&=\frac{105}{17}\,\mathrm A\approx6.18\,\mathrm A\\I_1&=\left(4+\frac23\frac{123}{17}\right)\!\mathrm A\\&=\frac{150}{17}\,\mathrm A\approx8.82\,\mathrm A\end{aligned}`} />
+
+
+### Токи ветвей и напряжения
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=\frac{150}{17}\,\mathrm A\approx8.82\,\mathrm A\\i_2&=\frac{150-123}{17}\,\mathrm A\\&=\frac{27}{17}\,\mathrm A\approx1.59\,\mathrm A\\i_3&=\frac{123-105}{17}\,\mathrm A\\&=\frac{18}{17}\,\mathrm A\approx1.06\,\mathrm A\\i_4&=\frac{105}{17}\,\mathrm A\approx6.18\,\mathrm A\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}U_{R_1}&=2\frac{150}{17}\,\mathrm V\\&=\frac{300}{17}\,\mathrm V\approx17.6\,\mathrm V\\U_{R_2}&=4\frac{27}{17}\,\mathrm V\\&=\frac{108}{17}\,\mathrm V\approx6.35\,\mathrm V\\U_{R_3}&=6\frac{18}{17}\,\mathrm V\\&=\frac{108}{17}\,\mathrm V\approx6.35\,\mathrm V\\U_{R_4}&=2\frac{105}{17}\,\mathrm V\\&=\frac{210}{17}\,\mathrm V\approx12.4\,\mathrm V\end{aligned}`} />
+
+
+### Независимая узловая проверка и Кирхгоф
+
+Для этой схемы узловой метод даже короче: всего один неизвестный потенциал A. Выводы источников имеют 24 V и−6 V относительно B:
+
+
+<Formula latex={String.raw`\begin{aligned}&\frac{V_A-24}{2}+\frac{V_A}{4}\\&\quad+\frac{V_A}{6}+\frac{V_A+6}{2}=0\end{aligned}`} />
+
+
+После умножения на 12 Ω коэффициенты при <Formula block={false} latex={String.raw`V_A`} /> равны 6,3,2,6, а постоянные слагаемые равны−144 V и 36 V:
+
+
+<Formula latex={String.raw`\begin{aligned}17V_A-108&=0\\V_A&=\frac{108}{17}\,\mathrm V\end{aligned}`} />
+
+
+Из <Formula block={false} latex={String.raw`i_1=(24-V_A)/2`} />, <Formula block={false} latex={String.raw`i_2=V_A/4`} />, <Formula block={false} latex={String.raw`i_3=V_A/6`} />, <Formula block={false} latex={String.raw`i_4=(V_A+6)/2`} /> независимо получаются те же четыре тока. Затем <Formula block={false} latex={String.raw`I_2=i_1-i_2=123/17`} /> A. Невязки:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1-i_2-i_3-i_4&=0\\U_{R_1}+U_{R_2}-24&=0\\U_{R_3}-U_{R_2}&=0\\U_{R_4}-U_{R_3}-6&=0\end{aligned}`} />
+
+
+### Полный баланс мощности
+
+Не подставляем контурные <Formula block={false} latex={String.raw`I_1,I_2,I_3`} /> вместо действительных токов двух внутренних ветвей:
+
+
+<Formula latex={String.raw`\begin{aligned}P_{R_1}&=2\left(\frac{150}{17}\right)^2\!\mathrm W\\&=\frac{45000}{289}\,\mathrm W\approx156\,\mathrm W\\P_{R_2}&=4\left(\frac{27}{17}\right)^2\!\mathrm W\\&=\frac{2916}{289}\,\mathrm W\approx10.1\,\mathrm W\\P_{R_3}&=6\left(\frac{18}{17}\right)^2\!\mathrm W\\&=\frac{1944}{289}\,\mathrm W\approx6.73\,\mathrm W\\P_{R_4}&=2\left(\frac{105}{17}\right)^2\!\mathrm W\\&=\frac{22050}{289}\,\mathrm W\approx76.3\,\mathrm W\end{aligned}`} />
+
+
+Оба источника отдают энергию: выбранный ток проходит их от минуса к плюсу. Поэтому:
+
+
+<Formula latex={String.raw`\begin{aligned}P_R&=\frac{45000+2916}{289}\,\mathrm W\\&\quad+\frac{1944+22050}{289}\,\mathrm W\\&=\frac{71910}{289}\,\mathrm W=\frac{4230}{17}\,\mathrm W\\P_E&=24\frac{150}{17}\,\mathrm W+6\frac{105}{17}\,\mathrm W\\&=\frac{4230}{17}\,\mathrm W=P_R\\P_E&\approx249\,\mathrm W\end{aligned}`} />
+
+
+Большое число контуров не означает, что контурный метод всегда эффективнее. Здесь сравнение с одним узловым уравнением одновременно служит независимой проверкой и помогает осознанно выбирать метод.
+</section>
+
+<section id="example-4" class="mesh-worked-example">
+
+## 4. Источник тока: суперконтур и мощность источника
+
+### Схема и исходные данные
+
+Внешние ветви содержат <Formula block={false} latex={String.raw`E_1=12`} /> V с плюсом сверху, <Formula block={false} latex={String.raw`R_1=2`} /> Ω и <Formula block={false} latex={String.raw`R_2=4`} /> Ω. Вместо общего резистора установлен идеальный источник тока <Formula block={false} latex={String.raw`J=1`} /> A от A к B. Его ток задан, а напряжение <Formula block={false} latex={String.raw`U_J=V_A-V_B`} /> пока неизвестно. Плюс отсчёта <Formula block={false} latex={String.raw`U_J`} /> расположен у A. Эти знаки задают напряжение, а не превращают источник тока в источник заданной ЭДС.
+
+<Diagram example={4} />
+
+### Вывод уравнений и суперконтур
+
+Из общей ветви сразу известно <Formula block={false} latex={String.raw`i_2=I_1-I_2=J`} />. Если записать обычный KVL обоих окон с неизвестным напряжением источника:
+
+
+<Formula latex={String.raw`\begin{aligned}E_1-R_1I_1-U_J&=0\\U_J-R_2I_2&=0\end{aligned}`} />
+
+
+Сложим эти строки. Неизвестное <Formula block={false} latex={String.raw`U_J`} /> сокращается: остаётся обход внешней границы двух окон, который не проходит через источник тока. Это **суперконтур**. Его уравнение нужно дополнить заданным током общей ветви:
+
+
+<Formula latex={String.raw`\begin{cases}R_1I_1+R_2I_2=E_1\\I_1-I_2=J\end{cases}`} />
+
+
+<Formula latex={String.raw`\begin{cases}2I_1+4I_2=12\\I_1-I_2=1\end{cases}`} />
+
+
+Первая строка имеет размерность напряжения, вторая — тока. Вторая строка является связью токов, а не строкой симметричной матрицы сопротивлений. Нельзя заменять идеальный источник тока коротким замыканием или автоматически считать <Formula block={false} latex={String.raw`U_J=0`} />.
+
+### Решение системы
+
+Из связи токов <Formula block={false} latex={String.raw`I_1=I_2+J`} />. Подставим её в уравнение суперконтурa:
+
+
+<Formula latex={String.raw`\begin{aligned}R_1(I_2+J)+R_2I_2&=E_1\\(R_1+R_2)I_2&=E_1-R_1J\\(2+4)I_2&=12-2\cdot1\\6I_2&=10\\I_2&=\frac53\,\mathrm A\approx1.67\,\mathrm A\\I_1&=\frac53\,\mathrm A+1\,\mathrm A\\&=\frac83\,\mathrm A\approx2.67\,\mathrm A\end{aligned}`} />
+
+
+### Токи ветвей и напряжения
+
+
+<Formula latex={String.raw`\begin{aligned}i_1&=\frac83\,\mathrm A\approx2.67\,\mathrm A\\i_2&=J=1.00\,\mathrm A\\i_3&=\frac53\,\mathrm A\approx1.67\,\mathrm A\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}U_{R_1}&=2\frac83\,\mathrm V\\&=\frac{16}3\,\mathrm V\approx5.33\,\mathrm V\\U_{R_2}&=4\frac53\,\mathrm V\\&=\frac{20}3\,\mathrm V\approx6.67\,\mathrm V\\U_J&=U_{R_2}=\frac{20}3\,\mathrm V\end{aligned}`} />
+
+
+Источник тока принял то напряжение, которое требуется всей цепью для поддержания 1 A. Оно не было входным числом задачи.
+
+### Независимая узловая проверка и Кирхгоф
+
+Ток источника направлен из A, поэтому в сумме выходящих токов он входит со знаком плюс:
+
+
+<Formula latex={String.raw`\frac{V_A-12}{2}+\frac{V_A}{4}+1=0`} />
+
+
+<Formula latex={String.raw`\begin{aligned}2(V_A-12)+V_A+4&=0\\3V_A&=20\\V_A&=\frac{20}3\,\mathrm V\end{aligned}`} />
+
+
+Отсюда <Formula block={false} latex={String.raw`i_1=(12-V_A)/2=8/3`} /> A и <Formula block={false} latex={String.raw`i_3=V_A/4=5/3`} /> A. Узловой результат совпадает с суперконтурным. Проверим также отдельные окна с найденным напряжением источника:
+
+
+<Formula latex={String.raw`\begin{aligned}i_1-J-i_3&=\frac83-1-\frac53=0\\12-\frac{16}3-\frac{20}3&=0\\\frac{20}3-\frac{20}3&=0\end{aligned}`} />
+
+
+### Полный баланс: источник тока поглощает энергию
+
+В источник <Formula block={false} latex={String.raw`J`} /> ток входит со стороны положительного <Formula block={false} latex={String.raw`U_J`} />, поэтому по пассивному правилу знаков **он поглощает мощность**. Само слово «источник» не гарантирует отдачу энергии в каждом режиме:
+
+
+<Formula latex={String.raw`\begin{aligned}P_{R_1}&=2\left(\frac83\right)^2\!\mathrm W\\&=\frac{128}9\,\mathrm W\approx14.2\,\mathrm W\\P_{R_2}&=4\left(\frac53\right)^2\!\mathrm W\\&=\frac{100}9\,\mathrm W\approx11.1\,\mathrm W\\P_J&=U_JJ=\frac{20}3\,\mathrm W\\&\approx6.67\,\mathrm W\\P_E&=E_1i_1=12\frac83\,\mathrm W\\&=32.0\,\mathrm W\end{aligned}`} />
+
+
+<Formula latex={String.raw`\begin{aligned}P_{\Sigma}&=P_{R_1}+P_{R_2}+P_J\\&=\frac{128+100+60}9\,\mathrm W\\&=32.0\,\mathrm W=P_E\end{aligned}`} />
+
+
+Здесь <Formula block={false} latex={String.raw`P_{\Sigma}`} /> — суммарная мощность трёх потребителей. Если сравнить только мощность напряженческого источника с мощностями резисторов, баланс не сойдётся: будет пропущено поглощение <Formula block={false} latex={String.raw`20/3`} /> W источником тока. Нужно учитывать все элементы со знаком их мощности, а не только резисторы.
+</section>
+
+## Как проверить собственное решение
+
+Перед решением отметьте полярности и положительные направления. Составляйте KVL по обходу, а не по памяти о знаках. Для каждой общей ветви отдельно выразите действительный ток. После решения проверьте исходные строки, узловые токи, напряжения и **все** мощности. Не меняйте одновременно направление и числовой знак без явного определения нового отсчёта.
+
+Идеальные источники и линейные сопротивления задают учебную модель. Внутренние сопротивления источников, ограничения мощности и динамика здесь не моделируются. Метод суперконтуров с дополнительной связью токов можно сопоставить с [Outline of Mesh-Current Method, Rich Kozick, Bucknell University](https://www.eg.bucknell.edu/~kozick/elec22502/meshcurrent.html). Числа четырёх примеров проверяются независимо узловым методом и точными дробями.

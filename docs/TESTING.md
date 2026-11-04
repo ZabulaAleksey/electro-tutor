@@ -1,3 +1,25 @@
+## ET-MESH-003C — RUN3C acceptance 2026-11-04
+
+Owner authorized exact FF preflight: clean refs; main contains e743df5, source feat/mesh-lesson-run3b contains186013d; `git switch main` and `git merge --ff-only feat/mesh-lesson-run3b` PASS. main=186013d75587564f00578a772bc1f15b0187401b, sourcebranch retained. New branch feat/mesh-lesson-run3c reuses root checkout. No force/rebase/push/deploy. Pinned Node22.23.1/pnpm11.23.0 and installed dependencies; no install. Process-only safe.directory for this exact repository.
+
+| Команда/проверка | Фактический результат |
+|---|---|
+| `pnpm test` |395PASS/52files; beam reference13cases/49assertions. New5tests:129strict KaTeX parse +4SVG physical topology/no component bypass |
+| `pnpm check` |264files,0errors,0warnings,3pre-existing hints |
+| `pnpm lint` |PASS |
+| `pnpm build` |40pages,39localized routes,187artifacts,395paired keys; WASM/hash/locale/lesson/site audits PASS |
+| `playwright test --workers=2 --update-snapshots=none` on owned127.0.0.1:4322 production preview |244PASS/6expected unchanged live-auth skips,250total. New14scenarios include real textbook↔examples, no-JS/native anchors,12visual states |
+| Independent `math_reference.py` + `verify_published_math.py` |4cases PASS,26exact-zero KCL/KVL/mesh/power residuals; nodal first, separate rational Gaussian crosscheck, no product imports. All published exact result fractions/decimals crosschecked,129formulas parse |
+| Visual/geometry |320/375/390/768/1280/1920light/dark;204captures,144bounded regions manually reviewed before golden promotion.48SVG no overlap/outside, minlabel13.9CSSpx, no formula/page overflow/pageerror. Old246PNG unchanged |
+| Independent browser interaction |Wheel/PageDown/Home/Enter anchors PASS at320/1280both themes.4SVG have descriptive accessible names; actual label contrast≥4.5. This does not certify full screen-reader or physical mobile behavior |
+| Hash guards |191protected files including kernels/backend/auth/infra/locks/oldRU+UKMDX/localeJSON unchanged |
+
+New route `/ru/topics/dc/mesh-current-method/examples/` is static RU-only as approved: no nonexistent UK alternate/switch, all previous pairs kept. SVG source polarity matches exact equations; J=1A down absorbs20/3W and enters balance. No solver changes. New snapshots use separate directory; no existing test/golden contract weakened. Raster acceptance Windows Chromium only; Linux raster/physical device/fullNarrator NOT_RUN. Existing six live-auth skips are unrelated optional service scenarios; no backend completion claimed.
+
+Initial candidate evidence: artifact audit initially matched `data-language-link` inside JS, fixed to actual anchor; initial320px captures revealed3overwide math blocks, corrected by splitting KCL/KVL and naming PΣ. Final supermesh dashed path moved away from B/source labels after image review. All later checks pass; initial failure logs retained. No auto golden update. Drawio auxiliary4page XML parses/repair pass, CLI unavailable and GUI export NOT_RUN; product SVG inspected in browser instead.
+
+Evidence scripts/logs/math/measurements/screenshots/diff/hash receipts are preserved in current chat outputs/ElectroTutor_run3c_evidence.zip and detailed RUN3C report. Build/Playwright output directed to chat work/run3c; generated .astro/Vite cache inventory listed separately, nothing automatically removed. check:context/check:hygiene/check:ci-workflow and final Git guards run before atomic commit. Completion sync: README/STAGES/ROADMAP/SPEC/architecture/ADR/design/content/testing/traceability/ledger updated; security/API/data/dependencies/fallback/project-context inspected, no changed contracts. Main remains186013d; RUN3C not merged/pushed/deployed. FullMVP PARTIAL: new lab, horizontal sequence and release visibility remain future.
+
 ## ET-MESH-003B — RUN3B acceptance 2026-11-04
 
 Git preflight: clean fix/mesh-lesson-run3a=e743df5, clean main48c3fef; owner-authorized `git switch main` / `git merge --ff-only fix/mesh-lesson-run3a` PASS, main=e743df5, source branch retained. Затем `feat/mesh-lesson-run3b`, existing root checkout. No force/rebase/conflict resolution, branch deletion, push/deploy. Dependencies уже установлены, Node22.23.1/pinned pnpm11.23.0; build/browser artifacts направлены наружу в work/run3b текущего чата.

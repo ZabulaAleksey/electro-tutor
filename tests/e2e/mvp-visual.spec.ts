@@ -1,0 +1,11 @@
+import {test,expect} from '@playwright/test';
+const base=process.env.E2E_BASE_PATH||'/',book=base+'ru/topics/dc/mesh-current-method/';
+for(const width of[320,375,390,768,1280,1920])for(const theme of['light','dark'] as const)test(`${width} ${theme} reviewed MVP screens and adjacent lab controls`,async({browser})=>{
+ const context=await browser.newContext({viewport:{width,height:900},colorScheme:theme,reducedMotion:'reduce',serviceWorkers:'block'}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ const snap=async(name:string)=>{await page.evaluate(()=>document.fonts.ready);await expect(page).toHaveScreenshot(`${name}-${width}-${theme}.png`,{animations:'disabled'});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);expect(await page.locator('.katex-error').count()).toBe(0);};
+ await page.goto(base+'ru/');await snap('home');
+ await page.goto(book);await expect(page.locator('.journey-content')).toHaveAttribute('data-gesture-ready','true');await snap('textbook');
+ await page.goto(book+'examples/#example-4');await expect(page.locator('.journey-content')).toHaveAttribute('data-gesture-ready','true');await page.locator('#example-4').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-145));await snap('examples');
+ await page.goto(book+'lab/?example=4&reset=1');await expect(page.locator('.mesh-lab')).toHaveAttribute('data-ready','true');await page.getByTestId('preset').selectOption('4');await page.getByTestId('workbench').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-135));await snap('lab4');
+ const editor=await page.getByTestId('parameter-value').boundingBox(),readings=await page.getByTestId('live-readings').boundingBox();expect(editor!.y).toBeGreaterThanOrEqual(125);expect(readings!.y+readings!.height).toBeLessThanOrEqual(900);expect(errors).toEqual([]);await context.close();
+});

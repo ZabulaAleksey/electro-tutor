@@ -1,0 +1,36 @@
+---
+import "katex/dist/katex.min.css";
+import "../styles.css";
+import "../engineering/theme.css";
+import "./mvp.css";
+import {ClientRouter} from "astro:transitions";
+import {publicPath,meshRoute} from "../../scripts/public-mvp-contract.mjs";
+interface Props { title:string; description?:string; noindex?:boolean; }
+const {title,description="Подробный учебник, решённые примеры и интерактивная лаборатория метода контурных токов.",noindex=false}=Astro.props;
+const path=(p:string)=>publicPath(p,import.meta.env.BASE_URL);
+const canonical=new URL(Astro.url.pathname,Astro.site);
+---
+<!doctype html><html lang="ru" data-mvp="true"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>{title} — ElectroTutor</title><meta name="description" content={description}/><meta name="theme-color" content="#071328"/>
+{noindex ? <meta name="robots" content="noindex,follow"/> : <link rel="canonical" href={canonical}/>}
+<link rel="manifest" href={path('/manifest.webmanifest')}/><link rel="icon" href={path('/icons/potential.svg')} type="image/svg+xml"/>
+<ClientRouter/>
+<script is:inline data-astro-rerun>
+try{const t=localStorage.getItem('potential-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch{document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+</script>
+</head><body class="mvp-body">
+<a class="mvp-skip" href="#main">К содержанию</a>
+<header class="mvp-header"><a class="mvp-brand" href={path('/ru/')}><img width="32" height="32" src={path('/icons/potential.svg')} alt=""/>ElectroTutor</a><nav aria-label="Основная навигация"><a href={path(meshRoute)}>Модуль</a><a href={path('/ru/help/')}>Справка</a></nav><button type="button" id="mvp-theme" aria-label="Переключить светлую и тёмную тему">◐</button></header>
+<main id="main" tabindex="-1"><slot/></main>
+<footer class="mvp-footer"><strong>ElectroTutor</strong><nav aria-label="Информация"><a href={path('/ru/help/')}>Справка</a><a href={path('/ru/contacts/')}>Контакты</a><a href={path('/ru/privacy/')}>Конфиденциальность</a></nav><p>Постоянный ток · Метод контурных токов</p></footer>
+<script>
+function setup(){
+ document.querySelector('#mvp-theme')?.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('potential-theme',next);}catch{/* Theme still works for this page. */}});
+}
+document.addEventListener('astro:page-load',setup);
+if(import.meta.env.PROD && 'serviceWorker' in navigator){
+ addEventListener('load',()=>navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js',{scope:import.meta.env.BASE_URL,updateViaCache:'none'}).catch(()=>{/* Online content remains available; help describes offline prerequisites. */}),{once:true});
+}
+</script>
+</body></html>

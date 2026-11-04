@@ -1,5 +1,17 @@
 # Архитектура Electro Tutor
 
+## RUN4 — две сборочные поверхности, один учебный материал
+
+`scripts/public-mvp-contract.mjs` — единственный владелец публичного allowlist/flag/icon policy. Канонический `pnpm build` разрешает production env один раз и по умолчанию выбирает MVP; `build:mvp`/`build:full` задают явный режим, обычный `dev` по умолчанию full. Некорректный `PUBLIC_MVP_MODE` останавливает конфигурацию. Прямой Astro build без wrapper остаётся developer surface, поэтому не используется для release artifact.
+
+Astro выбирает `srcDir=src/mvp` и минимальный `publicDir=src/mvp/static` до discovery маршрутов. Скрытых HTML физически нет в MVP, вместо SPA fallback существует `404.html`. Full mode использует исходные `src/pages`, content collections и `public` без удаления/массового изменения. Исходные RU MDX импортируются непосредственно:11глав учебника и4примера остаются единственным владельцем математики. Общие styles/theme/KaTeX/SVG и pure mesh solver переиспользованы; новая оболочка не импортирует старый каталог, авторизацию, Google Fonts или identity fetch.
+
+`MvpLayout`/`MeshJourney` связывают3прямых URL нативными ссылками и официальным ClientRouter. Активен один длинный вертикальный материал. Touch ограничивается безопасной областью, мышь/горизонтальный wheel — панелью, вертикальный wheel не перехватывается. Scroll/history принадлежат ClientRouter; fragment/query переносит номер примера. Optional `MeshLab.persistContext` хранит только bounded raw draft/example/active/loop в sessionStorage. Legacy defaults false/true сохраняют старый normal-mode UX, модель не изменена. Гостевая самопроверка переиспользует grader и guest storage без обращения к account API.
+
+MVP manifest/robots/icons/worker — статические endpoints. Иконки читаются из единственного canonical public/icons по фиксированному allowlist. Build hook формирует только свой sw.js из точного emitted graph и content fingerprint. Новый worker заранее кеширует все3этапа/собственные assets, отклоняет скрытые навигации404/noindex, мигрирует только cache namespaces проекта и только entries своей scope; чужие caches/данные не удаляются. Full legacy worker сохранён. Artifact marker выбирает соответствующий Playwright config; full и MVP regression разделены без ослабления старых сценариев.
+
+Архитектурное решение: ADR-047. Проверка и фактическая степень готовности — ET-MVP-004 в STAGES; локальный код не означает merge/deploy. Дальнейшие разделы описывают также сохранённую full surface.
+
 ## RUN3D — ограниченный DC solver и локальный island
 
 `models/mesh-current.ts` собирает настоящую2×2/3×3контурную систему из R/E/J для четырёх топологий. Собственный bounded row-scaled pivot solve нужен: прежнего электрического mesh solver нет, private beam stiffness solver имеет другой symmetric/diagonal/rank contract и остаётся неизменён. Невырожденное решение проверяется KVL, constitutive branch-current crosscheck и nodal KCL через потенциал A/Ohm, full signed power и отдельную I₁−I₂−J связь. При R=0 деление U/R не выполняется, ток идеальной ветви берётся из системы и нулевое падение проверяется KVL. Никакой псевдообратной/подстановки нулей/last-valid fallback.

@@ -9,6 +9,7 @@ await mkdir(temporaryRoot, { recursive: true });
 const outputDirectory = await mkdtemp(join(temporaryRoot, "base-path-"));
 const environment = {
   ...process.env,
+  PUBLIC_MVP_MODE: "false",
   SITE_URL: "https://example.invalid",
   BASE_PATH: "/electro-tutor/",
   BUILD_OUTPUT_DIR: outputDirectory,

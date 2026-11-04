@@ -56,3 +56,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/mesh-worked-examples.spec.md` | Утверждённый contract | ET-MESH-003C, FR-321..329:4RU worked examples/static graphics/independent math |
 
 | `features/mesh-laboratory.spec.md` | Approved RUN3D owner contract | ET-MESH-003D FR-331..339:4preset live DC mesh/supermesh lab, independent math/browser evidence |
+
+| `features/public-mvp-run4.spec.md` | Approved RUN4 owner contract | ET-MVP-004,FR-341..353: safe public RU graph/journey/PWA, full dev retained |

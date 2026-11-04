@@ -7,6 +7,7 @@ const projectRoot = process.cwd();
 const outputDirectory = resolve(projectRoot, "dist");
 const environment = {
   ...process.env,
+  PUBLIC_MVP_MODE: "false",
   SITE_URL: "https://example.invalid",
   BASE_PATH: "/",
   BUILD_OUTPUT_DIR: outputDirectory,

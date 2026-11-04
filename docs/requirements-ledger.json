@@ -31,7 +31,8 @@
       "specs/features/mesh-lesson-visual-repair.spec.md",
       "specs/features/mesh-textbook.spec.md",
       "specs/features/mesh-worked-examples.spec.md",
-      "specs/features/mesh-laboratory.spec.md"
+      "specs/features/mesh-laboratory.spec.md",
+      "specs/features/public-mvp-run4.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1566,6 +1567,48 @@
       ],
       "e2e": [
         "tests/e2e/mesh-lab.spec.ts"
+      ]
+    },
+    {
+      "domain": "public-mvp-run4",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-341",
+        "FR-342",
+        "FR-343",
+        "FR-344",
+        "FR-345",
+        "FR-346",
+        "FR-347",
+        "FR-348",
+        "FR-349",
+        "FR-350",
+        "FR-351",
+        "FR-352",
+        "FR-353"
+      ],
+      "runtime": "Verified local MVP7RU content routes/3URL journey/PWA and full41pages retained; main56e314c, separate RUN4 checkpoint.",
+      "security": "Exact physical allowlist/no auth/API graph, scoped SW upgrade+unrelated cache preservation PASS; no production/IAM claim.",
+      "a11y": "Keyboard/ARIA/focus/native scroll/actual touch+mouse+wheel and6width×2themes PASS; physical/Narrator release gate NOT_RUN, old manual acceptance not reused.",
+      "observability": "446unit;25MVP+12base+264full/6expected skips;16oracle72zero;134captures48newgoldens;534oldPNG/197protected unchanged.",
+      "gap": "No local implementation gap; physical/Narrator/hosted/owner legal applicability gates tracked explicitly in STAGES.",
+      "action": "Owner review/explicit merge decision; no auto push/deploy.",
+      "code": [
+        "src/mvp",
+        "scripts/public-mvp-contract.mjs",
+        "astro.config.mjs"
+      ],
+      "unit": [
+        "src/mvp/contract.test.ts",
+        "scripts/mvp-worker.test.mjs"
+      ],
+      "integration": [
+        "scripts/audit-built-mvp.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/mvp-journey.spec.ts",
+        "tests/e2e/mvp-pwa.spec.ts",
+        "tests/e2e/mvp-visual.spec.ts"
       ]
     }
   ]

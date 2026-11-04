@@ -1,3 +1,4 @@
+import { mvpMode } from "./public-mvp-contract.mjs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import { hasMachineLocalReference, normalizeBasePath, normalizeSiteOrigin } from "./site-contract.mjs";
@@ -81,7 +82,7 @@ if (!worker.includes('self.registration.scope') || /cache\.match\(["']\/offline\
   errors.push("sw.js: service worker paths are not derived from registration scope");
 }
 
-for (const required of ["index.html", "ru/index.html", "uk/index.html", "offline.html", "sw.js", "manifest.webmanifest", "icons/potential.svg"]) {
+for (const required of ["index.html", "ru/index.html", ...(mvpMode(process.env.PUBLIC_MVP_MODE) ? ["404.html"] : ["uk/index.html"]), "offline.html", "sw.js", "manifest.webmanifest", "icons/potential.svg"]) {
   if (!relativeFiles.has(required)) errors.push(`artifact is missing ${required}`);
 }
 

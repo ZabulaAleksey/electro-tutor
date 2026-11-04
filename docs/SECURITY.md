@@ -1,5 +1,13 @@
 # Безопасность и границы доверия
 
+## RUN4 — публичная сборочная граница и PWA upgrade
+
+MVP-флаг управляет только составом сборки. В клиенте нет секретов/приватного API origin/identity fetch, удалённых шрифтов/аналитики или коммерческих путей. src/mvp не импортирует bilingual collection/full shell/catalog. Точный состав HTML и emitted JS проверяется audit-built-mvp; скрытые страницы дают404/noindex и не входят в sitemap. robots разрешает повторный обход404, чтобы старые URL могли выпасть из индекса после будущего развёртывания. Это не доступ к приватной информации и не замена авторизации.
+
+Иконки ограничены5known filenames до readFile. sessionStorage UI-контекста ограничен4096символами, известными topology/keys и32символами каждого raw value; некорректные записи игнорируются, raw draft валидирует прежний solver. Гостевая практика использует только прежний guest key, не читает authenticated namespaces. При запрете storage расчёт остаётся рабочим. Нет изменений backend/OIDC/DB/Cloudflare.
+
+Worker перехватывает только same-origin GET под registration scope и точные публичные страницы/assets. Не кеширует API/secret/error/private/no-store/query assets; hidden navigation404/noindex и online/offline. При upgrade удаляются только entries собственной scope из legacy potential-pwa-vN и same-scope MVP namespaces; unrelated caches/внешниеscope/localStorage сохраняются. Уже открытая нерелизная вкладка не закрывается принудительно; следующий navigation/reload скрытого URL получает404. Mode не является revocation/IAM. Контактные email/Telegram разрешены владельцем, не секреты; оператор/юрисдикция/условия hosting logging требуют отдельной проверки перед релизом, если применимо. Существующие CSP и hosted/manual ограничения не объявляются закрытыми этим RUN4.
+
 ## RUN3D — локальная численная поверхность
 
 Новый mesh solver и редактор работают локально без API/storage/auth/provider. Внешние raw значения ограничены32символами, strict finite numeric parsing/ranges и максимумом3неизвестных; invalid/rank/numerical errors fail closed без старого результата. KaTeX получает только генерируемые числовые выражения/фиксированные symbols, raw input не конкатенируется в HTML/LaTeX. Source values не выполняются как code. Дополнительные зависимости, secrets, сетевые endpoints и service-worker policy не вводились.

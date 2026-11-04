@@ -1,11 +1,36 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-MESH-003D
+- Stage ID: ET-MVP-004
+
+## ET-MVP-004 — RUN4: единый публичный RU MVP
+
+- Status: verified
+- Lifecycle: completed locally/validated on feat/electrotutor-mvp-run4, existing root checkout; one owner-authorized atomic checkpoint contains this record, exact SHA in Git log/external receipt. main remains56e314c; no RUN4 merge/push/deploy.
+- Goal/scope: public-mvp-run4 FR-341..353 + scoped FR-001/002/ADR-047;7indexable RU pages, one complete3URL mesh journey, honest public404/SEO/PWA upgrade; all full source retained.
+- Dependencies/DAG: ET-MESH-003D verified/accepted/ff merged local main56e314c; sourcebranch retained. No backend/future component prerequisite for static consumer path.
+- Entry/plan: clean expected refs and installed pinned deps; contract/architecture→build boundary→journey/context→unit/audits/browser→actual6×2visual review→normal+MVP regression→doc/diff gate→atomic checkpoint. All local slices complete.
+- Runnable vertical slice/E2E: actual built home→book→examples→lab by buttons/actual mouse/touch/trackpad/keyboard, native vertical scroll and Back/Forward; edit/reset/restore same example; no-JS/read-only fallback; oldSW upgrade and previously-unvisited offline lab; hidden route404/noindex.
+- Evidence/PASS:446unit/56files; Astro0errors0warnings3oldhints/lint; full41pages40locales190files and MVP10HTML7indexed90files including129+129formulas; production25/25+base12/12; full264PASS/6oldauth skips/0flaky/0retry; independent16exact nodal sets/72zero residuals;134viewed captures/48newgoldens,534oldPNG+197protected SHA unchanged, no tracked source deleted; own preview/dev stopped. TESTING/current chat outputs/ElectroTutor_run4_evidence.zip.
+- Interfaces/invariants: supported Astro srcDir/publicDir graph; official ClientRouter/native links; one active stage DOM; pure math/MDX/SVG/backend/OIDC/DB/Cloudflare/deps unchanged. PUBLIC_MVP_MODE is not IAM. Lab context optional/defaultfalse; source and full functionality retained.
+- Fallback: SSR/native links work without JS, explicit disabled live controls; unavailable/corrupt storage never blocks solver; hidden404 online/offline after successful newSW activation; first install/update needs network; already-open legacy tabs not forcibly closed. No mock-as-live/backend/manual claims.
+- Review/observations: bounded2read-only review cycles/securityGO, actual runtime diagnostics fixed noscript/prehydration tabindex/native DnD/devicon defects. Initial full Micro timeout followed unchanged3/3PASS and final fullPASS; isolated context closures retained without invented cause. No accepted test/golden weakened; invalid-example restore and auxiliary title overflow have concrete before/after browser evidence.
+- User action MESH-3D-MERGE / DONE: explicit Merge RUN3D+RUN4, clean ff-only main99b9302→56e314c; sourcebranch retained; no push/deploy.
+- User action MVP4-CONTACT / DONE: owner explicitly approved aleksey.zabula@gmail.com and https://t.me/toemath; actual contact page/link assertions PASS.
+- User action MVP4-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one atomic RUN4 commit after mandatory local checks/doc/diff gate; exact SHA in Git log/receipt.
+- User action MVP4-INTEGRATION / CONDITIONAL: owner reviews report/images and explicitly authorizes ff merge of feature into main; expected evidence exact merged SHA/clean status. Unlocks integration only; no auto push/deploy.
+- User action MVP4-DEVICE-A11Y / NOT_RUN_RELEASE_GATE: before public release, test real iOS/Android/native install/offline and Narrator route announcement/focus/keyboard/back-forward at supported widths/themes, including short viewport/keyboard. Record browser/OS, steps/screenshots/results; old manual acceptance not reused. Unlocks platform/manual release acceptance; not a missing local static primary path.
+- User action MVP4-HOSTED / CONDITIONAL_NOT_RUN: after separate publication authorization, verify actual HTTPS direct URLs/hidden404/noindex/headers/sitemap/robots/manifest/update/offline on chosen host. Expected public smoke receipt and operator configuration evidence; no deployment authorized in RUN4.
+- User action MVP4-LEGAL / OWNER_REVIEW_PENDING: before publication confirm applicability of operator/jurisdiction/material rights/hosting log retention; provide approved wording or recorded not-applicable rationale, without secret values. Contact/privacy app behavior is implemented, legal compliance is not invented.
+- Completion sync: README/STAGES/ROADMAP/system+feature SPEC/ARCHITECTURE/DECISIONS/DESIGN/SECURITY/TESTING/TRACEABILITY/ledger updated. API/DATA_MODEL/DEPENDENCIES checked unchanged; no competing changelog/dev-log/fallback owner created. LEARNING_LOG checked unchanged; diagnostic evidence belongs to TESTING.
+- Blockers: none for locally verified RUN4; public release still depends on explicit integration/publication authorization and release gates above.
+- Deferred: other19topics/UK/tools remain full/dev only; no automatic publication or content rewrite. Physical/Narrator/hosted/legal gates are explicit, no silent tails.
+- NEXT: none
+- Next action: owner review/explicit integration decision; preserve feature branch/main and all audit artifacts.
 
 ## ET-MESH-003D — RUN3D: интерактивная mesh лаборатория
 
 - Status: verified
-- Lifecycle: completed locally on feat/mesh-lesson-run3d, source/main99b9302, existing root checkout. One authorized atomic RUN3D checkpoint contains this record, exact SHA in Git log/external receipt. No RUN3D merge/push/deploy.
+- Lifecycle: completed locally on feat/mesh-lesson-run3d, source/main99b9302, existing root checkout. One authorized atomic RUN3D checkpoint contains this record, exact SHA in Git log/external receipt. RUN3D56e314c subsequently owner-accepted and ff merged local main; sourcebranch retained. No push/deploy.
 - Goal/scope: FR-331..339 mesh-laboratory SPEC;4exact RUN3C presets, live R/E/J edits, actual matrix/branches/voltages/signed power/residuals. STANDARD production frontend/model slice.
 - Dependencies/DAG: ET-MESH-003C verified/owner accepted/ff merged main99b9302; no future RUN4 or backend prerequisite.
 - Entry: clean refs, installed pinned deps, shared symbols/Formula/islands available. No generic electrical solver found; beam private stiffness solver cannot solve mixed-unit supermesh/classify rank. New bounded numerical module necessary; accepted kernels remain unchanged.
@@ -17,12 +42,12 @@
 - Evidence: clean ff main/source99b9302;439unit/54files,273-file Astro0errors0warnings3oldhints, lint/build41pages40locale190artifacts395keys PASS; fullChromium264PASS/6oldlive-auth skips.16independent exact nodal sets/72zero residuals, runtime Ohm/nodal/KVL/power checks, browser edits/errors/touch/keyboard/noJS PASS.48visual states minfont13.9CSSpx maxworkbench788px,144reviewed newPNG;390oldPNG/193protected hashes unchanged. Read-only review findings addressed and rereviewed; TESTING/current chat outputs/ElectroTutor_run3d_evidence.zip.
 - User action MESH-3C-MERGE / DONE: explicit user ff authorization, main186013d→99b9302 PASS, sourcebranch retained; no push/deploy.
 - User action MESH-3D-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one atomic commit after mandatory checks passed; exact SHA in Git log/receipt.
-- User action MESH-3D-INTEGRATION / CONDITIONAL: explicit owner authorization after report review unlocks main merge only; no auto merge/push/deploy.
+- User action MESH-3D-INTEGRATION / DONE: explicit owner Merge RUN3D+RUN4 request; clean ff-only main99b9302→56e314c PASS, branch retained; no push/deploy.
 - Blockers: none for locally verified RUN3D; future RUN4/release and physical-device/Linux-raster/fullNarrator not claimed.
 - Verification observations MESH-3D-OBS-01/02 / NON_BLOCKING: unchanged homepage touch and beam Ctrl-wheel each failed once on the same artifact, then isolated3/3PASS each; final full264PASS/0flaky/0retries used. Traces/logs retained, root cause not established. No RUN3D owner action; if reproduced during release acceptance, investigate as a separate scoped component check. No old source/test threshold changed.
 - Deferred: RUN4 global horizontal sequence, release visibility/hosted acceptance, UK new resources. FullMVP PARTIAL.
 - NEXT: none
-- Next action: owner reviews report/images and explicitly decides integration; recommended next separate RUN4 navigation/release readiness, no automatic start.
+- Next action: RUN3D integration completed by owner authorization; subsequent RUN4 execution follows selected ET-MVP-004, no automatic push/deploy.
 
 ## ET-MESH-003C — RUN3C: примеры решений метода контурных токов
 

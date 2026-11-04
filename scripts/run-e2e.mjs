@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createServer } from "node:net";
@@ -10,10 +11,12 @@ const baseURL = `http://${host}:${port}`;
 const readinessPath = process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/";
 const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
+const mvpArtifact = existsSync(resolve(process.env.BUILD_OUTPUT_DIR || "dist", "mvp-build.json"));
 const selectedSpec = process.env.E2E_SPEC;
 const playwrightEnvironment = { ...process.env };
 delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD;
 const previewEnvironment = { ...playwrightEnvironment };
+previewEnvironment.PUBLIC_MVP_MODE = String(mvpArtifact);
 delete previewEnvironment.ET_DEV_TEST_PASSWORD;
 // Astro 7.3 auto-backgrounds under detected agent environments. A managed
 // foreground process is required so this runner can always stop the exact
@@ -119,7 +122,7 @@ let exitCode = 1;
 
 try {
   await waitUntilReady(preview);
-  const playwrightArgs = selectedSpec ? ["test", selectedSpec] : ["test"];
+  const playwrightArgs = ["test", ...(mvpArtifact ? ["--config=playwright.mvp.config.ts"] : []), ...(selectedSpec ? [selectedSpec] : [])];
   const playwright = spawnNode("node_modules/@playwright/test/cli.js", playwrightArgs, {
     env: {
       ...playwrightEnvironment,

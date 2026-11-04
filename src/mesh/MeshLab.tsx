@@ -1,3 +1,4 @@
+import { LAB_CONTEXT_KEY, parseLabContext } from "./lab-context";
 import { useEffect, useState } from "react";
 import Formula from "../components/Formula";
 import { meshPreset, solveMesh, type MeshExample } from "../models/mesh-current";
@@ -7,20 +8,27 @@ import { copy, errors } from "./ru";
 import { format3, makeDraft, meshLatex, parameterKeys, parameters, parseValue, unitFor } from "./presentation";
 import "./mesh-lab.css";
 const base = "/topics/dc/mesh-current-method/";
-export default function MeshLab() {
+export default function MeshLab({persistContext=false,showMaterialLinks=true}: {persistContext?:boolean;showMaterialLinks?:boolean}) {
   const [example, setExample] = useState<MeshExample>(1), [draft, setDraft] = useState(makeDraft(meshPreset(1))), [active, setActive] = useState("R1"), [loop, setLoop] = useState(1), [ready, setReady] = useState(false), [unknown, setUnknown] = useState(false);
   useEffect(() => {
     const values = new URL(location.href).searchParams.getAll("example"), valid = values.length === 1 && /^[1-4]$/.test(values[0]);
     const initial = valid ? Number(values[0]) as MeshExample : 1;
-    setExample(initial); setDraft(makeDraft(meshPreset(initial))); setUnknown(values.length > 0 && !valid); setReady(true);
-  }, []);
+
+    let saved=null;
+    if(persistContext && !new URL(location.href).searchParams.has('reset'))try{saved=parseLabContext(sessionStorage.getItem(LAB_CONTEXT_KEY));}catch{/* Storage is optional. */}
+    if(saved&&(values.length===0||(valid&&saved.example===initial))){setExample(saved.example);setDraft(saved.draft);setActive(saved.active);setLoop(saved.loop);}
+    else {setExample(initial);setDraft(makeDraft(meshPreset(initial)));}
+    if(persistContext){const url=new URL(location.href);url.searchParams.delete('reset');url.searchParams.set('example',String(saved&&(values.length===0||(valid&&saved.example===initial))?saved.example:initial));history.replaceState(history.state,'',url);}
+    setUnknown(values.length > 0 && !valid); setReady(true);
+  }, [persistContext]);
+  useEffect(()=>{if(!persistContext||!ready)return;try{sessionStorage.setItem(LAB_CONTEXT_KEY,JSON.stringify({version:1,example,draft,active,loop}));}catch{/* Recalculation remains available. */}},[persistContext,ready,example,draft,active,loop]);
   const p = parameters(example, draft), result = solveMesh(p), ok = result.status === "ok" ? result : null, keys = parameterKeys(p), math = ok ? meshLatex(ok) : null;
   const choose = (id: MeshExample) => { setExample(id); setDraft(makeDraft(meshPreset(id))); setActive("R1"); setLoop(1); setUnknown(false); const url = new URL(location.href); url.searchParams.set("example", String(id)); history.replaceState(history.state, "", url); };
   const reset = () => { setDraft(makeDraft(meshPreset(example))); setActive("R1"); setLoop(1); };
   const reading = (v: number | undefined, unit: string) => v === undefined ? "—" : `${format3(v)} ${unit}`;
   return <div className="mesh-lab" data-ready={ready}>
-    <nav className="mesh-lab-links" aria-label={copy.navigation}><a href={localePath("ru", base)}>{copy.textbook}</a><a href={`${localePath("ru", `${base}examples/`)}#example-${example}`}>{copy.examples}</a></nav>
-    <h1>{copy.title}</h1><p className="mesh-lab-intro">{copy.staticHint}</p>
+    {showMaterialLinks && <nav className="mesh-lab-links" aria-label={copy.navigation}><a href={localePath("ru", base)}>{copy.textbook}</a><a href={`${localePath("ru", `${base}examples/`)}#example-${example}`}>{copy.examples}</a></nav>}
+    <h1 tabIndex={persistContext ? -1 : undefined}>{copy.title}</h1><p className="mesh-lab-intro">{copy.staticHint}</p>
     {unknown && <p role="status">{copy.unknown}</p>}
     <section className="mesh-workbench" aria-label={copy.workbench} data-testid="workbench">
       <div className="mesh-lab-controls">

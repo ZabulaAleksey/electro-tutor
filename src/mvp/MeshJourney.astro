@@ -1,0 +1,43 @@
+---
+import {publicPath,meshRoute} from "../../scripts/public-mvp-contract.mjs";
+import {slide} from "astro:transitions";
+interface Props {stage:0|1|2;}
+const {stage}=Astro.props;
+const labels=['Учебник','Примеры решений','Лаборатория'];
+const routes=[meshRoute,meshRoute+'examples/',meshRoute+'lab/'].map(p=>publicPath(p,import.meta.env.BASE_URL));
+---
+<div class="mesh-journey" data-stage={stage} data-routes={JSON.stringify(routes)}>
+<nav class="journey-rail" aria-label="Этапы учебного модуля" tabindex="0" aria-describedby="journey-help">
+<a draggable="false" data-previous href={routes[Math.max(0,stage-1)]} aria-label="Предыдущий этап" aria-disabled={stage===0?'true':undefined} tabindex={stage===0?-1:undefined}>←</a>
+<ol>{labels.map((label,i)=><li><a draggable="false" data-step={i} href={routes[i]} aria-current={stage===i?'step':undefined}><span>{i+1}</span>{label}</a></li>)}</ol>
+<a draggable="false" data-next href={routes[Math.min(2,stage+1)]} aria-label="Следующий этап" aria-disabled={stage===2?'true':undefined} tabindex={stage===2?-1:undefined}>→</a>
+</nav><p id="journey-help" class="journey-help">Листайте этапы влево или вправо. Прокрутка вверх и вниз — внутри материала. На панели: клавиши ← →, Home, End.</p>
+<div class="journey-content" transition:animate={slide({duration:'0.18s'})} transition:name="mesh-stage"><slot/></div>
+<p class="mesh-sr-only" role="status" aria-live="polite">Этап {stage+1} из 3: {labels[stage]}</p>
+</div>
+<script>
+import {navigate} from 'astro:transitions/client';
+let dispose=()=>{};
+function setup(){
+ dispose();const root=document.querySelector<HTMLElement>('.mesh-journey');if(!root)return;
+ const rail=root.querySelector<HTMLElement>('.journey-rail')!,content=root.querySelector<HTMLElement>('.journey-content')!,stage=Number(root.dataset.stage),routes=JSON.parse(root.dataset.routes!) as string[];
+ const abort=new AbortController(),signal=abort.signal;dispose=()=>abort.abort();
+ const example=()=>{const fragment=/^#example-([1-4])$/.exec(location.hash);if(fragment)return fragment[1];const q=new URL(location.href).searchParams.get('example');if(q&&/^[1-4]$/.test(q))return q;for(const el of [...document.querySelectorAll<HTMLElement>('[id^="example-"]')].reverse()){if(el.getBoundingClientRect().top<innerHeight*.5&&/^example-[1-4]$/.test(el.id))return el.id.slice(-1);}return '1';};
+ const target=(i:number)=>routes[i]+(i===2?'?example='+example():i===1?'#example-'+example():'');
+ for(const a of root.querySelectorAll<HTMLAnchorElement>('[data-step],[data-next],[data-previous]'))a.addEventListener('click',()=>{const i=a.hasAttribute('data-next')?Math.min(2,stage+1):a.hasAttribute('data-previous')?Math.max(0,stage-1):Number(a.dataset.step);a.href=target(i);},{signal});
+ let busy=false;
+ const go=(i:number)=>{if(busy||i<0||i>2||i===stage)return;busy=true;void navigate(target(i)).catch(()=>{location.href=target(i);});};
+ rail.addEventListener('keydown',e=>{if(e.target!==rail)return;const i=e.key==='ArrowRight'?stage+1:e.key==='ArrowLeft'?stage-1:e.key==='Home'?0:e.key==='End'?2:-1;if(i>=0&&i<=2){e.preventDefault();go(i);}},{signal});
+ let x=0,y=0,id=-1,ignore=false,dragged=false;
+ const blocked=(target:EventTarget|null)=>target instanceof Element&&!!target.closest('a,button,input,select,textarea,summary,[contenteditable],.formula-block,.mesh-math-scroll,.mesh-workbench,svg');
+ root.addEventListener('pointerdown',e=>{if(!e.isPrimary||e.button!==0)return;id=-1;dragged=false;if(e.pointerType==='mouse'&&!rail.contains(e.target as Node))return;ignore=blocked(e.target)&&!(e.pointerType==='mouse'&&rail.contains(e.target as Node));if(ignore)return;x=e.clientX;y=e.clientY;id=e.pointerId;},{signal});
+ root.addEventListener('pointerup',e=>{if(e.pointerId!==id||ignore)return;id=-1;const dx=e.clientX-x,dy=e.clientY-y;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){dragged=true;go(stage+(dx<0?1:-1));}},{signal});
+ root.addEventListener('click',e=>{if(dragged){e.preventDefault();e.stopPropagation();dragged=false;}},{signal,capture:true});
+ root.addEventListener('pointercancel',()=>{id=-1;},{signal});
+ let total=0,last=0;
+ rail.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey||Math.abs(e.deltaX)<=Math.abs(e.deltaY)*1.5)return;if(Date.now()-last>250)total=0;last=Date.now();total+=e.deltaX;if(Math.abs(total)>80){e.preventDefault();go(stage+(total>0?1:-1));total=0;}},{signal,passive:false});
+ content.setAttribute('data-gesture-ready','true');
+}
+document.addEventListener('astro:before-swap',()=>{dispose();document.addEventListener('astro:page-load',()=>{const h=document.querySelector<HTMLElement>('h1');if(h){h.tabIndex=-1;h.focus({preventScroll:true});}},{once:true});});
+document.addEventListener('astro:page-load',setup);
+</script>

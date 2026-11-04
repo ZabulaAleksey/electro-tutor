@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "astro dev",
-        "build": "pnpm run wasm:check && pnpm run check:locales && astro build && node scripts/audit-built-locales.mjs && node scripts/audit-built-lessons.mjs && node scripts/audit-built-site.mjs",
+        "build": "node scripts/build-site.mjs",
         "wasm:build": "node scripts/transient-wasm.mjs build",
         "wasm:check": "node scripts/transient-wasm.mjs check",
         "check:base-path": "node scripts/check-base-path.mjs",
@@ -48,7 +48,9 @@
         "test:e2e:production-smoke": "node scripts/run-production-e2e-smoke.mjs",
         "test:e2e:root": "node scripts/check-root-e2e.mjs",
         "test:e2e:install": "playwright install chromium",
-        "verify:full": "node scripts/full-verify.mjs"
+        "verify:full": "node scripts/full-verify.mjs",
+        "build:full": "node scripts/build-site.mjs --full",
+        "build:mvp": "node scripts/build-site.mjs --mvp"
     },
     "dependencies": {
         "@astrojs/mdx": "^7.0.3",

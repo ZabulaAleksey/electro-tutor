@@ -1,5 +1,15 @@
 # Журнал решений
 
+## ADR-047 — Публичный RU MVP через отдельный build graph
+
+- Status: accepted by explicit RUN4 owner scope.
+- Problem: скрытая навигация/sitemap сами по себе оставляют нерелизные HTML и старый PWA-кеш доступными.
+- Decision: build-time PUBLIC_MVP_MODE выбирает поддерживаемые Astro srcDir/publicDir; canonical build safe-default true, full dev false. Allowlist принадлежит scripts/public-mvp-contract.mjs. MVP shell/3URL journey переиспользуют оригинальные MDX, glyphs/solver и theme tokens; старые routes/public assets остаются в source. Полноценная горизонтальная последовательность реализуется официальным ClientRouter, нативными ссылками и ограниченными gestures, без общей SPA со всеми3тяжёлыми DOM одновременно.
+- PWA: отдельный scoped fingerprint cache, exact public graph precache,404 для скрытой navigation, bounded old-project scope cleanup без blind cache migration. Vary игнорируется только при чтении собственных allowlisted static assets, чтобы Origin/encoding preview headers не ломали offline. Private/error/API не кешируются; уже открытые вкладки не закрываются принудительно.
+- Consequences: один материал, два build entry graphs; normal-mode regression остаётся самостоятельной. PUBLIC_MVP_MODE не является IAM/секретностью. Контакты опубликованы только по явному ответу владельца. Юридические сведения оператора/hosting retention и физическая PWA/Narrator приёмка не выдумываются; отдельные release caveats находятся в selected STAGES.
+- Rejected: postbuild deletion, getStaticPaths mass rewrites, sitemap-only hiding, глобальный редизайн, переиздание UK/остальных тем, duplicate solver.
+- Contract: specs/features/public-mvp-run4.spec.md FR-341..353; validation — TESTING/STAGES. Нет внешней публикации/infra mutation.
+
 ## ADR-046 — Мгновенная четырёхсхемная mesh лаборатория
 
 Дата:2026-11-04. Принято прямым owner RUN3D request.

@@ -1,0 +1,6 @@
+---
+import Layout from '../../../../../../MvpLayout.astro';
+import Journey from '../../../../../../MeshJourney.astro';
+import MeshLab from '../../../../../../../mesh/MeshLab';
+---
+<Layout title="Лаборатория контурных токов"><Journey stage={2}><MeshLab persistContext={true} showMaterialLinks={false} client:load/></Journey></Layout>

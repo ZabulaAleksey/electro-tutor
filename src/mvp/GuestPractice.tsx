@@ -1,0 +1,10 @@
+import {useEffect,useState,type SyntheticEvent} from 'react';
+import {gradePracticeAnswer,type PracticeResult} from '../learning/practice';
+import {createLearningStore,guestNamespace,MESH_LESSON_ID} from '../learning/progress';
+export default function GuestPractice(){
+ const [store]=useState(()=>createLearningStore(guestNamespace()));
+ const [ready,setReady]=useState(false),[available,setAvailable]=useState(true),[answer,setAnswer]=useState(''),[result,setResult]=useState<PracticeResult>('idle');
+ useEffect(()=>{const saved=store.load();setAvailable(saved.state==='ready');if(saved.record.lessons[MESH_LESSON_ID]?.completed)setResult('correct');setReady(true);},[store]);
+ function submit(e:SyntheticEvent<HTMLFormElement>){e.preventDefault();const next=gradePracticeAnswer(answer).result;setResult(next);if(next==='correct'){const saved=store.updateLesson(MESH_LESSON_ID,()=>({highestStep:5,completed:true,lastVisitedAt:new Date().toISOString(),completedAt:new Date().toISOString()}));setAvailable(saved.state==='ready');}}
+ return <section className="lesson-practice" aria-labelledby="practice-heading"><h2 id="practice-heading">Проверьте себя</h2><p>Для схемы учебника: R₁ = 4 Ω, R₂ = 6 Ω, R₃ = 2 Ω, E₁ = 24 V, E₂ = 12 V. Найдите ток общей ветви I₃ = I₁ − I₂ в амперах.</p><form onSubmit={submit}><label htmlFor="practice-answer">Ток общей ветви I₃, A</label><div className="practice-input-row"><input id="practice-answer" inputMode="decimal" maxLength={32} value={answer} onChange={e=>{setAnswer(e.target.value);setResult('idle');}} disabled={!ready}/><button type="submit" className="button primary" disabled={!ready}>Проверить</button></div><p role="status">{result==='correct'?'Верно. Сравните результат с выводом в учебнике.':result==='incorrect'?'Проверьте знаки общего сопротивления и решение системы.':result==='invalid'?'Введите число, например 2,18.':''}</p></form>{!available&&<p>Локальное сохранение недоступно. Проверка ответа продолжает работать.</p>}<p className="mvp-practice-note">Самопроверка требует JavaScript; подробное решение доступно выше в учебнике.</p></section>;
+}

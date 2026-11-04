@@ -1,5 +1,9 @@
 # Dependency contract
 
+## Optional publication tool installed after RUN5 (2026-11-05)
+
+By explicit owner request Wrangler4.157.0 was installed using pinned pnpm11.23.0 in a separate task-local tools environment with its own manifest/lock and existing shared pnpm store. Install --ignore-scripts; CLI version/login/whoami/pages list verified. Node22.23.1 compatible; no product package/lock changes, no global PATH shim installed. Previous installed=false evidence below belongs to initial RUN5; current release-target metadata records this authorized follow-up. Native worker/dev/deploy flows were not tested or invoked.
+
 ## RUN5 current dependency evidence (2026-11-05)
 
 No install/lockfile/package-version changes. Canonical Node/pnpm and both ecosystem contracts remain. Fresh pnpm audit:4LOW/6MODERATE/0HIGH/CRITICAL; mandatory --audit-level high exit0, all-severity/--prod exit1, --prod2LOW/1MODERATE. Historical4LOW/5MODERATE below is an older receipt. Exact fast-uri3.1.8 override is now affected by new advisories; not claimed fully patched. Concrete applicability/primary advisories and maintenance action: SECURITY/ET-REL-005. Browser static runtime excludes smol-toml and dev tooling even when pnpm calls Astro transitive packages production dependencies.

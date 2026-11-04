@@ -1627,11 +1627,11 @@
         "FR-369"
       ],
       "runtime": "Validated locally:91file static release artifact,7RU content pages/3stage4scheme path, OG/strict origin/hash CSP/HTTP headers; RUN5 accepted/clean ff merged main373f5b8; source release branch retained. No deployment.",
-      "security": "Enforced browser CSP27PASS0violations; precise text/graph/secret/map guards. Audit4LOW6MODERATE0HIGH/CRITICAL retained, no patched claim. Cloudflare private settings unavailable403.",
+      "security": "Enforced local CSP/graph/secret guards previously PASS; fresh owner-authorized Wrangler4.157.0 official OAuth succeeds and authenticated GET verifies existing project/settings. Tokens never in reports; Pages resource operations GET only, no deploy/DNS/settings mutation. Audit4LOW6MODERATE0HIGH/CRITICAL retained, not patched.",
       "a11y": "Native keyboard/touch/scroll/heading scenarios and48unchanged goldens/48fresh six-width two-theme captures PASS; physical/Narrator/manual NOT_RUN.",
       "observability": "449unit/types314files0errors0warnings3oldhints/lint,91release+190full build,27enforced/26normal1policy-skip;16oracle72zero/full190SHA parity; receipts in work/run5 and output report.",
       "gap": "Local preparation complete; private hosting/account, hosted rollout, manual physical/Narrator and owner legal applicability remain explicit release gates. Synthetic inert SW404 lacks host CSP: P3 deferred.",
-      "action": "RUN5 integration DONE by explicit owner authorization. Current read-only GET403 expired Cloudflare OAuth; restore official local login before account/project/domain/rollback inventory. Current legacy dist must not be uploaded; retained91file artifact SHA+audits PASS. No push/deploy/DNS or code changes.",
+      "action": "RUN5 merge DONE main373f5b8; Cloudflare login/access DONE with owner grant. Confirmed electrotutor/main/GitHub auto enabled/preview all/build pnpm build→dist. Review future publication/auto-deploy policy, manual/legal/hosted gates; no auto deploy/push/DNS. Old local dist DO_NOT_UPLOAD.",
       "code": [
         "scripts/release-policy.mjs",
         "scripts/audit-release.mjs",

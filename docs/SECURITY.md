@@ -1,5 +1,9 @@
 # Безопасность и границы доверия
 
+## Восстановленный OAuth доступ2026-11-05
+
+Owner explicitly authorized pinned Wrangler4.157.0 installation and official login; browser grant and CLI/whoami/GET accounts+Pages200 verified. Read scopes account/user/zone and the only Pages OAuth catalog scope pages:write were requested; resource inventory performed GET only. No worker/dns-write scopes requested, no deploy/settings/DNS changes. Credentials stored by official CLI; reports contain no token values. Historical expired-OAuth notes below are superseded for access availability; billing/retention/account-wide policy/hosted new-MVP acceptance remain unverified. Product dependency/lockfile/runtime boundaries unchanged.
+
 ## RUN5 — воспроизводимая HTTP-policy и актуальный audit
 
 CSP содержит только self+4вычисляемых SHA256 для scripts, script attributes/eval/внешние script origins запрещены; base/object/form/frame/media none, worker/connect/manifest self. KaTeX требует style-src unsafe-inline и один data:font; это не разрешение data scripts. Frame-ancestors/DENY, nosniff, referrer, permissions включены в Pages `_headers`, точные страницы/SW/manifest revalidate, только hashed _astro immutable. Ни HSTS includeSubDomains/preload, ни общие cache-everything, ни cookies/analytics/providers не добавлены. Совместимость проверена actual HTTP browser27/27,0CSP violations,0external runtime requests; hosted enforcement NOT_RUN. Синтетический SW hidden404 — постоянный inert HTML/noindex без унаследованного host CSP; P3 hardening, не доказанная эксплуатация, будущая узкая задача.

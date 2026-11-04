@@ -6,7 +6,7 @@
 
 `release:preview` — loopback-only статический HTTP rehearsal с реальными заголовками, не эмулятор Cloudflare. `audit-release` проверяет origin/canonical/OG/robots/sitemap/headers/утечки/source maps. Точный graph не меняется:91files/10HTML/7RU content, без Functions/Worker compute; full190files побайтно совпадает с RUN4. `scripts/release-target.json` фиксирует non-secret target/optional pinned CLI/auth prerequisites; CLI не установлен и не требуется для local build.
 
-Actual public HTTP пока относится к старой публикации; account GET403 с истёкшим OAuth, private settings/domain/DNS не сертифицированы. Наличие HTTPS pages.dev не доказывает custom domain. Сохранённый GitHub Pages workflow публикует при push и зависит от backend gates; RUN5 не меняет/ослабляет его. Recommended manual Pages artifact upload после отдельного разрешения позволяет не разворачивать backend и не ждать его runtime. Исторические утверждения ниже не заменяют текущий target. ADR-048/runbook/STAGES.
+При исходном RUN5 account GET403 блокировал inventory; после owner-authorized official login2026-11-05 GET200 подтвердил существующий electrotutor/main/GitHub build settings, custom domains0/zones0. Публичный новый MVP/retention/billing этим не сертифицированы. Наличие HTTPS pages.dev не доказывает custom domain. Сохранённый GitHub Pages workflow публикует при push и зависит от backend gates; RUN5 не меняет/ослабляет его. Recommended manual Pages artifact upload после отдельного разрешения позволяет не разворачивать backend и не ждать его runtime. Исторические утверждения ниже не заменяют текущий target. ADR-048/runbook/STAGES.
 
 ## RUN4 — две сборочные поверхности, один учебный материал
 

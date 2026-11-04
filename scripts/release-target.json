@@ -5,7 +5,7 @@
   "basePath": "/",
   "mode": "static-mvp",
   "providerRecommendation": "cloudflare-pages",
-  "accountSettingsVerified": false,
+  "accountSettingsVerified": true,
   "projectNameCandidate": "electrotutor",
   "productionBranchCandidate": "main",
   "projectAndBranchMustBeConfirmedBeforeUpload": true,
@@ -22,7 +22,10 @@
     "installedForRun5": false,
     "requiredForLocalBuild": false,
     "use": "optional future manual artifact upload after explicit authorization",
-    "metadataSource": "https://registry.npmjs.org/wrangler/4.157.0"
+    "metadataSource": "https://registry.npmjs.org/wrangler/4.157.0",
+    "installedAfterRun5": true,
+    "installationScope": "separate task-local tooling, product dependencies unchanged",
+    "installationVerifiedVersion": "4.157.0"
   },
   "buildToolchainOwner": "package.json",
   "requiredPublicEnvNames": [
@@ -31,5 +34,8 @@
     "PUBLIC_MVP_MODE"
   ],
   "secretValuesAllowedInArtifact": false,
-  "deployAuthorized": false
+  "deployAuthorized": false,
+  "accountSettingsVerifiedOn": "2026-11-05",
+  "projectName": "electrotutor",
+  "productionBranch": "main"
 }

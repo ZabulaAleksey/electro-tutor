@@ -1,5 +1,13 @@
 ## ET-MVP-004 — RUN4 acceptance 2026-11-04
 
+## Cloudflare access recovery 2026-11-05
+
+Explicit owner install/login approval; local pnpm11.23.0 install --ignore-scripts installs Wrangler4.157.0 in separate task work/cloudflare-tools (own package/lock; no product dependency change). CLI --version/login help/scopes work, official localhost8976 OAuth completed by owner, Successfully logged in and whoami exit0. No product tests/builds rerun; only CLI/account GET checks. Official CLI credential file changed as authorized; only SHA/expiry/scope metadata recorded, no token copies.
+
+Authenticated GET200: one account, both existing Pages projects, electrotutor build/source/config/custom-domains and all28production history, zones total0. Exact targetelectrotutor/main, GitHub integration with production auto=true/preview all, build SITE_URL=https://electrotutor.pages.dev BASE_PATH=/ pnpm build→dist, Node22.23.1/pnpm11.23.0. Custom domains0 for both, production env only2plain version pins/no secret slots, analytics fields null/no service bindings. Canonical deployment a1db51d3-6979-4112-a33e-a007055ef99b sourcec9a43fb; old no-Git electrotutor-mvp retained. API list per_page100 first returned400invalidoptions, corrected to default10 and complete project/history pagination; initial failure preserved separately, not mistaken for missing project/auth failure. No resource POST/PATCH/DELETE, publication, push, DNS or settings mutation. OAuth token exchange/storage is the separately authorized login action.
+
+Scope account/user/zone read +pages write is minimum catalog option needed for Pages read; no workers/dns-write scope requested. Callback process exited and should be free; platform/native/manual/legal/hosted newMVP gates still open, billing/account-wide policy not certified. Evidence current task work/cloudflare_access; sanitized output report contains no tokens. Documentation source branch reused, main373f5b8 unchanged.
+
 ## RUN5 merge — read-only publication preflight 2026-11-05
 
 Owner authorized clean ff main d3da1b9→373f5b8; source release/electrotutor-mvp-run5 retained, no push/deploy/DNS. Fresh merge-receipt captured exact refs and clean tree. No unit/types/lint/build/browser suites repeated: production code is exactly accepted RUN5. Only retained91file artifact SHA256 and release/MVP deterministic audits rerun PASS (7RU content/10HTML/SEO/hashed CSP/no hidden graph). Current ignored dist is legacy full/UK without mvp marker/_headers, DO_NOT_UPLOAD; untouched.

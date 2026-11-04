@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import {assertPublicText} from './release-policy.mjs';
 import {readdir,readFile} from 'node:fs/promises';
 import {join,relative,resolve} from 'node:path';
 import {publicRoutes,publicPath,mvpManifest} from './public-mvp-contract.mjs';
 const root=resolve(process.env.BUILD_OUTPUT_DIR||'dist'),base=process.env.BASE_PATH||'/',files=[];
 async function walk(p){for(const item of await readdir(p,{withFileTypes:true})){const f=join(p,item.name);if(item.isDirectory())await walk(f);else files.push(relative(root,f).replaceAll('\\','/'));}}
 await walk(root);
+assert.ok(!files.some(f=>f.endsWith(".map")),"No public source maps");
 const expected=['index.html','404.html','offline.html',...publicRoutes.map(p=>p.slice(1)+'index.html')].sort();
 assert.deepEqual(files.filter(f=>f.endsWith('.html')).sort(),expected,'MVP must physically contain only the approved pages');
 assert.deepEqual(JSON.parse(await readFile(join(root,'manifest.webmanifest'),'utf8')),mvpManifest(base));
@@ -12,8 +14,8 @@ const sitemap=(await Promise.all(files.filter(f=>/^sitemap-\d+\.xml$/.test(f)).m
 const paths=[...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>new URL(m[1]).pathname).sort();
 assert.deepEqual(paths,publicRoutes.map(p=>publicPath(p,base)).sort(),'Only seven approved RU pages may be indexed');
 assert.match(await readFile(join(root,'robots.txt'),'utf8'),/Sitemap: https?:\/\//);
-for(const file of files.filter(f=>/\.(html|js|json|webmanifest)$/.test(f))){
- const source=await readFile(join(root,file),'utf8');
+for(const file of files.filter(f=>/\.(html|js|json|webmanifest|css|svg|xml|txt)$/.test(f))){
+ const source=await readFile(join(root,file),'utf8');assertPublicText(source,file);
  assert.doesNotMatch(source,/\/api\/v1\/|\/uk\/|["'](?:https?:\/\/[^"']+)?\/ru\/(?:account|services|interactive|board|my-services|classroom)\//,`${file}: hidden/auth subsystem leaked`);
  if(file.endsWith('.html')&&!['index.html','404.html','offline.html'].includes(file)){
   assert.match(source,/<html[^>]*lang="ru"/);

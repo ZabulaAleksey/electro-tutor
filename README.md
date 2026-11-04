@@ -1,6 +1,6 @@
 # ElectroTutor
 
-ET-MVP-004 / RUN4: локально проверена русская публичная PWA-поверхность одного mesh-модуля. Учебник → Примеры решений → Лаборатория:3прямых URL, горизонтальные touch/mouse/trackpad/keyboard переходы, нативная вертикальная прокрутка, Back/Forward и bounded контекст лаборатории. PUBLIC_MVP_MODE: canonical build по умолчанию MVP, dev по умолчанию full; скрытых HTML нет в MVP,7indexable RU pages/404/noindex/sitemap/manifest/offline/cache upgrade проверены. 446unit, Astro0errors/0warnings/3oldhints, ESLint, обе сборки PASS; production-runner25/25 MVP, base-path12/12, full Chromium264PASS/6oldlive-auth skips/0flaky/0retry.16exact nodal cases/72zero residuals;134просмотренных captures,48newgoldens/534oldPNG unchanged,197protected hashes unchanged. RUN3D56e314c принят/ff merged main; RUN4 — отдельный atomic feature checkpoint, main56e314c и sourcebranch сохранены. Нет RUN4 merge/push/deploy. Physical/Narrator/hosted release acceptance и применимость formal legal/hosting policy — отдельные caveats в STAGES. Подробные evidence: TESTING, public-mvp-run4 SPEC и current chat outputs/ElectroTutor_run4_evidence.zip.
+ET-REL-005 / RUN5: локальная статическая релизная подготовка для выбранного владельцем https://electrotutor.pages.dev/ (свой домен позже). RUN4 принят и clean ff merged main d3da1b9, sourcebranch сохранена; RUN5 остаётся в release/electrotutor-mvp-run5, без merge/push/deploy/DNS. Добавлены Open Graph/описания, автоматически вычисляемая CSP/Pages headers, release:build/check/preview и негативные guards. 449unit/57files, Astro314files0errors0warnings3oldhints, ESLint, release91files/10HTML/7indexable RU и full190files PASS. Enforced HTTP/CSP browser27/27; штатный Astro preview26PASS/1ожидаемый policy-only skip; 48старых golden comparisons без обновлений,48новых capture/6width×2theme просмотрены. Independent16sets/72zero residuals; full artifact190/190 побайтно равен проверенному RUN4. Audit4LOW/6MODERATE0HIGH/CRITICAL, ничего не объявлено patched. Existing hosted site старый/soft404; private Cloudflare API403expired OAuth, physical/native/Narrator/legal/hosted acceptance отдельно не закрыты. Публикация остаётся условной; команды, стоимость, manual gates/rollback — docs/notes/public-mvp-release.md и STAGES.
 
 Публичный RUN4 пока не развёрнут. Описания каталогов, других тем, UK, кабинета и прежних публикаций ниже относятся к сохранённой full/development поверхности и историческим receipts.
 
@@ -11,7 +11,10 @@ pnpm dev                       # full mode, обычная разработка
 pnpm build                     # безопасный RU MVP по умолчанию
 pnpm build:mvp                 # явно RU MVP
 pnpm build:full                # явно полная сохранённая поверхность
-pnpm preview
+pnpm preview                   # Astro preview не применяет Pages _headers
+pnpm release:build             # обязательный SITE_URL, строгий static release guard
+pnpm release:check
+pnpm release:preview -- --port 4325 # loopback HTTP rehearsal с _headers
 pnpm test:e2e:production-smoke  # выбирает suite по marker артефакта
 ```
 
@@ -260,7 +263,7 @@ PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
 резервный `https://electrotutor.example`. `PUBLIC_CALCOM_URL` необязателен: без
 него страница услуг показывает локализованный fallback.
 
-## Публикация
+## Исторический профиль GitHub Pages (workflow сохранён)
 
 - Production URL: <https://zabulaaleksey.github.io/electro-tutor/>.
 - Единственный активный deployment workflow — `.github/workflows/pages.yml`:
@@ -273,7 +276,7 @@ PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
 - `src/pages/index.astro` выполняет base-aware redirect с
   `/electro-tutor/` на `/electro-tutor/ru/` внутри Astro static build;
   отдельный edge redirect не требуется.
-- Cloudflare/Wrangler больше не входят в действующий deployment path.
+- Это исторический GitHub Pages profile. Текущая рекомендация RUN5 — существующий Cloudflare Pages и отдельный проверенный static artifact; приватные настройки аккаунта требуют проверки.
 - deploy не выполняется автоматически агентом без явного запроса пользователя.
 
 ## Release Candidate 1 — локальный Web/PWA

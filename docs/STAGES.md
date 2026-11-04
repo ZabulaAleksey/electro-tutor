@@ -1,11 +1,39 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-MVP-004
+- Stage ID: ET-REL-005
+
+## ET-REL-005 — RUN5: автономный Web/PWA release preparation
+
+- Status: verified
+- Lifecycle: completed locally/validated on release/electrotutor-mvp-run5; base/main d3da1b9, sourcebranch RUN4 preserved. No push/deploy/DNS changes authorized.
+- Scope/contract: release-readiness-run5 FR-361..369; inspect existing hosting and dependencies, minimally prepare static artifact security/SEO, actual production consumer checks and safe deploy/rollback runbook. COMPLEX production release/frontend/security; no backend developer workflow change.
+- Dependencies/DAG: ET-MVP-004 locally verified/owner accepted/ff merged main d3da1b9. Existing installed Node/pnpm/Chromium available. Static solver requires no FastAPI/OIDC/PostgreSQL.
+- Entry evidence: clean refs before merge; merge-receipt confirms clean ff d3da1b9, one root checkout, tracked-before hashes1161. Existing Wrangler OAuth expired; GET accounts403 invalid token, no refresh/config rewrite performed.
+- Plan: current hosting/public HTTP/official docs→bounded SPEC/security/SEO delta→unit/types/lint/two builds→production browser+CSP/headers+PWA/math/negative checks→review→doc/diff gate→one atomic RUN5 checkpoint. Root sole writer; security/reviewer read-only.
+- Runnable vertical slice/E2E: safe static build→artifact/SEO/header guard→production preview/browser book→examples→four-scheme lab/context→offline/cache update→observable correct currents; unchanged numerical/source guards.
+- PASS criteria: installed unit/check/lint/build/MVP Playwright, independent16 nodal sets/72zero residuals, true404 and no hidden/API/secret graph, valid non-placeholder release origin, security headers/CSP enforced locally without runtime violation, original goldens unchanged; honest NOT_RUN external/device/physical gates.
+- Temporary/fallback: none in product; local header-serving test harness is evidence for emitted policy, not proof of Cloudflare deployment. Missing Cloudflare auth does not block local build; private settings/DNS remain NOT_RUN. Existing hosted full site is not accepted as RUN4.
+- Security/architecture/migration: portable static HTML/JS/CSS; Cloudflare-specific publication metadata stays build boundary; no runtime provider SDK, domain registration, paid services, secrets, dependency/backend/schema/kernel changes.
+- User action RUN4-MERGE / DONE: explicit user authorization, main56e314c→d3da1b9 clean ff-only; branch retained, no push/deploy.
+- User action REL5-DOMAIN / DONE: owner explicitly selected https://electrotutor.pages.dev/ for initial launch; custom domain later. No domain registration/DNS action required now. Private project settings still need authenticated read-only verification before publication.
+- User action REL5-CF-ACCESS / CONDITIONAL_PENDING: if live account/DNS settings must be certified, owner restores Cloudflare login using official local flow, never sends tokens in chat; audit then performs GET only. Expected current project/build/domain state receipt; unlocks hosted configuration proof.
+- User action REL5-DEVICE / NOT_RUN: before release execute short Windows/Android/iOS if available/PWA/update/touch/Narrator checklist. New rail/focus is affected; old acceptance not reused. Expected device/browser/version/results receipt.
+- User action REL5-PUBLISH / CONDITIONAL_PENDING: separate explicit authorization required for merge/push/deploy/domain/DNS mutation. Current task only prepares commands and rollback.
+- User action REL5-LEGAL / PENDING: owner confirms applicable operator/jurisdiction/material rights/hosting retention or justified not-applicable; no invented personal/legal data.
+- Blockers: private hosting state/physical acceptance remain unknown; local release-preparation slice proceeds independently.
+- Deferred: actual public rollout/hosted and physical certification, backend/live auth, unrelated modules.
+- Evidence/PASS:449unit/57files, types314files0errors0warnings3oldhints/lint; release91files10HTML7indexable129+129formulas; full190files allSHA equal verified RUN4. Enforced actual HTTP/CSP27/27, normal26PASS1policy-onlyskip,48oldgolden comparisons unchanged/48freshcaptures viewed6width×2themes. Independent16nodal72exactzero; read-only securityGO and2review cycles no remainingP1/P2. TESTING/work/run5/final report and commit receipt; no hosted claim.
+- Completion sync: README/STAGES/ROADMAP/feature SPEC/ARCHITECTURE/ADR-048/SECURITY/TESTING/DEPENDENCIES/TRACEABILITY/ledger/runbook updated; systemSPEC/DESIGN/API/DATA_MODEL/FALLBACKS(if absent no new file)/LEARNING_LOG checked without changes. Historical GitHub-only provider claims explicitly classified. No second status source.
+- User action REL5-MAINTENANCE / CONDITIONAL: bounded follow-up for10remaining dependency advisories (including now-stale fast-uri override), update only with lock/full regression; also optional CSP on inert synthetic SW404. No proven current static exploit prerequisite; versions remain affected, no silent tail.
+- User action REL5-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one authorized RUN5 commit after local gates/docs/diff; exact SHA in Git log/external receipt.
+- User action REL5-INTEGRATION / CONDITIONAL: owner reviews final report/screenshots and separately authorizes ff merge of release branch into main; expected clean exact merged SHA. No automatic push/deploy.
+- NEXT: none
+- Next action: owner review and explicit release-branch integration/publication decision after external gates; preserve branches, caches and evidence.
 
 ## ET-MVP-004 — RUN4: единый публичный RU MVP
 
 - Status: verified
-- Lifecycle: completed locally/validated on feat/electrotutor-mvp-run4, existing root checkout; one owner-authorized atomic checkpoint contains this record, exact SHA in Git log/external receipt. main remains56e314c; no RUN4 merge/push/deploy.
+- Lifecycle: completed locally/validated on feat/electrotutor-mvp-run4, existing root checkout; one owner-authorized atomic checkpoint contains this record, exact SHA in Git log/external receipt. RUN4 owner-accepted and ff merged local main d3da1b9; sourcebranch retained. No push/deploy.
 - Goal/scope: public-mvp-run4 FR-341..353 + scoped FR-001/002/ADR-047;7indexable RU pages, one complete3URL mesh journey, honest public404/SEO/PWA upgrade; all full source retained.
 - Dependencies/DAG: ET-MESH-003D verified/accepted/ff merged local main56e314c; sourcebranch retained. No backend/future component prerequisite for static consumer path.
 - Entry/plan: clean expected refs and installed pinned deps; contract/architecture→build boundary→journey/context→unit/audits/browser→actual6×2visual review→normal+MVP regression→doc/diff gate→atomic checkpoint. All local slices complete.
@@ -17,7 +45,7 @@
 - User action MESH-3D-MERGE / DONE: explicit Merge RUN3D+RUN4, clean ff-only main99b9302→56e314c; sourcebranch retained; no push/deploy.
 - User action MVP4-CONTACT / DONE: owner explicitly approved aleksey.zabula@gmail.com and https://t.me/toemath; actual contact page/link assertions PASS.
 - User action MVP4-COMMIT / DONE_AT_ATOMIC_CHECKPOINT: one atomic RUN4 commit after mandatory local checks/doc/diff gate; exact SHA in Git log/receipt.
-- User action MVP4-INTEGRATION / CONDITIONAL: owner reviews report/images and explicitly authorizes ff merge of feature into main; expected evidence exact merged SHA/clean status. Unlocks integration only; no auto push/deploy.
+- User action MVP4-INTEGRATION / DONE: owner Merge RUN4+RUN5 authorization; clean ff-only main56e314c→d3da1b9, sourcebranch retained, no push/deploy. Receipt work/run5/merge-receipt.json.
 - User action MVP4-DEVICE-A11Y / NOT_RUN_RELEASE_GATE: before public release, test real iOS/Android/native install/offline and Narrator route announcement/focus/keyboard/back-forward at supported widths/themes, including short viewport/keyboard. Record browser/OS, steps/screenshots/results; old manual acceptance not reused. Unlocks platform/manual release acceptance; not a missing local static primary path.
 - User action MVP4-HOSTED / CONDITIONAL_NOT_RUN: after separate publication authorization, verify actual HTTPS direct URLs/hidden404/noindex/headers/sitemap/robots/manifest/update/offline on chosen host. Expected public smoke receipt and operator configuration evidence; no deployment authorized in RUN4.
 - User action MVP4-LEGAL / OWNER_REVIEW_PENDING: before publication confirm applicability of operator/jurisdiction/material rights/hosting log retention; provide approved wording or recorded not-applicable rationale, without secret values. Contact/privacy app behavior is implemented, legal compliance is not invented.
@@ -25,7 +53,7 @@
 - Blockers: none for locally verified RUN4; public release still depends on explicit integration/publication authorization and release gates above.
 - Deferred: other19topics/UK/tools remain full/dev only; no automatic publication or content rewrite. Physical/Narrator/hosted/legal gates are explicit, no silent tails.
 - NEXT: none
-- Next action: owner review/explicit integration decision; preserve feature branch/main and all audit artifacts.
+- Next action: RUN4 integrated; selected ET-REL-005 owns release preparation. Preserve sourcebranch and artifacts.
 
 ## ET-MESH-003D — RUN3D: интерактивная mesh лаборатория
 

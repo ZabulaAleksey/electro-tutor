@@ -1,5 +1,13 @@
 # Журнал решений
 
+## ADR-048 — автономный static Pages release без обязательного backend
+
+Дата:2026-11-05. Решение по прямому owner RUN5 contract; owner выбрал electrotutor.pages.dev, собственный домен позже. Сохраняются исходный full проект и GitHub Pages workflow. Для первого нового MVP рекомендуется существующий Cloudflare Pages с проверенным static artifact, без нового Worker/Functions/платного compute/backend/OIDC/DB. Наличие account settings не предполагается: существующий OAuth GET403, actual HTTP — старый full/soft404.
+
+Причина: срочный запуск одного завершённого RU модуля не зависит от серверных функций; новая hosting migration не добавляет текущей пользы. Build-time boundary дополнен воспроизводимыми hashed CSP/headers/OG/release guards; local HTTP rehearsal проверяет actual policy, но не доказывает hosted behavior. `release-target.json` объявляет optional Wrangler4.157.0/AUTH_REQUIRED, no install/no secret. Нельзя выдавать старые ADR-017 GitHub-only claims за актуальный Cloudflare account state.
+
+Безопасность/альтернативы: не использовать script unsafe-inline/eval и broad immutable, сохранить style-only inline/embedded fonts для принятого math UI; HSTS preload/includeSubDomains не назначать непроверенному домену. Git-connected auto deploy и сохранённый workflow требуют проверки перед последующим push/manual upload; не изменялись здесь. Rollback только к сохранённому совместимому MVP с известным fingerprint, без user-cache/SQL cleanup. Actual merge/push/deploy/DNS требуют отдельного разрешения. Обновление affected dependencies — отдельный bounded maintenance;0HIGH/CRITICAL не равно vulnerability-free.
+
 ## ADR-047 — Публичный RU MVP через отдельный build graph
 
 - Status: accepted by explicit RUN4 owner scope.
@@ -411,6 +419,8 @@ outputs-based схема не стала действующим production workf
 base/site portability contract ADR-015 не изменён.
 
 ## ADR-017 — GitHub Pages как production deployment provider
+
+Исторический GitHub Pages-only выбор; для нового public MVP целевая рекомендация уточнена ADR-048. Workflow сохранён; actual Cloudflare private state не доказан прежними receipts.
 
 Дата: 2026-08-28
 

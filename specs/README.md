@@ -58,3 +58,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/mesh-laboratory.spec.md` | Approved RUN3D owner contract | ET-MESH-003D FR-331..339:4preset live DC mesh/supermesh lab, independent math/browser evidence |
 
 | `features/public-mvp-run4.spec.md` | Approved RUN4 owner contract | ET-MVP-004,FR-341..353: safe public RU graph/journey/PWA, full dev retained |
+
+| `features/release-readiness-run5.spec.md` | Approved RUN5 owner contract | ET-REL-005, FR-361..369: static release/hosting/security/SEO/readiness, no deployment |

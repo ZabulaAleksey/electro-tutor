@@ -1,5 +1,13 @@
 # Архитектура Electro Tutor
 
+## RUN5 — статическая публикация без серверного runtime
+
+Выбранный владельцем первый origin: https://electrotutor.pages.dev/, BASE_PATH=/; custom domain позже. Pure solver/React islands/MDX прежние. `release:build`→обычная static MVP сборка→strict origin/metadata/graph audit; без FastAPI/OIDC/PostgreSQL. `releaseHeadersIntegration` выполняется до worker fingerprint, поэтому CSP/metadata изменения участвуют в новой версии кеша. `_headers` генерируется из объединения SHA256 фактических inline scripts всех страниц для ClientRouter; style-only inline и embedded font data разрешены по фактической необходимости KaTeX. Provider-specific transport metadata находится в scripts; runtime provider port/SDK не нужен для portable static files (YAGNI).
+
+`release:preview` — loopback-only статический HTTP rehearsal с реальными заголовками, не эмулятор Cloudflare. `audit-release` проверяет origin/canonical/OG/robots/sitemap/headers/утечки/source maps. Точный graph не меняется:91files/10HTML/7RU content, без Functions/Worker compute; full190files побайтно совпадает с RUN4. `scripts/release-target.json` фиксирует non-secret target/optional pinned CLI/auth prerequisites; CLI не установлен и не требуется для local build.
+
+Actual public HTTP пока относится к старой публикации; account GET403 с истёкшим OAuth, private settings/domain/DNS не сертифицированы. Наличие HTTPS pages.dev не доказывает custom domain. Сохранённый GitHub Pages workflow публикует при push и зависит от backend gates; RUN5 не меняет/ослабляет его. Recommended manual Pages artifact upload после отдельного разрешения позволяет не разворачивать backend и не ждать его runtime. Исторические утверждения ниже не заменяют текущий target. ADR-048/runbook/STAGES.
+
 ## RUN4 — две сборочные поверхности, один учебный материал
 
 `scripts/public-mvp-contract.mjs` — единственный владелец публичного allowlist/flag/icon policy. Канонический `pnpm build` разрешает production env один раз и по умолчанию выбирает MVP; `build:mvp`/`build:full` задают явный режим, обычный `dev` по умолчанию full. Некорректный `PUBLIC_MVP_MODE` останавливает конфигурацию. Прямой Astro build без wrapper остаётся developer surface, поэтому не используется для release artifact.
@@ -514,7 +522,7 @@ Manifest использует scope-relative URL, а worker выводит offli
 из `self.registration.scope`. Регистрация получает base-aware script URL и
 scope из `BaseLayout`, поэтому PWA не выходит за project-site prefix.
 
-## SEO и публикация
+## Исторический GitHub Pages SEO/profile
 
 `astro.config.mjs` строит canonical и sitemap от `SITE_URL`, а маршруты и assets
 — от `BASE_PATH`; резервный origin `https://electrotutor.example` допустим
@@ -539,7 +547,7 @@ GitHub repository
 ```
 
 Production URL — `https://zabulaaleksey.github.io/electro-tutor/`. Cloudflare,
-Wrangler и edge redirect больше не являются компонентами current architecture.
+Wrangler/Cloudflare тогда не входили в этот GitHub Pages profile; текущий static RUN5 target описан выше, actual hosted/private state проверяется отдельно.
 
 ## Переходный lesson seam
 

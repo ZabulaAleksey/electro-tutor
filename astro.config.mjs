@@ -9,6 +9,7 @@ const mode = process.env.NODE_ENV === "production" ? "production" : "development
 const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
 import { isPublicPage, mvpMode } from "./scripts/public-mvp-contract.mjs";
 import { mvpWorkerIntegration } from "./scripts/mvp-worker.mjs";
+import { releaseHeadersIntegration } from "./scripts/release-policy.mjs";
 const mvp = mvpMode(env.PUBLIC_MVP_MODE);
 const site = normalizeSiteOrigin(env.SITE_URL || "https://electrotutor.example");
 const base = normalizeBasePath(env.BASE_PATH);
@@ -21,7 +22,7 @@ export default defineConfig({
   trailingSlash: "always",
   outDir: env.BUILD_OUTPUT_DIR || "./dist",
   output: "static",
-  integrations: [react(), mdx(), sitemap({filter: page => !mvp || (new URL(page).pathname !== base && isPublicPage(new URL(page).pathname,base))}), ...(mvp ? [mvpWorkerIntegration(base)] : [])],
+  integrations: [react(), mdx(), sitemap({filter: page => !mvp || (new URL(page).pathname !== base && isPublicPage(new URL(page).pathname,base))}), ...(mvp ? [releaseHeadersIntegration(base),mvpWorkerIntegration(base)] : [])],
   build: {
     format: "directory",
   },

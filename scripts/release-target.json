@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "stage": "ET-REL-005",
+  "site": "https://electrotutor.pages.dev",
+  "basePath": "/",
+  "mode": "static-mvp",
+  "providerRecommendation": "cloudflare-pages",
+  "accountSettingsVerified": false,
+  "projectNameCandidate": "electrotutor",
+  "productionBranchCandidate": "main",
+  "projectAndBranchMustBeConfirmedBeforeUpload": true,
+  "backendRequired": false,
+  "paidComputeRequired": false,
+  "publicationTool": {
+    "package": "wrangler",
+    "version": "4.157.0",
+    "nodeRequirement": ">=22.0.0",
+    "classification": [
+      "BOOTSTRAP_INSTALL",
+      "AUTH_REQUIRED"
+    ],
+    "installedForRun5": false,
+    "requiredForLocalBuild": false,
+    "use": "optional future manual artifact upload after explicit authorization",
+    "metadataSource": "https://registry.npmjs.org/wrangler/4.157.0"
+  },
+  "buildToolchainOwner": "package.json",
+  "requiredPublicEnvNames": [
+    "SITE_URL",
+    "BASE_PATH",
+    "PUBLIC_MVP_MODE"
+  ],
+  "secretValuesAllowedInArtifact": false,
+  "deployAuthorized": false
+}

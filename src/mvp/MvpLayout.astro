@@ -5,8 +5,11 @@ import "../engineering/theme.css";
 import "./mvp.css";
 import {ClientRouter} from "astro:transitions";
 import {publicPath,meshRoute} from "../../scripts/public-mvp-contract.mjs";
+import {descriptions} from "./metadata";
 interface Props { title:string; description?:string; noindex?:boolean; }
-const {title,description="Подробный учебник, решённые примеры и интерактивная лаборатория метода контурных токов.",noindex=false}=Astro.props;
+const {title,noindex=false}=Astro.props;
+const route=Astro.url.pathname.slice(import.meta.env.BASE_URL.length-1);
+const description=Astro.props.description ?? descriptions[route] ?? "Подробный учебник, решённые примеры и интерактивная лаборатория метода контурных токов.";
 const path=(p:string)=>publicPath(p,import.meta.env.BASE_URL);
 const canonical=new URL(Astro.url.pathname,Astro.site);
 ---
@@ -15,6 +18,9 @@ const canonical=new URL(Astro.url.pathname,Astro.site);
 <title>{title} — ElectroTutor</title><meta name="description" content={description}/><meta name="theme-color" content="#071328"/>
 {noindex ? <meta name="robots" content="noindex,follow"/> : <link rel="canonical" href={canonical}/>}
 <link rel="manifest" href={path('/manifest.webmanifest')}/><link rel="icon" href={path('/icons/potential.svg')} type="image/svg+xml"/>
+<meta property="og:type" content="website"/><meta property="og:locale" content="ru_RU"/><meta property="og:site_name" content="ElectroTutor"/>
+<meta property="og:title" content={`${title} — ElectroTutor`}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/>
+<meta property="og:image" content={new URL(path("/icons/potential-512.png"),Astro.site)}/><meta property="og:image:alt" content="ElectroTutor"/>
 <ClientRouter/>
 <script is:inline data-astro-rerun>
 try{const t=localStorage.getItem('potential-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch{document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}

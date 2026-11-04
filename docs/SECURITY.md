@@ -1,5 +1,24 @@
 # Безопасность и границы доверия
 
+## RUN5 — воспроизводимая HTTP-policy и актуальный audit
+
+CSP содержит только self+4вычисляемых SHA256 для scripts, script attributes/eval/внешние script origins запрещены; base/object/form/frame/media none, worker/connect/manifest self. KaTeX требует style-src unsafe-inline и один data:font; это не разрешение data scripts. Frame-ancestors/DENY, nosniff, referrer, permissions включены в Pages `_headers`, точные страницы/SW/manifest revalidate, только hashed _astro immutable. Ни HSTS includeSubDomains/preload, ни общие cache-everything, ни cookies/analytics/providers не добавлены. Совместимость проверена actual HTTP browser27/27,0CSP violations,0external runtime requests; hosted enforcement NOT_RUN. Синтетический SW hidden404 — постоянный inert HTML/noindex без унаследованного host CSP; P3 hardening, не доказанная эксплуатация, будущая узкая задача.
+
+Artifact guards сканируют HTML/JS/JSON/CSS/SVG/XML/TXT/webmanifest, high-signal credentials/absolute host paths/private API, отклоняют maps/Functions/backend worker, проверяют точный graph и фактические inline hashes. Это детерминированный regression guard плюс просмотр source, не математическое доказательство отсутствия любого секрета. Новый input surface не вводится; прежние numeric/context bounds сохранены.
+
+Network audit: **4LOW/6MODERATE/0HIGH/0CRITICAL**, HIGH gate exit0; полный и --prod audit exit1 из-за оставшихся findings, --prod2LOW/1MODERATE. Версии/lockfile не менялись; ничего не объявлено исправленным. Последний audit не следует путать с историческими4LOW/5MODERATE. Public artifact не содержит node_modules/runtime TOML/glob/mock server.
+
+| Package / primary advisory | Applicability to current static MVP |
+|---|---|
+| Astro7.3.2 [GHSA-mpr7-6m5w-76rw](https://github.com/advisories/GHSA-mpr7-6m5w-76rw), LOW | Fixed source transition duration; advisory needs attacker-derived animation values; no such input path found. Affected version remains; patched>=7.3.3. |
+| KaTeX0.16.47 [GHSA-238p-pmpm-9mq7](https://github.com/advisories/GHSA-238p-pmpm-9mq7), LOW | Requires separate prototype pollution plus untrusted expression/options; source-only/generated numeric LaTeX and literal options. Affected version remains, no patch claim. |
+| smol-toml1.7.1 [GHSA-r4xh-jqrq-34v2](https://github.com/advisories/GHSA-r4xh-jqrq-34v2), MODERATE | Build/config trusted TOML only, no public parser/upload/runtime. |
+| @vitest/mocker4.1.11 [GHSA-qxg6-89mg-rqv8](https://github.com/advisories/GHSA-qxg6-89mg-rqv8), [GHSA-xp26-3454-mjgp](https://github.com/advisories/GHSA-xp26-3454-mjgp),2MODERATE | Development server/WebSocket precondition; release uses vitest run, no server deployed. |
+| fast-uri3.1.8 [GHSA-w74x-v6f9-j3xg](https://github.com/advisories/GHSA-w74x-v6f9-j3xg), [GHSA-xhq7-xmqj-769h](https://github.com/advisories/GHSA-xhq7-xmqj-769h), [GHSA-wjr9-j795-jxcr](https://github.com/advisories/GHSA-wjr9-j795-jxcr), [GHSA-333x-w4r6-6crp](https://github.com/advisories/GHSA-333x-w4r6-6crp),2LOW2MODERATE | Check/language-server/AJV tools, absent from static runtime. Exact override3.1.8 now affected, follow-up>=3.1.9 after compatible lock/full regression. |
+| minimatch10.2.5 [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249), MODERATE | Build/dev trusted glob patterns, no attacker pattern endpoint. |
+
+Security review found no demonstrated exploit precondition in the current static path; this is bounded applicability assessment, not patch or universal safety. Follow-up dependency maintenance tracked in ET-REL-005; dev servers stay loopback-only. Expired Cloudflare OAuth/unknown bot/WAF/analytics/domain/env configuration are separate owner gates; no token refresh, secret output or remote mutation. Contacts checked by GET/MX only, no outbound messages.
+
 ## RUN4 — публичная сборочная граница и PWA upgrade
 
 MVP-флаг управляет только составом сборки. В клиенте нет секретов/приватного API origin/identity fetch, удалённых шрифтов/аналитики или коммерческих путей. src/mvp не импортирует bilingual collection/full shell/catalog. Точный состав HTML и emitted JS проверяется audit-built-mvp; скрытые страницы дают404/noindex и не входят в sitemap. robots разрешает повторный обход404, чтобы старые URL могли выпасть из индекса после будущего развёртывания. Это не доступ к приватной информации и не замена авторизации.

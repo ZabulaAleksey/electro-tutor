@@ -50,7 +50,10 @@
         "test:e2e:install": "playwright install chromium",
         "verify:full": "node scripts/full-verify.mjs",
         "build:full": "node scripts/build-site.mjs --full",
-        "build:mvp": "node scripts/build-site.mjs --mvp"
+        "build:mvp": "node scripts/build-site.mjs --mvp",
+        "release:build": "node scripts/build-release.mjs",
+        "release:check": "node scripts/audit-release.mjs",
+        "release:preview": "node scripts/preview-release.mjs"
     },
     "dependencies": {
         "@astrojs/mdx": "^7.0.3",

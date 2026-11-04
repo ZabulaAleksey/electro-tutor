@@ -1,5 +1,11 @@
 # Dependency contract
 
+## RUN5 current dependency evidence (2026-11-05)
+
+No install/lockfile/package-version changes. Canonical Node/pnpm and both ecosystem contracts remain. Fresh pnpm audit:4LOW/6MODERATE/0HIGH/CRITICAL; mandatory --audit-level high exit0, all-severity/--prod exit1, --prod2LOW/1MODERATE. Historical4LOW/5MODERATE below is an older receipt. Exact fast-uri3.1.8 override is now affected by new advisories; not claimed fully patched. Concrete applicability/primary advisories and maintenance action: SECURITY/ET-REL-005. Browser static runtime excludes smol-toml and dev tooling even when pnpm calls Astro transitive packages production dependencies.
+
+Optional future publication CLI Wrangler4.157.0 was resolved read-only from official npm metadata, not installed; declared in scripts/release-target.json as BOOTSTRAP_INSTALL/AUTH_REQUIRED and not required for local static build. No new runtime/library/package-manager migration, paid service or dependency resolution introduced. Local release build uses existing installed toolchain; hosted/authenticated CLI proof not claimed.
+
 Root Node ecosystem остаётся под `pnpm@11.23.0` и `pnpm-lock.yaml`. Backend
 имеет отдельный Python ecosystem в `services/api/pyproject.toml` с единственным
 `services/api/uv.lock`; npm/Yarn/Bun lockfiles не допускаются.

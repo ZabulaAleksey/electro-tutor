@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {retiredPolicy} from './mvp-retired-routes.mjs';
 import {publicRoutes, publicPath} from './public-mvp-contract.mjs';
 
 export function releaseOrigin(value) {
@@ -41,6 +42,7 @@ export function securityHeaders(documents,base='/') {
   assert.ok(csp.length<1900,'Pages header line limit: review inline script count');
   const lines=['/*',`  Content-Security-Policy: ${csp}`,'  X-Content-Type-Options: nosniff','  X-Frame-Options: DENY','  Referrer-Policy: strict-origin-when-cross-origin','  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()'];
   const paths=['/',...publicRoutes].flatMap(p=>[publicPath(p,base),publicPath(p,base)+'index.html']);
+  for(const p of retiredPolicy(base).headerPaths) lines.push(p,'  Cache-Control: no-store','  X-Robots-Tag: noindex');
   for(const p of [...new Set([...paths,...['sw.js','manifest.webmanifest','404.html','offline.html','robots.txt','sitemap-index.xml','sitemap-0.xml'].map(p=>publicPath('/'+p,base))])])lines.push(p,'  Cache-Control: no-cache');
   lines.push(publicPath('/mvp-build.json',base),'  Cache-Control: no-store',publicPath('/_astro/*',base),'  Cache-Control: public, max-age=31536000, immutable');
   return lines.join('\n')+'\n';
@@ -51,5 +53,6 @@ export function releaseHeadersIntegration(base) {
     const root=fileURLToPath(dir),files=await filesUnder(root);
     const html=await Promise.all(files.filter(f=>f.endsWith('.html')).map(f=>readFile(join(root,f),'utf8')));
     await writeFile(join(root,'_headers'),securityHeaders(html,base));
+    await writeFile(join(root,'_redirects'),retiredPolicy(base).redirects);
   }}};
 }

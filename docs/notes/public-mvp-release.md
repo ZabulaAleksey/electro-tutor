@@ -1,5 +1,9 @@
 # Публикация автономного ElectroTutor MVP
 
+## REL5-CACHE — checked static delivery fix, production pending
+
+REL5-CACHE / FR-370..372: four generated MVP-only static proxies to absent /__mvp_not_found__ with mandatory404.html/exact-policy/collision guards and no-store/noindex. No Function/Worker/new dependency/paid resource, no DNS/push/kernel/full-source change. Fresh92file artifact differs from accepted RUN5 only _redirects(new), _headers and sw.js fingerprint; other89files byte identical. Preview ffba754f validated24HTTP variants+13/13accepted browser checks. Next: clean committed source +same artifact SHA recheck +GET currentcanonical/active state, direct Wrangler upload to electrotutor/main, reconcile production API then anonymous primary HTTP/accepted tests/PWA update. Keep8e96428d and both artifacts; old artifact rollback knowingly reopens restriction blocker, do not call it a validated fix. No build-cache purge or DNS. No generic deployment retry on unknown outcome.
+
 ## First authorized public deploy2026-11-05
 
 DONE: accepted91file artifact SHA verified then direct uploaded via installed Wrangler4.157.0 to electrotutor/main with source373f5b8. Canonical production8e96428d-7051-4c23-bdaf-9b350f1afb49, https://electrotutor.pages.dev/ru/; no old dist, push/DNS/settings mutation. New deployment is a retained known-MVP target for future rollback review; do not automatically return older full source.

@@ -4,6 +4,7 @@ import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {releaseOrigin,filesUnder,assertPublicText,securityHeaders} from './release-policy.mjs';
 import {publicRoutes,publicPath} from './public-mvp-contract.mjs';
+import {assertRetiredRoutes} from './mvp-retired-routes.mjs';
 
 export async function auditRelease({root,site,base='/'}) {
   const origin=releaseOrigin(site);
@@ -14,6 +15,7 @@ export async function auditRelease({root,site,base='/'}) {
     if(file.endsWith('.html'))documents.push(source);
   }
   const headers=await readFile(join(root,'_headers'),'utf8');assert.equal(headers,securityHeaders(documents,base),'Headers must match actual script hashes and current route graph');
+  await assertRetiredRoutes(root,base);
   const titles=new Set();
   for(const route of publicRoutes) {
     const source=await readFile(join(root,route.slice(1),'index.html'),'utf8'),url=origin+publicPath(route,base);

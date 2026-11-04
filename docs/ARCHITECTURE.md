@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## REL5-CACHE — static routing before retained asset lookup
+
+REL5-CACHE / FR-370..372: four generated MVP-only static proxies to absent /__mvp_not_found__ with mandatory404.html/exact-policy/collision guards and no-store/noindex. No Function/Worker/new dependency/paid resource, no DNS/push/kernel/full-source change. Fresh92file artifact differs from accepted RUN5 only _redirects(new), _headers and sw.js fingerprint; other89files byte identical. Existing releaseHeadersIntegration owns generated Pages transport config before browser SW fingerprint. Root/non-root base policy tests inspect physical output paths without base prefix. ADR-049. Production pending hosted terminal gate; preview ffba754f successful.
+
 ## Public deployment state2026-11-05
 
 Existing static Pages electrotutor/main now serves accepted RUN5 source373f5b8, production8e96428d-7051-4c23-bdaf-9b350f1afb49. Direct artifact upload only, not Git push or adapter/runtime change. Primary module7pages/CSP/assets/16math browser cases/PWA work; strict route boundary is PARTIAL on primary due retained old /uk/ and /ru/interactive/200/noindex. Unique deployment404/manifest absence/body hashes prove correct artifact; do not equate build graph with immediate CDN eviction. Original source/frame/kernel/backend unchanged; future cache-delivery fix requires separate bounded scope. STAGES/TESTING.

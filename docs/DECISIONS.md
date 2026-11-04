@@ -1,5 +1,9 @@
 # Журнал решений
 
+## ADR-049 — Static Pages proxy for retained retired routes
+
+Owner-authorized bounded CDN fix2026-11-05, FR-370..372. Two removed paths remain200/HIT on primary despite correct deployed graph and alias404. No owned zone is available for documented purge; build-cache purge is unrelated. Use MVP-only `_redirects`200 internal proxy for exact /uk and /ru/interactive roots/subtrees to one guarded absent base-aware path, relying on existing404.html. It is a proxy instruction, not a404 rewrite (unsupported by Pages); final404 must be observed on hosted preview and primary before completion. Local Wrangler actual404 is prerequisite evidence only. No proxy to existing404.html/soft404, guessed API, broad purge, Worker/Functions, runtime fail-mode change or paid resource. Runtime fail_open=true was inspected read-only; avoiding Functions avoids that quota fallback risk. Exact generated policy/target absence enforced in release guard and no-store/noindex headers; fingerprint already covers generated files. Full graph and calculations unchanged. On hosted mismatch stop before production; retained8e96428d is recovery evidence but reopens restriction blocker if restored. Source branches/main preserved, no merge/push/DNS.
+
 ## ADR-048 — автономный static Pages release без обязательного backend
 
 Дата:2026-11-05. Решение по прямому owner RUN5 contract; owner выбрал electrotutor.pages.dev, собственный домен позже. Сохраняются исходный full проект и GitHub Pages workflow. Для первого нового MVP рекомендуется существующий Cloudflare Pages с проверенным static artifact, без нового Worker/Functions/платного compute/backend/OIDC/DB. Наличие account settings не предполагается: существующий OAuth GET403, actual HTTP — старый full/soft404.

@@ -1,5 +1,9 @@
 # Безопасность и границы доверия
 
+## REL5-CACHE — bounded static route policy
+
+REL5-CACHE / FR-370..372: four generated MVP-only static proxies to absent /__mvp_not_found__ with mandatory404.html/exact-policy/collision guards and no-store/noindex. No Function/Worker/new dependency/paid resource, no DNS/push/kernel/full-source change. Fresh92file artifact differs from accepted RUN5 only _redirects(new), _headers and sw.js fingerprint; other89files byte identical. Global CSP byte policy unchanged. Real Pages preview24GET/HEAD variants404/no Location/no old body plus all90served bytes match; seven public200/CSP/SEO verified. Runtime fail_open=true inspected read-only; no Functions means no compute quota fallback is introduced. No unsupported purge. Primary verification pending.
+
 ## First hosted RUN5 — partial route restriction
 
 Owner-authorized direct publish2026-11-05 produced canonical8e96428d/source373f5b8 without push/DNS/settings changes. Real primary HTTP enforces exact hashed-script CSP, nosniff/frame/referrer/permissions and cache policy; actual browser16math/negativeinput/theme/offline scenarios have0unexpectedCSP/app errors/externalapprequests; arbitrary untrusted inline blocked.90served bytes equal reviewed artifact. Old retained /uk/ and /ru/interactive/ still200/noindex on primary; all-new alias404. This is a release restriction defect, not evidence of newly leaked secrets/private data or source deletion. No false full-hidden-route PASS. Current SW hides those URLs after control, but build/SW are not revocation of historical public cache. Provider NEL/Report-To headers observed; hosting network error reporting is distinct from application analytics and remains within owner hosting-policy review. No unsupported purge/credential mutation/source workaround.

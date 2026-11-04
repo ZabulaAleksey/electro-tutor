@@ -1,5 +1,9 @@
 ## ET-MVP-004 — RUN4 acceptance 2026-11-04
 
+## REL5-CACHE — regression and actual Pages preview
+
+452unit/58files PASS (new3policy tests, including collision/invalid-policy cases for2bases), final targeted3PASS; Astro316files0errors0warnings3oldhints; ESLint PASS. Fresh release:build exit0,92files/10HTML/7RU content; output-print wrapper had Windows cp1251 encoding error after completed build, receipt/log preserved, build not rerun. Preview ffba754f-5382-4f90-be55-fc7a8f13300a:24raw GET/HEAD variants true404/no redirect/no-store/noindex,90served byte matches,7public200/CSP/SEO; unchanged hosted Playwright13/13PASS no retries. Earlier accepted primary publicURL assertion unexpectedly PASS before fix while raw UA /uk/ still200/HIT and /ru/interactive/ became404: per-request cache variance is retained evidence, no invented red test. Earlier RUN5 mathematics unchanged by exact asset/source hashes. Production primary/old-RUN5 worker update pending. Evidence work/cache404; no accepted test/golden edited.
+
 ## Public RUN5 deployment verification2026-11-05
 
 - Expanded historical route sweep:35non-MVP routes from retained full artifact,33real404 and2retained200/noindex(/uk/,/ru/interactive/), observed PoP scope only. Receipt work/public_deploy/historical-routes.json.

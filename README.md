@@ -1,5 +1,9 @@
 # ElectroTutor
 
+## Исправление retained CDN routes — проверено на preview
+
+Текущий опубликованный RUN5 остаётся8e96428d. В отдельной fix/mvp-cdn-hidden-routes подготовлены узкие static Pages правила для настоящего404 на /uk/ и /ru/interactive/: без нового backend/Worker, DNS или push. Fresh92file build/452unit/types/lint и actual Pages preview ffba754f:13/13browser +24HTTP variants +90served bytes PASS. Production исправление пока не опубликовано; статус и следующий шаг — STAGES REL5-CACHE. Ниже сохранён receipt первоначальной публикации.
+
 ## Первый public RUN5 deploy — 2026-11-05
 
 По явному разрешению владельца принятой91file RUN5 сборкой опубликован https://electrotutor.pages.dev/ru/ — существующий Pages electrotutor/main, ad_hoc deployment8e96428d-7051-4c23-bdaf-9b350f1afb49, metadata source373f5b8. Никакого push/DNS/изменения build/branch controls. Main373f5b8/sourcebranch сохранены; docs receipts отдельно, не слиты.

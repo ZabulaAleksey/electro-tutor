@@ -4,7 +4,7 @@
 
 ## Integration authorization
 
-Owner explicitly accepted RUN6 and authorized merge, normal push and temporary branch deletion on 2026-11-05. Source1f591a2 is fast-forward integrated locally; this does not authorize public deployment or change the binding product requirements. The separate documentation transport checkpoint uses [skip ci] to suppress both existing auto-deploy pipelines. Unresolved Linux remote CI and provider/media/manual gates remain visible in STAGES.
+Owner explicitly accepted RUN6 and authorized merge, normal push and temporary branch deletion on 2026-11-05. Source1f591a2 is fast-forward integrated locally; this does not authorize public deployment or change the binding product requirements. The separate documentation transport checkpoint uses [skip ci] to suppress both existing auto-deploy pipelines. Owner subsequently explicitly authorized manual production deployment2026-11-05; fresh source3267948/canonical7ba2859a-4b84-449a-8550-ba7084b9f3ef is verified without public-index expansion, DNS/config changes or a new push. Unresolved Linux remote CI and provider/media/manual gates remain visible in STAGES.
 
 ## Binding requirements
 

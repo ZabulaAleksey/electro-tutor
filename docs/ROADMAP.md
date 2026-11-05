@@ -2,7 +2,7 @@
 
 ## RUN6 — навигационный scope и отдельный media follow-up
 
-Owner-accepted ET-NAV-006 (source1f591a2 fast-forward integrated locally; Git publication/temporary-ref cleanup explicitly authorized separately, no public deployment): one derived contents, three independent stage links, full31tools/20definitions/line variants retained, public7route policy unchanged. Текущая проверяемая готовность принадлежит STAGES, не этому roadmap. RTC diagnosis proves first anonymous host refused by Jitsi moderator policy; controlled Session media remains future scoped work. No public expansion/infra/auth migration/deployment is part of RUN6. Existing Linux CI golden gap/manual release gates remain separate from the navigation implementation.
+Owner-accepted ET-NAV-006 (source1f591a2 fast-forward integrated locally; Git publication/temporary-ref cleanup explicitly authorized separately, subsequently owner-authorized public MVP deployment7ba2859a-4b84-449a-8550-ba7084b9f3ef/source3267948 verified): one derived contents, three independent stage links, full31tools/20definitions/line variants retained, public7route policy unchanged. Текущая проверяемая готовность принадлежит STAGES, не этому roadmap. RTC diagnosis proves first anonymous host refused by Jitsi moderator policy; controlled Session media remains future scoped work. Public index remains seven RU pages; no infrastructure/auth migration. Manual publication was separately owner-authorized after integration; the preserved full catalogue is not publicly exposed. Existing Linux CI golden gap/manual release gates remain separate from the navigation implementation.
 
 ## Публичный CDN-блокер закрыт
 

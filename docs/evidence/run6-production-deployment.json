@@ -1,0 +1,44 @@
+{
+  "stage": "ET-NAV-006",
+  "scope": "owner-authorized manual public MVP deployment; no public expansion",
+  "production_origin": "https://electrotutor.pages.dev",
+  "deployment": "7ba2859a-4b84-449a-8550-ba7084b9f3ef",
+  "source": "326794839f469bffb9a3bad7174445ace516b337",
+  "previous_safe_mvp": "41affa11-3f56-4193-baa9-aebb40b79ec9",
+  "fresh_artifact_files": 96,
+  "served_file_sha_matches": 92,
+  "public_pages": 7,
+  "hidden_http_checks": 24,
+  "local_browser": "7/7 PASS fresh artifact with enforced CSP",
+  "hosted_browser": "8/8 PASS accepted cases; no retries",
+  "independent_math": "16 exact nodal sets/72 zero residuals, actual hosted solver compared",
+  "pwa_upgrade": {
+    "beforeVersion": "113fc61d1eccad90566c",
+    "expected": "689264eb202cf73d6b12",
+    "unrelated": {
+      "local": "KEEP",
+      "cache": "KEEP"
+    },
+    "offlineLabAndHidden404": true,
+    "passed": true
+  },
+  "hosted_csp": "no unexpected violations/external requests/page errors; untrusted inline actively blocked",
+  "visual": "16 captures at390/1280 light/dark;4representative frames viewed; six-width/two-theme actual header/rail tests PASS",
+  "reviewed_frames": [
+    "home-390-light.png",
+    "lab-390-dark.png",
+    "textbook-1280-dark.png",
+    "examples-1280-light.png"
+  ],
+  "cloudflare_settings_unchanged": true,
+  "fail_open": {
+    "preview": false,
+    "production": false
+  },
+  "dns_changes": false,
+  "push": false,
+  "runtime_code_changes": false,
+  "new_resources_or_paid_plan": false,
+  "remaining": "old Linux CI48baseline gap, physical devices/Narrator/legal follow-ups and media blocker unchanged",
+  "evidence_owner": "outputs/ElectroTutor_run6_deploy and ElectroTutor_run6_deploy_2026-11-05.md"
+}

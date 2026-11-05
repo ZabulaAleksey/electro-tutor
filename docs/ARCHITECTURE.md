@@ -1,5 +1,10 @@
 # Архитектура Electro Tutor
 
+## Текущая публичная доставка RUN6
+
+2026-11-05: owner-authorized fresh static MVP source3267948 deployed to electrotutor.pages.dev, canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef. Seven RU indexed pages, bounded hidden-route404 handler, CSP/security headers, no backend dependency or public catalogue expansion. Authenticated API confirms unchanged deployment settings/fail_open=false in both environments; primary HTTP and browser/PWA/math checks PASS. Earlier delivery entries below are historical; no architecture/security policy mutation. Evidence: STAGES ET-NAV-006, TESTING and docs/evidence/run6-production-deployment.json.
+
+
 ## RUN6 — производная навигация без второго каталога
 
 Source owners: curriculum20definitions + actual published manifest + catalogue31. src/learning/navigation.ts derives stable topic/tool IDs and stage/mode descriptors; curriculumLearningResources adds only relationships, catalogue owns the long-line reference variant. get-navigation.ts composes actual collections only for full builds; MVP uses existing public contract and filters before HTML. Shared LearningMenu/LearningContents and lightweight browser-contents use only rendered trusted hrefs in the browser, not registry/backend imports. Native history carries learningStage; component identity ignores experiment queries, while preserving micro/science hash identity. MeshJourney reuses the URL helper; full mesh keeps original root transition to preserve raster math, MVP keeps its accepted named slide. Full MeshLab reuses existing persistContext; kernels unchanged. Current gates/commit state — STAGES ET-NAV-006.

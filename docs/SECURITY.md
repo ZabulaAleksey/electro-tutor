@@ -1,5 +1,10 @@
 # Безопасность и границы доверия
 
+## Текущая публичная доставка RUN6
+
+2026-11-05: owner-authorized fresh static MVP source3267948 deployed to electrotutor.pages.dev, canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef. Seven RU indexed pages, bounded hidden-route404 handler, CSP/security headers, no backend dependency or public catalogue expansion. Authenticated API confirms unchanged deployment settings/fail_open=false in both environments; primary HTTP and browser/PWA/math checks PASS. Earlier delivery entries below are historical; no architecture/security policy mutation. Evidence: STAGES ET-NAV-006, TESTING and docs/evidence/run6-production-deployment.json.
+
+
 ## RUN6 — граница публичного режима и внешнего видео
 
 Unified index is filtered before SSR serialization; public related tools/variants are empty. Browser behavior derives targets from trusted rendered links, validates stage enum and never inserts search input as HTML. No public hidden route/auth/backend graph, no relaxed CSP, no added API/secret/config/provisioning. Restored guest Jitsi link is full-only and explicitly external; public MVP camera/mic/frame/media prohibitions stay intact. Real two-client provider admission refused membersOnly, no conference/peer/RTP; no auth bypass. Protected LessonSession media remains unimplemented. See notes/run6-video-diagnosis.md and structured redacted evidence; current owner actions in STAGES. The old unpinned third-party top-level Jitsi SDK trust boundary is not declared fixed.

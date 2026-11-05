@@ -2,6 +2,10 @@
 
 Утверждено прямым запросом владельца2026-11-05. COMPLEX production frontend/catalogue/accessibility/build-boundary and bounded RTC investigation. Branch feat/electrotutor-navigation-run6 from clean9ac07fd (main/origin328c812),373f5b8 ancestor verified. No auto merge/push/deploy/DNS/paid resources/global policy/solver/content rewrite.
 
+## Integration authorization
+
+Owner explicitly accepted RUN6 and authorized merge, normal push and temporary branch deletion on 2026-11-05. Source1f591a2 is fast-forward integrated locally; this does not authorize public deployment or change the binding product requirements. The separate documentation transport checkpoint uses [skip ci] to suppress both existing auto-deploy pipelines. Unresolved Linux remote CI and provider/media/manual gates remain visible in STAGES.
+
 ## Binding requirements
 
 - FR-381: one derived learning index from existing curriculum20topics, actual published lesson manifest and existing catalogue31tools; no second maintained catalogue/list. Stable IDs, localized title/category, textbook/examples/lab descriptors (implemented/partial/not-implemented), related tool IDs and per-mode availability. Existing source owners keep titles/URLs, only small stage/relationship metadata added. Long-line reference variant reachable alongside main long-line lab. Source availability is not a functional PASS claim; runtime report separate.

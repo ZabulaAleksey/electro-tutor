@@ -41,11 +41,12 @@
   "lastDeploymentAuthorizedAndCompleted": true,
   "futureDeploymentRequiresOwnerApproval": true,
   "deployment": {
-    "id": "50a3aa3a-8dc9-44d2-826b-38b66933d1f9",
+    "id": "41affa11-3f56-4193-baa9-aebb40b79ec9",
     "environment": "production",
-    "sourceCommit": "ee38ba3d29a38c8ef32da6054628020a3d662dfa",
-    "hostedAcceptance": "verified-runtime-and-cache404",
-    "blocker": null
+    "sourceCommit": "a56fcaa904d27019968ffbfb2fa72776bd4c8de7",
+    "hostedAcceptance": "verified-post-push-runtime-and-cache404",
+    "blocker": null,
+    "trigger": "git push main"
   },
   "deliveryPolicy": {
     "kind": "bounded-pages-404-handler",

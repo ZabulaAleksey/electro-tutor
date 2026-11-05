@@ -1,0 +1,115 @@
+{
+  "stage": "ET-NAV-006",
+  "scope": "local navigation and proven RTC diagnosis; not media success/deployment",
+  "base": "9ac07fd0e9c085c5429fbd56904d1e0a715b75c0",
+  "branch": "feat/electrotutor-navigation-run6",
+  "main": "328c81207d73bc89347ab907986e91509235fd27",
+  "checks": {
+    "unit-finalized": {
+      "label": "unit-finalized",
+      "command": [
+        "node",
+        "C:/Users/aleks/AppData/Local/node/corepack/v1/pnpm/11.23.0/bin/pnpm.cjs",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 26.39
+    },
+    "types-finalized": {
+      "label": "types-finalized",
+      "command": [
+        "node",
+        "C:/Users/aleks/AppData/Local/node/corepack/v1/pnpm/11.23.0/bin/pnpm.cjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 82.33
+    },
+    "lint-finalized": {
+      "label": "lint-finalized",
+      "command": [
+        "node",
+        "C:/Users/aleks/AppData/Local/node/corepack/v1/pnpm/11.23.0/bin/pnpm.cjs",
+        "lint"
+      ],
+      "exit": 0,
+      "seconds": 34.8
+    },
+    "build-full-finalized": {
+      "label": "build-full-finalized",
+      "command": [
+        "node",
+        "C:/Users/aleks/AppData/Local/node/corepack/v1/pnpm/11.23.0/bin/pnpm.cjs",
+        "build:full"
+      ],
+      "exit": 0,
+      "seconds": 9.41
+    },
+    "build-release-finalized": {
+      "label": "build-release-finalized",
+      "command": [
+        "node",
+        "C:/Users/aleks/AppData/Local/node/corepack/v1/pnpm/11.23.0/bin/pnpm.cjs",
+        "release:build"
+      ],
+      "exit": 0,
+      "seconds": 7.27
+    },
+    "full-finalized": {
+      "label": "full-finalized",
+      "mode": "full",
+      "specs": [],
+      "exit": 0,
+      "seconds": 445.67,
+      "preview_pid": 15620,
+      "artifact": "C:\\Users\\aleks\\Documents\\Codex\\2026-11-04\\electrotutor-1-c-users-aleks-dev\\work\\run6\\build-full-finalized",
+      "remote": "installed Windows Chromium1.62.1"
+    },
+    "mvp-finalized": {
+      "label": "mvp-finalized",
+      "mode": "mvp",
+      "specs": [],
+      "exit": 0,
+      "seconds": 166.91,
+      "preview_pid": 11676,
+      "artifact": "C:\\Users\\aleks\\Documents\\Codex\\2026-11-04\\electrotutor-1-c-users-aleks-dev\\work\\run6\\build-release-finalized",
+      "remote": "installed Windows Chromium1.62.1"
+    }
+  },
+  "fullPages": 41,
+  "localizedRoutes": 40,
+  "fullFiles": 193,
+  "mvpFiles": 96,
+  "mvpIndexedPages": 7,
+  "definitions": 20,
+  "tools": 31,
+  "fullBrowser": {
+    "passed": 275,
+    "skipped": 6
+  },
+  "publicBrowser": {
+    "passed": 30,
+    "skipped": 0,
+    "enforcedCsp": true,
+    "legacyPwaUpgrade": true
+  },
+  "independentMath": {
+    "cases": 16,
+    "exactZeroResiduals": 72
+  },
+  "protection": {
+    "unchangedSources": 42,
+    "unchangedEngineeringPng": 534,
+    "reviewedChangedMvpPng": 48
+  },
+  "reviews": "read-only source reviewer two cycles; security source+v3 artifact review, final static guards also PASS",
+  "dev": {
+    "status": "PARTIAL",
+    "httpRoutes": 3,
+    "entriesPerRoute": 51,
+    "warning": "Invalid hook call in CLI stderr; no causal/pre-existing claim; server stopped"
+  },
+  "physicalNarrator": "NOT_RUN for changed controls",
+  "remoteCi": "NOT_RUN; pre-existing48missingLinuxMVPgoldens retained",
+  "deployment": "NOT_RUN; no push/merge/DNS/resource provision"
+}

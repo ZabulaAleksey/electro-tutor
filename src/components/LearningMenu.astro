@@ -1,0 +1,18 @@
+---
+import type { Language } from "../types";
+import { stageCopy, learningStages, type LearningStageKey } from "../learning/navigation-copy";
+
+interface Props {
+  language: Language;
+  links: Partial<Record<LearningStageKey, string>>;
+  currentStage?: LearningStageKey;
+}
+
+const { language, links, currentStage } = Astro.props;
+const labels = stageCopy[language];
+---
+<div class="learning-menu" data-learning-menu>
+  {learningStages.map((stage) => links[stage] ? (
+    <a data-learning-stage-link data-stage={stage} href={links[stage]} aria-current={currentStage === stage ? "page" : undefined}>{labels[stage]}</a>
+  ) : null)}
+</div>

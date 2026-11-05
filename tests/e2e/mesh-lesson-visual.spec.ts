@@ -96,7 +96,7 @@ for (const width of widths) for (const theme of ["light", "dark"] as const) {
     expect(typography.result).toContain("24"); expect(typography.result).toContain("2.18");
     expect(typography.power).toContain("151");
 
-    const captureStyle = await page.addStyleTag({ content: "html { scroll-behavior:auto !important; overflow-anchor:none !important; } .astro-header { visibility: hidden !important; }" });
+    const captureStyle = await page.addStyleTag({ content: "html { scroll-behavior:auto !important; overflow-anchor:none !important; } .astro-header, .journey-rail { visibility: hidden !important; }" });
     try {
       const regions = [
         ["opening", page.locator(".lesson-header")],

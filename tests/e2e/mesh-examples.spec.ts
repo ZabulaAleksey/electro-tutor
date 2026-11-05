@@ -60,7 +60,7 @@ for (const width of [320, 375, 390, 768, 1280, 1920]) for (const theme of ["ligh
       expect(geometry.minFont).toBeGreaterThanOrEqual(12); expect(geometry.overlap).toEqual([]); expect(geometry.outside).toEqual([]);
     }
     const ids = await page.locator("svg.mesh-example-scheme marker").evaluateAll(nodes => nodes.map(e => e.id)); expect(new Set(ids).size).toBe(ids.length);
-    const style = await page.addStyleTag({ content: "html{scroll-behavior:auto!important;overflow-anchor:none!important}.astro-header{visibility:hidden!important}" });
+    const style = await page.addStyleTag({ content: "html{scroll-behavior:auto!important;overflow-anchor:none!important}.astro-header,.journey-rail{visibility:hidden!important}" });
     try {
       for (const n of [1, 2, 3, 4]) {
         const section = page.locator(`#example-${n}`);

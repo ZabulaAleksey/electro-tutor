@@ -60,3 +60,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/public-mvp-run4.spec.md` | Approved RUN4 owner contract | ET-MVP-004,FR-341..353: safe public RU graph/journey/PWA, full dev retained |
 
 | `features/release-readiness-run5.spec.md` | Approved RUN5 owner contract | ET-REL-005, FR-361..373: release/hosting/security/SEO/readiness and bounded owner-authorized cache404 delivery correction; actual evidence in STAGES |
+
+| `features/unified-navigation-run6.spec.md` | Approved RUN6 owner contract2026-11-05 | NAV-001..007 / RTC6-001..003: unified derived contents/menu/full access, unchanged public graph, bounded real RTC diagnosis |

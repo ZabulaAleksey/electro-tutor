@@ -106,3 +106,20 @@ export const curriculum: CurriculumSection[] = [
     ],
   },
 ];
+
+/** Stage links/associations only: titles and the complete topic list remain in curriculum. */
+export const curriculumLearningResources: Readonly<Record<string, {
+  examplesPath?: string; laboratoryPath?: string; stageLanguages?: readonly ("ru"|"uk")[];
+  laboratoryToolId?: string; relatedToolIds?: readonly string[];
+}>> = {
+  "dc/ohm": {laboratoryToolId:"micro:ohm-law",relatedToolIds:["micro:voltage-divider","micro:current-divider"]},
+  "dc/kirchhoff": {relatedToolIds:["micro:current-divider","micro:voltage-divider"]},
+  "dc/mesh": {examplesPath:"/topics/dc/mesh-current-method/examples/",laboratoryPath:"/topics/dc/mesh-current-method/lab/",stageLanguages:["ru"],relatedToolIds:["micro:ohm-law","micro:voltage-divider","micro:current-divider"]},
+  "dc/power-transfer": {laboratoryToolId:"micro:maximum-power"},
+  "ac/sinusoidal": {laboratoryToolId:"micro:sine-rms"},
+  "ac/rlc-series": {laboratoryToolId:"micro:rlc-resonance"},
+  "ac/resonance": {laboratoryToolId:"micro:rlc-resonance"},
+  "ac/three-phase": {laboratoryToolId:"advanced:star-neutral",relatedToolIds:["micro:three-phase-star"]},
+  "transients/switching-laws": {relatedToolIds:["micro:capacitor-charge","micro:capacitor-discharge"]},
+  "transients/first-order": {laboratoryToolId:"micro:capacitor-charge",relatedToolIds:["micro:capacitor-discharge","micro:first-order-step"]},
+};

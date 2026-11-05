@@ -1,0 +1,29 @@
+{
+  "scope": "RUN6 diagnostic acceptance, not successful media",
+  "source": "9ac07fd0e9c085c5429fbd56904d1e0a715b75c0",
+  "artifact": "fresh prechange full build,41pages/40localized",
+  "clients": 2,
+  "provider": "https://meet.jit.si",
+  "sdk": "real external_api.js and real iframes; no stub",
+  "room": "REDACTED_EPHEMERAL_AUDIT_ROOM",
+  "identities": "harmless synthetic audit names; no account login",
+  "outcome": "BLOCKED_BY_PROVIDER_AUTH",
+  "error": "conference.connectionError.membersOnly",
+  "visible": "Provider waits for moderator and offers Log-in",
+  "conferenceJoined": false,
+  "participantObserved": false,
+  "peerConnections": 0,
+  "inboundBytes": 0,
+  "outboundBytes": 0,
+  "rtpGrowth": false,
+  "guestPrejoin": "reached without ElectroTutor registration",
+  "physicalMicrophoneCamera": "NOT_RUN",
+  "screenShare": "NOT_RUN",
+  "natTurn": "NOT_RUN: no conference/ICE before provider authentication",
+  "controlledLessonMedia": "NOT_IMPLEMENTED: protected LessonSession is media-less",
+  "changes": "No RTC implementation, auth, secrets, backend, infrastructure or provider policy changed",
+  "sources": [
+    "https://jitsi.github.io/handbook/docs/user-guide/user-guide-start-a-jitsi-meeting/",
+    "https://jitsi.github.io/handbook/docs/devops-guide/authentication/"
+  ]
+}

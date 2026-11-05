@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('home uses the shared student shell and direct micro-lab cards',async({page})=>{
- await page.goto('/ru/');await expect(page.getByRole('link',{name:'Лаборатории',exact:true})).toBeVisible();await expect(page.getByRole('link',{name:'Расчёт',exact:true})).toHaveCount(0);await expect(page.getByRole('link',{name:'Доска',exact:true})).toBeVisible();await expect(page.getByRole('link',{name:'Контакты'})).toHaveCount(0);await expect(page.getByRole('link',{name:'Услуги',exact:true})).toHaveCount(0);await expect(page.locator('.lab-formats')).toHaveCount(0);await expect(page.locator('[data-learning-summary]')).toHaveCount(0);
+ await page.goto('/ru/');await expect(page.getByRole('link',{name:'Лаборатория',exact:true})).toBeVisible();await expect(page.getByRole('link',{name:'Расчёт',exact:true})).toHaveCount(0);await expect(page.getByRole('link',{name:'Доска',exact:true})).toBeVisible();await expect(page.getByRole('link',{name:'Контакты'})).toBeVisible();await expect(page.getByRole('link',{name:'Услуги',exact:true})).toHaveCount(0);await expect(page.locator('.lab-formats')).toHaveCount(0);await expect(page.locator('[data-learning-summary]')).toHaveCount(0);
  await expect(page.locator('.panorama-slide')).toHaveCount(4);const cards=page.locator('.home-laboratories .catalogue-card');await expect(cards).toHaveCount(8);expect(await page.locator('.home-laboratories .tool-card-link[href*="/micro-labs/"]').first().getAttribute('href')).toMatch(/\/micro-labs\/#micro=/);await page.reload();await expect(cards).toHaveCount(8);
 });
 

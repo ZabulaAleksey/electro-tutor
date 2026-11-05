@@ -1,0 +1,142 @@
+---
+import type { Language } from "../types";
+import { getLearningNavigation } from "../learning/get-navigation";
+import { chooseLearningTarget } from "../learning/navigation";
+import { navigationCopy, stageCopy, learningStages, type LearningStageKey } from "../learning/navigation-copy";
+
+interface Props {
+  language: Language;
+  mvp?: boolean;
+  currentEntryId?: string;
+  currentStage?: LearningStageKey;
+}
+
+const { language, mvp = false, currentEntryId, currentStage } = Astro.props;
+const groups = await getLearningNavigation(language, mvp);
+const copy = navigationCopy[language];
+const requestedStage = Astro.url.searchParams.get("learningStage");
+const selectedStage: LearningStageKey = requestedStage === "examples" || requestedStage === "lab" ? requestedStage : currentStage ?? "textbook";
+const categories = [...new Set(groups.flatMap((group) => group.entries.map((entry) => entry.category[language])))]
+  .filter(Boolean)
+  .sort((a, b) => a.localeCompare(b, language));
+
+function hrefWithStage(href: string, stage: LearningStageKey): string {
+  const url = new URL(href, Astro.url);
+  if (stage === "textbook") url.searchParams.delete("learningStage");
+  else url.searchParams.set("learningStage", stage);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function statusLabel(status: string): string {
+  if (status === "not-translated") return copy.notTranslated;
+  return copy.unavailable;
+}
+---
+<details id="learning-contents" class="learning-contents" data-learning-contents>
+  <summary>{copy.contents}</summary>
+  <div class="learning-contents-panel" role="region" aria-label={copy.contents}>
+    <div class="learning-contents-controls">
+      <label>
+        <span class="learning-visually-hidden">{copy.contents}</span>
+        <select data-learning-stage aria-label={copy.contents}>
+          {learningStages.map((stage) => <option value={stage} selected={selectedStage === stage}>{stageCopy[language][stage]}</option>)}
+        </select>
+      </label>
+      <label>
+        <span class="learning-visually-hidden">{copy.search}</span>
+        <input type="search" data-learning-search placeholder={copy.search} autocomplete="off" />
+      </label>
+      <label>
+        <span class="learning-visually-hidden">{copy.category}</span>
+        <select data-learning-category>
+          <option value="">{copy.allCategories}</option>
+          {categories.map((category) => <option value={category}>{category}</option>)}
+        </select>
+      </label>
+    </div>
+    <div class="learning-contents-groups">
+      {groups.map((group) => (
+        <details class="learning-contents-group" data-learning-group open>
+          <summary>{group.title[language]}</summary>
+          <div class="learning-contents-entries">
+            {group.entries.map((entry) => {
+              const searchText = [entry.title[language], entry.description[language], entry.category[language]].join(" ").toLocaleLowerCase();
+              const selectedTarget = chooseLearningTarget(entry, selectedStage);
+              const selectedHref = selectedTarget?.href ? hrefWithStage(selectedTarget.href, selectedTarget.stage) : null;
+              return <article class:list={{ "learning-entry": true, "learning-entry-current": currentEntryId === entry.id }} data-learning-entry data-entry-id={entry.id} data-category={entry.category[language]} data-search={searchText}>
+                <h3><a data-learning-target href={selectedHref ?? undefined} aria-disabled={selectedHref ? undefined : "true"}>{entry.title[language]}</a></h3>
+                <p>{entry.description[language]}</p>
+                <p class="learning-entry-fallback" data-learning-fallback hidden={!selectedTarget?.fallback}>{copy.fallback}: {stageCopy[language][selectedTarget?.stage ?? "lab"]}</p>
+                <nav aria-label={`${entry.title[language]} — ${copy.contents}`} class="learning-entry-stages">
+                  {learningStages.map((stage) => {
+                    const component = entry.components[stage];
+                    const href = component?.status === "implemented" && component.href ? hrefWithStage(component.href, stage) : null;
+                    return href ? <a data-learning-stage-link data-stage={stage} href={href} aria-current={currentEntryId === entry.id && currentStage === stage ? "page" : undefined}>{stageCopy[language][stage]}</a>
+                      : <span class="learning-entry-unavailable" title={statusLabel(component?.status ?? "not-implemented")}>{stageCopy[language][stage]} · {statusLabel(component?.status ?? "not-implemented")}</span>;
+                  })}
+                </nav>
+                {entry.relatedTools?.length ? <div class="learning-entry-links"><span>{copy.relatedTools}:</span>{entry.relatedTools.map((tool) => <a href={tool.href}>{tool.title[language]}</a>)}</div> : null}
+                {entry.variants?.length ? <div class="learning-entry-links"><span>{copy.variants}:</span>{entry.variants.map((variant) => <a data-learning-reference href={variant.href}>{variant.title[language]}</a>)}</div> : null}
+              </article>;
+            })}
+          </div>
+        </details>
+      ))}
+    </div>
+    <p data-learning-empty role="status" hidden>{copy.noResults}</p>
+  </div>
+</details>
+<script>
+  import { setupLearningContents, disposeLearningContents } from "../learning/browser-contents";
+  document.addEventListener("astro:page-load", setupLearningContents);
+  document.addEventListener("astro:before-swap", disposeLearningContents);
+  setupLearningContents();
+</script>
+
+<style is:global>
+  .learning-menu { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .learning-menu a { color:inherit; text-decoration:none; font-weight:600; }
+  .learning-menu a[aria-current="page"] { text-decoration:underline; text-underline-offset:4px; }
+  .learning-contents { --learning-header-height:76px; max-width:1240px; margin:0 auto; padding:10px 20px; }
+  .learning-contents > summary { cursor:pointer; display:inline-flex; min-height:40px; align-items:center; padding:7px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font-weight:700; line-height:1.25; }
+  .learning-contents-panel { margin-top:10px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink); }
+  .mvp-body .learning-contents { --learning-header-height:64px; }
+  .learning-contents[open]::before { content:""; position:fixed; inset:var(--learning-header-height) 0 0; background:var(--paper); z-index:79; }
+  .learning-contents[open] > summary { position:fixed; top:calc(var(--learning-header-height) + 12px); left:12px; z-index:81; }
+  .learning-contents[open] .learning-contents-panel { position:fixed; inset:calc(var(--learning-header-height) + 56px) 12px 12px; z-index:80; overflow-y:auto; overscroll-behavior:contain; max-width:1240px; margin:0 auto; box-shadow:0 8px 32px #0003; }
+  .learning-contents-controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .learning-contents-controls input, .learning-contents-controls select { min-height:40px; max-width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:7px; background:var(--paper); color:var(--ink); }
+  .learning-contents-group { border-top:1px solid var(--line); padding-top:8px; margin-top:8px; }
+  .learning-contents-group > summary { cursor:pointer; font-weight:700; padding:6px 0; }
+  .learning-contents-entries { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:10px; }
+  .learning-entry { border:1px solid var(--line); border-radius:9px; padding:12px; min-width:0; }
+  .learning-entry h3 { margin:0 0 5px; overflow-wrap:anywhere; }
+  .learning-entry p { margin:0 0 10px; color:var(--muted); font-size:.9rem; }
+  .learning-entry-stages, .learning-entry-links { display:flex; flex-wrap:wrap; align-items:center; gap:7px; font-size:.88rem; }
+  .learning-entry-stages a, .learning-entry-links a { color:var(--accent); }
+  .learning-entry-stages a[aria-current="page"] { font-weight:800; }
+  .learning-entry-unavailable { color:var(--muted); }
+  .learning-entry-links { margin-top:8px; }
+  .learning-entry-links > span { color:var(--muted); }
+  .learning-entry-current { border-color:var(--accent); }
+  .learning-entry-fallback { color:var(--muted); font-size:.85rem; }
+  .learning-visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  @media (max-width:700px) {
+    .learning-contents { padding:8px 12px; }
+    .learning-contents-panel { padding:10px; }
+    .learning-contents-controls > label { flex:1 1 180px; }
+    .learning-contents-controls input, .learning-contents-controls select { width:100%; }
+  }
+  .astro-header nav { gap:10px; align-items:center; }
+  .astro-header nav .learning-menu { flex-wrap:nowrap; gap:8px; }
+  .astro-header nav .learning-menu a { display:flex; align-items:center; min-height:44px; padding:8px 2px; white-space:nowrap; font-size:13px; line-height:1.25; }
+  @media (max-width:1200px) {
+    .astro-header > nav { display:none; }
+    .astro-header .mobile-menu-toggle { display:flex; }
+    .astro-header .theme-toggle { margin-left:auto; }
+    .astro-header nav .learning-menu { display:flex; }
+    .astro-header.mobile-open nav { display:flex; position:absolute; top:100%; left:0; right:0; max-height:calc(100dvh - 66px); overflow-y:auto; flex-direction:column; align-items:stretch; gap:0; padding:10px 16px 16px; background:var(--surface-elevated); border-bottom:1px solid var(--line); }
+    .astro-header.mobile-open nav .learning-menu { flex-direction:column; align-items:stretch; gap:0; }
+    .astro-header.mobile-open nav .learning-menu a, .astro-header.mobile-open nav > a, .astro-header.mobile-open nav > details > summary { display:block; min-height:44px; padding:12px 4px; }
+  }
+</style>

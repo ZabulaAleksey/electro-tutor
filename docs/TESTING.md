@@ -1,3 +1,13 @@
+## RUN6 — локальная навигация и доказанная RTC-диагностика
+
+469unit/61files PASS; Astro328files0errors0warnings3oldhints; ESLint PASS. Fresh full build193files/41pages/40localized and strict MVP96files/10HTML/7indexed routes PASS. Full Playwright275PASS/6pre-existingauthskips, MVP30/30PASS with enforced headers/CSP and real legacy worker→MVP upgrade; accepted assertions retained except directly superseded menu contract and main-scope locator/chrome-only screenshot isolation. No skip/threshold/math assertion relaxed. 48MVP shell PNG individually promoted only after12viewed before/after sheets and native frames; original48kept externally. 534old engineering PNG+42protected model/MDX/engineering/WASM files byte-identical. New menu/current/bookmark/fallback/history/storage/noJS/mobile-focus/actual header-vs-rail bounds scenarios included. One named full transition layer changed raster antialiasing; full wrapper retains old root transition, MVP named slide preserved. Fractional mobile helper line-height and real header/menu overlap were corrected, not masked by updated engineering goldens.
+
+Fresh independent Fraction nodal oracle:16sets,4published+12modified,72exact-zero KCL/KVL/power/source constraints; real solver browser cases checked. Two independent actual Jitsi sessions reached prejoin, first anonymous host refused membersOnly; zero joined/peer/RTP. This meets diagnostic acceptance, never AV PASS. Official provider embedding restriction and public JaaS options recorded; no RTC/backend/provider config changed.
+
+Additional live dev CLI smoke: /ru/topics/, /uk/interactive/, /ru/classroom/ all200/51entries, but Invalid hook call in server stderr; PARTIAL, no clean SSR or pre-existing-cause claim. Server stopped. Old auth live paths, physical devices/new Narrator controls NOT_RUN; old manual UA-19 remains historical accepted evidence. Prior failed draft runs, wrong-port/renderer harness attempts, host ERR_NETWORK_IO_SUSPENDED/launch timeouts and unreviewed scroll-retained candidates are preserved in task work/run6; final testtimeouts unchanged. Existing GitHub CI48missingLinux MVPgoldens remains uncorrected; no CI/push/deploy claimed.
+
+Canonical receipts: evidence/run6-navigation-acceptance.json, evidence/run6-video-diagnosis.json; current execution/actions — STAGES ET-NAV-006. Final reports/gallery/diffs/registry and complete local logs live in current task outputs/ElectroTutor_run6.
+
 ## ET-MVP-004 — RUN4 acceptance 2026-11-04
 
 ## GitHub CI41938077938 — terminal failure audit

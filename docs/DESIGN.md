@@ -1,5 +1,9 @@
 # Дизайн и UX «Потенциала»
 
+## RUN6 — общее оглавление и три самостоятельных этапа
+
+Главное меню: Учебник / Примеры решений / Лаборатория. Full retains home/репетиторство/доска/сервисы/контакты, native mobile menu below1200; compact service labels retain descriptive accessible name. Header entry opens shared contents without losing reading scroll; categories, search, stage preference, unavailable labels and explicit lab fallback share derived source. Contents follows main semantically and opens a fixed non-modal region; Escape/native close restore visible trigger (mobile menu toggle when opener is hidden). Native noJS links remain; query-driven search/context enhancement requires JS. MVP exposes only one mesh entry and7existing routes. Actual measured header/rail bounds cover six widths/two themes; new chrome is isolated only in engineering-region regression captures, no equations/SVG/results hidden. Original engineering PNG remain protected;48MVP-shell PNG may change only after viewed before/after candidates. Runtime acceptance — STAGES/TESTING.
+
 ## RUN4 — единый MVP-маршрут без глобального редизайна
 
 MVP — один RU модуль: главная → учебник →4примера → лаборатория. Общая sticky панель показывает активный этап через aria-current, даёт предыдущий/следующий переход и прямые URL. Вертикальная прокрутка страницы остаётся нативной; горизонтальный touch разрешён в материале, мышь/трекпад — на панели, отдельные формулы/управление/рисунки не перехватываются. Arrow/Home/End работают только на сфокусированной панели; после перехода фокус переносится на заголовок без сброса scroll. Reduced motion выключает анимацию перехода.

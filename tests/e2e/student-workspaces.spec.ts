@@ -22,7 +22,7 @@ test("board previews then commits one stroke and keeps plain wheel scrolling", a
 
 test("engineering calculator updates Ohm result", async ({ page }) => {
   await page.goto("/ru/engineering-board/");
-  await expect(page.getByText("Последовательная цепь")).toBeVisible();
+  await expect(page.locator("main").getByText("Последовательная цепь")).toBeVisible();
   await page.locator(".calculator-card").first().locator("input").first().fill("24");
   await expect(page.locator(".calculator-card").first().locator("dd").first()).toContainText("0,8");
 });

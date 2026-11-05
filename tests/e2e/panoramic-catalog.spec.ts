@@ -34,9 +34,10 @@ test("textbook cards keep topic-specific engineering illustrations on a narrow v
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("navigation keeps the student-facing five destinations and moves install to services", async ({ page }) => {
+test("navigation exposes three learning stages, tutoring and contacts while install stays in services", async ({ page }) => {
   await page.goto("/ru/");
-  await expect(page.locator(".astro-header nav > a")).toHaveText(["Главная", "Учебник", "Лаборатории", "Доска"]);
+  await expect(page.locator(".astro-header [data-learning-menu] a")).toHaveText(["Учебник", "Примеры решений", "Лаборатория"]);
+  await expect(page.locator(".astro-header nav > a")).toHaveText(["Оглавление", "Главная", "Репетиторство", "Доска", "Контакты"]);
   await page.locator(".nav-services summary").click();
   await expect(page.locator(".nav-services-menu")).toBeVisible();
   await expect(page.locator(".nav-services-menu").getByRole("link",{name:"Приложение ElectroTutor",exact:true})).toHaveAttribute("href","/ru/my-services/#install");

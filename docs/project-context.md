@@ -1,5 +1,9 @@
 # Контекст проекта
 
+## RUN6 — frontend delta
+
+Добавлены derived learning navigation и shared Astro UI; owning curriculum/catalogue/manifest and package scripts reused. No dependency/backend command/config/schema/migration/OIDC changes. Full and MVP use same contents component but server-filtered data; standalone guest Jitsi remains external full-only and independent of protected media-less Session. Existing Backend DX Delta below remains unchanged; source commands from package.json, current execution from STAGES.
+
 Electro Tutor — Astro 7 static site с React 19 islands, TypeScript и Content
 Collections/MDX. Поддерживаются маршруты `ru` и `uk`.
 

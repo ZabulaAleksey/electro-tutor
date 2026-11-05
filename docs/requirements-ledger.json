@@ -33,7 +33,8 @@
       "specs/features/mesh-worked-examples.spec.md",
       "specs/features/mesh-laboratory.spec.md",
       "specs/features/public-mvp-run4.spec.md",
-      "specs/features/release-readiness-run5.spec.md"
+      "specs/features/release-readiness-run5.spec.md",
+      "specs/features/unified-navigation-run6.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1687,6 +1688,76 @@
       "e2e": [
         "tests/e2e/mvp-journey.spec.ts",
         "tests/e2e/mvp-pwa.spec.ts"
+      ]
+    },
+    {
+      "domain": "unified-navigation-run6",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-381",
+        "FR-382",
+        "FR-383",
+        "FR-384",
+        "FR-385",
+        "FR-386",
+        "FR-387"
+      ],
+      "runtime": "Local navigation acceptance:20definitions/31tools/long-line variant; full275PASS6oldskips, MVP30PASS; no merge/push/deploy.",
+      "security": "Server-filtered7route MVP, final no-secret/no-hidden graph+hashed CSP guards PASS; no backend/auth/DNS/resource changes.",
+      "a11y": "Six widths/two themes viewed; keyboard/current/fallback/header bounds/mobile focus/touch/history PASS. New physical Narrator NOT_RUN.",
+      "observability": "469unit/61files, Astro3280errors0warnings3oldhints, lint,full193/MVP96,42protected sources+534engineering PNG unchanged;48reviewed MVP shell updates. docs/evidence/run6-navigation-acceptance.json.",
+      "gap": "Additional dev CLI React hook warning PARTIAL; pre-existing48missingLinuxgoldens/old auth/physical gates explicit.",
+      "action": "Review local commit/branch; no automatic integration. DEV6-SSR and affected-control manual acceptance remain scoped follow-ups.",
+      "code": [
+        "src/learning/navigation.ts",
+        "src/learning/get-navigation.ts",
+        "src/learning/browser-contents.ts",
+        "src/components/LearningContents.astro",
+        "src/components/LearningMenu.astro"
+      ],
+      "unit": [
+        "src/learning/navigation.test.ts",
+        "src/learning/browser-contents.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-mvp.mjs",
+        "scripts/audit-release.mjs",
+        "docs/evidence/run6-navigation-acceptance.json"
+      ],
+      "e2e": [
+        "tests/e2e/learning-navigation.spec.ts",
+        "tests/e2e/mvp-navigation.spec.ts",
+        "tests/e2e/mvp-journey.spec.ts",
+        "tests/e2e/mvp-pwa.spec.ts",
+        "tests/e2e/mvp-visual.spec.ts"
+      ]
+    },
+    {
+      "domain": "rtc-diagnosis-run6",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "RTC-601",
+        "RTC-602",
+        "RTC-603"
+      ],
+      "runtime": "DIAGNOSIS VERIFIED: real2client Jitsi prejoin, first anonymous host refused membersOnly/moderator required,0conference/peer/RTP. This is VIDEO FAIL, not working AV.",
+      "security": "No provider login/bypass/new tenant/token/infra/cloud resource. Public classroom remains absent, no relaxed CSP. Full-only unpinnedSDK existing risk retained.",
+      "a11y": "Guest prejoin reached in isolated contexts; physical camera/mic/share NOT_RUN; no fake media acceptance.",
+      "observability": "docs/evidence/run6-video-diagnosis.json; official provider admission and embedding policy sources in notes/run6-video-diagnosis.md. Raw room identifiers excluded from handoff.",
+      "gap": "Owner host/provider decision and genuine two-participant media verification outstanding; protected Session media NOT_IMPLEMENTED.",
+      "action": "RTC6-HOST/MEDIA/PROVIDER in STAGES; existing provider requires authenticated host and official embedding path points to JaaS. No RTC source patch in RUN6.",
+      "code": [
+        "src/components/Classroom.tsx",
+        "src/classroom/jitsi-meeting-adapter.ts"
+      ],
+      "unit": [
+        "src/classroom/meeting.test.ts"
+      ],
+      "integration": [
+        "docs/evidence/run6-video-diagnosis.json"
+      ],
+      "e2e": [
+        "docs/evidence/run6-video-diagnosis.json"
       ]
     }
   ]

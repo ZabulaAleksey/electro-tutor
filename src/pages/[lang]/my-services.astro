@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { localePath } from "../../site-path";
 import type { Language } from "../../types";
 
 export function getStaticPaths() {
@@ -43,10 +44,16 @@ try {
           ? <a class="tool-card-action" href={mathMorphUrl} target="_blank" rel="noreferrer">{russian ? "Открыть сервис" : "Відкрити сервіс"} →</a>
           : <span class="integration-note">{russian ? "Ссылка появится после настройки владельцем." : "Посилання з’явиться після налаштування власником."}</span>}
       </article>
-      <article class="tool-card service-tool-card" aria-label={russian ? "Видеокабинет недоступен" : "Відеокабінет недоступний"}>
+      <article class="tool-card service-tool-card">
+        <span class="section-kicker">JITSI</span>
+        <h2>{russian ? "Гостевая видеокомната" : "Гостьова відеокімната"}</h2>
+        <p>{russian ? "Внешний сервис meet.jit.si: первый участник должен войти как модератор на стороне Jitsi. Создание ссылки ещё не означает, что связь установлена." : "Зовнішній сервіс meet.jit.si: перший учасник має увійти як модератор на боці Jitsi. Створення посилання ще не означає, що зв’язок установлено."}</p>
+        <a class="tool-card-action" href={localePath(language,"/classroom/")}>{russian ? "Открыть гостевую комнату" : "Відкрити гостьову кімнату"} →</a>
+      </article>
+      <article class="tool-card service-tool-card" aria-label={russian ? "Контролируемое видеозанятие не реализовано" : "Кероване відеозаняття не реалізовано"}>
         <span class="section-kicker">VIDEO</span>
-        <h2>{russian ? "Видеокабинет" : "Відеокабінет"}</h2>
-        <p>{russian ? "Не подключено: для публичного запуска провайдер и модерация ещё не настроены." : "Не підключено: для публічного запуску провайдер і модерація ще не налаштовані."}</p>
+        <h2>{russian ? "Контролируемое видеозанятие" : "Кероване відеозаняття"}</h2>
+        <p>{russian ? "Не реализовано: защищённая учебная сессия пока не содержит медиасвязи. Гостевая Jitsi-комната — отдельный внешний сервис." : "Не реалізовано: захищена навчальна сесія поки не містить медіазв’язку. Гостьова Jitsi-кімната — окремий зовнішній сервіс."}</p>
         <span class="tool-card-disabled">{russian ? "Недоступно" : "Недоступно"}</span>
       </article>
 

@@ -1,8 +1,8 @@
 ---
 import {publicPath,meshRoute} from "../../scripts/public-mvp-contract.mjs";
 import {slide} from "astro:transitions";
-interface Props {stage:0|1|2;}
-const {stage}=Astro.props;
+interface Props {stage:0|1|2; animated?:boolean;}
+const {stage,animated=true}=Astro.props;
 const labels=['Учебник','Примеры решений','Лаборатория'];
 const routes=[meshRoute,meshRoute+'examples/',meshRoute+'lab/'].map(p=>publicPath(p,import.meta.env.BASE_URL));
 ---
@@ -12,18 +12,18 @@ const routes=[meshRoute,meshRoute+'examples/',meshRoute+'lab/'].map(p=>publicPat
 <ol>{labels.map((label,i)=><li><a draggable="false" data-step={i} href={routes[i]} aria-current={stage===i?'step':undefined}><span>{i+1}</span>{label}</a></li>)}</ol>
 <a draggable="false" data-next href={routes[Math.min(2,stage+1)]} aria-label="Следующий этап" aria-disabled={stage===2?'true':undefined} tabindex={stage===2?-1:undefined}>→</a>
 </nav><p id="journey-help" class="journey-help">Листайте этапы влево или вправо. Прокрутка вверх и вниз — внутри материала. На панели: клавиши ← →, Home, End.</p>
-<div class="journey-content" transition:animate={slide({duration:'0.18s'})} transition:name="mesh-stage"><slot/></div>
+{animated ? <div class="journey-content" transition:animate={slide({duration:'0.18s'})} transition:name="mesh-stage"><slot/></div> : <div class="journey-content"><slot/></div>}
 <p class="mesh-sr-only" role="status" aria-live="polite">Этап {stage+1} из 3: {labels[stage]}</p>
 </div>
 <script>
 import {navigate} from 'astro:transitions/client';
+import {meshJourneyHref} from '../learning/browser-contents';
 let dispose=()=>{};
 function setup(){
  dispose();const root=document.querySelector<HTMLElement>('.mesh-journey');if(!root)return;
  const rail=root.querySelector<HTMLElement>('.journey-rail')!,content=root.querySelector<HTMLElement>('.journey-content')!,stage=Number(root.dataset.stage),routes=JSON.parse(root.dataset.routes!) as string[];
  const abort=new AbortController(),signal=abort.signal;dispose=()=>abort.abort();
- const example=()=>{const fragment=/^#example-([1-4])$/.exec(location.hash);if(fragment)return fragment[1];const q=new URL(location.href).searchParams.get('example');if(q&&/^[1-4]$/.test(q))return q;for(const el of [...document.querySelectorAll<HTMLElement>('[id^="example-"]')].reverse()){if(el.getBoundingClientRect().top<innerHeight*.5&&/^example-[1-4]$/.test(el.id))return el.id.slice(-1);}return '1';};
- const target=(i:number)=>routes[i]+(i===2?'?example='+example():i===1?'#example-'+example():'');
+ const target=(i:number)=>meshJourneyHref(routes[i],i,new URL(location.href));
  for(const a of root.querySelectorAll<HTMLAnchorElement>('[data-step],[data-next],[data-previous]'))a.addEventListener('click',()=>{const i=a.hasAttribute('data-next')?Math.min(2,stage+1):a.hasAttribute('data-previous')?Math.max(0,stage-1):Number(a.dataset.step);a.href=target(i);},{signal});
  let busy=false;
  const go=(i:number)=>{if(busy||i<0||i>2||i===stage)return;busy=true;void navigate(target(i)).catch(()=>{location.href=target(i);});};
@@ -41,3 +41,25 @@ function setup(){
 document.addEventListener('astro:before-swap',()=>{dispose();document.addEventListener('astro:page-load',()=>{const h=document.querySelector<HTMLElement>('h1');if(h){h.tabIndex=-1;h.focus({preventScroll:true});}},{once:true});});
 document.addEventListener('astro:page-load',setup);
 </script>
+
+<style is:global>
+  .mesh-journey { min-width:0; }
+  body:not(.mvp-body) .journey-rail { top:76px; }
+  .journey-rail { position:sticky; top:64px; z-index:40; display:flex; align-items:center; gap:8px; max-width:1280px; margin:0 auto; padding:8px 12px; background:var(--paper); border-bottom:1px solid var(--line); touch-action:pan-y pinch-zoom; overscroll-behavior-x:contain; cursor:grab; }
+  .journey-rail ol { display:flex; flex:1; list-style:none; padding:0; margin:0; gap:8px; }
+  .journey-rail li { flex:1; min-width:0; }
+  .journey-rail a { min-height:44px; display:flex; align-items:center; justify-content:center; gap:8px; padding:6px; color:var(--ink); text-decoration:none; border-radius:6px; font-size:14px; text-align:center; }
+  .journey-rail a[aria-current] { background:var(--ink); color:var(--paper); font-weight:700; }
+  .journey-rail a[aria-disabled] { visibility:hidden; pointer-events:none; }
+  .journey-rail a>span { font-variant-numeric:tabular-nums; }
+  .journey-help { font-size:12px; line-height:1.5; margin:8px auto; max-width:1100px; padding:0 16px; color:var(--muted); }
+  .journey-content { touch-action:pan-y pinch-zoom; min-width:0; }
+  .mesh-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  @media (max-width:600px) {
+    .journey-rail { gap:2px; padding:5px 6px; }
+    .journey-rail ol { gap:3px; }
+    .journey-rail a { font-size:12px; gap:3px; line-height:1.2; }
+    .journey-help { font-size:11px; line-height:18px; }
+    .journey-rail a>span { display:none; }
+  }
+</style>

@@ -1,5 +1,10 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## Повторный deploy26936ad — f0d636b1
+
+Fresh96file build and release guards PASS,96/96SHA identical to prior accepted artifact.4/4accepted release/PWA cases with real headers PASS; current primary7public200/24hidden404/92served SHA/SEO/CSP PASS;3/3accepted hosted route/lab/offline-PWA smoke PASS,0retry. Actual production context before/after retains content VERSION689264eb202cf73d6b12 (no content change), unrelated storage KEEP, offline lab+hidden404 PASS. Previous independent16math cases/72zero residuals,6width/two-theme visual and unit/types/full suites reused under exact artifact equality, not falsely called new executions. No source/tests/goldens/lock/config changes; old Linux CI/manual/legal/video gates remain. docs/evidence/redeploy-26936ad.json and outputs/ElectroTutor_deploy_26936ad.md.
+
+
 ## RUN6 — verified public deployment 7ba2859a
 
 2026-11-05, fresh clean source3267948:96file release build/strict guards PASS;7/7targeted local browser with actual CSP/legacy upgrade PASS. Manual Pages production/main canonical success. Primary7public200 +24hidden404 +92/92exact served SHA/headers/SEO PASS;8/8accepted hosted Playwright/no retries. Actual16independent nodal cases/72exactzero residuals compared with hosted solver, invalid input/theme/offline/CSP actively rejects untrusted inline; no unexpected page/CSP/external requests. Real pre-deploy production context observed oldSW113fc61d1eccad90566c→689264eb202cf73d6b12, old-cache removal, unrelated local/cache data KEEP, offline lab/hidden404.16hosted captures390/1280 light/dark;4representative images viewed; six-width/two-theme actual rail geometry tested live. Configuration/fail-closed/DNS/tariff unchanged. Prior CI Linux baseline gap, actual devices/Narrator/legal/media gates remain open; not closed by deployment. docs/evidence/run6-production-deployment.json and task outputs/ElectroTutor_run6_deploy own receipts. Local unit/types/lint/full regression above are reused for unchanged code, not falsely called newly rerun.

@@ -1,5 +1,10 @@
 # Публикация автономного ElectroTutor MVP
 
+## Latest requested redeploy26936ad
+
+Canonical `f0d636b1-1d56-4a1d-85de-54de67ffa633`, source26936ad, API success. Fresh96file artifact exactly equals prior7ba2859a;7public/24hidden404/92served SHA,4local+3hosted browser and same-version production PWA continuity PASS. Prior7ba2859a remains compatible rollback target; no rollback executed. Prior headings below describe earlier releases. Exact argv/hashes: outputs/ElectroTutor_deploy_26936ad.md and docs/evidence/redeploy-26936ad.json. No new push/config/DNS/resource change.
+
+
 ## Текущий production — RUN6
 
 Владелец разрешил деплой2026-11-05. Свежий проверенный96file MVP source3267948 опубликован вручную в существующий electrotutor/main: canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef, https://electrotutor.pages.dev/. API success +primary7public/24hidden404/92served SHA +8hosted browser +16independent math +real old-to-new PWA upgrade PASS. Предыдущий совместимый MVP41affa11 сохранён для возможного отката через Pages Deployments → Rollback после отдельного решения, не к историческому full/UK артефакту. DNS/settings/tariff/kernel unchanged; old dist не использовался. Подробные команды, SHA и отчёт: outputs/ElectroTutor_run6_deploy_2026-11-05.md. Ранние receipts ниже исторические.

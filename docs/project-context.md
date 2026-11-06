@@ -26,16 +26,15 @@ agents, Skills и Git workflow наследуются; локальные коп
 
 ## Structured DEV bridge
 
-- Global owner: `${DEV_ROOT}/context/global/codex-dev` владеет общим router,
-  portable path resolver, bootstrap, doctor и capability contracts.
+- Global owner: `CODEX_HOME` (обычно `~/.codex`) владеет общим router,
+  resolver, bootstrap и capability contracts. Корень продукта проверяет
+  установленный resolver (`project electro-tutor --json`).
 - Project owner: `${PROJECTS_ROOT}/electro-tutor` владеет product code, SPEC,
   `AGENTS.md`, выбранным `docs/STAGES.md`, pnpm/uv locks и Backend DX Delta.
 - Граница наследования: `.codex/dev-project.toml` явно включает DEV;
   exact AGENTS declaration только поясняет его человеку. Проектные правила
   уточняют global contract без ослабления безопасности и утверждённой policy.
-- Portable roots: `${DEV_ROOT}`, `${PROJECTS_ROOT}`, `${PROJECT_ROOT}`;
-  Windows bootstrap-пример допускает `E:\DEV`. `~` остаётся machine-local.
-- Tools и исключения: Global DEV проверяет host tools и portable layout.
+- Tools и исключения: Global DEV проверяет рабочие корни и подключение bridge.
   Проект сохраняет pinned pnpm/uv workflow, isolated Docker services, защищённые
   DB volumes, auth, lesson-session и release contracts. Bridge не меняет
   application architecture и не активирует product feature.

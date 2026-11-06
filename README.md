@@ -1,129 +1,59 @@
 # ElectroTutor
 
-## RUN6 — учебная навигация в полном и публичном режимах
+Инженерная учебная платформа с теорией, разобранными задачами и интерактивными
+лабораториями. В публичном [ElectroTutor](https://electrotutor.pages.dev/ru/)
+доступен русский маршрут по методу контурных токов: учебник, примеры решений
+и DC-лаборатория. Можно изменять параметры схемы и сравнивать токи и результаты
+расчёта. Статическая PWA поддерживает повторное открытие посещённых материалов
+после установки service worker.
 
-В full режиме общее оглавление получает20определений тем и31инструмент из существующих реестров; опубликован только mesh textbook RU/UK, examples/lab — RU. Отсутствующие части обозначены без пустых ссылок. Меню содержит отдельные Учебник / Примеры решений / Лаборатория; внутри mesh сохранён трёхэтапный маршрут. Публичный MVP по-прежнему ограничен7RU страницами одного модуля; остальные материалы не удалены. Для локального полного режима: PUBLIC_MVP_MODE=false + pnpm dev / pnpm build:full; release:build остаётся отдельной static MVP сборкой. Для повторной публикации после принятия ветки нужна новая чистая сборка, не старый dist.
+## Что доступно в полной сборке
 
-RUN6 принят владельцем и fast-forward интегрирован в локальную main (исходный коммит 1f591a2). Разрешённая доставка в origin/main сопровождается отдельным документационным checkpoint с [skip ci], чтобы не запускать автоматические публикации; удаление только временной RUN6 ветки допускается после проверки удалённой истории. Программный source3267948 принят и опубликован; временная implementation-ветка RUN6 безопасно удалена. Документационный receipt45becd0 отдельно принят для интеграции; текущие Git refs и cleanup — STAGES/финальный Git receipt. После отдельного разрешения владельца публичный MVP опубликован: https://electrotutor.pages.dev/ , deployment 7ba2859a-4b84-449a-8550-ba7084b9f3ef, source3267948. Проверены7публичных страниц,24hidden404,92served SHA,8/8hosted Playwright,16независимых наборов и реальное PWA обновление. Более ранние deployment receipts ниже исторические; текущие факты — STAGES/TESTING/evidence. Текущий status и owner actions — docs/STAGES.md, проверки — docs/TESTING.md. Видеопричина и дальнейшая проверка — docs/notes/run6-video-diagnosis.md; публичный Jitsi требует moderator authentication от первого участника, работа медиа не заявлена.
+Полный режим содержит общий каталог тем и инструментов на русском и украинском,
+опубликованный учебник и дополнительные практикумы. Среди интерактивов есть
+несимметричная звезда с нейтралью, переходные процессы в длинной линии,
+разложение Фурье, круговые диаграммы и расчёт балок. Наличие карточки в каталоге
+само по себе не означает, что для темы опубликован урок.
 
-## CDN-кеш: корректный404 подтверждён на основном домене
+Кабинет и связанные сценарии доступны с локальным backend. Публичный MVP
+ограничен учебным маршрутом без кабинета, расписания и платежей. Открытые
+вопросы production IAM, видеосвязи, новых лабораторий и развития продукта
+ведутся в [STAGES](docs/STAGES.md) и [ROADMAP](docs/ROADMAP.md).
 
-REL5-CACHE CLOSED / verified2026-11-05: production 41affa11-3f56-4193-baa9-aebb40b79ec9 (https://electrotutor.pages.dev/), sourcea56fcaa; generated bounded Pages404 handler for /uk and /ru/interactive trees, four non-overlapping invocation rules. Primary24raw GET/HEAD/query/index/nested/oldETag/Range checks404/no Location/no old body, marker v1/no-store/noindex/all5security headers; six bot/browserUA+oldETag checks404;35historic hidden routes404. Public7pages200/CSP/SEO and87served assets exact-match checked direct artifact;2HTML only Astro uid and sw.js only VERSION differ (exact normalized equality). Current automatic deployment:3targeted accepted Playwright PASS (route/lab/PWA). Earlier direct-upload13/13+preview13/13,16independent math and actual worker activation remain prior source-equivalent evidence, not fresh reruns for41affa11. Unit458/59files, Astro3180errors0warnings3oldhints, ESLint/build/guards PASS. No push/DNS/kernel/backend/dependency/full-source or billing-plan changes; owner explicitly approved preview+production fail_open=false and GET confirmed only2fields changed. Physical devices/native install/Narrator/legal remain outside this cache fix; quota exhaustion may affect project availability and was not forced. Code integration a56fcaa is merged and pushed to main; local working fix branch deleted; earlier source branches retained.
+## Архитектура
 
-Предыдущие checkpoints ниже исторические; статический вариант59cfcc84 не закрыл primary gate и не считается успешным исправлением.
+- Astro генерирует статические страницы из Content Collections и MDX.
+  React islands на TypeScript обеспечивают интерактивы. Обе сборки используют
+  общие источники уроков и учебной навигации.
+- Учебные расчёты выполняются в браузере. Для переходных процессов также
+  используется Rust/WASM из `transient-core/`.
+- Отдельный локальный FastAPI работает с PostgreSQL через SQLAlchemy и
+  Alembic. Аутентификация использует Keycloak OIDC с PKCE. Кабинет обращается
+  к API, а для локальных уведомлений предусмотрен отдельный worker.
+  Публичный учебный артефакт работает без этих сервисов.
 
+## Установка и запуск
 
-Owner explicit merge/push/delete instruction2026-11-05 completed: clean ff main373f5b8→a56fcaa, normal origin/main48c3fef→a56fcaa confirmed by ls-remote; local fix/mvp-cdn-hidden-routes safely deleted after reachability/push checks, no remote fix branch existed. Other source branches/root worktree/files preserved. Push-triggered Cloudflare Git deployment41affa11/sourcea56fcaa success/canonical confirmed, no manual redeploy/settings/DNS/kernel change. Post-push primary24HTTP hidden404/7public200/CSP/SEO and3accepted browser lab/route/PWA scenarios PASS. Strict byte comparator found3different files:87exact served matches; two HTML only Astro uid differ and sw.js only VERSION, exact normalized equality proved. No numerical/content/client-JS/CSS difference. Previous detailed458unit/16math evidence retained, not unnecessarily rerun. GitHub Actions41938077938 completed FAILURE on2026-11-05T00:15:16Z: production MVP visual suite lacks48Linux golden files,12visual scenarios FAIL;13functional PASS/2conditional skips. Backend gates/types/lint/458unit/full root264PASS+6skips and both builds PASS. GitHub Pages deploy skipped; independent Cloudflare41affa11 remains live. Documentation-only328c812 [skip ci] receipt was merged/pushed, transient branches removed and remote SHA verified; this CI-status audit is separate/local, no new push/deploy.
-
-## Исправление retained CDN routes — проверено на preview
-
-Текущий опубликованный RUN5 остаётся8e96428d. В отдельной fix/mvp-cdn-hidden-routes подготовлены узкие static Pages правила для настоящего404 на /uk/ и /ru/interactive/: без нового backend/Worker, DNS или push. Fresh92file build/452unit/types/lint и actual Pages preview ffba754f:13/13browser +24HTTP variants +90served bytes PASS. Production исправление пока не опубликовано; статус и следующий шаг — STAGES REL5-CACHE. Ниже сохранён receipt первоначальной публикации.
-
-## Первый public RUN5 deploy — 2026-11-05
-
-По явному разрешению владельца принятой91file RUN5 сборкой опубликован https://electrotutor.pages.dev/ru/ — существующий Pages electrotutor/main, ad_hoc deployment8e96428d-7051-4c23-bdaf-9b350f1afb49, metadata source373f5b8. Никакого push/DNS/изменения build/branch controls. Main373f5b8/sourcebranch сохранены; docs receipts отдельно, не слиты.
-
-Hosted acceptance **PARTIAL**:7RU pages/90served-file SHA bytes/CSP/security/cache/SEO/botUA PASS;16independent browser math cases/zero unexpected CSP/errors/external requests/theme/invalid input/current worker offline PASS;16real390/1280light/dark captures viewed. Accepted primary browser suite12/13: единственный FAIL — old /uk/200 from CDN cache. Дополнительный HTTP probe также нашёл /ru/interactive/200, оба noindex;7других checked hidden URLs404. Unique deployment URL тот же route test1/1PASS. Cloudflare documented asset retention up to one week matches HIT/Age/s-maxage evidence; exact cache expiry not promised. Current source artifact contains neither hidden page. No test weakened, no second deploy/unsupported purge/Functions/Worker/DNS workaround applied. REL5-CACHE follow-up in STAGES; public complete-release claim not made. Subsequent local-preparation/auth statements below are historical receipts.
-
-ET-REL-005 / RUN5: локальная статическая релизная подготовка для выбранного владельцем https://electrotutor.pages.dev/ (свой домен позже). RUN4 принят и clean ff merged main d3da1b9, sourcebranch сохранена; RUN5 принят владельцем и clean ff merged main373f5b8; release/electrotutor-mvp-run5 сохранена, без push/deploy/DNS. После owner-authorized installation/login доступ восстановлен: Wrangler4.157.0/whoami и authenticated GET200; подтверждён существующий electrotutor/main/GitHub auto production+preview all, build pnpm build→dist, Node22.23.1/pnpm11.23.0, custom domains/zones0. Auth gate закрыт; deploy/push/DNS/settings не менялись; существующий dist — старый full artifact и не пригоден для upload. Принятый отдельный91file artifact SHA/route/SEO/CSP guards повторно PASS, без повторения unit/browser suites. Добавлены Open Graph/описания, автоматически вычисляемая CSP/Pages headers, release:build/check/preview и негативные guards. 449unit/57files, Astro314files0errors0warnings3oldhints, ESLint, release91files/10HTML/7indexable RU и full190files PASS. Enforced HTTP/CSP browser27/27; штатный Astro preview26PASS/1ожидаемый policy-only skip; 48старых golden comparisons без обновлений,48новых capture/6width×2theme просмотрены. Independent16sets/72zero residuals; full artifact190/190 побайтно равен проверенному RUN4. Audit4LOW/6MODERATE0HIGH/CRITICAL, ничего не объявлено patched. Исходный preflight фиксировал403/старый hosted scope; после отдельно разрешённого OAuth authenticated inventory PASS, physical/native/Narrator/legal/hosted new-MVP acceptance остаются открытыми. Публикация остаётся условной; команды, стоимость, manual gates/rollback — docs/notes/public-mvp-release.md и STAGES.
-
-Публичный RUN4 пока не развёрнут. Описания каталогов, других тем, UK, кабинета и прежних публикаций ниже относятся к сохранённой full/development поверхности и историческим receipts.
-
-Для проверки установленными зависимостями:
-
-```bash
-pnpm dev                       # full mode, обычная разработка
-pnpm build                     # безопасный RU MVP по умолчанию
-pnpm build:mvp                 # явно RU MVP
-pnpm build:full                # явно полная сохранённая поверхность
-pnpm preview                   # Astro preview не применяет Pages _headers
-pnpm release:build             # обязательный SITE_URL, строгий static release guard
-pnpm release:check
-pnpm release:preview -- --port 4325 # loopback HTTP rehearsal с _headers
-pnpm test:e2e:production-smoke  # выбирает suite по marker артефакта
-```
-
-`PUBLIC_MVP_MODE=true|false` задаётся окружением/production env; query/localStorage режим не переключают. Неверное значение останавливает сборку. Пустое значение использует указанные defaults. `SITE_URL`, `BASE_PATH` и `BUILD_OUTPUT_DIR` сохраняют прежние контракты. Для проверки реального legacy-worker upgrade задайте `MVP_LEGACY_ARTIFACT` на отдельный ранее проверенный full artifact; в RUN4 эта проверка выполнена, это не mock. Production deploy всегда должен использовать проверенный MVP artifact. Источник проекта и full build не являются публичным release artifact.
-
-ET-MESH-003D / RUN3D acceptance2026-11-04: реальная RU лаборатория4схем RUN3C, мгновенное изменение R/E/J и знаков источников, mesh/branch currents/voltages/matrix/signed power/nodal-KCL/KVL/constraint/residuals. Компактный редактор рядом с SVG и показаниями; нет фиктивного запуска/динамики. Независимый exact nodal oracle16cases (4исходных+12изменённых),72zero residuals;439unit,264Chromium PASS/6oldlive-auth skips,273-file types/lint/build41pages PASS.6width×2themes/48states просмотрены:144newPNG,390oldPNG+193protected files unchanged. RUN3C99b9302 принят и ff merged main, ветка сохранена; RUN3D56e314c принят владельцем и ff merged local main, sourcebranch сохранена; no push/deploy. Учебник→примеры→лаборатория доступен обычными ссылками. RUN4 horizontal UI/release visibility проверены локально в ET-MVP-004; hosted/manual acceptance и публикация — отдельные будущие gates. Полный MVP PARTIAL. Evidence: specs/features/mesh-laboratory.spec.md, STAGES, TESTING, current chat outputs/ElectroTutor_run3d_evidence.zip.
-
-ET-MESH-003C / RUN3C acceptance 2026-11-04: отдельный RU этап примеров решений доступен из учебника и обратно:4схемы с полным KVL/решением/ветвями/напряжениями/балансом,129строгих формул. Независимый Fraction nodal→mesh расчёт:26нулевых невязок, включая поглощение20/3W источником тока. 395unit,244Chromium PASS/6ожидаемых unrelated live-auth skips; Astro/check/lint/build PASS. Шесть ширин320..1920 в обеих темах,144новых просмотренных PNG;246старых PNG и191protected files SHA-256 unchanged. RUN3B принят владельцем и ff merged main186013d, sourcebranch сохранена. RUN3C99b9302 впоследствии принят и ff merged local main по разрешению владельца; sourcebranch сохранена, push/deploy не выполнялись. Лаборатория завершена локально отдельным RUN3D; горизонтальный маршрут/release visibility остаются будущими блоками, полный MVP PARTIAL. Evidence: mesh-worked-examples SPEC, STAGES, TESTING и outputs/ElectroTutor_run3c_evidence.zip текущего чата.
-
-ET-MESH-003B / RUN3B acceptance 2026-11-04: русский урок метода контурных токов — единый подробный статический MDX учебник без переключателя уровней:11глав,129формул, независимые nodal/KCL/KVL/Cramer/reversal/power checks. Практика и5step progress сохранены; UK остаётся прежней. Локально390unit,230Chromium PASS/6expected live-auth skips, check/lint/build PASS;132новых PNG просмотрены,114старых сохранены. RUN3A e743df5 слит ff в main по разрешению владельца, source branch сохранена. RUN3B commit186013d впоследствии принят и ff merged в local main по разрешению владельца; sourcebranch сохранена, push/deploy не выполнялись. Примеры завершены локально отдельным RUN3C; новая лаборатория, горизонтальная последовательность и RU-only release visibility остаются будущими задачами. Contract/evidence: specs/features/mesh-textbook.spec.md, docs/STAGES.md, docs/TESTING.md.
-
-ET-MESH-003A / RUN3A acceptance 2026-11-04: локально исправлены формулы и схема русского урока метода контурных токов, включая мобильные экраны и обе темы. 389 unit и 228 Chromium PASS / 6 ожидаемых live-auth skips; Astro/TypeScript, ESLint, production build PASS. Новые 60 PNG просмотрены, прежние 54 PNG сохранены. Один bounded repair в `fix/mesh-lesson-run3a`; публикация не выполнялась. Полноценный эталонный учебный модуль остаётся PARTIAL: подробная теория, отдельные примеры/лаборатория и переходы — последующие задачи. Contract/evidence: `specs/features/mesh-lesson-visual-repair.spec.md`, `docs/STAGES.md`, `docs/TESTING.md`.
-
-ET-CI-001: certifi2026.10.23; source `c9a43fbe0149aae5072b02cd04d7268bc743397a`, [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/41025558068) verify/deploy SUCCESS; Cloudflare `a1db51d3-6979-4112-a33e-a007055ef99b` SUCCESS. Backend и полный frontend pipeline проходят; подробности и ограничения — docs/STAGES.md, docs/TESTING.md.
-
-ET-PAN-004 опубликован и проверен2026-10-30: https://electrotutor.pages.dev/ru/ — четыре оригинальные панорамы, каталог31инструмента, тематические карточки и частичный ластик. Source c5ac7b8, Cloudflare41ad6330 SUCCESS;382unit/61primary-domain browser PASS. Контролируемая видеосвязь отдельно BLOCKED_BY_PROVIDER; подробности — docs/STAGES.md и docs/TESTING.md. Предыдущие receipts ниже сохранены.
-
-ET-UX-003: локально проверены карточные каталоги и прямые инструменты, общий header, Fourier preview/масштаб/полный экран/stem-спектр, доска с сохранением и небольшой калькулятор. Android debug APK собран и проверен в отдельном эмуляторе; команды — android/README.md. Опубликовано на https://electrotutor.pages.dev/ru/: source9ed98f5, Cloudflare19537dec SUCCESS,30public-browser PASS; актуальный receipt — docs/STAGES.md.
-
-ET-LABS-002: первый релиз опубликован и проверен2026-10-29 — длинные линии V2, Fourier Sketch,12научных Micro Labs и общая тема.283unit/18public-browser PASS; source64a6ba0, Cloudflarebc8455b3 SUCCESS72s. Точный scope/receipt и будущие возможности — docs/STAGES.md. Исторические релизы ниже сохранены.
-
-Панорамный редизайн и общий инженерный стандарт опубликованы: [ElectroTutor](https://electrotutor.pages.dev/ru/).14Micro Labs, удобные шкалы/СИ/локаль, Bode, исправленная геометрия фазоров и синхронные2D/3D-сечения.231unit/41local-browser/15public-browser PASS; source26985b6, Cloudflare12ca3006. Подробный receipt — `docs/STAGES.md`.
-
-Публичный MVP: https://electrotutor.pages.dev/ — Cloudflare Pages, 2026-10-28.
-Инженерная витрина опубликована и проверена 2026-10-29: 8 сюжетов, 3 динамические модели DC/RLC/RC, каталог12карточек, RU/UK. Исходный код слит и отправлен в main; временная ветка удалена локально и на GitHub. Cloudflare Git integration собирает pnpm build → dist.
-Micro Labs опубликованы и проверены2026-10-29:14 мини-экспериментов с регуляторами, схемами, графиками и физическим временем; категории/поиск/сброс/прямые ссылки RU/UK. Source main9cacf22, Cloudflare deployment76b3eaf7 SUCCESS, реальные public controls/reset/time/reload/mobile PASS.
-Первый адрес https://electrotutor-mvp.pages.dev/ также сохранён. Прогресс хранится отдельно для каждого адреса.
-Начните с урока «Метод контурных токов»: RU/UK, схема, формулы, проверка ответа
-и прогресс на этом устройстве. Регистрация и настройка сервера для урока не нужны.
-Сборка и реальный публичный сценарий проверены; evidence — `docs/STAGES.md` и `docs/TESTING.md`.
-
-Локальная консолидация 2026-10-23: main `7d63a28`,15 согласованных веток удалены,
-один checkout. Повторно прошли frontend189/backend208 тестов, typecheck/build и context/CI
-проверки. RC1_READY сохранён; следующий bounded staging plan и owner decisions — `docs/STAGES.md`.
-
-`electro-tutor` — русско-украинская образовательная платформа по электротехнике
-на Astro с MDX-уроками, формулами KaTeX, React-интерактивом и
-PWA-возможностями. Технические коды локалей — `ru` и `uk`.
-
-В разделе «Интерактив» доступны отдельные RU/UK страницы круговой диаграммы
-(`/{lang}/interactive/circular-diagram/`), несимметричной звезды
-(`/{lang}/interactive/star-neutral/`) и симулятора длинной линии
-(`/{lang}/interactive/transmission-line/`). Круговая диаграмма также остаётся
-на странице раздела для совместимости существующих ссылок с параметрами.
-В интерактиве звезды можно менять сопротивления фаз в формах R/X и |Z|/φ или
-перетаскиванием точек на правой полуплоскости Z, выбирать
-идеальную/конечную/разомкнутую нейтраль и видеть совмещённую топографическую
-диаграмму напряжений и токов справа от Z. Числовые настройки находятся внизу;
-расчёт выполняется локально.
-
-Симулятор линии численно рассчитывает `U(x)` и `I(x)` в Rust/WASM Worker. Он
-поддерживает холостой ход, короткое замыкание, R/L/C и смешанные нагрузки,
-Play/Pause/Reset/Step, переход к времени и автоматическую остановку. Для
-локальной проверки откройте `http://127.0.0.1:4321/ru/interactive/transmission-line/`,
-оставьте стартовые `E=100 В`, `Rs=0 Ом`, `l=1000 км`, `v=200000 км/с`,
-`Z0=50 Ом`, `N=1000` и open load: время пробега будет 5 мс. Волна
-отражается от нагрузки и идеального источника повторно. Для сравнения
-установите `Rs=50 Ом`: согласованный источник поглощает вернувшуюся волну.
-
-Собранный WASM хранится в `public/transient-core/` вместе с контрольными
-хешами исходников и артефакта; обычный `pnpm build` проверяет их соответствие.
-Для регенерации нужен установленный Rust с target `wasm32-unknown-unknown`
-и `wasm-bindgen-cli 0.2.129`, затем `pnpm wasm:build`.
-
-## Быстрый старт
-
-Требования: Node.js `>=22.12.0`, pnpm `11.23.0`.
+Для фронтенда нужны Node.js `>=22.12.0` и pnpm `11.23.0` из
+[package.json](package.json). На Windows при блокировке PowerShell-обёртки
+используйте `pnpm.cmd` либо `corepack pnpm` с закреплённой версией.
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Локальный сайт: `http://127.0.0.1:4321`.
+Откройте `http://127.0.0.1:4321/ru/`. `pnpm dev` по умолчанию открывает
+полный режим. `pnpm build` без переопределения окружения собирает русский MVP.
+Чтобы выбрать профиль явно, используйте `pnpm build:mvp` или `pnpm build:full`.
+Сборка помещает артефакт в `dist/` по умолчанию. Публичные параметры
+`SITE_URL`, `BASE_PATH` и `PUBLIC_API_ORIGIN` описаны в
+[.env.example](.env.example).
 
-На Windows при запрете запуска `pnpm.ps1` используй `pnpm.cmd dev` и
-аналогично для остальных pnpm-команд.
+### Backend и локальный вход
 
-### Local backend ET-09.2
-
-Требования: Python `3.12`, `uv 0.12.3`, Docker Desktop с Compose. Backend
-работает только локально: API `http://127.0.0.1:8000`, PostgreSQL
-`127.0.0.1:55432`. Эти порты фиксированы для ET-09.2; backend-блок
-`.env.example` документирует имена config, но не поддерживаемые overrides.
+Нужны Python 3.12, uv 0.12.3 и Docker Compose. Для локального dev-стека
+с отдельной dev-БД:
 
 ```bash
 pnpm backend:bootstrap
@@ -133,197 +63,60 @@ pnpm backend:smoke
 pnpm backend:stop
 ```
 
-`backend:dev` применяет Alembic migrations и запускает API с PostgreSQL;
-в текущем `main` также запускается notification worker. Migration 0013,
-catalog manifest и live worker/browser acceptance проверены на отдельной disposable DB.
-Сохранённый original Electro Tutor volume остаётся отдельным compatibility gate;
-backend:dev к нему не применять. Подробности: docs/STAGES.md и docs/TESTING.md.
-`backend:stop` останавливает контейнеры, сохраняя named volume. Полный local/CI
-gate — `pnpm backend:check`; отдельные уровни — `backend:test:fast` и
-`backend:test:integration`. Удаление local DB разрешается только точным
-`ET_CONFIRM_RESET_LOCAL=electro-tutor-local` и командой
-`backend:db:reset-local`; этот reset удаляет весь named volume, который
-может содержать данные из других checkouts, и не является способом
-исправления ET-10.3 drift. Для проверки независимой схемы без изменения
-dev-БД: `pnpm backend:db:catalog:baseline test`; для read-only диагностики
-dev-БД: `pnpm backend:db:catalog:diagnose` (exit 1 при обнаруженном drift).
+`backend:dev` применяет миграции Alembic и запускает API на
+`127.0.0.1:8000`. `backend:stop` сохраняет тома. На машине с сохранённой
+старой БД сначала используйте процедуру диагностики каталога и изолированный
+контур из [Backend DX](docs/project-context.md#backend-dx-delta).
 
-### Local authentication ET-09.3
-
-DEV authentication использует только отдельные Keycloak realm
-`electro-tutor-dev` и public client `electro-tutor-web-dev` на
-`http://127.0.0.1:58081`. Client secret отсутствует; callback API —
-`http://127.0.0.1:8000/api/v1/auth/callback`. Пароли bootstrap admin и synthetic
-test identity не входят в repository: перед provisioning задай
-`ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD` в текущем shell или local
-secret manager; optional non-secret names — `ET_KEYCLOAK_ADMIN_USERNAME`,
-`ET_DEV_TEST_EMAIL`. Имена трёх synthetic identities фиксированы как
-`et-dev-acceptance`, `et-dev-acceptance-b` и `et-dev-acceptance-c`; optional
-`ET_DEV_TEST_USERNAME` допускает только primary `et-dev-acceptance`, другое
-значение fail closed. Все три identity используют один local test password.
-
-```bash
-pnpm backend:idp:dev
-pnpm test:e2e:auth
-pnpm backend:idp:cleanup
-```
-
-`backend:idp:dev` idempotently создаёт/сверяет realm, exact redirects/origins,
-PKCE `S256` client и три DEV identities. Команда fail closed без обоих password env и
-не печатает их. Страница `/ru/account/` или `/uk/account/` доступна только в
-local DEV/E2E runtime; production IAM остаётся не выбран.
-`backend:idp:cleanup` удаляет только три named synthetic identities после
-ownership preflight для каждой; если хотя бы одна не принадлежит managed group,
-удаление не начинается. Realm/client остаются для следующего idempotent запуска.
-`test:e2e:auth` сам собирает текущий source, применяет migrations и запускает API
-на изолированной local/test БД `electro_tutor_test`, не сбрасывая основную
-`electro_tutor`; перед run он безопасно пересоздаёт эти три identity, чтобы
-immutable subjects и application Accounts не зависели от прошлого запуска.
-После success/failure runner останавливает local API, PostgreSQL и Keycloak без
-удаления named volumes; cleanup failure возвращает non-zero и точную recovery-команду.
-
-Для ET-10.3 на host с сохранённым original PostgreSQL volume используй
-`pnpm test:e2e:auth:isolated` из PowerShell. Этот runner проверяет точный
-disposable контейнер `electro-tutor-et103-test-20260926` на loopback `55434`,
-создаёт временный Keycloak на `58081`, запускает API и built browser phase,
-затем останавливает только эти два контейнера. Пароли создаются в памяти
-текущего процесса. Обычный `test:e2e:auth` использует original-bound Compose
-project и для preserved DB host не подходит.
+Для входа задайте `ET_KEYCLOAK_ADMIN_PASSWORD` и `ET_DEV_TEST_PASSWORD`
+локально. `pnpm backend:idp:dev` подготавливает DEV realm и тестовые
+учётные записи. Проверьте `/ru/account/` или `/uk/account/` в полном
+локальном режиме. Условия запуска обычного и изолированного auth E2E
+описаны в [TESTING](docs/TESTING.md).
 
 ## Проверки
 
 ```bash
+pnpm check:context
+pnpm check:locales
 pnpm check
 pnpm lint
-pnpm build
-pnpm check:base-path
+pnpm test
+pnpm test:e2e:install
 pnpm verify:full
 ```
 
-Результат production-сборки находится в `dist/` и вручную не редактируется.
-`check:base-path` собирает artifact во временный ignored каталог `.astro/`
-на том же томе с
-`BASE_PATH=/electro-tutor/`, проверяет internal links/assets и выполняет live
-Chromium smoke; временный artifact удаляется после проверки.
-`verify:full` выполняет frozen install, Git hygiene, static check, lint, все
-unit/integration/component tests, полный Chromium E2E на транзитном root-artifact
-в `dist/`, удаляет его и затем выполняет production build, smoke именно
-собранного production artifact и dependency audit.
-Astro — единственный application build path; Vite используется внутри Astro и
-Vitest как инструмент и не является отдельным SPA entrypoint.
-Известные проблемы текущего stage фиксируются в выбранном record
-`docs/STAGES.md`.
+`verify:full` запускает статические, браузерные и сборочные проверки.
+Отдельно `pnpm check:base-path` проверяет сборку под префиксом репозитория,
+а `pnpm backend:check` проверяет backend. Матрица тестов, требования к
+тестовой БД и текущий пробел визуальных эталонов Linux описаны в
+[TESTING](docs/TESTING.md).
 
-## Контекст проекта
+## Публикация
 
-- требования и критерии приёмки: `specs/README.md`;
-- current selector, stage status, `NEXT` и blockers: `docs/STAGES.md`;
-- дорожная карта: `docs/ROADMAP.md`;
-- устройство: `docs/ARCHITECTURE.md`;
-- дизайн и безопасность: `docs/DESIGN.md`, `docs/SECURITY.md`;
-- backend: `docs/API.md`, `docs/DATA_MODEL.md`, `docs/TESTING.md`,
-  `docs/DEPENDENCIES.md`, `docs/project-context.md`;
-- добавление уроков: `docs/CONTENT_GUIDE.md`.
+Основная публичная поверхность — статический RU MVP на Cloudflare Pages.
+Задайте HTTPS origin в `SITE_URL` и `BASE_PATH=/`. Соберите
+`pnpm release:build`, проверьте `pnpm release:check` и выполните локальный
+HTTP smoke через `pnpm release:preview -- --port 4325`. Этот preview
+применяет заголовки из `_headers`. После разрешённой доставки проверьте
+учебные маршруты, 404 для скрытых страниц и работу PWA на публичном адресе.
+[Релизный runbook и откат](docs/notes/public-mvp-release.md)
 
-Чтобы из нового чата выбрать и выполнить один следующий этап, напиши:
+Сохранённый [GitHub Pages workflow](.github/workflows/pages.yml)
+проверяет артефакт для `/electro-tutor/`. Перед push в `main` проверьте
+триггеры публикации обеих площадок. Факты о доставке ведутся в
+[STAGES](docs/STAGES.md).
 
-```text
-Продолжай Electro Tutor
-```
+## Репозиторий и документация
 
-Полный протокол находится в `docs/STAGES.md`.
+| Путь | Назначение |
+|---|---|
+| [src/pages/](src/pages/), [src/content/](src/content/) | Маршруты и учебные материалы |
+| [src/models/](src/models/), [src/mesh/](src/mesh/), [transient-core/](transient-core/) | Расчётные модели и движки лабораторий |
+| [services/api/](services/api/) | Backend, аутентификация и миграции |
+| [scripts/](scripts/), [tests/](tests/) | Сборка, диагностика и проверки |
 
-### Продолжение на другом компьютере
-
-1. Перед переключением убедись, что нужная работа сохранена в commit и отправлена
-   в доступный remote; dirty/untracked файлы автоматически не переносятся.
-2. Запомни имя рабочей ветки через `git branch --show-current` и проверь
-   `git worktree list --porcelain`: несколько worktree могут содержать разные
-   этапы и SHA. На другом компьютере сначала проверь `git status --short --branch`
-   и `git worktree list --porcelain`, затем выполни
-   `git fetch origin`. Переключись через `git switch <branch>`; если локальной
-   ветки ещё нет, используй `git switch --track -c <branch> origin/<branch>`.
-3. Получи только fast-forward изменения выбранной ветки:
-
-   ```bash
-   git pull --ff-only origin <branch>
-   ```
-
-   Не применяй reset/clean к неизвестным локальным изменениям.
-4. Восстанови зависимости командой `pnpm install --frozen-lockfile`.
-5. Выполни `pnpm check:context` и проверь project overlay. В POSIX-shell:
-
-   ```bash
-   python ~/.codex/tools/validate_project_overlay.py .
-   ```
-
-   В Windows PowerShell:
-
-   ```powershell
-   py -3 -B "$HOME/.codex/tools/validate_project_overlay.py" .
-   ```
-
-6. Прочитай selector и соответствующий record в `docs/STAGES.md`, затем
-   затрагиваемую SPEC и напиши `Продолжай Electro Tutor`. Canonical record
-   определит status, `NEXT`, blockers и dependencies; `blocked` stage не
-   запускается и не пропускается ради downstream stage.
-
-Если `git status` показывает чужую или незавершённую работу, сначала сохрани либо
-согласуй её; не выполняй pull поверх конфликтующего dirty worktree.
-
-## Переменные окружения
-
-Скопируй `.env.example` в `.env` и задай нужные публичные значения:
-
-```env
-SITE_URL=https://ваш-production-домен
-BASE_PATH=/
-PUBLIC_CALCOM_URL=https://cal.com/ваш-профиль/консультация
-```
-
-`SITE_URL` содержит только origin и обязателен перед публичным SEO-релизом.
-`BASE_PATH=/` используется для root-domain. Активный GitHub Pages workflow явно
-задаёт production-значения `SITE_URL=https://zabulaaleksey.github.io` и
-`BASE_PATH=/electro-tutor/`; без `SITE_URL` локальная сборка использует
-резервный `https://electrotutor.example`. `PUBLIC_CALCOM_URL` необязателен: без
-него страница услуг показывает локализованный fallback.
-
-## Исторический профиль GitHub Pages (workflow сохранён)
-
-- Production URL: <https://zabulaaleksey.github.io/electro-tutor/>.
-- Единственный активный deployment workflow — `.github/workflows/pages.yml`:
-  push в `main` запускает frozen pnpm install и `pnpm run verify:full`, после
-  чего загружает проверенный `dist/` как Pages artifact. Deploy job зависит от
-  verify job и не пересобирает artifact.
-- `workflow_dispatch` и deploy явно ограничены `main`; локальная успешная
-  проверка сама по себе не разрешает merge, push или production deploy.
-- Production artifact собирается с project base `/electro-tutor/`.
-- `src/pages/index.astro` выполняет base-aware redirect с
-  `/electro-tutor/` на `/electro-tutor/ru/` внутри Astro static build;
-  отдельный edge redirect не требуется.
-- Это исторический GitHub Pages profile. Текущая рекомендация RUN5 — существующий Cloudflare Pages и отдельный проверенный static artifact; приватные настройки аккаунта требуют проверки.
-- deploy не выполняется автоматически агентом без явного запроса пользователя.
-
-## Release Candidate 1 — локальный Web/PWA
-
-Canonical current status/evidence: `docs/STAGES.md` ET-RC1, `docs/TESTING.md`, `docs/evidence/rc1/readiness.json`; подробный productization report — `docs/notes/productization-report.md`. One RU/UK authored lesson + three practice labs, account/history/resume and integrated inbox/reminders. Learning progress is explicitly device-only.
-
-Repeat public candidate locally with pinned Node/pnpm: `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm preview --host 127.0.0.1 --port 4322`; open `/ru/` or `/uk/`, catalog -> mesh lesson -> answer -> return/resume/account. Public deployment build supplies `SITE_URL`, `BASE_PATH` and, when backend is configured, safe `PUBLIC_API_ORIGIN`; secrets never belong in PUBLIC variables. Account needs the separately configured API/Keycloak/PostgreSQL, not a fake static login. Ordinary provider signup creates a Student, never Tutor rights. The isolated registration runner uses explicitly owned stopped disposable DB55437/IdP58181 and stops only its own processes.
-
-PWA has manifest/raster/maskable icons, installability/offline public shell and visited offline Worker/WASM lab acceptance. This is a local production-like release candidate; deployment/publication are not performed. Next bounded stage — ET-18.2 hosting/runtime/HTTPS IAM/backup plan.
-
-## Лаборатория «Сопротивление материалов»
-
-Опубликована `/{lang}/interactive/beam/` (RU/UK) на https://electrotutor.pages.dev/ru/interactive/beam/; ссылка — в «Лаборатории».
-Прямые балки Эйлера–Бернулли: консоли с обеих сторон, шарнир/ролик, защемления,
-промежуточные опоры, кусочно-постоянные EI/EA; сосредоточенные F/Fx/M и линейная q.
-Перетаскивание/ввод рядом с элементом обновляют реакции и N/Q/M. Есть история,
-общий курсор с пределами слева/справа, m/cm/mm, JSON-файл и сохранение в браузере.
-Схемы Micro Labs используют общие SVG-символы; происхождение геометрии и область
-применимости стандартов — `docs/notes/engineering-symbol-audit.md`.
-Текущая проверка/ограничения и интеграция этой ветки — `docs/STAGES.md`, ET-BEAM-001.
-
-Для повторения: `pnpm dev` → `/ru/interactive/beam/` → выберите пример →
-переместите F → измените знак/величину → сохраните JSON и загрузите его.
-`pnpm test`, `pnpm lint`, `pnpm check`, `pnpm build`, затем `pnpm test:e2e:built`.
-Числа золотых эталонов дополнительно пересчитывает независимый аналитический скрипт.
+- [SPEC](specs/README.md), [DESIGN](docs/DESIGN.md), [ARCHITECTURE](docs/ARCHITECTURE.md)
+- [Учебный контент](docs/CONTENT_GUIDE.md) и [текущие этапы](docs/STAGES.md)
+- [API](docs/API.md), [модель данных](docs/DATA_MODEL.md), [безопасность](docs/SECURITY.md)
+- [Тестирование](docs/TESTING.md), [зависимости](docs/DEPENDENCIES.md) и [контекст проекта](docs/project-context.md)

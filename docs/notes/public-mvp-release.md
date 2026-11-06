@@ -89,6 +89,18 @@ Legacy v2→MVP upgrade test дополнительно требует `MVP_LEGA
 
 ## Публикация — только после отдельного разрешения
 
+Рабочая цель из последнего принятого deployment — существующий Cloudflare
+Pages project `electrotutor`, production branch `main`. Перед новым выпуском
+повторно сверьте read-only inventory и автоматические триггеры. Примените
+сборку и release checks выше, зафиксируйте точный `dist` и согласованный target,
+затем используйте проверенную версию Wrangler и выполните hosted smoke ниже.
+
+### Сохранённый план первого ручного выпуска (RUN5)
+
+Ниже приведены preflight и команды первого выпуска. Сведения об отсутствии
+CLI или доступа относятся к исходной проверке RUN5. Текущие evidence и
+действия владельца находятся в [STAGES](../STAGES.md).
+
 1. Восстановить Cloudflare login официальным локальным способом; секреты не отправлять в чат и не помещать в repository. Прочитать список проектов и точный project ID/name, production branch, build command/output, domains, environment variable names/публичные значения, тариф и текущий deployment. `electrotutor` пока является кандидатом имени по существующему pages.dev; подтвердить его списком аккаунта.
 2. Проверить и при отдельном разрешении приостановить автоматические production/preview Cloudflare Git deployments на время ручного выпуска, чтобы старый queued build не перезаписал проверенный артефакт. Push main также запускает сохранённый GitHub Pages workflow; не смешивать эти два канала. Никакие auto-deploy settings в RUN5 не изменялись.
 3. Закрыть ручные device/accessibility и owner legal applicability checks ниже. Получить разрешение на конкретный commit/artifact/проект и deployment; merge/push разрешаются отдельно.

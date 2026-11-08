@@ -14,13 +14,13 @@
 - Temporary implementation: none. Existing full showcase remains accessible below new home; existing solvers reused.
 - Blockers: none for local reference UI acceptance; prior shell goldens/remote CI/device gates are not claimed complete.
 - Deferred: deployment, other course content, provider/media work and old Linux golden/manual acceptance remain separate.
-- User action UI7-INTEGRATION / PENDING: review local UI; explicit «Да, сливай» authorizes merge only. Expected approval unlocks integration; push/deploy separately.
+- User action UI7-INTEGRATION / OWNER_APPROVED: 2026-11-09 explicit «выполняй мердж пуш удаление деплой» authorizes fast-forward integration, normal push to origin/main, deletion of feature/reference-ui after reachability verification and deployment to existing electrotutor production. Clean2679645, main/origin7d1a6e2, single root checkout confirmed; no unrelated cleanup or new resources.
 - Evidence: docs/evidence/reference-ui-acceptance.json. 469 unit; Astro329/0errors/0warnings/3existing hints; lint; full41pages/193files and MVP96files/7indexed audit PASS; full34E2E PASS, MVP18PASS/2existing conditional skips;48page/width/theme bounds0overflow/0pageerrors, representative PNG reviewed. Protected math/model/MDX/engineering/WASM and dependencies unchanged.
 - Completion sync: README/STAGES/ROADMAP/ARCHITECTURE/DESIGN/TESTING/TRACEABILITY/project-context/ledger/SPEC updated. DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/LEARNING_LOG reviewed unchanged; FALLBACKS/CHANGELOG/DEV_LOG absent. No new architecture/security/backend decision; prior UI palette supersession explicit in feature SPEC.
 - User action UI7-GOLDENS / DEFERRED: separately approve a reviewed update of old shell PNG baselines; expected before/after review and OS-specific accepted captures unlock visual-CI acceptance, not local functional implementation.
 - User action UI7-NARRATOR / NOT_RUN: review new home CTA and mobile two-row header with Narrator/keyboard; expected focus/announcement result. Existing historical UA-19 retained, not reused for changed controls.
 - NEXT: none
-- Next action: inspect local preview and await UI7-INTEGRATION decision; no push/deploy authorized.
+- Next action: execute authorized integration/publication, reconcile provider result and verify hosted learning journey; append actual delivery evidence.
 
 ## ET-NAV-006 — RUN6: единая навигация и RTC diagnosis
 

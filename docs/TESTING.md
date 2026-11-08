@@ -1,5 +1,12 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## ET-UI-007 — локальная проверка макета
+
+`pnpm test`: 469/469, 61 files; independent beam references 13 cases/49 assertions PASS. `pnpm check`: 329 files, 0 errors/0 warnings/3 existing hints. `pnpm lint`: PASS. `pnpm build:full`: 41 pages/193 files, 40 localized routes, publication/site audits PASS; `pnpm build:mvp`: 96 files, seven indexed routes, allowlist/site audits PASS.
+
+Full `E2E_SPEC=learning-navigation.spec.ts|localization-contract.spec.ts pnpm test:e2e:built`: 34 PASS. Initial run found two localization visibility regressions because brand tagline was hidden; restoring desktop visibility fixes both without editing accepted tests. MVP functional and final visual results are recorded in `docs/evidence/reference-ui-acceptance.json`; new `mvp-reference-ui.spec.ts` covers home→textbook→examples→editable lab→theme persistence and no-JS phone CTA. Existing accepted tests/goldens remain unchanged. Historical screenshot baselines describe the previous shell and are not claimed PASS or auto-promoted. Existing Linux CI gap, full physical-device/Narrator and hosted release checks remain separate.
+
+
 ## RUN6 — verified public deployment 7ba2859a
 
 2026-11-05, fresh clean source3267948:96file release build/strict guards PASS;7/7targeted local browser with actual CSP/legacy upgrade PASS. Manual Pages production/main canonical success. Primary7public200 +24hidden404 +92/92exact served SHA/headers/SEO PASS;8/8accepted hosted Playwright/no retries. Actual16independent nodal cases/72exactzero residuals compared with hosted solver, invalid input/theme/offline/CSP actively rejects untrusted inline; no unexpected page/CSP/external requests. Real pre-deploy production context observed oldSW113fc61d1eccad90566c→689264eb202cf73d6b12, old-cache removal, unrelated local/cache data KEEP, offline lab/hidden404.16hosted captures390/1280 light/dark;4representative images viewed; six-width/two-theme actual rail geometry tested live. Configuration/fail-closed/DNS/tariff unchanged. Prior CI Linux baseline gap, actual devices/Narrator/legal/media gates remain open; not closed by deployment. docs/evidence/run6-production-deployment.json and task outputs/ElectroTutor_run6_deploy own receipts. Local unit/types/lint/full regression above are reused for unchanged code, not falsely called newly rerun.

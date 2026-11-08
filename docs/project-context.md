@@ -1,5 +1,10 @@
 # Контекст проекта
 
+## ET-UI-007 — reference UI
+
+Общий статический ReferenceHome и reference-ui.css переиспользуются full/MVP layouts. Зависимости, package manager, backend DX, API, схемы БД и runtime solver не изменены. Scope/evidence — STAGES ET-UI-007 и reference-ui SPEC.
+
+
 ## RUN6 — frontend delta
 
 Добавлены derived learning navigation и shared Astro UI; owning curriculum/catalogue/manifest and package scripts reused. No dependency/backend command/config/schema/migration/OIDC changes. Full and MVP use same contents component but server-filtered data; standalone guest Jitsi remains external full-only and independent of protected media-less Session. Existing Backend DX Delta below remains unchanged; source commands from package.json, current execution from STAGES.

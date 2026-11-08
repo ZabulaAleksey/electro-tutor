@@ -1,0 +1,521 @@
+{
+  "date": "2026-11-09",
+  "stage": "ET-UI-007",
+  "branch": "feature/reference-ui",
+  "baseline": "7d1a6e2",
+  "scope": "local implementation, no merge/push/deployment",
+  "checks": {
+    "unit": {
+      "passed": 469,
+      "files": 61,
+      "independent_beam_assertions": 49
+    },
+    "astro_check": {
+      "files": 329,
+      "errors": 0,
+      "warnings": 0,
+      "existing_hints": 3
+    },
+    "lint": "PASS",
+    "build_full": {
+      "pages": 41,
+      "files": 193,
+      "localized_routes": 40,
+      "audits": "PASS"
+    },
+    "build_mvp": {
+      "indexed_routes": 7,
+      "files": 96,
+      "audits": "PASS"
+    },
+    "full_e2e": {
+      "passed": 34,
+      "specs": [
+        "learning-navigation.spec.ts",
+        "localization-contract.spec.ts"
+      ]
+    },
+    "mvp_e2e": {
+      "passed": 18,
+      "skipped": 2,
+      "specs": [
+        "mvp-journey.spec.ts",
+        "mvp-navigation.spec.ts",
+        "mvp-pwa.spec.ts",
+        "mvp-release.spec.ts",
+        "mvp-reference-ui.spec.ts"
+      ],
+      "skip_reason": "Existing conditional real-old-worker and enforced-release-CSP checks require release fixture/headers; ordinary static preview does not supply them."
+    },
+    "protected_sources": {
+      "unchanged_from_HEAD": [
+        "src/models",
+        "src/mesh",
+        "src/engineering",
+        "src/content",
+        "public/transient-core",
+        "package.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    "visual": {
+      "report": [
+        {
+          "theme": "light",
+          "width": 320,
+          "route": "ru/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 375,
+          "route": "ru/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 390,
+          "route": "ru/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "light",
+          "width": 768,
+          "route": "ru/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1280,
+          "route": "ru/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1920,
+          "route": "ru/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "light",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 320,
+          "route": "ru/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 320,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 320,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 375,
+          "route": "ru/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 375,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 375,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 390,
+          "route": "ru/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 390,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 390,
+          "header": 112
+        },
+        {
+          "theme": "dark",
+          "width": 768,
+          "route": "ru/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 768,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 768,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1280,
+          "route": "ru/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1280,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 1280,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1920,
+          "route": "ru/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/examples/",
+          "scroll": 1920,
+          "header": 76
+        },
+        {
+          "theme": "dark",
+          "width": 1920,
+          "route": "ru/topics/dc/mesh-current-method/lab/",
+          "scroll": 1920,
+          "header": 76
+        }
+      ],
+      "errors": []
+    },
+    "full_home": {
+      "locales": [
+        "ru",
+        "uk"
+      ],
+      "widths": [
+        390,
+        1280
+      ],
+      "overflow": 0,
+      "page_errors": 0
+    }
+  },
+  "reviewed_images": [
+    "light-1280-home.png",
+    "light-390-home.png",
+    "dark-1280-home.png",
+    "light-1280-lab.png",
+    "full-uk-1280.png",
+    "full-ru-390.png"
+  ],
+  "captures": [
+    {
+      "file": "dark-1280-examples.png",
+      "sha256": "a274d40042956575e6999c2cd43c10578d72ff3a36c6f4f5a09c871136b0f0ba"
+    },
+    {
+      "file": "dark-1280-home.png",
+      "sha256": "0e62063a38ec1eae0e0d8c1b65ad532cea34d8e44509aee9d7e6bb2b7f1a0493"
+    },
+    {
+      "file": "dark-1280-lab.png",
+      "sha256": "da9c57e0125924348ad87478cd3364f5d59430b1115efc46b5ac400fb7eb3a40"
+    },
+    {
+      "file": "dark-1280-mesh-current-method.png",
+      "sha256": "6991d1e3bb321e768acb374506663a7233b41ce7deeb4dc25b51bbdf19f4acb6"
+    },
+    {
+      "file": "dark-390-examples.png",
+      "sha256": "f703b4aba9388ae4c5724e03a41c823a0701afcbeabf7f6c33ca0d76b67e1396"
+    },
+    {
+      "file": "dark-390-home.png",
+      "sha256": "c19efcb187eb58e5fdb0e01ef989f8bdff7a50b28837f894cf5170c6af9d9d6f"
+    },
+    {
+      "file": "dark-390-lab.png",
+      "sha256": "0a6495cf84ee1f6d4c1ad5b5d96c33371ff97628967b633bf3fd96d2161d4958"
+    },
+    {
+      "file": "dark-390-mesh-current-method.png",
+      "sha256": "001b6b25e90ae8a3b864f4909dca302148c2f799869f8a33e5a57e44252fa70d"
+    },
+    {
+      "file": "light-1280-examples.png",
+      "sha256": "3f48989d9c7fe3d7f1c8192f7a9612d6fd3dfa3ed8fa83fb270cad597046761a"
+    },
+    {
+      "file": "light-1280-home.png",
+      "sha256": "45e0648d7259b47acb88b702f4c6cd19452b588bf8305fab033a825a595e8fe4"
+    },
+    {
+      "file": "light-1280-lab.png",
+      "sha256": "ffbc65d318b6e52ccfcca8160577547ce71071a6bcf1d4ad2b9862ce14b66323"
+    },
+    {
+      "file": "light-1280-mesh-current-method.png",
+      "sha256": "acd0401d9c2eb53c6f05014a7ab58c00d8c7655cd5631f33f49dc543c7889a32"
+    },
+    {
+      "file": "light-390-examples.png",
+      "sha256": "7a4f6c8a0ff83b0e5cfa07f16c224667036a34fcd162efb18a415cf254745404"
+    },
+    {
+      "file": "light-390-home.png",
+      "sha256": "721a5dadc91a3d6b52d2da4ba5cfd884f2402d12b781e75388c437790b46c2a0"
+    },
+    {
+      "file": "light-390-lab.png",
+      "sha256": "72cf83cb58d587cb37fc1d2faeb1eb747f5e2c4feed504c1b5d8df101e6ed6aa"
+    },
+    {
+      "file": "light-390-mesh-current-method.png",
+      "sha256": "58138daeda3fc6c08eb1c881de4b23a4d932fdc2fee700d76290b5d9af38d422"
+    }
+  ],
+  "limitations": [
+    "Old shell screenshot baselines unchanged; no full visual-suite PASS claim.",
+    "Previous Linux screenshot CI gap unresolved; hosted/device/Narrator checks not rerun."
+  ],
+  "documentation": {
+    "updated": [
+      "README.md",
+      "docs/STAGES.md",
+      "docs/ROADMAP.md",
+      "docs/ARCHITECTURE.md",
+      "docs/DESIGN.md",
+      "docs/TESTING.md",
+      "docs/TRACEABILITY.md",
+      "docs/project-context.md",
+      "docs/requirements-ledger.json",
+      "specs/README.md",
+      "specs/features/reference-ui.spec.md"
+    ],
+    "reviewed_unchanged": [
+      "docs/DECISIONS.md",
+      "docs/SECURITY.md",
+      "docs/API.md",
+      "docs/DATA_MODEL.md",
+      "docs/DEPENDENCIES.md",
+      "docs/LEARNING_LOG.md"
+    ],
+    "absent": [
+      "docs/FALLBACKS.md",
+      "CHANGELOG.md",
+      "docs/DEV_LOG.md"
+    ]
+  }
+}

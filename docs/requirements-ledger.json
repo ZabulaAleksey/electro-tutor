@@ -34,7 +34,8 @@
       "specs/features/mesh-laboratory.spec.md",
       "specs/features/public-mvp-run4.spec.md",
       "specs/features/release-readiness-run5.spec.md",
-      "specs/features/unified-navigation-run6.spec.md"
+      "specs/features/unified-navigation-run6.spec.md",
+      "specs/features/reference-ui.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1758,6 +1759,39 @@
       ],
       "e2e": [
         "docs/evidence/run6-video-diagnosis.json"
+      ]
+    },
+    {
+      "domain": "reference-ui",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-391",
+        "FR-392",
+        "FR-393",
+        "FR-394",
+        "FR-395"
+      ],
+      "runtime": "Shared static RU/UK home and MVP/full shell; real existing learning routes, no new runtime service.",
+      "security": "No remote script import, credentials, dependency, CSP, SW policy or API changes.",
+      "a11y": "Native links, focus-visible, reduced motion and mobile header; browser geometry and keyboard covered. Physical Narrator not rerun.",
+      "observability": "docs/evidence/reference-ui-acceptance.json and docs/TESTING.md; source archive SHA in STAGES.",
+      "gap": "Previous shell PNG baselines require separate owner-reviewed update; no remote CI/deployment claim.",
+      "action": "Review local preview, explicitly authorize merge; release separate.",
+      "code": [
+        "src/components/ReferenceHome.astro",
+        "src/reference-ui.css"
+      ],
+      "unit": [
+        "src/learning/navigation.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-mvp.mjs",
+        "scripts/audit-built-locales.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/mvp-reference-ui.spec.ts",
+        "tests/e2e/mvp-navigation.spec.ts",
+        "tests/e2e/localization-contract.spec.ts"
       ]
     }
   ]

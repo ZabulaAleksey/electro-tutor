@@ -1,5 +1,12 @@
 # Дизайн и UX «Потенциала»
 
+## ET-UI-007 — макет владельца 2026-11-09
+
+ReferenceHome.astro и reference-ui.css задают белую шапку, фиолетово-бирюзовый hero, схему закона Ома, три карточки и учебную область с боковыми ссылками. Единственный visual source — electrotutor-ui.zip; его скрипты не исполняются. CTA ведут в реальные источники. В full mode ниже сохранены panorama/catalogue; MVP по-прежнему содержит только семь разрешённых страниц. RU/UK copy раздельна. Dark uses semantic surfaces, including hero diagram; mobile MVP header explicitly uses two rows and 112px sticky offset. Existing keyboard, contents, theme, routes and solver state remain owned by existing components.
+
+Этот contract supersedes прежнюю панорамную композицию первого экрана и палитру shell только в данном scope. Исторические reviewed PNG ниже описывают прежний дизайн; новые screenshots не автоматически объявляются принятыми golden-файлами.
+
+
 ## RUN6 — общее оглавление и три самостоятельных этапа
 
 Главное меню: Учебник / Примеры решений / Лаборатория. Full retains home/репетиторство/доска/сервисы/контакты, native mobile menu below1200; compact service labels retain descriptive accessible name. Header entry opens shared contents without losing reading scroll; categories, search, stage preference, unavailable labels and explicit lab fallback share derived source. Contents follows main semantically and opens a fixed non-modal region; Escape/native close restore visible trigger (mobile menu toggle when opener is hidden). Native noJS links remain; query-driven search/context enhancement requires JS. MVP exposes only one mesh entry and7existing routes. Actual measured header/rail bounds cover six widths/two themes; new chrome is isolated only in engineering-region regression captures, no equations/SVG/results hidden. Original engineering PNG remain protected;48MVP-shell PNG may change only after viewed before/after candidates. Runtime acceptance — STAGES/TESTING.

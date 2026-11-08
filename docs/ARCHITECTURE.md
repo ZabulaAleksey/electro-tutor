@@ -1,5 +1,10 @@
 # Архитектура Electro Tutor
 
+## ET-UI-007 — общая главная и CSS оболочки
+
+`src/components/ReferenceHome.astro` — статический localized presentation component с тремя href inputs. Full и MVP entrypoints передают реальные разрешённые URL; новая клиентская логика, дублирующий решатель и backend отсутствуют. `src/reference-ui.css` импортируется обоими layouts после прежних theme styles, меняет UI tokens и targeted chrome; математические source/MDX/SVG примеров остаются неизменными. Новая версия реализуется локально; публичная доставка ниже не обновлялась этим заданием.
+
+
 ## Текущая публичная доставка RUN6
 
 2026-11-05: owner-authorized fresh static MVP source3267948 deployed to electrotutor.pages.dev, canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef. Seven RU indexed pages, bounded hidden-route404 handler, CSP/security headers, no backend dependency or public catalogue expansion. Authenticated API confirms unchanged deployment settings/fail_open=false in both environments; primary HTTP and browser/PWA/math checks PASS. Earlier delivery entries below are historical; no architecture/security policy mutation. Evidence: STAGES ET-NAV-006, TESTING and docs/evidence/run6-production-deployment.json.

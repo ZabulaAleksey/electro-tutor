@@ -1,4 +1,5 @@
 ---
+import ReferenceHome from "../../components/ReferenceHome.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import EngineeringShowcase from "../../showcase/EngineeringShowcase";
 import { getPublishedLessonManifest } from "../../content/published-lessons";
@@ -34,6 +35,7 @@ const primaryPublication = publishedTopics.find(({ publication }) => publication
   active="home"
   alternatePath="/"
 >
+  <ReferenceHome language={language} textbook={primaryPublication?.available ? primaryPublication.href : localePath(language,"/topics/")} examples={language==="ru" ? localePath(language,"/topics/dc/mesh-current-method/examples/") : localePath(language,"/topics/?learningStage=examples")} lab={language==="ru" ? localePath(language,"/topics/dc/mesh-current-method/lab/") : localePath(language,"/interactive/?learningStage=lab")} />
   <EngineeringShowcase client:load language={language}
     lessonHref={primaryPublication?.available ? primaryPublication.href : localePath(language, "/topics/")}
     lessonLabel={copy.home.primary} />

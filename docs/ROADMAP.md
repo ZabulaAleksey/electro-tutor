@@ -1,5 +1,10 @@
 # Дорожная карта Electro Tutor
 
+## ET-UI-007 — макет владельца
+
+Текущая локальная работа: перенос electrotutor-ui.zip на общую главную и оболочку, с сохранением реальных учебных маршрутов. Требования — `specs/features/reference-ui.spec.md`; актуальные проверки, ограничения и интеграция — выбранный record `docs/STAGES.md`. Публичный release и старые media/manual/CI follow-ups не включены в эту визуальную итерацию.
+
+
 ## RUN6 — навигационный scope и отдельный media follow-up
 
 Owner-accepted ET-NAV-006 (source1f591a2 fast-forward integrated locally; Git publication/temporary-ref cleanup explicitly authorized separately, subsequently owner-authorized public MVP deployment7ba2859a-4b84-449a-8550-ba7084b9f3ef/source3267948 verified): one derived contents, three independent stage links, full31tools/20definitions/line variants retained, public7route policy unchanged. Текущая проверяемая готовность принадлежит STAGES, не этому roadmap. RTC diagnosis proves first anonymous host refused by Jitsi moderator policy; controlled Session media remains future scoped work. Public index remains seven RU pages; no infrastructure/auth migration. Manual publication was separately owner-authorized after integration; the preserved full catalogue is not publicly exposed. Existing Linux CI golden gap/manual release gates remain separate from the navigation implementation.

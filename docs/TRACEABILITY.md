@@ -1,5 +1,10 @@
 # Traceability
 
+## Reference UI
+
+FR-391..395 → `specs/features/reference-ui.spec.md` → `src/components/ReferenceHome.astro`, `src/reference-ui.css`, оба layout/entrypoint → `tests/e2e/mvp-reference-ui.spec.ts`, existing navigation/localization/PWA tests and `docs/evidence/reference-ui-acceptance.json`. Current lifecycle: STAGES ET-UI-007.
+
+
 Этот файл связывает требования с architecture decisions, stages и evidence, но
 не заменяет SPEC и не является вторым status source.
 

@@ -1,6 +1,7 @@
 ---
 import Layout from '../../MvpLayout.astro';
+import ReferenceHome from '../../../components/ReferenceHome.astro';
 import {publicPath,meshRoute} from '../../../../scripts/public-mvp-contract.mjs';
 const path=(p:string)=>publicPath(p,import.meta.env.BASE_URL);
 ---
-<Layout title="Изучайте электрические цепи"><section class="mvp-home"><p>ПОСТОЯННЫЙ ТОК · ИНЖЕНЕРНЫЙ УЧЕБНИК</p><h1>От законов Кирхгофа<br/>к работающей модели цепи</h1><p class="mvp-lead">Изучите метод контурных токов: последовательно выведите уравнения, разберите четыре задачи и проверьте свои идеи в интерактивной лаборатории.</p><a class="mvp-start" href={path(meshRoute)}>Начать изучение →</a><div class="mvp-stages"><a href={path(meshRoute)}><strong>1. Учебник</strong>Физический смысл, знаки, матрицы и проверки.</a><a href={path(meshRoute+'examples/')}><strong>2. Примеры решений</strong>От одного источника до суперконтуров.</a><a href={path(meshRoute+'lab/')}><strong>3. Лаборатория</strong>Изменяйте параметры и наблюдайте результат.</a></div><p>Один подробный учебный модуль на русском языке. Мгновенный расчёт без регистрации.</p></section></Layout>
+<Layout title="Электротехника, которую можно увидеть"><ReferenceHome language="ru" textbook={path(meshRoute)} examples={path(meshRoute+'examples/')} lab={path(meshRoute+'lab/')}/></Layout>

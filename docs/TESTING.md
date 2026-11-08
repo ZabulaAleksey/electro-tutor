@@ -1,5 +1,9 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## ET-UI-007 — production acceptance
+
+2026-11-09, https://electrotutor.pages.dev, source2f8b31e/deployment5cb7a463: accepted hosted18PASS/2conditional skips (fixture-dependent legacy update and localhost-specific release-CSP case). Independent actual-host CSP observations0violations/0pageerrors,4baseline presets and live edits PASS;7public200/5hidden404;390/1280light/dark geometry0overflow. Representative hosted desktop image viewed. Fresh release:build/strict audits and post-merge check:context PASS. GitHub Actions42532651358 observed running; no CI green claim. Full local acceptance remains in preceding reference-ui record.
+
 ## ET-UI-007 — локальная проверка макета
 
 `pnpm test`: 469/469, 61 files; independent beam references 13 cases/49 assertions PASS. `pnpm check`: 329 files, 0 errors/0 warnings/3 existing hints. `pnpm lint`: PASS. `pnpm build:full`: 41 pages/193 files, 40 localized routes, publication/site audits PASS; `pnpm build:mvp`: 96 files, seven indexed routes, allowlist/site audits PASS.

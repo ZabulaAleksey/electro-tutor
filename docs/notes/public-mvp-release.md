@@ -1,5 +1,9 @@
 # Публикация автономного ElectroTutor MVP
 
+## Текущий production — ET-UI-007
+
+2026-11-09, explicit owner merge/push/delete/deploy: main2f8b31e normal push triggered existing Cloudflare Git deployment5cb7a463-94b8-407f-902a-e15c7d81c6da. Primary public UI/18browser checks/CSP/4solver presets/current offline PWA verified. No manual duplicate deploy, cloud setting, DNS or resource change. Prior successful RUN6 deployments retained. docs/evidence/reference-ui-delivery.json and selected STAGES own current delivery facts; earlier current-production sections below are historical.
+
 ## Текущий production — RUN6
 
 Владелец разрешил деплой2026-11-05. Свежий проверенный96file MVP source3267948 опубликован вручную в существующий electrotutor/main: canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef, https://electrotutor.pages.dev/. API success +primary7public/24hidden404/92served SHA +8hosted browser +16independent math +real old-to-new PWA upgrade PASS. Предыдущий совместимый MVP41affa11 сохранён для возможного отката через Pages Deployments → Rollback после отдельного решения, не к историческому full/UK артефакту. DNS/settings/tariff/kernel unchanged; old dist не использовался. Подробные команды, SHA и отчёт: outputs/ElectroTutor_run6_deploy_2026-11-05.md. Ранние receipts ниже исторические.

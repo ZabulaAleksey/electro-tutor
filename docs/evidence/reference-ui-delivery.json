@@ -1,0 +1,127 @@
+{
+  "origin": "https://electrotutor.pages.dev",
+  "http": [
+    {
+      "route": "/ru/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/help/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/contacts/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/privacy/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/topics/dc/mesh-current-method/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/topics/dc/mesh-current-method/examples/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/ru/topics/dc/mesh-current-method/lab/",
+      "status": 200,
+      "csp": true
+    },
+    {
+      "route": "/uk/",
+      "status": 404,
+      "csp": true
+    },
+    {
+      "route": "/ru/topics/",
+      "status": 404,
+      "csp": true
+    },
+    {
+      "route": "/ru/interactive/",
+      "status": 404,
+      "csp": true
+    },
+    {
+      "route": "/ru/classroom/",
+      "status": 404,
+      "csp": true
+    },
+    {
+      "route": "/ru/account/",
+      "status": 404,
+      "csp": true
+    }
+  ],
+  "errors": [],
+  "violations": [],
+  "schemes": [
+    {
+      "preset": 1,
+      "value": "3,60 A"
+    },
+    {
+      "preset": 2,
+      "value": "1,20 A"
+    },
+    {
+      "preset": 3,
+      "value": "8,82 A"
+    },
+    {
+      "preset": 4,
+      "value": "2,67 A"
+    }
+  ],
+  "geometry": [
+    {
+      "theme": "light",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "scroll": 1280
+    }
+  ],
+  "stage": "ET-UI-007",
+  "date": "2026-11-09",
+  "source": "2f8b31e8f381ea023e2bffb0fa0933b979f57be3",
+  "deployment": "5cb7a463-94b8-407f-902a-e15c7d81c6da",
+  "trigger": "normal Git push main",
+  "merge": "fast-forward 7d1a6e2 -> 2f8b31e",
+  "origin_main_verified": "2f8b31e8f381ea023e2bffb0fa0933b979f57be3",
+  "implementation_branch_deleted": "feature/reference-ui; merged into local and remote main; remote feature branch absent",
+  "hosted_playwright": {
+    "passed": 18,
+    "skipped": 2,
+    "skips": "pre-existing conditional legacy fixture and localhost-only release-CSP scenario; actual hosted CSP/four presets checked independently"
+  },
+  "github_actions": {
+    "run": 42532651358,
+    "status": "in_progress",
+    "last_observed_step": "Run backend API and PostgreSQL gates",
+    "prior_gap": "Linux/shell screenshot baselines, unchanged"
+  },
+  "remaining": "old visual CI golden update, physical Narrator/device/legal/media follow-ups retained; no new resource/config/DNS/paid plan change"
+}

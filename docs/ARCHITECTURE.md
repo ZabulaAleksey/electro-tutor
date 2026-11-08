@@ -1,5 +1,9 @@
 # Архитектура Electro Tutor
 
+## Публичная доставка ET-UI-007
+
+2026-11-09: normal push main2f8b31e автоматически опубликовал существующий Cloudflare project electrotutor, deployment5cb7a463-94b8-407f-902a-e15c7d81c6da. Primary domain/7public/hidden404/real browser solver/PWA verified. Ниже RUN6 и initial local-only entries — исторические; актуальное evidence в STAGES и docs/evidence/reference-ui-delivery.json.
+
 ## ET-UI-007 — общая главная и CSS оболочки
 
 `src/components/ReferenceHome.astro` — статический localized presentation component с тремя href inputs. Full и MVP entrypoints передают реальные разрешённые URL; новая клиентская логика, дублирующий решатель и backend отсутствуют. `src/reference-ui.css` импортируется обоими layouts после прежних theme styles, меняет UI tokens и targeted chrome; математические source/MDX/SVG примеров остаются неизменными. Новая версия реализуется локально; публичная доставка ниже не обновлялась этим заданием.

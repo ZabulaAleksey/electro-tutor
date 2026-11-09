@@ -1260,7 +1260,5 @@ Actual GitHub main-only run completed SUCCESS for exact c9a43fb: backend CI-equi
 Primary https://electrotutor.pages.dev on c9a43fb/Cloudflare a1db51d3: same13canonical engineering/catalog/panorama browser scenarios13/13PASS/32.1s; separate RU/UK reference-line mobile390px direct/reload/WASM-ready/error-free probes2/2PASS. Real calculated values, axes/cursors/SVG export, catalogue, readiness/swipe/autoplay/reduced-motion, six widths/themes and direct URLs verified on HTTPS. Final Cloudflarea1db51d3-6979-4112-a33e-a007055ef99b publishes the validated source. Prior failed40983001960/40983484472 and interrupted/remote harness attempts remain explicitly non-PASS. Final documentation-only [skip ci] receipt does not replace the verified source SHA.
 ## ET-UI-008 language switcher
 
-Static/component acceptance covers the shared shell icon, RU/UK links, reserved EN
-option, active checkmark, keyboard dismissal/navigation, mobile-safe menu bounds and
-query/hash-preserving route construction. Existing suite remains the source of truth;
-no accepted tests or mathematical goldens were changed.
+check333files/0errors/0warnings/3existing hints, lint, locales398paired keys, unit469/61files and analytical13cases/49assertions PASS. Full41pages/194artifacts and MVP builds PASS. Language E2E9PASS across320/375/768/1440 and both themes. Public MVP16PASS/2existing conditional skips.
+- Extended browser run51PASS/5FAIL: new query assertion corrected to compare actual pre-navigation state and all9 language cases rerun PASS. Four remaining full-home failures: two duplicate main h1 strict selectors, panorama offscreen autoplay, mobile swipe. Home/showcase source unchanged; no old-baseline checkout run claimed. Accepted assertions retained; locale tests only open menu before existing link click.

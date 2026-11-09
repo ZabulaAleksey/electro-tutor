@@ -1,0 +1,7 @@
+.operation-status { min-width: 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); }
+.operation-status p { margin: 0; overflow-wrap: anywhere; font-size: 14px; }
+.operation-status--error { border-color: var(--error); }
+.operation-status__progress { height: 6px; overflow: hidden; margin-top: 10px; border-radius: 99px; background: var(--paper); }
+.operation-status__progress span { display: block; height: 100%; width: 35%; border-radius: inherit; background: linear-gradient(90deg,var(--violet),var(--green)); animation: operation-wait 1.8s ease-in-out infinite; }
+@keyframes operation-wait { from { transform: translateX(-110%); } to { transform: translateX(390%); } }
+@media(prefers-reduced-motion:reduce) { .operation-status__progress span { animation: none; width: 100%; opacity: .55; } }

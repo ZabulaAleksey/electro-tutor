@@ -35,7 +35,8 @@
       "specs/features/public-mvp-run4.spec.md",
       "specs/features/release-readiness-run5.spec.md",
       "specs/features/unified-navigation-run6.spec.md",
-      "specs/features/reference-ui.spec.md"
+      "specs/features/reference-ui.spec.md",
+      "specs/features/language-switcher-ui.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"

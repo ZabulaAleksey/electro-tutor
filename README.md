@@ -125,3 +125,5 @@ HTTP smoke через `pnpm release:preview -- --port 4325`. Этот preview
 - [Учебный контент](docs/CONTENT_GUIDE.md) и [текущие этапы](docs/STAGES.md)
 - [API](docs/API.md), [модель данных](docs/DATA_MODEL.md), [безопасность](docs/SECURITY.md)
 - [Тестирование](docs/TESTING.md), [зависимости](docs/DEPENDENCIES.md) и [контекст проекта](docs/project-context.md)
+
+Переключатель языка: компактная кнопка A/文 сохраняет RU/UK в полном локальном режиме; явный язык URL приоритетен. Нейтральный вход восстанавливает предпочтение. Public MVP сохраняет прежний RU-only граф. Панели длительных расчётов отображают реальное ожидание worker без вымышленных процентов.

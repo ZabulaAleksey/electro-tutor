@@ -299,3 +299,5 @@ wheel прокручивает страницу; кнопки масштаба �
 390/900/1440px layouts (это UI-критерий, не ГОСТ-размер). Scientific plot legends
 переносятся; signed modulation beats отображается как модуль амплитудной огибающей,
 с сохранением исходного математического результата/несущей.
+
+ET-UI-008: язык → тема → меню;44px controls/14px radius,22px A/文 SVG,168px menu с12px viewport clamp. RU/UK checkmark, обе темы; реальные длительные worker операции используют компактную indeterminate панель и prefers-reduced-motion.

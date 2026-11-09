@@ -98,13 +98,13 @@ const nav = standardNav;
       <LearningMenu language={language} links={learningLinks} currentStage={currentStage} />
       {nav.map(item => item.id === "my-services" ? <details class="nav-services"><summary aria-label={language === "ru" ? "Дополнительные сервисы" : "Додаткові сервіси"} class:list={{active:active === item.id}}>{item.label}</summary><div class="nav-services-menu"><a href={localePath(language,"/my-services/#install")}>{language==="ru"?"Приложение ElectroTutor":"Застосунок ElectroTutor"}</a><a href={localePath(language,"/my-services/#mathmorph")}>MathMorph</a><a href={localePath(language,"/classroom/")}>{language==="ru"?"Гостевая видеокомната · Jitsi (внешний сервис)":"Гостьова відеокімната · Jitsi (зовнішній сервіс)"}</a><span>{language==="ru"?"Контролируемое видеозанятие · не реализовано":"Кероване відеозаняття · не реалізовано"}</span><a href={item.href}>{language==="ru"?"Все сервисы":"Усі сервіси"} ↗</a></div></details> : <a class:list={{ active: active === item.id }} href={item.href}>{item.label}</a>)}
     </nav>
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={copy.actions.openMenu}>
-      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-    </button>
+    {hasTranslation && <LanguageSwitcher language={language} alternatePath={alternatePath} />}
     <button class="theme-toggle" id="theme-toggle" aria-label={copy.actions.theme} title={copy.actions.themeTitle}>
       <span class="theme-light">☾</span><span class="theme-dark">☀</span>
     </button>
-    {hasTranslation && <LanguageSwitcher language={language} alternatePath={alternatePath} />}
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={copy.actions.openMenu}>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+    </button>
   </header>
   <main><slot /></main><LearningContents language={language} currentEntryId={isMeshPage ? "topic:dc/mesh" : undefined} currentStage={isMeshPage ? currentStage : undefined} />
   <footer><span>© {new Date().getFullYear()} {copy.brand.display}</span></footer>
@@ -203,12 +203,16 @@ const nav = standardNav;
         state.globalEventsReady = true;
         document.addEventListener("click", event => {
           const origin = event.target;
-          const link = origin instanceof Element ? origin.closest("[data-language-link]") : null;
+          const link = origin instanceof Element ? origin.closest("[data-language-link], [data-language-option]") : null;
           if (!(link instanceof HTMLAnchorElement)) return;
           const target = new URL(link.href);
           target.search = location.search;
           target.hash = location.hash;
           link.href = target.toString();
+          const selectedLanguage = link.getAttribute("lang");
+          if (selectedLanguage === "ru" || selectedLanguage === "uk") {
+            try { localStorage.setItem("potential-language", selectedLanguage); } catch {}
+          }
           try { sessionStorage.setItem("potential-language-scroll", JSON.stringify({ path: target.pathname, y: scrollY })); } catch {}
         }, true);
         addEventListener("keydown", event => {

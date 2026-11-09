@@ -690,3 +690,5 @@ MicroVisual/SceneVisual/ToolArt, пример CircuitDiagram и механиче
 full/thumbnail/export имеют одну геометрию; масштаб меняет весь символ. Профили
 в SVG units не являются произвольными заявлениями о нормативных миллиметрах.
 Внешние пакеты, backend, auth, deployment и service-worker policy не изменены.
+
+ET-UI-008: LanguageSwitcher использует существующие localePath/catalogs и очищает обработчики при Astro transitions. localStorage potential-language содержит только RU/UK; нейтральный full-build root восстанавливает его, explicit locale URL и MVP policy приоритетны. OperationStatus отображает существующий worker busy/error; вычислительный контракт неизменён.

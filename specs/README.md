@@ -64,3 +64,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/unified-navigation-run6.spec.md` | Approved RUN6 owner contract2026-11-05 | NAV-001..007 / RTC6-001..003: unified derived contents/menu/full access, unchanged public graph, bounded real RTC diagnosis |
 
 | `features/reference-ui.spec.md` | Утверждён запросом владельца 2026-11-09 | FR-391..395: общая главная и UI оболочка по electrotutor-ui.zip |
+
+| `features/language-switcher-ui.spec.md` | Approved START2026-11-09 | ET-UI-008: RU/UK icon menu/persistence, EN type reservation, honest worker status |

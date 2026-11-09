@@ -22,7 +22,7 @@ test("base deployment opens nested lesson and returns a real 404", async ({ page
 
 test("base-aware locale switch preserves interactive query and hash", async ({ page }) => {
   await page.goto(atBase("ru/interactive/?i0m=2.75&r=50#base-state"));
-  await page.locator("a[data-language-link]").click();
+  await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();
   await expect(page).toHaveURL(new RegExp(`${atBase("uk/interactive/").replaceAll("/", "\\/")}`));
   const target = new URL(page.url());
   expect(target.pathname).toBe(atBase("uk/interactive/"));

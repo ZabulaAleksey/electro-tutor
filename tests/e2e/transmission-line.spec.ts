@@ -15,7 +15,7 @@ test('dedicated circular page restores query state and survives reload and local
   await page.goto('/ru/interactive/circular-diagram/?i0m=2.75&r=50#diagram');
   const input=page.locator('.circle-controls fieldset').first().getByRole('spinbutton').first();
   await expect(input).toHaveValue('2.75');await page.reload();await expect(input).toHaveValue('2.75');
-  await page.locator('a[data-language-link]').click();await expect(page).toHaveURL(/\/uk\/interactive\/circular-diagram\//);
+  await page.locator(".language-switcher__trigger").click(); await page.locator('a[data-language-link]').click();await expect(page).toHaveURL(/\/uk\/interactive\/circular-diagram\//);
   expect(new URL(page.url()).searchParams.get('i0m')).toBe('2.75');expect(new URL(page.url()).hash).toBe('#diagram');
 });
 

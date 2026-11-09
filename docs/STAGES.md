@@ -1,22 +1,23 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UI-007
+- Stage ID: ET-UI-008
 
 ## ET-UI-008 — общий переключатель языка shell
 
-- Status: implemented locally; validation PASS; no push/merge/deploy.
-- Scope: reusable icon-only Languages menu in `BaseLayout.astro`, preserving RU/UK
-  routes and reserving EN in `LocaleCode`; no hidden English route is generated.
-- Dependencies: ET-UI-007 verified; existing `localePath`, Astro transitions and shell
-  theme/mobile controls. No dependency or math/model changes.
-- Evidence: `pnpm check` 0 errors/0 warnings/3 existing hints; `pnpm lint` PASS;
-  `pnpm check:locales` 395 paired keys PASS; `pnpm test` 61 files/469 tests PASS;
-  `pnpm build` 9 pages and artifact audits PASS. Browser E2E not rerun in this scoped
-  shell change; manual/hosted acceptance remains pending.
-- UX contract: 44px trigger, inline SVG A/文-equivalent icon, 168px menu, active
-  checkmark, Escape/arrows/Home/End/Tab/outside close, dark/light semantic styling.
-- NEXT: run existing browser journey at RU/UK and both themes, then reviewer and owner
-  decision for merge/push/deploy. Do not publish automatically.
+- Status: partial
+- Lifecycle: implementation and targeted acceptance validated locally; four existing full-home E2E failures remain. No push/merge/deploy.
+- SPEC: specs/features/language-switcher-ui.spec.md; approved user START2026-11-09.
+- Dependencies: ET-UI-007; existing RU/UK routes/catalogs and worker calculations. EN reserved in type only; public MVP graph unchanged.
+- Plan: shared icon/menu → persistence/root restoration → existing worker status → browser/regression → review/docs/commit.
+- Runnable path: full RU page → menu UK preserving query/hash → reload → neutral root restores UK; public MVP remains RU-only. Actual worker busy/error uses indeterminate panel, equations unchanged.
+- Evidence: check333files/0errors/0warnings/3existing hints, lint, locales398paired keys, unit469/61files and analytical13cases/49assertions PASS. Full41pages/194artifacts and MVP builds PASS. Language E2E9PASS across320/375/768/1440 and both themes. Public MVP16PASS/2existing conditional skips.
+- Extended browser run51PASS/5FAIL: new query assertion corrected to compare actual pre-navigation state and all9 language cases rerun PASS. Four remaining full-home failures: two duplicate main h1 strict selectors, panorama offscreen autoplay, mobile swipe. Home/showcase source unchanged; no old-baseline checkout run claimed. Accepted assertions retained; locale tests only open menu before existing link click.
+- Review: Astro transition cleanup, keyboard/focus, root preference, scoped styles and44px/14px controls corrected; two bounded reviewer passes integrated.
+- Temporary implementation: none. No hidden content/English route exposure, no invented server phases, no dependency changes.
+- Deferred: existing home test drift and historical shell goldens, physical mobile/Narrator and production acceptance. EN course translation is future scope, not exposed as available.
+- Completion sync: README, STAGES, ROADMAP, ARCHITECTURE, DESIGN, TESTING, feature SPEC/index and requirements-ledger updated. DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked; no backend/model/storage contract changes beyond locale preference, no LEARNING_LOG churn.
+- NEXT: ET-UI-008-HOME
+- Next action: preserve local feature branch/checkpoint; separate home compatibility follow-up before broad release claim. Production publication requires separate owner authorization.
 
 ## ET-UI-007 — интерфейс по HTML-макету
 

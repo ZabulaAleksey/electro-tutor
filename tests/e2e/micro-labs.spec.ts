@@ -34,7 +34,7 @@ test("time is shared by RC result, cursor and physical parameter changes", async
 test("permanent micro link survives reload and RU/UK change", async ({ page }) => {
   await page.goto("/ru/micro-labs/#micro=dc-motor-start"); const card = page.locator('[data-micro="dc-motor-start"]');
   await expect(card).toHaveAttribute("data-selected", "true"); await page.reload(); await expect(card).toHaveAttribute("data-selected", "true");
-  await page.locator("a[data-language-link]").click(); await expect(page).toHaveURL(/\/uk\/micro-labs\/#micro=dc-motor-start$/);
+  await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click(); await expect(page).toHaveURL(/\/uk\/micro-labs\/#micro=dc-motor-start$/);
   await expect(card).toHaveAttribute("data-selected", "true"); await expect(card.locator("h3")).toHaveText("Розгін двигуна");
 });
 

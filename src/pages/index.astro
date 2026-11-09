@@ -1,3 +1,17 @@
 ---
-return Astro.redirect(`${import.meta.env.BASE_URL}ru/`);
+import { mvpMode } from "../../scripts/public-mvp-contract.mjs";
+const base = import.meta.env.BASE_URL;
+const full = !mvpMode(import.meta.env.PUBLIC_MVP_MODE, true);
+// The public MVP keeps its Russian-only route surface. Full local builds may
+// restore an explicit user preference without redirecting localized deep links.
+if (!full) return Astro.redirect(`${base}ru/`);
 ---
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"/><title>ElectroTutor</title>
+  <script is:inline define:vars={{base}}>
+    let language = "ru";
+    try { if (localStorage.getItem("potential-language") === "uk") language = "uk"; } catch {}
+    location.replace(base + language + "/" + location.search + location.hash);
+  </script>
+  <noscript><meta http-equiv="refresh" content={`0;url=${base}ru/`}/></noscript>
+</head><body><a href={`${base}ru/`}>ElectroTutor</a></body></html>

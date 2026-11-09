@@ -87,7 +87,7 @@ test("interactive query state is restored and survives a language switch", async
     .toBe("25");
 
   const source = new URL(page.url());
-  await page.locator("a[data-language-link]").click();
+  await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();
   await expect(page).toHaveURL(/\/uk\/interactive\//);
 
   const target = new URL(page.url());

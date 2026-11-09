@@ -51,7 +51,7 @@ test("range updates replace the current URL and language switch preserves it", a
 
   await slider.fill("60");
   await expect.poll(() => new URL(page.url()).searchParams.get("r")).toBe("60");
-  await page.locator("a[data-language-link]").click();
+  await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();
 
   await expect(page).toHaveURL(/\/uk\/interactive\//);
   expect(new URL(page.url()).searchParams.get("v")).toBe("1");

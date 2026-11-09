@@ -5,6 +5,7 @@ import { drawSpatial, sampleAtFraction, type PlotGeometry } from "../transient/c
 import { lineCopy } from "../transient/copy";
 import { D, OPEN_PRESET, type LoadKind, type TransientConfig, type WorkerCommand, type WorkerReply } from "../transient/types";
 import "./TransmissionLineLab.css";
+import { OperationStatus } from "./OperationStatus";
 
 type Snapshot = Extract<WorkerReply, { type: "snapshot" }>;
 type Status = { time: number; step: number; sourceV: number; sourceI: number; loadV: number; loadI: number; energy: number;
@@ -145,7 +146,7 @@ export default function TransmissionLineLab({ language }: { language: Language }
         {field(t.seek, seekMs, setSeekMs, 0, stopMs)}
         <button type="button" disabled={busy || !Number.isFinite(seekMs) || seekMs < 0} onClick={() => make({ type: "seek", targetS: seekMs / 1000 })}>{t.seek}</button>
       </div>
-      <p aria-live="polite">{busy ? t.busy : message || t.valid}</p>
+      <OperationStatus busy={busy} message={busy ? t.busy : message || t.valid}/>
     </section>
     <section className="line-plots" aria-label={t.plots}><h2>{t.plots}</h2>
       <p className="line-schematic" aria-label={t.schematic}><span>{t.source}</span><span>→</span><span>{t.line}</span><span>→</span><span>{t.load}</span></p>

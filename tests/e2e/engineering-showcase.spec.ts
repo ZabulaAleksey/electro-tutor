@@ -23,7 +23,7 @@ test('catalog searches real tools and bookmarked software examples remain explic
 
 test('reduced motion stops autoplay and physical clock; direct story survives locale change',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/ru/#story=rc-charge');await expect(page.locator('[data-scene="rc-charge"]')).toHaveAttribute('data-motion','paused');const before=await page.locator('[data-model-time]').innerText();await page.waitForTimeout(300);await expect(page.locator('[data-model-time]')).toHaveText(before);await expect(page.locator('.panorama-showroom')).toHaveAttribute('data-autoplay','false');
- await page.locator('a[data-language-link]').click();await expect(page).toHaveURL(/\/uk\/#story=rc-charge$/);await expect(page.locator('[data-scene="rc-charge"]')).toBeVisible();
+ await page.locator(".language-switcher__trigger").click(); await page.locator('a[data-language-link]').click();await expect(page).toHaveURL(/\/uk\/#story=rc-charge$/);await expect(page.locator('[data-scene="rc-charge"]')).toBeVisible();
 });
 
 test('automatic panorama rotation is eight seconds and pauses offscreen',async({page})=>{

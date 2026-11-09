@@ -2,30 +2,26 @@
 
 - Stage ID: ET-UI-008
 
-## ET-UI-008 — общий переключатель языка shell
+## ET-UI-008 — язык, статус операций и проверенные visual baselines
 
-- Status: partial
-- Lifecycle: requested four failures fixed; committed, merged, pushed and Cloudflare production deployed. Overall partial only for separately deferred visual baselines, not these four functional failures.
-- SPEC: specs/features/language-switcher-ui.spec.md; approved user START2026-11-09.
-- Dependencies: ET-UI-007; existing RU/UK routes/catalogs and worker calculations. EN reserved in type only; public MVP graph unchanged.
-- Plan: shared icon/menu → persistence/root restoration → existing worker status → browser/regression → review/docs/commit.
-- Runnable path: full RU page → menu UK preserving query/hash → reload → neutral root restores UK; public MVP remains RU-only. Actual worker busy/error uses indeterminate panel, equations unchanged.
-- Initial evidence (superseded by repair/release checks below): check333files/0errors/0warnings/3existing hints, lint, locales398paired keys, unit469/61files and analytical13cases/49assertions PASS. Full41pages/194artifacts and MVP builds PASS. Language E2E9PASS across320/375/768/1440 and both themes. Public MVP16PASS/2existing conditional skips.
-- Historical pre-repair browser run51PASS/5FAIL: new query assertion corrected to compare actual pre-navigation state and all9 language cases rerun PASS. Four then-remaining full-home failures: two duplicate main h1 strict selectors, panorama offscreen autoplay, mobile swipe. Home/showcase source unchanged; no old-baseline checkout run claimed. Accepted assertions retained; locale tests only open menu before existing link click.
-- Review: Astro transition cleanup, keyboard/focus, root preference, scoped styles and44px/14px controls corrected; two bounded reviewer passes integrated.
-- Temporary implementation: none. No hidden content/English route exposure, no invented server phases, no dependency changes.
-- Deferred: historical shell goldens and physical mobile/Narrator. EN course translation is future scope, not exposed as available.
-- Completion sync: README, STAGES, ROADMAP, ARCHITECTURE, DESIGN, TESTING, feature SPEC/index and requirements-ledger updated. DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked; no backend/model/storage contract changes beyond locale preference, no LEARNING_LOG churn.
-- NEXT: UI7-GOLDENS
-- Next action: none for requested four-test repair and Cloudflare publication. UI7-GOLDENS remains separate accepted baseline-review work, not silently rewritten.
-- User action UI8-RELEASE / APPROVED2026-11-09: explicit request permits commit, push, merge and deployment of ElectroTutor language/status changes and four E2E fixes to existing https://github.com/ZabulaAleksey/electro-tutor.git main and https://electrotutor.pages.dev. No branch deletion, new resources, paid plan, DNS or secret/config changes requested.
-- Public artifact: MVP build PASS; full32-scenario run18PASS/2existing skips/12visualFAIL. Every visual failure is old home PNG vs approved ReferenceHome design (390 light expected/actual inspected); FR-395/UI7-GOLDENS already defer those baselines. No golden rewrite/threshold change/skip. Functional release evidence is18PASS, not all-MVP-green.
-- Repair verification: full E2E56/56PASS (1.6m), all four formerly failing cases included. Typecheck333files/0errors/0warnings/3hints; lint;469unit/61files + analytical13cases/49assertions PASS. Full41-page build, context/hygiene/workflow contract PASS. pnpm audit high exit0:4LOW/6MODERATE, no dependency changes. Independent read-only reviewer found no blockers; original timing/swipe/math assertions retained.
-- Diagnosis: duplicate h1 corrected in Panorama; two timing/touch tests used offscreen coordinates after FR-391 moved panorama below ReferenceHome. Narrow test setup scrolls and waits readiness; all original behavioral assertions remain. Historical before-run51/5 and fresh16/2 retained, no false clean baseline claim.
-
-- Release receipt2026-11-09: f38b069a2ac2b7a86a51d28dc8d79288a0bfec33 fixes committed; feature pushed; main fast-forward623fc69→f38b069 and ordinary origin/main push verified exactly. Branch retained (deletion not requested). Cloudflare Production/main deployment00eee74a-f869-439f-be5b-6cff46db5ef1 sourcef38b069 successful; previewe1107bf4 is separate, not production evidence. Primary https://electrotutor.pages.dev/ru/ and immutable https://00eee74a.electrotutor.pages.dev/ru/ both200 and byte-identical. Hosted20-scenario functional run18PASS/2conditional skips;7public200 and4hidden404 with CSP present. No resource/config/secret/plan change.
-- GitHub CI42598817335: backend gates passed, full frontend verification still running at receipt preparation; no all-CI-green claim. Existing visual-baseline limitation above remains.
-- Post-merge documentation sync: STAGES/ROADMAP/TESTING and affected SPEC updated; README/ARCHITECTURE/DECISIONS/DESIGN/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked consistent, no backend/model contract change or LEARNING_LOG churn.
+- Status: in_progress
+- Lifecycle: implementation and reviewed baselines validated locally; authorized Git/production delivery pending.
+- SPEC: language-switcher-ui.spec.md and reference-ui.spec.md FR-391..395; dependencies ET-UI-007 and existing RU/UK shell/workers verified.
+- Scope: icon Languages, persisted RU/UK, EN type reservation, actual worker status; public MVP remains RU-only. No math/model/API/hidden-content change.
+- Plan: inspect CI → review candidate screenshots → fix real clipping and stale setup → non-update Windows/Linux MVP and full native-Linux E2E → review/docs/commit → approved push/merge/deploy/hosted acceptance.
+- Runnable path: full locale menu preserves query/hash/reload; MVP home→textbook→example→editable lab; all controls/readings visible below measured header at six widths and both themes.
+- User action UI7-GOLDENS / APPROVED2026-11-09: owner explicitly permits reviewed update of12visual scenarios (4screens each), repeated checks, commit, push, merge and deployment to existing origin/main and electrotutor.pages.dev.48Windows references replaced and48pinned-Linux references added; no new resources, paid plan, secrets, DNS or branch deletion.
+- Historical CI42598817335 / FAIL:281PASS/6SKIP/3FAIL; two panorama tests assumed above-fold placement and one accessibility test expected old UA link. Setup/selectors synchronized without dropping timing/swipe/accessibility assertions. Earlier f38b069 Cloudflare00eee74a remained successful; this was not all-CI-green evidence.
+- Visual review: all96candidates inspected across320/375/390/768/1280/1920 and light/dark before promotion. Home follows approved ReferenceHome; textbook/examples/formulas retain content; platform font raster/wrapping differences use separate references. No tolerance/retry/skip relaxation.
+- Rejected candidates exposed clipped preset caused by old135px scroll and readings below900px at375/390. Setup measures actual journey rail and asserts preset visibility; SVG max-width310px only at mobile<=700px/height<=900px keeps all readings within the original900px bound. SVG topology/formulas and44px controls unchanged.
+- Verification: check333files/0errors/0warnings/3existing hints, lint,469unit/61files plus13analytical cases/49assertions PASS;398paired locale keys; context/hygiene/workflow contract PASS; full41page/194artifact and MVP9page/96artifact builds PASS.
+- Normal MVP replay (no snapshot update): Windows30PASS/2existing skips/2.0m; pinnedNoble Linux30PASS/2existing skips/2.2m. All12visual scenarios PASS on both platforms,96images have exact viewport dimensions.
+- Full native-Linux root replay:284PASS/6existing live-phase skips/10.6m, all290scenarios retained and all3prior CI failures PASS. Both Node test host and browser Linux; exact CI browser image dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e, locked Playwright1.62.1, source read-only. Earlier mixed Windows-host/Linux-browser attempt stopped for incorrectly activated Windows-only snapshot branches; its72missing-reference artifacts were discarded, not accepted or counted PASS.
+- Dependency audit HIGH gate exit0:4LOW/6MODERATE, lockfile unchanged. Reviewer: no code/test-contract blockers after mobile fix. No additional dependencies or mathematical goldens changed.
+- Completion sync: STAGES/ROADMAP/TESTING/DESIGN/affected SPEC updated; README/ARCHITECTURE/DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked consistent. No LEARNING_LOG churn.
+- Temporary implementation: none. Deferred: EN course publication and physical-device/Narrator acceptance; not represented by emulated browser evidence.
+- NEXT: ET-UI-008-DELIVERY
+- Next action: commit reviewed changes, push feature, fast-forward main, verify exact remote SHA, Cloudflare production and GitHub CI, then hosted functional/visual checks.
 
 ## ET-UI-007 — интерфейс по HTML-макету
 

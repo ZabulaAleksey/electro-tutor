@@ -2,7 +2,7 @@ import {expect,test} from "@playwright/test";
 
 test("panorama rotates every eight seconds, pauses on hover and restarts after manual navigation",async({page})=>{
  await page.emulateMedia({reducedMotion:"no-preference"});const start=new Date("2030-01-01T00:00:00Z");await page.clock.install({time:start});await page.clock.pauseAt(new Date(start.getTime()+1000));await page.goto("/ru/");
- const carousel=page.locator("[data-panorama-index]");await page.mouse.move(5,80);await expect(carousel).toHaveAttribute("data-autoplay","true");
+ const carousel=page.locator("[data-panorama-index]");await expect(carousel).toHaveAttribute("data-ready","true");await carousel.scrollIntoViewIfNeeded();await page.mouse.move(5,80);await expect(carousel).toHaveAttribute("data-autoplay","true");
  await page.clock.fastForward(7900);await expect(carousel).toHaveAttribute("data-panorama-index","0");await page.clock.fastForward(200);await expect(carousel).toHaveAttribute("data-panorama-index","1");
  await page.locator(".panorama-slides").hover();await expect(carousel).toHaveAttribute("data-autoplay","false");await page.clock.fastForward(20000);await expect(carousel).toHaveAttribute("data-panorama-index","1");
  await page.getByRole("button",{name:"Следующая панорама",exact:true}).click();await expect(carousel).toHaveAttribute("data-panorama-index","2");await page.mouse.click(5,80);await expect(carousel).toHaveAttribute("data-autoplay","true");
@@ -18,8 +18,7 @@ test("reduced motion disables automatic changes; every panorama points to an act
 });
 
 test("touch swipe changes only the panorama and preserves vertical page scrolling",async({page})=>{
- await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/ru/");await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-autoplay","false");
- await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-ready","true");
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/ru/");const carousel=page.locator("[data-panorama-index]");await expect(carousel).toHaveAttribute("data-ready","true");await page.locator(".panorama-slides").scrollIntoViewIfNeeded();await expect(carousel).toHaveAttribute("data-autoplay","false");
  const session=await page.context().newCDPSession(page),area=(await page.locator(".panorama-slides").boundingBox())!,y=area.y+100;
  await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:area.x+280,y,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:area.x+110,y:y+2,id:1}]});await session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});await expect(page.locator("[data-panorama-index]")).toHaveAttribute("data-panorama-index","1");
  expect(await page.locator(".panorama-showroom").evaluate(e=>getComputedStyle(e).touchAction)).toBe("pan-y");

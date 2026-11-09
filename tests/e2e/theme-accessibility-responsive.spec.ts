@@ -136,7 +136,8 @@ test("essential icon controls and lesson diagrams expose accessible names and li
   await expect(page.getByRole("button", { name: "Переключить тему" })).toBeVisible();
   await page.locator(".nav-services summary").click();
   await expect(page.locator(".nav-services-menu a[href$='/my-services/#install']")).toBeVisible();
-  await expect(page.getByRole("link", { name: "UA" })).toBeVisible();
+  await page.getByRole("button", { name: /выбрать язык/i }).click();
+  await expect(page.getByRole("menuitemradio", { name: "Українська" })).toBeVisible();
   await expect(page.getByRole("img", { name: /схема|диаграмма/i })).toBeVisible();
 
   await page.goto("/ru/interactive/circular-diagram/");

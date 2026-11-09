@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+const home = `${process.env.E2E_BASE_PATH || '/'}ru/`;
+
 test('reference home leads to a real editable lesson and retains the chosen theme', async ({ page }) => {
-  await page.goto('/ru/');
+  await page.goto(home);
   await expect(page.locator('.ref-hero h1')).toContainText('Электротехника');
   await page.locator('.ref-ctas a').first().click();
   await expect(page.locator('h1')).toHaveText('Метод контурных токов');
@@ -26,7 +28,7 @@ test('reference home leads to a real editable lesson and retains the chosen them
 test('reference home keeps every CTA usable without JavaScript at phone width', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
   const page = await context.newPage();
-  await page.goto('/ru/');
+  await page.goto(home);
   expect(await page.locator('.ref-cards a').count()).toBe(3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await page.locator('.ref-cards a').nth(2).click();

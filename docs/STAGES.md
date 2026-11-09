@@ -20,6 +20,7 @@
 - Dependency audit HIGH gate exit0:4LOW/6MODERATE, lockfile unchanged. Reviewer: no code/test-contract blockers after mobile fix. No additional dependencies or mathematical goldens changed.
 - Completion sync: STAGES/ROADMAP/TESTING/DESIGN/affected SPEC updated; README/ARCHITECTURE/DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked consistent. No LEARNING_LOG churn.
 - Temporary implementation: none. Deferred: EN course publication and physical-device/Narrator acceptance; not represented by emulated browser evidence.
+- CI follow-up42604669717 / FAIL: root284PASS/6existing skips and all12MVP visual scenarios PASS; MVP28PASS/2SKIP/2FAIL because reference-home tests used absolute /ru/ instead of existing E2E_BASE_PATH. Only both entry URLs corrected; every CTA/theme/no-JS assertion preserved. Fresh production /electro-tutor/ build and full MVP30PASS/2existing skips/1.7m, scoped ESLint and diff checks PASS. Cloudflare production a4f9070b/sourcecf1a017 and primary hosted30PASS/2skips/2.2m verified; primary/immutable HTML identical and CSP present. Follow-up CI required before final closure.
 - NEXT: ET-UI-008-DELIVERY
 - Next action: commit reviewed changes, push feature, fast-forward main, verify exact remote SHA, Cloudflare production and GitHub CI, then hosted functional/visual checks.
 

@@ -1262,3 +1262,7 @@ Primary https://electrotutor.pages.dev on c9a43fb/Cloudflare a1db51d3: same13can
 
 check333files/0errors/0warnings/3existing hints, lint, locales398paired keys, unit469/61files and analytical13cases/49assertions PASS. Full41pages/194artifacts and MVP builds PASS. Language E2E9PASS across320/375/768/1440 and both themes. Public MVP16PASS/2existing conditional skips.
 - Extended browser run51PASS/5FAIL: new query assertion corrected to compare actual pre-navigation state and all9 language cases rerun PASS. Four remaining full-home failures: two duplicate main h1 strict selectors, panorama offscreen autoplay, mobile swipe. Home/showcase source unchanged; no old-baseline checkout run claimed. Accepted assertions retained; locale tests only open menu before existing link click.
+
+ET-UI-008-HOME2026-11-09: duplicate main h1 corrected semantically, carousel setup synchronized with approved below-hero placement and hydration. Fresh full consumer56/56PASS includes all four former failures;469unit/61files, types/lint/full build PASS. Tests preserve exact8s/offscreen/touch/no-overflow assertions; no skip/retry/golden changes. Reviewer found no blockers. Prior failing runs remain historical evidence, not current blockers.
+
+Public MVP32-scenario run:18PASS/2existing skips/12visualFAIL at old home PNGs. Expected390/light shows pre-reference home; actual shows approved ReferenceHome. Historical FR-395/UI7-GOLDENS limitation persists; no baseline overwrite or all-suite PASS claim.

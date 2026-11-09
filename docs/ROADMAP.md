@@ -565,4 +565,4 @@ SPEC/ADR, dependency check и явное одобрение.
 
 ET-CI-001 verified2026-10-30: source `c9a43fbe0149aae5072b02cd04d7268bc743397a`, [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/41025558068) verify/deploy SUCCESS; Cloudflare `a1db51d3-6979-4112-a33e-a007055ef99b` SUCCESS. Backend/full frontend gates и primary HTTPS acceptance PASS. CI-01 закрыт;9LOW/MODERATE остаются вне обязательного HIGH threshold. Подробности — выбранный STAGES record.
 
-ET-UI-008: local icon menu/persistent RU-UK preference and real worker status implemented. Targeted9E2E and public MVP16PASS/2conditional skips; four full-home failures remain. See STAGES; no production publication.
+ET-UI-008: local icon menu/persistent RU-UK preference and real worker status implemented. Targeted9E2E and public MVP16PASS/2conditional skips; four full-home failures resolved with56/56 full consumer checks. See STAGES; no production publication.

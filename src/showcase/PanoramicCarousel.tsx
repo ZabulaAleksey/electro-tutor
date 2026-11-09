@@ -50,7 +50,7 @@ export default function PanoramicCarousel({ language, interval = 8000 }: { langu
           srcSet={adjacent(k) ? [640, 1280, 1920].map(w => `${withBasePath(`/panoramas/${slide.id}-${w}.webp`)} ${w}w`).join(",") : undefined}
           sizes="(max-width: 680px) 100vw, 96vw" width="1916" height="821" alt="" loading={adjacent(k) ? "eager" : "lazy"} fetchPriority={k === index ? "high" : "auto"} decoding="async" />
         {k === index && <PanoramaPlot id={slide.id} language={language} />}
-        <div className="panorama-caption"><span>ElectroTutor / {String(k + 1).padStart(2, "0")}</span><h1>{slide.title[language]}</h1><p>{slide.note[language]}</p><a href={localePath(language, slide.route)}>{ru ? "Открыть лабораторию" : "Відкрити лабораторію"} <span aria-hidden="true">↗</span></a></div>
+        <div className="panorama-caption"><span>ElectroTutor / {String(k + 1).padStart(2, "0")}</span><h2>{slide.title[language]}</h2><p>{slide.note[language]}</p><a href={localePath(language, slide.route)}>{ru ? "Открыть лабораторию" : "Відкрити лабораторію"} <span aria-hidden="true">↗</span></a></div>
         <small className="panorama-art-note">{ru ? "Художественная иллюстрация оборудования" : "Художня ілюстрація обладнання"}</small>
       </article>)}
     </div>

@@ -5,7 +5,7 @@
 ## ET-UI-008 — общий переключатель языка shell
 
 - Status: partial
-- Lifecycle: implementation and targeted acceptance validated locally; four existing full-home E2E failures remain. No push/merge/deploy.
+- Lifecycle: four E2E failures fixed; local full-build56/56PASS, local functional verification complete; authorized existing-project release pending.
 - SPEC: specs/features/language-switcher-ui.spec.md; approved user START2026-11-09.
 - Dependencies: ET-UI-007; existing RU/UK routes/catalogs and worker calculations. EN reserved in type only; public MVP graph unchanged.
 - Plan: shared icon/menu → persistence/root restoration → existing worker status → browser/regression → review/docs/commit.
@@ -14,10 +14,14 @@
 - Extended browser run51PASS/5FAIL: new query assertion corrected to compare actual pre-navigation state and all9 language cases rerun PASS. Four remaining full-home failures: two duplicate main h1 strict selectors, panorama offscreen autoplay, mobile swipe. Home/showcase source unchanged; no old-baseline checkout run claimed. Accepted assertions retained; locale tests only open menu before existing link click.
 - Review: Astro transition cleanup, keyboard/focus, root preference, scoped styles and44px/14px controls corrected; two bounded reviewer passes integrated.
 - Temporary implementation: none. No hidden content/English route exposure, no invented server phases, no dependency changes.
-- Deferred: existing home test drift and historical shell goldens, physical mobile/Narrator and production acceptance. EN course translation is future scope, not exposed as available.
+- Deferred: historical shell goldens, physical mobile/Narrator and production acceptance. EN course translation is future scope, not exposed as available.
 - Completion sync: README, STAGES, ROADMAP, ARCHITECTURE, DESIGN, TESTING, feature SPEC/index and requirements-ledger updated. DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked; no backend/model/storage contract changes beyond locale preference, no LEARNING_LOG churn.
-- NEXT: ET-UI-008-HOME
-- Next action: preserve local feature branch/checkpoint; separate home compatibility follow-up before broad release claim. Production publication requires separate owner authorization.
+- NEXT: ET-UI-008-RELEASE
+- Next action: finish local repair gates, commit feature/language-status-ui, push to origin, fast-forward main, publish existing Cloudflare Pages project electrotutor and verify primary HTTPS.
+- User action UI8-RELEASE / APPROVED2026-11-09: explicit request permits commit, push, merge and deployment of ElectroTutor language/status changes and four E2E fixes to existing https://github.com/ZabulaAleksey/electro-tutor.git main and https://electrotutor.pages.dev. No branch deletion, new resources, paid plan, DNS or secret/config changes requested.
+- Public artifact: MVP build PASS; full32-scenario run18PASS/2existing skips/12visualFAIL. Every visual failure is old home PNG vs approved ReferenceHome design (390 light expected/actual inspected); FR-395/UI7-GOLDENS already defer those baselines. No golden rewrite/threshold change/skip. Functional release evidence is18PASS, not all-MVP-green.
+- Repair verification: full E2E56/56PASS (1.6m), all four formerly failing cases included. Typecheck333files/0errors/0warnings/3hints; lint;469unit/61files + analytical13cases/49assertions PASS. Full41-page build, context/hygiene/workflow contract PASS. pnpm audit high exit0:4LOW/6MODERATE, no dependency changes. Independent read-only reviewer found no blockers; original timing/swipe/math assertions retained.
+- Diagnosis: duplicate h1 corrected in Panorama; two timing/touch tests used offscreen coordinates after FR-391 moved panorama below ReferenceHome. Narrow test setup scrolls and waits readiness; all original behavioral assertions remain. Historical before-run51/5 and fresh16/2 retained, no false clean baseline claim.
 
 ## ET-UI-007 — интерфейс по HTML-макету
 

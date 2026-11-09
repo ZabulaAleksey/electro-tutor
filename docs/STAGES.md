@@ -4,8 +4,8 @@
 
 ## ET-UI-008 — язык, статус операций и проверенные visual baselines
 
-- Status: in_progress
-- Lifecycle: implementation and reviewed baselines validated locally; authorized Git/production delivery pending.
+- Status: verified
+- Lifecycle: reviewed visual/CI repair committed, fast-forward merged, pushed and deployed2026-11-09; exact source d62d27186ef98ca9b3fe4c43676a2fa876c7a451.
 - SPEC: language-switcher-ui.spec.md and reference-ui.spec.md FR-391..395; dependencies ET-UI-007 and existing RU/UK shell/workers verified.
 - Scope: icon Languages, persisted RU/UK, EN type reservation, actual worker status; public MVP remains RU-only. No math/model/API/hidden-content change.
 - Plan: inspect CI → review candidate screenshots → fix real clipping and stale setup → non-update Windows/Linux MVP and full native-Linux E2E → review/docs/commit → approved push/merge/deploy/hosted acceptance.
@@ -21,8 +21,11 @@
 - Completion sync: STAGES/ROADMAP/TESTING/DESIGN/affected SPEC updated; README/ARCHITECTURE/DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/TRACEABILITY/project-context checked consistent. No LEARNING_LOG churn.
 - Temporary implementation: none. Deferred: EN course publication and physical-device/Narrator acceptance; not represented by emulated browser evidence.
 - CI follow-up42604669717 / FAIL: root284PASS/6existing skips and all12MVP visual scenarios PASS; MVP28PASS/2SKIP/2FAIL because reference-home tests used absolute /ru/ instead of existing E2E_BASE_PATH. Only both entry URLs corrected; every CTA/theme/no-JS assertion preserved. Fresh production /electro-tutor/ build and full MVP30PASS/2existing skips/1.7m, scoped ESLint and diff checks PASS. Cloudflare production a4f9070b/sourcecf1a017 and primary hosted30PASS/2skips/2.2m verified; primary/immutable HTML identical and CSP present. Follow-up CI required before final closure.
-- NEXT: ET-UI-008-DELIVERY
-- Next action: commit reviewed changes, push feature, fast-forward main, verify exact remote SHA, Cloudflare production and GitHub CI, then hosted functional/visual checks.
+- Final CI: [42607491526](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/42607491526) verify/deploy SUCCESS on d62d271. Backend API/PostgreSQL/audit gates PASS;469unit/61files, types/lint, root284PASS/6existing skips/9.4m, production /electro-tutor/ MVP30PASS/2existing skips/1.4m, builds and audit HIGH PASS. Previous failures remain historical, no skipped gate or relaxed assertion.
+- Production: Cloudflare082fc435-c217-4031-ae28-3085d8761c6a/source d62d271, https://electrotutor.pages.dev/ and immutable https://082fc435.electrotutor.pages.dev/ return identical home HTML200 with CSP. Complete primary-domain MVP30PASS/2existing conditional skips/2.7m, including all12visual cases, route visibility, actual lab edits, navigation, theme and no-JS paths.
+- Delivery/cleanup: cf1a017 baseline/UI repair and d62d271 base-path test repair pushed to origin feature/main with fast-forward only. Documentation-only terminal receipt uses [skip ci]; tested/deployed source remains d62d271. Owned preview and labelled ephemeral browser container stopped/removed; auto-remove native-Linux runner gone. Existing MathMorph backend containers preserved. Feature branch retained; no deletion authorized by this task.
+- NEXT: none
+- Next action: none for approved visual/CI repair and delivery. EN course publication and physical-device/Narrator acceptance remain outside this scoped completion.
 
 ## ET-UI-007 — интерфейс по HTML-макету
 
@@ -39,11 +42,11 @@
 - User action UI7-INTEGRATION / DONE: 2026-11-09 explicit «выполняй мердж пуш удаление деплой» authorizes fast-forward integration, normal push to origin/main, deletion of feature/reference-ui after reachability verification and deployment to existing electrotutor production. Clean2679645, main/origin7d1a6e2, single root checkout confirmed; no unrelated cleanup or new resources.
 - Evidence: docs/evidence/reference-ui-acceptance.json. 469 unit; Astro329/0errors/0warnings/3existing hints; lint; full41pages/193files and MVP96files/7indexed audit PASS; full34E2E PASS, MVP18PASS/2existing conditional skips;48page/width/theme bounds0overflow/0pageerrors, representative PNG reviewed. Protected math/model/MDX/engineering/WASM and dependencies unchanged.
 - Completion sync: README/STAGES/ROADMAP/ARCHITECTURE/DESIGN/TESTING/TRACEABILITY/project-context/ledger/SPEC updated. DECISIONS/SECURITY/API/DATA_MODEL/DEPENDENCIES/LEARNING_LOG reviewed unchanged; FALLBACKS/CHANGELOG/DEV_LOG absent. No new architecture/security/backend decision; prior UI palette supersession explicit in feature SPEC.
-- User action UI7-GOLDENS / DEFERRED: separately approve a reviewed update of old shell PNG baselines; expected before/after review and OS-specific accepted captures unlock visual-CI acceptance, not local functional implementation.
+- User action UI7-GOLDENS / DONE2026-11-09: subsequent explicit approval and reviewed Windows/Linux references completed in ET-UI-008; final green CI and hosted visual evidence recorded there.
 - User action UI7-NARRATOR / NOT_RUN: review new home CTA and mobile two-row header with Narrator/keyboard; expected focus/announcement result. Existing historical UA-19 retained, not reused for changed controls.
 - NEXT: none
 - Delivery: owner-authorized ff merge7d1a6e2→2f8b31e and normal origin/main push verified by ls-remote. feature/reference-ui safely deleted after reachability check; remote feature branch absent. Cloudflare Git production5cb7a463-94b8-407f-902a-e15c7d81c6da/source2f8b31e published and primary domain verified. Hosted18PASS/2conditional skips; independent7public200/5hidden404/CSP4presets/theme/mobile PASS,0pageerrors/0CSPviolations. docs/evidence/reference-ui-delivery.json owns evidence.
-- CI follow-up UI7-CI / RUNNING: GitHub Actions42532651358 last observed backend gates in progress; not a Cloudflare deployment gate. Existing golden issue retained; no false CI PASS.
+- CI follow-up UI7-CI / SUPERSEDED: historical42532651358 observation is replaced by ET-UI-008 exact-source successful CI42607491526; prior failed runs are not reclassified.
 - Next action: no pending merge/push/deployment of implementation. Documentation receipt transported with [skip ci] to avoid a second release; physical/golden follow-ups remain scoped.
 
 ## ET-NAV-006 — RUN6: единая навигация и RTC diagnosis

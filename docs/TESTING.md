@@ -1266,3 +1266,5 @@ check333files/0errors/0warnings/3existing hints, lint, locales398paired keys, un
 ET-UI-008-HOME2026-11-09: duplicate main h1 corrected semantically, carousel setup synchronized with approved below-hero placement and hydration. Fresh full consumer56/56PASS includes all four former failures;469unit/61files, types/lint/full build PASS. Tests preserve exact8s/offscreen/touch/no-overflow assertions; no skip/retry/golden changes. Reviewer found no blockers. Prior failing runs remain historical evidence, not current blockers.
 
 Public MVP32-scenario run:18PASS/2existing skips/12visualFAIL at old home PNGs. Expected390/light shows pre-reference home; actual shows approved ReferenceHome. Historical FR-395/UI7-GOLDENS limitation persists; no baseline overwrite or all-suite PASS claim.
+
+Release f38b069/Cloudflare Production00eee74a: hosted functional18PASS/2conditional skips; primary and immutable home HTML200/byte-identical; seven public200/four hidden404 retain CSP. Exact deployment and Git transport in STAGES. GitHub full workflow remains separately tracked, not inferred from this hosted acceptance.

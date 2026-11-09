@@ -1,5 +1,13 @@
 # Дизайн и UX «Потенциала»
 
+## Language switcher UI
+
+The shared Astro shell uses a compact 44px icon-only Languages control. Its menu is
+168px wide with 8px separation, 4px inner padding, soft 8px option corners and a
+violet active/focus surface. RU and UK are published routes; EN is reserved in the
+locale registry until a complete catalog exists. The switch preserves the current
+semantic path and query/hash and does not translate formulas or engineering values.
+
 ## ET-UI-007 — макет владельца 2026-11-09
 
 ReferenceHome.astro и reference-ui.css задают белую шапку, фиолетово-бирюзовый hero, схему закона Ома, три карточки и учебную область с боковыми ссылками. Единственный visual source — electrotutor-ui.zip; его скрипты не исполняются. CTA ведут в реальные источники. В full mode ниже сохранены panorama/catalogue; MVP по-прежнему содержит только семь разрешённых страниц. RU/UK copy раздельна. Dark uses semantic surfaces, including hero diagram; mobile MVP header explicitly uses two rows and 112px sticky offset. Existing keyboard, contents, theme, routes and solver state remain owned by existing components.

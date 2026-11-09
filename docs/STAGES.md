@@ -2,6 +2,22 @@
 
 - Stage ID: ET-UI-007
 
+## ET-UI-008 — общий переключатель языка shell
+
+- Status: implemented locally; validation PASS; no push/merge/deploy.
+- Scope: reusable icon-only Languages menu in `BaseLayout.astro`, preserving RU/UK
+  routes and reserving EN in `LocaleCode`; no hidden English route is generated.
+- Dependencies: ET-UI-007 verified; existing `localePath`, Astro transitions and shell
+  theme/mobile controls. No dependency or math/model changes.
+- Evidence: `pnpm check` 0 errors/0 warnings/3 existing hints; `pnpm lint` PASS;
+  `pnpm check:locales` 395 paired keys PASS; `pnpm test` 61 files/469 tests PASS;
+  `pnpm build` 9 pages and artifact audits PASS. Browser E2E not rerun in this scoped
+  shell change; manual/hosted acceptance remains pending.
+- UX contract: 44px trigger, inline SVG A/文-equivalent icon, 168px menu, active
+  checkmark, Escape/arrows/Home/End/Tab/outside close, dark/light semantic styling.
+- NEXT: run existing browser journey at RU/UK and both themes, then reviewer and owner
+  decision for merge/push/deploy. Do not publish automatically.
+
 ## ET-UI-007 — интерфейс по HTML-макету
 
 - Status: verified

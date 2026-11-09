@@ -1,4 +1,5 @@
 export type Language = "ru" | "uk";
+export type LocaleCode = Language | "en";
 export type DetailLevel = 1 | 2 | 3;
 export type Page = "home" | "catalog" | "lesson" | "interactive" | "services" | "contacts";
 export type Theme = "light" | "dark";

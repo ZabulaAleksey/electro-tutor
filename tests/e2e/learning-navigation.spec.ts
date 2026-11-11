@@ -1,74 +1,173 @@
-import {test,expect} from '@playwright/test';
-const book='/ru/topics/dc/mesh-current-method/', mesh='[data-entry-id="topic:dc/mesh"]', fourier='[data-entry-id="tool:advanced:fourier"]';
-const contents='[data-learning-contents]';
-async function open(page:import('@playwright/test').Page){await page.locator(contents+' > summary').click();await expect(page.locator('[data-learning-search]')).toBeVisible();}
+import { expect, test } from "@playwright/test";
 
-test('one derived contents exposes 20 definitions,31 tools and honest missing stages globally',async({page})=>{
- for(const route of ['/ru/','/ru/topics/','/ru/interactive/','/ru/my-services/',book,book+'examples/',book+'lab/']){
-  await page.goto(route);await expect(page.locator('[data-learning-entry]')).toHaveCount(51);
-  await expect(page.locator('[data-learning-menu] a')).toHaveText(['Учебник','Примеры решений','Лаборатория']);expect(await page.locator('[data-learning-menu] [aria-current]').count()).toBeLessThanOrEqual(1);
- }
- await open(page);await expect(page.locator(mesh+' .learning-entry-stages a')).toHaveCount(3);
- const magnetic=page.locator('[data-entry-id^="topic:magnetic/"]');expect(await magnetic.count()).toBeGreaterThan(0);await expect(magnetic.locator('.learning-entry-stages a')).toHaveCount(0);
- await page.locator('[data-learning-search]').fill('Фурье');await expect(page.locator('[data-learning-entry]:visible')).toHaveCount(1);await expect(page.locator(fourier)).toBeVisible();
- await page.locator('[data-learning-search]').fill('<script>none</script>');await expect(page.locator('[data-learning-empty]')).toBeVisible();await expect(page.locator('[data-learning-entry]:visible')).toHaveCount(0);
- await page.locator('[data-learning-search]').fill('');await expect(page.locator('[data-learning-entry]:visible')).toHaveCount(51);
+const book = "/ru/topics/dc/mesh-current-method/";
+const textbook = "/ru/topics/";
+const mesh = "#topic-dc-mesh";
+const header = ".astro-header > nav";
+
+test("the three global catalogue links have consistent destinations on every full page", async ({ page }) => {
+  for (const route of ["/ru/", textbook, "/ru/interactive/", "/ru/my-services/", book, book + "examples/", book + "lab/"]) {
+    await page.goto(route);
+    const menu = page.locator(header);
+    await expect(menu.getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", textbook);
+    await expect(menu.getByRole("link", { name: "Лаборатории", exact: true })).toHaveAttribute("href", "/ru/interactive/");
+    await expect(menu.getByRole("link", { name: "Инструменты", exact: true })).toHaveAttribute("href", "/ru/tools/");
+    await expect(menu.getByRole("link", { name: "Оглавление", exact: true })).toHaveCount(0);
+    expect(await menu.locator("[aria-current]").count()).toBeLessThanOrEqual(1);
+  }
 });
 
-test('requested examples survives topic switch, lab fallback, direct reload and Back/Forward',async({page})=>{
- await page.goto('/ru/topics/?learningStage=examples');await open(page);
- await expect(page.locator(mesh+' [data-learning-target]')).toHaveAttribute('href',/mesh-current-method\/examples\//);
- await expect(page.locator(fourier+' .learning-entry-fallback')).toBeVisible();
- await page.locator(fourier+' [data-learning-target]').click();await expect(page).toHaveURL(/interactive\/fourier\/\?learningStage=examples/);
- await open(page);await expect(page.locator(fourier)).toHaveClass(/learning-entry-current/);await expect(page.locator(mesh+' [data-learning-target]')).toHaveAttribute('href',/mesh-current-method\/examples\//);
- await page.locator(mesh+' [data-learning-target]').click();await expect(page).toHaveURL(/mesh-current-method\/examples\//);await page.reload();await open(page);await expect(page.locator('[data-learning-stage]')).toHaveValue('examples');
- await page.goBack();await expect(page).toHaveURL(/interactive\/fourier/);await page.goForward();await expect(page).toHaveURL(/mesh-current-method\/examples/);
+test("textbook search exposes real content and treats arbitrary input as text", async ({ page }) => {
+  await page.goto(textbook);
+  const topics = page.locator("#learning-contents");
+  const search = topics.getByRole("searchbox");
+  const count = await topics.locator("article:visible").count();
+  expect(count).toBeGreaterThan(1);
+  await search.fill("Метод контурных токов");
+  await expect(topics.locator("article:visible")).toHaveCount(1);
+  await expect(topics.locator(mesh).getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", book);
+  await search.fill("<script>none</script>");
+  await expect(topics.locator("[data-directory-no-results]")).toBeVisible();
+  await expect(topics.locator("article:visible")).toHaveCount(0);
+  await search.clear();
+  await expect(topics.locator("article:visible")).toHaveCount(count);
 });
 
-test('all31 tool targets and reference variant use real pages and preserve hash selectors',async({page,request})=>{
- await page.goto('/ru/topics/');await open(page);
- const tools=await page.locator('[data-entry-id^="tool:"] .learning-entry-stages a').evaluateAll(links=>links.map(a=>({id:a.closest('[data-entry-id]')!.getAttribute('data-entry-id')!,href:(a as HTMLAnchorElement).getAttribute('href')!})));
- expect(tools).toHaveLength(31);const paths=new Set<string>();
- for(const tool of tools){const u=new URL(tool.href,'http://local');paths.add(u.pathname);expect((await request.get(u.pathname)).status(),tool.id).toBe(200);if(u.hash)expect(u.hash).toMatch(/^#(micro|science)=/);}
- for(const route of paths){await page.goto(route);await expect(page.locator('[data-learning-contents]')).toHaveCount(1);await expect(page.locator('h1')).not.toBeEmpty();}
- await page.goto('/ru/topics/');await open(page);const line=page.locator('[data-entry-id="tool:advanced:transmission-line"]');await line.locator('.learning-entry-links a').click();await expect(page).toHaveURL(/transmission-line-reference/);await expect(page.locator('h1')).not.toBeEmpty();await open(page);await expect(page.locator('[data-learning-stage]')).toHaveValue('lab');
- await page.goto('/ru/micro-labs/?learningStage=lab#micro=capacitor-charge');await open(page);await expect(page.locator('[data-entry-id="tool:micro:capacitor-charge"]')).toHaveClass(/learning-entry-current/);
+test("all registered experiments and tools resolve once across their two catalogues", async ({ page, request }) => {
+  const links: string[] = [];
+  for (const [route, catalogue] of [["/ru/interactive/", "#labs"], ["/ru/tools/", "#tools"]]) {
+    await page.goto(route);
+    links.push(...await page.locator(catalogue + " a").evaluateAll(elements =>
+      elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
+  }
+  expect(links).toHaveLength(35);
+  expect(new Set(links).size).toBe(links.length);
+  const paths = new Set<string>();
+  for (const href of links) {
+    const url = new URL(href, "http://local");
+    paths.add(url.pathname);
+    if (url.hash) expect(url.hash).toMatch(/^#(micro|science)=/);
+  }
+  for (const route of paths) {
+    expect((await request.get(route)).status(), route).toBe(200);
+    await page.goto(route);
+    await expect(page.locator("h1")).not.toBeEmpty();
+  }
+  await page.goto("/ru/interactive/");
+  await page.locator("#labs a[href$='/transmission-line-reference/']").click();
+  await expect(page).toHaveURL(/transmission-line-reference/);
+  await page.goto("/ru/micro-labs/?learningStage=lab#micro=capacitor-charge");
+  await expect(page.locator('[data-micro="capacitor-charge"]')).toHaveAttribute("data-selected", "true");
 });
 
-test('menu and shared contents preserve example context and full mesh rail retains native scroll',async({page})=>{
- await page.goto(book+'examples/#example-4');await expect(page.locator('.journey-content')).toHaveAttribute('data-gesture-ready','true');await page.locator('[data-learning-menu] a').filter({hasText:'Лаборатория'}).click();await expect(page).toHaveURL(/lab\/\?example=4/);await expect(page.getByTestId('preset')).toHaveValue('4');
- await page.getByTestId('parameter-value').fill('3');await page.locator('[data-learning-menu] a').filter({hasText:'Примеры решений'}).click();await expect(page).toHaveURL(/examples\/#example-4/);
- await open(page);await page.locator(mesh+' .learning-entry-stages a').filter({hasText:'Лаборатория'}).click();await expect(page.getByTestId('parameter-value')).toHaveValue('3');
- await page.locator('.journey-rail').focus();await page.keyboard.press('Home');await expect(page).toHaveURL(book);await page.mouse.move(180,450);await page.mouse.wheel(0,600);await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(250);await expect(page).toHaveURL(book);
+test("mesh stage rail preserves example context, changed value and native scroll", async ({ page }) => {
+  await page.goto(book + "examples/#example-4");
+  await expect(page.locator(".journey-content")).toHaveAttribute("data-gesture-ready", "true");
+  await page.locator(".journey-rail [data-step='2']").click();
+  await expect(page).toHaveURL(/lab\/\?example=4/);
+  await expect(page.getByTestId("preset")).toHaveValue("4");
+  await page.getByTestId("parameter-value").fill("3");
+  await page.locator(".journey-rail [data-step='1']").click();
+  await expect(page).toHaveURL(/examples\/#example-4/);
+  await page.locator(".journey-rail [data-step='2']").click();
+  await expect(page.getByTestId("parameter-value")).toHaveValue("3");
+  await page.locator(".journey-rail").focus();
+  await page.keyboard.press("Home");
+  await expect(page).toHaveURL(book);
+  await page.mouse.move(180, 450);
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(250);
+  await expect(page).toHaveURL(book);
 });
 
-test('contents keyboard Escape, denied storage, noJS and UK language availability',async({browser})=>{
- const context=await browser.newContext();await context.addInitScript(()=>{for(const name of ['localStorage','sessionStorage'])Object.defineProperty(window,name,{get(){throw Error('denied')}})});const page=await context.newPage();await page.goto('/ru/topics/');const summary=page.locator(contents+' > summary');await summary.focus();await page.keyboard.press('Enter');await expect(page.locator('[data-learning-search]')).toBeVisible();await page.locator('[data-learning-search]').focus();await page.keyboard.press('Escape');await expect(summary).toBeFocused();await expect(page.locator(contents)).not.toHaveAttribute('open','');await context.close();
- const nojs=await browser.newContext({javaScriptEnabled:false});const p=await nojs.newPage();await p.goto('/uk/topics/dc/mesh-current-method/');await open(p);await expect(p.locator('[data-learning-entry]')).toHaveCount(51);await expect(p.locator(mesh+' .learning-entry-stages a')).toHaveCount(1);await expect(p.locator(mesh)).toContainText('Немає перекладу');await p.locator(fourier+' .learning-entry-stages a').click();await expect(p).toHaveURL(/uk\/interactive\/fourier/);await nojs.close();
+test("keyboard search works with storage denied, and native links work without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext();
+  await context.addInitScript(() => {
+    for (const key of ["localStorage", "sessionStorage"]) Object.defineProperty(window, key, { get() { throw Error("denied"); } });
+  });
+  const page = await context.newPage();
+  await page.goto(textbook);
+  const search = page.getByRole("searchbox");
+  await search.focus();
+  await search.pressSequentially("контур");
+  await expect(page.locator(mesh)).toBeVisible();
+  await context.close();
+
+  const nojs = await browser.newContext({ javaScriptEnabled: false });
+  const plain = await nojs.newPage();
+  await plain.goto("/uk/topics/");
+  const topic = plain.locator(mesh);
+  await expect(topic.getByRole("link", { name: "Підручник", exact: true })).toHaveAttribute("href", "/uk/topics/dc/mesh-current-method/");
+  await expect(topic.locator("a[href$='/examples/'],a[href$='/lab/']")).toHaveCount(0);
+  await plain.locator('a[href$="/uk/interactive/fourier/"]').click();
+  await expect(plain).toHaveURL("/uk/interactive/fourier/");
+  await nojs.close();
 });
 
-test('explicit textbook preference overrides current lab and restores with history',async({page})=>{
- await page.goto(book+'lab/?example=4&reset=1');await open(page);await expect(page.locator(mesh)).toHaveClass(/learning-entry-current/);
- await page.locator('[data-learning-stage]').selectOption('textbook');await expect(page.locator('[data-learning-stage]')).toHaveValue('textbook');await expect(page.locator(mesh+' [data-learning-target]')).toHaveAttribute('href',/mesh-current-method\/$/);
- await page.locator('[data-learning-stage]').selectOption('examples');await expect(page.locator('[data-learning-stage]')).toHaveValue('examples');await page.goBack();await expect(page.locator('[data-learning-stage]')).toHaveValue('textbook');await page.goForward();await expect(page.locator('[data-learning-stage]')).toHaveValue('examples');
+test("global textbook from the lab preserves native history and explicit topic destinations", async ({ page }) => {
+  await page.goto(book + "lab/?example=4&reset=1");
+  await expect(page.getByTestId("preset")).toHaveValue("4");
+  await expect(page).toHaveURL(book + "lab/?example=4");
+  await page.locator(header).getByRole("link", { name: "Учебник", exact: true }).click();
+  await expect(page).toHaveURL(textbook);
+  await page.locator(mesh).getByRole("link", { name: "Примеры решений", exact: true }).click();
+  await expect(page).toHaveURL(book + "examples/");
+  await page.reload();
+  await expect(page.locator(".journey-rail [data-step='1']")).toHaveAttribute("aria-current", "step");
+  await page.goBack();
+  await expect(page).toHaveURL(textbook);
+  await page.goBack();
+  await expect(page).toHaveURL(book + "lab/?example=4");
+  await page.goForward();
+  await expect(page).toHaveURL(textbook);
 });
 
-test('global header opener reveals contents at reading position and returns keyboard focus',async({page})=>{
- await page.goto(book);await page.evaluate(()=>scrollTo(0,1800));const before=await page.evaluate(()=>scrollY);const opener=page.locator('[data-learning-open]');await opener.click();await expect(page.locator('[data-learning-search]')).toBeFocused();expect(Math.abs(await page.evaluate(()=>scrollY)-before)).toBeLessThan(3);await page.keyboard.press('Escape');await expect(opener).toBeFocused();
+test("keyboard navigation from a scrolled lesson reaches the catalogue and Back restores reading position", async ({ page }) => {
+  await page.goto(book);
+  await page.evaluate(() => scrollTo({ top: 1800, behavior: "instant" }));
+  const before = await page.evaluate(() => scrollY);
+  const link = page.locator(header).getByRole("link", { name: "Учебник", exact: true });
+  await link.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(textbook);
+  await expect(page.getByRole("heading", { level: 1, name: "Учебник" })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(book);
+  await expect.poll(() => page.evaluate(value => Math.abs(scrollY - value), before)).toBeLessThan(3);
 });
 
 test('six-width two-theme stage rail stays below the actual header',async({browser})=>{
  for(const theme of ['light','dark'] as const){const context=await browser.newContext({colorScheme:theme,serviceWorkers:'block'}),page=await context.newPage();for(const width of [320,375,390,768,1280,1920]){await page.setViewportSize({width,height:900});await page.goto(book);await expect(page.locator('.journey-content')).toHaveAttribute('data-gesture-ready','true');await page.evaluate(()=>scrollTo(0,900));const header=await page.locator('.astro-header,.mvp-header').boundingBox(),rail=await page.locator('.journey-rail').boundingBox();expect(rail!.y).toBeGreaterThanOrEqual(header!.y+header!.height-1);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);}await context.close();}
 });
 
-test('mobile contents opened from menu returns focus to the visible menu toggle',async({page})=>{
- await page.setViewportSize({width:390,height:900});await page.goto(book);const toggle=page.locator('#mobile-menu-toggle');await toggle.click();await page.locator('[data-learning-open]').click();await expect(page.locator('[data-learning-search]')).toBeFocused();await page.keyboard.press('Escape');await expect(toggle).toBeFocused();
+test("mobile catalogue menu opens and closes with keyboard", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto(book);
+  const toggle = page.locator("#mobile-menu-toggle");
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(header).getByRole("link", { name: "Лаборатории", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(toggle).toBeFocused();
 });
 
 test('desktop menu labels remain inside the header with independent stages',async({page})=>{
  for(const width of [1280,1920]){await page.setViewportSize({width,height:900});await page.goto('/ru/');const header=await page.locator('.astro-header').boundingBox();for(const a of await page.locator('.astro-header nav a:visible, .astro-header nav > details > summary').all()){const box=await a.boundingBox();expect(box!.y).toBeGreaterThanOrEqual(header!.y-1);expect(box!.y+box!.height).toBeLessThanOrEqual(header!.y+header!.height+1);}expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);}
 });
 
-test('direct experiment bookmarks keep the lab preference and current tool',async({page})=>{
- await page.goto('/ru/interactive/fourier/?harmonics=4');await open(page);await expect(page.locator('[data-learning-stage]')).toHaveValue('lab');await expect(page.locator(fourier)).toHaveClass(/learning-entry-current/);await expect(page.locator(mesh+' [data-learning-target]')).toHaveAttribute('href',/mesh-current-method\/lab\//);
+test("catalogue navigation and history keep a direct experiment bookmark", async ({ page }) => {
+  const bookmark = "/ru/interactive/fourier/?harmonics=4";
+  await page.goto(bookmark);
+  await page.locator(header).getByRole("link", { name: "Лаборатории", exact: true }).click();
+  await expect(page).toHaveURL("/ru/interactive/");
+  await expect(page.locator("#labs a[href$='/interactive/fourier/']")).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(bookmark);
+  await page.goto("/ru/interactive/?i0m=2.75");
+  await expect(page.locator(".circle-lab")).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(bookmark);
+  await page.reload();
+  await expect(page).toHaveURL(bookmark);
 });

@@ -79,5 +79,5 @@ test("RC1 denied browser storage degrades without false saved completion",async(
  await page.addInitScript(()=>{for(const key of ["localStorage","sessionStorage"])Object.defineProperty(window,key,{get(){throw new Error("storage unavailable");},configurable:true});});
  await page.goto("/ru/topics/dc/mesh-current-method/");await page.getByLabel("Ваш ответ").fill("2.18");await page.getByRole("button",{name:"Проверить",exact:true}).click();
  await expect(page.locator("#practice-feedback")).toContainText("Не удалось сохранить");await expect(page.locator(".learning-storage-warning")).toBeVisible();
- await page.getByRole("button",{name:"Переключить тему"}).click();expect(errors).toEqual([]);
+ await page.emulateMedia({colorScheme:"dark"});await expect(page.locator("html")).toHaveAttribute("data-theme","light");expect(errors).toEqual([]);
 });

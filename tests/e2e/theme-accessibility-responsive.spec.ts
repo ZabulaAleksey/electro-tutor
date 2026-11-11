@@ -37,32 +37,25 @@ async function attachViewport(page: Page, testInfo: TestInfo, name: string) {
   });
 }
 
-test("theme is keyboard operable and persists across reload and navigation", async ({ page }, testInfo) => {
+test("light appearance persists across reload and navigation under a dark OS", async ({ page }, testInfo) => {
   const runtimeErrors = captureRuntimeErrors(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => localStorage.setItem("potential-theme", "dark"));
   await page.goto("/ru/");
-  await page.evaluate(() => localStorage.setItem("potential-theme", "light"));
-  await page.reload();
-
-  const toggle = page.getByRole("button", { name: "Переключить тему" });
+  await expect(page.locator("#theme-toggle")).toHaveCount(0);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await toggle.focus();
-  await page.keyboard.press("Enter");
-
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect.poll(() => page.evaluate(() => localStorage.getItem("potential-theme"))).toBe("dark");
-
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("link", { name: "Учебник", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.locator(".astro-header").getByRole("link", { name: "Учебник", exact: true }).press("Enter");
   await expect(page).toHaveURL(/\/ru\/topics\/$/);
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await attachViewport(page, testInfo, "dark-theme-catalog");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await attachViewport(page, testInfo, "light-catalog-dark-os");
   expect(runtimeErrors).toEqual([]);
 });
 
-test("desktop Tab navigation reaches named controls and activates the theme button", async ({ page }) => {
+test("desktop Tab navigation reaches named controls and the catalogue search", async ({ page }) => {
   const runtimeErrors = captureRuntimeErrors(page);
-  await page.addInitScript(() => localStorage.setItem("potential-theme", "light"));
+  await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/ru/interactive/");
 
   const reachedNames: string[] = [];
@@ -73,14 +66,16 @@ test("desktop Tab navigation reaches named controls and activates the theme butt
       ?? (await focused.textContent())?.trim()
       ?? "";
     if (name) reachedNames.push(name);
-    if (await focused.getAttribute("id") === "theme-toggle") break;
+    if (await focused.getAttribute("data-directory-search") !== null) break;
   }
 
-  await expect(page.locator("#theme-toggle")).toBeFocused();
+  const search = page.getByRole("searchbox");
+  await expect(search).toBeFocused();
   expect(reachedNames.some((name) => name.includes("ElectroTutor"))).toBe(true);
   expect(reachedNames.some((name) => name.includes("Дополнительные сервисы"))).toBe(true);
-  await page.keyboard.press("Enter");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await search.pressSequentially("Фурье");
+  await expect(page.locator("#labs [data-directory-entry]:visible")).toHaveCount(1);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   expect(runtimeErrors).toEqual([]);
 });
 
@@ -133,7 +128,7 @@ test("essential icon controls and lesson diagrams expose accessible names and li
   const runtimeErrors = captureRuntimeErrors(page);
   await page.goto("/ru/topics/dc/mesh-current-method/");
 
-  await expect(page.getByRole("button", { name: "Переключить тему" })).toBeVisible();
+  await expect(page.locator(".astro-header").getByRole("link", { name: "Инструменты", exact: true })).toBeVisible();
   await page.locator(".nav-services summary").click();
   await expect(page.locator(".nav-services-menu a[href$='/my-services/#install']")).toBeVisible();
   await page.getByRole("button", { name: /выбрать язык/i }).click();

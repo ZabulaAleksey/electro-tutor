@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const widths = [320, 375, 390, 768, 1280, 1920] as const;
 
 for (const width of widths) for (const theme of ["light", "dark"] as const) {
-  test(`RU mesh textbook ${width}px ${theme}: readable diagram and intact mathematics`, async ({ page }, testInfo) => {
+  test(`RU mesh textbook ${width}px OS ${theme}: readable diagram and intact mathematics`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     // Keep raster typography reproducible without a remote font dependency.
@@ -11,7 +11,7 @@ for (const width of widths) for (const theme of ["light", "dark"] as const) {
     await page.goto("/ru/topics/dc/mesh-current-method/");
     await expect(page.locator(".level-picker")).toHaveCount(0);
     await expect(page.locator(".research-note")).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await page.evaluate(() => document.fonts.ready);
 
     const diagram = page.locator("svg.circuit");
@@ -118,7 +118,7 @@ for (const width of widths) for (const theme of ["light", "dark"] as const) {
         const png = await region.screenshot({ animations: "disabled" });
         await testInfo.attach(`${name}-${width}-${theme}`, { body: png, contentType: "image/png" });
         // Accepted raster baselines are Windows-specific; portable visual assertions above run everywhere.
-        if (process.platform === "win32") await expect(region).toHaveScreenshot(`textbook-${name}-${width}-${theme}.png`, { animations: "disabled" });
+        if (process.platform === "win32") await expect(region).toHaveScreenshot(`textbook-${name}-${width}-light.png`, { animations: "disabled" });
       }
     } finally { await captureStyle.evaluate(node => node.parentNode?.removeChild(node)); }
     // The complete RU material is always present; no shortened level may hide long expressions.

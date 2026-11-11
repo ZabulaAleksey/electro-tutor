@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 import { wasmLine } from './helpers/wasm-line';
 import { D } from '../../src/transient/types';
 
-test('interactive cards expose separate circular and line laboratories in both languages', async ({ page }) => {
-  await page.goto('/ru/interactive/');
-  await page.getByRole('link', { name: /Открыть круговую диаграмму/ }).click();
+test('catalogues expose separate circular diagram and line laboratory in both languages', async ({ page }) => {
+  await page.goto('/ru/tools/');
+  await page.getByRole('link', { name: 'Круговая диаграмма', exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/interactive\/circular-diagram\//);
   await page.goto('/uk/interactive/');
-  await page.getByRole('link', { name: /Відкрити лінію/ }).click();
+  await page.getByRole('link', { name: 'Перехідні процеси в лінії', exact: true }).click();
   await expect(page).toHaveURL(/\/uk\/interactive\/transmission-line\//);
 });
 

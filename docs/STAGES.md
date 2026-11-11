@@ -12,9 +12,11 @@
 - Evidence: 472 unit, 13 независимых расчётных примеров, check/lint, full/MVP build audit и 31 целевой browser scenario PASS (19 full, 12 MVP). Полные E2E и просмотр старых расхождений описаны в TESTING.
 - Temporary implementation: none. Deferred: dark switching reactivation, translation/publication of unreleased content.
 - User action ET-UI-009-RELEASE / CONDITIONAL: after PASS, explicitly approve merge with main and any push/deploy; expected evidence is target commit and verified hosted build.
-- Blockers: принятые тесты старого меню и двухтемные скриншоты требуют согласованной миграции под FR-401..406. Публичный release gate закрыт до зелёного прогона.
-- User action ET-UI-009-REGRESSION / READY: разрешить узкую адаптацию принятых сценариев и визуальных эталонов под новое меню и фиксированную светлую тему. Сохранить вычислительные проверки, пороги, мобильные и клавиатурные сценарии. Evidence: просмотренные новые снимки и зелёные полные full/MVP E2E.
-- NEXT: ET-UI-009-REGRESSION
+- Regression evidence: Windows full 289 PASS / 6 conditional skips, MVP 31 PASS / 2 conditional skips; обе дополнительные предпосылки MVP отдельно PASS. 42 просмотренных Windows-эталона, 193 ранее принятых сохранены. Запись параметров круговой диаграммы ограничена её pathname.
+- Blockers: требуется проверка Linux-эталонов и replay в среде CI. Публичный release gate закрыт до её прохождения.
+- User action ET-UI-009-REGRESSION / DONE: 2026-11-11 владелец явно разрешил обновление затронутых E2E и скриншотов с сохранением расчётных проверок и допусков. Evidence: сообщение владельца и FR-406.
+- Delivery scope: владелец запросил push, deploy и удаление временной ветки после проверок. Для fast-forward в main действует отдельное правило явного подтверждения merge.
+- NEXT: ET-UI-009-LINUX
 
 
 ## ET-UI-008 — язык, статус операций и проверенные visual baselines

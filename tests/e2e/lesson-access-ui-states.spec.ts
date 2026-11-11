@@ -205,16 +205,17 @@ test("a 200 without the exact server capability never opens the shell", async ({
   await expect(page.locator("[data-access-active]")).toBeHidden();
 });
 
-test("localized active shell stays usable on mobile, keyboard and both themes", async ({ page }) => {
+test("localized active shell stays usable on mobile and keyboard under either OS appearance", async ({ page }) => {
   await mockUnavailableSession(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: "light" });
   await page.route(accessUrl, (route) => mockResponse(route, 200, activeDecision));
   await openShell(page, "uk");
   await expect(page.locator("[data-access-active]")).toBeVisible();
-  await page.locator("#theme-toggle").click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.locator("#theme-toggle").click();
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("#theme-toggle")).toHaveCount(0);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.evaluate(() => { document.documentElement.style.fontSize = "150%"; });
   const dimensions = await page.evaluate(() => ({

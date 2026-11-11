@@ -4,12 +4,13 @@ const widths = [320, 375, 768, 1440];
 const base=process.env.E2E_BASE_PATH||"/";
 
 test.describe("language switcher", () => {
-  for (const width of widths) for (const theme of ["light","dark"]) {
-    test(`is usable at ${width}px in ${theme} with keyboard and outside dismissal`, async ({ page }) => {
+  for (const width of widths) for (const theme of ["light","dark"] as const) {
+    test(`is usable at ${width}px under OS ${theme} with keyboard and outside dismissal`, async ({ page }) => {
       await page.addInitScript(value=>localStorage.setItem("potential-theme",value),theme);
       await page.setViewportSize({ width, height: 800 });
+      await page.emulateMedia({ colorScheme: theme });
       await page.goto(base+"ru/");
-      await expect(page.locator('html')).toHaveAttribute('data-theme',theme);
+      await expect(page.locator('html')).toHaveAttribute('data-theme','light');
       const trigger = page.getByRole("button", { name: "Выбрать язык" });
       await trigger.click();
       const menu = page.getByRole("menu");

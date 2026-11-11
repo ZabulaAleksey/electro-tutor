@@ -32,12 +32,12 @@ test("RUN3C examples remain complete without JS and never advertise a missing UK
 });
 
 for (const width of [320, 375, 390, 768, 1280, 1920]) for (const theme of ["light", "dark"] as const) {
-  test(`RUN3C examples ${width}px ${theme}: physical schemes and complete math`, async ({ page }, testInfo) => {
+  test(`RUN3C examples ${width}px OS ${theme}: physical schemes and complete math`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     await page.route("https://fonts.googleapis.com/**", route => route.abort());
     const errors: string[] = []; page.on("pageerror", e => errors.push(e.message));
     await page.goto(path); await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     const layout = await page.evaluate(() => ({
       overflow: [...document.querySelectorAll<HTMLElement>(".formula-block")].filter(e => e.scrollWidth > e.clientWidth + 2).map(e => e.textContent),
       document: document.documentElement.scrollWidth,
@@ -67,7 +67,7 @@ for (const width of [320, 375, 390, 768, 1280, 1920]) for (const theme of ["ligh
         for (const [part, region] of [["scheme", section.locator("figure")], ["equations", section.locator(".formula-block").nth(n === 1 ? 3 : n === 2 ? 1 : 2)], ["balance", section.locator(".formula-block").last()]] as const) {
           const png = await region.screenshot({ animations: "disabled" });
           await testInfo.attach(`${part}${n}-${width}-${theme}`, { body: png, contentType: "image/png" });
-          if (process.platform === "win32") await expect(region).toHaveScreenshot(`${part}${n}-${width}-${theme}.png`, { animations: "disabled" });
+          if (process.platform === "win32") await expect(region).toHaveScreenshot(`${part}${n}-${width}-light.png`, { animations: "disabled" });
         }
       }
     } finally { await style.evaluate(e => e.parentNode?.removeChild(e)); }

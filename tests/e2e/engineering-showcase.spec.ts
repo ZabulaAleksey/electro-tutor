@@ -16,9 +16,9 @@ test('AC parameter changes update RMS results and RC has a pausable physical tim
 });
 
 test('catalog searches real tools and bookmarked software examples remain explicitly illustrative',async({page})=>{
- await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Фурье');await expect(page.locator('.catalogue-card')).toHaveCount(1);await page.locator('.catalogue-card').click();await expect(page).toHaveURL(/interactive\/fourier\/$/);
+ await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Фурье');await expect(page.locator('#labs [data-directory-entry]:visible')).toHaveCount(1);await page.locator('#labs [data-directory-entry]:visible a').click();await expect(page).toHaveURL(/interactive\/fourier\/$/);
  await page.goto('/ru/#story=python-rc');const scene=await selectStory(page,'python-rc');await expect(scene.locator('.lab-code code')).toContainText('exp');await expect(scene.locator('.lab-code small')).not.toBeEmpty();await expect(scene.getByRole('slider')).toHaveCount(0);
- await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Python');await expect(page.locator('.catalogue-card')).toHaveCount(0);await expect(page.getByText('Ничего не найдено',{exact:true})).toBeVisible();
+ await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Python');await expect(page.locator('#labs [data-directory-entry]:visible')).toHaveCount(0);await expect(page.locator('#labs [data-directory-no-results]')).toBeVisible();
 });
 
 test('reduced motion stops autoplay and physical clock; direct story survives locale change',async({page})=>{
@@ -27,7 +27,7 @@ test('reduced motion stops autoplay and physical clock; direct story survives lo
 });
 
 test('automatic panorama rotation is eight seconds and pauses offscreen',async({page})=>{
- await page.emulateMedia({reducedMotion:'no-preference'});const start=new Date('2030-01-01T00:00:00Z');await page.clock.install({time:start});await page.clock.pauseAt(new Date(start.getTime()+1000));await page.goto('/ru/');await page.mouse.move(5,80);const carousel=page.locator('.panorama-showroom');await expect(carousel).toHaveAttribute('data-ready','true');await expect(carousel).toHaveAttribute('data-autoplay','false');await carousel.scrollIntoViewIfNeeded();await expect(carousel).toHaveAttribute('data-autoplay','true');await page.clock.fastForward(7900);await expect(carousel).toHaveAttribute('data-panorama-index','0');await page.clock.fastForward(200);await expect(carousel).toHaveAttribute('data-panorama-index','1');await page.locator('.home-textbook').scrollIntoViewIfNeeded();await expect(carousel).toHaveAttribute('data-autoplay','false');
+ await page.emulateMedia({reducedMotion:'no-preference'});const start=new Date('2030-01-01T00:00:00Z');await page.clock.install({time:start});await page.clock.pauseAt(new Date(start.getTime()+1000));await page.goto('/ru/');await page.mouse.move(5,80);const carousel=page.locator('.panorama-showroom');await expect(carousel).toHaveAttribute('data-ready','true');await expect(carousel).toHaveAttribute('data-autoplay','false');await carousel.scrollIntoViewIfNeeded();await expect(carousel).toHaveAttribute('data-autoplay','true');await page.clock.fastForward(7900);await expect(carousel).toHaveAttribute('data-panorama-index','0');await page.clock.fastForward(200);await expect(carousel).toHaveAttribute('data-panorama-index','1');await page.locator('.directory-hero').scrollIntoViewIfNeeded();await expect(carousel).toHaveAttribute('data-autoplay','false');
 });
 
 test('mobile touch swipe selects the next panorama without page overflow',async({page})=>{

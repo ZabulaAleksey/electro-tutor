@@ -16,9 +16,11 @@ import {
   complexMagnitude,
 } from "../models/circular-diagram";
 import { getLocale } from "../i18n";
+import { localePath } from "../site-path";
 import type { Language } from "../types";
 
-export default function CircularDiagram({ language }: { language: Language }) {
+export default function CircularDiagram({ language, route = "/interactive/circular-diagram/" }: { language: Language; route?: string }) {
+  const pathname = localePath(language, route);
   const copy = getLocale(language);
   const fmt = (value:number,digits=2)=>formatEngineeringNumber(value,language,{maximumFractionDigits:digits});
   const [parameters, setParameters] = useState<CircularDiagramState>({
@@ -27,12 +29,14 @@ export default function CircularDiagram({ language }: { language: Language }) {
   const [urlStatus, setUrlStatus] = useState<CircularDiagramParseStatus>("valid");
 
   const writeUrl = (state: CircularDiagramState, mode: "push" | "replace") => {
+    if (location.pathname !== pathname) return;
     const url = `${location.pathname}${canonicalizeCircularDiagramState(state)}${location.hash}`;
     history[mode === "push" ? "pushState" : "replaceState"](history.state, "", url);
   };
 
   useEffect(() => {
     const restoreFromLocation = () => {
+      if (location.pathname !== pathname) return;
       const parsed = parseCircularDiagramSearch(location.search);
       setParameters(parsed.state);
       setUrlStatus(parsed.status);
@@ -45,7 +49,7 @@ export default function CircularDiagram({ language }: { language: Language }) {
     restoreFromLocation();
     addEventListener("popstate", restoreFromLocation);
     return () => removeEventListener("popstate", restoreFromLocation);
-  }, []);
+  }, [pathname]);
 
   const updateParameter = (key: keyof CircularDiagramState, value: number) => {
     setParameters((current) => normalizeCircularDiagramState({ ...current, [key]: value }));

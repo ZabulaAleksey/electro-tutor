@@ -23,7 +23,7 @@ test("science micro labs expose model changes, reset, search and permalink", asy
   await expect(page).toHaveURL(/science=/);
 });
 
-test("science micro labs retain state across theme switch and fit mobile", async ({ page }) => {
+test("science micro labs retain state when OS appearance changes and fit mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/uk/micro-labs/");
   const cards = page.locator("[data-science-id]");
@@ -32,9 +32,8 @@ test("science micro labs retain state across theme switch and fit mobile", async
   const mobileStep = Number(await slider.getAttribute("step"));
   await slider.fill(String(Number(await slider.inputValue()) + mobileStep));
   const retainedValue = await slider.inputValue();
-  const themeBefore = await page.locator("html").getAttribute("data-theme");
-  await page.locator("#theme-toggle").click();
-  await expect.poll(() => page.locator("html").getAttribute("data-theme")).not.toBe(themeBefore);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(slider).toHaveValue(retainedValue);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

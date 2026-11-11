@@ -46,14 +46,14 @@ test("load remains when dragged beyond the beam; palette drop and distributed en
   await open(page); const from = await point(page, 510), outside = await point(page, 980); await page.mouse.move(from.x, from.y); await page.mouse.down(); await page.mouse.move(outside.x, outside.y, { steps: 6 }); await page.mouse.up(); await expect(page.locator('[data-beam-load="F1"]')).toHaveAttribute("data-load-x", "4");
   await page.getByRole("button", { name: "Равномерная q +", exact: true }).click(); await expect(page.locator('[data-load-kind="distributed"]')).toHaveCount(1); await page.getByLabel("Начало a, m", { exact: true }).fill("1"); await page.getByLabel("Конец b, m", { exact: true }).fill("3"); await page.locator(".beam-inline-editor").getByLabel("q₁, kN/m", { exact: true }).fill("-6"); await expect(page.locator("[data-beam-lab]")).toHaveAttribute("data-solver-status", "ok");
 });
-test("RU/UK, keyboard controls, mobile scrolling and theme keep state", async ({ page }) => {
+test("RU/UK, keyboard controls, mobile scrolling and OS appearance keep state", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 }); await open(page, "/uk/interactive/beam/"); await expect(page.getByRole("heading", { name: "Опір матеріалів", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   const viewport=await page.locator("[data-beam-viewport]").boundingBox();
   for(const control of await page.locator(".beam-inline-editor input,.beam-inline-editor button").all()){const box=await control.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(viewport!.x);expect(box!.x+box!.width).toBeLessThanOrEqual(viewport!.x+viewport!.width);}
 
   await page.getByRole("button", { name: "Збільшити", exact: true }).focus(); await page.keyboard.press("Enter"); await expect(page.locator("[data-beam-zoom]")).toContainText("125");
-  await page.getByRole("button", {name:"Автомасштаб",exact:true}).click(); await expect(page.locator("[data-beam-zoom]")).toContainText("100"); await page.evaluate(() => document.documentElement.dataset.theme = "dark"); expect(await value(page, "A-Fy")).toBe(5); await page.addStyleTag({content:".header,.astro-header{visibility:hidden!important}"}); await expect(page.locator("[data-beam-viewport]")).toHaveScreenshot("beam-mobile-dark.png", { animations: "disabled" });
+  await page.getByRole("button", {name:"Автомасштаб",exact:true}).click(); await expect(page.locator("[data-beam-zoom]")).toContainText("100"); await page.emulateMedia({ colorScheme: "dark" }); await expect(page.locator("html")).toHaveAttribute("data-theme", "light"); expect(await value(page, "A-Fy")).toBe(5); await page.addStyleTag({content:".header,.astro-header{visibility:hidden!important}"}); await expect(page.locator("[data-beam-viewport]")).toHaveScreenshot("beam-mobile-light.png", { animations: "disabled" });
 });
 
 

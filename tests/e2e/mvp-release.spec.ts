@@ -13,7 +13,7 @@ test('release metadata is coherent on all seven public pages without JavaScript'
  const robots=await(await request.get(base+'robots.txt')).text();expect(robots).not.toContain('Disallow:');await context.close();
 });
 
-test('enforced release CSP allows navigation themes practice four schemes and offline hydration',async({browser,request})=>{
+test('enforced release CSP allows light navigation practice four schemes and offline hydration',async({browser,request})=>{
  test.skip(process.env.E2E_RELEASE_HEADERS!=='1','Run against release:preview to apply emitted HTTP policy; Astro preview does not apply _headers');
  const context=await browser.newContext(),page=await context.newPage();
  await context.addInitScript(()=>{window.releaseViolations=[];document.addEventListener('securitypolicyviolation',e=>window.releaseViolations.push({directive:e.violatedDirective,blocked:e.blockedURI}));});
@@ -24,7 +24,7 @@ test('enforced release CSP allows navigation themes practice four schemes and of
  await page.getByRole('link',{name:'Следующий этап',exact:true}).click();await expect(page).toHaveURL(book+'examples/#example-1');await noViolation();await page.getByRole('link',{name:'Следующий этап',exact:true}).click();await expect(page.locator('.mesh-lab')).toHaveAttribute('data-ready','true');
  const expected=['3,60 A','1,20 A','8,82 A','2,67 A'];
  for(let n=1;n<=4;n++){await page.getByTestId('preset').selectOption(String(n));await expect(page.getByTestId('mesh-1')).toHaveText(expected[n-1]);await page.getByTestId('parameter-value').fill('3');await expect(page.getByRole('alert')).toHaveCount(0);await page.getByRole('button',{name:'Сброс параметров'}).click();await noViolation();}
- const theme=await page.locator('html').getAttribute('data-theme');await page.locator('#mvp-theme').click();await expect(page.locator('html')).not.toHaveAttribute('data-theme',theme!);await noViolation();
+ await page.emulateMedia({colorScheme:'dark'});await expect(page.locator('html')).toHaveAttribute('data-theme','light');await expect(page.locator('#mvp-theme,#theme-toggle')).toHaveCount(0);await noViolation();
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);
  await context.setOffline(true);await page.goto(book+'lab/?example=4');await expect(page.locator('.mesh-lab')).toHaveAttribute('data-ready','true');await noViolation();await context.setOffline(false);
  for(const path of ['sw.js','manifest.webmanifest'])expect((await request.get(base+path)).headers()['cache-control']).toBe('no-cache');

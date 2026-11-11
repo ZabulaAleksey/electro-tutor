@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "astro dev",
-        "build": "node scripts/build-site.mjs",
+        "build": "node scripts/build-site.mjs --education",
         "wasm:build": "node scripts/transient-wasm.mjs build",
         "wasm:check": "node scripts/transient-wasm.mjs check",
         "check:base-path": "node scripts/check-base-path.mjs",
@@ -43,7 +43,7 @@
         "backend:notifications:worker": "uv run --project services/api python -m electro_tutor_api.notification_worker",
         "backend:db:reset-local": "node scripts/backend.mjs db-reset-local",
         "test": "node scripts/verify-beam-goldens.mjs && vitest run",
-        "test:e2e": "pnpm run build && node scripts/run-e2e.mjs",
+        "test:e2e": "pnpm run build:mvp && node scripts/run-e2e.mjs",
         "test:e2e:built": "node scripts/run-e2e.mjs",
         "test:e2e:production-smoke": "node scripts/run-production-e2e-smoke.mjs",
         "test:e2e:root": "node scripts/check-root-e2e.mjs",

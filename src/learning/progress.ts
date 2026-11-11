@@ -159,7 +159,7 @@ export async function fetchLearningIdentity(
   fetcher: typeof fetch,
   apiOrigin: URL | null = typeof window === "undefined" ? null : resolveLocalApiOrigin(window.location),
 ): Promise<LearningIdentity | null> {
-  if (!apiOrigin) return null;
+  if (import.meta.env.PUBLIC_EDUCATION_MODE === "true" || !apiOrigin) return null;
   try {
     const signal = typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
       ? AbortSignal.timeout(10_000)

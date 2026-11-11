@@ -1,5 +1,10 @@
 # Безопасность и границы доверия
 
+## ET-UI-010 — публичный учебный профиль RU/UK
+
+Сборка использует разрешённый список Astro-маршрутов. Страницы аккаунта, занятий, сервисов и корни API исключены из артефакта и кеша service worker. На Cloudflare адресный Pages 404 guard закрывает только эти префиксы. CSP использует хеши встроенных скриптов, `wasm-unsafe-eval` для расчётов и `connect-src 'self'`. Камера, микрофон, платежи и фреймы запрещены. GitHub Pages сохраняет границу статического графа и service worker. HTTP-заголовки Cloudflare проверяются отдельно.
+
+
 ## Текущая публичная доставка RUN6
 
 2026-11-05: owner-authorized fresh static MVP source3267948 deployed to electrotutor.pages.dev, canonical 7ba2859a-4b84-449a-8550-ba7084b9f3ef. Seven RU indexed pages, bounded hidden-route404 handler, CSP/security headers, no backend dependency or public catalogue expansion. Authenticated API confirms unchanged deployment settings/fail_open=false in both environments; primary HTTP and browser/PWA/math checks PASS. Earlier delivery entries below are historical; no architecture/security policy mutation. Evidence: STAGES ET-NAV-006, TESTING and docs/evidence/run6-production-deployment.json.

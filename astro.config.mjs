@@ -11,7 +11,10 @@ const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
 import { isPublicPage, mvpMode } from "./scripts/public-mvp-contract.mjs";
 import { mvpWorkerIntegration } from "./scripts/mvp-worker.mjs";
 import { releaseHeadersIntegration } from "./scripts/release-policy.mjs";
-const mvp = mvpMode(env.PUBLIC_MVP_MODE);
+import { educationRoutesIntegration } from "./scripts/education-routes.mjs";
+import { educationReleaseIntegration } from "./scripts/education-release.mjs";
+const education = env.PUBLIC_EDUCATION_MODE === "true";
+const mvp = !education && mvpMode(env.PUBLIC_MVP_MODE);
 const site = normalizeSiteOrigin(env.SITE_URL || "https://electrotutor.example");
 const base = normalizeBasePath(env.BASE_PATH);
 
@@ -33,15 +36,20 @@ const lightThemeStyles = {
 export default defineConfig({
   site,
   ...(mvp ? {srcDir:"./src/mvp",publicDir:"./src/mvp/static"} : {}),
+  ...(education ? { srcDir: "./src/education" } : {}),
   vite: {
-    define: { "import.meta.env.PUBLIC_MVP_MODE": JSON.stringify(String(mvp)), ...(mvp ? {"import.meta.env.PUBLIC_API_ORIGIN":JSON.stringify("")} : {}) },
+    define: {
+      "import.meta.env.PUBLIC_MVP_MODE": JSON.stringify(String(mvp)),
+      "import.meta.env.PUBLIC_EDUCATION_MODE": JSON.stringify(String(education)),
+      ...(mvp || education ? {"import.meta.env.PUBLIC_API_ORIGIN":JSON.stringify("")} : {}),
+    },
     ...(themeConfiguration.allowDark ? {} : { css: { postcss: { plugins: [lightThemeStyles] } } }),
   },
   base,
   trailingSlash: "always",
   outDir: env.BUILD_OUTPUT_DIR || "./dist",
   output: "static",
-  integrations: [react(), mdx(), sitemap({filter: page => !mvp || (new URL(page).pathname !== base && isPublicPage(new URL(page).pathname,base))}), ...(mvp ? [releaseHeadersIntegration(base),mvpWorkerIntegration(base)] : [])],
+  integrations: [react(), mdx(), sitemap({filter: page => !mvp || (new URL(page).pathname !== base && isPublicPage(new URL(page).pathname,base))}), ...(mvp ? [releaseHeadersIntegration(base),mvpWorkerIntegration(base)] : []), ...(education ? [educationRoutesIntegration, educationReleaseIntegration(base)] : [])],
   build: {
     format: "directory",
   },

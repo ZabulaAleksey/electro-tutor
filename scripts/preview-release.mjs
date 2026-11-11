@@ -25,7 +25,7 @@ export async function createReleasePreview(root) {
       for(const rule of rules)if(matches(rule.path,path))Object.assign(headers,rule.headers);
       async function send(file,status=200) {
         const real=await realpath(file),rel=relative(root,real);assert.ok(rel&&!rel.startsWith('..'+sep)&&rel!=='..'&&!rel.startsWith(sep),'Outside artifact');
-        const data=await readFile(real),ext=extname(real),mime={'.js':'text/javascript','.css':'text/css','.html':'text/html; charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.xml':'application/xml','.txt':'text/plain; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.woff':'font/woff','.woff2':'font/woff2','.ttf':'font/ttf'}[ext]||'application/octet-stream';
+        const data=await readFile(real),ext=extname(real),mime={'.js':'text/javascript','.css':'text/css','.html':'text/html; charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.xml':'application/xml','.txt':'text/plain; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.wasm':'application/wasm','.woff':'font/woff','.woff2':'font/woff2','.ttf':'font/ttf'}[ext]||'application/octet-stream';
         res.writeHead(status,{...headers,'Content-Type':mime,...(status===404?{'X-Robots-Tag':'noindex'}:{})});res.end(req.method==='HEAD'?undefined:data);
       }
       if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405,{...headers,Allow:'GET, HEAD'}).end();return;}

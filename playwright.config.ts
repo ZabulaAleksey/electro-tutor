@@ -19,7 +19,7 @@ export default defineConfig({
   // Secret-bearing Session and notification scenarios require explicit live phases.
   // Ordinary static/root E2E excludes both.
   testIgnore: liveLessonSessionPhase || liveNotificationPhase || liveReminderPhase
-    ? [] : ["**/mvp-*.spec.ts", "**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts", "**/auth-reminders.spec.ts"],
+    ? [] : ["**/mvp-*.spec.ts", "**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts", "**/auth-reminders.spec.ts", ...(process.env.E2E_EDUCATION === "true" ? [] : ["**/education-release.spec.ts"])],
   outputDir: "./test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { localePath } from "../../../site-path";
+
+export function getStaticPaths() {
+const pages = {
+  help: {
+    ru: { title: "Помощь", description: "Откройте учебник, выберите разбор или начните эксперимент в лаборатории. Для изменения параметров в лаборатории включите JavaScript." },
+    uk: { title: "Допомога", description: "Відкрийте підручник, оберіть розв’язання або почніть експеримент у лабораторії. Щоб змінювати параметри, увімкніть JavaScript." },
+  },
+  contacts: {
+    ru: { title: "Контакты", description: "Сообщите нам, если нашли ошибку в учебных материалах или расчётах. Укажите страницу, параметры цепи и полученный результат." },
+    uk: { title: "Контакти", description: "Повідомте нам, якщо знайшли помилку в навчальних матеріалах або розрахунках. Укажіть сторінку, параметри кола та отриманий результат." },
+  },
+  privacy: {
+    ru: { title: "Конфиденциальность", description: "Учебные материалы доступны без регистрации. Расчёты выполняются в браузере. Настройки языка, учебный прогресс и параметры могут храниться на устройстве. Браузер хранит публичные страницы и файлы для офлайн-работы. Удалить эти данные можно в настройках сайта в браузере. Внешние сайты применяют собственные условия." },
+    uk: { title: "Конфіденційність", description: "Навчальні матеріали доступні без реєстрації. Розрахунки виконуються у браузері. Налаштування мови, навчальний прогрес і параметри можуть зберігатися на пристрої. Браузер зберігає публічні сторінки та файли для роботи офлайн. Ці дані можна видалити в налаштуваннях сайту в браузері. Зовнішні сайти застосовують власні умови." },
+  },
+};
+  return (["ru", "uk"] as const).flatMap(lang => Object.entries(pages).map(([info, copy]) => ({
+    params: { lang, info },
+    props: { copy: copy[lang] },
+  })));
+}
+const { lang: language, info } = Astro.params;
+const { title, description } = Astro.props.copy;
+---
+<BaseLayout {title} {description} {language} active="contacts" alternatePath={`/${info}/`}>
+  <article class="content-directory">
+    <h1>{title}</h1>
+    <p>{description}</p>
+    {info === "help" && <p><a href={localePath(language, "/topics/")}>{language === "ru" ? "Открыть учебник" : "Відкрити підручник"}</a></p>}
+    {info === "contacts" && <ul>
+      <li><a href="mailto:aleksey.zabula@gmail.com">aleksey.zabula@gmail.com</a></li>
+      <li><a href="https://t.me/toemath" rel="external noreferrer">Telegram</a></li>
+    </ul>}
+  </article>
+</BaseLayout>

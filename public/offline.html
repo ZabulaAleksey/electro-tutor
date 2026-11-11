@@ -19,7 +19,8 @@
     <div aria-hidden="true">∿</div>
     <h1>Нет подключения / Немає з’єднання</h1>
     <p>Уже открытые материалы доступны из кеша. Подключитесь к интернету, чтобы загрузить новую страницу.</p>
-    <button onclick="location.reload()">Повторить / Повторити</button>
+    <button id="offline-retry" type="button">Повторить / Повторити</button>
+    <script>document.getElementById("offline-retry").addEventListener("click", () => location.reload());</script>
   </main>
 </body>
 </html>

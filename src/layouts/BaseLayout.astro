@@ -32,11 +32,15 @@ const iconPath = withBasePath("/icons/potential.svg");
 const webFontScriptPath = withBasePath("/scripts/web-font.js");
 const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
+const education = import.meta.env.PUBLIC_EDUCATION_MODE === "true";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
 const activeSection = ["tools", "engineering-board", "board"].includes(active) ? "interactive" : active;
 const footerLinks = [
   { path: "/contacts/", label: language === "ru" ? "Контакты" : "Контакти" },
-  { path: "/my-services/", label: language === "ru" ? "Сервисы" : "Сервіси" },
+  ...(education ? [
+    { path: "/help/", label: language === "ru" ? "Помощь" : "Допомога" },
+    { path: "/privacy/", label: language === "ru" ? "Конфиденциальность" : "Конфіденційність" },
+  ] : [{ path: "/my-services/", label: language === "ru" ? "Сервисы" : "Сервіси" }]),
 ];
 ---
 <!doctype html>
@@ -44,7 +48,7 @@ const footerLinks = [
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="electro-tutor-api-origin" content={publicApiOrigin} />
+  {!education && <meta name="electro-tutor-api-origin" content={publicApiOrigin} />}
   <meta name="theme-color" content={themeConfiguration.chromeColor} />
   <meta name="description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -57,11 +61,13 @@ const footerLinks = [
   {hasTranslation && <link rel="alternate" hreflang={otherLanguage} href={alternate} />}
   <link rel="alternate" hreflang={language} href={canonical} />
   <link rel="alternate" hreflang="x-default" href={defaultAlternate} />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style" href={webFontStylesheet} />
-  <link rel="stylesheet" href={webFontStylesheet} media="print" data-web-font-stylesheet />
-  <script is:inline src={webFontScriptPath} defer></script>
+  {!education && <>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href={webFontStylesheet} />
+    <link rel="stylesheet" href={webFontStylesheet} media="print" data-web-font-stylesheet />
+    <script is:inline src={webFontScriptPath} defer></script>
+  </>}
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />

@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {retiredPolicy} from './mvp-retired-routes.mjs';
 import {edgeWorkerSource,edgeRoutes} from './mvp-edge-404.mjs';
 import {publicRoutes, publicPath} from './public-mvp-contract.mjs';
+import {educationEdgeRoutes} from './education-routes.mjs';
 
 export function releaseOrigin(value) {
   assert.ok(value, 'SITE_URL is required for release verification');
@@ -38,12 +39,12 @@ export async function filesUnder(root) {
   await walk(root);return out.sort();
 }
 
-export function securityHeaders(documents,base='/') {
-  const csp=["default-src 'self'","base-uri 'none'","object-src 'none'","frame-ancestors 'none'","form-action 'none'",`script-src 'self' ${inlineHashes(documents).join(' ')}`,"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data:","font-src 'self' data:","connect-src 'self'","worker-src 'self'","manifest-src 'self'","frame-src 'none'","media-src 'none'"].join('; ');
+export function securityHeaders(documents,base='/',{education=false}={}) {
+  const csp=["default-src 'self'","base-uri 'none'","object-src 'none'","frame-ancestors 'none'","form-action 'none'",`script-src 'self' ${education ? "'wasm-unsafe-eval' " : ""}${inlineHashes(documents).join(' ')}`,"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data:","font-src 'self' data:","connect-src 'self'","worker-src 'self'","manifest-src 'self'","frame-src 'none'","media-src 'none'"].join('; ');
   assert.ok(csp.length<1900,'Pages header line limit: review inline script count');
   const lines=['/*',`  Content-Security-Policy: ${csp}`,'  X-Content-Type-Options: nosniff','  X-Frame-Options: DENY','  Referrer-Policy: strict-origin-when-cross-origin','  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()'];
   const paths=['/',...publicRoutes].flatMap(p=>[publicPath(p,base),publicPath(p,base)+'index.html']);
-  for(const p of retiredPolicy(base).headerPaths) lines.push(p,'  Cache-Control: no-store','  X-Robots-Tag: noindex');
+  for(const p of (education ? educationEdgeRoutes(base).include : retiredPolicy(base).headerPaths)) lines.push(p,'  Cache-Control: no-store','  X-Robots-Tag: noindex');
   for(const p of [...new Set([...paths,...['sw.js','manifest.webmanifest','404.html','offline.html','robots.txt','sitemap-index.xml','sitemap-0.xml'].map(p=>publicPath('/'+p,base))])])lines.push(p,'  Cache-Control: no-cache');
   lines.push(publicPath('/mvp-build.json',base),'  Cache-Control: no-store',publicPath('/_astro/*',base),'  Cache-Control: public, max-age=31536000, immutable');
   return lines.join('\n')+'\n';

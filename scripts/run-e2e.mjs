@@ -12,11 +12,13 @@ const readinessPath = process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/";
 const readinessURL = new URL(readinessPath, baseURL).toString();
 const projectRoot = process.cwd();
 const mvpArtifact = existsSync(resolve(process.env.BUILD_OUTPUT_DIR || "dist", "mvp-build.json"));
-const selectedSpec = process.env.E2E_SPEC;
+const educationArtifact = existsSync(resolve(process.env.BUILD_OUTPUT_DIR || "dist", "education-build.json"));
+const selectedSpec = process.env.E2E_SPEC || (educationArtifact ? "tests/e2e/education-release.spec.ts" : "");
 const playwrightEnvironment = { ...process.env };
 delete playwrightEnvironment.ET_KEYCLOAK_ADMIN_PASSWORD;
 const previewEnvironment = { ...playwrightEnvironment };
 previewEnvironment.PUBLIC_MVP_MODE = String(mvpArtifact);
+previewEnvironment.PUBLIC_EDUCATION_MODE = String(educationArtifact);
 delete previewEnvironment.ET_DEV_TEST_PASSWORD;
 // Astro 7.3 auto-backgrounds under detected agent environments. A managed
 // foreground process is required so this runner can always stop the exact
@@ -127,6 +129,7 @@ try {
     env: {
       ...playwrightEnvironment,
       E2E_EXTERNAL_SERVER: "1",
+      E2E_EDUCATION: String(educationArtifact),
       E2E_BASE_PATH: process.env.E2E_BASE_PATH || process.env.BASE_PATH || "/",
     },
   });

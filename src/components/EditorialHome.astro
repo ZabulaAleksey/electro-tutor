@@ -1,0 +1,69 @@
+---
+import CircuitDiagram from "./CircuitDiagram";
+import TechnicalThumbnail from "../catalogue/TechnicalThumbnail";
+import MeshExampleDiagram from "./MeshExampleDiagram";
+import TextbookFormula from "./TextbookFormula.astro";
+import { learningSections } from "../learning/section-routes";
+import { localePath, withBasePath } from "../site-path";
+import type { Language } from "../types";
+import "../editorial-home.css";
+
+const { language } = Astro.props as { language: Language };
+const text = {
+  ru: {
+    title: "Электротехника", titleEnd: "на практике",
+    description: "Разберитесь, как работают электрические цепи. Изучайте теорию, решайте задачи и проверяйте расчёты в интерактивных лабораториях.",
+    heroAlt: "Проволочный резистор с измерительными проводами на лабораторном столе",
+    images: ["Уравнения для токов двух контуров", "Иллюстрация лабораторной установки с электрической цепью"],
+    sections: ["Законы, схемы и формулы с объяснением каждого шага.", "Разобранные задачи с подстановками, схемами и проверкой результатов.", "Меняйте параметры цепи и наблюдайте, как меняются токи, напряжения и графики."],
+    actions: ["Открыть учебник", "Посмотреть решения", "Открыть лаборатории"],
+    explore: "Изучить возможности",
+  },
+  uk: {
+    title: "Електротехніка", titleEnd: "на практиці",
+    description: "З’ясуйте, як працюють електричні кола. Вивчайте теорію, розв’язуйте задачі й перевіряйте розрахунки в інтерактивних лабораторіях.",
+    heroAlt: "Дротяний резистор з вимірювальними проводами на лабораторному столі",
+    images: ["Рівняння для струмів двох контурів", "Ілюстрація лабораторної установки з електричним колом"],
+    sections: ["Закони, схеми й формули з поясненням кожного кроку.", "Розв’язані задачі з підстановками, схемами та перевіркою результатів.", "Змінюйте параметри кола та спостерігайте за змінами струмів, напруг і графіків."],
+    actions: ["Відкрити підручник", "Переглянути розв’язання", "Відкрити лабораторії"],
+    explore: "Ознайомитися з можливостями",
+  },
+}[language];
+const image = (name: string, width: number) => withBasePath(`/panoramas/${name}-${width}.webp`);
+const srcset = (name: string) => [640, 1280, 1920].map(width => `${image(name, width)} ${width}w`).join(", ");
+---
+<div class="editorial-home">
+  <section class="editorial-hero" aria-labelledby="editorial-title">
+    <div class="editorial-hero-copy">
+      <h1 id="editorial-title">{text.title}<br />{text.titleEnd}</h1>
+      <p>{text.description}</p>
+      <a class="editorial-action" href="#learning-paths">{text.explore} <span aria-hidden="true">↓</span></a>
+    </div>
+    <img class="editorial-hero-image" src={image("dc", 1280)} srcset={srcset("dc")}
+      sizes="(max-width: 740px) 100vw, 58vw" width="1280" height="720" alt={text.heroAlt} fetchpriority="high" />
+  </section>
+  <div id="learning-paths" class="editorial-paths">
+    {learningSections.map((section, index) => (
+      <section class:list={["editorial-section", { "editorial-section-reverse": index === 1 }]} aria-labelledby={`path-${section.id}`}>
+        <div class="editorial-media">
+          {index === 0 && <CircuitDiagram {language} />}
+          {index === 1 && <div class="editorial-solution" role="group" aria-label={text.images[0]}>
+            <div lang="ru" aria-hidden="true"><MeshExampleDiagram example={1} /></div>
+            <TextbookFormula latex={String.raw`\begin{cases}4I_1-2I_2=12\\-2I_1+6I_2=0\end{cases}`} />
+          </div>}
+          {index === 2 && <div class="editorial-lab-image">
+            <img src={image("transient", 1280)} srcset={srcset("transient")}
+              sizes="(max-width: 740px) 100vw, 52vw" width="1280" height="720"
+              alt={text.images[1]} loading="lazy" decoding="async" />
+            <span aria-hidden="true"><svg viewBox="0 0 300 128"><TechnicalThumbnail kind="rc" /></svg></span>
+          </div>}
+        </div>
+        <div class="editorial-section-copy">
+          <h2 id={`path-${section.id}`}>{section.label[language]}</h2>
+          <p>{text.sections[index]}</p>
+          <a class="editorial-action" href={localePath(language, section.path)}>{text.actions[index]} <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    ))}
+  </div>
+</div>

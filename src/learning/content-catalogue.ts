@@ -1,5 +1,5 @@
 import { isPublicPage } from "../../scripts/public-mvp-contract.mjs";
-import { catalogueCategoryLabels, catalogueItems, engineeringTools } from "../catalogue/catalog";
+import { catalogueCategoryLabels, catalogueItems, engineeringTools, type CatalogueVisual } from "../catalogue/catalog";
 import { curriculum } from "../curriculum";
 import { localePath } from "../site-path";
 import type { Language } from "../types";
@@ -18,6 +18,7 @@ export interface Resource extends ContentLink {
   kind: ContentKind;
   category: string;
   categoryTitle: string;
+  visual?: CatalogueVisual;
 }
 
 export function buildContentCatalogue(groups: LearningGroup[], language: Language, mvp: boolean) {
@@ -29,6 +30,7 @@ export function buildContentCatalogue(groups: LearningGroup[], language: Languag
     categoryTitle: catalogueCategoryLabels[item.subject ?? item.category][language],
     title: item.title[language],
     description: item.description?.[language],
+    visual: item.visual,
     href: localePath(language, item.href),
     featured: item.source === "advanced" && item.kind !== "tool",
     variants: item.variants?.filter(variant => availableInBuild(variant.href))

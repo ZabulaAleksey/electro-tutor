@@ -14,11 +14,11 @@ import ThemeBootstrap from "../components/ThemeBootstrap.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import { themeConfiguration } from "../theme-configuration.mjs";
 import LanguageSwitcher from "../components/LanguageSwitcher.astro";
-import { contentCopy, stageCopy } from "../learning/navigation-copy";
+import { learningSections } from "../learning/section-routes";
 
 interface Props {
   title: string; description: string; language: Language;
-  active?: "home" | "topics" | "interactive" | "tools" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
+  active?: "home" | "topics" | "solutions" | "interactive" | "tools" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
   alternatePath?: string; keywords?: string[]; hasTranslation?: boolean;
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [], hasTranslation = true } = Astro.props;
@@ -33,19 +33,11 @@ const webFontScriptPath = withBasePath("/scripts/web-font.js");
 const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
-const myServicesLabel = language === "ru" ? "Сервисы" : "Сервіси";
-const standardNav = [
-  { id: "topics", href: localePath(language, "/topics/"), label: stageCopy[language].textbook },
-  { id: "interactive", href: localePath(language, "/interactive/"), label: contentCopy[language].labs },
-  { id: "tools", href: localePath(language, "/tools/"), label: contentCopy[language].tools },
-  { id: "home", href: localePath(language), label: copy.nav.home },
-  { id: "board", href: localePath(language, "/board/"), label: language === "ru" ? "Доска" : "Дошка" },
-  { id: "classroom", href: localePath(language, "/classroom/"), label: language === "ru" ? "Репетиторство" : "Репетиторство" },
-  { id: "my-services", href: localePath(language, "/my-services/"), label: myServicesLabel },
-  { id: "contacts", href: localePath(language, "/contacts/"), label: language === "ru" ? "Контакты" : "Контакти" },
+const activeSection = ["tools", "engineering-board", "board"].includes(active) ? "interactive" : active;
+const footerLinks = [
+  { path: "/contacts/", label: language === "ru" ? "Контакты" : "Контакти" },
+  { path: "/my-services/", label: language === "ru" ? "Сервисы" : "Сервіси" },
 ];
-// Home and internal pages deliberately share the same shell navigation.
-const nav = standardNav;
 ---
 <!doctype html>
 <html lang={language} data-theme="light" data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>
@@ -82,19 +74,39 @@ const nav = standardNav;
   <header class="header astro-header">
     <a class="brand" href={localePath(language)} aria-label={copy.brand.display}>
       <svg class="brand-mark" viewBox="0 0 72 48" aria-hidden="true"><defs><linearGradient id="brand-wave" x2="1" y2=".2"><stop stop-color="#45d4ff"/><stop offset="1" stop-color="#874fff"/></linearGradient></defs><path d="M4 36 L16 12 Q21 2 25 13 L31 35 Q35 45 40 30 L47 13 Q52 3 56 18 L61 33 Q65 43 69 21" fill="none" stroke="url(#brand-wave)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span><strong>{copy.brand.display}</strong><small>{copy.brand.tagline}</small></span>
+      <span><strong>{copy.brand.display}</strong></span>
     </a>
-    <nav aria-label={copy.nav.label}>
-      {nav.map(item => item.id === "my-services" ? <details class="nav-services"><summary aria-label={language === "ru" ? "Дополнительные сервисы" : "Додаткові сервіси"} class:list={{active:active === item.id}}>{item.label}</summary><div class="nav-services-menu"><a href={localePath(language,"/my-services/#install")}>{language==="ru"?"Приложение ElectroTutor":"Застосунок ElectroTutor"}</a><a href={localePath(language,"/my-services/#mathmorph")}>MathMorph</a><a href={localePath(language,"/classroom/")}>{language==="ru"?"Гостевая видеокомната · Jitsi (внешний сервис)":"Гостьова відеокімната · Jitsi (зовнішній сервіс)"}</a><span>{language==="ru"?"Контролируемое видеозанятие · не реализовано":"Кероване відеозаняття · не реалізовано"}</span><a href={item.href}>{language==="ru"?"Все сервисы":"Усі сервіси"} ↗</a></div></details> : <a class:list={{ active: active === item.id }} aria-current={active === item.id && Astro.url.pathname === item.href ? "page" : undefined} href={item.href}>{item.label}</a>)}
+    <nav id="site-navigation" aria-label={copy.nav.label}>
+      {learningSections.map(item => {
+        const href = localePath(language, item.path);
+        return <a class:list={{ active: activeSection === item.id }}
+          aria-current={Astro.url.pathname === href ? "page" : undefined} href={href}>{item.label[language]}</a>;
+      })}
     </nav>
     {hasTranslation && <LanguageSwitcher language={language} alternatePath={alternatePath} />}
     {themeConfiguration.allowDark && <ThemeToggle label={copy.actions.theme} />}
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={copy.actions.openMenu}>
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label={copy.actions.openMenu}>
       <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </header>
+  <noscript>
+    <style is:inline>
+      @media (max-width: 900px) {
+        .astro-header { flex-wrap: wrap; }
+        .astro-header > nav { display: flex !important; order: 5; width: 100%; gap: .8rem; }
+        .astro-header > nav > a { min-height: 44px; padding: .5rem 0; }
+        .astro-header > .mobile-menu-toggle { display: none !important; }
+        .astro-header .brand-mark { flex-shrink: 0; }
+      }
+    </style>
+  </noscript>
   <main><slot /></main>
-  <footer><span>© {new Date().getFullYear()} {copy.brand.display}</span></footer>
+  <footer class="site-footer">
+    <span>© {new Date().getFullYear()} {copy.brand.display}</span>
+    <nav aria-label={language === "ru" ? "В подвале" : "У підвалі"}>
+      {footerLinks.map(link => <a href={localePath(language, link.path)}>{link.label}</a>)}
+    </nav>
+  </footer>
 
   <dialog class="install-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
     <div class="install-dialog-content">
@@ -124,7 +136,6 @@ const nav = standardNav;
         const toggle = document.querySelector("#mobile-menu-toggle");
         header?.classList.remove("mobile-open");
         toggle?.setAttribute("aria-expanded", "false");
-        document.querySelectorAll("details.nav-services").forEach(detail => detail.open = false);
       };
 
       const restoreLanguageScroll = () => {
@@ -213,3 +224,9 @@ const nav = standardNav;
   </script>
 </body>
 </html>
+
+<style>
+  .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .6rem 1.75rem; }
+  .site-footer nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .site-footer nav a { padding-block: .55rem; color: inherit; text-underline-offset: .2em; }
+</style>

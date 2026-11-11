@@ -2,18 +2,18 @@ import { expect, test } from "@playwright/test";
 
 const base = process.env.E2E_BASE_PATH || "/";
 const destinations = [
-  { language: "ru", textbook: "Учебник", labs: "Лаборатории", tools: "Инструменты" },
-  { language: "uk", textbook: "Підручник", labs: "Лабораторії", tools: "Інструменти" },
+  { language: "ru", textbook: "Учебник", labs: "Лаборатории", solutions: "Решения" },
+  { language: "uk", textbook: "Підручник", labs: "Лабораторії", solutions: "Розв’язання" },
 ] as const;
 
-for (const { language, textbook, labs, tools } of destinations) {
+for (const { language, textbook, labs, solutions } of destinations) {
   const home = `${base}${language}/`;
   const lesson = `${home}topics/dc/mesh-current-method/`;
   test(`${language}: global catalogues, local material, direct lab links and history`, async ({ page, request }) => {
     await page.goto(home);
     const nav = page.locator(".astro-header > nav");
     await expect(nav.getByRole("link", { name: /^(Оглавление|Зміст)$/ })).toHaveCount(0);
-    await expect(page.locator("#labs a[href*='/interactive/fourier/']")).toBeVisible();
+    await expect(page.locator(".editorial-paths a")).toHaveCount(3);
     await nav.getByRole("link", { name: textbook, exact: true }).click();
     await expect(page).toHaveURL(`${home}topics/`);
     const mesh = page.locator("#topic-dc-mesh");
@@ -39,14 +39,16 @@ for (const { language, textbook, labs, tools } of destinations) {
     await expect(page.locator("#labs a[href*='/interactive/fourier/']")).toBeVisible();
     await expect(page.locator("#labs a[href*='/interactive/beam/']")).toBeHidden();
     await search.clear();
-    const labLinks = await page.locator("#labs a").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
+    const labLinks = await page.locator("#labs a[data-registered-content]").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
     expect(labLinks.length).toBeGreaterThanOrEqual(31);
     expect(new Set(labLinks).size).toBe(labLinks.length);
     for (const href of new Set(labLinks.map(link => link.split("#")[0]))) {
       expect((await request.get(href)).status(), href).toBe(200);
     }
-    await nav.getByRole("link", { name: tools, exact: true }).click();
-    await expect(page).toHaveURL(`${home}tools/`);
+    await nav.getByRole("link", { name: solutions, exact: true }).click();
+    await expect(page).toHaveURL(`${home}solutions/`);
+    await expect(page.locator("[data-registered-content]")).toHaveCount(4);
+    await page.goto(`${home}tools/`);
     await expect(page.locator("#tools a[href*='circular-diagram/']")).toBeVisible();
     await expect(page.locator("#tools a[href*='/board/']")).toBeVisible();
     await page.locator("#tools a[href*='/engineering-board/']").click();
@@ -61,7 +63,7 @@ for (const { language, textbook, labs, tools } of destinations) {
     await page.addInitScript(() => localStorage.setItem("potential-theme", "dark"));
     for (const width of [320, 390, 768, 900, 1024, 1280, 1920]) {
       await page.setViewportSize({ width, height: 900 });
-      for (const route of [home, `${home}topics/`, `${home}interactive/`, `${home}tools/`, lesson]) {
+      for (const route of [home, `${home}topics/`, `${home}interactive/`, `${home}solutions/`, `${home}tools/`, lesson]) {
         await page.goto(route);
         await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
         await expect(page.locator("html")).toHaveCSS("color-scheme", "light only");

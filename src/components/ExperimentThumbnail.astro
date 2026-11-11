@@ -1,0 +1,36 @@
+---
+import type { Experiment } from "../learning/experiment-routes";
+import { microModel } from "../showcase/micro-models";
+import { models } from "../science/models";
+const { experiment } = Astro.props as { experiment: Experiment };
+const curves = (() => {
+  if (experiment.family === "micro") {
+    const { model, parameters } = experiment.model;
+    return microModel(model, parameters[0].initial, parameters[1].initial).plot.curves.map(curve => curve.points);
+  }
+  const result = models[experiment.model.id](...experiment.model.parameters.map(parameter => parameter.initial));
+  return [result.points, result.secondaryPoints ?? []].map(series => series.map(({ x, y }) => [x, y] as const));
+})();
+const finiteCurves = curves.map(series => series.filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y))).filter(series => series.length > 0);
+const coordinates = finiteCurves.flat();
+const bounds = (index: 0 | 1) => {
+  const values = coordinates.map(point => point[index]);
+  const min = Math.min(0, ...values);
+  return [min, Math.max(0, ...values) - min || 1] as const;
+};
+const [xMin, xSpan] = bounds(0);
+const [yMin, ySpan] = bounds(1);
+const x = (value: number) => 16 + (value - xMin) / xSpan * 208;
+const y = (value: number) => 66 - (value - yMin) / ySpan * 52;
+---
+<svg viewBox="0 0 240 80" class="experiment-thumbnail" aria-hidden="true">
+  <path d={`M16 ${y(0)}H224M${x(0)} 10V70`} fill="none" stroke="var(--line)" />
+  {finiteCurves.map((series, index) => (
+    <polyline points={series.map(([a, b]) => `${x(a).toFixed(1)},${y(b).toFixed(1)}`).join(" ")}
+      fill="none" stroke={["var(--blue)", "var(--orange)", "var(--violet)"][index % 3]}
+      stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+  ))}
+</svg>
+<style>
+  .experiment-thumbnail { display: block; width: 100%; height: 6rem; border-radius: .65rem; background: var(--surface-plot); }
+</style>

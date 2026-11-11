@@ -7,7 +7,7 @@ import type { Language } from "../../types";
 import { getLocale } from "../../i18n";
 import "../../components/StarNeutralLab.css";
 import "../../components/TransmissionLineLab.css";
-import ResourceCatalogue from "../../components/ResourceCatalogue.astro";
+import LaboratoryDirectory from "../../components/LaboratoryDirectory.astro";
 import { getContentCatalogue } from "../../learning/get-content-catalogue";
 import { contentCopy } from "../../learning/navigation-copy";
 
@@ -17,7 +17,7 @@ export function getStaticPaths() {
 const language = Astro.params.lang as Language;
 const copy = getLocale(language);
 const title = contentCopy[language].labs;
-const { resources } = await getContentCatalogue(language);
+const catalogue = await getContentCatalogue(language);
 ---
 
 <BaseLayout
@@ -27,6 +27,6 @@ const { resources } = await getContentCatalogue(language);
   active="interactive"
   alternatePath="/interactive/"
 >
-  <ResourceCatalogue id="labs" {title} {language} resources={resources.filter(resource => resource.kind === "labs")} pageHeading />
+  <LaboratoryDirectory {language} {catalogue} />
   <LegacyCircularRoute client:load {language} />
 </BaseLayout>

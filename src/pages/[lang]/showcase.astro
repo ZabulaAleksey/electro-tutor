@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import EngineeringShowcase from "../../showcase/EngineeringShowcase";
+import { publicSurface } from "../../public-surface";
+import { getLocale } from "../../i18n";
+import { stories } from "../../showcase/catalog";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" as const } }, { params: { lang: "uk" as const } }];
+}
+
+const { lang: language } = Astro.params;
+const title = language === "ru" ? "Инженерные демонстрации" : "Інженерні демонстрації";
+const copy = getLocale(language);
+---
+<BaseLayout {title} description={title} {language} active="interactive" alternatePath="/showcase/">
+  <div class="directory-hero"><div class="directory-hero-inner"><h1>{title}</h1></div></div>
+  <section class="content-directory" aria-label={title}>
+    <ul class="directory-grid">
+      {stories.map(story => <li class="directory-card"><a href={`#story=${story.id}`}>{story.title[language]}</a></li>)}
+    </ul>
+  </section>
+  <EngineeringShowcase client:load {language} />
+  {publicSurface.showProgress && <section class="section" aria-labelledby="learning-summary-title">
+    <div class="learning-summary">
+      <h2 id="learning-summary-title">{copy.learning.summaryDevice}</h2>
+      <div data-learning-summary></div>
+    </div>
+  </section>}
+</BaseLayout>
+<style>
+  :global(.lab-showcase) { scroll-margin-top: 5.5rem; }
+</style>

@@ -102,8 +102,9 @@ for (const lesson of lessons) {
   const expectedHref = withBase(`/${lesson.language}/topics/dc/mesh-current-method/`);
   for (const page of ["", "topics"]) {
     const listingHtml = await html(`${lesson.language}/${page}`);
-    if (!listingHtml.includes(`href="${expectedHref}"`)) {
-      throw new Error(`${lesson.language}/${page || "home"} misses ${expectedHref}.`);
+    const destination = page === "topics" ? expectedHref : withBase(`/${lesson.language}/topics/`);
+    if (!listingHtml.includes(`href="${destination}"`)) {
+      throw new Error(`${lesson.language}/${page || "home"} misses ${destination}.`);
     }
     rejectMatch(
       listingHtml,

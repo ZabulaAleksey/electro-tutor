@@ -72,7 +72,7 @@ test("desktop Tab navigation reaches named controls and the catalogue search", a
   const search = page.getByRole("searchbox");
   await expect(search).toBeFocused();
   expect(reachedNames.some((name) => name.includes("ElectroTutor"))).toBe(true);
-  expect(reachedNames.some((name) => name.includes("Дополнительные сервисы"))).toBe(true);
+  expect(reachedNames.some((name) => name === "Решения")).toBe(true);
   await search.pressSequentially("Фурье");
   await expect(page.locator("#labs [data-directory-entry]:visible")).toHaveCount(1);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -128,9 +128,8 @@ test("essential icon controls and lesson diagrams expose accessible names and li
   const runtimeErrors = captureRuntimeErrors(page);
   await page.goto("/ru/topics/dc/mesh-current-method/");
 
-  await expect(page.locator(".astro-header").getByRole("link", { name: "Инструменты", exact: true })).toBeVisible();
-  await page.locator(".nav-services summary").click();
-  await expect(page.locator(".nav-services-menu a[href$='/my-services/#install']")).toBeVisible();
+  await expect(page.locator(".astro-header").getByRole("link", { name: "Решения", exact: true })).toBeVisible();
+  await expect(page.locator(".site-footer a[href$='/my-services/']")).toBeVisible();
   await page.getByRole("button", { name: /выбрать язык/i }).click();
   await expect(page.getByRole("menuitemradio", { name: "Українська" })).toBeVisible();
   await expect(page.getByRole("img", { name: /схема|диаграмма/i })).toBeVisible();

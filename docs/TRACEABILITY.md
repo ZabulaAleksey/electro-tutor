@@ -1,5 +1,10 @@
 # Traceability
 
+## ET-UI-010 — презентационная главная и инвентаризация
+
+FR-407..411 → editorial-learning-sections.spec.md → section-routes, EditorialHome, существующие manifest и реестры, LaboratoryDirectory и worked-solutions → full/MVP artifact audits, editorial-learning.spec.ts и существующие численные сценарии. Инвентаризация в docs/notes/editorial-content-inventory.md.
+
+
 ## Каталоги и светлый режим
 
 FR-401..406 → `specs/features/content-first-navigation.spec.md` → ADR-052, `src/learning/content-catalogue.ts`, оба layout и `src/theme-configuration.mjs` → `src/learning/content-catalogue.test.ts`, full/MVP artifact audits, `tests/e2e/content-first-navigation.spec.ts` и `tests/e2e/mvp-content-first.spec.ts`. Результаты Windows/Linux и проверки обеих опубликованных версий находятся в ET-UI-009. Production verify/deploy подтверждены в [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43051174416).

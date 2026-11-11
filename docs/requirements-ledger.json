@@ -37,7 +37,8 @@
       "specs/features/unified-navigation-run6.spec.md",
       "specs/features/reference-ui.spec.md",
       "specs/features/language-switcher-ui.spec.md",
-      "specs/features/content-first-navigation.spec.md"
+      "specs/features/content-first-navigation.spec.md",
+      "specs/features/editorial-learning-sections.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1830,6 +1831,42 @@
       "e2e": [
         "tests/e2e/content-first-navigation.spec.ts",
         "tests/e2e/mvp-content-first.spec.ts"
+      ]
+    },
+    {
+      "domain": "editorial-learning-sections",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-407",
+        "FR-408",
+        "FR-409",
+        "FR-410",
+        "FR-411"
+      ],
+      "runtime": "Full Astro RU/UK landing and learning sections; dedicated routes for 26 models in each locale. Existing source content and solvers retained.",
+      "security": "Local full preview and separate published RU MVP allowlist; no deployment or new external dependency.",
+      "a11y": "Light appearance, responsive keyboard navigation and native no-JavaScript links.",
+      "observability": "ET-UI-010 in STAGES, TESTING and the content inventory.",
+      "gap": "No gap in the verified local preview. RU-only mesh sources are marked in UK.",
+      "action": "Local preview verified; owner review precedes any production release.",
+      "code": [
+        "src/components/EditorialHome.astro",
+        "src/components/LaboratoryDirectory.astro",
+        "src/learning/experiment-routes.ts",
+        "src/learning/worked-solutions.ts"
+      ],
+      "unit": [
+        "src/learning/content-catalogue.test.ts",
+        "src/showcase/physics.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-site.mjs",
+        "scripts/audit-built-locales.mjs",
+        "scripts/audit-built-lessons.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/product-shell-audit.spec.ts"
       ]
     }
   ]

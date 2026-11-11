@@ -3,6 +3,6 @@ import BaseLayout from "../../../../../../layouts/BaseLayout.astro";
 import MeshLab from "../../../../../../mesh/MeshLab";
 import MeshJourney from "../../../../../../mvp/MeshJourney.astro";
 ---
-<BaseLayout title="Лаборатория контурных токов — ElectroTutor" description="Четыре интерактивные схемы: меняйте сопротивления, ЭДС и ток источника, наблюдайте контурные и ветвевые токи, напряжения и баланс мощности." language="ru" active="topics" alternatePath="/topics/dc/mesh-current-method/lab/" hasTranslation={false}>
+<BaseLayout title="Лаборатория контурных токов — ElectroTutor" description="Четыре интерактивные схемы: меняйте сопротивления, ЭДС и ток источника, наблюдайте контурные и ветвевые токи, напряжения и баланс мощности." language="ru" active="interactive" alternatePath="/topics/dc/mesh-current-method/lab/" hasTranslation={false}>
   <MeshJourney stage={2} animated={false}><MeshLab persistContext={true} client:load /></MeshJourney>
 </BaseLayout>

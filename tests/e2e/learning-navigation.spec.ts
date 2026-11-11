@@ -11,7 +11,7 @@ test("the three global catalogue links have consistent destinations on every ful
     const menu = page.locator(header);
     await expect(menu.getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", textbook);
     await expect(menu.getByRole("link", { name: "Лаборатории", exact: true })).toHaveAttribute("href", "/ru/interactive/");
-    await expect(menu.getByRole("link", { name: "Инструменты", exact: true })).toHaveAttribute("href", "/ru/tools/");
+    await expect(menu.getByRole("link", { name: "Решения", exact: true })).toHaveAttribute("href", "/ru/solutions/");
     await expect(menu.getByRole("link", { name: "Оглавление", exact: true })).toHaveCount(0);
     expect(await menu.locator("[aria-current]").count()).toBeLessThanOrEqual(1);
   }
@@ -33,13 +33,11 @@ test("textbook search exposes real content and treats arbitrary input as text", 
   await expect(topics.locator("article:visible")).toHaveCount(count);
 });
 
-test("all registered experiments and tools resolve once across their two catalogues", async ({ page, request }) => {
+test("all registered experiments and tools resolve once in the laboratory catalogue", async ({ page, request }) => {
   const links: string[] = [];
-  for (const [route, catalogue] of [["/ru/interactive/", "#labs"], ["/ru/tools/", "#tools"]]) {
-    await page.goto(route);
-    links.push(...await page.locator(catalogue + " a").evaluateAll(elements =>
-      elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
-  }
+  await page.goto("/ru/interactive/");
+  links.push(...await page.locator("#labs [data-registered-content]").evaluateAll(elements =>
+    elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
   expect(links).toHaveLength(35);
   expect(new Set(links).size).toBe(links.length);
   const paths = new Set<string>();

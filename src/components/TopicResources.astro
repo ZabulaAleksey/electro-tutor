@@ -26,11 +26,11 @@ const stages = stageCopy[language];
       </ul>
     </div>
   ))}
-  {topic.examples && <div class="topic-resource-group"><a href={topic.examples}>{stages.examples}</a></div>}
+  {topic.examples && <div class="topic-resource-group"><a href={topic.examples} data-registered-content={topic.examples}>{stages.examples}</a></div>}
   {showTheory && topic.theory && (
     <div class="topic-resource-group">
       <h4>{copy.theory}</h4>
-      <a href={topic.theory}>{stages.textbook}</a>
+      <a href={topic.theory} data-registered-content={topic.theory}>{stages.textbook}</a>
     </div>
   )}
 </div>

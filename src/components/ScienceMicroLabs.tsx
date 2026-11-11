@@ -90,12 +90,13 @@ const equations: Record<ScienceId, string> = {
   "mass-spring": "x(t)=A\\cos(\\omega t),\\quad \\omega=\\sqrt{\\frac{k}{m}}",
 };
 
-export default function ScienceMicroLabs({ language = "ru", featured = false }: { language: Language; featured?: boolean }) {
+export default function ScienceMicroLabs({ language = "ru", featured = false, experiment }: { language: Language; featured?: boolean; experiment?: ScienceId }) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
   const [query, setQuery] = useState(""); const [category, setCategory] = useState<(typeof categoryKeys)[number]>("all"); const [values, setValues] = useState<Values>(initialValues); const [selected, setSelected] = useState<string | null>(null);
   useEffect(() => { const update = () => setSelected(new URLSearchParams(window.location.hash.slice(1)).get("science")); update(); window.addEventListener("hashchange", update); return () => window.removeEventListener("hashchange", update); }, []);
   const cards = useMemo(() => {
+    if (experiment) return scienceCatalog.filter(definition => definition.id === experiment);
     const filtered = scienceCatalog.filter((definition) => (category === "all" || definition.category === category) && `${definition.title[language]} ${definition.description[language]}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
     if (!featured) return filtered.slice(0, 12);
     const featuredIds: ScienceId[] = ["derivative-tangent", "projectile", "bernoulli", "standing-wave", "ideal-gas", "snell-refraction"];
@@ -103,10 +104,10 @@ export default function ScienceMicroLabs({ language = "ru", featured = false }: 
     const curated = featuredIds.map((id) => filtered.find((definition) => definition.id === id)).filter((definition): definition is (typeof scienceCatalog)[number] => Boolean(definition));
     if (selectedDefinition && !curated.some((definition) => definition.id === selectedDefinition.id) && filtered.some((definition) => definition.id === selectedDefinition.id)) return [...curated.slice(0, 5), selectedDefinition].slice(0, 6);
     return curated.slice(0, 6);
-  }, [category, featured, language, query, selected]);
+  }, [category, experiment, featured, language, query, selected]);
   const setParameter = (id: ScienceId, index: number, value: number) => setValues((current) => ({ ...current, [id]: current[id].map((entry, itemIndex) => itemIndex === index ? value : entry) }));
   return <section className="science-labs" aria-label={language === "ru" ? "Научные микролаборатории" : "Наукові мікролабораторії"}><fieldset className="lab-ready-guard" disabled={!ready} aria-hidden={!ready}>
-    <div className="science-toolbar"><input aria-label={labels[language].search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`${labels[language].search}…`} /><div className="science-categories" role="tablist">{categoryKeys.map((key) => <button key={key} type="button" className={category === key ? "active" : ""} aria-selected={category === key} onClick={() => setCategory(key)}>{labels[language][key]}</button>)}</div></div>
+    <div className="science-toolbar" hidden={Boolean(experiment)}><input aria-label={labels[language].search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`${labels[language].search}…`} /><div className="science-categories" role="tablist">{categoryKeys.map((key) => <button key={key} type="button" className={category === key ? "active" : ""} aria-selected={category === key} onClick={() => setCategory(key)}>{labels[language][key]}</button>)}</div></div>
     {cards.length === 0 ? <p className="science-empty">{labels[language].noResults}</p> : <div className="science-grid">{cards.map((definition) => { const id = definition.id; const current = values[id]; const result = models[id](...current); return <article className="science-card tool-card" key={id} id={`science-${id}`} data-science-id={id} data-selected={selected === id} onClick={(event) => { const target = event.target as HTMLElement; if (!target.closest("input,button,a,summary")) window.location.hash = `science=${id}`; }}>
       <div className="science-card-heading"><span className="science-card-index">{String(scienceCatalog.indexOf(definition) + 1).padStart(2, "0")}</span><span className="science-card-category">{labels[language][definition.category]}</span><a href={`#science=${id}`} aria-label={definition.title[language]} className="science-card-link">↗</a></div><h2>{definition.title[language]}</h2><p className="science-description">{definition.description[language]}</p><Formula block={false}>{equations[id]}</Formula><details><summary>{labels[language].assumptions}</summary><p>{definition.assumptions[language]}</p></details>
       <MeaningfulVisual id={id} result={result} language={language} />

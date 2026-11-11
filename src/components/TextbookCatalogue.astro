@@ -43,7 +43,7 @@ const otherResources = includeOtherResources ? resources.filter(resource => !ass
   {standaloneLessons.length > 0 && (
     <section class="directory-subject" data-directory-group>
       <h3>{copy.otherLessons}</h3>
-      <ul class="directory-links">{standaloneLessons.map(lesson => <li data-directory-entry><a href={lesson.href}>{lesson.title}</a></li>)}</ul>
+      <ul class="directory-links">{standaloneLessons.map(lesson => <li data-directory-entry><a href={lesson.href} data-registered-content={lesson.href}>{lesson.title}</a></li>)}</ul>
     </section>
   )}
 </section>

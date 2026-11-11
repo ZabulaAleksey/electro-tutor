@@ -1,0 +1,59 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MeshExampleDiagram from "../../components/MeshExampleDiagram";
+import { getWorkedSolutions } from "../../learning/worked-solutions";
+import { learningSections } from "../../learning/section-routes";
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" as const } }, { params: { lang: "uk" as const } }];
+}
+const { lang: language } = Astro.params;
+const ru = language === "ru";
+const { mesh, software } = getWorkedSolutions(language);
+const title = learningSections[1].label[language];
+const description = ru ? "Разборы задач с формулами, схемами и проверкой результатов." : "Розбір задач із формулами, схемами та перевіркою результатів.";
+---
+<BaseLayout {title} {description} {language} active="solutions" alternatePath="/solutions/">
+  <div class="content-directory solutions-directory">
+    <h1>{title}</h1>
+    <p>{description}</p>
+    <section class="directory-subject" aria-labelledby="mesh-solutions">
+      <h2 id="mesh-solutions">{ru ? "Постоянный ток · Метод контурных токов" : "Постійний струм · Метод контурних струмів"}</h2>
+      <ul class="directory-grid">
+        {mesh.map(example => (
+          <li class="directory-card">
+            <div aria-hidden="true"><MeshExampleDiagram example={example.id} /></div>
+            <h3><a href={example.href} hreflang="ru" data-registered-content={example.href}>{example.title}</a></h3>
+            {!ru && <p>Розбір російською</p>}
+            <ul class="directory-links">
+              <li><a href={example.theory}>{ru ? "Учебник" : "Підручник"}</a></li>
+              <li><a href={example.lab} hreflang="ru">{ru ? "Лаборатория" : "Лабораторія російською"}</a></li>
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+    <section class="directory-subject" aria-labelledby="software-solutions">
+      <h2 id="software-solutions">{ru ? "Инженерные вычисления" : "Інженерні обчислення"}</h2>
+      <ul class="directory-grid">
+        {software.map(example => (
+          <li class="directory-card">
+            <h3>{example.name}</h3>
+            <pre tabindex="0"><code>{example.code}</code></pre>
+            <p>{example.result}</p>
+            <ul class="directory-links">
+              {example.theory && <li><a href={example.theory}>{ru ? "Учебник" : "Підручник"}</a></li>}
+              {example.demonstration && <li><a href={example.demonstration}>{ru ? "Демонстрация расчёта" : "Демонстрація розрахунку"}</a></li>}
+              <li><a href={example.lab}>{ru ? "Проверить в лаборатории" : "Перевірити в лабораторії"}</a></li>
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
+<style>
+  .solutions-directory .directory-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+  .solutions-directory pre { overflow: auto; background: var(--surface-plot); padding: .7rem; border-radius: .4rem; font-size: .78rem; }
+  .solutions-directory :global(.circuit-wrap) { padding: 0; }
+  .solutions-directory :global(.circuit) { height: 9rem; width: 100%; }
+</style>

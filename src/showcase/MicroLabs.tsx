@@ -64,7 +64,7 @@ function randomHomeLabs(previous: string | null): string[] {
   return picked;
 }
 
-export default memo(function MicroLabs({ language, home = false, focusSelected=false }: { language: Language; home?: boolean; focusSelected?: boolean }) {
+export default memo(function MicroLabs({ language, home = false, focusSelected=false, experiment }: { language: Language; home?: boolean; focusSelected?: boolean; experiment?: string }) {
   const [homeSelection, setHomeSelection] = useState(homeLabIds);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -82,6 +82,7 @@ export default memo(function MicroLabs({ language, home = false, focusSelected=f
   const order = ["ohm-law","voltage-divider","rlc-resonance","capacitor-charge","three-phase-star","diode-operating-point","dc-motor-start","first-order-step"];
   const visible = microLabs.filter(lab => (category === "all" || lab.category === category) && `${lab.title[language]} ${lab.id}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).sort((a,b)=>(order.includes(a.id)?order.indexOf(a.id):99)-(order.includes(b.id)?order.indexOf(b.id):99));
   useEffect(() => {
+    if (experiment) return;
     let frame = 0;
     function fromHash() {
       const id = new URLSearchParams(location.hash.slice(1)).get("micro");
@@ -93,7 +94,11 @@ export default memo(function MicroLabs({ language, home = false, focusSelected=f
     }
     fromHash(); window.addEventListener("hashchange", fromHash);
     return () => { cancelAnimationFrame(frame); window.removeEventListener("hashchange", fromHash); };
-  }, [language,focusSelected]);
+  }, [language, focusSelected, experiment]);
+  const standalone = experiment && microLabs.find(lab => lab.id === experiment);
+  if (standalone) return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard">
+    <MicroLabCard lab={standalone} state={states[standalone.id]} language={language} selected={true} update={update} />
+  </fieldset>;
   if (home) {
     const selectedLabs = homeSelection.map(id => microLabs.find(lab => lab.id === id)).filter((lab): lab is MicroLab => Boolean(lab));
     return <section className="micro-labs section micro-labs-home" data-home-ready={ready} aria-busy={!ready} id="micro-labs" aria-labelledby="micro-heading"><div className="micro-heading"><div><span className="section-kicker">01 / MICRO LABS</span><h2 id="micro-heading">{language === "ru" ? "Мини-эксперименты" : "Мініексперименти"}</h2><p>{language === "ru" ? "Выберите модель и сразу перейдите к рабочему инструменту." : "Оберіть модель і одразу перейдіть до робочого інструмента."}</p></div><a className="micro-home-all" href={localePath(language, "/micro-labs/")}>{language === "ru" ? "Все Micro Labs" : "Усі Micro Labs"} ↗</a></div><div className="micro-grid" style={{visibility:ready?"visible":"hidden"}}>{selectedLabs.map(lab => <HomeMicroLabCard key={lab.id} lab={lab} language={language} />)}</div></section>;

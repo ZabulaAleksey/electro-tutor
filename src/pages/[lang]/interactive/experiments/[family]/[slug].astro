@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import MicroLabs from "../../../../../showcase/MicroLabs";
+import ScienceMicroLabs from "../../../../../components/ScienceMicroLabs";
+import { experimentPath, experiments } from "../../../../../learning/experiment-routes";
+import { localePath } from "../../../../../site-path";
+
+export function getStaticPaths() {
+  return (["ru", "uk"] as const).flatMap(lang => experiments.map(experiment => ({
+    params: { lang, family: experiment.family, slug: experiment.model.id },
+    props: { experiment },
+  })));
+}
+
+const { lang: language } = Astro.params;
+const { experiment } = Astro.props;
+const title = experiment.model.title[language];
+const description = experiment.family === "micro" ? experiment.model.assumption[language] : experiment.model.description[language];
+---
+<BaseLayout {title} {description} {language} active="interactive" alternatePath={experimentPath(experiment.family, experiment.model.id)}>
+  <div class="content-directory">
+    <a href={localePath(language, "/interactive/")}>{language === "ru" ? "← Все лаборатории" : "← Усі лабораторії"}</a>
+    <h1>{title}</h1>
+    {experiment.family === "micro" && <MicroLabs client:load {language} experiment={experiment.model.id} />}
+    {experiment.family === "science" && <ScienceMicroLabs client:load {language} experiment={experiment.model.id} />}
+  </div>
+</BaseLayout>

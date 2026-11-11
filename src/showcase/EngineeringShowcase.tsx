@@ -96,7 +96,12 @@ export default function EngineeringShowcase({language,bookingUrl}:{language:Lang
  const store=useRef<SceneState>({parameters:{},times:{},running:{}});
  useEffect(()=>{const sync=()=>{const id=new URLSearchParams(location.hash.slice(1)).get("micro");if(id&&/^[a-z0-9-]{1,64}$/.test(id)){void navigate(localePath(language,`/micro-labs/#micro=${id}`),{history:"replace"});return;}setSelectedStory(findStory(location.hash));};sync();window.addEventListener("hashchange",sync);return()=>window.removeEventListener("hashchange",sync);},[language]);
  useEffect(()=>{if(!selectedStory||!sceneRegion.current)return;const media=matchMedia("(prefers-reduced-motion: reduce)");let visible=false;const sync=()=>{setReduced(media.matches);setStoryMotion(visible&&!document.hidden);};const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();});observer.observe(sceneRegion.current);media.addEventListener("change",sync);document.addEventListener("visibilitychange",sync);sync();return()=>{observer.disconnect();media.removeEventListener("change",sync);document.removeEventListener("visibilitychange",sync);};},[selectedStory]);
+ useEffect(() => {
+  if (!selectedStory) return;
+  const frame = requestAnimationFrame(() => sceneRegion.current?.scrollIntoView({ block: "start", behavior: "instant" }));
+  return () => cancelAnimationFrame(frame);
+ }, [selectedStory]);
  return <><PanoramicCarousel language={language}/>
- {selectedStory&&<section ref={sceneRegion} className="lab-showcase section" aria-label={selectedStory.title[language]}><h2 className="lab-scene-title">{selectedStory.title[language]}</h2><LiveScene key={selectedStory.id} story={selectedStory} language={language} store={store.current} motion={storyMotion} reduced={reduced} bookingUrl={bookingUrl}/></section>}
+ {selectedStory&&<section ref={sceneRegion} className="lab-showcase section" id={`story=${selectedStory.id}`} aria-label={selectedStory.title[language]}><h2 className="lab-scene-title">{selectedStory.title[language]}</h2><LiveScene key={selectedStory.id} story={selectedStory} language={language} store={store.current} motion={storyMotion} reduced={reduced} bookingUrl={bookingUrl}/></section>}
  </>;
 }

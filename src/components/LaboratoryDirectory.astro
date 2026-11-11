@@ -1,0 +1,71 @@
+---
+import DirectorySearch from "./DirectorySearch.astro";
+import TopicCover from "../catalogue/TopicCover";
+import ExperimentThumbnail from "./ExperimentThumbnail.astro";
+import { experimentForHref, experimentPath } from "../learning/experiment-routes";
+import type { getContentCatalogue } from "../learning/get-content-catalogue";
+import type { Resource } from "../learning/content-catalogue";
+import { localePath } from "../site-path";
+import type { Language } from "../types";
+
+const { language, catalogue } = Astro.props as { language: Language; catalogue: Awaited<ReturnType<typeof getContentCatalogue>> };
+const ru = language === "ru";
+const groups = new Map<string, { title: string; items: Resource[] }>();
+for (const resource of catalogue.resources) {
+  const key = resource.kind === "tools" ? "tools" : resource.category;
+  const title = resource.kind === "tools" ? (ru ? "Инженерные инструменты" : "Інженерні інструменти") : resource.categoryTitle;
+  if (!groups.has(key)) groups.set(key, { title, items: [] });
+  groups.get(key)!.items.push(resource);
+}
+const variants = (resource: Resource) => [
+  resource,
+  ...(resource.variants ?? []).map(variant => ({ ...resource, ...variant, variants: [] })),
+];
+---
+<section class="content-directory lab-directory" id="labs" aria-labelledby="lab-directory-title">
+  <h1 id="lab-directory-title">{ru ? "Лаборатории" : "Лабораторії"}</h1>
+  <p>{ru ? "Выберите эксперимент или инженерный инструмент." : "Оберіть експеримент або інженерний інструмент."}</p>
+  <p><a href={localePath(language, "/showcase/")}>{ru ? "Инженерные демонстрации" : "Інженерні демонстрації"} ↗</a></p>
+  <DirectorySearch {language} />
+  <nav class="directory-jumps" aria-label={ru ? "Категории" : "Категорії"}>
+    {[...groups].map(([id, group]) => <a href={`#labs-${id}`}>{group.title}</a>)}
+  </nav>
+  {[...groups].map(([id, group]) => (
+    <details class="directory-subject" id={`labs-${id}`} data-directory-group open>
+      <summary>{group.title}</summary>
+      <ul class="directory-grid">
+        {group.items.flatMap(variants).map(resource => {
+          const related = catalogue.subjects.flatMap(subject => subject.topics).filter(topic =>
+            [...topic.labs, ...topic.tools].some(link => link.href === resource.href || link.variants?.some(variant => variant.href === resource.href)),
+          );
+          const theory = [...new Set(related.map(topic => topic.theory).filter(Boolean))];
+          const examples = [...new Set(related.map(topic => topic.examples).filter(Boolean))];
+          const experiment = experimentForHref(resource.href);
+          const href = experiment ? localePath(language, experimentPath(experiment.family, experiment.model.id)) : resource.href;
+          return (
+            <li class="directory-card lab-directory-card" data-directory-entry>
+              <div aria-hidden="true">{experiment ? <ExperimentThumbnail {experiment} /> : <TopicCover kind={resource.visual ?? "mesh"} />}</div>
+              <h4><a href={href} data-registered-content={href}>{resource.title}</a></h4>
+              {resource.description && <p>{resource.description}</p>}
+              {(theory.length > 0 || examples.length > 0) && (
+                <div class="lab-directory-related">
+                  {theory.map(href => href && <a href={href}>{ru ? "Учебник" : "Підручник"}</a>)}
+                  {examples.map(href => href && <a href={href}>{ru ? "Решения" : "Розв’язання"}</a>)}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </details>
+  ))}
+</section>
+<style>
+  .lab-directory summary { cursor: pointer; font-size: 1.4rem; font-weight: 700; margin-bottom: .6rem; }
+  .lab-directory .directory-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+  .lab-directory-card { padding: .8rem; }
+  .lab-directory-card h4 { margin: .8rem 0 .25rem; font-size: 1.05rem; }
+  .lab-directory-card h4 a { display: inline-block; padding-block: .35rem; }
+  .lab-directory-card :global(.topic-cover) { width: 100%; height: 6rem; }
+  .lab-directory-related { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .65rem; font-size: .85rem; }
+</style>

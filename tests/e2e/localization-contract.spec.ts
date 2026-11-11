@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 const routeMatrix = [
-  { path: "/", ru: "Постоянный ток", uk: "Постійний струм" },
+  { path: "/", ru: "Электротехника на практике", uk: "Електротехніка на практиці" },
   { path: "/topics/", ru: "Учебник", uk: "Підручник" },
   { path: "/interactive/", ru: "Лаборатории", uk: "Лабораторії" },
+  { path: "/solutions/", ru: "Решения", uk: "Розв’язання" },
   { path: "/classroom/", ru: "Кабинет занятия", uk: "Кабінет заняття" },
   { path: "/services/", ru: "Услуги", uk: "Послуги" },
   { path: "/contacts/", ru: "Контакты", uk: "Контакти" },
@@ -17,7 +18,9 @@ for (const { path, ru, uk } of routeMatrix) {
     test(`${language}${path} has localized content and metadata parity`, async ({ page }) => {
       await page.goto(`/${language}${path}`);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
-      await expect(page.getByText(language === "ru" ? ru : uk, { exact: false }).first()).toBeVisible();
+      const heading = language === "ru" ? ru : uk;
+      if (path === "/") await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+      else await expect(page.getByText(heading, { exact: false }).first()).toBeVisible();
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S+/);
       await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
       for (const hreflang of ["ru", "uk", "x-default"]) {

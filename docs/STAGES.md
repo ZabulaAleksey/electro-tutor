@@ -1,6 +1,21 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UI-009
+- Stage ID: ET-UI-010
+
+## ET-UI-010 — презентационная главная и три раздела
+
+- Status: verified
+- Dependencies: ET-UI-009 verified. Entry: main 1f3b417, clean checkout. Branch: feature/editorial-learning-sections.
+- SPEC: editorial-learning-sections.spec.md, FR-407..411.
+- Scope: full Astro/MDX RU/UK, существующие React islands, восстановление доступности опубликованного контента, локальный production preview. Публичный MVP остаётся в рамках отдельного контракта.
+- Runnable path: главная → решения → разбор → пресет лаборатории → изменённый ток → Back. Второй путь: каталог лабораторий → самостоятельная микролаборатория → изменённый параметр и график.
+- Audit: docs/notes/editorial-content-inventory.md. Одна тема в двух локалях, четыре RU-разбора и четыре примера вычислений, 35 RU / 34 UK карточки. 26 моделей получили отдельные адреса на каждый язык.
+- Evidence: 472 unit, 13 аналитических случаев / 49 проверок, types и lint PASS. Full 296 E2E PASS / 6 условных пропусков live auth. MVP 31 PASS / 2 условных пропуска, оба отдельно PASS с реальными CSP и обновлением service worker. Full root и /electro-tutor/ собрали 98 локализованных маршрутов. Все 52 выделенные страницы моделей открыты и проверены вводом. Desktop/mobile preview просмотрен.
+- Deferred: отсутствующие авторские лекции, UK-тексты четырёх разборов и лаборатории метода контурных токов, отдельное утверждение публичного выпуска.
+- Blockers: none for local preview.
+- User action ET-UI-010-PREVIEW / READY: открыть локальный full preview http://127.0.0.1:4337/ru/ и проверить новый сайт. Для дальнейшего merge и выбора публичного full/MVP scope требуется отдельное решение владельца.
+- NEXT: none
+
 
 ## ET-UI-009 — каталоги учебника и светлый интерфейс
 

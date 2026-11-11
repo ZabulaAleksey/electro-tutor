@@ -5,7 +5,7 @@ test("laboratory catalogue keeps real items, subject groups, and direct links", 
   await page.goto("/ru/interactive/");
   const catalogue = page.locator("#labs");
   const entries = catalogue.locator("[data-directory-entry]");
-  await expect(entries).toHaveCount(31);
+  await expect(entries).toHaveCount(35);
   const electronics = catalogue.locator("details").filter({ has: page.getByText("Электроника", { exact: true }) });
   await expect(electronics.locator("[data-directory-entry]")).toHaveCount(2);
   await electronics.locator("summary").click();
@@ -32,14 +32,12 @@ test("the textbook fits narrow viewports and avoids empty topic links", async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("navigation exposes three catalogues, tutoring and contacts while install stays in services", async ({ page }) => {
+test("navigation exposes three sections and install remains reachable through services", async ({ page }) => {
   await page.goto("/ru/");
-  await expect(page.locator(".astro-header nav > a")).toHaveText(["Учебник", "Лаборатории", "Инструменты", "Главная", "Доска", "Репетиторство", "Контакты"]);
-  await page.locator(".nav-services summary").click();
-  await expect(page.locator(".nav-services-menu")).toBeVisible();
-  await expect(page.locator(".nav-services-menu").getByRole("link",{name:"Приложение ElectroTutor",exact:true})).toHaveAttribute("href","/ru/my-services/#install");
+  await expect(page.locator(".astro-header nav > a")).toHaveText(["Учебник", "Решения", "Лаборатории"]);
   await expect(page.locator("#app-install")).toHaveCount(0);
-  await page.goto("/ru/my-services/");
+  await page.locator(".site-footer").getByRole("link", { name: "Сервисы", exact: true }).click();
+  await expect(page).toHaveURL("/ru/my-services/");
   await expect(page.locator("#app-install")).toBeVisible();
   await page.locator("#app-install").click();
   await expect(page.locator("#install-dialog")).toBeVisible();

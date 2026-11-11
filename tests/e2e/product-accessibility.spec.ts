@@ -14,7 +14,10 @@ for (const language of ["ru", "uk"]) test(`RC1 ${language} keyboard dialog, mobi
  await expect(page.locator("#app-install")).toBeFocused();
  await page.setViewportSize({width:390,height:844});
  await page.locator("#mobile-menu-toggle").click();await expect(page.locator("#mobile-menu-toggle")).toHaveAttribute("aria-expanded","true");
- await page.locator('nav a[href$="/board/"]').click();await expect(page).toHaveURL(new RegExp(`/${language}/board/$`));
+ await page.locator('.astro-header nav a[href$="/interactive/"]').click();
+ await expect(page).toHaveURL(new RegExp(`/${language}/interactive/$`));
+ await page.locator('main a[data-registered-content][href$="/board/"]').click();
+ await expect(page).toHaveURL(new RegExp(`/${language}/board/$`));
  expect(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
 });
 

@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 function pages(root: string, path = ""): string[] {
  return readdirSync(join(root,path),{withFileTypes:true}).flatMap(entry => entry.isDirectory() ? pages(root,join(path,entry.name)) : entry.name === "index.html" ? ["/"+path.replaceAll("\\","/")+"/"] : []);
 }
-const routes = pages("dist").filter(path=>/^\/(ru|uk)\//.test(path));
+const routes = pages(process.env.BUILD_OUTPUT_DIR || "dist").filter(path=>/^\/(ru|uk)\//.test(path));
 for(const viewport of [{width:1440,height:900},{width:768,height:1024},{width:390,height:844}]) {
  test(`RC1 all public routes semantic and responsive ${viewport.width}`,async({page})=>{
   test.setTimeout(240_000);
@@ -12,7 +12,7 @@ for(const viewport of [{width:1440,height:900},{width:768,height:1024},{width:39
   const errors:string[]=[];page.on("pageerror",error=>errors.push(error.message));
   for(const route of routes){
    await page.goto(route);await expect(page.locator("main h1:visible"),route).toHaveCount(1);
-   await expect(page.locator('nav a[href$="/board/"]')).toHaveCount(1);
+   await expect(page.locator(".astro-header > nav > a")).toHaveCount(3);
    const issues=await page.evaluate(()=>{
     const visible=(e:Element)=>e.getClientRects().length>0 && getComputedStyle(e).visibility!=="hidden";
     const problems:string[]=[];

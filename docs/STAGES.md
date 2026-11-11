@@ -13,10 +13,11 @@
 - Temporary implementation: none. Deferred: dark switching reactivation, translation/publication of unreleased content.
 - User action ET-UI-009-RELEASE / DONE: владелец ответил «Да, сливай». Merge, push, deploy и удаление временной ветки разрешены после успешных full/MVP проверок; требуется подтверждение точного коммита и опубликованного артефакта.
 - Regression evidence: Windows full 289 PASS / 6 conditional skips, MVP 31 PASS / 2 conditional skips; обе дополнительные предпосылки MVP отдельно PASS. 42 просмотренных Windows-эталона, 193 ранее принятых сохранены. Запись параметров круговой диаграммы ограничена её pathname.
-- Blockers: 25 Linux-эталонов сняты и просмотрены. [Первый полный Linux-прогон](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43041088807) прошёл backend и 288 full сценариев, один сценарий Back вышел за допуск на 29 px. Настройка теста стабилизирует шрифты; нужен повтор full/MVP с тем же допуском. Публичный release gate закрыт до её прохождения.
+- Linux evidence: [43043933366](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43043933366) SUCCESS. 289 full / 31 MVP PASS, 6/2 conditional skips, 472 unit, audit HIGH, three focused Back replays; 25 reviewed Linux PNG. Backend/PostgreSQL PASS в 43041088807.
+- Blockers: none. Проверки пройдены, выполняется подтверждённая доставка.
 - User action ET-UI-009-REGRESSION / DONE: 2026-11-11 владелец явно разрешил обновление затронутых E2E и скриншотов с сохранением расчётных проверок и допусков. Evidence: сообщение владельца и FR-406.
 - Delivery scope: владелец запросил push, deploy и удаление временной ветки после проверок. Для fast-forward в main действует отдельное правило явного подтверждения merge.
-- NEXT: ET-UI-009-LINUX
+- NEXT: ET-UI-009-DEPLOY
 
 
 ## ET-UI-008 — язык, статус операций и проверенные visual baselines

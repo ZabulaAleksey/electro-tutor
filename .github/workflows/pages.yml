@@ -46,7 +46,22 @@ jobs:
       - name: Run backend API and PostgreSQL gates
         run: pnpm run backend:check
 
+      - name: Restore access to Ubuntu packages if mirror DNS fails
+        timeout-minutes: 2
+        run: |
+          for mirror in azure.archive.ubuntu.com archive.ubuntu.com security.ubuntu.com; do
+            if timeout 6 getent ahostsv4 "$mirror" >/dev/null; then exit 0; fi
+          done
+
+          # Only replace the mirror list on this runner. Keep Ubuntu's APT keyring and signature checks.
+          grep -Fq 'mirror+file:/etc/apt/apt-mirrors.txt' /etc/apt/sources.list.d/ubuntu.sources
+          mirror=https://mirrors.edge.kernel.org/ubuntu/
+          curl --head --fail --silent --show-error --max-time 15 "${mirror}dists/noble-security/InRelease" >/dev/null
+          echo "Using the signed Ubuntu archive via the kernel.org mirror"
+          echo "$mirror" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+
       - name: Install Playwright Chromium
+        timeout-minutes: 5
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Start reproducible Chromium

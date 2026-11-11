@@ -1798,7 +1798,7 @@
     },
     {
       "domain": "content-first-navigation",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "requirement_ids": [
         "FR-401",
         "FR-402",
@@ -1809,10 +1809,10 @@
       ],
       "runtime": "SSR full RU/UK textbook, labs and tools; released RU-only MVP home anchors; light HTML and CSS.",
       "security": "Existing MVP graph, route restrictions, CSP and backend boundary retained.",
-      "a11y": "Native anchors, keyboard controls and responsive layouts. Existing visual acceptance remains open.",
-      "observability": "ET-UI-009 in STAGES and TESTING.",
-      "gap": "Accepted navigation/theme E2E and screenshot contracts need owner-approved migration and green replay.",
-      "action": "Complete regression acceptance before publication.",
+      "a11y": "Native anchors, keyboard controls, responsive layouts and reviewed light screenshots on Windows/Linux.",
+      "observability": "ET-UI-009 in STAGES and TESTING. GitHub Actions 43051174416 verify/deploy SUCCESS. Cloudflare 5f3c020 and GitHub Pages 8141d88 verified on public HTTPS.",
+      "gap": "None in the released scope.",
+      "action": "Regression acceptance and publication completed.",
       "code": [
         "src/learning/content-catalogue.ts",
         "src/layouts/BaseLayout.astro",

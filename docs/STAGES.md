@@ -4,7 +4,7 @@
 
 ## ET-UI-009 — каталоги учебника и светлый интерфейс
 
-- Status: partial
+- Status: verified
 - Dependencies: ET-NAV-006, ET-UI-008 verified. Entry: clean origin/main at 56f9262, feature/content-navigation-light, existing full and MVP source graphs.
 - SPEC: content-first-navigation.spec.md, FR-401..406. Scope: Astro navigation, published content discovery, light theme configuration and consumer verification.
 - Runnable path: RU/UK home → experiment/calculator → update input → Back → textbook index → material or experiment for that topic; MVP uses only its released RU graph.
@@ -14,10 +14,11 @@
 - User action ET-UI-009-RELEASE / DONE: владелец ответил «Да, сливай». Merge, push, deploy и удаление временной ветки разрешены после успешных full/MVP проверок; требуется подтверждение точного коммита и опубликованного артефакта.
 - Regression evidence: Windows full 289 PASS / 6 conditional skips, MVP 31 PASS / 2 conditional skips; обе дополнительные предпосылки MVP отдельно PASS. 42 просмотренных Windows-эталона, 193 ранее принятых сохранены. Запись параметров круговой диаграммы ограничена её pathname.
 - Linux evidence: [43043933366](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43043933366) SUCCESS. 289 full / 31 MVP PASS, 6/2 conditional skips, 472 unit, audit HIGH, three focused Back replays; 25 reviewed Linux PNG. Backend/PostgreSQL PASS в 43041088807.
-- Blockers: none. Проверки пройдены, выполняется подтверждённая доставка.
+- Blockers: none.
 - User action ET-UI-009-REGRESSION / DONE: 2026-11-11 владелец явно разрешил обновление затронутых E2E и скриншотов с сохранением расчётных проверок и допусков. Evidence: сообщение владельца и FR-406.
-- Delivery scope: владелец запросил push, deploy и удаление временной ветки после проверок. Для fast-forward в main действует отдельное правило явного подтверждения merge.
-- NEXT: ET-UI-009-DEPLOY
+- Delivery: fast-forward и обычный push в main. Cloudflare Pages выпустил MVP из 5f3c020, GitHub Pages из 8141d88. Между публикациями уточнили один сценарий E2E. Для verify GitHub Pages закрепили runner Ubuntu 24.04 и добавили резервное зеркало с проверкой подписи пакетов при отказе DNS. Пользовательские артефакты используют один и тот же код.
+- Production evidence: [43051174416](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43051174416) verify/deploy SUCCESS. На каждой площадке прошли 12 браузерных сценариев. На обеих площадках прошли проверки 7 опубликованных RU-страниц, 4 скрытых маршрутов, светлого режима, ресурсов и метаданных. Проверочная ветка verify/et-ui-009-linux удалена после завершения CI и проверки recovery bundle.
+- NEXT: none
 
 
 ## ET-UI-008 — язык, статус операций и проверенные visual baselines

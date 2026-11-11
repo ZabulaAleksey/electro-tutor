@@ -14,9 +14,11 @@ test("published RU catalogues reach theory, examples and a working lab under dar
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await nav.getByRole("link", { name: "Лаборатории", exact: true }).click();
   await expect(page).toHaveURL(`${home}#labs`);
-  await page.locator("#labs a").first().click();
-  await expect(page).toHaveURL(`${lesson}lab/`);
+  const labLink = page.locator("#labs a").first();
+  await expect(labLink).toHaveAttribute("href", `${lesson}lab/`);
+  await labLink.click();
   await expect(page.locator(".mesh-lab")).toHaveAttribute("data-ready", "true");
+  await expect(page).toHaveURL(`${lesson}lab/?example=1`);
   await page.getByTestId("parameter-value").fill("5");
   await expect(page.getByTestId("parameter-value")).toHaveValue("5");
   await page.goBack();

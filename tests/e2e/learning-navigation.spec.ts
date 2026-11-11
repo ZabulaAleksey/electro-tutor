@@ -123,16 +123,20 @@ test("global textbook from the lab preserves native history and explicit topic d
 });
 
 test("keyboard navigation from a scrolled lesson reaches the catalogue and Back restores reading position", async ({ page }) => {
+  // Measure scroll restoration against stable typography, as in the visual tests.
+  await page.route("https://fonts.googleapis.com/**", route => route.abort());
   await page.goto(book);
-  await page.evaluate(() => scrollTo({ top: 1800, behavior: "instant" }));
-  const before = await page.evaluate(() => scrollY);
+  await page.evaluate(() => document.fonts.ready);
   const link = page.locator(header).getByRole("link", { name: "Учебник", exact: true });
   await link.focus();
+  await page.evaluate(() => scrollTo({ top: 1800, behavior: "instant" }));
+  const before = await page.evaluate(() => scrollY);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(textbook);
   await expect(page.getByRole("heading", { level: 1, name: "Учебник" })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(book);
+  await page.evaluate(() => document.fonts.ready);
   await expect.poll(() => page.evaluate(value => Math.abs(scrollY - value), before)).toBeLessThan(3);
 });
 

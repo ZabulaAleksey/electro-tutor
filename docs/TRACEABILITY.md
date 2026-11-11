@@ -1,5 +1,9 @@
 # Traceability
 
+## Каталоги и светлый режим
+
+FR-401..406 → `specs/features/content-first-navigation.spec.md` → ADR-052, `src/learning/content-catalogue.ts`, оба layout и `src/theme-configuration.mjs` → `src/learning/content-catalogue.test.ts`, full/MVP artifact audits, `tests/e2e/content-first-navigation.spec.ts` и `tests/e2e/mvp-content-first.spec.ts`. Состояние полного регрессионного прогона и условия публикации находятся в ET-UI-009.
+
 ## Reference UI
 
 FR-391..395 → `specs/features/reference-ui.spec.md` → `src/components/ReferenceHome.astro`, `src/reference-ui.css`, оба layout/entrypoint → `tests/e2e/mvp-reference-ui.spec.ts`, existing navigation/localization/PWA tests and `docs/evidence/reference-ui-acceptance.json`. Current lifecycle: STAGES ET-UI-007.

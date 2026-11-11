@@ -1,0 +1,46 @@
+---
+import { navigationCopy } from "../learning/navigation-copy";
+import type { Language } from "../types";
+interface Props { language: Language; topics?: boolean }
+const { language, topics = false } = Astro.props;
+const copy = navigationCopy[language];
+const search = topics ? (language === "ru" ? "Поиск по темам" : "Пошук за темами") : copy.search;
+---
+<label class="directory-search" hidden>
+  <span>{search}</span>
+  <input type="search" maxlength="120" data-directory-search />
+</label>
+<p role="status" data-directory-no-results hidden>{copy.noResults}</p>
+<script>
+  function setUpDirectorySearch() {
+    for (const input of document.querySelectorAll<HTMLInputElement>("[data-directory-search]")) {
+      const directory = input.closest(".content-directory");
+      const label = input.closest("label");
+      if (!directory || !label || !label.hidden) continue;
+      const groups = directory.querySelectorAll<HTMLElement>("[data-directory-group]");
+      const empty = directory.querySelector<HTMLElement>("[data-directory-no-results]");
+      const search = () => {
+        const query = input.value.trim().toLocaleLowerCase();
+        let anyMatch = false;
+        for (const group of groups) {
+          let groupMatch = false;
+          const title = group.querySelector("summary, h3")?.textContent?.toLocaleLowerCase() ?? "";
+          for (const entry of group.querySelectorAll<HTMLElement>("[data-directory-entry]")) {
+            const matches = title.includes(query) || (entry.textContent ?? "").toLocaleLowerCase().includes(query);
+            entry.hidden = !matches;
+            groupMatch ||= matches;
+          }
+          group.hidden = !groupMatch;
+          if (query && groupMatch && group instanceof HTMLDetailsElement) group.open = true;
+          anyMatch ||= groupMatch;
+        }
+        if (empty) empty.hidden = anyMatch || !query;
+      };
+      label.hidden = false;
+      input.addEventListener("input", search);
+      search();
+    }
+  }
+  setUpDirectorySearch();
+  document.addEventListener("astro:page-load", setUpDirectorySearch);
+</script>

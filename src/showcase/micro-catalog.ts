@@ -2,7 +2,7 @@ import type { MicroKind } from "./micro-models";
 import type { LocalText } from "./catalog";
 export type MicroGroup = "dc" | "ac" | "three" | "transient" | "electronics" | "control" | "drive" | "waves";
 export type LiveParameterSpec = { symbol: string; unit: string; min: number; max: number; step: number; initial: number };
-export type MicroLab = { id: string; model: MicroKind; category: MicroGroup; title: LocalText; assumption: LocalText; parameters: readonly [LiveParameterSpec, LiveParameterSpec]; verification: string; asset: "inline-svg"; interaction: "parameters" | "parameters-time"; route?: string };
+export type MicroLab = { id: string; model: MicroKind; category: MicroGroup; title: LocalText; assumption: LocalText; parameters: readonly [LiveParameterSpec, LiveParameterSpec]; verification: string; asset: "inline-svg"; interaction: "parameters" | "parameters-time"; route?: string; topicIds?: readonly string[] };
 const p = (symbol: string, unit: string, min: number, max: number, step: number, initial: number): LiveParameterSpec => ({ symbol, unit, min, max, step, initial });
 export const microLabs: readonly MicroLab[] = [
   { id: "ohm-law", model: "ohm", category: "dc", title: { ru: "Закон Ома", uk: "Закон Ома" }, assumption: { ru: "Идеальные источник и резистор. P = UI = I²R.", uk: "Ідеальні джерело та резистор. P = UI = I²R." }, parameters: [p("U", "V", 6, 48, 1, 24), p("R", "Ω", 10, 200, 1, 60)], verification: "OHM_POWER", asset: "inline-svg", interaction: "parameters", route: "/topics/dc/mesh-current-method/" },

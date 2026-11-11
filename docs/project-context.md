@@ -1,5 +1,9 @@
 # Контекст проекта
 
+## ET-UI-009 — текущая локальная оболочка
+
+Full и MVP используют общий ContentHome и серверное представление каталога. Full публикует локализованные каталоги, MVP использует адресуемые секции действующей RU-главной и текущий public graph. Управление светлой темой в `src/theme-configuration.mjs`. Команды сборки, менеджер зависимостей и backend workflow прежние.
+
 ## ET-UI-007 — reference UI
 
 Общий статический ReferenceHome и reference-ui.css переиспользуются full/MVP layouts. Зависимости, package manager, backend DX, API, схемы БД и runtime solver не изменены. Scope/evidence — STAGES ET-UI-007 и reference-ui SPEC.

@@ -66,3 +66,4 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/reference-ui.spec.md` | Утверждён запросом владельца 2026-11-09 | FR-391..395: общая главная и UI оболочка по electrotutor-ui.zip |
 
 | `features/language-switcher-ui.spec.md` | Approved START2026-11-09 | ET-UI-008: RU/UK icon menu/persistence, EN type reservation, honest worker status |
+| `features/content-first-navigation.spec.md` | Утверждено запросом владельца | FR-401..406: навигация по доступным материалам и временный светлый режим |

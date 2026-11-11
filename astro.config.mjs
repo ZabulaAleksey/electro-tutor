@@ -3,6 +3,7 @@ import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { loadEnv } from "vite";
+import { themeConfiguration } from "./src/theme-configuration.mjs";
 import { normalizeBasePath, normalizeSiteOrigin } from "./scripts/site-contract.mjs";
 
 const mode = process.env.NODE_ENV === "production" ? "production" : "development";
@@ -14,10 +15,28 @@ const mvp = mvpMode(env.PUBLIC_MVP_MODE);
 const site = normalizeSiteOrigin(env.SITE_URL || "https://electrotutor.example");
 const base = normalizeBasePath(env.BASE_PATH);
 
+const lightThemeStyles = {
+  postcssPlugin: "electrotutor-light-theme",
+  Once(root) {
+    root.walkAtRules("media", rule => {
+      if (/prefers-color-scheme\s*:\s*dark/.test(rule.params)) rule.remove();
+    });
+    root.walkRules(rule => {
+      const selectors = rule.selectors;
+      const lightSelectors = selectors.filter(selector => !/\[data-theme\s*=\s*["']?dark["']?\s*\]/.test(selector));
+      if (lightSelectors.length === 0) rule.remove();
+      else if (lightSelectors.length !== selectors.length) rule.selectors = lightSelectors;
+    });
+  },
+};
+
 export default defineConfig({
   site,
   ...(mvp ? {srcDir:"./src/mvp",publicDir:"./src/mvp/static"} : {}),
-  vite: { define: { "import.meta.env.PUBLIC_MVP_MODE": JSON.stringify(String(mvp)), ...(mvp ? {"import.meta.env.PUBLIC_API_ORIGIN":JSON.stringify("")} : {}) } },
+  vite: {
+    define: { "import.meta.env.PUBLIC_MVP_MODE": JSON.stringify(String(mvp)), ...(mvp ? {"import.meta.env.PUBLIC_API_ORIGIN":JSON.stringify("")} : {}) },
+    ...(themeConfiguration.allowDark ? {} : { css: { postcss: { plugins: [lightThemeStyles] } } }),
+  },
   base,
   trailingSlash: "always",
   outDir: env.BUILD_OUTPUT_DIR || "./dist",

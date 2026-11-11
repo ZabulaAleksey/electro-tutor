@@ -1,5 +1,11 @@
 # Архитектура Electro Tutor
 
+## ET-UI-009 — каталог доступных материалов
+
+`src/learning/content-catalogue.ts` строит представление для главной, учебника и каталогов из curriculum, опубликованного manifest и метаданных интерактивов. Связь с темой задают `topicIds` или существующая привязка в curriculum. Если у темы задан `lessonSlug`, он определяет маршрут теории, иначе используется ID темы. Опубликованные материалы вне curriculum показываются в общем учебнике отдельно. Ссылки формируются на сервере с локалью и base path. MVP фильтруется по существующему public graph до рендера.
+
+`src/theme-configuration.mjs` управляет режимом светлого оформления. Оба layout задают `data-theme="light"` в HTML, а сборка исключает тёмные правила CSS при `allowDark: false`. При включении флага используются сохранённые стили и общий переключатель.
+
 ## Публичная доставка ET-UI-007
 
 2026-11-09: normal push main2f8b31e автоматически опубликовал существующий Cloudflare project electrotutor, deployment5cb7a463-94b8-407f-902a-e15c7d81c6da. Primary domain/7public/hidden404/real browser solver/PWA verified. Ниже RUN6 и initial local-only entries — исторические; актуальное evidence в STAGES и docs/evidence/reference-ui-delivery.json.

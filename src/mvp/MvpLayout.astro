@@ -5,43 +5,46 @@ import "../engineering/theme.css";
 import "./mvp.css";
 import "../reference-ui.css";
 import {ClientRouter} from "astro:transitions";
-import {publicPath,meshRoute} from "../../scripts/public-mvp-contract.mjs";
+import {publicPath} from "../../scripts/public-mvp-contract.mjs";
 import {descriptions} from "./metadata";
-import LearningContents from "../components/LearningContents.astro";
-import LearningMenu from "../components/LearningMenu.astro";
-import type { LearningStageKey } from "../learning/navigation-copy";
+import "../content-directory.css";
+import ThemeBootstrap from "../components/ThemeBootstrap.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import { themeConfiguration } from "../theme-configuration.mjs";
+import { contentCopy, stageCopy } from "../learning/navigation-copy";
+import { getContentCatalogue } from "../learning/get-content-catalogue";
 interface Props { title:string; description?:string; noindex?:boolean; }
 const {title,noindex=false}=Astro.props;
 const route=Astro.url.pathname.slice(import.meta.env.BASE_URL.length-1);
 const description=Astro.props.description ?? descriptions[route] ?? "Подробный учебник, решённые примеры и интерактивная лаборатория метода контурных токов.";
 const path=(p:string)=>publicPath(p,import.meta.env.BASE_URL);
 const canonical=new URL(Astro.url.pathname,Astro.site);
-const isMeshRoute=route===meshRoute||route.startsWith(meshRoute+'examples/')||route.startsWith(meshRoute+'lab/');
-const currentStage:LearningStageKey|undefined=isMeshRoute?(route.includes('/examples/')?'examples':route.includes('/lab/')?'lab':'textbook'):undefined;
-const stageLinks={textbook:path(meshRoute),examples:path(meshRoute+'examples/'),lab:path(meshRoute+'lab/')};
+const { resources } = await getContentCatalogue("ru", true);
 ---
-<!doctype html><html lang="ru" data-mvp="true"><head>
+<!doctype html><html lang="ru" data-mvp="true" data-theme="light"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>{title} — ElectroTutor</title><meta name="description" content={description}/><meta name="theme-color" content="#071328"/>
+<title>{title} — ElectroTutor</title><meta name="description" content={description}/><meta name="theme-color" content={themeConfiguration.chromeColor}/>
 {noindex ? <meta name="robots" content="noindex,follow"/> : <link rel="canonical" href={canonical}/>}
 <link rel="manifest" href={path('/manifest.webmanifest')}/><link rel="icon" href={path('/icons/potential.svg')} type="image/svg+xml"/>
 <meta property="og:type" content="website"/><meta property="og:locale" content="ru_RU"/><meta property="og:site_name" content="ElectroTutor"/>
 <meta property="og:title" content={`${title} — ElectroTutor`}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/>
 <meta property="og:image" content={new URL(path("/icons/potential-512.png"),Astro.site)}/><meta property="og:image:alt" content="ElectroTutor"/>
 <ClientRouter/>
-<script is:inline data-astro-rerun>
-try{const t=localStorage.getItem('potential-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch{document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
-</script>
+<ThemeBootstrap />
 </head><body class="mvp-body">
 <a class="mvp-skip" href="#main">К содержанию</a>
-<header class="mvp-header"><a class="mvp-brand" href={path('/ru/')}><img width="32" height="32" src={path('/icons/potential.svg')} alt=""/><span>ElectroTutor</span></a><LearningMenu language="ru" links={stageLinks} currentStage={currentStage}/><nav aria-label="Основная навигация"><a href="#learning-contents" data-learning-open aria-controls="learning-contents" aria-expanded="false" aria-label="Открыть оглавление">Оглавление</a></nav><button type="button" id="mvp-theme" aria-label="Переключить светлую и тёмную тему">◐</button></header>
-<main id="main" tabindex="-1"><slot/></main><LearningContents language="ru" mvp currentEntryId={isMeshRoute ? "topic:dc/mesh" : undefined} currentStage={currentStage}/>
+<header class="mvp-header">
+  <a class="mvp-brand" href={path('/ru/')}><img width="32" height="32" src={path('/icons/potential.svg')} alt=""/><span>ElectroTutor</span></a>
+  <nav aria-label="Основная навигация">
+    <a href={path('/ru/#learning-contents')}>{stageCopy.ru.textbook}</a>
+    {resources.some(resource => resource.kind === "labs") && <a href={path('/ru/#labs')}>{contentCopy.ru.labs}</a>}
+    {resources.some(resource => resource.kind === "tools") && <a href={path('/ru/#tools')}>{contentCopy.ru.tools}</a>}
+  </nav>
+  {themeConfiguration.allowDark && <ThemeToggle label="Переключить цветовую тему" />}
+</header>
+<main id="main" tabindex="-1"><slot/></main>
 <footer class="mvp-footer"><strong>ElectroTutor</strong><nav aria-label="Информация"><a href={path('/ru/help/')}>Справка</a><a href={path('/ru/contacts/')}>Контакты</a><a href={path('/ru/privacy/')}>Конфиденциальность</a></nav><p>Постоянный ток · Метод контурных токов</p></footer>
 <script>
-function setup(){
- document.querySelector('#mvp-theme')?.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('potential-theme',next);}catch{/* Theme still works for this page. */}});
-}
-document.addEventListener('astro:page-load',setup);
 if(import.meta.env.PROD && 'serviceWorker' in navigator){
  addEventListener('load',()=>navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js',{scope:import.meta.env.BASE_URL,updateViaCache:'none'}).catch(()=>{/* Online content remains available; help describes offline prerequisites. */}),{once:true});
 }

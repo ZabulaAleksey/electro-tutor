@@ -1,5 +1,9 @@
 # Журнал решений
 
+## ADR-052 — каталоги из реестра и фиксированный светлый режим
+
+Для FR-401..406 глобальные ссылки открывают каталоги, а локальные ссылки открывают готовые материалы. Тема без теории остаётся доступной при наличии лабораторий, инструментов или примеров. Публичный MVP сохраняет выпущенный RU-граф, его каталоги адресуются на существующей главной. Светлая тема фиксируется через `allowDark: false`, исходные стили и реализация переключения сохраняются. Статус проверки в ET-UI-009.
+
 ## ADR-051 — производное учебное оглавление и отдельная RTC-диагностика
 
 RUN6 owner scope2026-11-05. Curriculum20 +published lesson manifest +catalogue31 remain owning sources; unified index is a derived projection with small stage/association descriptors, not a second catalogue. Shared Astro contents/menu renders only mode-available URLs; full guest classroom service restored independently of learning stages, public seven-route boundary unchanged. Existing mesh rail/URL history preserved; stage preference travels through bounded URL field, no new global state dependency. Native noJS/keyboard/focus lifecycle and explicit unavailable-stage/lab fallback required. UI navigation is intentionally updated under FR-382/386; only visually reviewed affected baselines may change, old originals retained, no weakening assertions. Legacy guestJitsi and protected media-less LessonSession remain different products; route hiding or a ready SDK object cannot prove media or imply backend failure. Any controlled media/paid/provider-auth deployment remains separate owner choice. No solver/MDX/global redesign/dependency change.

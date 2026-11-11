@@ -1,0 +1,40 @@
+---
+import ResourceCatalogue from "./ResourceCatalogue.astro";
+import TextbookCatalogue from "./TextbookCatalogue.astro";
+import { getContentCatalogue } from "../learning/get-content-catalogue";
+import { contentCopy, stageCopy } from "../learning/navigation-copy";
+import { localePath } from "../site-path";
+import type { Language } from "../types";
+
+interface Props { language: Language; mvp?: boolean }
+const { language, mvp = false } = Astro.props;
+const catalogue = await getContentCatalogue(language, mvp);
+const copy = contentCopy[language];
+const labs = catalogue.resources.filter(resource => resource.kind === "labs");
+const lessons = [...catalogue.subjects.flatMap(subject => subject.topics.flatMap(topic => topic.theory
+  ? [{ title: topic.title, href: topic.theory }] : [])), ...catalogue.standaloneLessons];
+const tools = catalogue.resources.filter(resource => resource.kind === "tools");
+---
+<section class="directory-hero">
+  <div class="directory-hero-inner">
+    <h1>{language === "ru" ? "Электротехника на практике" : "Електротехніка на практиці"}</h1>
+    <p>{language === "ru" ? "Исследуйте схемы и проверяйте расчёты прямо в браузере." : "Досліджуйте схеми та перевіряйте розрахунки просто в браузері."}</p>
+    <nav class="directory-jumps" aria-label={language === "ru" ? "Разделы платформы" : "Розділи платформи"}>
+      {labs.length > 0 && <a class="directory-primary" href={mvp ? "#labs" : localePath(language, "/interactive/")}>{copy.allLabs}</a>}
+      {tools.length > 0 && <a href={localePath(language, "/tools/")}>{copy.allTools}</a>}
+      <a href={mvp ? "#learning-contents" : localePath(language, "/topics/")}>{stageCopy[language].textbook}</a>
+    </nav>
+  </div>
+</section>
+<div class:list={["directory-home-catalogues", { "directory-home-catalogues--two": tools.length > 0 }]}>
+  <ResourceCatalogue id="labs" title={copy.labs} resources={labs} compact />
+  <ResourceCatalogue id="tools" title={copy.tools} resources={tools} compact />
+</div>
+{mvp ? <TextbookCatalogue {language} {catalogue} /> : lessons.length > 0 && (
+  <section class="content-directory" aria-labelledby="home-theory">
+    <h2 id="home-theory">{copy.theory}</h2>
+    <ul class="directory-grid">
+      {lessons.map(lesson => <li class="directory-card"><a href={lesson.href}>{lesson.title}</a></li>)}
+    </ul>
+  </section>
+)}

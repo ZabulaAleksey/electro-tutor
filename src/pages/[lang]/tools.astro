@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ResourceCatalogue from "../../components/ResourceCatalogue.astro";
+import { getContentCatalogue } from "../../learning/get-content-catalogue";
+import { contentCopy } from "../../learning/navigation-copy";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" as const } }, { params: { lang: "uk" as const } }];
+}
+
+const { lang: language } = Astro.params;
+const title = contentCopy[language].tools;
+const { resources } = await getContentCatalogue(language);
+const description = language === "ru" ? "Инженерные расчёты, диаграммы и схемы." : "Інженерні розрахунки, діаграми та схеми.";
+---
+<BaseLayout title={`${title} — ElectroTutor`} {description} {language} active="tools" alternatePath="/tools/">
+  <ResourceCatalogue id="tools" {title} {language} resources={resources.filter(resource => resource.kind === "tools")} pageHeading />
+</BaseLayout>

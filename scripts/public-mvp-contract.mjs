@@ -1,3 +1,4 @@
+import { themeConfiguration } from '../src/theme-configuration.mjs';
 import { normalizeBasePath } from './site-contract.mjs';
 export const meshRoute = '/ru/topics/dc/mesh-current-method/';
 export const publicRoutes = ['/ru/',meshRoute,`${meshRoute}examples/`,`${meshRoute}lab/`,'/ru/help/','/ru/contacts/','/ru/privacy/'];
@@ -12,5 +13,5 @@ export function publicPath(route, base = '/') { return normalizeBasePath(base).s
 export function isPublicPage(path, base = '/') { return ['/',...publicRoutes].some(p => publicPath(p,base) === path); }
 export function mvpManifest(base = '/') {
  const path = p => publicPath(p,base);
- return {id:path('/'),name:'ElectroTutor — метод контурных токов',short_name:'ElectroTutor',description:'Учебник, примеры решений и интерактивная лаборатория метода контурных токов.',lang:'ru',start_url:path('/ru/'),scope:path('/'),display:'standalone',background_color:'#f8f9fc',theme_color:'#071328',icons:iconNames.filter(n=>n.endsWith('.png')).map(n=>({src:path('/icons/'+n),sizes:n.includes('192')?'192x192':'512x512',type:'image/png',purpose:n.includes('maskable')?'maskable':'any'})),shortcuts:publicRoutes.slice(1,4).map((p,i)=>({name:['Учебник','Примеры решений','Лаборатория'][i],url:path(p)}))};
+ return {id:path('/'),name:'ElectroTutor — метод контурных токов',short_name:'ElectroTutor',description:'Учебник, примеры решений и интерактивная лаборатория метода контурных токов.',lang:'ru',start_url:path('/ru/'),scope:path('/'),display:'standalone',background_color:'#f8f9fc',theme_color:themeConfiguration.chromeColor,icons:iconNames.filter(n=>n.endsWith('.png')).map(n=>({src:path('/icons/'+n),sizes:n.includes('192')?'192x192':'512x512',type:'image/png',purpose:n.includes('maskable')?'maskable':'any'})),shortcuts:publicRoutes.slice(1,4).map((p,i)=>({name:['Учебник','Примеры решений','Лаборатория'][i],url:path(p)}))};
 }

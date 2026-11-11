@@ -18,7 +18,7 @@ export type ScienceCategory = "math" | "mechanics" | "fluids" | "waves" | "therm
 export type Point = { x: number; y: number };
 export type ScienceResult = { values: Record<string, number>; points: Point[]; secondaryPoints?: Point[]; carrierPoints?: Point[]; characteristic?: Point };
 export type ScienceParameter = { key: string; symbol: string; unit: string; min: number; max: number; step: number; initial: number };
-export type ScienceDefinition = { id: ScienceId; category: ScienceCategory; title: { ru: string; uk: string }; description: { ru: string; uk: string }; assumptions: { ru: string; uk: string }; parameters: ScienceParameter[] };
+export type ScienceDefinition = { id: ScienceId; category: ScienceCategory; title: { ru: string; uk: string }; description: { ru: string; uk: string }; assumptions: { ru: string; uk: string }; parameters: ScienceParameter[]; topicIds?: readonly string[] };
 
 const PI = Math.PI;
 const G = 9.81;

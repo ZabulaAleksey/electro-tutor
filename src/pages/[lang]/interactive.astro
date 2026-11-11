@@ -7,27 +7,26 @@ import type { Language } from "../../types";
 import { getLocale } from "../../i18n";
 import "../../components/StarNeutralLab.css";
 import "../../components/TransmissionLineLab.css";
-import Catalogue from "../../catalogue/Catalogue";
+import ResourceCatalogue from "../../components/ResourceCatalogue.astro";
+import { getContentCatalogue } from "../../learning/get-content-catalogue";
+import { contentCopy } from "../../learning/navigation-copy";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
 }
 const language = Astro.params.lang as Language;
 const copy = getLocale(language);
+const title = contentCopy[language].labs;
+const { resources } = await getContentCatalogue(language);
 ---
 
 <BaseLayout
-  title={language === "ru" ? "Лаборатории — ElectroTutor" : "Лабораторії — ElectroTutor"}
+  title={`${title} — ElectroTutor`}
   description={copy.interactive.description}
   language={language}
   active="interactive"
   alternatePath="/interactive/"
 >
-  <section class="section info-page interactive-intro">
-    <h1>{language === "ru" ? "Лаборатории" : "Лабораторії"}</h1>
-  </section>
-  <section class="section interactive-section">
-    <Catalogue client:load language={language} showFilters />
-    <LegacyCircularRoute client:load language={language}/>
-  </section>
+  <ResourceCatalogue id="labs" {title} {language} resources={resources.filter(resource => resource.kind === "labs")} pageHeading />
+  <LegacyCircularRoute client:load {language} />
 </BaseLayout>

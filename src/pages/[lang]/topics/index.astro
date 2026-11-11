@@ -1,58 +1,18 @@
 ---
-import ToolCard from "../../../components/ToolCard";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { getPublishedLessonManifest } from "../../../content/published-lessons";
-import { resolveTopicPublication } from "../../../curriculum-publication";
-import { curriculum } from "../../../curriculum";
-import type { Language } from "../../../types";
-import { formatTopicCount, getLocale } from "../../../i18n";
-import type { ToolArtKind } from "../../../components/ToolCard";
-import TopicCover from "../../../catalogue/TopicCover";
+import TextbookCatalogue from "../../../components/TextbookCatalogue.astro";
+import { getContentCatalogue } from "../../../learning/get-content-catalogue";
+import { stageCopy } from "../../../learning/navigation-copy";
+import { getLocale } from "../../../i18n";
 
 export function getStaticPaths() {
-  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+  return [{ params: { lang: "ru" as const } }, { params: { lang: "uk" as const } }];
 }
 
-const language = Astro.params.lang as Language;
-const copy = getLocale(language);
-const lessonManifest = await getPublishedLessonManifest();
-const publishedCurriculum = curriculum.map((section) => ({
-  ...section,
-  topics: section.topics.map((topic) => ({
-    ...topic,
-    publication: resolveTopicPublication(lessonManifest, language, section.id, topic),
-  })),
-}));
-const topicArt: Record<string, ToolArtKind> = { ohm: "ohm", kirchhoff: "kirchhoff", mesh: "mesh", nodes: "nodes", thevenin: "thevenin", "power-transfer": "power", "linear-relations": "plot", sinusoidal: "phasors", "complex-method": "phasors", "rlc-series": "rlc", "ac-power": "power", resonance: "plot", "three-phase": "phasors", "switching-laws": "kirchhoff", "first-order": "waves", "second-order": "plot", laplace: "fourier", "magnetic-basics": "neutral", "magnetic-two-nodes": "nodes", "nonlinear-magnetic": "plot", machines: "neutral" };
-const topicPanorama: Partial<Record<string, "dc" | "transient" | "machines" | "lines">> = { dc: "dc", transients: "transient", waves: "lines", machines: "machines" };
-
+const { lang: language } = Astro.params;
+const catalogue = await getContentCatalogue(language);
+const title = stageCopy[language].textbook;
 ---
-
-<BaseLayout
-  title={language === "ru" ? "Учебник по электротехнике — ElectroTutor" : "Підручник з електротехніки — ElectroTutor"}
-  description={copy.topics.description}
-  language={language}
-  active="topics"
-  alternatePath="/topics/"
->
-  <section class="section catalog-page">
-    <h1>{language === "ru" ? "Учебник" : "Підручник"}</h1>
-    <div class="curriculum">
-      {publishedCurriculum.map((section, index) => (
-        <details class="curriculum-section" open={index === 0}>
-          <summary class="curriculum-trigger">
-            <span class="curriculum-index">{section.index}</span>
-            <span><h2>{section.title[language]}</h2><p>{section.description[language]}</p></span>
-            <span class="curriculum-count">{formatTopicCount(language, section.topics.length)}</span>
-            <span class="curriculum-chevron">⌄</span>
-          </summary>
-          <div class="curriculum-static-topics catalog-card-grid">
-            {section.topics.map((topic) => (
-              <ToolCard title={topic.title[language]} category={`${section.index}.${topic.index}`} href={topic.publication.available?topic.publication.href:undefined} description={topic.description[language].split(/[.!?]/)[0]} action={topic.publication.available?copy.actions.startLearning:copy.actions.soon}><TopicCover kind={topicArt[topic.id] ?? "neutral"} panorama={topicPanorama[section.id]}/></ToolCard>
-            ))}
-          </div>
-        </details>
-      ))}
-    </div>
-  </section>
+<BaseLayout title={`${title} — ElectroTutor`} description={getLocale(language).topics.description} {language} active="topics" alternatePath="/topics/">
+  <TextbookCatalogue {language} {catalogue} includeOtherResources pageHeading />
 </BaseLayout>

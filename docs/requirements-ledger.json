@@ -36,7 +36,8 @@
       "specs/features/release-readiness-run5.spec.md",
       "specs/features/unified-navigation-run6.spec.md",
       "specs/features/reference-ui.spec.md",
-      "specs/features/language-switcher-ui.spec.md"
+      "specs/features/language-switcher-ui.spec.md",
+      "specs/features/content-first-navigation.spec.md"
     ],
     "mixed_spec_files": [
       "specs/features/ai-native-tutoring-platform.spec.md"
@@ -1793,6 +1794,42 @@
         "tests/e2e/mvp-reference-ui.spec.ts",
         "tests/e2e/mvp-navigation.spec.ts",
         "tests/e2e/localization-contract.spec.ts"
+      ]
+    },
+    {
+      "domain": "content-first-navigation",
+      "status": "PARTIAL",
+      "requirement_ids": [
+        "FR-401",
+        "FR-402",
+        "FR-403",
+        "FR-404",
+        "FR-405",
+        "FR-406"
+      ],
+      "runtime": "SSR full RU/UK textbook, labs and tools; released RU-only MVP home anchors; light HTML and CSS.",
+      "security": "Existing MVP graph, route restrictions, CSP and backend boundary retained.",
+      "a11y": "Native anchors, keyboard controls and responsive layouts. Existing visual acceptance remains open.",
+      "observability": "ET-UI-009 in STAGES and TESTING.",
+      "gap": "Accepted navigation/theme E2E and screenshot contracts need owner-approved migration and green replay.",
+      "action": "Complete regression acceptance before publication.",
+      "code": [
+        "src/learning/content-catalogue.ts",
+        "src/layouts/BaseLayout.astro",
+        "src/mvp/MvpLayout.astro",
+        "src/theme-configuration.mjs"
+      ],
+      "unit": [
+        "src/learning/content-catalogue.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-mvp.mjs",
+        "scripts/audit-built-locales.mjs",
+        "scripts/audit-built-lessons.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/content-first-navigation.spec.ts",
+        "tests/e2e/mvp-content-first.spec.ts"
       ]
     }
   ]

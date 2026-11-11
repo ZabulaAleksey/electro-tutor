@@ -5,3 +5,39 @@
 @media(prefers-reduced-motion:reduce){.panorama-slide{transition:none}}
 
 .home-laboratories.section,.home-textbook.section{max-width:1660px;padding:38px 24px;margin:auto}.home-laboratories .lab-section-title{margin-bottom:20px}.home-laboratories h2,.home-textbook h2{font-size:26px;margin:0}.home-laboratories .lab-section-title>a{font-size:13px;color:var(--accent)}.home-textbook{display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid var(--line)}.home-textbook p{font-size:14px;color:var(--muted);margin:12px 0 0}@media(max-width:600px){.home-laboratories.section,.home-textbook.section{padding:24px 16px}.home-textbook{flex-direction:column;align-items:flex-start}.home-laboratories h2,.home-textbook h2{font-size:23px}}
+
+/* Light UI surfaces around the original illustrations. */
+[data-theme="light"] .panorama-showroom { background: var(--white); color: var(--ink); }
+[data-theme="light"] .panorama-slide::after {
+  background: linear-gradient(0deg, var(--white), transparent 55%);
+}
+[data-theme="light"] :is(.panorama-caption, .panorama-analysis, .panorama-controls) {
+  background: var(--white);
+  color: var(--ink);
+  border-color: var(--line);
+}
+[data-theme="light"] .panorama-caption { padding: .75rem; border: 1px solid var(--line); border-radius: .75rem; }
+[data-theme="light"] :is(.panorama-caption h2, .panorama-caption p, .panorama-analysis p, .panorama-analysis .engineering-plot) { color: var(--ink); }
+[data-theme="light"] :is(.panorama-caption > span, .panorama-analysis > span, .panorama-analysis small, .panorama-controls > div > span, .panorama-art-note) { color: var(--muted); }
+[data-theme="light"] :is(.panorama-caption > a, .panorama-controls button) {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+[data-theme="light"] .panorama-caption > a:hover { background: var(--ref-soft); }
+[data-theme="light"] .panorama-analysis {
+  --ink: var(--text-primary);
+  --text-primary: #131a35;
+  --text-secondary: #5c6a80;
+  --axis-color: #64748b;
+  --grid-major: #dce3ee;
+  --grid-minor: #eef2f7;
+  --blue: var(--curve-blue);
+  --orange: var(--curve-orange);
+  --violet: var(--curve-violet);
+  --green: var(--curve-green);
+}
+[data-theme="light"] .panorama-dots button[aria-pressed=true] span { background: var(--accent); }
+@media (max-width: 600px) {
+  [data-theme="light"] .panorama-slide::after { background: linear-gradient(0deg, var(--white) 42%, transparent 75%); }
+}

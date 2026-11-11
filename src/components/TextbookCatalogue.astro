@@ -1,0 +1,51 @@
+---
+import DirectorySearch from "./DirectorySearch.astro";
+import TopicResources from "./TopicResources.astro";
+import ResourceCatalogue from "./ResourceCatalogue.astro";
+import type { getContentCatalogue } from "../learning/get-content-catalogue";
+import { contentCopy, stageCopy } from "../learning/navigation-copy";
+import type { Language } from "../types";
+
+interface Props {
+  language: Language;
+  catalogue: Awaited<ReturnType<typeof getContentCatalogue>>;
+  includeOtherResources?: boolean;
+  pageHeading?: boolean;
+}
+const { language, catalogue, includeOtherResources = false, pageHeading = false } = Astro.props;
+const Heading = pageHeading ? "h1" : "h2";
+const copy = contentCopy[language];
+const { subjects, standaloneLessons, resources } = catalogue;
+const associated = new Set(subjects.flatMap(subject => subject.topics.flatMap(topic => [...topic.labs, ...topic.tools].map(resource => resource.href))));
+const otherResources = includeOtherResources ? resources.filter(resource => !associated.has(resource.href)) : [];
+---
+<section id="learning-contents" class:list={["content-directory", { "catalog-page": pageHeading }]} aria-labelledby="textbook-title">
+  <Heading id="textbook-title">{stageCopy[language].textbook}</Heading>
+  {pageHeading && <DirectorySearch {language} topics />}
+  {subjects.length > 1 && (
+    <nav class="directory-jumps" aria-label={copy.topics}>
+      {subjects.map(subject => <a href={`#subject-${subject.id}`}>{subject.title}</a>)}
+    </nav>
+  )}
+  {subjects.map(subject => (
+    <section class="directory-subject" data-directory-group id={`subject-${subject.id}`} aria-labelledby={`subject-${subject.id}-title`}>
+      <h3 id={`subject-${subject.id}-title`}>{subject.title}</h3>
+      <div class="directory-grid">
+        {subject.topics.map(topic => (
+          <article class="directory-card directory-topic" data-directory-entry id={`topic-${subject.id}-${topic.id}`}>
+            <h4>{topic.title}</h4>
+            <TopicResources {topic} {language} />
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+  {standaloneLessons.length > 0 && (
+    <section class="directory-subject" data-directory-group>
+      <h3>{copy.otherLessons}</h3>
+      <ul class="directory-links">{standaloneLessons.map(lesson => <li data-directory-entry><a href={lesson.href}>{lesson.title}</a></li>)}</ul>
+    </section>
+  )}
+</section>
+<ResourceCatalogue id="textbook-labs" title={copy.labs} resources={otherResources.filter(resource => resource.kind === "labs")} />
+<ResourceCatalogue id="textbook-tools" title={copy.tools} resources={otherResources.filter(resource => resource.kind === "tools")} />

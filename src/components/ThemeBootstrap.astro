@@ -1,0 +1,14 @@
+---
+import { themeConfiguration } from "../theme-configuration.mjs";
+---
+{themeConfiguration.allowDark ? (
+  <script is:inline data-astro-rerun>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem("potential-theme"); } catch {}
+      document.documentElement.dataset.theme = saved === "dark" || saved === "light"
+        ? saved
+        : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    })();
+  </script>
+) : <meta name="color-scheme" content="only light" />}

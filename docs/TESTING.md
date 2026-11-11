@@ -1,5 +1,14 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## ET-UI-009 — проверка каталогов и светлой темы
+
+- Windows, Node 22, Chromium 151. `pnpm check` (347 файлов, 0 ошибок, 3 прежних подсказки), `pnpm lint`, `pnpm test` (472 теста / 62 файла, 13 независимых расчётных примеров / 49 проверок) прошли.
+- `pnpm build:full` (43 страницы, 42 локализованных маршрута) и `pnpm build:mvp` с `BASE_PATH=/electro-tutor/` (9 страниц Astro, 7 индексируемых RU) прошли вместе с аудитом опубликованных уроков, артефактов, sitemap, worker и границы выпуска.
+- На финальных артефактах 31 целевой browser check (19 full, 12 MVP) прошёл для прямых ссылок, фильтрации, RU/UK, истории, no-JS перехода, редактирования параметров, работы доски и клавиатурной навигации. Системная тёмная тема и сохранённый dark choice оставляют светлое оформление. Контраст формулы в карточке результата 15,01:1, в CSS full/MVP отсутствуют селекторы тёмной темы.
+- Полный full E2E на предшествующем артефакте ветки: 231 PASS, 58 FAIL, 6 условных skip. Не пройдены сценарии старого меню, каталога, переключения темы и прежние визуальные сравнения. На последнем артефакте отдельно проверены меню и отсутствие переполнения на 781/800/900/940/941/1024 px в обеих локалях.
+- MVP suite: 14 PASS, 17 FAIL, 2 прежних условных skip. 16 FAIL относятся к прежнему меню, прежним CTA и визуальным эталонам. Оставшийся сбой Chromium при запуске контекста для проверки публичных URL не повторился, отдельный `mvp-journey` дал 11 PASS.
+- Существующие E2E и PNG не правились. Полный зелёный прогон и согласование визуальных эталонов по FR-401..406 открыты. Публикация не выполнялась.
+
 ## ET-UI-007 — production acceptance
 
 2026-11-09, https://electrotutor.pages.dev, source2f8b31e/deployment5cb7a463: accepted hosted18PASS/2conditional skips (fixture-dependent legacy update and localhost-specific release-CSP case). Independent actual-host CSP observations0violations/0pageerrors,4baseline presets and live edits PASS;7public200/5hidden404;390/1280light/dark geometry0overflow. Representative hosted desktop image viewed. Fresh release:build/strict audits and post-merge check:context PASS. GitHub Actions42532651358 observed running; no CI green claim. Full local acceptance remains in preceding reference-ui record.

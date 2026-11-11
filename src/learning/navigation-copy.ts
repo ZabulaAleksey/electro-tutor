@@ -40,3 +40,8 @@ export const navigationCopy = {
 export function stageLabel(language: Language, stage: string): string {
   return stageCopy[language][stage as LearningStageKey] ?? stage;
 }
+
+export const contentCopy = {
+  ru: { labs: "Лаборатории", tools: "Инструменты", theory: "Теория", otherLessons: "Другие материалы", topics: "Темы", allLabs: "Все лаборатории", allTools: "Все инструменты", topicResources: "Материалы по теме" },
+  uk: { labs: "Лабораторії", tools: "Інструменти", theory: "Теорія", otherLessons: "Інші матеріали", topics: "Теми", allLabs: "Усі лабораторії", allTools: "Усі інструменти", topicResources: "Матеріали за темою" },
+} as const;

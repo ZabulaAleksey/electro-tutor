@@ -1,0 +1,13 @@
+---
+const { label } = Astro.props;
+---
+<button type="button" id="theme-toggle" class="theme-toggle" aria-label={label} title={label}>
+  <span class="theme-light" aria-hidden="true">☾</span><span class="theme-dark" aria-hidden="true">☀</span>
+</button>
+<script is:inline data-astro-rerun>
+  document.getElementById("theme-toggle")?.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("potential-theme", next); } catch {}
+  });
+</script>

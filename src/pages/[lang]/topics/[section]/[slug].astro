@@ -7,6 +7,10 @@ import { resolveInteractiveComponent } from "../../../../content/interactive-reg
 import { getPublishedLessonManifest } from "../../../../content/published-lessons";
 import type { Language } from "../../../../types";
 import { getLocale } from "../../../../i18n";
+import TopicResources from "../../../../components/TopicResources.astro";
+import { getContentCatalogue } from "../../../../learning/get-content-catalogue";
+import { contentCopy } from "../../../../learning/navigation-copy";
+import { localePath } from "../../../../site-path";
 import MeshJourney from "../../../../mvp/MeshJourney.astro";
 
 export async function getStaticPaths() {
@@ -25,6 +29,9 @@ const { entry } = Astro.props;
 const language = entry.data.language as Language;
 const copy = getLocale(language);
 const { Content } = await render(entry);
+const { subjects } = await getContentCatalogue(language);
+const href = localePath(language, `/topics/${entry.data.section}/${entry.data.slug}/`);
+const topic = subjects.find(subject => subject.id === entry.data.section)?.topics.find(topic => topic.theory === href);
 const alternatePath = `/topics/${entry.data.section}/${entry.data.slug}/`;
 const registeredInteractive = resolveInteractiveComponent(entry.data.interactive);
 // Astro's hydration transform must see the concrete component import in this module.
@@ -49,5 +56,11 @@ const hasMeshInteractive = registeredInteractive === MeshLessonIsland;
       </article>
       {hasMeshInteractive ? <MeshLessonIsland language={language} client:load /> : null}
     </>
+  )}
+  {topic && (topic.labs.length > 0 || topic.tools.length > 0 || topic.examples) && (
+    <section class="content-directory" aria-labelledby="related-title">
+      <h2 id="related-title">{contentCopy[language].topicResources}</h2>
+      <TopicResources {topic} {language} showTheory={false} />
+    </section>
   )}
 </BaseLayout>

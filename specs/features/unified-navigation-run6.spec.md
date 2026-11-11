@@ -1,5 +1,7 @@
 # RUN6 — единая учебная навигация и доказательная RTC-диагностика
 
+Актуальный контракт глобальной навигации, главной и темы оформления описан в [FR-401..406](content-first-navigation.spec.md). Остальные требования этого этапа продолжают действовать.
+
 Утверждено прямым запросом владельца2026-11-05. COMPLEX production frontend/catalogue/accessibility/build-boundary and bounded RTC investigation. Branch feat/electrotutor-navigation-run6 from clean9ac07fd (main/origin328c812),373f5b8 ancestor verified. No auto merge/push/deploy/DNS/paid resources/global policy/solver/content rewrite.
 
 ## Integration authorization

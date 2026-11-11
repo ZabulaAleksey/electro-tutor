@@ -1,0 +1,36 @@
+---
+import { contentCopy, stageCopy } from "../learning/navigation-copy";
+import type { ContentTopic } from "../learning/content-catalogue";
+import type { Language } from "../types";
+
+interface Props {
+  topic: ContentTopic;
+  language: Language;
+  showTheory?: boolean;
+}
+const { topic, language, showTheory = true } = Astro.props;
+const copy = contentCopy[language];
+const stages = stageCopy[language];
+---
+<div class="topic-resources">
+  {(["labs", "tools"] as const).map(kind => topic[kind].length > 0 && (
+    <div class="topic-resource-group">
+      <h4>{copy[kind]}</h4>
+      <ul class="directory-links">
+        {topic[kind].map(resource => (
+          <li>
+            <a href={resource.href}>{resource.title}</a>
+            {resource.variants?.map(variant => <a class="directory-variant" href={variant.href}>{variant.title}</a>)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+  {topic.examples && <div class="topic-resource-group"><a href={topic.examples}>{stages.examples}</a></div>}
+  {showTheory && topic.theory && (
+    <div class="topic-resource-group">
+      <h4>{copy.theory}</h4>
+      <a href={topic.theory}>{stages.textbook}</a>
+    </div>
+  )}
+</div>

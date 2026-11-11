@@ -9,14 +9,16 @@ import type { Language } from "../types";
 import { getLocale, getOtherLanguage } from "../i18n";
 import { localePath, SITE_BASE_PATH, withBasePath } from "../site-path";
 import { ClientRouter } from "astro:transitions";
-import LearningContents from "../components/LearningContents.astro";
-import LearningMenu from "../components/LearningMenu.astro";
+import "../content-directory.css";
+import ThemeBootstrap from "../components/ThemeBootstrap.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import { themeConfiguration } from "../theme-configuration.mjs";
 import LanguageSwitcher from "../components/LanguageSwitcher.astro";
-import type { LearningStageKey } from "../learning/navigation-copy";
+import { contentCopy, stageCopy } from "../learning/navigation-copy";
 
 interface Props {
   title: string; description: string; language: Language;
-  active?: "home" | "topics" | "interactive" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
+  active?: "home" | "topics" | "interactive" | "tools" | "engineering-board" | "board" | "classroom" | "services" | "my-services" | "contacts" | "account";
   alternatePath?: string; keywords?: string[]; hasTranslation?: boolean;
 }
 const { title, description, language, active = "home", alternatePath = "/", keywords = [], hasTranslation = true } = Astro.props;
@@ -32,18 +34,13 @@ const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
 const myServicesLabel = language === "ru" ? "Сервисы" : "Сервіси";
-const meshBase = localePath(language, "/topics/dc/mesh-current-method/");
-const isMeshPage = alternatePath.includes("/topics/dc/mesh-current-method/");
-const currentStage: LearningStageKey | undefined = isMeshPage ? (alternatePath.includes("/examples/") ? "examples" : alternatePath.includes("/lab/") ? "lab" : "textbook") : undefined;
-const learningLinks: Partial<Record<LearningStageKey, string>> = language === "ru"
-  ? (isMeshPage
-    ? { textbook: meshBase, examples: `${meshBase}examples/`, lab: `${meshBase}lab/` }
-    : { textbook: localePath(language, "/topics/"), examples: `${localePath(language, "/topics/")}?learningStage=examples`, lab: `${localePath(language, "/interactive/")}?learningStage=lab` })
-  : { textbook: localePath(language, "/topics/"), examples: `${localePath(language, "/topics/")}?learningStage=examples`, lab: `${localePath(language, "/interactive/")}?learningStage=lab` };
 const standardNav = [
+  { id: "topics", href: localePath(language, "/topics/"), label: stageCopy[language].textbook },
+  { id: "interactive", href: localePath(language, "/interactive/"), label: contentCopy[language].labs },
+  { id: "tools", href: localePath(language, "/tools/"), label: contentCopy[language].tools },
   { id: "home", href: localePath(language), label: copy.nav.home },
-  { id: "classroom", href: localePath(language, "/classroom/"), label: language === "ru" ? "Репетиторство" : "Репетиторство" },
   { id: "board", href: localePath(language, "/board/"), label: language === "ru" ? "Доска" : "Дошка" },
+  { id: "classroom", href: localePath(language, "/classroom/"), label: language === "ru" ? "Репетиторство" : "Репетиторство" },
   { id: "my-services", href: localePath(language, "/my-services/"), label: myServicesLabel },
   { id: "contacts", href: localePath(language, "/contacts/"), label: language === "ru" ? "Контакты" : "Контакти" },
 ];
@@ -51,12 +48,12 @@ const standardNav = [
 const nav = standardNav;
 ---
 <!doctype html>
-<html lang={language} data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>
+<html lang={language} data-theme="light" data-base-path={SITE_BASE_PATH} data-service-worker-path={serviceWorkerPath}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="electro-tutor-api-origin" content={publicApiOrigin} />
-  <meta name="theme-color" content="#071328" />
+  <meta name="theme-color" content={themeConfiguration.chromeColor} />
   <meta name="description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -79,13 +76,7 @@ const nav = standardNav;
   <meta property="og:url" content={canonical} />
   <title>{title}</title>
   <ClientRouter />
-  <script is:inline>
-    (() => {
-      let saved = null;
-        try { saved = localStorage.getItem("potential-theme"); } catch {}
-      document.documentElement.dataset.theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    })();
-  </script>
+  <ThemeBootstrap />
 </head>
 <body data-home={active === "home" ? "true" : undefined}>
   <header class="header astro-header">
@@ -94,19 +85,15 @@ const nav = standardNav;
       <span><strong>{copy.brand.display}</strong><small>{copy.brand.tagline}</small></span>
     </a>
     <nav aria-label={copy.nav.label}>
-      <a href="#learning-contents" data-learning-open aria-controls="learning-contents" aria-expanded="false">{language === "ru" ? "Оглавление" : "Зміст"}</a>
-      <LearningMenu language={language} links={learningLinks} currentStage={currentStage} />
-      {nav.map(item => item.id === "my-services" ? <details class="nav-services"><summary aria-label={language === "ru" ? "Дополнительные сервисы" : "Додаткові сервіси"} class:list={{active:active === item.id}}>{item.label}</summary><div class="nav-services-menu"><a href={localePath(language,"/my-services/#install")}>{language==="ru"?"Приложение ElectroTutor":"Застосунок ElectroTutor"}</a><a href={localePath(language,"/my-services/#mathmorph")}>MathMorph</a><a href={localePath(language,"/classroom/")}>{language==="ru"?"Гостевая видеокомната · Jitsi (внешний сервис)":"Гостьова відеокімната · Jitsi (зовнішній сервіс)"}</a><span>{language==="ru"?"Контролируемое видеозанятие · не реализовано":"Кероване відеозаняття · не реалізовано"}</span><a href={item.href}>{language==="ru"?"Все сервисы":"Усі сервіси"} ↗</a></div></details> : <a class:list={{ active: active === item.id }} href={item.href}>{item.label}</a>)}
+      {nav.map(item => item.id === "my-services" ? <details class="nav-services"><summary aria-label={language === "ru" ? "Дополнительные сервисы" : "Додаткові сервіси"} class:list={{active:active === item.id}}>{item.label}</summary><div class="nav-services-menu"><a href={localePath(language,"/my-services/#install")}>{language==="ru"?"Приложение ElectroTutor":"Застосунок ElectroTutor"}</a><a href={localePath(language,"/my-services/#mathmorph")}>MathMorph</a><a href={localePath(language,"/classroom/")}>{language==="ru"?"Гостевая видеокомната · Jitsi (внешний сервис)":"Гостьова відеокімната · Jitsi (зовнішній сервіс)"}</a><span>{language==="ru"?"Контролируемое видеозанятие · не реализовано":"Кероване відеозаняття · не реалізовано"}</span><a href={item.href}>{language==="ru"?"Все сервисы":"Усі сервіси"} ↗</a></div></details> : <a class:list={{ active: active === item.id }} aria-current={active === item.id && Astro.url.pathname === item.href ? "page" : undefined} href={item.href}>{item.label}</a>)}
     </nav>
     {hasTranslation && <LanguageSwitcher language={language} alternatePath={alternatePath} />}
-    <button class="theme-toggle" id="theme-toggle" aria-label={copy.actions.theme} title={copy.actions.themeTitle}>
-      <span class="theme-light">☾</span><span class="theme-dark">☀</span>
-    </button>
+    {themeConfiguration.allowDark && <ThemeToggle label={copy.actions.theme} />}
     <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-expanded="false" aria-label={copy.actions.openMenu}>
       <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </header>
-  <main><slot /></main><LearningContents language={language} currentEntryId={isMeshPage ? "topic:dc/mesh" : undefined} currentStage={isMeshPage ? currentStage : undefined} />
+  <main><slot /></main>
   <footer><span>© {new Date().getFullYear()} {copy.brand.display}</span></footer>
 
   <dialog class="install-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
@@ -132,13 +119,6 @@ const nav = standardNav;
     (() => {
       const state = window.__potentialUi ||= { installPrompt: null, globalEventsReady: false };
 
-      const applySavedTheme = () => {
-        let saved = null;
-        try { saved = localStorage.getItem("potential-theme"); } catch {}
-        document.documentElement.dataset.theme = saved
-          || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      };
-
       const closeMobileMenu = () => {
         const header = document.querySelector(".astro-header");
         const toggle = document.querySelector("#mobile-menu-toggle");
@@ -161,10 +141,8 @@ const nav = standardNav;
       };
 
       const initializePageControls = () => {
-        applySavedTheme();
         const header = document.querySelector(".astro-header");
         const menuToggle = document.querySelector("#mobile-menu-toggle");
-        const themeToggle = document.querySelector("#theme-toggle");
         const installButton = document.querySelector("#app-install");
         const installDialog = document.querySelector("#install-dialog");
         const iosSteps = installDialog?.querySelector("[data-ios-steps]");
@@ -176,12 +154,6 @@ const nav = standardNav;
           menuToggle.setAttribute("aria-expanded", String(open));
         };
         header?.querySelectorAll("nav a").forEach(link => link.onclick = closeMobileMenu);
-
-        if (themeToggle) themeToggle.onclick = () => {
-          const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-          document.documentElement.dataset.theme = next;
-          try { localStorage.setItem("potential-theme", next); } catch {}
-        };
 
         if (standalone) installButton?.setAttribute("hidden", "");
         if (installButton) installButton.onclick = async () => {

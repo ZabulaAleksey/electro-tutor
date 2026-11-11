@@ -1,6 +1,21 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UI-008
+- Stage ID: ET-UI-009
+
+## ET-UI-009 — каталоги учебника и светлый интерфейс
+
+- Status: partial
+- Dependencies: ET-NAV-006, ET-UI-008 verified. Entry: clean origin/main at 56f9262, feature/content-navigation-light, existing full and MVP source graphs.
+- SPEC: content-first-navigation.spec.md, FR-401..406. Scope: Astro navigation, published content discovery, light theme configuration and consumer verification.
+- Runnable path: RU/UK home → experiment/calculator → update input → Back → textbook index → material or experiment for that topic; MVP uses only its released RU graph.
+- Acceptance: check/lint/unit, full and MVP builds, published URLs, mobile/desktop history and locale paths, stable light in dark OS and with persisted dark preference, functional and visual regression review.
+- Evidence: 472 unit, 13 независимых расчётных примеров, check/lint, full/MVP build audit и 31 целевой browser scenario PASS (19 full, 12 MVP). Полные E2E и просмотр старых расхождений описаны в TESTING.
+- Temporary implementation: none. Deferred: dark switching reactivation, translation/publication of unreleased content.
+- User action ET-UI-009-RELEASE / CONDITIONAL: after PASS, explicitly approve merge with main and any push/deploy; expected evidence is target commit and verified hosted build.
+- Blockers: принятые тесты старого меню и двухтемные скриншоты требуют согласованной миграции под FR-401..406. Публичный release gate закрыт до зелёного прогона.
+- User action ET-UI-009-REGRESSION / READY: разрешить узкую адаптацию принятых сценариев и визуальных эталонов под новое меню и фиксированную светлую тему. Сохранить вычислительные проверки, пороги, мобильные и клавиатурные сценарии. Evidence: просмотренные новые снимки и зелёные полные full/MVP E2E.
+- NEXT: ET-UI-009-REGRESSION
+
 
 ## ET-UI-008 — язык, статус операций и проверенные visual baselines
 

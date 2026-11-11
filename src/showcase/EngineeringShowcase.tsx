@@ -12,7 +12,6 @@ import { INITIAL, ac, model, n, rc, type Parameters } from "./physics";
 import { CircuitVisual, Phasors, ScenePlot } from "./SceneVisual";
 import "./showcase.css";
 import PanoramicCarousel from "./PanoramicCarousel";
-import LaboratoryCatalog from "../catalogue/LaboratoryCatalog";
 import LineSurface, { type SurfaceState } from "./LineSurface";
 
 import "./panoramic.css";
@@ -91,7 +90,7 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
   </div>;
 }
 
-export default function EngineeringShowcase({language,lessonHref,lessonLabel,bookingUrl}:{language:Language;lessonHref:string;lessonLabel:string;bookingUrl?:string}) {
+export default function EngineeringShowcase({language,bookingUrl}:{language:Language;bookingUrl?:string}) {
  const [selectedStory,setSelectedStory]=useState<Story|undefined>();
  const sceneRegion=useRef<HTMLElement>(null),[storyMotion,setStoryMotion]=useState(false),[reduced,setReduced]=useState(true);
  const store=useRef<SceneState>({parameters:{},times:{},running:{}});
@@ -99,6 +98,5 @@ export default function EngineeringShowcase({language,lessonHref,lessonLabel,boo
  useEffect(()=>{if(!selectedStory||!sceneRegion.current)return;const media=matchMedia("(prefers-reduced-motion: reduce)");let visible=false;const sync=()=>{setReduced(media.matches);setStoryMotion(visible&&!document.hidden);};const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();});observer.observe(sceneRegion.current);media.addEventListener("change",sync);document.addEventListener("visibilitychange",sync);sync();return()=>{observer.disconnect();media.removeEventListener("change",sync);document.removeEventListener("visibilitychange",sync);};},[selectedStory]);
  return <><PanoramicCarousel language={language}/>
  {selectedStory&&<section ref={sceneRegion} className="lab-showcase section" aria-label={selectedStory.title[language]}><h2 className="lab-scene-title">{selectedStory.title[language]}</h2><LiveScene key={selectedStory.id} story={selectedStory} language={language} store={store.current} motion={storyMotion} reduced={reduced} bookingUrl={bookingUrl}/></section>}
- <section className="section home-laboratories" aria-labelledby="home-laboratories-heading"><div className="lab-section-title"><h2 id="home-laboratories-heading">{language==="ru"?"Лаборатории":"Лабораторії"}</h2><a href={localePath(language,"/interactive/")}>{language==="ru"?"Весь каталог":"Увесь каталог"} ↗</a></div><LaboratoryCatalog language={language} limit={8} compact/></section>
- <section className="section home-textbook" aria-labelledby="home-textbook-heading"><div><h2 id="home-textbook-heading">{language==="ru"?"Учебник":"Підручник"}</h2><p>{language==="ru"?"Метод контурных токов: схема, расчёт, проверка ответа.":"Метод контурних струмів: схема, розрахунок, перевірка відповіді."}</p></div><a className="button primary" href={lessonHref}>{lessonLabel} ↗</a></section></>;
+ </>;
 }

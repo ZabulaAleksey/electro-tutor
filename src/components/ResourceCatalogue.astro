@@ -1,0 +1,57 @@
+---
+import DirectorySearch from "./DirectorySearch.astro";
+import type { Language } from "../types";
+import type { Resource } from "../learning/content-catalogue";
+
+interface Props {
+  id: string;
+  title: string;
+  resources: readonly Resource[];
+  compact?: boolean;
+  pageHeading?: boolean;
+  language?: Language;
+}
+const { id, title, resources, compact = false, pageHeading = false, language } = Astro.props;
+const Heading = pageHeading ? "h1" : "h2";
+const featured = compact ? resources.filter(resource => resource.featured) : [];
+const categories = new Map<string, { title: string; resources: Resource[] }>();
+for (const resource of resources) {
+  if (featured.includes(resource)) continue;
+  const category = categories.get(resource.category);
+  if (category) category.resources.push(resource);
+  else categories.set(resource.category, { title: resource.categoryTitle, resources: [resource] });
+}
+---
+{resources.length > 0 && (
+  <section id={id} class="content-directory" aria-labelledby={`${id}-title`}>
+    <Heading id={`${id}-title`}>{title}</Heading>
+    {pageHeading && language && <DirectorySearch {language} />}
+    {featured.length > 0 && (
+      <ul class="directory-grid">
+        {featured.map(resource => (
+          <li class="directory-card directory-feature">
+            <a href={resource.href}>{resource.title}</a>
+            {resource.description && <p>{resource.description}</p>}
+            {resource.variants?.map(variant => <a class="directory-variant" href={variant.href}>{variant.title}</a>)}
+          </li>
+        ))}
+      </ul>
+    )}
+    <div class="directory-grid directory-categories">
+      {[...categories.values()].map(category => (
+        <details class="directory-card" data-directory-group open={!compact || resources.length <= 4}>
+          <summary>{category.title}</summary>
+          <ul class="directory-links">
+            {category.resources.map(resource => (
+              <li data-directory-entry>
+                <a href={resource.href}>{resource.title}</a>
+                {!compact && resource.description && <p>{resource.description}</p>}
+                {resource.variants?.map(variant => <a class="directory-variant" href={variant.href}>{variant.title}</a>)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </div>
+  </section>
+)}

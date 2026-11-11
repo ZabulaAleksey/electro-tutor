@@ -7,15 +7,16 @@
 - Status: verified
 - Dependencies: ET-UI-009 verified. Entry: main 1f3b417, clean checkout. Branch: feature/editorial-learning-sections.
 - SPEC: editorial-learning-sections.spec.md, FR-407..411.
-- Scope: full Astro/MDX RU/UK, существующие React islands, восстановление доступности опубликованного контента, локальный production preview. Публичный MVP остаётся в рамках отдельного контракта.
+- Scope: full Astro/MDX RU/UK, существующие React islands, восстановление доступности опубликованного контента, локальный production preview. Отдельные профили разработки и прежнего MVP сохранены.
 - Runnable path: главная → решения → разбор → пресет лаборатории → изменённый ток → Back. Второй путь: каталог лабораторий → самостоятельная микролаборатория → изменённый параметр и график.
 - Audit: docs/notes/editorial-content-inventory.md. Одна тема в двух локалях, четыре RU-разбора и четыре примера вычислений, 35 RU / 34 UK карточки. 26 моделей получили отдельные адреса на каждый язык.
 - Evidence: 472 unit, 13 аналитических случаев / 49 проверок, types и lint PASS. Full 296 E2E PASS / 6 условных пропусков live auth. MVP 31 PASS / 2 условных пропуска, оба отдельно PASS с реальными CSP и обновлением service worker. Full root и /electro-tutor/ собрали 98 локализованных маршрутов. Все 52 выделенные страницы моделей открыты и проверены вводом. Desktop/mobile preview просмотрен.
 - Deferred: отсутствующие авторские лекции, UK-тексты четырёх разборов и лаборатории метода контурных токов, отдельное утверждение публичного выпуска.
-- Blockers: none for local preview.
+- Blockers: none.
 - User action ET-UI-010-RELEASE / DONE: владелец подтвердил «Да, сливай» и выбрал публикацию учебного сайта RU/UK с ограничениями для аккаунта и служебных страниц. Разрешены обычный push, деплой и удаление слитой временной ветки после проверки.
 - Release scope: публичная сборка через pnpm build. 92 локализованных страницы, 14 закрытых префиксов, CSP с хешами встроенных скриптов и разрешением WebAssembly. На локальном HTTP preview проверены 404, гостевой урок, WASM, офлайн и перенос безопасных записей кеша.
-- NEXT: ET-UI-010-PUBLISH
+- Production evidence: fast-forward и обычный push origin/main на ad44a81. Cloudflare preview b39b2a7f прошёл 2 браузерных сценария. Cloudflare Pages и GitHub Pages опубликовали учебную сборку RU/UK. На каждой площадке 92 адреса sitemap возвращают HTTP 200, 42 варианта закрытых URL возвращают 404, браузерные проверки PWA/WASM прошли. Cloudflare production побайтно совпадает с preview на 14 входах. [GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43066861103) verify/deploy SUCCESS.
+- NEXT: none
 
 
 ## ET-UI-009 — каталоги учебника и светлый интерфейс

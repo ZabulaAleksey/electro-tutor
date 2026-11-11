@@ -2,7 +2,7 @@
 
 ## ET-UI-010 — презентационная главная и инвентаризация
 
-FR-407..411 → editorial-learning-sections.spec.md → section-routes, EditorialHome, существующие manifest и реестры, LaboratoryDirectory и worked-solutions → full/MVP artifact audits, editorial-learning.spec.ts и существующие численные сценарии. Инвентаризация в docs/notes/editorial-content-inventory.md.
+FR-407..411 → editorial-learning-sections.spec.md → section-routes, EditorialHome, существующие manifest и реестры, LaboratoryDirectory и worked-solutions → full/MVP artifact audits, editorial-learning.spec.ts и существующие численные сценарии. Инвентаризация в docs/notes/editorial-content-inventory.md. Публичный выпуск дополнительно проверяют scripts/education-release.mjs и tests/e2e/education-release.spec.ts.
 
 
 ## Каталоги и светлый режим

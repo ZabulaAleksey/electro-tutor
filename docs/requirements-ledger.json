@@ -1844,11 +1844,11 @@
         "FR-411"
       ],
       "runtime": "Full Astro RU/UK landing and learning sections; dedicated routes for 26 models in each locale. Existing source content and solvers retained.",
-      "security": "Local full preview and separate published RU MVP allowlist; no deployment or new external dependency.",
+      "security": "Public RU/UK study routes are allowlisted. Account, API and service routes are excluded from static output and service-worker caches. Cloudflare CSP and 404 guard verified.",
       "a11y": "Light appearance, responsive keyboard navigation and native no-JavaScript links.",
       "observability": "ET-UI-010 in STAGES, TESTING and the content inventory.",
-      "gap": "No gap in the verified local preview. RU-only mesh sources are marked in UK.",
-      "action": "Local preview verified; owner review precedes any production release.",
+      "gap": "No gap in the released study scope. RU-only mesh sources are marked in UK.",
+      "action": "Released and verified on Cloudflare Pages and GitHub Pages. Source ad44a81.",
       "code": [
         "src/components/EditorialHome.astro",
         "src/components/LaboratoryDirectory.astro",
@@ -1862,11 +1862,13 @@
       "integration": [
         "scripts/audit-built-site.mjs",
         "scripts/audit-built-locales.mjs",
-        "scripts/audit-built-lessons.mjs"
+        "scripts/audit-built-lessons.mjs",
+        "scripts/education-release.mjs"
       ],
       "e2e": [
         "tests/e2e/editorial-learning.spec.ts",
-        "tests/e2e/product-shell-audit.spec.ts"
+        "tests/e2e/product-shell-audit.spec.ts",
+        "tests/e2e/education-release.spec.ts"
       ]
     }
   ]

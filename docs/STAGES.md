@@ -13,7 +13,7 @@
 - Temporary implementation: none. Deferred: dark switching reactivation, translation/publication of unreleased content.
 - User action ET-UI-009-RELEASE / CONDITIONAL: after PASS, explicitly approve merge with main and any push/deploy; expected evidence is target commit and verified hosted build.
 - Regression evidence: Windows full 289 PASS / 6 conditional skips, MVP 31 PASS / 2 conditional skips; обе дополнительные предпосылки MVP отдельно PASS. 42 просмотренных Windows-эталона, 193 ранее принятых сохранены. Запись параметров круговой диаграммы ограничена её pathname.
-- Blockers: требуется проверка Linux-эталонов и replay в среде CI. Публичный release gate закрыт до её прохождения.
+- Blockers: 25 Linux-эталонов сняты и просмотрены; требуется результат [replay в CI](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43041088807). Публичный release gate закрыт до её прохождения.
 - User action ET-UI-009-REGRESSION / DONE: 2026-11-11 владелец явно разрешил обновление затронутых E2E и скриншотов с сохранением расчётных проверок и допусков. Evidence: сообщение владельца и FR-406.
 - Delivery scope: владелец запросил push, deploy и удаление временной ветки после проверок. Для fast-forward в main действует отдельное правило явного подтверждения merge.
 - NEXT: ET-UI-009-LINUX

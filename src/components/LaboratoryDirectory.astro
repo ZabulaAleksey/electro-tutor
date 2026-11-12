@@ -24,7 +24,11 @@ const variants = (resource: Resource) => [
 ---
 <section class="content-directory lab-directory" id="labs" aria-labelledby="lab-directory-title">
   <h1 id="lab-directory-title">{ru ? "Лаборатории" : "Лабораторії"}</h1>
-  <p>{ru ? "Выберите эксперимент или инженерный инструмент." : "Оберіть експеримент або інженерний інструмент."}</p>
+  <p>{ru ? "Выберите тему, чтобы открыть эксперимент." : "Оберіть тему, щоб відкрити експеримент."}</p>
+  <nav class="directory-jumps" aria-label={ru ? "База знаний" : "База знань"}>
+    <a href={localePath(language, "/topics/")}>{ru ? "Теория и формулы" : "Теорія та формули"}</a>
+    <a href={localePath(language, "/solutions/")}>{ru ? "Разборы задач" : "Розбір задач"}</a>
+  </nav>
   <p><a href={localePath(language, "/showcase/")}>{ru ? "Инженерные демонстрации" : "Інженерні демонстрації"} ↗</a></p>
   <DirectorySearch {language} />
   <nav class="directory-jumps" aria-label={ru ? "Категории" : "Категорії"}>

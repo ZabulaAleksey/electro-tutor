@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-011 — Каталог и конструктор сети
+
+FR-412 и LINE-UX-001..005 → editorial-learning-sections и transmission-line-transient SPEC → ADR-055 → каталог, NetworkWorkbench и network-edit → численная проверка network-edit.test.ts, Chromium transmission-workbench.spec.ts и регрессия transmission-network.spec.ts/transmission-line.spec.ts. Ручной сенсорный сценарий ведётся в STAGES.
+
 ## ET-UI-010 — презентационная главная и инвентаризация
 
 FR-407..411 → editorial-learning-sections.spec.md → section-routes, EditorialHome, существующие manifest и реестры, LaboratoryDirectory и worked-solutions → full/MVP artifact audits, editorial-learning.spec.ts и существующие численные сценарии. Инвентаризация в docs/notes/editorial-content-inventory.md. Публичный выпуск дополнительно проверяют scripts/education-release.mjs и tests/e2e/education-release.spec.ts.

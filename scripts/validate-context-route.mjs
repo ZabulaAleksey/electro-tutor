@@ -139,6 +139,7 @@ const requirementIdPrefixes = [
   "INT",
   "LINE",
   "LINE-V2",
+  "LINE-UX",
   "FOUR",
   "SCI",
   "THEME",

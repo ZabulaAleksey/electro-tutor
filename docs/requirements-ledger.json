@@ -1834,6 +1834,66 @@
       ]
     },
     {
+      "domain": "lab-first-entry",
+      "status": "VERIFIED",
+      "requirement_ids": [
+        "FR-412"
+      ],
+      "runtime": "The RU/UK home opens the registered laboratory catalogue directly. Existing theory, solutions, and individual experiment URLs remain available.",
+      "security": "Uses public static routes within the existing education release boundary.",
+      "a11y": "The primary navigation and knowledge-base links are native links.",
+      "observability": "ET-LAB-011 in STAGES and TESTING.",
+      "gap": "Published release is tracked independently.",
+      "action": "Local browser and artifact acceptance under ET-LAB-011.",
+      "code": [
+        "src/components/EditorialHome.astro",
+        "src/components/LaboratoryDirectory.astro"
+      ],
+      "unit": [
+        "src/learning/content-catalogue.test.ts"
+      ],
+      "integration": [
+        "scripts/audit-built-lessons.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/transmission-workbench.spec.ts"
+      ]
+    },
+    {
+      "domain": "transmission-workbench",
+      "status": "PARTIAL",
+      "requirement_ids": [
+        "LINE-UX-001",
+        "LINE-UX-002",
+        "LINE-UX-003",
+        "LINE-UX-004",
+        "LINE-UX-005"
+      ],
+      "runtime": "Pointer and tap placement, topology validation, contextual editing, camera, dock, history and version-compatible local storage for the existing characteristic worker.",
+      "security": "Existing bounded versioned JSON and solver validation govern model edits.",
+      "a11y": "Keyboard-activatable placement and object controls, named toolbar and placement status.",
+      "observability": "ET-LAB-011 in STAGES and TESTING.",
+      "gap": "Physical smartphone and system keyboard evidence pending.",
+      "action": "Run the on-device scenario recorded in STAGES.",
+      "code": [
+        "src/transient/NetworkWorkbench.tsx",
+        "src/transient/network-edit.ts",
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "unit": [
+        "src/transient/network-edit.test.ts",
+        "src/transient/network.test.ts"
+      ],
+      "integration": [
+        "scripts/transient-wasm.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/transmission-workbench.spec.ts",
+        "tests/e2e/transmission-network.spec.ts",
+        "tests/e2e/transmission-line.spec.ts"
+      ]
+    },
+    {
       "domain": "editorial-learning-sections",
       "status": "VERIFIED",
       "requirement_ids": [

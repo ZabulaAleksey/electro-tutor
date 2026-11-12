@@ -6,13 +6,14 @@ export type Network = { sections:Section[]; source:{voltageV:number;resistanceOh
 export type WaveHistory = {times:number[];values:number[]};
 export type WaveRun = {config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
 export type WaveValue={u:number;i:number;forward:number;backward:number;forwardI:number;backwardI:number;section:number};
+export const MAX_SECTIONS = 6;
 export const DEFAULT_NETWORK:Network={sections:[{id:"TL1",lengthM:1e6,impedanceOhm:50,velocityMS:2e8}],source:{voltageV:100,resistanceOhm:0,node:0,onS:0},load:{id:"load",kind:"open"},durationS:.02,events:[],shunts:[]};
 export function loadLeaves(load:Load):Load[]{return load.children?.flatMap(loadLeaves)??[load];}
 export function isReactive(load:Load,depth=0):boolean{return !!load&&typeof load==="object"&&depth<=6&&(load.kind==="c"||load.kind==="l"||Array.isArray(load.children)&&load.children.some(x=>isReactive(x,depth+1)));}
 export function validateNetwork(input:unknown):string[]{try{return validateNetworkShape(input as Network);}catch{return ["invalid-network-shape"];}}
 function validateNetworkShape(c:Network):string[]{
  const errors:string[]=[];const finite=(v:number)=>Number.isFinite(v);let nodes=0;
- if(!Array.isArray(c.sections)||c.sections.length<1||c.sections.length>6)return ["sections:1..6"];
+ if(!Array.isArray(c.sections)||c.sections.length<1||c.sections.length>MAX_SECTIONS)return [`sections:1..${MAX_SECTIONS}`];
  const ids=new Set<string>();const validId=(id:unknown)=>typeof id==="string"&&/^[A-Za-z][A-Za-z0-9_-]{0,39}$/.test(id)&&!Object.prototype.hasOwnProperty.call(Object.prototype,id);for(const s of c.sections){if(!validId(s.id))errors.push("invalid-id");if(ids.has(s.id))errors.push("duplicate-id");ids.add(s.id);if(![s.lengthM,s.impedanceOhm,s.velocityMS].every(v=>finite(v)&&v>0)||s.lengthM<.001||s.lengthM>1e9||s.velocityMS<1||s.velocityMS>3e8||s.impedanceOhm<.001||s.impedanceOhm>1e6)errors.push("invalid-line");}
  if(!Number.isFinite(c.sections.reduce((n,s)=>n+s.lengthM,0))||!c.sections.every(s=>[s.lengthM/s.velocityMS,s.impedanceOhm/s.velocityMS,1/(s.impedanceOhm*s.velocityMS)].every(Number.isFinite)))errors.push("invalid-derived-line-parameters");
  const q=c.source;if(!q||![q.voltageV,q.resistanceOhm,q.onS,c.durationS].every(finite)||Math.abs(q.voltageV)>1e6||q.resistanceOhm<0||q.resistanceOhm>1e9||q.resistanceOhm>0&&q.resistanceOhm<1e-6||q.onS<0||q.onS>c.durationS||c.durationS<1e-9||c.durationS>10||!Number.isInteger(q.node)||q.node<0||q.node>c.sections.length||q.offS!==undefined&&(!finite(q.offS)||q.offS<=q.onS||q.offS>c.durationS))errors.push("invalid-source-or-time");

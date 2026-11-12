@@ -15,7 +15,7 @@ const copy = lineCopy(language);
   language={language} active="interactive" alternatePath="/interactive/transmission-line/">
   <section class="line-page">
     <div class="line-page-intro"><a href={localePath(language, "/interactive/")}>← {copy.back}</a>
-      <h1>{copy.title}</h1><p>{copy.lead}</p></div>
+      <h1>{copy.title}</h1></div>
     <TransmissionNetworkLab client:load language={language} />
   </section>
 </BaseLayout>

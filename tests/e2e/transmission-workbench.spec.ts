@@ -24,6 +24,7 @@ test("home opens the topic catalogue, and pointer drag commits only at the highl
   await page.getByRole("link", { name: "Переходные процессы в линии", exact: true }).click();
   await ready(page);
 
+  await page.getByRole("button",{name:"Элементы",exact:true}).click();
   const from = await middle(page.locator('[data-network-tool="line"]'));
   const target = await position(page, 290, 84);
   await page.mouse.move(from.x, from.y);
@@ -50,6 +51,7 @@ test("home opens the topic catalogue, and pointer drag commits only at the highl
 test("invalid and canceled drops preserve the existing circuit", async ({ page }) => {
   await page.goto(path);
   await ready(page);
+  await page.getByRole("button",{name:"Элементы",exact:true}).click();
   const from = await middle(page.locator('[data-network-tool="line"]'));
   const invalid = await position(page, 143, 84);
   const valid = await position(page, 290, 84);
@@ -73,7 +75,8 @@ test("invalid and canceled drops preserve the existing circuit", async ({ page }
 test("keyboard places a line and the inspector removes it", async ({ page }) => {
   await page.goto(path);
   await ready(page);
-  const add = page.getByRole("button", { name: "Добавить линию", exact: true });
+  await page.getByRole("button",{name:"Элементы",exact:true}).click();
+  const add = page.getByRole("button", { name: "Линия передачи", exact: true });
   await add.press("Enter");
   const target = canvas(page).getByRole("button", { name: "Конец линии" });
   await expect(target).toBeFocused();
@@ -96,31 +99,31 @@ test.describe("touch workspace", () => {
       session.send("Input.dispatchTouchEvent", { type, touchPoints: points });
     const toolbar = page.getByRole("group", { name: "Управление конструктором" });
     await toolbar.getByRole("button", { name: "Элементы" }).tap();
-    const start = await middle(page.locator('[data-network-tool="shunt"]'));
-    const target = await position(page, 143, 84);
+    const start = await middle(page.locator('[data-network-tool="r"]'));
+    const target = await position(page, 143, 147);
     await dispatch("touchStart", [start]);
     await dispatch("touchMove", [{ x: start.x, y: start.y - 26 }]);
     await dispatch("touchMove", [target]);
-    await expect(canvas(page).locator('[data-placement="span"][data-snapped=true]')).toHaveAttribute("data-allowed", "true");
+    await expect(canvas(page).locator('[data-placement="branch-span"][data-snapped=true]')).toHaveAttribute("data-allowed", "true");
     const ghost = await page.locator(".network-drag-ghost").boundingBox();
     expect(ghost!.y + ghost!.height / 2).toBeLessThan(target.y - 20);
     await dispatch("touchEnd", []);
     await expect(sections(page)).toHaveCount(2);
     await ready(page);
 
-    await canvas(page).getByRole("button", { name: "Шунтирующий резистор · 1" }).tap();
+    await canvas(page).getByRole("button", { name: "R1 · Резистор" }).tap();
     const resistance = page.locator(".network-tray").getByRole("spinbutton", { name: "Сопротивление R, Ω" });
     await resistance.fill("125");
     await expect(page.getByRole("group",{name:"Управление симуляцией"})).toBeVisible();
-    await page.locator(".network-tray").getByRole("button", { name: "Переместить" }).tap();
-    await canvas(page).getByRole("button", { name: "Узел соединения · 0" }).tap();
-    await canvas(page).getByRole("button", { name: "Шунтирующий резистор · 0" }).tap();
+    await page.locator(".network-tray").getByRole("button", { name: "Переподключить" }).tap();
+    await canvas(page).getByRole("button", { name: "Шунт к опоре · 0" }).tap();
+    await canvas(page).getByRole("button", { name: "R1 · Резистор" }).tap();
     await expect(resistance).toHaveValue("125");
     await page.locator(".network-tray").getByRole("button", { name: "Удалить" }).tap();
-    await expect(canvas(page).getByRole("button", { name: "Шунтирующий резистор · 0" })).toHaveCount(0);
+    await expect(canvas(page).getByRole("button", { name: "R1 · Резистор" })).toHaveCount(0);
 
     await toolbar.getByRole("button", { name: "Элементы" }).tap();
-    await page.locator('[data-network-tool="matched"]').tap();
+    await page.locator('[data-network-tool="r"]').tap();
     await canvas(page).getByRole("button", { name: "Конец линии" }).tap();
     await ready(page);
     const original = await canvas(page).locator(".network-schematic-drawing").getAttribute("transform");
@@ -241,4 +244,83 @@ test("selects both bridge ends, switches the branch and restores its v3 JSON",as
  await page.locator('input[type="file"]').setInputFiles((await file.path())!);
  await ready(page);
  await expect(key).toHaveAttribute("data-closed","true");
+});
+
+
+test("wheel scrolls normally, Ctrl anchors zoom and geometry does not change the solver",async({page})=>{
+ await page.goto(path);await ready(page);
+ const field=canvas(page), lab=page.locator("[data-network-lab]");
+ const initial=await field.locator(".network-schematic-drawing").getAttribute("transform");
+ const pivot=await position(page,143,84);
+ await page.mouse.move(pivot.x,pivot.y);await page.mouse.wheel(0,100);
+ await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBeGreaterThan(0);
+ await expect(field.locator(".network-schematic-drawing")).toHaveAttribute("transform",initial!);
+ await page.evaluate(()=>window.scrollTo(0,0));
+ const center=await position(page,143,84);
+ await page.mouse.move(center.x,center.y);await page.keyboard.down("Control");
+ await page.mouse.wheel(0,-160);await page.keyboard.up("Control");
+ await expect(field.locator(".network-schematic-drawing")).not.toHaveAttribute("transform",initial!);
+ const anchored=await position(page,143,84);
+ expect(Math.hypot(anchored.x-center.x,anchored.y-center.y)).toBeLessThan(1);
+ await page.getByRole("button",{name:"Показать всю схему"}).click();
+ const rev=await lab.getAttribute("data-model-revision");
+ const start=await position(page,143,84);
+ await page.mouse.move(start.x,start.y);await page.mouse.down();
+ await page.mouse.move(start.x,start.y+28,{steps:6});await page.mouse.up();
+ await expect(field.locator("[data-line-section=TL1] .network-transmission-stroke")).not.toHaveAttribute("d","M90 84h106");
+ await expect(lab).toHaveAttribute("data-model-revision",rev!);
+});
+
+test("cursor placement, ordinary wire and nonlinear diode use the real solver",async({page})=>{
+ await page.goto(path);await ready(page);
+ const field=canvas(page);
+ const part=async(tool:string)=>{
+  await page.getByRole("button",{name:"Элементы",exact:true}).click();
+  await page.locator(`[data-network-tool="${tool}"]`).click();
+ };
+ await part("wire");
+ const end=await position(page,290,84);
+ await page.mouse.move(end.x,end.y);
+ await expect(page.locator(".network-drag-ghost")).toBeVisible();
+ await page.mouse.click(end.x,end.y);
+ await ready(page);
+ await expect(field.getByRole("button",{name:"Нагрузка",exact:true}).locator("path")).toHaveCount(2);
+ await part("diode");
+ await field.getByRole("button",{name:"Конец линии",exact:true}).press("Enter");
+ await ready(page);
+ await field.getByRole("button",{name:"Нагрузка",exact:true}).press("Enter");
+ await page.getByText("Вольт-амперная характеристика",{exact:true}).click();
+ await expect(page.locator("[data-diode-point]")).toHaveAttribute("data-diode-voltage","0");
+ await page.locator(".network-timing summary").click();
+ await page.getByLabel("Физическое время t, ms").fill("6");
+ await expect.poll(async()=>Number(await page.locator("[data-diode-point]").getAttribute("data-diode-voltage"))).toBeGreaterThan(.5);
+ await expect.poll(async()=>Number(await page.locator("[data-diode-point]").getAttribute("data-diode-voltage"))).toBeLessThan(2);
+ await page.locator(".network-timing summary").click();
+ await page.getByRole("button",{name:"Развернуть диод"}).click();
+ await ready(page);
+ await page.locator(".network-timing summary").click();
+ await page.getByLabel("Физическое время t, ms").fill("6");
+ await expect.poll(async()=>Number(await page.locator("[data-diode-point]").getAttribute("data-diode-voltage"))).toBeLessThan(-100);
+});
+
+
+test("ordinary R, L and C terminate the line and deleting the load opens the branch",async({page})=>{
+ await page.goto(path);await ready(page);
+ const field=canvas(page),lab=page.locator("[data-network-lab]");
+ for(const [tool,symbol,method] of [
+   ["r","resistor","exact-fronts"],["l","inductor","characteristics-trapezoid"],["c","capacitor","characteristics-trapezoid"],
+ ]){
+   await page.getByRole("button",{name:"Элементы",exact:true}).click();
+   await page.locator(`[data-network-tool="${tool}"]`).click();
+   await field.getByRole("button",{name:"Конец линии",exact:true}).press("Enter");
+   await ready(page);
+   const load=field.getByRole("button",{name:"Нагрузка",exact:true});
+   await expect(load.locator(`[data-symbol="${symbol}"]`)).toBeVisible();
+   await expect(lab).toHaveAttribute("data-method",method);
+ }
+ await field.getByRole("button",{name:"Нагрузка",exact:true}).press("Enter");
+ await page.locator(".network-inspector").getByRole("button",{name:"Удалить",exact:true}).click();
+ await ready(page);
+ await expect(field.getByRole("button",{name:"Нагрузка",exact:true}).locator("circle")).toHaveCount(2);
+ await expect(lab).toHaveAttribute("data-method","exact-fronts");
 });

@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-013 — Палитра, жесты, УГО и диод
+
+LINE-UX-011..014 → transmission-line-transient SPEC, ADR-057 → NetworkWorkbench, NetworkInspector, line-diode и Worker → network-edit.test.ts и transmission-workbench.spec.ts.
+
 ## ET-LAB-012 — Транспорт и коммутация
 
 LINE-UX-006..010 → transmission-line-transient SPEC и ADR-056 → NetworkWorkbench, NetworkInspector и характеристический Worker → аналитические проверки network-edit.test.ts и браузерные сценарии transmission-workbench.spec.ts, transmission-network.spec.ts, product-pwa.spec.ts и education-release.spec.ts.

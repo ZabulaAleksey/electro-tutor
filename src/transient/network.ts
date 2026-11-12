@@ -1,6 +1,8 @@
+import { diodeVoltage, type DiodeParameters } from "./line-diode";
+
 /** Lossless characteristic-wave network. SI throughout; presentation has no solver state. */
 export type Section = { id:string; lengthM:number; impedanceOhm:number; velocityMS:number };
-export type Load = { id:string; kind:"r"|"l"|"c"|"wire"|"open"|"series"|"parallel"|"switch"; value?:number; initial?:number; closed?:boolean; children?:Load[] };
+export type Load = { id:string; kind:"r"|"l"|"c"|"wire"|"open"|"series"|"parallel"|"switch"|"diode"; diode?:DiodeParameters; value?:number; initial?:number; closed?:boolean; children?:Load[] };
 export type ModelEvent = { id:string; atS:number; target:string; kind:"resistance"|"switch"; value:number; previous?:number };
 export type Contact = {
  id: string;
@@ -28,6 +30,14 @@ function validateNetworkShape(c:Network):string[]{
  const validNode = (node: number) => Number.isInteger(node) && node >= 0 && node <= c.sections.length;
  if (!Array.isArray(series) || !Array.isArray(branches) || series.length >= c.sections.length || branches.length > 12) return ["invalid-contacts"];
  const seriesNodes = new Set<number>();
+ const canJoin=(link:Contact)=>link.resistanceOhm===undefined&&link.to!=="reference"&&
+  (!link.switch||link.switch.closed||link.switch.closes);
+ const joined=new Set<number>([q.node]);
+ for(let pass=0;pass<2*c.sections.length;pass++)for(const link of [...series,...branches]){
+  if(!canJoin(link)||link.to==="reference")continue;
+  if(joined.has(link.from)||joined.has(link.to)){joined.add(link.from);joined.add(link.to);}
+ }
+ const sharesIdealSource=q.resistanceOhm===0&&joined.has(c.sections.length);
  const branchPairs = new Set<string>();
  for (const contact of [...series, ...branches]) {
   const inline = series.some(link=>link===contact);
@@ -44,14 +54,16 @@ function validateNetworkShape(c:Network):string[]{
    branchPairs.add(key);
   }
   const r = contact.resistanceOhm, sw = contact.switch;
-  if (r === undefined ? !inline || !sw : !finite(r) || r < .001 || r > 1e9) errors.push("invalid-component");
+  if (r === undefined ? contact.to === "reference" : !finite(r) || r < .001 || r > 1e9) errors.push("invalid-component");
   if (sw !== undefined && (!sw || typeof sw.closed !== "boolean" || sw.atS !== undefined &&
       (!finite(sw.atS) || sw.atS < 0 || sw.atS > c.durationS || typeof sw.closes !== "boolean"))) errors.push("invalid-event");
  }
- const walk=(l:Load,depth=0)=>{if(!l||depth>6||++nodes>32){errors.push("load-size-limit");return;}if(!validId(l.id))errors.push("invalid-id");if(ids.has(l.id))errors.push("duplicate-id");ids.add(l.id);if(!["r","l","c","wire","open","series","parallel","switch"].includes(l.kind))errors.push("unsupported-element");if(["r","l","c"].includes(l.kind)&&(!finite(l.value??NaN)||(l.value??0)<0||l.kind!=="r"&&l.value===0))errors.push("invalid-component");if(["r","l","c"].includes(l.kind)&&((l.value??0)>(l.kind==="c"?100:l.kind==="l"?1e5:1e8)||(l.value??0)>0&&(l.value??0)<(l.kind==="c"?1e-9:l.kind==="l"?1e-6:.001)))errors.push("component-out-of-range");if(l.initial!==undefined&&(!finite(l.initial)||Math.abs(l.initial)>1e6))errors.push("invalid-initial-state");if(["series","parallel","switch"].includes(l.kind)){if(!l.children?.length||l.kind==="switch"&&l.children.length!==1)errors.push("invalid-connection");l.children?.forEach(x=>walk(x,depth+1));}};walk(c.load);
+ const walk=(l:Load,depth=0)=>{if(!l||depth>6||++nodes>32){errors.push("load-size-limit");return;}if(!validId(l.id))errors.push("invalid-id");if(ids.has(l.id))errors.push("duplicate-id");ids.add(l.id);if(!["r","l","c","wire","open","series","parallel","switch","diode"].includes(l.kind))errors.push("unsupported-element");if(l.kind==="diode"&&(depth!==0||l.children?.length||!l.diode||!finite(l.diode.saturationA)||l.diode.saturationA<1e-18||l.diode.saturationA>1e-3||!finite(l.diode.ideality)||l.diode.ideality<1||l.diode.ideality>4||typeof l.diode.reversed!=="boolean"))errors.push("invalid-diode");if(["r","l","c"].includes(l.kind)&&(!finite(l.value??NaN)||(l.value??0)<0||l.kind!=="r"&&l.value===0))errors.push("invalid-component");if(["r","l","c"].includes(l.kind)&&((l.value??0)>(l.kind==="c"?100:l.kind==="l"?1e5:1e8)||(l.value??0)>0&&(l.value??0)<(l.kind==="c"?1e-9:l.kind==="l"?1e-6:.001)))errors.push("component-out-of-range");if(l.initial!==undefined&&(!finite(l.initial)||Math.abs(l.initial)>1e6))errors.push("invalid-initial-state");if(["series","parallel","switch"].includes(l.kind)){if(!l.children?.length||l.kind==="switch"&&l.children.length!==1)errors.push("invalid-connection");l.children?.forEach(x=>walk(x,depth+1));}};walk(c.load);
  if(!Array.isArray(c.events)||c.events.length>64)errors.push("event-limit");else for(const e of c.events){const leaf=loadLeaves(c.load).find(x=>x.id===e.target);const sw=findLoad(c.load,e.target);if(!["switch","resistance"].includes(e.kind)||!finite(e.atS)||e.atS<0||e.atS>c.durationS||!finite(e.value)||e.kind==="resistance"&&(!leaf||leaf.kind!=="r"||e.value<0||e.value>1e8||e.value>0&&e.value<.001)||e.kind==="switch"&&(!sw||sw.kind!=="switch"||![0,1].includes(e.value)))errors.push("invalid-event");}
  if(isReactive(c.load)&&(c.events.length||[...series,...branches].some(contact=>contact.switch?.atS!==undefined)))errors.push("reactive-live-events-not-supported:recalculate");
- if(isReactive(c.load)&&c.source.node===c.sections.length&&c.source.resistanceOhm===0)errors.push("ideal-source-at-reactive-load-not-supported");
+ if(isReactive(c.load)&&branches.some(link=>link.resistanceOhm===undefined))errors.push("reactive-ideal-bridge");
+ if(c.load.kind==="diode"&&sharesIdealSource)errors.push("ideal-source-at-diode");
+ if(isReactive(c.load)&&sharesIdealSource)errors.push("ideal-source-at-reactive-load-not-supported");
  if(!Array.isArray(c.shunts)||c.shunts.length>7)errors.push("invalid-shunts");
  for(const s of Array.isArray(c.shunts)?c.shunts:[])if(!Number.isInteger(s.node)||s.node<0||s.node>c.sections.length||!finite(s.resistanceOhm)||s.resistanceOhm<.001||s.resistanceOhm>1e9)errors.push("invalid-shunt");
  if(Array.isArray(c.shunts)&&new Set(c.shunts.map(s=>s.node)).size!==c.shunts.length)errors.push("one-shunt-per-node");
@@ -93,7 +105,7 @@ const OPEN:Eq={g:0,b:0,short:false};
 type State={v:number;i:number};
 function companion(l:Load,h:number,states:Map<string,State>,eqs:Map<string,Eq>,overrides:Map<string,number>,initial=false):Eq{
  let e:Eq;const value=overrides.get(l.id)??l.value??0;
- if(l.kind==="open"||l.kind==="switch"&&(overrides.get(l.id)??Number(l.closed??true))===0)e=OPEN;
+ if(l.kind==="open"||l.kind==="diode"||l.kind==="switch"&&(overrides.get(l.id)??Number(l.closed??true))===0)e=OPEN;
  else if(l.kind==="wire"||l.kind==="r"&&value===0)e={g:0,b:0,short:true};
  else if(l.kind==="r")e={g:1/value,b:0,short:false};
  else if(l.kind==="c"||l.kind==="l"){
@@ -113,7 +125,8 @@ function commitDevice(l:Load,v:number,i:number,eqs:Map<string,Eq>,states:Map<str
  else {let used=0;const open=l.children.find(child=>{const e=eqs.get(child.id)!;return !e.short&&e.g===0;});for(const child of l.children){const e=eqs.get(child.id)!;if(child===open)continue;const u=e.short?0:(i-e.b)/e.g;used+=u;commitDevice(child,u,i,eqs,states,overrides);}if(open)commitDevice(open,v-used,0,eqs,states,overrides);}
 }
 function loadEnergy(l:Load,states:Map<string,State>):number{const s=states.get(l.id);if(s&&l.kind==="c")return .5*l.value!*s.v*s.v;if(s&&l.kind==="l")return .5*l.value!*s.i*s.i;return l.children?.reduce((n,x)=>n+loadEnergy(x,states),0)??0;}
-function solveVoltages(c: Network, incident: number[], load: Eq, time: number): number[] {
+function solveVoltages(c: Network, incident: number[], load: Eq, time: number, incremental=false): number[] {
+ const sourceVoltage=incremental?0:drive(c,time);
  const end = c.sections.length;
  if (!c.series?.length && !c.branches?.length) {
   return Array.from({length:end+1},(_,node)=>{
@@ -122,9 +135,9 @@ function solveVoltages(c: Network, incident: number[], load: Eq, time: number): 
    const shunt=c.shunts.filter(s=>s.node===node).reduce((n,s)=>n+1/s.resistanceOhm,0);
    const terminal=node===end,source=node===c.source.node;
    if(terminal&&load.short)return 0;
-   if(source&&c.source.resistanceOhm===0)return drive(c,time);
+   if(source&&c.source.resistanceOhm===0)return sourceVoltage;
    const gs=source?1/c.source.resistanceOhm:0;
-   return (incoming+(source?drive(c,time)*gs:0)-(terminal?load.b:0))/(y+shunt+gs+(terminal?load.g:0));
+   return (incoming+(source?sourceVoltage*gs:0)-(terminal?load.b:0))/(y+shunt+gs+(terminal?load.g:0));
   });
  }
  const contacts = [...c.series ?? [], ...c.branches ?? []].filter(contact => contactClosed(contact, time));
@@ -136,7 +149,11 @@ function solveVoltages(c: Network, incident: number[], load: Eq, time: number): 
  }
  const fixed = new Map<number, number>();
  if (load.short) fixed.set(root(end), 0);
- if (c.source.resistanceOhm === 0) fixed.set(root(c.source.node), drive(c, time));
+ if (c.source.resistanceOhm === 0) {
+  const node=root(c.source.node);
+  if(fixed.has(node)&&sourceVoltage!==0)throw Error("inconsistent-ideal-source-and-short");
+  fixed.set(node,sourceVoltage);
+ }
 
  const nodes = [...new Set(c.sections.flatMap((_, i) => [root(portNode(c, 2*i)), root(i+1)]))];
  const unknown = nodes.filter(node => !fixed.has(node));
@@ -162,7 +179,7 @@ function solveVoltages(c: Network, incident: number[], load: Eq, time: number): 
  });
  for (const shunt of c.shunts) stampGround(shunt.node, 1/shunt.resistanceOhm, 0);
  if (!load.short) stampGround(end, load.g, -load.b);
- if (c.source.resistanceOhm > 0) stampGround(c.source.node, 1/c.source.resistanceOhm, drive(c,time)/c.source.resistanceOhm);
+ if (c.source.resistanceOhm > 0) stampGround(c.source.node, 1/c.source.resistanceOhm, sourceVoltage/c.source.resistanceOhm);
  for (const contact of contacts) {
   if (contact.resistanceOhm === undefined) continue;
   const g = 1/contact.resistanceOhm;
@@ -204,7 +221,17 @@ function exact(c:Network):WaveRun{
    overrides.set(event.target,event.value);
   }
   const eq=companion(c.load,1,new Map(),new Map(),overrides);events.push(t);
-  const voltage=solveVoltages(c,a,eq,t);
+  let voltage=solveVoltages(c,a,eq,t);
+  if(c.load.kind==="diode"){
+   const parameters=c.load.diode!, end=c.sections.length, sign=parameters.reversed?-1:1;
+   const response=solveVoltages(c,a.map(()=>0),{...OPEN,b:-1},t,true);
+   const resistance=response[end];
+   if(!(resistance>0&&Number.isFinite(resistance)))throw Error("invalid-diode-network");
+   const terminal=sign*diodeVoltage(sign*voltage[end],resistance,parameters);
+   const current=(voltage[end]-terminal)/resistance;
+   voltage=voltage.map((value,node)=>value-current*response[node]);
+   voltage[end]=terminal;
+  }
   for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta});}}
  }
  return ranges({config:c,ports,events:[...new Set(events)].sort((a,b)=>a-b),method:"exact-fronts",stepS:0,deviceEnergy:{times:[0],values:[0]},maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
@@ -220,7 +247,7 @@ function initialNetwork(c:Network,epsilon:number):{out:number[];states:Map<strin
    +c.shunts.filter(x=>x.node===end).reduce((sum,x)=>sum+1/x.resistanceOhm,0)
    + (c.branches??[]).filter(link=>link.to==="reference"&&link.from===end&&contactClosed(link,0)).reduce((sum,link)=>sum+1/link.resistanceOhm!,0);
   const source=end===c.source.node?(drive(c,0)-u)/c.source.resistanceOhm:0;
-  const linked=(c.branches??[]).filter(link=>link.to!=="reference"&&contactClosed(link,0))
+  const linked=(c.branches??[]).filter(link=>link.to!=="reference"&&link.resistanceOhm!==undefined&&contactClosed(link,0))
    .reduce((sum,link)=>link.from===end?sum+(u-voltage[link.to as number])/link.resistanceOhm!:
     link.to===end?sum+(u-voltage[link.from])/link.resistanceOhm!:sum,0);
   commitDevice(c.load,u,source-y*u-linked,eqs,states,overrides);

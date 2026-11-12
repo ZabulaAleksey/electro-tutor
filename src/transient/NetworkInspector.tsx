@@ -1,5 +1,7 @@
 import type { Language } from "../types";
 import { formatEngineeringValue } from "../engineering/format";
+import EngineeringPlot from "../engineering/EngineeringPlot";
+import { diodeCurrent } from "./line-diode";
 import { LoadEditor, NumberEdit } from "./NetworkEditor";
 import { findLoad, isReactive, type Load, type Network } from "./network";
 import { loadReplacement, removeLoad, replaceLoad } from "./network-edit";
@@ -18,13 +20,14 @@ type Props = {
   live: boolean;
   time: number;
   onMode: (mode: "live" | "recalculate") => void;
+  diodePoint?: number;
   onDuration: (seconds: number) => void;
 };
 
 export default function NetworkInspector(props: Props) {
   const { selection, model, language, onEdit, onMove } = props;
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
-  const moveLabel = t("Переместить", "Перемістити");
+  const moveLabel = t("Переподключить", "Перепід’єднати");
   const deleteLabel = t("Удалить", "Видалити");
   if (selection.kind === "line") {
     const index = model.sections.findIndex(section => section.id === selection.id);
@@ -66,6 +69,7 @@ export default function NetworkInspector(props: Props) {
       </div>
       <div className="network-buttons">
         <button type="button" onClick={() => onMove({ move: selection })}>{moveLabel}</button>
+        <button type="button" onClick={()=>edit({voltageV:-source.voltageV})}>{t("Развернуть ЭДС","Розвернути ЕРС")}</button>
       </div>
     </div>;
   }
@@ -93,7 +97,7 @@ export default function NetworkInspector(props: Props) {
     const remove=()=>onEdit({...model,series:model.series?.filter(link=>link.id!==contact.id),branches:model.branches?.filter(link=>link.id!==contact.id)});
     const sw=contact.switch;
     return <div className="network-inspector" key={contact.id}>
-      <strong>{contact.id} · {sw?t("Ключ","Ключ"):t("Резистор","Резистор")}</strong>
+      <strong>{contact.id} · {sw?t("Ключ","Ключ"):contact.resistanceOhm===undefined?t("Провод","Провід"):t("Резистор","Резистор")}</strong>
       {contact.resistanceOhm!==undefined&&<NumberEdit label={t("Сопротивление R, Ω","Опір R, Ω")} value={contact.resistanceOhm}
         min={.001} max={1e9} onChange={resistanceOhm=>update({...contact,resistanceOhm})}/>}
       {sw?<SwitchFields language={language} duration={model.durationS} closed={sw.closed} atS={sw.atS} closes={sw.closes}
@@ -101,7 +105,7 @@ export default function NetworkInspector(props: Props) {
         contact.to!=="reference"&&model.branches?.includes(contact)&&<button type="button" onClick={()=>update({...contact,switch:{closed:true}})}>{t("Добавить ключ в ветвь","Додати ключ у гілку")}</button>}
       <div className="network-buttons">
         <button type="button" onClick={()=>onMove(model.branches?.includes(contact)&&contact.to!=="reference"?
-          {bridgeFrom:contact.from,id:contact.id}:{relocate:contact.id})}>{moveLabel}</button>
+          {bridgeFrom:contact.from,id:contact.id,wire:contact.resistanceOhm===undefined}:{relocate:contact.id})}>{moveLabel}</button>
         <button type="button" onClick={remove}>{deleteLabel}</button>
       </div>
     </div>;
@@ -109,6 +113,38 @@ export default function NetworkInspector(props: Props) {
   const load = selection.id ? findLoad(props.load,selection.id) : props.load;
   const base = load&&findLoad(model.load,load.id);
   if(!load||!base)return null;
+  if(base.kind==="diode"){
+    const parameters=base.diode!;
+    const update=(next:Partial<typeof parameters>)=>onEdit({...model,load:{...base,diode:{...parameters,...next}}});
+    const point=props.diodePoint;
+    const min=Math.min(-.2,point??0);
+    const scale=.025852*parameters.ideality;
+    const max=Math.max(scale*Math.log1p(.01/parameters.saturationA),point??0);
+    const points=Array.from({length:81},(_,i)=>{
+      const x=i<21?min*(1-i/20):max*(i-20)/60;
+      return [x,diodeCurrent(x,parameters)*1000] as [number,number];
+    });
+    return <div className="network-inspector">
+      <strong>{t("Диод","Діод")}</strong>
+      <div className="network-inspector-fields">
+        <NumberEdit label="Iₛ, nA" min={1e-9} max={1e6} value={parameters.saturationA*1e9} onChange={v=>update({saturationA:v/1e9})}/>
+        <NumberEdit label="n" min={1} max={4} value={parameters.ideality} onChange={ideality=>update({ideality})}/>
+      </div>
+      <div className="network-buttons">
+        <button type="button" onClick={()=>update({reversed:!parameters.reversed})}>{t("Развернуть диод","Розвернути діод")}</button>
+        <button type="button" onClick={()=>onEdit(loadReplacement(model,{id:base.id,kind:"open"}))}>{deleteLabel}</button>
+      </div>
+      <details><summary>{t("Вольт-амперная характеристика","Вольт-амперна характеристика")}</summary>
+        <EngineeringPlot language={language} label={t("ВАХ диода","ВАХ діода")}
+          plot={{xLabel:"Uᴅ, V",yLabel:"Iᴅ, mA",xMax:max,yMin:points[0][1],yMax:points.at(-1)![1],
+            curves:[{label:"Iᴅ(Uᴅ)",color:"blue",points}]}}
+          domains={{x:[min,max],y:[points[0][1],Math.max(10,points.at(-1)![1])]}}
+          selected={point!==undefined?[point,diodeCurrent(point,parameters)*1000]:undefined}/>
+        {point!==undefined&&<output data-diode-point data-diode-voltage={point} data-diode-current={diodeCurrent(point,parameters)}>Uᴅ = {point.toPrecision(4)} V · Iᴅ = {(diodeCurrent(point,parameters)*1000).toPrecision(4)} mA</output>}
+        <small>{t("300 K. Пробой и накопление заряда исключены из модели.","300 K. Пробій і накопичення заряду поза моделлю.")}</small>
+      </details>
+    </div>;
+  }
   if(base.kind==="switch"){
     const scheduled=model.events.find(event=>event.id==="switch-"+base.id);
     const toggleNow=props.live&&props.time>0;
@@ -130,12 +166,14 @@ export default function NetworkInspector(props: Props) {
   return <div className="network-inspector">
     <strong>{t("Концевая нагрузка", "Кінцеве навантаження")}{selection.id?" · "+load.id:""}</strong>
     <div className="network-buttons">
+      {(base.kind==="r"||base.kind==="wire")&&!model.events.some(event=>event.target===base.id)&&
+       <button type="button" onClick={()=>onMove({moveLoad:base.id})}>{moveLabel}</button>}
       {!selection.id&&<label className="network-field">{t("Заменить тип", "Замінити тип")}
         <select value="" onChange={event => { if (event.target.value) onMove(event.target.value as Tool); }}>
           <option value="">{t("Выберите тип", "Оберіть тип")}</option>
-          <option value="matched">{t("Согласованная", "Узгоджена")}</option>
+          <option value="diode">{t("Диод","Діод")}</option>
           <option value="r">R</option><option value="l">L</option><option value="c">C</option>
-          <option value="wire">{t("Короткое замыкание", "Коротке замикання")}</option>
+          <option value="wire">{t("Провод","Провід")}</option>
         </select>
       </label>}
       <button type="button" disabled={load.kind === "open"} onClick={() => {

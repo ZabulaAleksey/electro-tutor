@@ -1,3 +1,4 @@
+import { DEFAULT_DIODE, diodeCurrent } from "./line-diode";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_NETWORK, MAX_SECTIONS, at, simulateNetwork, validateNetwork } from "./network";
 import { appendSection, placementTargets, removeSection } from "./network-edit";
@@ -100,4 +101,39 @@ it("applies a switch whose time shares the arrival tolerance with an incident fr
     load:{id:"load",kind:"r",value:50},
     series:[{id:"K1",from:1,to:3,switch:{closed:false,atS:.005+5e-16,closes:true}}]});
   expect(at(run,2e6,.0101).u).toBeCloseTo(50);
+});
+
+
+describe("nonlinear termination and ideal wire",()=>{
+ const matchedSource={...DEFAULT_NETWORK.source,resistanceOhm:50};
+ for(const reversed of [false,true]){
+  it(`balances the terminal characteristic with Shockley current (reversed=${reversed})`,()=>{
+   const diode={...DEFAULT_DIODE,reversed};
+   const run=simulateNetwork({...DEFAULT_NETWORK,source:matchedSource,load:{id:"D",kind:"diode",diode}});
+   const arrival=at(run,1e6,.006);
+   const sign=reversed?-1:1;
+   expect(at(run,1e6,.004).u).toBe(0);
+   expect(arrival.i).toBeCloseTo(sign*diodeCurrent(sign*arrival.u,diode),9);
+   expect(arrival.u+50*arrival.i).toBeCloseTo(100,8);
+   if(reversed)expect(arrival.u).toBeCloseTo(100,8);
+   else expect(arrival.u).toBeLessThan(2);
+   expect(at(run,1e6,.016).u).toBeCloseTo(arrival.u,8);
+  });
+ }
+ it("preserves a voltage pulse and rejects nested nonlinear loads",()=>{
+  const diode={id:"D",kind:"diode" as const,diode:DEFAULT_DIODE};
+  const run=simulateNetwork({...DEFAULT_NETWORK,source:{...matchedSource,offS:.002},load:diode});
+  expect(at(run,1e6,.006).i).toBeGreaterThan(0);
+  expect(at(run,1e6,.008).u).toBeCloseTo(0,10);
+  expect(validateNetwork({...DEFAULT_NETWORK,load:{id:"nest",kind:"series",children:[diode]}})).toContain("invalid-diode");
+ });
+ it("shorts a termination with a wire and joins distinct signal nodes without distributed delay",()=>{
+  const model={...DEFAULT_NETWORK,source:matchedSource};
+  const short=placementTargets(model,"wire").find(p=>p.kind==="end")!.edit!.model;
+  expect(at(simulateNetwork(short),1e6,.006).u).toBe(0);
+  const bridge=placementTargets(model,{bridgeFrom:0,wire:true}).find(p=>p.index===1)!.edit!.model;
+  const run=simulateNetwork(bridge);
+  expect(at(run,0,0).u).toBeCloseTo(100/3);
+  expect(at(run,1e6,0).u).toBeCloseTo(100/3);
+ });
 });

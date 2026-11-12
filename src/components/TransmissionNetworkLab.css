@@ -78,3 +78,18 @@
 .network-tray-parts[data-dragging=true]{opacity:0;pointer-events:none}
 .network-tray-parts[data-dragging=true] *{pointer-events:none}
 @media(max-height:480px){.network-canvas .network-camera{top:8px}.network-tray-parts{max-height:42dvh}}
+
+.network-schematic[data-placing=true]{cursor:crosshair}
+.network-schematic-drawing .network-transmission-stroke{stroke-width:5;stroke-linecap:round}
+.network-schematic-drawing [aria-pressed=true] .network-transmission-stroke{stroke:var(--selection);stroke-width:6}
+.network-lab .network-scheme-tools .network-active-tool{max-width:125px;line-height:1.1;border-color:var(--selection);color:var(--selection)}
+.network-repeat{display:flex;align-items:center;gap:6px;font-size:.8rem}
+.network-palette button svg,.network-drag-ghost svg{flex-shrink:0;color:var(--ink)}
+
+.network-tray-parts{max-height:min(42svh,310px)}
+.network-tray-parts .network-palette>div>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.network-tray-parts .network-palette>div:last-child>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+.network-lab .network-palette button{min-width:0;text-align:left}
+@media(max-height:480px) and (orientation:landscape){
+ .network-tray-parts{inset:53px auto auto 8px;max-height:calc(100svh - 216px);width:min(380px,46vw)}
+}

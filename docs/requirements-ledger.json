@@ -1860,6 +1860,21 @@
       ]
     },
     {
+      "domain": "transmission-symbols-and-diode",
+      "status": "PARTIAL",
+      "requirement_ids": ["LINE-UX-011", "LINE-UX-012", "LINE-UX-013", "LINE-UX-014"],
+      "runtime": "Unified schematic palette, view controls, separate layout and nonlinear terminal diode.",
+      "security": "Bounded import, parameter validation and deterministic root solving.",
+      "a11y": "Pointer, touch and keyboard placement with named controls and schematic labels.",
+      "observability": "ET-LAB-013 in STAGES and TESTING.",
+      "gap": "Physical smartphone and arbitrary nonlinear topology remain outside automated evidence.",
+      "action": "Run physical-device acceptance for the supported connection model.",
+      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/line-diode.ts", "src/transient/network.ts"],
+      "unit": ["src/transient/network-edit.test.ts"],
+      "integration": ["scripts/transient-wasm.mjs"],
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
+    },
+    {
       "domain": "transmission-playback-and-contacts",
       "status": "PARTIAL",
       "requirement_ids": ["LINE-UX-006", "LINE-UX-007", "LINE-UX-008", "LINE-UX-009", "LINE-UX-010"],

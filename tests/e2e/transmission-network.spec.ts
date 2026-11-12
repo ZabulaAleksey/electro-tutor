@@ -8,7 +8,8 @@ const openTiming=async(page:import("@playwright/test").Page)=>{
 const source=async(page:import("@playwright/test").Page)=>scheme(page).getByRole("button",{name:"Источник",exact:true}).press("Enter");
 const load=async(page:import("@playwright/test").Page)=>scheme(page).getByRole("button",{name:"Нагрузка",exact:true}).press("Enter");
 const addLine=async(page:import("@playwright/test").Page)=>{
- await page.getByRole("button",{name:"Добавить линию",exact:true}).click();
+ await page.getByRole("button",{name:"Элементы",exact:true}).click();
+ await page.getByRole("button",{name:"Линия передачи",exact:true}).click();
  await scheme(page).getByRole("button",{name:"Конец линии",exact:true}).press("Enter");
 };
 const ready=async(page:import("@playwright/test").Page)=>expect(page.locator("[data-network-lab]")).toHaveAttribute("data-calculation-ready","true");

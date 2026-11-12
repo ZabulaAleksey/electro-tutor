@@ -74,6 +74,7 @@ test("public lessons and real WASM recalculate online and offline with no accoun
   const surface = page.locator("[data-network-lab]");
   await expect(surface).toHaveAttribute("data-calculation-ready", "true");
   await expect(page.locator(".network-plot-grid [data-engineering-plot]")).toHaveCount(4);
+  await page.locator("[data-network-canvas]").getByRole("button",{name:"Джерело",exact:true}).press("Enter");
   await page.getByRole("spinbutton", { name: "E, V", exact: true }).fill("120");
   await expect(surface).toHaveAttribute("data-calculation-ready", "true");
   await context.setOffline(true);

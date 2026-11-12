@@ -42,3 +42,62 @@ describe("visual network operations", () => {
     expect(removeSection(model, 0)).toMatchObject({ confirm: true, model: { source: { node: 0 }, shunts: [{ node: 0, resistanceOhm: 30 }] } });
   });
 });
+
+
+describe("resistive contacts and switching", () => {
+  const base=()=>({...appendSection(DEFAULT_NETWORK).model,
+    source:{...DEFAULT_NETWORK.source,resistanceOhm:50},
+    load:{id:"load",kind:"r" as const,value:50}});
+  it("preserves section parameters when inserting R inside the line and scatters at the two-terminal joint",()=>{
+    const selected=placementTargets({...DEFAULT_NETWORK,source:{...DEFAULT_NETWORK.source,resistanceOhm:50}},"r")
+      .find(target=>target.kind==="span")!.edit!.model;
+    expect(selected.sections.map(s=>s.lengthM)).toEqual([5e5,5e5]);
+    expect(selected.series).toMatchObject([{from:1,to:3,resistanceOhm:100}]);
+    const run=simulateNetwork({...selected,load:{id:"load",kind:"r",value:50}});
+    expect(at(run,500000,.003).u).toBeCloseTo(75);
+    expect(at(run,500001,.003).u).toBeCloseTo(25);
+    expect(at(run,500001,.003).i).toBeCloseTo(.5);
+    expect(at(run,1e6,.006).u).toBeCloseTo(25);
+  });
+  it("closes an open series key at the scheduled time without changing earlier waves",()=>{
+    const model={...base(),series:[{id:"K1",from:1,to:3,switch:{closed:false,atS:.006,closes:true}}]};
+    const run=simulateNetwork(model);
+    expect(run.events).toContain(.006);
+    expect(at(run,1e6,.0055)).toMatchObject({u:100,i:0});
+    expect(at(run,1e6+1,.0061).u).toBeCloseTo(50);
+    expect(at(run,2e6,.0105).u).toBeCloseTo(0);
+    expect(at(run,2e6,.0115).u).toBeCloseTo(50);
+  });
+  it("uses a bridge between distinct signal nodes, then opens only that branch",()=>{
+    const model=base();
+    const placement=placementTargets(model,{bridgeFrom:0}).find(target=>target.index===2)!;
+    const bridged=placement.edit!.model;
+    const switched=placementTargets(bridged,"switch").find(target=>target.kind==="branch-key")!.edit!.model;
+    switched.branches![0].switch={closed:true,atS:.001,closes:false};
+    const run=simulateNetwork(switched);
+    // At t=0, the outgoing 50 Ω line is in parallel with the 100 Ω bridge in series
+    // with the far node's 25 Ω equivalent (line port || matched termination).
+    expect(at(run,0,0).u).toBeCloseTo(125/3);
+    expect(at(run,2e6,0).u).toBeCloseTo(25/3);
+    expect(at(run,2e6,.002).u).toBeCloseTo(0);
+    expect(at(run,2e6,.012).u).toBeGreaterThan(0);
+  });
+  it("stamps a shunt to reference and rejects a scheduled contact with an RLC termination",()=>{
+    const model=base();
+    const shunt=placementTargets(model,"r").find(target=>target.kind==="branch"&&target.index===1)!.edit!.model;
+    const run=simulateNetwork(shunt);
+    expect(at(run,1e6,.006).u).toBeCloseTo(40);
+    expect(at(run,1e6+1,.006).i).toBeCloseTo(.8);
+    expect(validateNetwork({...shunt,load:{id:"load",kind:"c",value:1e-5},
+      branches:[{...shunt.branches![0],switch:{closed:true,atS:.008,closes:false}}]})).toContain("reactive-live-events-not-supported:recalculate");
+  });
+});
+
+
+it("applies a switch whose time shares the arrival tolerance with an incident front",()=>{
+  const base=appendSection(DEFAULT_NETWORK).model;
+  const run=simulateNetwork({...base,source:{...base.source,resistanceOhm:50},
+    load:{id:"load",kind:"r",value:50},
+    series:[{id:"K1",from:1,to:3,switch:{closed:false,atS:.005+5e-16,closes:true}}]});
+  expect(at(run,2e6,.0101).u).toBeCloseTo(50);
+});

@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-012 — Транспорт и коммутация
+
+LINE-UX-006..010 → transmission-line-transient SPEC и ADR-056 → NetworkWorkbench, NetworkInspector и характеристический Worker → аналитические проверки network-edit.test.ts и браузерные сценарии transmission-workbench.spec.ts, transmission-network.spec.ts, product-pwa.spec.ts и education-release.spec.ts.
+
 ## ET-LAB-011 — Каталог и конструктор сети
 
 FR-412 и LINE-UX-001..005 → editorial-learning-sections и transmission-line-transient SPEC → ADR-055 → каталог, NetworkWorkbench и network-edit → численная проверка network-edit.test.ts, Chromium transmission-workbench.spec.ts и регрессия transmission-network.spec.ts/transmission-line.spec.ts. Ручной сенсорный сценарий ведётся в STAGES.

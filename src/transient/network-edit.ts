@@ -1,4 +1,4 @@
-import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validateNetwork, type Load, type Network } from "./network";
+import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validateNetwork, type Contact, type Load, type Network } from "./network";
 export function replaceLoad(root:Load,id:string,next:Load):Load{return root.id===id?next:{...root,children:root.children?.map(c=>replaceLoad(c,id,next))};}
 export function removeLoad(root: Load, id: string): Load {
   if (root.id === id) return { id: root.id, kind: "open" };
@@ -12,26 +12,27 @@ export function sectionBoundaries(c:Network){return boundaries(c).slice(1,-1).ma
 export type Selection =
   | { kind: "line"; id: string }
   | { kind: "source" }
-  | { kind: "load" }
+  | { kind: "load"; id?: string }
+  | { kind: "contact"; id: string }
   | { kind: "shunt"; node: number };
 
 export type Tool =
-  | "line" | "shunt" | "matched" | "r" | "l" | "c" | "open" | "wire"
+  | "line" | "shunt" | "matched" | "r" | "l" | "c" | "open" | "wire" | "switch"
+  | { bridgeFrom: number; id?: string }
+  | { relocate: string }
   | { move: Extract<Selection, { kind: "line" | "shunt" }> | { kind: "source" } };
 
-export type Position = { kind: "node" | "span" | "end"; index: number };
+export type Position = { kind: "node" | "span" | "end" | "joint" | "branch" | "branch-span" | "branch-key"; index: number };
 type Edit = { model: Network; selection: Selection };
 export type Placement = Position & { edit: Edit | null; error?: string };
 
 function uniqueSectionId(model: Network) {
-  let index = 1;
-  while (model.sections.some(section => section.id === `TL${index}`) || findLoad(model.load, `TL${index}`)) index++;
-  return `TL${index}`;
+  return newElementId(model,"TL");
 }
 
 export function appendSection(model: Network): Edit {
   const section = { ...DEFAULT_NETWORK.sections[0], id: uniqueSectionId(model) };
-  return { model: { ...model, sections: [...model.sections, section] }, selection: { kind: "line", id: section.id } };
+  return { model: { ...model, sections: [...model.sections, section], series: model.series?.map(contact=>({...contact,to:contact.to+1})) }, selection: { kind: "line", id: section.id } };
 }
 
 export function removeSection(model: Network, index: number) {
@@ -39,12 +40,18 @@ export function removeSection(model: Network, index: number) {
   const left = index, right = index + 1;
   const occupied = (node: number) => model.shunts.some(shunt => shunt.node === node);
   if (occupied(left) && occupied(right)) return { error: "merge-shunts" } as const;
+  if (model.series?.some(contact => contact.from === left || contact.from === right) ||
+      model.branches?.some(contact => [left,right].includes(contact.from) || contact.to !== "reference" && [left,right].includes(contact.to))) {
+    return { error: "attached-contacts" } as const;
+  }
   const remap = (node: number) => node >= right ? node - 1 : node;
   const next = {
     ...model,
     sections: model.sections.filter((_, i) => i !== index),
     source: { ...model.source, node: remap(model.source.node) },
     shunts: model.shunts.map(shunt => ({ ...shunt, node: remap(shunt.node) })),
+    series: model.series?.map(contact => ({ ...contact, from: remap(contact.from), to: model.sections.length-1+remap(contact.from) })),
+    branches: model.branches?.map(contact => ({ ...contact, from: remap(contact.from), to: contact.to === "reference" ? contact.to : remap(contact.to) })),
   };
   const error = validateNetwork(next).join("; ");
   if (error) return { error } as const;
@@ -67,9 +74,50 @@ export function loadReplacement(model: Network, load: Load): Network {
   };
 }
 
+export function newElementId(model: Network, prefix: string) {
+ let index=1;
+ const used=(id:string)=>model.sections.some(s=>s.id===id)||findLoad(model.load,id)||
+  model.series?.some(x=>x.id===id)||model.branches?.some(x=>x.id===id);
+ while(used(prefix+index))index++;
+ return prefix+index;
+}
+
+export function splitSection(model: Network, index: number) {
+ const section=model.sections[index],half={...section,lengthM:section.lengthM/2},sections=[...model.sections];
+ sections.splice(index,1,half,{...half,id:uniqueSectionId(model)});
+ const remap=(node:number)=>node>index?node+1:node;
+ return {...model,sections,source:{...model.source,node:remap(model.source.node)},
+  shunts:model.shunts.map(shunt=>({...shunt,node:remap(shunt.node)})),
+  series:model.series?.map(contact=>({...contact,from:remap(contact.from),to:sections.length+remap(contact.from)})),
+  branches:model.branches?.map(contact=>({...contact,from:remap(contact.from),to:contact.to==="reference"?contact.to:remap(contact.to)}))};
+}
+
+function contactPlacement(model: Network, tool: "r" | "switch", position: Position, existing?: Contact): Edit {
+ const inline=position.kind==="joint"||position.kind==="span";
+ const split=position.kind==="span"||position.kind==="branch-span";
+ const next=split?splitSection(model,position.index):model;
+ const from=position.index+Number(split);
+ const id=existing?.id??newElementId(model,tool==="r"?"R":"K");
+ const contact:Contact={id,from,to:"reference",resistanceOhm:existing ? existing.resistanceOhm??(!inline?100:undefined) : tool==="r"||!inline?100:undefined,
+  switch:existing?.switch??(tool==="switch"?{closed:false}:undefined)};
+ if(inline)return {model:{...next,series:[...next.series??[],{...contact,to:next.sections.length+from}]},selection:{kind:"contact",id}};
+ return {model:{...next,branches:[...next.branches??[],contact]},selection:{kind:"contact",id}};
+}
+
 function candidate(model: Network, tool: Tool, position: Position): Edit {
   const { index, kind } = position;
   if (typeof tool === "object") {
+    if ("bridgeFrom" in tool) {
+      const existing=model.branches?.find(link=>link.id===tool.id);
+      const id=existing?.id??newElementId(model,"R");
+      const branch={...existing,id,from:tool.bridgeFrom,to:index,resistanceOhm:existing?.resistanceOhm??100};
+      return {model:{...model,branches:[...(model.branches??[]).filter(link=>link.id!==id),branch]},selection:{kind:"contact",id}};
+    }
+    if ("relocate" in tool) {
+      const existing=[...model.series??[],...model.branches??[]].find(link=>link.id===tool.relocate)!;
+      const base={...model,series:model.series?.filter(link=>link.id!==existing.id),branches:model.branches?.filter(link=>link.id!==existing.id)};
+      return contactPlacement(base,existing.switch?"switch":"r",position,existing);
+    }
     const { move } = tool;
     if (move.kind === "source") return { model: { ...model, source: { ...model.source, node: index } }, selection: move };
     if (move.kind === "line") {
@@ -85,21 +133,24 @@ function candidate(model: Network, tool: Tool, position: Position): Edit {
     };
   }
   if (tool === "line") return appendSection(model);
+  if (tool==="switch" && kind==="branch-key") {
+    const branch=model.branches![index];
+    return {model:{...model,branches:model.branches!.map(link=>link===branch?{...link,switch:{closed:true}}:link)},selection:{kind:"contact",id:branch.id}};
+  }
+  if ((tool==="r"||tool==="switch") && kind!=="end") return contactPlacement(model,tool,position);
+  if (tool==="switch") {
+    const id=newElementId(model,"K");
+    const child=model.load.kind==="open"?{id:newElementId(model,"R"),kind:"r" as const,value:model.sections.at(-1)!.impedanceOhm}:model.load;
+    return {model:loadReplacement(model,{id,kind:"switch",closed:false,children:[child]}),selection:{kind:"load",id}};
+  }
   if (tool === "shunt") {
     if (kind === "node") return {
       model: { ...model, shunts: [...model.shunts, { node: index, resistanceOhm: 100 }] },
       selection: { kind: "shunt", node: index },
     };
-    const sections = [...model.sections];
-    const section = sections[index];
-    const half = { ...section, lengthM: section.lengthM / 2 };
-    sections.splice(index, 1, half, { ...half, id: uniqueSectionId(model) });
-    const remap = (node: number) => node > index ? node + 1 : node;
+    const split=splitSection(model,index);
     return {
-      model: {
-        ...model, sections, source: { ...model.source, node: remap(model.source.node) },
-        shunts: [...model.shunts.map(shunt => ({ ...shunt, node: remap(shunt.node) })), { node: index + 1, resistanceOhm: 100 }],
-      },
+      model: {...split,shunts:[...split.shunts,{node:index+1,resistanceOhm:100}]},
       selection: { kind: "shunt", node: index + 1 },
     };
   }
@@ -112,16 +163,34 @@ export function placementTargets(model: Network, tool: Tool): Placement[] {
   const nodes: Position[] = Array.from({ length: model.sections.length + 1 }, (_, index) => ({ kind: "node", index }));
   const spans: Position[] = model.sections.map((_, index) => ({ kind: "span", index }));
   const end: Position = { kind: "end", index: model.sections.length };
-  return [...nodes, ...spans, end].map(position => {
+  const topology: Position[] = tool==="r"||tool==="switch"||typeof tool==="object"&&"relocate" in tool
+    ? [...nodes.slice(1,-1).map(node=>({...node,kind:"joint" as const})),...nodes.map(node=>({...node,kind:"branch" as const})),
+      ...spans.map(span=>({...span,kind:"branch-span" as const})),
+      ...(tool==="switch" ? (model.branches??[]).flatMap((branch,index)=>branch.switch?[]:[{kind:"branch-key" as const,index}]) : [])]
+    : [];
+  return [...(typeof tool==="object"&&"bridgeFrom" in tool?nodes: [...nodes,...spans,...topology,end])].map(position => {
     const { kind, index } = position;
     let error: string | undefined;
-    if (typeof tool === "object") {
+    const moving=typeof tool==="object"&&"relocate" in tool;
+    const connection=moving||tool==="r"||tool==="switch";
+    if (connection && kind!=="end") {
+      if (kind==="node")error="choose-connection";
+      if (kind==="branch"&&(model.shunts.some(shunt=>shunt.node===index)||
+        model.branches?.some(link=>link.from===index&&link.to==="reference"&&(!moving||link.id!==tool.relocate))))error="free-node";
+      if (kind==="joint"&&model.series?.some(contact=>contact.from===index&&(!moving||contact.id!==tool.relocate)))error="occupied-joint";
+      if ((kind==="span"||kind==="branch-span")&&model.sections.length>=MAX_SECTIONS)error="section-limit";
+      if ((kind==="span"||kind==="branch-span")&&model.sections[index].lengthM<.002)error="short-section";
+    } else if (typeof tool==="object"&&"bridgeFrom" in tool) {
+      if(index===tool.bridgeFrom)error="choose-node";
+    } else if (moving) {
+      error="choose-connection";
+    } else if (typeof tool === "object") {
       const { move } = tool;
       if (move.kind === "line" && (kind !== "span" || model.sections[index]?.id === move.id)) error = "choose-line";
       if (move.kind === "source" && (kind !== "node" || index === model.source.node)) error = "choose-node";
       if (move.kind === "shunt" && (kind !== "node" || model.shunts.some(shunt => shunt.node === index))) error = "free-node";
     } else if (tool === "shunt") {
-      if (kind === "end" || kind === "node" && model.shunts.some(shunt => shunt.node === index)) error = "free-node";
+      if (kind === "end" || kind === "node" && (model.shunts.some(shunt => shunt.node === index)||model.branches?.some(link=>link.from===index&&link.to==="reference"))) error = "free-node";
       if (kind === "span" && model.sections.length >= MAX_SECTIONS) error = "section-limit";
       if (kind === "span" && model.sections[index].lengthM < .002) error = "short-section";
     } else if (kind !== "end") error = "choose-end";

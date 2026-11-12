@@ -111,7 +111,7 @@ test.describe("touch workspace", () => {
     await canvas(page).getByRole("button", { name: "Шунтирующий резистор · 1" }).tap();
     const resistance = page.locator(".network-tray").getByRole("spinbutton", { name: "Сопротивление R, Ω" });
     await resistance.fill("125");
-    await expect(toolbar).toBeVisible();
+    await expect(page.getByRole("group",{name:"Управление симуляцией"})).toBeVisible();
     await page.locator(".network-tray").getByRole("button", { name: "Переместить" }).tap();
     await canvas(page).getByRole("button", { name: "Узел соединения · 0" }).tap();
     await canvas(page).getByRole("button", { name: "Шунтирующий резистор · 0" }).tap();
@@ -139,7 +139,7 @@ test.describe("touch workspace", () => {
       await page.setViewportSize({ width, height });
       await page.goto(path);
       await ready(page);
-      const toolbar = page.getByRole("group", { name: "Управление конструктором" });
+      const toolbar = page.getByRole("group", { name: "Управление симуляцией" });
       await page.locator("#network-results").scrollIntoViewIfNeeded();
       await expect(toolbar).toBeInViewport();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -150,4 +150,95 @@ test.describe("touch workspace", () => {
       expect(Math.min(...buttons)).toBeGreaterThanOrEqual(44);
     });
   }
+});
+
+
+test("transport preserves phase on pause and resets time without editing the circuit",async({page})=>{
+ await page.goto(path);
+ await ready(page);
+ const lab=page.locator("[data-network-lab]");
+ const bar=page.getByRole("group",{name:"Управление симуляцией"});
+ const speed=bar.getByLabel("Скорость");
+ await expect(speed.locator("option")).toHaveText(["×1/16","×1/8","×1/4","×1/2","×1","×2","×4","×8","×16","×32"]);
+ await expect(speed).toHaveValue("1");
+ await expect(page.getByRole("heading",{name:"Подробные параметры"})).toHaveCount(0);
+ const revision=await lab.getAttribute("data-model-revision");
+ await bar.getByRole("button",{name:/Старт$/}).click();
+ await expect.poll(async()=>Number(await lab.getAttribute("data-current-time"))).toBeGreaterThan(.001);
+ await bar.getByRole("button",{name:/Пауза$/}).click();
+ const paused=await lab.getAttribute("data-current-time");
+ await speed.selectOption("0.5");
+ await expect(lab).toHaveAttribute("data-current-time",paused!);
+ await bar.getByRole("button",{name:/Старт$/}).click();
+ await expect.poll(async()=>Number(await lab.getAttribute("data-current-time"))).toBeGreaterThan(Number(paused));
+ await bar.getByRole("button",{name:/Стоп$/}).click();
+ await expect(lab).toHaveAttribute("data-current-time","0");
+ await expect(lab).toHaveAttribute("data-model-revision",revision!);
+});
+
+test("visual series key changes both the symbol and worker result at the scheduled instant",async({page})=>{
+ await page.goto(path);
+ await ready(page);
+ await page.getByRole("button",{name:"Элементы",exact:true}).click();
+ await page.locator('[data-network-tool="switch"]').click();
+ await canvas(page).getByRole("button",{name:"В разрыв линии · TL1"}).press("Enter");
+ await ready(page);
+ await expect(sections(page)).toHaveCount(2);
+ const key=canvas(page).getByRole("button",{name:"K1 · Ключ"});
+ await key.press("Enter");
+ await page.getByLabel("Коммутация",{exact:true}).check();
+ await page.getByLabel("Время коммутации, мс",{exact:true}).fill("4");
+ await ready(page);
+ await page.locator(".network-tray-close").click();
+ await page.getByRole("slider",{name:"Точка наблюдения x"}).press("End");
+ await page.locator(".network-timing summary").click();
+ const time=page.getByLabel("Физическое время t, ms");
+ const lab=page.locator("[data-network-lab]");
+ await time.fill("3");
+ await expect(key).toHaveAttribute("data-closed","false");
+ await expect(lab).toHaveAttribute("data-probe-u","0");
+ await time.fill("7");
+ await expect(key).toHaveAttribute("data-closed","true");
+ await expect.poll(async()=>Number(await lab.getAttribute("data-probe-u"))).toBeGreaterThan(0);
+});
+
+
+test("selects both bridge ends, switches the branch and restores its v3 JSON",async({page})=>{
+ await page.goto(path);
+ await ready(page);
+ const scheme=canvas(page);
+ await page.getByRole("button",{name:"Элементы",exact:true}).click();
+ await page.locator('[data-network-tool="r"]').click();
+ await scheme.getByRole("button",{name:"Начать перемычку от узла 0"}).press("Enter");
+ await scheme.getByRole("button",{name:"Узел соединения · 1"}).press("Enter");
+ await ready(page);
+ const link=scheme.getByRole("button",{name:"R1 · Резистор"});
+ await link.press("Enter");
+ await page.getByRole("spinbutton",{name:"Сопротивление R, Ω"}).fill("80");
+ await page.locator(".network-tray-close").click();
+ await page.getByRole("button",{name:"Элементы",exact:true}).click();
+ await page.locator('[data-network-tool="switch"]').click();
+ await scheme.getByRole("button",{name:/Ключ в существующую ветвь/}).press("Enter");
+ await ready(page);
+ const key=scheme.getByRole("button",{name:"R1 · Ключ"});
+ await expect(key).toHaveAttribute("data-closed","true");
+ await page.reload();
+ await ready(page);
+ await expect(key).toHaveAttribute("data-closed","true");
+ await key.press("Enter");
+ await expect(page.getByRole("spinbutton",{name:"Сопротивление R, Ω"})).toHaveValue("80");
+ await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
+ const downloaded=page.waitForEvent("download");
+ await page.getByRole("button",{name:"Сохранить схему"}).click();
+ const file=await downloaded;
+ const json=JSON.parse(await (await import("node:fs/promises")).readFile((await file.path())!,"utf8"));
+ expect(json.schema).toBe("electrotutor-line-v3");
+ expect(json.model.branches).toEqual([{id:"R1",from:0,to:1,resistanceOhm:80,switch:{closed:true}}]);
+ await page.locator('input[type="file"]').setInputFiles({name:"legacy.json",mimeType:"application/json",
+  buffer:Buffer.from(JSON.stringify({schema:"electrotutor-line-v2",model:{...json.model,branches:undefined},layout:{}}))});
+ await ready(page);
+ await expect(key).toHaveCount(0);
+ await page.locator('input[type="file"]').setInputFiles((await file.path())!);
+ await ready(page);
+ await expect(key).toHaveAttribute("data-closed","true");
 });

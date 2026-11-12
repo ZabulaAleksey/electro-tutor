@@ -1860,6 +1860,21 @@
       ]
     },
     {
+      "domain": "transmission-playback-and-contacts",
+      "status": "PARTIAL",
+      "requirement_ids": ["LINE-UX-006", "LINE-UX-007", "LINE-UX-008", "LINE-UX-009", "LINE-UX-010"],
+      "runtime": "Contextual schematic editing and simulation transport with resistive contacts, node-to-node branches and scheduled switching.",
+      "security": "Bounded model validation protects the worker and version-compatible JSON imports.",
+      "a11y": "Named controls and placement markers support touch, pointer and keyboard.",
+      "observability": "ET-LAB-012 in STAGES and TESTING.",
+      "gap": "Physical smartphone evidence and explicit scope for distributed branches.",
+      "action": "Verify browser and analytical scenarios before physical-device acceptance.",
+      "code": ["src/transient/network.ts", "src/transient/NetworkWorkbench.tsx", "src/components/TransmissionNetworkLab.tsx"],
+      "unit": ["src/transient/network-edit.test.ts"],
+      "integration": ["scripts/transient-wasm.mjs"],
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts", "tests/e2e/transmission-network.spec.ts"]
+    },
+    {
       "domain": "transmission-workbench",
       "status": "PARTIAL",
       "requirement_ids": [

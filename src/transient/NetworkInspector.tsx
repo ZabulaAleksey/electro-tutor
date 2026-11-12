@@ -1,7 +1,8 @@
 import type { Language } from "../types";
 import { formatEngineeringValue } from "../engineering/format";
-import { LoadCircuit, LoadEditor, NumberEdit } from "./NetworkEditor";
-import type { Load, Network } from "./network";
+import { LoadEditor, NumberEdit } from "./NetworkEditor";
+import { findLoad, isReactive, type Load, type Network } from "./network";
+import { loadReplacement, removeLoad, replaceLoad } from "./network-edit";
 import type { Selection, Tool } from "./network-edit";
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
   onResistance: (id: string, value: number) => void;
   live: boolean;
   time: number;
+  onMode: (mode: "live" | "recalculate") => void;
+  onDuration: (seconds: number) => void;
 };
 
 export default function NetworkInspector(props: Props) {
@@ -32,8 +35,8 @@ export default function NetworkInspector(props: Props) {
       <strong>{t("Линия", "Лінія")} {section.id}</strong>
       <div className="network-inspector-fields">
         <NumberEdit label="l, km" value={section.lengthM / 1000} min={.000001} max={1e6} onChange={v => edit({ lengthM: v * 1000 })} />
-        <NumberEdit label="Z₀, Ω" value={section.impedanceOhm} min={.001} max={1e6} onChange={v => edit({ impedanceOhm: v })} />
-        <NumberEdit label="v, km/s" value={section.velocityMS / 1000} min={.001} max={300000} onChange={v => edit({ velocityMS: v * 1000 })} />
+        <NumberEdit label={`${section.id} · Z₀, Ω`} value={section.impedanceOhm} min={.001} max={1e6} onChange={v => edit({ impedanceOhm: v })} />
+        <details><summary>{t("Параметры распространения","Параметри поширення")}</summary><NumberEdit label="v, km/s" value={section.velocityMS / 1000} min={.001} max={300000} onChange={v => edit({ velocityMS: v * 1000 })} /></details>
       </div>
       <small>τ = {formatEngineeringValue(section.lengthM / section.velocityMS, "s", language)}</small>
       <div className="network-buttons">
@@ -48,10 +51,18 @@ export default function NetworkInspector(props: Props) {
     return <div className="network-inspector">
       <strong>{t("Источник", "Джерело")} · {t("узел", "вузол")} {source.node}</strong>
       <div className="network-inspector-fields">
-        <NumberEdit label={t("Напряжение E, V", "Напруга E, V")} value={source.voltageV} min={-1e6} max={1e6} onChange={voltageV => edit({ voltageV })} />
-        <NumberEdit label={t("Сопротивление Rₛ, Ω", "Опір Rₛ, Ω")} value={source.resistanceOhm} min={0} max={1e9} onChange={resistanceOhm => edit({ resistanceOhm })} />
-        <NumberEdit label={t("Включение, ms", "Увімкнення, ms")} value={source.onS * 1000} min={0}
+        <NumberEdit label="E, V" value={source.voltageV} min={-1e6} max={1e6} onChange={voltageV => edit({ voltageV })} />
+        <NumberEdit label="Rₛ, Ω" value={source.resistanceOhm} min={0} max={1e9} onChange={resistanceOhm => edit({ resistanceOhm })} />
+        <details><summary>{t("Импульс и длительность опыта","Імпульс і тривалість досліду")}</summary><NumberEdit label={t("Включение, ms", "Увімкнення, ms")} value={source.onS * 1000} min={0}
           max={(source.offS ?? model.durationS) * 1000} onChange={v => edit({ onS: v / 1000 })} />
+        <label><input type="checkbox" checked={source.offS!==undefined} disabled={source.onS>=model.durationS}
+          onChange={e=>edit({offS:e.target.checked?(source.onS+model.durationS)/2:undefined})}/>{t("Импульс","Імпульс")}</label>
+        {source.offS!==undefined&&<NumberEdit label={t("Отключение, ms","Вимкнення, ms")} value={source.offS*1000}
+          min={source.onS*1000+1e-9} max={model.durationS*1000} onChange={v=>edit({offS:v/1000})}/>}
+        <NumberEdit label={t("Длительность опыта, ms","Тривалість досліду, ms")} value={model.durationS*1000}
+          min={Math.max(1e-9,source.onS,source.offS??0,...model.events.map(event=>event.atS),
+            ...[...model.series??[],...model.branches??[]].map(link=>link.switch?.atS??0))*1000}
+          max={10000} onChange={v=>props.onDuration(v/1000)}/></details>
       </div>
       <div className="network-buttons">
         <button type="button" onClick={() => onMove({ move: selection })}>{moveLabel}</button>
@@ -73,25 +84,98 @@ export default function NetworkInspector(props: Props) {
       </div>
     </div>;
   }
-  const load = props.load;
+  if(selection.kind==="contact"){
+    const contact=[...model.series??[],...model.branches??[]].find(link=>link.id===selection.id);
+    if(!contact)return null;
+    const update=(next:typeof contact)=>onEdit({...model,
+      series:model.series?.map(link=>link.id===contact.id?{...next,to:link.to}:link),
+      branches:model.branches?.map(link=>link.id===contact.id?next:link)});
+    const remove=()=>onEdit({...model,series:model.series?.filter(link=>link.id!==contact.id),branches:model.branches?.filter(link=>link.id!==contact.id)});
+    const sw=contact.switch;
+    return <div className="network-inspector" key={contact.id}>
+      <strong>{contact.id} · {sw?t("Ключ","Ключ"):t("Резистор","Резистор")}</strong>
+      {contact.resistanceOhm!==undefined&&<NumberEdit label={t("Сопротивление R, Ω","Опір R, Ω")} value={contact.resistanceOhm}
+        min={.001} max={1e9} onChange={resistanceOhm=>update({...contact,resistanceOhm})}/>}
+      {sw?<SwitchFields language={language} duration={model.durationS} closed={sw.closed} atS={sw.atS} closes={sw.closes}
+        canSchedule={!isReactive(model.load)} onChange={next=>update({...contact,switch:next})}/>:
+        contact.to!=="reference"&&model.branches?.includes(contact)&&<button type="button" onClick={()=>update({...contact,switch:{closed:true}})}>{t("Добавить ключ в ветвь","Додати ключ у гілку")}</button>}
+      <div className="network-buttons">
+        <button type="button" onClick={()=>onMove(model.branches?.includes(contact)&&contact.to!=="reference"?
+          {bridgeFrom:contact.from,id:contact.id}:{relocate:contact.id})}>{moveLabel}</button>
+        <button type="button" onClick={remove}>{deleteLabel}</button>
+      </div>
+    </div>;
+  }
+  const load = selection.id ? findLoad(props.load,selection.id) : props.load;
+  const base = load&&findLoad(model.load,load.id);
+  if(!load||!base)return null;
+  if(base.kind==="switch"){
+    const scheduled=model.events.find(event=>event.id==="switch-"+base.id);
+    const toggleNow=props.live&&props.time>0;
+    return <div className="network-inspector" key={base.id}>
+      <strong>{base.id} · {t("Ключ","Ключ")}</strong>
+      <SwitchFields language={language} duration={model.durationS} closed={base.closed??true}
+        atS={scheduled?.atS} closes={scheduled?!!scheduled.value:undefined} canSchedule={!isReactive(model.load)}
+        onChange={next=>{
+          const nextLoad=replaceLoad(model.load,base.id,{...base,closed:next.closed});
+          const id="switch-"+base.id;
+          const events=model.events.filter(event=>event.id!==id);
+          if(next.atS!==undefined)events.push({id,atS:next.atS,target:base.id,kind:"switch",value:Number(next.closes),previous:Number(next.closed)});
+          onEdit({...model,load:nextLoad,events});
+        }}/>
+      {toggleNow&&<button type="button" onClick={()=>props.onChangeLoad(replaceLoad(props.load,load.id,{...load,closed:!(load.closed??true)}))}>{t("Переключить сейчас","Перемкнути зараз")}</button>}
+      <button type="button" onClick={()=>onEdit(loadReplacement(model,replaceLoad(model.load,base.id,base.children![0])))}>{deleteLabel}</button>
+    </div>;
+  }
   return <div className="network-inspector">
-    <strong>{t("Концевая нагрузка", "Кінцеве навантаження")}</strong>
+    <strong>{t("Концевая нагрузка", "Кінцеве навантаження")}{selection.id?" · "+load.id:""}</strong>
     <div className="network-buttons">
-      <label className="network-field">{t("Заменить тип", "Замінити тип")}
+      {!selection.id&&<label className="network-field">{t("Заменить тип", "Замінити тип")}
         <select value="" onChange={event => { if (event.target.value) onMove(event.target.value as Tool); }}>
           <option value="">{t("Выберите тип", "Оберіть тип")}</option>
           <option value="matched">{t("Согласованная", "Узгоджена")}</option>
           <option value="r">R</option><option value="l">L</option><option value="c">C</option>
           <option value="wire">{t("Короткое замыкание", "Коротке замикання")}</option>
         </select>
-      </label>
+      </label>}
       <button type="button" disabled={load.kind === "open"} onClick={() => {
         if (load.children?.length && !window.confirm(t("Удалить нагрузку и её вложенные элементы?", "Видалити навантаження та його вкладені елементи?"))) return;
-        props.onChangeLoad({ id: load.id, kind: "open" });
+        props.onChangeLoad(removeLoad(props.load,load.id));
       }}>{deleteLabel}</button>
     </div>
-    {load.children?.length ? <LoadCircuit load={load} language={language} /> : null}
-    <LoadEditor load={load} onChange={props.onChangeLoad} language={language} live={props.live} timeS={props.time}
+    {load.kind==="r"&&<details><summary>{t("Изменение во время опыта","Зміна під час досліду")}</summary>
+      <label className="network-field">{t("Изменение параметров","Зміна параметрів")}
+        <select value={props.live?"live":"recalculate"} onChange={e=>props.onMode(e.target.value as "live"|"recalculate")}>
+          <option value="recalculate">{t("Пересчёт с начала","Перерахунок від початку")}</option>
+          <option value="live">{t("Событие при текущем времени","Подія в поточний час")}</option>
+        </select>
+      </label></details>}
+    <LoadEditor load={load} root={props.load} onChange={next=>props.onChangeLoad(replaceLoad(props.load,load.id,next))} language={language} live={props.live} timeS={props.time}
       onResistance={props.onResistance} compact />
   </div>;
+}
+
+
+function SwitchFields({language,duration,closed,atS,closes,canSchedule,onChange}:{
+ language:Language;duration:number;closed:boolean;atS?:number;closes?:boolean;canSchedule:boolean;
+ onChange:(next:{closed:boolean;atS?:number;closes?:boolean})=>void;
+}){
+ const t=(ru:string,uk:string)=>language==="ru"?ru:uk;
+ return <div className="network-inspector-fields">
+  <label className="network-field">{t("Начальное состояние","Початковий стан")}
+   <select value={String(closed)} onChange={e=>onChange({closed:e.target.value==="true",atS,closes})}>
+    <option value="false">{t("Разомкнут","Розімкнений")}</option><option value="true">{t("Замкнут","Замкнений")}</option>
+   </select></label>
+  <label><input type="checkbox" checked={atS!==undefined} disabled={!canSchedule}
+    onChange={e=>onChange({closed,atS:e.target.checked?duration/2:undefined,closes:!closed})}/>{t("Коммутация","Комутація")}</label>
+  {!canSchedule&&<small>{t("Коммутация доступна для резистивных цепей.","Комутація доступна для резистивних кіл.")}</small>}
+  {atS!==undefined&&<>
+   <NumberEdit label={t("Время коммутации, мс","Час комутації, мс")} value={atS*1000} min={0} max={duration*1000}
+     onChange={ms=>onChange({closed,atS:ms/1000,closes})}/>
+   <label className="network-field">{t("Действие","Дія")}
+    <select value={String(closes)} onChange={e=>onChange({closed,atS,closes:e.target.value==="true"})}>
+      <option value="true">{t("Замкнуть","Замкнути")}</option><option value="false">{t("Разомкнуть","Розімкнути")}</option>
+    </select></label>
+  </>}
+ </div>;
 }

@@ -2,7 +2,14 @@
 export type Section = { id:string; lengthM:number; impedanceOhm:number; velocityMS:number };
 export type Load = { id:string; kind:"r"|"l"|"c"|"wire"|"open"|"series"|"parallel"|"switch"; value?:number; initial?:number; closed?:boolean; children?:Load[] };
 export type ModelEvent = { id:string; atS:number; target:string; kind:"resistance"|"switch"; value:number; previous?:number };
-export type Network = { sections:Section[]; source:{voltageV:number;resistanceOhm:number;node:number;onS:number;offS?:number};load:Load;durationS:number;events:ModelEvent[];shunts:{node:number;resistanceOhm:number}[] };
+export type Contact = {
+ id: string;
+ from: number;
+ to: number | "reference";
+ resistanceOhm?: number;
+ switch?: { closed: boolean; atS?: number; closes?: boolean };
+};
+export type Network = { sections:Section[]; source:{voltageV:number;resistanceOhm:number;node:number;onS:number;offS?:number};load:Load;durationS:number;events:ModelEvent[];shunts:{node:number;resistanceOhm:number}[]; series?: Array<Contact & { to: number }>; branches?: Contact[] };
 export type WaveHistory = {times:number[];values:number[]};
 export type WaveRun = {config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
 export type WaveValue={u:number;i:number;forward:number;backward:number;forwardI:number;backwardI:number;section:number};
@@ -17,14 +24,38 @@ function validateNetworkShape(c:Network):string[]{
  const ids=new Set<string>();const validId=(id:unknown)=>typeof id==="string"&&/^[A-Za-z][A-Za-z0-9_-]{0,39}$/.test(id)&&!Object.prototype.hasOwnProperty.call(Object.prototype,id);for(const s of c.sections){if(!validId(s.id))errors.push("invalid-id");if(ids.has(s.id))errors.push("duplicate-id");ids.add(s.id);if(![s.lengthM,s.impedanceOhm,s.velocityMS].every(v=>finite(v)&&v>0)||s.lengthM<.001||s.lengthM>1e9||s.velocityMS<1||s.velocityMS>3e8||s.impedanceOhm<.001||s.impedanceOhm>1e6)errors.push("invalid-line");}
  if(!Number.isFinite(c.sections.reduce((n,s)=>n+s.lengthM,0))||!c.sections.every(s=>[s.lengthM/s.velocityMS,s.impedanceOhm/s.velocityMS,1/(s.impedanceOhm*s.velocityMS)].every(Number.isFinite)))errors.push("invalid-derived-line-parameters");
  const q=c.source;if(!q||![q.voltageV,q.resistanceOhm,q.onS,c.durationS].every(finite)||Math.abs(q.voltageV)>1e6||q.resistanceOhm<0||q.resistanceOhm>1e9||q.resistanceOhm>0&&q.resistanceOhm<1e-6||q.onS<0||q.onS>c.durationS||c.durationS<1e-9||c.durationS>10||!Number.isInteger(q.node)||q.node<0||q.node>c.sections.length||q.offS!==undefined&&(!finite(q.offS)||q.offS<=q.onS||q.offS>c.durationS))errors.push("invalid-source-or-time");
+ const series = c.series === undefined ? [] : c.series, branches = c.branches === undefined ? [] : c.branches;
+ const validNode = (node: number) => Number.isInteger(node) && node >= 0 && node <= c.sections.length;
+ if (!Array.isArray(series) || !Array.isArray(branches) || series.length >= c.sections.length || branches.length > 12) return ["invalid-contacts"];
+ const seriesNodes = new Set<number>();
+ const branchPairs = new Set<string>();
+ for (const contact of [...series, ...branches]) {
+  const inline = series.some(link=>link===contact);
+  if (!validId(contact.id) || ids.has(contact.id)) errors.push("duplicate-id");
+  ids.add(contact.id);
+  if (!inline && (!validNode(contact.from) || contact.to !== "reference" &&
+      (!validNode(contact.to) || contact.from === contact.to))) errors.push("invalid-contacts");
+  if (inline) {
+   if (!validSeriesContact(contact, c.sections.length) || seriesNodes.has(contact.from)) errors.push("invalid-contacts");
+   seriesNodes.add(contact.from);
+  } else {
+   const key = [contact.from, contact.to].sort().join(":");
+   if (branchPairs.has(key)) errors.push("invalid-contacts");
+   branchPairs.add(key);
+  }
+  const r = contact.resistanceOhm, sw = contact.switch;
+  if (r === undefined ? !inline || !sw : !finite(r) || r < .001 || r > 1e9) errors.push("invalid-component");
+  if (sw !== undefined && (!sw || typeof sw.closed !== "boolean" || sw.atS !== undefined &&
+      (!finite(sw.atS) || sw.atS < 0 || sw.atS > c.durationS || typeof sw.closes !== "boolean"))) errors.push("invalid-event");
+ }
  const walk=(l:Load,depth=0)=>{if(!l||depth>6||++nodes>32){errors.push("load-size-limit");return;}if(!validId(l.id))errors.push("invalid-id");if(ids.has(l.id))errors.push("duplicate-id");ids.add(l.id);if(!["r","l","c","wire","open","series","parallel","switch"].includes(l.kind))errors.push("unsupported-element");if(["r","l","c"].includes(l.kind)&&(!finite(l.value??NaN)||(l.value??0)<0||l.kind!=="r"&&l.value===0))errors.push("invalid-component");if(["r","l","c"].includes(l.kind)&&((l.value??0)>(l.kind==="c"?100:l.kind==="l"?1e5:1e8)||(l.value??0)>0&&(l.value??0)<(l.kind==="c"?1e-9:l.kind==="l"?1e-6:.001)))errors.push("component-out-of-range");if(l.initial!==undefined&&(!finite(l.initial)||Math.abs(l.initial)>1e6))errors.push("invalid-initial-state");if(["series","parallel","switch"].includes(l.kind)){if(!l.children?.length||l.kind==="switch"&&l.children.length!==1)errors.push("invalid-connection");l.children?.forEach(x=>walk(x,depth+1));}};walk(c.load);
- if(!Array.isArray(c.events)||c.events.length>64)errors.push("event-limit");else for(const e of c.events){const leaf=loadLeaves(c.load).find(x=>x.id===e.target);const sw=findLoad(c.load,e.target);if(!finite(e.atS)||e.atS<0||e.atS>c.durationS||!finite(e.value)||e.kind==="resistance"&&(!leaf||leaf.kind!=="r"||e.value<0||e.value>1e8||e.value>0&&e.value<.001)||e.kind==="switch"&&(!sw||sw.kind!=="switch"||![0,1].includes(e.value)))errors.push("invalid-event");}
- if(isReactive(c.load)&&c.events.length)errors.push("reactive-live-events-not-supported:recalculate");
+ if(!Array.isArray(c.events)||c.events.length>64)errors.push("event-limit");else for(const e of c.events){const leaf=loadLeaves(c.load).find(x=>x.id===e.target);const sw=findLoad(c.load,e.target);if(!["switch","resistance"].includes(e.kind)||!finite(e.atS)||e.atS<0||e.atS>c.durationS||!finite(e.value)||e.kind==="resistance"&&(!leaf||leaf.kind!=="r"||e.value<0||e.value>1e8||e.value>0&&e.value<.001)||e.kind==="switch"&&(!sw||sw.kind!=="switch"||![0,1].includes(e.value)))errors.push("invalid-event");}
+ if(isReactive(c.load)&&(c.events.length||[...series,...branches].some(contact=>contact.switch?.atS!==undefined)))errors.push("reactive-live-events-not-supported:recalculate");
  if(isReactive(c.load)&&c.source.node===c.sections.length&&c.source.resistanceOhm===0)errors.push("ideal-source-at-reactive-load-not-supported");
  if(!Array.isArray(c.shunts)||c.shunts.length>7)errors.push("invalid-shunts");
  for(const s of Array.isArray(c.shunts)?c.shunts:[])if(!Number.isInteger(s.node)||s.node<0||s.node>c.sections.length||!finite(s.resistanceOhm)||s.resistanceOhm<.001||s.resistanceOhm>1e9)errors.push("invalid-shunt");
  if(Array.isArray(c.shunts)&&new Set(c.shunts.map(s=>s.node)).size!==c.shunts.length)errors.push("one-shunt-per-node");
- if(!errors.length&&q.node===c.sections.length&&q.resistanceOhm===0){const l=JSON.parse(JSON.stringify(c.load)) as Load;const times=[...new Set([0,q.onS,q.offS??c.durationS,...c.events.map(e=>e.atS)])].sort((a,b)=>a-b);for(const time of times){for(const e of c.events.filter(e=>e.atS===time)){const target=findLoad(l,e.target)!;if(e.kind==="switch")target.closed=!!e.value;else target.value=e.value;}if(time<c.durationS&&drive(c,time)!==0&&shorted(l))errors.push("inconsistent-ideal-source-and-short");}}
+ if(!errors.length&&q.node===c.sections.length&&q.resistanceOhm===0){const l=JSON.parse(JSON.stringify(c.load)) as Load;const times=[...new Set([0,q.onS,q.offS??c.durationS,...c.events.map(e=>e.atS)])].sort((a,b)=>a-b);for(const time of times){for(const e of c.events.filter(e=>e.atS===time)){const target=findLoad(l,e.target)!;if(e.kind==="switch")target.closed=!!e.value;else target.value=e.value;}if(drive(c,time)!==0&&shorted(l))errors.push("inconsistent-ideal-source-and-short");}}
  return [...new Set(errors)];
 }
 function shorted(l:Load):boolean{if(l.kind==="wire"||l.kind==="r"&&l.value===0)return true;if(l.kind==="switch")return !!(l.closed??true)&&shorted(l.children![0]);if(l.kind==="series")return !!l.children?.length&&l.children.every(shorted);if(l.kind==="parallel")return !!l.children?.some(shorted);return false;}
@@ -37,9 +68,26 @@ export function historyValue(h:WaveHistory,t:number,linear=false):number{
  if(linear&&k+1<h.times.length&&t>h.times[k]){const f=(t-h.times[k])/(h.times[k+1]-h.times[k]);return h.values[k]*(1-f)+h.values[k+1]*f;}return h.values[k];
 }
 function push(h:WaveHistory,t:number,v:number){const n=h.times.length;if(n&&Math.abs(h.times[n-1]-t)<1e-15){h.values[n-1]=v;return;}h.times.push(t);h.values.push(v);}
-function portNode(p:number){return Math.floor(p/2)+(p%2);}
-function portsAt(c:Network,node:number){return c.sections.flatMap((_,j)=>[2*j,2*j+1]).filter(p=>portNode(p)===node);}
-function drive(c:Network,t:number){return t>=c.source.onS&& (c.source.offS===undefined||t<c.source.offS)?c.source.voltageV:0;}
+function validSeriesContact(contact: Contact, count: number) {
+ return Number.isInteger(contact.from) && contact.from > 0 && contact.from < count && contact.to === count + contact.from;
+}
+function sameFrontTime(a: number, b: number) {
+ return Math.abs(a-b)<=Math.max(1e-15,Math.abs(a)*1e-12);
+}
+export function contactClosed(contact: Contact, time: number) {
+ const sw = contact.switch;
+ return !sw || (sw.atS !== undefined && (time >= sw.atS || sameFrontTime(time,sw.atS)) ? sw.closes! : sw.closed);
+}
+function portNode(c:Network,p:number){
+ const index=Math.floor(p/2);
+ return p%2 ? index+1 : c.series?.some(contact=>contact.from===index) ? c.sections.length+index : index;
+}
+function portsAt(c:Network,node:number){return c.sections.flatMap((_,j)=>[2*j,2*j+1]).filter(p=>portNode(c,p)===node);}
+function drive(c:Network,t:number){
+ const started=t>=c.source.onS||sameFrontTime(t,c.source.onS);
+ const stopped=c.source.offS!==undefined&&(t>=c.source.offS||sameFrontTime(t,c.source.offS));
+ return started&&!stopped?c.source.voltageV:0;
+}
 type Eq={g:number;b:number;short:boolean};
 const OPEN:Eq={g:0,b:0,short:false};
 type State={v:number;i:number};
@@ -65,23 +113,99 @@ function commitDevice(l:Load,v:number,i:number,eqs:Map<string,Eq>,states:Map<str
  else {let used=0;const open=l.children.find(child=>{const e=eqs.get(child.id)!;return !e.short&&e.g===0;});for(const child of l.children){const e=eqs.get(child.id)!;if(child===open)continue;const u=e.short?0:(i-e.b)/e.g;used+=u;commitDevice(child,u,i,eqs,states,overrides);}if(open)commitDevice(open,v-used,0,eqs,states,overrides);}
 }
 function loadEnergy(l:Load,states:Map<string,State>):number{const s=states.get(l.id);if(s&&l.kind==="c")return .5*l.value!*s.v*s.v;if(s&&l.kind==="l")return .5*l.value!*s.i*s.i;return l.children?.reduce((n,x)=>n+loadEnergy(x,states),0)??0;}
-function solveNode(c:Network,node:number,a:number[],load:Eq,t:number){
- const ps=portsAt(c,node),y=ps.reduce((n,p)=>n+1/c.sections[p>>1].impedanceOhm,0),incident=ps.reduce((n,p)=>n+2*a[p]/c.sections[p>>1].impedanceOhm,0);
- const shunt=c.shunts.filter(s=>s.node===node).reduce((n,s)=>n+1/s.resistanceOhm,0),end=node===c.sections.length,src=node===c.source.node;
- if(end&&load.short)return 0;
- if(src&&c.source.resistanceOhm===0)return drive(c,t);
- const gs=src?1/c.source.resistanceOhm:0;
- return (incident+(src?drive(c,t)*gs:0)-(end?load.b:0))/(y+shunt+gs+(end?load.g:0));
+function solveVoltages(c: Network, incident: number[], load: Eq, time: number): number[] {
+ const end = c.sections.length;
+ if (!c.series?.length && !c.branches?.length) {
+  return Array.from({length:end+1},(_,node)=>{
+   const ps=portsAt(c,node),y=ps.reduce((n,p)=>n+1/c.sections[p>>1].impedanceOhm,0);
+   const incoming=ps.reduce((n,p)=>n+2*incident[p]/c.sections[p>>1].impedanceOhm,0);
+   const shunt=c.shunts.filter(s=>s.node===node).reduce((n,s)=>n+1/s.resistanceOhm,0);
+   const terminal=node===end,source=node===c.source.node;
+   if(terminal&&load.short)return 0;
+   if(source&&c.source.resistanceOhm===0)return drive(c,time);
+   const gs=source?1/c.source.resistanceOhm:0;
+   return (incoming+(source?drive(c,time)*gs:0)-(terminal?load.b:0))/(y+shunt+gs+(terminal?load.g:0));
+  });
+ }
+ const contacts = [...c.series ?? [], ...c.branches ?? []].filter(contact => contactClosed(contact, time));
+ const count = end * 2;
+ const parents = Array.from({length: count}, (_, i) => i);
+ const root = (node: number): number => parents[node] === node ? node : root(parents[node]);
+ for (const link of contacts) {
+  if (link.resistanceOhm === undefined && link.to !== "reference") parents[root(link.to)] = root(link.from);
+ }
+ const fixed = new Map<number, number>();
+ if (load.short) fixed.set(root(end), 0);
+ if (c.source.resistanceOhm === 0) fixed.set(root(c.source.node), drive(c, time));
+
+ const nodes = [...new Set(c.sections.flatMap((_, i) => [root(portNode(c, 2*i)), root(i+1)]))];
+ const unknown = nodes.filter(node => !fixed.has(node));
+ const rows = unknown.map(() => Array<number>(unknown.length + 1).fill(0));
+ const rhs = unknown.length;
+ const stampGround = (node: number, conductance: number, injection: number) => {
+  const i = unknown.indexOf(root(node));
+  if (i < 0) return;
+  rows[i][i] += conductance;
+  rows[i][rhs] += injection;
+ };
+ const stampLink = (from: number, to: number, conductance: number) => {
+  if (root(from) === root(to)) return;
+  const i = unknown.indexOf(root(from)), j = unknown.indexOf(root(to));
+  if (i < 0) return;
+  rows[i][i] += conductance;
+  if (j < 0) rows[i][rhs] += conductance * fixed.get(root(to))!;
+  else rows[i][j] -= conductance;
+ };
+ incident.forEach((value, port) => {
+  const y = 1/c.sections[port >> 1].impedanceOhm;
+  stampGround(portNode(c, port), y, 2*y*value);
+ });
+ for (const shunt of c.shunts) stampGround(shunt.node, 1/shunt.resistanceOhm, 0);
+ if (!load.short) stampGround(end, load.g, -load.b);
+ if (c.source.resistanceOhm > 0) stampGround(c.source.node, 1/c.source.resistanceOhm, drive(c,time)/c.source.resistanceOhm);
+ for (const contact of contacts) {
+  if (contact.resistanceOhm === undefined) continue;
+  const g = 1/contact.resistanceOhm;
+  if (contact.to === "reference") stampGround(contact.from, g, 0);
+  else {
+   stampLink(contact.from, contact.to, g);
+   stampLink(contact.to, contact.from, g);
+  }
+ }
+ // Each active node has a positive line admittance. The reduced conductance matrix is positive definite.
+ for (let i = 0; i < rhs; i++) {
+  for (let j = i+1; j < rhs; j++) {
+   const scale = rows[j][i]/rows[i][i];
+   for (let k = i+1; k <= rhs; k++) rows[j][k] -= scale*rows[i][k];
+  }
+ }
+ for (let i = rhs-1; i >= 0; i--) {
+  for (let j = i+1; j < rhs; j++) rows[i][rhs] -= rows[i][j]*rows[j][rhs];
+  rows[i][rhs] /= rows[i][i];
+ }
+ return parents.map((_, i) => fixed.get(root(i)) ?? rows[unknown.indexOf(root(i))]?.[rhs] ?? 0);
 }
-type Arrival={t:number;port?:number;delta?:number;event?:ModelEvent;node?:number};
+type Arrival={t:number;port?:number;delta?:number;eventIndex?:number};
 class Heap {items:Arrival[]=[];put(x:Arrival){if(this.items.length>=6000)throw Error("wave-queue-limit:shorten-experiment");const a=this.items;let k=a.push(x)-1;while(k){const p=(k-1)>>1;if(a[p].t<=x.t)break;a[k]=a[p];k=p;}a[k]=x;}take(){const a=this.items,first=a[0],last=a.pop()!;if(a.length){let k=0;while(2*k+1<a.length){let j=2*k+1;if(j+1<a.length&&a[j+1].t<a[j].t)j++;if(a[j].t>=last.t)break;a[k]=a[j];k=j;}a[k]=last;}return first;}get first(){return this.items[0];}}
 function exact(c:Network):WaveRun{
  const ports=c.sections.flatMap(()=>[{times:[],values:[]} as WaveHistory,{times:[],values:[]} as WaveHistory]),a=ports.map(()=>0),out=ports.map(()=>0),queue=new Heap(),overrides=new Map<string,number>(),events:number[]=[];
- queue.put({t:0,node:c.source.node});queue.put({t:c.source.onS,node:c.source.node});if(c.source.offS!==undefined)queue.put({t:c.source.offS,node:c.source.node});for(const e of c.events)queue.put({t:e.atS,event:e,node:c.sections.length});
- let count=0,fronts=0;while(queue.first&&queue.first.t<=c.durationS+1e-14){const t=queue.first.t,changed=new Set<number>();
-  while(queue.first&&Math.abs(queue.first.t-t)<=Math.max(1e-15,Math.abs(t)*1e-12)){if(++count>20000)throw Error("wave-event-limit:shorten-experiment");const e=queue.take();if(e.port!==undefined){a[e.port]+=e.delta!;changed.add(portNode(e.port));}if(e.node!==undefined)changed.add(e.node);if(e.event)overrides.set(e.event.target,e.event.value);}
+ queue.put({t:0});queue.put({t:c.source.onS});if(c.source.offS!==undefined)queue.put({t:c.source.offS});c.events.forEach((event,eventIndex)=>queue.put({t:event.atS,eventIndex}));
+ for(const contact of [...c.series ?? [],...c.branches ?? []]) if(contact.switch?.atS!==undefined)queue.put({t:contact.switch.atS});
+ let count=0,fronts=0;while(queue.first&&queue.first.t<=c.durationS+1e-14){const t=queue.first.t, pending:number[]=[];
+  while(queue.first&&sameFrontTime(t,queue.first.t)){
+   if(++count>20000)throw Error("wave-event-limit:shorten-experiment");
+   const e=queue.take();
+   if(e.port!==undefined)a[e.port]+=e.delta!;
+   if(e.eventIndex!==undefined)pending.push(e.eventIndex);
+  }
+  pending.sort((i,j)=>c.events[i].atS-c.events[j].atS||i-j);
+  for(const index of pending){
+   const event=c.events[index];
+   overrides.set(event.target,event.value);
+  }
   const eq=companion(c.load,1,new Map(),new Map(),overrides);events.push(t);
-  for(const node of changed){const u=solveNode(c,node,a,eq,t);for(const p of portsAt(c,node)){const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta});}}}
+  const voltage=solveVoltages(c,a,eq,t);
+  for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta});}}
  }
  return ranges({config:c,ports,events:[...new Set(events)].sort((a,b)=>a-b),method:"exact-fronts",stepS:0,deviceEnergy:{times:[0],values:[0]},maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
 }
@@ -89,7 +213,17 @@ function exact(c:Network):WaveRun{
 function initialNetwork(c:Network,epsilon:number):{out:number[];states:Map<string,State>}{
  const trials:{out:number[];states:Map<string,State>}[]=[];
  for(const divisor of [1,2,4]){const states=new Map<string,State>(),eqs=new Map<string,Eq>(),a=c.sections.flatMap(()=>[0,0]),overrides=new Map<string,number>(),eq=companion(c.load,epsilon/divisor,states,eqs,overrides,true),out=a.map(()=>0);
-  for(let node=0;node<=c.sections.length;node++){const u=solveNode(c,node,a,eq,0);for(const p of portsAt(c,node))out[p]=u;if(node===c.sections.length){const y=portsAt(c,node).reduce((sum,p)=>sum+1/c.sections[p>>1].impedanceOhm,0)+c.shunts.filter(x=>x.node===node).reduce((sum,x)=>sum+1/x.resistanceOhm,0),s=node===c.source.node?(drive(c,0)-u)/c.source.resistanceOhm:0;commitDevice(c.load,u,s-y*u,eqs,states,overrides);}}
+  const voltage=solveVoltages(c,a,eq,0);
+  for(let port=0;port<out.length;port++)out[port]=voltage[portNode(c,port)];
+  const end=c.sections.length,u=voltage[end];
+  const y=portsAt(c,end).reduce((sum,p)=>sum+1/c.sections[p>>1].impedanceOhm,0)
+   +c.shunts.filter(x=>x.node===end).reduce((sum,x)=>sum+1/x.resistanceOhm,0)
+   + (c.branches??[]).filter(link=>link.to==="reference"&&link.from===end&&contactClosed(link,0)).reduce((sum,link)=>sum+1/link.resistanceOhm!,0);
+  const source=end===c.source.node?(drive(c,0)-u)/c.source.resistanceOhm:0;
+  const linked=(c.branches??[]).filter(link=>link.to!=="reference"&&contactClosed(link,0))
+   .reduce((sum,link)=>link.from===end?sum+(u-voltage[link.to as number])/link.resistanceOhm!:
+    link.to===end?sum+(u-voltage[link.from])/link.resistanceOhm!:sum,0);
+  commitDevice(c.load,u,source-y*u-linked,eqs,states,overrides);
   trials.push({out,states});
  }
  const extrap=(a:number,b:number,c:number)=>a/3-2*b+8*c/3,states=new Map<string,State>();
@@ -100,11 +234,17 @@ function initialNetwork(c:Network,epsilon:number):{out:number[];states:Map<strin
  return{states,out:trials[0].out.map((a,j)=>extrap(a,trials[1].out[j],trials[2].out[j]))};
 }
 function numeric(c:Network,resolution=100):WaveRun{
- const minTau=Math.min(...c.sections.map(s=>s.lengthM/s.velocityMS)),leaves=loadLeaves(c.load),resistances=[c.sections.at(-1)!.impedanceOhm,...(c.source.node===c.sections.length&&c.source.resistanceOhm>0?[c.source.resistanceOhm]:[]),...c.shunts.filter(x=>x.node===c.sections.length).map(x=>x.resistanceOhm),...leaves.filter(l=>l.kind==="r"&&(l.value??0)>0).map(l=>l.value!)],rmin=Math.min(...resistances),rmax=resistances.reduce((a,b)=>a+b,0),deviceTimes=leaves.flatMap(l=>l.kind==="c"?[l.value!*rmin]:l.kind==="l"?[l.value!/rmax]:[]);let h=Math.min(minTau/resolution,c.durationS/600,...deviceTimes.map(t=>t/20));const steps=Math.ceil(c.durationS/h);if(steps>24000)throw Error("dynamic-resolution-limit:shorten-experiment");h=c.durationS/steps;
+ const minTau=Math.min(...c.sections.map(s=>s.lengthM/s.velocityMS)),leaves=loadLeaves(c.load);
+ const contactResistance=[...c.series??[],...c.branches??[]]
+   .filter(link=>link.resistanceOhm!==undefined&&contactClosed(link,0)).map(link=>link.resistanceOhm!);
+ const resistances=[...contactResistance,c.sections.at(-1)!.impedanceOhm,...(c.source.node===c.sections.length&&c.source.resistanceOhm>0?[c.source.resistanceOhm]:[]),...c.shunts.filter(x=>x.node===c.sections.length).map(x=>x.resistanceOhm),...leaves.filter(l=>l.kind==="r"&&(l.value??0)>0).map(l=>l.value!)],rmin=Math.min(...resistances),rmax=resistances.reduce((a,b)=>a+b,0),deviceTimes=leaves.flatMap(l=>l.kind==="c"?[l.value!*rmin]:l.kind==="l"?[l.value!/rmax]:[]);let h=Math.min(minTau/resolution,c.durationS/600,...deviceTimes.map(t=>t/20));const steps=Math.ceil(c.durationS/h);if(steps>24000)throw Error("dynamic-resolution-limit:shorten-experiment");h=c.durationS/steps;
  const ports=c.sections.flatMap(()=>[{times:[],values:[]} as WaveHistory,{times:[],values:[]} as WaveHistory]),initial=initialNetwork(c,Math.min(...deviceTimes,minTau)*1e-4),states=initial.states,overrides=new Map<string,number>(),energy:WaveHistory={times:[0],values:[loadEnergy(c.load,states)]},events:number[]=[0];
  for(let p=0;p<ports.length;p++)push(ports[p],0,initial.out[p]);let nextEvent=0;const sorted=[...c.events].sort((a,b)=>a.atS-b.atS);
  for(let k=1;k<=steps;k++){const t=k*h,a=ports.map((_,p)=>historyValue(ports[p^1],t-c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,true));while(nextEvent<sorted.length&&sorted[nextEvent].atS<=t+1e-15){overrides.set(sorted[nextEvent].target,sorted[nextEvent].value);nextEvent++;}
-  const eqs=new Map<string,Eq>(),eq=companion(c.load,h,states,eqs,overrides);for(let node=0;node<=c.sections.length;node++){const u=solveNode(c,node,a,eq,t);for(const p of portsAt(c,node))push(ports[p],t,u-a[p]);if(node===c.sections.length)commitDevice(c.load,u,eq.short?0:eq.g*u+eq.b,eqs,states,overrides);}
+  const eqs=new Map<string,Eq>(),eq=companion(c.load,h,states,eqs,overrides),voltage=solveVoltages(c,a,eq,t);
+  for(let port=0;port<ports.length;port++)push(ports[port],t,voltage[portNode(c,port)]-a[port]);
+  const u=voltage[c.sections.length];
+  commitDevice(c.load,u,eq.short?0:eq.g*u+eq.b,eqs,states,overrides);
   push(energy,t,loadEnergy(c.load,states));if(k%Math.max(1,Math.ceil(steps/800))===0||k===steps)events.push(t);
  }
  return ranges({config:c,ports,events,method:"characteristics-trapezoid",stepS:h,deviceEnergy:energy,maxResidual:0,rangeU:[0,0],rangeI:[0,0]});

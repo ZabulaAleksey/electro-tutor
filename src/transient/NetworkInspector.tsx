@@ -1,14 +1,14 @@
 import type { Language } from "../types";
 import { formatEngineeringValue } from "../engineering/format";
 import EngineeringPlot from "../engineering/EngineeringPlot";
-import { diodeCurrent } from "./line-diode";
+import { diodeCurrent, type DiodeParameters } from "./line-diode";
 import { LoadEditor, NumberEdit } from "./NetworkEditor";
-import { findLoad, isReactive, type Load, type Network } from "./network";
-import { loadReplacement, removeLoad, replaceLoad } from "./network-edit";
+import { findLoad, isDynamic, type Load, type Network } from "./network";
+import { contactKind, loadReplacement, removeLoad, replaceLoad } from "./network-edit";
 import type { Selection, Tool } from "./network-edit";
 
 type Props = {
-  selection: Selection;
+  selection: Exclude<Selection,{kind:"detached"}>;
   model: Network;
   load: Load;
   language: Language;
@@ -95,17 +95,33 @@ export default function NetworkInspector(props: Props) {
       series:model.series?.map(link=>link.id===contact.id?{...next,to:link.to}:link),
       branches:model.branches?.map(link=>link.id===contact.id?next:link)});
     const remove=()=>onEdit({...model,series:model.series?.filter(link=>link.id!==contact.id),branches:model.branches?.filter(link=>link.id!==contact.id)});
-    const sw=contact.switch;
+    const sw=contact.switch,component=contact.component;
+    if(component?.kind==="diode")return <DiodeInspector title={contact.id+" · "+t("Диод","Діод")}
+      language={language} parameters={component.diode} point={props.diodePoint}
+      update={next=>update({...contact,component:{kind:"diode",diode:{...component.diode,...next}}})}
+      move={()=>onMove({relocate:contact.id})} remove={remove}
+      bridge={contact.to!=="reference"&&model.branches?.includes(contact)?()=>onMove({bridgeFrom:contact.from,id:contact.id}):undefined}/>;
+    const name={r:t("Резистор","Резистор"),wire:t("Провод","Провід"),switch:t("Ключ","Ключ"),
+      diode:t("Диод","Діод"),l:t("Индуктивность","Індуктивність"),c:t("Конденсатор","Конденсатор")};
     return <div className="network-inspector" key={contact.id}>
-      <strong>{contact.id} · {sw?t("Ключ","Ключ"):contact.resistanceOhm===undefined?t("Провод","Провід"):t("Резистор","Резистор")}</strong>
+      <strong>{contact.id} · {name[contactKind(contact)]}</strong>
       {contact.resistanceOhm!==undefined&&<NumberEdit label={t("Сопротивление R, Ω","Опір R, Ω")} value={contact.resistanceOhm}
         min={.001} max={1e9} onChange={resistanceOhm=>update({...contact,resistanceOhm})}/>}
+      {component&&<div className="network-inspector-fields">
+        <NumberEdit label={component.kind==="l"?"L, mH":"C, µF"} value={component.value*(component.kind==="l"?1e3:1e6)}
+          min={.001} max={1e8} onChange={v=>update({...contact,component:{...component,value:v/(component.kind==="l"?1e3:1e6)}})}/>
+        <details><summary>{t("Начальное состояние","Початковий стан")}</summary>
+          <NumberEdit label={component.kind==="l"?"I₀, A":"U₀, V"} value={component.initial??0}
+            min={-1e6} max={1e6} onChange={initial=>update({...contact,component:{...component,initial}})}/>
+        </details>
+      </div>}
       {sw?<SwitchFields language={language} duration={model.durationS} closed={sw.closed} atS={sw.atS} closes={sw.closes}
-        canSchedule={!isReactive(model.load)} onChange={next=>update({...contact,switch:next})}/>:
-        contact.to!=="reference"&&model.branches?.includes(contact)&&<button type="button" onClick={()=>update({...contact,switch:{closed:true}})}>{t("Добавить ключ в ветвь","Додати ключ у гілку")}</button>}
+        canSchedule={!isDynamic(model)} onChange={next=>update({...contact,switch:next})}/>:
+        !component&&contact.to!=="reference"&&model.branches?.includes(contact)&&<button type="button" onClick={()=>update({...contact,switch:{closed:true}})}>{t("Добавить ключ в ветвь","Додати ключ у гілку")}</button>}
       <div className="network-buttons">
-        <button type="button" onClick={()=>onMove(model.branches?.includes(contact)&&contact.to!=="reference"?
-          {bridgeFrom:contact.from,id:contact.id,wire:contact.resistanceOhm===undefined}:{relocate:contact.id})}>{moveLabel}</button>
+        <button type="button" onClick={()=>onMove({relocate:contact.id})}>{moveLabel}</button>
+        {contact.to!=="reference"&&model.branches?.includes(contact)&&
+          <button type="button" onClick={()=>onMove({bridgeFrom:contact.from,id:contact.id})}>{t("Сменить второй узел","Змінити другий вузол")}</button>}
         <button type="button" onClick={remove}>{deleteLabel}</button>
       </div>
     </div>;
@@ -113,45 +129,17 @@ export default function NetworkInspector(props: Props) {
   const load = selection.id ? findLoad(props.load,selection.id) : props.load;
   const base = load&&findLoad(model.load,load.id);
   if(!load||!base)return null;
-  if(base.kind==="diode"){
-    const parameters=base.diode!;
-    const update=(next:Partial<typeof parameters>)=>onEdit({...model,load:{...base,diode:{...parameters,...next}}});
-    const point=props.diodePoint;
-    const min=Math.min(-.2,point??0);
-    const scale=.025852*parameters.ideality;
-    const max=Math.max(scale*Math.log1p(.01/parameters.saturationA),point??0);
-    const points=Array.from({length:81},(_,i)=>{
-      const x=i<21?min*(1-i/20):max*(i-20)/60;
-      return [x,diodeCurrent(x,parameters)*1000] as [number,number];
-    });
-    return <div className="network-inspector">
-      <strong>{t("Диод","Діод")}</strong>
-      <div className="network-inspector-fields">
-        <NumberEdit label="Iₛ, nA" min={1e-9} max={1e6} value={parameters.saturationA*1e9} onChange={v=>update({saturationA:v/1e9})}/>
-        <NumberEdit label="n" min={1} max={4} value={parameters.ideality} onChange={ideality=>update({ideality})}/>
-      </div>
-      <div className="network-buttons">
-        <button type="button" onClick={()=>update({reversed:!parameters.reversed})}>{t("Развернуть диод","Розвернути діод")}</button>
-        <button type="button" onClick={()=>onEdit(loadReplacement(model,{id:base.id,kind:"open"}))}>{deleteLabel}</button>
-      </div>
-      <details><summary>{t("Вольт-амперная характеристика","Вольт-амперна характеристика")}</summary>
-        <EngineeringPlot language={language} label={t("ВАХ диода","ВАХ діода")}
-          plot={{xLabel:"Uᴅ, V",yLabel:"Iᴅ, mA",xMax:max,yMin:points[0][1],yMax:points.at(-1)![1],
-            curves:[{label:"Iᴅ(Uᴅ)",color:"blue",points}]}}
-          domains={{x:[min,max],y:[points[0][1],Math.max(10,points.at(-1)![1])]}}
-          selected={point!==undefined?[point,diodeCurrent(point,parameters)*1000]:undefined}/>
-        {point!==undefined&&<output data-diode-point data-diode-voltage={point} data-diode-current={diodeCurrent(point,parameters)}>Uᴅ = {point.toPrecision(4)} V · Iᴅ = {(diodeCurrent(point,parameters)*1000).toPrecision(4)} mA</output>}
-        <small>{t("300 K. Пробой и накопление заряда исключены из модели.","300 K. Пробій і накопичення заряду поза моделлю.")}</small>
-      </details>
-    </div>;
-  }
+  if(base.kind==="diode")return <DiodeInspector title={t("Диод","Діод")}
+    language={language} parameters={base.diode!} point={props.diodePoint}
+    update={next=>onEdit({...model,load:{...base,diode:{...base.diode!,...next}}})}
+    move={()=>onMove({moveLoad:base.id})} remove={()=>onEdit(loadReplacement(model,{id:base.id,kind:"open"}))}/>;
   if(base.kind==="switch"){
     const scheduled=model.events.find(event=>event.id==="switch-"+base.id);
     const toggleNow=props.live&&props.time>0;
     return <div className="network-inspector" key={base.id}>
       <strong>{base.id} · {t("Ключ","Ключ")}</strong>
       <SwitchFields language={language} duration={model.durationS} closed={base.closed??true}
-        atS={scheduled?.atS} closes={scheduled?!!scheduled.value:undefined} canSchedule={!isReactive(model.load)}
+        atS={scheduled?.atS} closes={scheduled?!!scheduled.value:undefined} canSchedule={!isDynamic(model)}
         onChange={next=>{
           const nextLoad=replaceLoad(model.load,base.id,{...base,closed:next.closed});
           const id="switch-"+base.id;
@@ -166,7 +154,7 @@ export default function NetworkInspector(props: Props) {
   return <div className="network-inspector">
     <strong>{t("Концевая нагрузка", "Кінцеве навантаження")}{selection.id?" · "+load.id:""}</strong>
     <div className="network-buttons">
-      {(base.kind==="r"||base.kind==="wire")&&!model.events.some(event=>event.target===base.id)&&
+      {(base.kind==="r"||base.kind==="wire"||base.kind==="l"||base.kind==="c")&&!model.events.some(event=>event.target===base.id)&&
        <button type="button" onClick={()=>onMove({moveLoad:base.id})}>{moveLabel}</button>}
       {!selection.id&&<label className="network-field">{t("Заменить тип", "Замінити тип")}
         <select value="" onChange={event => { if (event.target.value) onMove(event.target.value as Tool); }}>
@@ -193,6 +181,41 @@ export default function NetworkInspector(props: Props) {
   </div>;
 }
 
+
+function DiodeInspector({language,title,parameters,point,update,move,remove,bridge}:{
+ language:Language;title:string;parameters:DiodeParameters;point?:number;
+ update:(next:Partial<DiodeParameters>)=>void;move:()=>void;remove:()=>void;bridge?:()=>void;
+}){
+ const t=(ru:string,uk:string)=>language==="ru"?ru:uk;
+ const min=Math.min(-.2,point??0);
+ const max=Math.max(.025852*parameters.ideality*Math.log1p(.01/parameters.saturationA),point??0);
+ const points=Array.from({length:81},(_,i)=>{
+  const x=i<21?min*(1-i/20):max*(i-20)/60;
+  return [x,diodeCurrent(x,parameters)*1000] as [number,number];
+ });
+ return <div className="network-inspector">
+  <strong>{title}</strong>
+  <div className="network-inspector-fields">
+   <NumberEdit label="Iₛ, nA" min={1e-9} max={1e6} value={parameters.saturationA*1e9} onChange={v=>update({saturationA:v/1e9})}/>
+   <NumberEdit label="n" min={1} max={4} value={parameters.ideality} onChange={ideality=>update({ideality})}/>
+  </div>
+  <div className="network-buttons">
+   <button type="button" onClick={()=>update({reversed:!parameters.reversed})}>{t("Развернуть диод","Розвернути діод")}</button>
+   <button type="button" onClick={move}>{t("Переподключить","Перепід’єднати")}</button>
+   {bridge&&<button type="button" onClick={bridge}>{t("Сменить второй узел","Змінити другий вузол")}</button>}
+   <button type="button" onClick={remove}>{t("Удалить","Видалити")}</button>
+  </div>
+  <details><summary>{t("Вольт-амперная характеристика","Вольт-амперна характеристика")}</summary>
+   <EngineeringPlot language={language} label={t("ВАХ диода","ВАХ діода")}
+    plot={{xLabel:"Uᴅ, V",yLabel:"Iᴅ, mA",xMax:max,yMin:points[0][1],yMax:points.at(-1)![1],
+      curves:[{label:"Iᴅ(Uᴅ)",color:"blue",points}]}}
+    domains={{x:[min,max],y:[points[0][1],Math.max(10,points.at(-1)![1])]}}
+    selected={point!==undefined?[point,diodeCurrent(point,parameters)*1000]:undefined}/>
+   {point!==undefined&&<output data-diode-point data-diode-voltage={point} data-diode-current={diodeCurrent(point,parameters)}>Uᴅ = {point.toPrecision(4)} V · Iᴅ = {(diodeCurrent(point,parameters)*1000).toPrecision(4)} mA</output>}
+   <small>{t("300 K. Модель учитывает статическую ВАХ.","300 K. Модель враховує статичну ВАХ.")}</small>
+  </details>
+ </div>;
+}
 
 function SwitchFields({language,duration,closed,atS,closes,canSchedule,onChange}:{
  language:Language;duration:number;closed:boolean;atS?:number;closes?:boolean;canSchedule:boolean;

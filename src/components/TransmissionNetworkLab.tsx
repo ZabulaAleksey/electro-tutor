@@ -7,16 +7,21 @@ import EngineeringPlot from "../engineering/EngineeringPlot";
 import {engineeringAxis} from "../engineering/scale";
 import {formatEngineeringNumber as n,formatEngineeringValue} from "../engineering/format";
 import {localePath} from "../site-path";
-import {at,DEFAULT_NETWORK,findLoad,historyValue,lineEnergy,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
+import {at,branchVoltage,contactsOf,DEFAULT_NETWORK,findLoad,historyValue,lineEnergy,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
 import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import NetworkWorkbench from "../transient/NetworkWorkbench";
 import NetworkInspector from "../transient/NetworkInspector";
 import {networkError} from "../transient/network-copy";
-import {loadReplacement,removeSection,sectionBoundaries,type Selection} from "../transient/network-edit";
+import {loadReplacement,readDetached,removeSection,sectionBoundaries,type DetachedPart,type Selection} from "../transient/network-edit";
 import NetworkSurface from "../transient/NetworkSurface";
 import "./TransmissionNetworkLab.css";
-type Document = {model:Network; layout:Layout};
-const draftKey = "electrotutor-line-draft-v4";
+type Document = {model:Network; layout:Layout; detached:DetachedPart[]};
+const draftKey = "electrotutor-line-draft-v5";
+function readLayout(input:unknown):Layout{
+ if(!input||typeof input!=="object")return {};
+ return Object.fromEntries(Object.entries(input).filter(([id,value])=>
+  /^@?[A-Za-z][A-Za-z0-9_-]{0,79}$/.test(id)&&typeof value==="number"&&Number.isFinite(value)&&Math.abs(value)<=1e6));
+}
 const legacyDraftKey = "electrotutor-line-draft";
 const usesNewComponents=(model:Network)=>model.load?.kind==="diode"||
  [...model.series??[],...model.branches??[]].some(link=>link.resistanceOhm===undefined&&!link.switch);
@@ -26,11 +31,25 @@ const speeds=Array.from({length:10},(_,index)=>2**(index-4));
 export default function TransmissionNetworkLab({language}:{language:Language}){
  const operationCopy=getLocale(language).operationStatus;
  const ru=language==="ru",[mounted,setMounted]=useState(false),[model,setModel]=useState<Network>(()=>structuredClone(DEFAULT_NETWORK)),[run,setRun]=useState<WaveRun>(()=>simulateNetwork(DEFAULT_NETWORK)),[time,setTime]=useState(0),[speed,setSpeed]=useState(1),[running,setRunning]=useState(false),[probe,setProbe]=useState(750000),[mode,setMode]=useState<"recalculate"|"live">("recalculate"),[domains,setDomains]=useState<Limits>(()=>limits(simulateNetwork(DEFAULT_NETWORK))),[busy,setBusy]=useState(true),[error,setError]=useState(""),[quantity,setQuantity]=useState<"u"|"i">("u"),[surface,setSurface]=useState(false),[waves,setWaves]=useState(true),[layout,setLayout]=useState<Layout>({}),[selection,setSelection]=useState<Selection|null>(null),[revision,setRevision]=useState(0),[comparison,setComparison]=useState<WaveRun|null>(null);
+ const [detached,setDetached]=useState<DetachedPart[]>([]);
  const [actionError,setActionError]=useState("");
- const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:structuredClone(DEFAULT_NETWORK),layout:{}}));const restore=useRef(false);
+ const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:structuredClone(DEFAULT_NETWORK),layout:{},detached:[]}));const restore=useRef(false);
  const worker=useRef<Worker|null>(null),request=useRef(0),preserve=useRef(false),timeRef=useRef(0),speedRef=useRef(1),past=useRef<Document[]>([]),future=useRef<Document[]>([]),file=useRef<HTMLInputElement>(null);
  useEffect(()=>{timeRef.current=time;},[time]);useEffect(()=>{speedRef.current=speed;},[speed]);
- useEffect(()=>{if(restore.current)return;restore.current=true;try{const data=(localStorage.getItem(draftKey)??localStorage.getItem("electrotutor-line-draft-v3")??localStorage.getItem(legacyDraftKey));if(data&&data.length<=100000){const parsed=JSON.parse(data);if(!validateNetwork(parsed.model).length){const safeLayout:Layout={};if(parsed.layout&&typeof parsed.layout==="object")for(const [id,value] of Object.entries(parsed.layout)){if(/^@?[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(id)&&typeof value==="number"&&Number.isFinite(value)&&value>=50&&value<=110)safeLayout[id]=value;}setModel(parsed.model);setLayout(safeLayout);setSavedDocument(JSON.stringify({model:parsed.model,layout:safeLayout}));}}}catch{/* Existing model stays usable when local storage is unavailable. */}},[]);
+ useEffect(()=>{
+  if(restore.current)return;
+  restore.current=true;
+  try{
+   const data=[draftKey,"electrotutor-line-draft-v4","electrotutor-line-draft-v3",legacyDraftKey]
+    .map(key=>localStorage.getItem(key)).find(value=>value!==null);
+   if(!data||data.length>100000)return;
+   const parsed=JSON.parse(data);
+   if(validateNetwork(parsed.model).length)return;
+   const layout=readLayout(parsed.layout),detached=readDetached(parsed.detached);
+   setModel(parsed.model);setLayout(layout);setDetached(detached);
+   setSavedDocument(JSON.stringify({model:parsed.model,layout,detached}));
+  }catch{/* Existing model stays usable when local storage is unavailable. */}
+ },[]);
  useEffect(()=>{setMounted(true);const w=new Worker(new URL("../transient/network.worker.ts",import.meta.url),{type:"module"});worker.current=w;w.onmessage=(e:MessageEvent<{id:number;run?:WaveRun;error?:string}>)=>{if(e.data.id!==request.current)return;setBusy(false);if(e.data.error){setError(networkError(e.data.error,language));setRunning(false);return;}if(e.data.run){setRun(e.data.run);if(!preserve.current)setDomains(limits(e.data.run));setError("");}};w.onerror=()=>{setError(ru?"Вычислитель недоступен. Расчёт не выполнен.":"Обчислювач недоступний. Розрахунок не виконано.");setBusy(false);setRunning(false);};return()=>{w.terminate();worker.current=null;};},[ru,language]);
  useEffect(()=>{
   if(!worker.current)return;
@@ -43,30 +62,31 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  },[model,language]);
  useEffect(()=>{if(!running)return;let frame=0,last:number|undefined;const media=matchMedia("(prefers-reduced-motion: reduce)");const stop=()=>{if(document.hidden||media.matches)setRunning(false);};if(document.hidden||media.matches){setRunning(false);return;}const tick=(now:number)=>{if(last!==undefined){const dt=Math.min(.1,(now-last)/1000)*speedRef.current*run.config.durationS/8;const next=Math.min(run.config.durationS,timeRef.current+dt);timeRef.current=next;setTime(next);if(next>=run.config.durationS){setRunning(false);return;}}last=now;frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);document.addEventListener("visibilitychange",stop);media.addEventListener("change",stop);return()=>{cancelAnimationFrame(frame);document.removeEventListener("visibilitychange",stop);media.removeEventListener("change",stop);};},[running,run]);
  function apply(next:Document,keep=false){
-  if(next.model===model){setLayout(next.layout);return;}
+  setLayout(next.layout);
+  setDetached(next.detached);
+  if(next.model===model)return;
   preserve.current=keep;
   setRevision(v=>v+1);
   if(!keep){setRunning(false);setTime(0);timeRef.current=0;}
   setModel(next.model);
-  setLayout(next.layout);
   setProbe(x=>Math.min(x,totalLength(next.model)));
  }
- function edit(next:Network,keep=false,nextLayout=layout){
-  if(next===model&&JSON.stringify(nextLayout)===JSON.stringify(layout))return;
-  if(next!==model&&JSON.stringify(next)===JSON.stringify(model)&&JSON.stringify(nextLayout)===JSON.stringify(layout))return;
+ function edit(next:Network,keep=false,nextLayout=layout,nextDetached=detached){
+  if(next!==model&&JSON.stringify(next)===JSON.stringify(model))next=model;
+  if(next===model&&JSON.stringify(nextLayout)===JSON.stringify(layout)&&JSON.stringify(nextDetached)===JSON.stringify(detached))return;
   setActionError("");
-  past.current.push({model,layout});
+  past.current.push({model,layout,detached});
   if(past.current.length>40)past.current.shift();
   future.current=[];
-  apply({model:next,layout:nextLayout},keep);
+  apply({model:next,layout:nextLayout,detached:nextDetached},keep);
  }
  function history(direction:"undo"|"redo"){
   const from=direction==="undo"?past:future,to=direction==="undo"?future:past,next=from.current.pop();
   if(!next)return;
-  to.current.push({model,layout});
+  to.current.push({model,layout,detached});
   apply(next);
  }
- const selected=selection&&(selection.kind==="line"?model.sections.some(s=>s.id===selection.id):
+ const selected=selection&&(selection.kind==="detached"?detached.some(part=>part.id===selection.id):selection.kind==="line"?model.sections.some(s=>s.id===selection.id):
   selection.kind==="shunt"?model.shunts.some(sh=>sh.node===selection.node):selection.kind==="contact"?[...model.series??[],...model.branches??[]].some(link=>link.id===selection.id):selection.kind==="load"&&selection.id?!!findLoad(model.load,selection.id):true)?selection:null;
  function deleteSection(index:number){
   const result=removeSection(model,index);
@@ -77,6 +97,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   if(result.confirm&&!window.confirm(ru?"После удаления подключения правого узла перейдут на соседний узел. Продолжить?":"Після видалення підключення правого вузла перейдуть на сусідній вузол. Продовжити?"))return;
   const nextLayout={...layout};
   delete nextLayout[model.sections[index].id];
+  delete nextLayout['@x-'+model.sections[index].id];
   edit(result.model,false,nextLayout);
   setSelection(null);
  }
@@ -115,14 +136,20 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const traceU=useMemo(()=>timeTrace(run,probe,"u"),[run,probe]),traceI=useMemo(()=>timeTrace(run,probe,"i"),[run,probe]);
  const source=nodePort(run,run.config.source.node,time),loadPort=nodePort(run,run.config.sections.length,time),boundary=sectionBoundaries(run.config);
  const numericErrors=validateNetwork(model),valid=mounted&&!numericErrors.length&&!busy&&!error&&JSON.stringify(run.config)===JSON.stringify(model);
- const documentValue=JSON.stringify({model,layout});
+ const documentValue=JSON.stringify({model,layout,detached});
+ const version5=detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||value<50||value>110)||
+  contactsOf(model).some(link=>link.component);
+ const inspectedDiode=selected?.kind==="contact"?contactsOf(model).find(link=>link.id===selected.id):undefined;
+ const diodePoint=!valid?undefined:inspectedDiode?.component?.kind==="diode"?
+  (inspectedDiode.component.diode.reversed?-1:1)*branchVoltage(run,inspectedDiode,time):
+  run.config.load.kind==="diode"?(run.config.load.diode?.reversed?-1:1)*at(run,L,time).u:undefined;
  const saveLocal=()=>{try{if(documentValue.length>100000||validateNetwork(model).length)throw Error();localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);return true;}catch{return false;}};
  useEffect(()=>{
   if(!mounted||documentValue===savedDocument||documentValue.length>100000||validateNetwork(model).length)return;
   try{localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);}catch{/* Explicit save and navigation guard remain available. */}
  },[mounted,documentValue,savedDocument,model]);
  const navigationDialog=useUnsavedChanges({dirty:documentValue!==savedDocument,onSave:saveLocal,language});
- const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout},null,2),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(version5?{detached}:{})},null,2),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  const start=()=>{if(time>=run.config.durationS)seek(0);setRunning(true);};
  const contactEvents=[...model.series??[],...model.branches??[]].flatMap(link=>link.switch?.atS===undefined?[]:[{id:link.id,atS:link.switch.atS,target:link.id,kind:"switch" as const,value:Number(link.switch.closes),previous:Number(link.switch.closed)}]);
  const recordedEvents=[...model.events,...contactEvents].sort((a,b)=>a.atS-b.atS);
@@ -134,11 +161,12 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
   <section className="network-workbench" aria-label={ru?"Конструктор линий":"Конструктор ліній"}>
    <NetworkWorkbench model={model} layout={layout} language={language} selected={selected} onSelect={setSelection}
-    onCommit={(next,item)=>{edit(next);setSelection(item);}}
-    inspector={arm=>selected&&<NetworkInspector selection={selected} model={model} load={effectiveLoad} language={language}
+    detached={detached} onDetached={next=>edit(model,true,layout,next)}
+    onCommit={(next,item,id)=>{edit(next,false,layout,id?detached.filter(part=>part.id!==id):detached);setSelection(item);}}
+    inspector={arm=>selected&&selected.kind!=="detached"&&<NetworkInspector selection={selected} model={model} load={effectiveLoad} language={language}
      onEdit={next=>{const errors=validateNetwork(next);if(errors.length)setActionError(networkError(errors.join("; "),language));else edit(next);}} onMove={arm} onDeleteLine={deleteSection} onChangeLoad={changeLoad} onResistance={physicalEvent}
      live={mode==="live"} time={time} onMode={setMode}
-     diodePoint={valid&&run.config.load.kind==="diode"?(run.config.load.diode?.reversed?-1:1)*at(run,L,time).u:undefined}
+     diodePoint={diodePoint}
      onDuration={durationS=>edit({...model,durationS})}/>}
     undo={()=>history("undo")} redo={()=>history("redo")} canUndo={!!past.current.length} canRedo={!!future.current.length}
     load={effectiveLoad} time={time} onLayout={(next)=>edit(model,true,next)}
@@ -149,12 +177,13 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
       try{
        if(f.size>100000)throw Error("file-limit:100kB");
        const saved=JSON.parse(await f.text());
-       if(!["electrotutor-line-v2","electrotutor-line-v3","electrotutor-line-v4"].includes(saved.schema))throw Error("schema");
+       if(!["electrotutor-line-v2","electrotutor-line-v3","electrotutor-line-v4","electrotutor-line-v5"].includes(saved.schema))throw Error("schema");
        if(saved.schema==="electrotutor-line-v2"&&(saved.model?.series?.length||saved.model?.branches?.length)||
-          saved.schema!=="electrotutor-line-v4"&&usesNewComponents(saved.model))throw Error("schema");
+          ["electrotutor-line-v2","electrotutor-line-v3"].includes(saved.schema)&&usesNewComponents(saved.model))throw Error("schema");
        const errors=validateNetwork(saved.model);if(errors.length)throw Error(errors.join(";"));
-       const safeLayout=Object.fromEntries(Object.entries(saved.layout??{}).filter(([id,y])=>/^@?[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(id)&&typeof y==="number"&&Number.isFinite(y)&&y>=50&&y<=110)) as Layout;
-       edit(saved.model,false,safeLayout);setSelection(null);
+       const latest=saved.schema==="electrotutor-line-v5";
+       if(!latest&&contactsOf(saved.model).some(link=>link.component))throw Error("schema");
+       edit(saved.model,false,readLayout(saved.layout),latest?readDetached(saved.detached):[]);setSelection(null);
       }catch(error){setActionError(networkError(String(error),language));}e.target.value="";
      }}/></>}
     transport={<>
@@ -184,7 +213,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    <div className="network-buttons"><label><input type="checkbox" checked={waves} onChange={e=>setWaves(e.target.checked)}/>{ru?"Прямая / обратная / сумма":"Пряма / зворотна / сума"}</label><button type="button" onClick={()=>setComparison(run)}>{ru?"Запомнить опыт":"Запам’ятати дослід"}</button>{comparison&&<button type="button" onClick={()=>setComparison(null)}>{ru?"Убрать сравнение":"Прибрати порівняння"}</button>}</div>
    <div className="network-plot-grid"><div>{plot("x","u")}</div><div>{plot("x","i")}</div><div>{plot("t","u")}</div><div>{plot("t","i")}</div></div>
    <div className="network-buttons"><button type="button" aria-expanded={surface} onClick={()=>setSurface(v=>!v)}>{surface?(ru?"Скрыть 3D":"Сховати 3D"):(ru?"Поверхность 3D":"Поверхня 3D")}</button>{surface&&<label className="network-field"><span>{ru?"Величина поверхности":"Величина поверхні"}</span><select value={quantity} onChange={e=>setQuantity(e.target.value as "u"|"i")}><option value="u">U(x,t)</option><option value="i">I(x,t)</option></select></label>}</div>{surface&&<NetworkSurface run={run} time={time} probe={probe} quantity={quantity} domain={domains[quantity]} language={language} onProbe={setProbe}/>}
-   <details><summary>{ru?"Физическая модель и ограничения":"Фізична модель та обмеження"}</summary><p>{ru?"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Идеальные последовательные линии, общий обратный провод, до 6 участков, источник в одном узле, концевая RLC-нагрузка или диод Шокли. Для RLC задаются согласованные начальные состояния. Длина/скорость/Z₀ определяют L′,C′; потери/ветвления/произвольные нелинейные сети не рассчитываются.":"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Ідеальні послідовні лінії, спільний зворотний провід, до 6 ділянок, джерело в одному вузлі, кінцеве RLC-навантаження або діод Шоклі. Для RLC задаються узгоджені початкові стани. Довжина/швидкість/Z₀ визначають L′,C′; втрати/відгалуження/довільні нелінійні мережі не обчислюються."}</p><p>{run.method==="exact-fronts"?(ru?"Событийные характеристики для резистивных схем и концевого диода. Диапазон заранее ограничен экстремумами рассчитанных прямых/обратных волн; это консервативная граница, не обещание достижимого пика.":"Подієві характеристики для резистивних схем і кінцевого діода. Діапазон заздалегідь обмежено екстремумами розрахованих прямих/зворотних хвиль; це консервативна межа, не обіцянка досяжного піка."):(ru?"RLC: метод характеристик с задержками и трапецеидальными companion-состояниями. Внутренний шаг ":"RLC: метод характеристик із затримками та трапецеїдальними companion-станами. Внутрішній крок ")+units(run.stepS,"s")}</p><p>{ru?"Энергия линии + накопленная энергия нагрузки":"Енергія лінії + накопичена енергія навантаження"}: {units(lineEnergy(run,time)+historyValue(run.deviceEnergy,time,true),"J")}</p><a href={localePath(language,"/interactive/transmission-line-reference/")}>{ru?"Сохранённая численная FDTD-модель · сравнение":"Збережена чисельна FDTD-модель · порівняння"}</a></details></div>
+   <details><summary>{ru?"Физическая модель и ограничения":"Фізична модель та обмеження"}</summary><p>{ru?"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Идеальные последовательные линии, общий обратный провод, до 6 участков, источник в одном узле, концевая нагрузка, промежуточные ветви R/L/C и диоды Шокли. Для RLC задаются согласованные начальные состояния. Длина/скорость/Z₀ определяют L′,C′; потери/ветвления/произвольные нелинейные сети не рассчитываются.":"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Ідеальні послідовні лінії, спільний зворотний провід, до 6 ділянок, джерело в одному вузлі, кінцеве навантаження, проміжні гілки R/L/C і діоди Шоклі. Для RLC задаються узгоджені початкові стани. Довжина/швидкість/Z₀ визначають L′,C′; втрати/відгалуження/довільні нелінійні мережі не обчислюються."}</p><p>{run.method==="exact-fronts"?(ru?"Событийные характеристики для цепей без накопителей, включая диоды. Диапазон заранее ограничен экстремумами рассчитанных прямых/обратных волн; это консервативная граница, не обещание достижимого пика.":"Подієві характеристики для кіл без накопичувачів, зокрема з діодами. Діапазон заздалегідь обмежено екстремумами розрахованих прямих/зворотних хвиль; це консервативна межа, не обіцянка досяжного піка."):(ru?"RLC: метод характеристик с задержками и трапецеидальными companion-состояниями. Внутренний шаг ":"RLC: метод характеристик із затримками та трапецеїдальними companion-станами. Внутрішній крок ")+units(run.stepS,"s")}</p><p>{ru?"Энергия линий и накопителей":"Енергія ліній і накопичувачів"}: {units(lineEnergy(run,time)+historyValue(run.deviceEnergy,time,true),"J")}</p><a href={localePath(language,"/interactive/transmission-line-reference/")}>{ru?"Сохранённая численная FDTD-модель · сравнение":"Збережена чисельна FDTD-модель · порівняння"}</a></details></div>
   </section>
   <section><h2>{ru?"История физических событий":"Історія фізичних подій"}</h2>{!recordedEvents.length?<p className="network-note">{ru?"Задайте время коммутации на ключе или изменение сопротивления в настройках нагрузки.":"Задайте час комутації на ключі або зміну опору в налаштуваннях навантаження."}</p>:<table><thead><tr><th>t</th><th>{ru?"Параметр":"Параметр"}</th><th>{ru?"Было → стало":"Було → стало"}</th><th>{ru?"Действие":"Дія"}</th></tr></thead><tbody>{recordedEvents.map(e=><tr key={e.id}><td>{units(e.atS,"s")}</td><td>{e.target} · {e.kind}</td><td>{n(e.previous??0,language)} → {n(e.value,language)} {e.kind==="resistance"?"Ω":"1"}</td><td><button type="button" onClick={()=>seek(Math.max(0,e.atS-1e-10))}>{ru?"До события":"До події"}</button></td></tr>)}</tbody></table>}</section>
  {navigationDialog}</div></fieldset>;

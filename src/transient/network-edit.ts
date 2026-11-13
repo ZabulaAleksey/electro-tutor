@@ -1,5 +1,5 @@
 import { DEFAULT_DIODE } from "./line-diode";
-import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validateNetwork, type Contact, type Load, type Network } from "./network";
+import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validateNetwork, type BranchComponent, type Contact, type Load, type Network } from "./network";
 export function replaceLoad(root:Load,id:string,next:Load):Load{return root.id===id?next:{...root,children:root.children?.map(c=>replaceLoad(c,id,next))};}
 export function removeLoad(root: Load, id: string): Load {
   if (root.id === id) return { id: root.id, kind: "open" };
@@ -10,7 +10,22 @@ export function removeLoad(root: Load, id: string): Load {
 export function sectionBoundaries(c:Network){return boundaries(c).slice(1,-1).map((x,j)=>({x,label:`${c.sections[j].id} | ${c.sections[j+1].id}`}));}
 
 
+export type PalettePart = "line" | "wire" | "r" | "l" | "c" | "diode" | "source" | "switch";
+export type DetachedPart = {id:string; kind:PalettePart; x:number; y:number};
+const partKinds:readonly PalettePart[] = ["line","wire","r","l","c","diode","source","switch"];
+export function readDetached(input:unknown):DetachedPart[]{
+ if(!Array.isArray(input))return [];
+ const seen=new Set<string>();
+ return input.filter((part):part is DetachedPart=>{
+  if(!part||typeof part.id!=="string"||!/^draft-[1-9][0-9]{0,8}$/.test(part.id)||seen.has(part.id)||
+    !partKinds.includes(part.kind)||!Number.isFinite(part.x)||!Number.isFinite(part.y)||
+    Math.abs(part.x)>1e6||Math.abs(part.y)>1e6)return false;
+  seen.add(part.id);
+  return true;
+ });
+}
 export type Selection =
+  | { kind: "detached"; id: string }
   | { kind: "line"; id: string }
   | { kind: "source" }
   | { kind: "load"; id?: string }
@@ -19,7 +34,7 @@ export type Selection =
 
 export type Tool =
   | "line" | "shunt" | "matched" | "r" | "l" | "c" | "open" | "wire" | "switch" | "source" | "diode"
-  | { bridgeFrom: number; id?: string; wire?: boolean }
+  | { bridgeFrom: number; id?: string; part?: TwoTerminal; wire?: boolean }
   | { relocate: string }
   | { moveLoad: string }
   | { move: Extract<Selection, { kind: "line" | "shunt" }> | { kind: "source" } };
@@ -94,38 +109,56 @@ export function splitSection(model: Network, index: number) {
   branches:model.branches?.map(contact=>({...contact,from:remap(contact.from),to:contact.to==="reference"?contact.to:remap(contact.to)}))};
 }
 
-function contactPlacement(model: Network, tool: "r" | "switch" | "wire", position: Position, existing?: Contact): Edit {
+type TwoTerminal = "r" | "l" | "c" | "diode" | "switch" | "wire";
+export const isTwoTerminal=(tool:Tool):tool is TwoTerminal=>
+ tool==="r"||tool==="l"||tool==="c"||tool==="diode"||tool==="switch"||tool==="wire";
+export const contactKind=(link:Contact):TwoTerminal=>link.component?.kind??(link.switch?"switch":link.resistanceOhm===undefined?"wire":"r");
+const prefixes:Record<TwoTerminal,string>={r:"R",l:"L",c:"C",diode:"VD",switch:"K",wire:"W"};
+function newContact(model:Network,tool:TwoTerminal,inline:boolean):Contact{
+ const component:BranchComponent|undefined=tool==="l"||tool==="c"?{kind:tool,value:tool==="l"?.02:1e-5}:
+   tool==="diode"?{kind:tool,diode:{...DEFAULT_DIODE}}:undefined;
+ return {id:newElementId(model,prefixes[tool]),from:0,to:"reference",component,
+  resistanceOhm:tool==="r"||tool==="switch"&&!inline?100:undefined,switch:tool==="switch"?{closed:false}:undefined};
+}
+function contactPlacement(model: Network, tool: TwoTerminal, position: Position, existing?: Contact): Edit {
  const inline=position.kind==="joint"||position.kind==="span";
  const split=position.kind==="span"||position.kind==="branch-span";
  const next=split?splitSection(model,position.index):model;
  const from=position.index+Number(split);
- const id=existing?.id??newElementId(model,tool==="r"?"R":tool==="wire"?"W":"K");
- const contact:Contact={id,from,to:"reference",resistanceOhm:existing ? existing.resistanceOhm??(!inline&&tool!=="wire"?100:undefined) : tool==="r"||tool==="switch"&&!inline?100:undefined,
-  switch:existing?.switch??(tool==="switch"?{closed:false}:undefined)};
- if(inline)return {model:{...next,series:[...next.series??[],{...contact,to:next.sections.length+from}]},selection:{kind:"contact",id}};
- return {model:{...next,branches:[...next.branches??[],contact]},selection:{kind:"contact",id}};
+ const contact=existing??newContact(model,tool,inline);
+ const id=contact.id;
+ if(position.kind==="end"){
+  const load:Load={id,kind:tool,value:contact.resistanceOhm,...contact.component};
+  return {model:loadReplacement(model,load),selection:{kind:"load"}};
+ }
+ if(inline)return {model:{...next,series:[...next.series??[],{...contact,from,to:next.sections.length+from}]},selection:{kind:"contact",id}};
+ const resistanceOhm=tool==="switch"?contact.resistanceOhm??100:contact.resistanceOhm;
+ return {model:{...next,branches:[...next.branches??[],{...contact,from,to:"reference",resistanceOhm}]},selection:{kind:"contact",id}};
 }
 
 function candidate(model: Network, tool: Tool, position: Position): Edit {
   const { index, kind } = position;
   if (typeof tool === "object") {
     if ("bridgeFrom" in tool) {
-      const existing=model.branches?.find(link=>link.id===tool.id);
-      const id=existing?.id??newElementId(model,tool.wire?"W":"R");
-      const branch={...existing,id,from:tool.bridgeFrom,to:index,resistanceOhm:existing?existing.resistanceOhm:tool.wire?undefined:100};
-      return {model:{...model,branches:[...(model.branches??[]).filter(link=>link.id!==id),branch]},selection:{kind:"contact",id}};
+      const existing=[...model.series??[],...model.branches??[]].find(link=>link.id===tool.id);
+      const contact=existing??newContact(model,tool.part??(tool.wire?"wire":"r"),true);
+      const branch={...contact,from:tool.bridgeFrom,to:index};
+      return {model:{...model,series:model.series?.filter(link=>link.id!==contact.id),
+        branches:[...(model.branches??[]).filter(link=>link.id!==contact.id),branch]},selection:{kind:"contact",id:contact.id}};
     }
     if("moveLoad" in tool){
       const load=findLoad(model.load,tool.moveLoad)!;
       const base=loadReplacement(model,removeLoad(model.load,load.id));
-      const wire=load.kind==="wire";
-      const id=newElementId(model,wire?"W":"R");
-      return contactPlacement(base,wire?"wire":"r",position,{id,from:0,to:"reference",resistanceOhm:load.value});
+      const kind=load.kind as TwoTerminal;
+      const id=newElementId(model,prefixes[kind]);
+      const component:BranchComponent|undefined=kind==="l"||kind==="c"?{kind,value:load.value!,initial:load.initial}:
+        kind==="diode"?{kind,diode:load.diode!}:undefined;
+      return contactPlacement(base,kind,position,{id,from:0,to:"reference",component,resistanceOhm:kind==="r"?load.value:undefined});
     }
     if ("relocate" in tool) {
       const existing=[...model.series??[],...model.branches??[]].find(link=>link.id===tool.relocate)!;
       const base={...model,series:model.series?.filter(link=>link.id!==existing.id),branches:model.branches?.filter(link=>link.id!==existing.id)};
-      return contactPlacement(base,existing.switch?"switch":existing.resistanceOhm===undefined?"wire":"r",position,existing);
+      return contactPlacement(base,contactKind(existing),position,existing);
     }
     const { move } = tool;
     if (move.kind === "source") return { model: { ...model, source: { ...model.source, node: index } }, selection: move };
@@ -147,7 +180,7 @@ function candidate(model: Network, tool: Tool, position: Position): Edit {
     const branch=model.branches![index];
     return {model:{...model,branches:model.branches!.map(link=>link===branch?{...link,switch:{closed:true}}:link)},selection:{kind:"contact",id:branch.id}};
   }
-  if ((tool==="r"||tool==="switch"||tool==="wire") && kind!=="end") return contactPlacement(model,tool,position);
+  if (isTwoTerminal(tool) && kind!=="end") return contactPlacement(model,tool,position);
   if (tool==="switch") {
     const id=newElementId(model,"K");
     const child=model.load.kind==="open"?{id:newElementId(model,"R"),kind:"r" as const,value:model.sections.at(-1)!.impedanceOhm}:model.load;
@@ -174,18 +207,18 @@ export function placementTargets(model: Network, tool: Tool): Placement[] {
   const nodes: Position[] = Array.from({ length: model.sections.length + 1 }, (_, index) => ({ kind: "node", index }));
   const spans: Position[] = model.sections.map((_, index) => ({ kind: "span", index }));
   const end: Position = { kind: "end", index: model.sections.length };
-  const topology: Position[] = tool==="r"||tool==="switch"||tool==="wire"||typeof tool==="object"&&("relocate" in tool||"moveLoad" in tool)
+  const topology: Position[] = isTwoTerminal(tool)||typeof tool==="object"&&("relocate" in tool||"moveLoad" in tool)
     ? [...nodes.slice(1,-1).map(node=>({...node,kind:"joint" as const})),...nodes.map(node=>({...node,kind:"branch" as const})),
       ...spans.map(span=>({...span,kind:"branch-span" as const})),
-      ...(tool==="switch" ? (model.branches??[]).flatMap((branch,index)=>branch.switch?[]:[{kind:"branch-key" as const,index}]) : [])]
+      ...(tool==="switch" ? (model.branches??[]).flatMap((branch,index)=>branch.switch||branch.component?[]:[{kind:"branch-key" as const,index}]) : [])]
     : [];
   return [...(typeof tool==="object"&&"bridgeFrom" in tool?nodes: [...nodes,...spans,...topology,end])].map(position => {
     const { kind, index } = position;
     let error: string | undefined;
     const moving=typeof tool==="object"&&"relocate" in tool;
     const movingLoad=typeof tool==="object"&&"moveLoad" in tool;
-    const connection=moving||movingLoad||tool==="r"||tool==="switch"||tool==="wire";
-    const movingWire=moving&&[...model.series??[],...model.branches??[]].some(link=>link.id===tool.relocate&&!link.switch&&link.resistanceOhm===undefined);
+    const connection=moving||movingLoad||isTwoTerminal(tool);
+    const movingWire=moving&&[...model.series??[],...model.branches??[]].some(link=>link.id===tool.relocate&&contactKind(link)==="wire");
     if (connection && kind!=="end") {
       if (kind==="node"||(tool==="wire"||movingWire||movingLoad&&findLoad(model.load,tool.moveLoad)?.kind==="wire")&&(kind==="branch"||kind==="branch-span"))error="choose-connection";
       if (kind==="branch"&&(model.shunts.some(shunt=>shunt.node===index)||
@@ -196,7 +229,8 @@ export function placementTargets(model: Network, tool: Tool): Placement[] {
     } else if (typeof tool==="object"&&"bridgeFrom" in tool) {
       if(index===tool.bridgeFrom)error="choose-node";
     } else if (moving||movingLoad) {
-      error="choose-connection";
+      const link=moving?[...model.series??[],...model.branches??[]].find(link=>link.id===tool.relocate):undefined;
+      if(movingLoad||!link||link.switch||model.load.kind!=="open")error="choose-connection";
     } else if (typeof tool === "object") {
       const { move } = tool;
       if (move.kind === "line" && (kind !== "span" || model.sections[index]?.id === move.id)) error = "choose-line";

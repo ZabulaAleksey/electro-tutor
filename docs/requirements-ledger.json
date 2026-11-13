@@ -1860,6 +1860,21 @@
       ]
     },
     {
+      "domain": "transmission-free-layout",
+      "status": "PARTIAL",
+      "requirement_ids": ["LINE-UX-015", "LINE-UX-016", "LINE-UX-017", "LINE-UX-018"],
+      "runtime": "Separate free layout, detached palette parts, explicit reconnection and intermediate two-terminal L/C/diode calculation.",
+      "security": "Bounded document import and validated network transactions.",
+      "a11y": "Mouse and touch dragging with named keyboard connection targets.",
+      "observability": "ET-LAB-014 in STAGES and TESTING.",
+      "gap": "Physical smartphone and OS keyboard acceptance.",
+      "action": "Follow the physical-device scenario in STAGES.",
+      "code": ["src/transient/NetworkWorkbench.tsx", "src/components/TransmissionNetworkLab.tsx", "src/transient/network.ts"],
+      "unit": ["src/transient/network-advanced.test.ts"],
+      "integration": [],
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
+    },
+    {
       "domain": "transmission-symbols-and-diode",
       "status": "PARTIAL",
       "requirement_ids": ["LINE-UX-011", "LINE-UX-012", "LINE-UX-013", "LINE-UX-014"],

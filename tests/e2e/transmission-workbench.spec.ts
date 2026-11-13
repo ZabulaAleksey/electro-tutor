@@ -137,6 +137,37 @@ test.describe("touch workspace", () => {
     await expect(sections(page)).toHaveCount(2);
   });
 
+  test("touch drags a detached diode and attaches it to an intermediate branch",async({page,context})=>{
+    await page.goto(path);
+    await ready(page);
+    const session=await context.newCDPSession(page);
+    await page.getByRole("button",{name:"Элементы",exact:true}).tap();
+    const diode=page.locator('[data-network-tool="diode"]');
+    await diode.scrollIntoViewIfNeeded();
+    const palette=await middle(diode);
+    expect(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest("[data-network-tool]")?.getAttribute("data-network-tool"),palette)).toBe("diode");
+    const blank=await position(page,115,266);
+    await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[palette]});
+    await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:palette.x,y:palette.y-26}]});
+    await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[blank]});
+    await expect(page.locator(".network-drag-ghost")).toBeVisible();
+    await session.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const field=canvas(page),draft=field.locator('[data-detached="diode"]');
+    await expect(draft).toBeVisible();
+    await draft.tap();
+    await page.getByRole("button",{name:"Подключить",exact:true}).tap();
+    await expect(field).toHaveAttribute("data-placing","true");
+    await field.getByRole("button",{name:"Шунт к опоре · TL1"}).tap();
+    await ready(page);
+    await expect(draft).toHaveCount(0);
+    await field.locator("[data-contact=VD1]").press("Enter");
+    await page.getByText("Вольт-амперная характеристика",{exact:true}).tap();
+    await expect(page.locator("[data-diode-point]")).toHaveAttribute("data-diode-voltage","0");
+    await page.locator(".network-timing summary").tap();
+    await page.getByLabel("Физическое время t, ms").fill("3");
+    await expect.poll(async()=>Number(await page.locator("[data-diode-point]").getAttribute("data-diode-voltage"))).toBeGreaterThan(.5);
+  });
+
   for (const [width, height] of [[320, 650], [430, 932], [768, 1024], [844, 390], [1280, 800]]) {
     test(`toolbar fits and stays available at ${width} × ${height}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
@@ -323,4 +354,45 @@ test("ordinary R, L and C terminate the line and deleting the load opens the bra
  await ready(page);
  await expect(field.getByRole("button",{name:"Нагрузка",exact:true}).locator("circle")).toHaveCount(2);
  await expect(lab).toHaveAttribute("data-method","exact-fronts");
+});
+
+test("a detached capacitor moves freely, survives reload, then connects and rewires through the worker",async({page})=>{
+ await page.goto(path);
+ await ready(page);
+ const field=canvas(page),lab=page.locator("[data-network-lab]");
+ const revision=await lab.getAttribute("data-model-revision");
+ await page.getByRole("button",{name:"Элементы",exact:true}).click();
+ await page.locator('[data-network-tool="c"]').click();
+ const blank=await position(page,160,30);
+ await page.mouse.click(blank.x,blank.y);
+ const draft=field.locator('[data-detached="c"]');
+ await expect(draft).toBeVisible();
+ await expect(lab).toHaveAttribute("data-model-revision",revision!);
+ await page.locator(".network-tray-close").click();
+ const start=await middle(draft);
+ const original=await draft.getAttribute("transform");
+ await page.mouse.move(start.x,start.y);await page.mouse.down();
+ await page.mouse.move(start.x+125,start.y+35,{steps:8});await page.mouse.up();
+ await expect(draft).not.toHaveAttribute("transform",original!);
+ await expect(lab).toHaveAttribute("data-model-revision",revision!);
+ const moved=await draft.getAttribute("transform");
+ await page.reload();await ready(page);
+ await expect(draft).toHaveAttribute("transform",moved!);
+ await draft.press("Enter");
+ await page.getByRole("button",{name:"Подключить",exact:true}).click();
+ await field.getByRole("button",{name:"Шунт к опоре · TL1"}).press("Enter");
+ await ready(page);
+ await expect(draft).toHaveCount(0);
+ await expect(lab).toHaveAttribute("data-method","characteristics-trapezoid");
+ const connected=field.locator("[data-contact=C1]");
+ await connected.press("Enter");
+ await page.getByRole("spinbutton",{name:"C, µF"}).fill("20");
+ await ready(page);
+ await page.getByRole("button",{name:"Переподключить",exact:true}).click();
+ await field.getByRole("button",{name:"Начать перемычку от узла 0"}).press("Enter");
+ await field.getByRole("button",{name:"Узел соединения · 1"}).press("Enter");
+ await ready(page);
+ await connected.press("Enter");
+ await expect(page.getByRole("spinbutton",{name:"C, µF"})).toHaveValue("20");
+ await expect(page.getByRole("button",{name:"Сменить второй узел"})).toBeVisible();
 });

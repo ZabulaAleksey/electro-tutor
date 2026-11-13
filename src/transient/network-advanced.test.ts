@@ -1,5 +1,6 @@
 import {expect,it} from "vitest";
-import {at,DEFAULT_NETWORK,historyValue,lineEnergy,nodePort,simulateNetwork,spatial,type Load,type Network} from "./network";
+import {at,branchVoltage,DEFAULT_NETWORK,historyValue,lineEnergy,nodePort,simulateNetwork,spatial,type Load,type Network} from "./network";
+import {DEFAULT_DIODE,diodeCurrent} from "./line-diode";
 import {surfaceFaces} from "./network-surface";
 const make=(load:Load):Network=>({...structuredClone(DEFAULT_NETWORK),source:{...DEFAULT_NETWORK.source,resistanceOhm:50},load,durationS:.012});
 it("series and parallel RLC agree with independent second-order analytical step solutions",()=>{
@@ -35,3 +36,78 @@ it("directional current components use the local impedance on both sides of a ju
 it("event overrides share passive component bounds",()=>{for(const value of [5e-324,1e308]){const c=make({id:"R",kind:"r",value:50});c.events=[{id:"e",atS:.008,target:"R",kind:"resistance",value}];expect(()=>simulateNetwork(c)).toThrow(/event/);}});
 
 it("front endpoint values are right-continuous at launch and reflection",()=>{const r=simulateNetwork(structuredClone(DEFAULT_NETWORK));const launch=spatial(r,0,"u"),arrival=spatial(r,.005,"u");expect(launch[0]).toEqual([0,100]);expect(launch.at(-1)).toEqual([1e6,0]);expect(arrival.at(-1)).toEqual([1e6,200]);});
+
+function matchedChain(){
+ const model=make({id:"load",kind:"r",value:50});
+ model.sections.push({...model.sections[0],id:"TL2"});
+ return model;
+}
+
+it("intermediate L and C obey the analytical shunt transients and junction current balance",()=>{
+ for(const kind of ["l","c"] as const){
+  const model=matchedChain(),value=kind==="l"?.02:1e-5;
+  const branch={id:"device",from:1,to:"reference" as const,component:{kind,value}};
+  model.branches=[branch];
+  const run=simulateNetwork(model,{resolution:250});
+  expect(run.method).toBe("characteristics-trapezoid");
+  for(const delay of [.0002,.0005,.001]){
+   const time=.005+delay,expected=kind==="l"?50*Math.exp(-delay*25/value):50*(-Math.expm1(-delay/(25*value)));
+   const voltage=branchVoltage(run,branch,time),current=-nodePort(run,1,time).intoLines;
+   expect(Math.abs(voltage-expected)).toBeLessThan(1);
+   expect(Math.abs(current-(50-expected)/25)).toBeLessThan(.04);
+   expect(historyValue(run.deviceEnergy,time,true)).toBeGreaterThan(0);
+  }
+ }
+});
+
+it("a series diode and an intermediate diode share the actual nodal current balance",()=>{
+ const model=matchedChain();
+ const series={id:"VD1",from:1,to:3,component:{kind:"diode" as const,diode:DEFAULT_DIODE}};
+ const branch={id:"VD2",from:1,to:"reference" as const,component:{kind:"diode" as const,diode:{...DEFAULT_DIODE,ideality:2}}};
+ model.series=[series];model.branches=[branch];
+ const run=simulateNetwork(model),time=.006;
+ const before=nodePort(run,1,time),after=nodePort(run,3,time);
+ const through=diodeCurrent(branchVoltage(run,series,time),DEFAULT_DIODE);
+ const shunt=diodeCurrent(branchVoltage(run,branch,time),branch.component.diode);
+ expect(through).toBeGreaterThan(0);
+ expect(shunt).toBeGreaterThan(0);
+ expect(through).toBeCloseTo(after.intoLines,6);
+ expect(before.intoLines+through+shunt).toBeCloseTo(0,6);
+});
+
+it("a diode between signal nodes charges an intermediate capacitor and satisfies KCL",()=>{
+ const model=matchedChain();
+ const diode={id:"VD",from:0,to:1,component:{kind:"diode" as const,diode:DEFAULT_DIODE}};
+ const capacitor={id:"C",from:1,to:"reference" as const,component:{kind:"c" as const,value:1e-5}};
+ model.branches=[diode,capacitor];
+ const run=simulateNetwork(model);
+ const time=.003,voltage=branchVoltage(run,capacitor,time);
+ const diodeI=diodeCurrent(branchVoltage(run,diode,time),DEFAULT_DIODE);
+ const h=run.stepS;
+ const capacitorI=capacitor.component.value*(branchVoltage(run,capacitor,time+h)-branchVoltage(run,capacitor,time-h))/(2*h);
+ expect(voltage).toBeGreaterThan(10);
+ expect(diodeI).toBeGreaterThan(0);
+ expect(diodeI-nodePort(run,1,time).intoLines-capacitorI).toBeCloseTo(0,2);
+});
+
+it("series L and C use the voltage difference between the two sides of a split joint",()=>{
+ for(const kind of ["l","c"] as const){
+  const model=matchedChain(),value=kind==="l"?.02:1e-5;
+  const series={id:"X",from:1,to:3,component:{kind,value}};
+  model.series=[series];
+  const run=simulateNetwork(model,{resolution:250});
+  for(const delay of [.0002,.0005,.001]){
+   const time=.005+delay,decay=Math.exp(-delay/(kind==="l"?value/100:100*value));
+   const expectedCurrent=(kind==="l"?1-decay:decay);
+   expect(Math.abs(nodePort(run,3,time).intoLines-expectedCurrent)).toBeLessThan(.025);
+   expect(Math.abs(branchVoltage(run,series,time)-100*(1-expectedCurrent))).toBeLessThan(2.5);
+  }
+ }
+});
+
+it("rejects a capacitor directly across an ideal stepped voltage source",()=>{
+ const model=matchedChain();
+ model.source.resistanceOhm=0;
+ model.branches=[{id:"C",from:0,to:"reference",component:{kind:"c",value:1e-5}}];
+ expect(()=>simulateNetwork(model)).toThrow("ideal-source-at-reactive-branch");
+});

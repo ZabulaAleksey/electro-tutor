@@ -93,3 +93,7 @@
 @media(max-height:480px) and (orientation:landscape){
  .network-tray-parts{inset:53px auto auto 8px;max-height:calc(100svh - 216px);width:min(380px,46vw)}
 }
+
+@media (max-width:440px) and (min-height:620px){
+ .network-lab .network-tray-parts{max-height:min(48dvh,310px)}
+}

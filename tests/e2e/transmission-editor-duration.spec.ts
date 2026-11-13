@@ -105,11 +105,18 @@ test("terminates a running worker and retries",async({page})=>{
  await page.locator(".network-timing summary").click();
  await page.evaluate(()=>window.dispatchEvent(new Event("slow-next-network-run")));
  await page.getByRole("button",{name:"1 s",exact:true}).click();
+ const start=page.getByRole("button",{name:"Пуск",exact:true});
+ await expect(start).toHaveAttribute("aria-busy","true");
+ await expect(start.locator(".network-play-spinner")).toBeVisible();
  await expect(page.getByLabel("Прогресс расчёта")).toBeVisible();
  await page.getByRole("button",{name:"Отменить расчёт",exact:true}).click();
  await expect(page.getByRole("button",{name:"Повторить расчёт"})).toBeVisible();
+ await expect(start.locator(".network-play-spinner")).toHaveCount(0);
  await page.getByRole("button",{name:"Повторить расчёт"}).click();
  await ready(page);
+ await expect(start).toBeEnabled();
+ await expect(start).toHaveAttribute("aria-busy","false");
+ await expect(start.locator(".network-play-spinner")).toHaveCount(0);
 });
 
 
@@ -132,6 +139,10 @@ test("the lab announces MCP without adding a control and keeps measurements avai
  await expect(page.getByRole("link",{name:/Измерения и графики/})).toHaveCount(0);
  await expect(page.getByRole("heading",{name:"Измерения",exact:true})).toBeVisible();
  await expect(page.getByText("Расчёт готов",{exact:true})).toHaveCount(0);
+ await expect(page.getByText("Физическая модель и ограничения",{exact:true})).toHaveCount(0);
+ await expect(page.getByRole("heading",{name:"История физических событий"})).toHaveCount(0);
+ await expect(page.getByRole("button",{name:"Поверхность 3D"})).toHaveCount(0);
+ await expect(page.locator("#network-results").getByLabel("Окно времени")).toHaveCount(0);
 });
 
 
@@ -147,6 +158,7 @@ test("duration accepts units and both result downloads cover the full experiment
  await expect(duration).toHaveValue("12,5 ms");
  await page.getByLabel("Окно времени").selectOption("50");
  await expect(page.getByLabel("Центр окна")).toHaveAttribute("max","0.0125");
+ await summary.click();
  await page.getByText("Экспорт результатов",{exact:true}).click();
  const download=async(format:"JSON"|"CSV")=>{
   const event=page.waitForEvent("download");

@@ -1943,8 +1943,8 @@
     {
       "domain": "transmission-context-and-duration",
       "status": "IMPLEMENTED",
-      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022", "LINE-UX-023", "LINE-UX-024", "LINE-UX-025", "LINE-UX-026", "LINE-UX-027", "LINE-UX-028"],
-      "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions, obstacle-aware lead routing, bounded long experiments and full probe export.",
+      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022", "LINE-UX-023", "LINE-UX-024", "LINE-UX-025", "LINE-UX-026", "LINE-UX-027", "LINE-UX-028", "LINE-UX-029"],
+      "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions, obstacle-aware lead routing, bounded long experiments, compact playback and time controls, full probe export and voltage SVG.",
       "security": "Validated configuration and bounded solver histories; cancellation invalidates the request and terminates the worker.",
       "a11y": "Dialog, named on-canvas actions, keyboard commands, touch placement and progress.",
       "observability": "ET-LAB-020 and ET-LAB-021 in STAGES and TESTING.",

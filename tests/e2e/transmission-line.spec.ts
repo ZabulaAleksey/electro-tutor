@@ -7,7 +7,7 @@ test('catalogues expose separate circular diagram and line laboratory in both la
   await page.getByRole('link', { name: 'Круговая диаграмма', exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/interactive\/circular-diagram\//);
   await page.goto('/uk/interactive/');
-  await page.getByRole('link', { name: 'Перехідні процеси в лінії', exact: true }).click();
+  await page.getByRole('link', { name: 'Перехідні процеси в довгих лініях', exact: true }).click();
   await expect(page).toHaveURL(/\/uk\/interactive\/transmission-line\//);
 });
 

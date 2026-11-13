@@ -197,13 +197,13 @@ test("transport preserves phase on pause and resets time without editing the cir
  await expect(speed).toHaveValue("1");
  await expect(page.getByRole("heading",{name:"Подробные параметры"})).toHaveCount(0);
  const revision=await lab.getAttribute("data-model-revision");
- await bar.getByRole("button",{name:/Старт$/}).click();
+ await bar.getByRole("button",{name:/Пуск$/}).click();
  await expect.poll(async()=>Number(await lab.getAttribute("data-current-time"))).toBeGreaterThan(.001);
  await bar.getByRole("button",{name:/Пауза$/}).click();
  const paused=await lab.getAttribute("data-current-time");
  await speed.selectOption("0.5");
  await expect(lab).toHaveAttribute("data-current-time",paused!);
- await bar.getByRole("button",{name:/Старт$/}).click();
+ await bar.getByRole("button",{name:/Пуск$/}).click();
  await expect.poll(async()=>Number(await lab.getAttribute("data-current-time"))).toBeGreaterThan(Number(paused));
  await bar.getByRole("button",{name:/Стоп$/}).click();
  await expect(lab).toHaveAttribute("data-current-time","0");

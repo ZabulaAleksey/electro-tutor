@@ -1,19 +1,18 @@
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
-import {OperationStatus} from "./OperationStatus";
-import {getLocale} from "../i18n";
+import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
 import type {Language} from "../types";
 import EngineeringPlot from "../engineering/EngineeringPlot";
 import {engineeringAxis} from "../engineering/scale";
 import {formatEngineeringNumber as n,formatEngineeringValue} from "../engineering/format";
 import {localePath} from "../site-path";
-import {at,branchVoltage,contactsOf,estimateNetwork,hasLineLoss,DEFAULT_NETWORK,findLoad,historyValue,lineEnergy,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
+import {at,branchVoltage,contactsOf,estimateNetwork,hasLineLoss,DEFAULT_NETWORK,findLoad,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
 import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import NetworkWorkbench from "../transient/NetworkWorkbench";
 import NetworkInspector from "../transient/NetworkInspector";
 import {networkError} from "../transient/network-copy";
 import {loadReplacement,readDetached,removeLoad,removeSection,sectionBoundaries,type DetachedPart,type Selection} from "../transient/network-edit";
-import NetworkSurface from "../transient/NetworkSurface";
+import { downloadSvg } from "../engineering/exportSvg";
 import { experimentRows, experimentTimeLabel, parseExperimentDuration } from "../transient/network-experiment";
 import "./TransmissionNetworkLab.css";
 type Document = {model:Network; layout:Layout; detached:DetachedPart[]; empty?:boolean};
@@ -30,10 +29,10 @@ type Limits={u:readonly[number,number];i:readonly[number,number]};
 const limits=(run:WaveRun):Limits=>({u:engineeringAxis(...run.rangeU,{includeZero:true,targetTicks:5}).domain,i:engineeringAxis(...run.rangeI,{includeZero:true,targetTicks:5}).domain});
 const speeds=Array.from({length:10},(_,index)=>2**(index-4));
 export default function TransmissionNetworkLab({language}:{language:Language}){
- const operationCopy=getLocale(language).operationStatus;
- const ru=language==="ru",[mounted,setMounted]=useState(false),[model,setModel]=useState<Network>(()=>structuredClone(DEFAULT_NETWORK)),[run,setRun]=useState<WaveRun>(()=>simulateNetwork(DEFAULT_NETWORK)),[time,setTime]=useState(0),[speed,setSpeed]=useState(1),[running,setRunning]=useState(false),[probe,setProbe]=useState(750000),[mode,setMode]=useState<"recalculate"|"live">("recalculate"),[domains,setDomains]=useState<Limits>(()=>limits(simulateNetwork(DEFAULT_NETWORK))),[busy,setBusy]=useState(true),[error,setError]=useState(""),[quantity,setQuantity]=useState<"u"|"i">("u"),[surface,setSurface]=useState(false),[waves,setWaves]=useState(true),[layout,setLayout]=useState<Layout>({}),[selection,setSelection]=useState<Selection|null>(null),[revision,setRevision]=useState(0),[comparison,setComparison]=useState<WaveRun|null>(null);
+ const ru=language==="ru",[mounted,setMounted]=useState(false),[model,setModel]=useState<Network>(()=>structuredClone(DEFAULT_NETWORK)),[run,setRun]=useState<WaveRun>(()=>simulateNetwork(DEFAULT_NETWORK)),[time,setTime]=useState(0),[speed,setSpeed]=useState(1),[running,setRunning]=useState(false),[probe,setProbe]=useState(750000),[mode,setMode]=useState<"recalculate"|"live">("recalculate"),[domains,setDomains]=useState<Limits>(()=>limits(simulateNetwork(DEFAULT_NETWORK))),[busy,setBusy]=useState(true),[error,setError]=useState(""),[waves,setWaves]=useState(true),[layout,setLayout]=useState<Layout>({}),[selection,setSelection]=useState<Selection|null>(null),[revision,setRevision]=useState(0);
  const [progress,setProgress]=useState(0),[retry,setRetry]=useState(0);
  const [durationDraft,setDurationDraft]=useState<string|null>(null),[timeZoom,setTimeZoom]=useState(1),[windowCenter,setWindowCenter]=useState(0);
+ const voltagePlot=useRef<HTMLDivElement>(null);
  const [empty,setEmpty]=useState(false);
  const [detached,setDetached]=useState<DetachedPart[]>([]);
  const [actionError,setActionError]=useState("");
@@ -177,8 +176,6 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const navigationDialog=useUnsavedChanges({dirty:documentValue!==savedDocument,onSave:saveLocal,language});
  const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(version5?{detached,...(empty?{empty:true}:{})}:{})},null,2),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  const start=()=>{if(time>=run.config.durationS)seek(0);setRunning(true);};
- const contactEvents=[...model.series??[],...model.branches??[]].flatMap(link=>link.switch?.atS===undefined?[]:[{id:link.id,atS:link.switch.atS,target:link.id,kind:"switch" as const,value:Number(link.switch.closes),previous:Number(link.switch.closed)}]);
- const recordedEvents=[...model.events,...contactEvents].sort((a,b)=>a.atS-b.atS);
  const eventTimes=[0,...run.events,run.config.durationS].sort((a,b)=>a-b),next=eventTimes.find(t=>t>time+1e-12),previous=[...eventTimes].reverse().find(t=>t<time-1e-12);
  const units=(v:number,unit:string)=>formatEngineeringValue(v,unit,language);
  function exportTrace(format:"json"|"csv"){
@@ -201,7 +198,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   link.href=url;link.download="electrotutor-line-experiment."+format;link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
- const plot=(axis:"x"|"t",q:"u"|"i")=>{const pts=axis==="x"?(q==="u"?spatialU:spatialI):(q==="u"?traceU:traceI),curves=[{label:axis==="x"?`${q.toUpperCase()}(x)`:`${q.toUpperCase()}(t)`,color:axis==="x"||q==="u"?"blue":"orange",points:pts}];if(waves&&axis==="x"){curves.push({label:ru?`Прямая ${q.toUpperCase()}⁺`:`Пряма ${q.toUpperCase()}⁺`,color:"red",points:spatial(run,time,q==="u"?"forward":"forwardI")});curves.push({label:ru?`Обратная ${q.toUpperCase()}⁻`:`Зворотна ${q.toUpperCase()}⁻`,color:"green",points:spatial(run,time,q==="u"?"backward":"backwardI")});}if(comparison){const other=axis==="x"?spatial(comparison,Math.min(time,comparison.config.durationS),q):timeTrace(comparison,Math.min(probe,totalLength(comparison.config)),q);curves.push({label:ru?"Сохранённый опыт":"Збережений дослід",color:"muted",points:other});}
+ const plot=(axis:"x"|"t",q:"u"|"i")=>{const pts=axis==="x"?(q==="u"?spatialU:spatialI):(q==="u"?traceU:traceI),curves=[{label:axis==="x"?`${q.toUpperCase()}(x)`:`${q.toUpperCase()}(t)`,color:axis==="x"||q==="u"?"blue":"orange",points:pts}];if(waves&&axis==="x"){curves.push({label:ru?`Прямая ${q.toUpperCase()}⁺`:`Пряма ${q.toUpperCase()}⁺`,color:"red",points:spatial(run,time,q==="u"?"forward":"forwardI")});curves.push({label:ru?`Обратная ${q.toUpperCase()}⁻`:`Зворотна ${q.toUpperCase()}⁻`,color:"green",points:spatial(run,time,q==="u"?"backward":"backwardI")});}
   return <EngineeringPlot plot={{xLabel:axis==="x"?"x, m":"t, s",yLabel:q==="u"?"U, V":"I, A",xMax:axis==="x"?L:timeEnd,xMin:axis==="t"?timeStart:0,yMin:domains[q][0],yMax:domains[q][1],curves:curves.map((c,j)=>({...c,dash:j>0}))}} language={language} domains={{x:axis==="x"?[0,L]:[timeStart,timeEnd],y:domains[q]}} selected={[axis==="x"?probe:time,reading[q]]} cursorTime={axis==="t"&&time>=timeStart&&time<=timeEnd?time:undefined} verticals={axis==="x"?boundary:undefined} onSelect={p=>axis==="x"?setProbe(Math.max(0,Math.min(L,p[0]))):seek(p[0])} label={`${q.toUpperCase()}(${axis})`} legendClass="network-legend"/>;
  };
  return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
@@ -264,9 +261,12 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
       }catch(error){setActionError(networkError(String(error),language));}e.target.value="";
      }}/></>}
     transport={<>
-     <button type="button" disabled={!valid||running} onClick={start}>▶ {ru?"Старт":"Старт"}</button>
-     <button type="button" disabled={!running} onClick={()=>setRunning(false)}>⏸ {ru?"Пауза":"Пауза"}</button>
-     <button type="button" disabled={!running&&time===0} onClick={()=>seek(0)}>■ {ru?"Стоп":"Стоп"}</button>
+     <button type="button" className="network-play" disabled={!valid||running} aria-busy={busy&&!empty} onClick={start}>
+      {busy&&!empty ? <LoaderCircle size={16} className="network-play-spinner" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}
+      Пуск
+     </button>
+     <button type="button" disabled={!running} onClick={()=>setRunning(false)}><Pause size={16} aria-hidden="true"/>Пауза</button>
+     <button type="button" disabled={!running&&time===0} onClick={()=>seek(0)}><Square size={16} aria-hidden="true"/>Стоп</button>
      <label className="network-speed-choice"><span>{ru?"Скорость":"Швидкість"}</span><select value={speed} onChange={event=>setSpeed(Number(event.target.value))}>
       {speeds.map(value=><option key={value} value={value}>×{value<1?"1/"+1/value:value}</option>)}
      </select></label>
@@ -300,29 +300,38 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
       <button type="button" onClick={()=>seek(next??Math.min(run.config.durationS,time+run.config.durationS/100))}>{ru?"Шаг":"Крок"} →</button>
       <button type="button" disabled={next===undefined||run.method!=="exact-fronts"} onClick={()=>next!==undefined&&seek(next)}>{ru?"Следующий фронт":"Наступний фронт"}</button>
      </div>
+     <label>{ru?"Окно времени":"Вікно часу"} <select value={timeZoom} onChange={event=>{setWindowCenter(time);setTimeZoom(Number(event.target.value));}}>
+      {[1,2,5,10,50,100].map(factor=><option key={factor} value={factor}>×{factor}</option>)}
+     </select></label>
+     {timeZoom>1&&<label>{ru?"Центр окна":"Центр вікна"} <input type="range" min={0} max={run.config.durationS} step={run.config.durationS/2000} value={windowCenter} onChange={event=>setWindowCenter(Number(event.target.value))}/></label>}
     </>}
     reference={localePath(language,"/interactive/transmission-line-reference/")}/>
    <div className="network-workbench-links"><small>{ru?"MCP — скоро":"MCP — незабаром"}</small>
-    {empty&&<OperationStatus busy={false} message={ru?"Добавьте линию":"Додайте лінію"}/>}
+    {empty&&<small>{ru?"Добавьте линию":"Додайте лінію"}</small>}
     {busy&&!empty&&<><progress max={1} value={progress} aria-label={ru?"Прогресс расчёта":"Хід розрахунку"}/><button type="button" onClick={cancelCalculation}>{ru?"Отменить расчёт":"Скасувати розрахунок"}</button></>}
     {!busy&&error&&!empty&&<button type="button" onClick={()=>setRetry(value=>value+1)}>{ru?"Повторить расчёт":"Повторити розрахунок"}</button>}</div>
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
   </section>
-  <section hidden={empty} id="network-results" aria-label={ru?"Измерения и графики":"Вимірювання та графіки"} className="network-measurements"><div className="network-section-head"><h2>{ru?"Измерения":"Вимірювання"}</h2>{busy&&<OperationStatus busy message={operationCopy.busy}/>}</div>{error&&<p role="alert" className="network-error">{error}</p>}
-   <label>{ru?"Окно времени":"Вікно часу"} <select value={timeZoom} onChange={event=>{setWindowCenter(time);setTimeZoom(Number(event.target.value));}}>
-    {[1,2,5,10,50,100].map(factor=><option key={factor} value={factor}>×{factor}</option>)}
-   </select></label>
-   {timeZoom>1&&<label>{ru?"Центр окна":"Центр вікна"} <input type="range" min={0} max={run.config.durationS} step={run.config.durationS/2000} value={windowCenter} onChange={event=>setWindowCenter(Number(event.target.value))}/></label>}
+  <section hidden={empty} id="network-results" aria-labelledby="network-measurements-title" className="network-measurements">
+   <h2 id="network-measurements-title">{ru?"Измерения":"Вимірювання"}</h2>
+   {error&&<p role="alert" className="network-error">{error}</p>}
    {!valid&&<p className="network-note">{ru?"Эпюры скрыты до успешного расчёта текущей схемы.":"Епюри приховано до успішного розрахунку поточної схеми."}</p>}<div hidden={!valid}><div className="network-metrics"><strong data-probe-value="U">U = {units(reading.u,"V")}</strong><strong data-probe-value="I">I = {units(reading.i,"A")}</strong><span>{ru?"Источник":"Джерело"}: {units(source.u,"V")}</span><span>{ru?"Нагрузка":"Навантаження"}: {units(loadPort.u,"V")}</span></div><label className="network-time-slider"><span>{ru?"Точка наблюдения":"Точка спостереження"} x = {units(probe,"m")}</span><input aria-label={ru?"Точка наблюдения x":"Точка спостереження x"} type="range" min="0" max={L} step={L/1000} value={probe} onChange={e=>setProbe(Number(e.target.value))}/></label>
-   <div className="network-buttons"><label><input type="checkbox" checked={waves} onChange={e=>setWaves(e.target.checked)}/>{ru?"Прямая / обратная / сумма":"Пряма / зворотна / сума"}</label><button type="button" onClick={()=>setComparison(run)}>{ru?"Запомнить опыт":"Запам’ятати дослід"}</button>{comparison&&<button type="button" onClick={()=>setComparison(null)}>{ru?"Убрать сравнение":"Прибрати порівняння"}</button>}</div>
-   <div className="network-plot-grid"><div>{plot("x","u")}</div><div>{plot("x","i")}</div><div>{plot("t","u")}</div><div>{plot("t","i")}</div></div>
-   <div className="network-buttons"><button type="button" aria-expanded={surface} onClick={()=>setSurface(v=>!v)}>{surface?(ru?"Скрыть 3D":"Сховати 3D"):(ru?"Поверхность 3D":"Поверхня 3D")}</button>{surface&&<label className="network-field"><span>{ru?"Величина поверхности":"Величина поверхні"}</span><select value={quantity} onChange={e=>setQuantity(e.target.value as "u"|"i")}><option value="u">U(x,t)</option><option value="i">I(x,t)</option></select></label>}</div>{surface&&<NetworkSurface run={run} time={time} probe={probe} quantity={quantity} domain={domains[quantity]} language={language} onProbe={setProbe}/>}
+   <label><input type="checkbox" checked={waves} onChange={e=>setWaves(e.target.checked)}/>
+    {ru?"Прямая / обратная / сумма":"Пряма / зворотна / сума"}
+   </label>
+   <div className="network-plot-grid">
+    <div ref={voltagePlot}>{plot("x","u")}</div><div>{plot("x","i")}</div>
+    <div>{plot("t","u")}</div><div>{plot("t","i")}</div>
+   </div>
    <details className="network-export"><summary>{ru?"Экспорт результатов":"Експорт результатів"}</summary>
     <div className="network-buttons"><button type="button" onClick={()=>exportTrace("json")}>JSON</button>
-     <button type="button" onClick={()=>exportTrace("csv")}>CSV</button></div>
+     <button type="button" onClick={()=>exportTrace("csv")}>CSV</button>
+     <button type="button" onClick={()=>{
+      const svg=voltagePlot.current?.querySelector("svg");
+      if(svg)downloadSvg(svg,"electrotutor-line-voltage.svg");
+     }}>SVG · U(x)</button></div>
    </details>
-   <details><summary>{ru?"Физическая модель и ограничения":"Фізична модель та обмеження"}</summary><p>{ru?"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Последовательные линии, общий обратный провод, до 6 участков, источник в одном узле, концевая нагрузка, промежуточные ветви R/L/C и диоды Шокли. Для RLC задаются согласованные начальные состояния. На каждом участке R′/L′ = G′/C′. Скорость и Z₀ определяют L′ и C′. Дисперсионные профили и произвольные ветвления требуют отдельной модели.":"U=U⁺+U⁻; I=(U⁺−U⁻)/Z₀. Послідовні лінії, спільний зворотний провід, до 6 ділянок, джерело в одному вузлі, кінцеве навантаження, проміжні гілки R/L/C і діоди Шоклі. Для RLC задаються узгоджені початкові стани. На кожній ділянці R′/L′ = G′/C′. Швидкість і Z₀ визначають L′ і C′. Дисперсійні профілі та довільні відгалуження потребують окремої моделі."}</p><p>{run.method==="exact-fronts"?(ru?"Событийные характеристики для цепей без накопителей, включая диоды. Диапазон заранее ограничен экстремумами рассчитанных прямых/обратных волн; это консервативная граница, не обещание достижимого пика.":"Подієві характеристики для кіл без накопичувачів, зокрема з діодами. Діапазон заздалегідь обмежено екстремумами розрахованих прямих/зворотних хвиль; це консервативна межа, не обіцянка досяжного піка."):(ru?"RLC: метод характеристик с задержками и трапецеидальными companion-состояниями. Внутренний шаг ":"RLC: метод характеристик із затримками та трапецеїдальними companion-станами. Внутрішній крок ")+units(run.stepS,"s")}</p><p>{ru?"Энергия линий и накопителей":"Енергія ліній і накопичувачів"}: {units(lineEnergy(run,time)+historyValue(run.deviceEnergy,time,true),"J")}</p><a href={localePath(language,"/interactive/transmission-line-reference/")}>{ru?"Сохранённая численная FDTD-модель · сравнение":"Збережена чисельна FDTD-модель · порівняння"}</a></details></div>
+   </div>
   </section>
-  <section><h2>{ru?"История физических событий":"Історія фізичних подій"}</h2>{!recordedEvents.length?<p className="network-note">{ru?"Задайте время коммутации на ключе или изменение сопротивления в настройках нагрузки.":"Задайте час комутації на ключі або зміну опору в налаштуваннях навантаження."}</p>:<table><thead><tr><th>t</th><th>{ru?"Параметр":"Параметр"}</th><th>{ru?"Было → стало":"Було → стало"}</th><th>{ru?"Действие":"Дія"}</th></tr></thead><tbody>{recordedEvents.map(e=><tr key={e.id}><td>{units(e.atS,"s")}</td><td>{e.target} · {e.kind}</td><td>{n(e.previous??0,language)} → {n(e.value,language)} {e.kind==="resistance"?"Ω":"1"}</td><td><button type="button" onClick={()=>seek(Math.max(0,e.atS-1e-10))}>{ru?"До события":"До події"}</button></td></tr>)}</tbody></table>}</section>
  {navigationDialog}</div></fieldset>;
 }

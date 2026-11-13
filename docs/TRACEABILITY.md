@@ -10,6 +10,8 @@ LINE-UX-027 → network-routing.ts, NetworkWorkbench и network-load-layout.ts �
 
 FR-413..414 → editorial-learning-sections.spec.md → общий список карточек, BaseLayout и EngineeringBoard → editorial-learning, content-first-navigation, product-accessibility, board-workspaces и education-release.
 
+LINE-UX-029 → TransmissionNetworkLab → transmission-editor-duration, transmission-network и transmission-workbench. Сохранность отдельной 3D-демонстрации → engineering-standard.
+
 ## ET-LAB-020 — Монтаж и длительность
 
 LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.

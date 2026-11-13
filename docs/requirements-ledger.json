@@ -1972,6 +1972,21 @@
       "e2e": ["tests/e2e/reactive-two-port.spec.ts"]
     },
     {
+      "domain": "transmission-handwriting",
+      "status": "PARTIAL",
+      "requirement_ids": ["LINE-UX-030", "LINE-UX-031", "LINE-UX-032"],
+      "runtime": "Geometric recognition in the existing line editor; accepted input shares its document history and solver.",
+      "security": "Bounded local strokes and validated model before circuit edits.",
+      "a11y": "Named draw, accept, correction and notation controls.",
+      "observability": "ET-LAB-022 and TESTING.",
+      "gap": "The solver handles one excitation and its supported network graph. Physical phone, independent handwriting corpus and reopening a specific accepted mark for correction still pending.",
+      "action": "Verify physical-device gestures and extend corpus coverage.",
+      "code": ["src/engineering/handwriting.ts", "src/transient/NetworkWorkbench.tsx", "src/transient/network.ts"],
+      "unit": ["src/engineering/handwriting.test.ts", "src/transient/network-current-source.test.ts"],
+      "integration": [],
+      "e2e": ["tests/e2e/transmission-handwriting.spec.ts"]
+    },
+    {
       "domain": "transmission-context-and-duration",
       "status": "IMPLEMENTED",
       "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022", "LINE-UX-023", "LINE-UX-024", "LINE-UX-025", "LINE-UX-026", "LINE-UX-027", "LINE-UX-028", "LINE-UX-029"],

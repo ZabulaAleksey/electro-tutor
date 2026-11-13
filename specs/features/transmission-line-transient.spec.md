@@ -169,6 +169,10 @@ WebGPU/threads/SharedArrayBuffer, сохранённые simulation checkpoints.
 
 - LINE-UX-029. В транспортной панели «Пуск» показывает индикатор только во время вычисления. Пауза сохраняет физическое время, стоп возвращает его к нулю. Отмена и повтор расчёта остаются доступны. Масштаб временных графиков находится в раскрываемой панели времени. Основная страница не содержит 3D-поверхность, таблицу истории событий и блок описания модели. События остаются в расчёте и экспортируются с параметрами схемы. Измерения и четыре плоских графика доступны после успешного расчёта. Компактный экспорт объединяет JSON, CSV и SVG эпюры напряжения.
 
+- LINE-UX-030. The existing line editor accepts local pointer strokes and proposes a symbol at the end of each stroke. Review and explicit correction precede the normal placement flow. Unmarked straight strokes are wires. A line requires two endpoint taps followed by a straight stroke joining them. For an existing chain, one marked endpoint must touch its last node. The created section has editable physical parameters and the schematic retains the marked endpoints.
+- LINE-UX-031. Recognition geometry, network topology and display conventions are separate. A rectangular and a zigzag resistor represent the same component. The display selector changes the resistor glyph throughout the line schematic. Recognized junctions and ground require an explicit connection to existing network nodes. A drawn source can replace the existing reference-connected excitation with a voltage or independent current source. Additional independent sources and free-form graphs are outside this solver scope.
+- LINE-UX-032. Accepted stroke samples, layout and network share the existing local save, JSON and undo/redo document. Reject invalid or unroutable edits before changing topology. Crossing ink never creates a connection. Test geometric variants, rotated and noisy input, network validation, state restoration and the real line solver.
+
 ## Цвета пространственных эпюр
 
 - LINE-UX-024. На эпюрах U(x) и I(x) прямая составляющая красная, обратная зелёная, сумма синяя. Легенда и SVG используют цвета соответствующих кривых.

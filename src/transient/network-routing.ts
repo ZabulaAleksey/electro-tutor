@@ -38,7 +38,8 @@ function wireBlocked(a: RoutingPoint, b: RoutingPoint, node: RoutingPoint, wires
 export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: RoutingBox, wires: RoutedWire[] = []): Routes | null {
   const segments=wireSegments(wires);
   const escapes = leads.map(({ pin, exit }) => segmentBox(pin, exit));
-  if (leads.some(({ pin, exit }) => obstacles.some(box => hits(pin, exit, box)) || wireBlocked(pin,exit,pin,segments))) return null;
+  if (leads.some(({ node, pin, exit }) => !samePoint(node,pin) &&
+    (obstacles.some(box => hits(pin, exit, box)) || wireBlocked(pin,exit,pin,segments)))) return null;
   const boxes = [...obstacles, body];
   const coordinates = (axis: "x" | "y") => {
     const edges = [...boxes,...segments].flatMap(box => axis === "x" ? [box.left - 8, box.right + 8] : [box.top - 8, box.bottom + 8]);
@@ -56,6 +57,7 @@ export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: Ro
     return candidates.filter(j => points[j] && !boxes.some(box => hits(point, points[j], box)));
   });
   function path(lead: Lead, forbidden: RoutingBox[]) {
+    if (samePoint(lead.node,lead.pin)) return [lead.pin];
     const start = index(lead.node), goal = index(lead.exit);
     const costs = new Map([[start*3,0]]);
     const parents = new Map<number,number>();
@@ -114,7 +116,7 @@ export function leadPath(points: RoutingPoint[]) {
 
 export function symbolBounds(center: RoutingPoint, angle: number, pins: [number, number], halfHeight: number): RoutingBox {
   const radians = angle*Math.PI/180;
-  const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
+  const dx = Math.round(Math.cos(radians)*1e10)/1e10, dy = Math.round(Math.sin(radians)*1e10)/1e10;
   const corners = pins.flatMap(distance => [-halfHeight,halfHeight].map(offset => ({
     x: center.x+distance*dx-dy*offset, y: center.y+distance*dy+dx*offset,
   })));
@@ -125,12 +127,45 @@ export function symbolBounds(center: RoutingPoint, angle: number, pins: [number,
 export function routeSymbolPaths(nodes: [RoutingPoint, RoutingPoint], center: RoutingPoint,
   angle: number, pins: [number, number], halfHeight: number, obstacles: RoutingBox[] = [], wires: RoutedWire[] = []) {
   const radians = angle*Math.PI/180;
-  const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
+  const dx = Math.round(Math.cos(radians)*1e10)/1e10, dy = Math.round(Math.sin(radians)*1e10)/1e10;
   const at = (distance: number) => ({x:center.x+distance*dx,y:center.y+distance*dy});
   const body = symbolBounds(center,angle,pins,halfHeight);
   if (obstacles.some(box => hits({x:body.left,y:body.top},{x:body.right,y:body.bottom},box))) return null;
+  const touchesBody = (wire: WireSegment) => {
+    const from={x:wire.left-center.x,y:wire.top-center.y};
+    const delta={x:wire.right-wire.left,y:wire.bottom-wire.top};
+    const coordinates = [
+      {start:from.x*dx+from.y*dy,change:delta.x*dx+delta.y*dy,min:pins[0],max:pins[1]},
+      {start:-from.x*dy+from.y*dx,change:-delta.x*dy+delta.y*dx,min:-halfHeight,max:halfHeight},
+    ];
+    let lo=0,hi=1;
+    const tolerance=1e-6;
+    for(const {start,change,min,max} of coordinates){
+      if(Math.abs(change)<tolerance){
+        if(start<min-tolerance||start>max+tolerance)return false;
+      }else{
+        const a=(min-start)/change,b=(max-start)/change;
+        lo=Math.max(lo,Math.min(a,b));
+        hi=Math.min(hi,Math.max(a,b));
+        if(lo-hi>tolerance)return false;
+      }
+    }
+    if(hi-lo>tolerance)return true;
+    const intersection={x:wire.left+delta.x*lo,y:wire.top+delta.y*lo};
+    return !nodes.some(node=>wire.anchors.some(anchor=>samePoint(anchor,node))&&
+      Math.hypot(node.x-intersection.x,node.y-intersection.y)<tolerance);
+  };
+  if (wireSegments(wires).some(touchesBody)) return null;
+  const escape = (pin: RoutingPoint, side: number) => Math.abs(dx) >= Math.abs(dy)
+    ? { x: pin.x + side * Math.sign(dx) * 10, y: pin.y }
+    : { x: pin.x, y: pin.y + side * Math.sign(dy) * 10 };
+  const pinAt = (index: 0 | 1) => {
+    const pin = at(pins[index]), node = nodes[index];
+    return Math.hypot(pin.x-node.x,pin.y-node.y) < 1e-6 ? node : pin;
+  };
+  const a = pinAt(0), b = pinAt(1);
   return routeLeadPair([
-    {node:nodes[0],pin:at(pins[0]),exit:at(pins[0]-10)},
-    {node:nodes[1],pin:at(pins[1]),exit:at(pins[1]+10)},
+    {node:nodes[0],pin:a,exit:escape(a,-1)},
+    {node:nodes[1],pin:b,exit:escape(b,1)},
   ],obstacles,body,wires);
 }

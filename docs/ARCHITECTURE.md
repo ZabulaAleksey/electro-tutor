@@ -736,3 +736,9 @@ full/thumbnail/export имеют одну геометрию; масштаб м�
 Внешние пакеты, backend, auth, deployment и service-worker policy не изменены.
 
 ET-UI-008: LanguageSwitcher использует существующие localePath/catalogs и очищает обработчики при Astro transitions. localStorage potential-language содержит только RU/UK; нейтральный full-build root восстанавливает его, explicit locale URL и MVP policy приоритетны. OperationStatus отображает существующий worker busy/error; вычислительный контракт неизменён.
+
+## Рукописный ввод ET-LAB-022
+
+Распознавание получает SVG-координаты штрихов и возвращает тип, направление и известные выводы. NetworkWorkbench применяет операции network-edit и проверяет трассировку перед фиксацией. Сырые штрихи и размеры символа хранятся с геометрией документа, а электрические параметры передаются в существующий Worker. Независимый источник тока задаёт токовую инъекцию в одном узле относительно опоры. Переключение УГО резистора меняет его SVG через контекст представления.
+
+Нормативные ориентиры для вариантов резистора доступны в [карточке ГОСТ 2.728-74](https://protect.gost.ru/gost/details/ba115ccd-e5aa-4ba1-a672-b17170f1a7f2), [каталоге IEC 60617](https://webstore.iec.ch/en/publication/2723) и [каталоге IEEE 315](https://standards.ieee.org/ieee/315/515/).

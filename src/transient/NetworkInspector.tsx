@@ -60,8 +60,10 @@ export default function NetworkInspector(props: Props) {
     return <div className="network-inspector">
       <strong>{t("Источник", "Джерело")} · {t("узел", "вузол")} {source.node}</strong>
       <div className="network-inspector-fields">
-        <NumberEdit label="E, V" value={source.voltageV} min={-1e6} max={1e6} onChange={voltageV => edit({ voltageV })} />
-        <NumberEdit label="Rₛ, Ω" value={source.resistanceOhm} min={0} max={1e9} onChange={resistanceOhm => edit({ resistanceOhm })} />
+        {source.currentA===undefined ? <>
+          <NumberEdit label="E, V" value={source.voltageV} min={-1e6} max={1e6} onChange={voltageV => edit({ voltageV })} />
+          <NumberEdit label="Rₛ, Ω" value={source.resistanceOhm} min={0} max={1e9} onChange={resistanceOhm => edit({ resistanceOhm })} />
+        </> : <NumberEdit label="I, A" value={source.currentA} min={-1e6} max={1e6} onChange={currentA=>edit({currentA})}/>}
         <details><summary>{t("Импульс и длительность опыта","Імпульс і тривалість досліду")}</summary><NumberEdit label={t("Включение, ms", "Увімкнення, ms")} value={source.onS * 1000} min={0}
           max={(source.offS ?? model.durationS) * 1000} onChange={v => edit({ onS: v / 1000 })} />
         <label><input type="checkbox" checked={source.offS!==undefined} disabled={source.onS>=model.durationS}
@@ -75,7 +77,7 @@ export default function NetworkInspector(props: Props) {
       </div>
       <div className="network-buttons">
         <button type="button" onClick={() => onMove({ move: selection })}>{moveLabel}</button>
-        <button type="button" onClick={()=>edit({voltageV:-source.voltageV})}>{t("Развернуть ЭДС","Розвернути ЕРС")}</button>
+        <button type="button" onClick={()=>edit(source.currentA===undefined?{voltageV:-source.voltageV}:{currentA:-source.currentA})}>{source.currentA===undefined?t("Развернуть ЭДС","Розвернути ЕРС"):t("Развернуть ток","Розвернути струм")}</button>
       </div>
     </div>;
   }

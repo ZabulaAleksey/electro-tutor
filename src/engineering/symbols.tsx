@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
+import { ZigzagResistors } from "./symbol-style";
 export type SymbolMode = "full" | "thumbnail" | "export";
 export type SymbolProps = { x: number; y: number; scale?: number; mode?: SymbolMode; label?: ReactNode };
 type Orientation = "horizontal" | "vertical";
@@ -19,10 +20,14 @@ export const SYMBOL_GEOMETRY = {
 /** Coordinates are absolute for parser/port verification. Scale multiplies the
  * complete glyph, including stroke, while terminalSpan only changes wire leads. */
 export function ResistorGlyph({ x, y, scale = 1, mode = "full", label, orientation = "horizontal", terminalSpan = 58 }: SymbolProps & { orientation?: Orientation; terminalSpan?: number }) {
+  const zigzag = useContext(ZigzagResistors);
   const w = 40 * scale, h = 16 * scale, length = terminalSpan * scale, lead = (length - w) / 2, vertical = orientation === "vertical";
   return <g data-symbol="resistor" data-mode={mode} data-orientation={orientation} data-terminals={vertical ? `${x},${y};${x},${y + length}` : `${x},${y};${x + length},${y}`} stroke="var(--ink)" strokeWidth={1.7 * scale} fill="var(--white)">
     <path d={vertical ? `M${x} ${y}V${y + lead} M${x} ${y + lead + w}V${y + length}` : `M${x} ${y}H${x + lead} M${x + lead + w} ${y}H${x + length}`} fill="none" />
-    <rect x={vertical ? x - h / 2 : x + lead} y={vertical ? y + lead : y - h / 2} width={vertical ? h : w} height={vertical ? w : h} />
+    {zigzag ? <path fill="none" d={Array.from({ length: 9 }, (_, i) => {
+      const along = lead + w * i / 8, across = i === 0 || i === 8 ? 0 : (i % 2 ? -h : h) / 2;
+      return (i === 0 ? "M" : "L") + (vertical ? x + across : x + along) + " " + (vertical ? y + along : y + across);
+    }).join(" ")} /> : <rect x={vertical ? x - h / 2 : x + lead} y={vertical ? y + lead : y - h / 2} width={vertical ? h : w} height={vertical ? w : h} />}
     {label && <text x={vertical ? x + 10 * scale : x + length / 2} y={vertical ? y + length / 2 : y - 15 * scale} textAnchor={vertical ? "start" : "middle"} stroke="none" fill="var(--ink)">{label}</text>}
   </g>;
 }

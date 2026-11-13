@@ -116,3 +116,12 @@
 .network-play-spinner{animation:network-play-spin .9s linear infinite}
 @keyframes network-play-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.network-play-spinner{animation:none}}
+
+.network-ink-tools{position:absolute;z-index:3;top:56px;left:8px;right:8px;display:flex;flex-wrap:wrap;align-items:center;gap:4px;pointer-events:none}
+.network-ink-tools>*{pointer-events:auto}
+.network-ink-tools small{padding:4px 6px;background:var(--surface-canvas);border-radius:4px}
+.network-ink polyline{fill:none;stroke:var(--selection);stroke-width:2;vector-effect:non-scaling-stroke}
+.network-schematic-drawing .network-ink circle{fill:var(--selection);stroke:none}
+.network-ink-line-preview{stroke:var(--selection);stroke-width:5;opacity:.3;vector-effect:non-scaling-stroke}
+
+.network-canvas[data-drawing-ink=true] .network-camera{top:auto;bottom:34px}

@@ -21,7 +21,7 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
 | `features/reactive-two-port.spec.md` | Действует | Реактивный LC-двухполюсник, резонансы и шаги эквивалентного преобразования |
 | `features/star-neutral-phasors.spec.md` | Действует | Локальный трёхфазный интерактив: комплексные сопротивления, три режима нейтрали, векторные диаграммы и численная защита |
-| `features/transmission-line-transient.spec.md` | Действует | Rust/WASM Worker transient линии, Canvas эпюры и отдельные маршруты интерактивов |
+| `features/transmission-line-transient.spec.md` | Действует | Расчёт переходных процессов, редактор, рукописный ввод и экспорт |
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |
 | `features/base-path-portability.spec.md` | Действует | Единый site/base URL contract для root и project-site artifacts |
 | `features/pre-deploy-quality-gates.spec.md` | Действует | Единый full-verify pipeline и безопасная передача проверенного artifact в GitHub Pages deploy |

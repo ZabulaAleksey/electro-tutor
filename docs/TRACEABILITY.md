@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-022
+
+LINE-UX-030..032 → transmission-line-transient SPEC → engineering/handwriting, NetworkWorkbench, network-routing, network.ts and document history → handwriting.test.ts, network-current-source.test.ts and transmission-handwriting.spec.ts.
+
 ## ET-LAB-021 — Трассировка нагрузки
 
 LINE-UX-023 → network-routing.ts и NetworkWorkbench → network-routing.test.ts и transmission-workbench.spec.ts.

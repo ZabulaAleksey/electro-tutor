@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 
 test("interactive menu opens the RU/UK star lab", async ({ page }) => {
   await page.goto("/ru/interactive/");
-  await page.getByRole("link", { name: "Несимметричная звезда", exact: true }).click();
+  await page.getByRole("link", { name: "Векторная диаграмма несимметричной звезды", exact: true }).click();
+  await expect(page).toHaveURL(/\/ru\/interactive\/star-neutral\//);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несимметричная звезда с нейтралью");
   await expect(page.locator(".star-results tbody tr")).toHaveCount(8);
   await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();

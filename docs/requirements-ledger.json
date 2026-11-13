@@ -1164,7 +1164,7 @@
         "SHOW-020"
       ],
       "domain": "engineering-visualization",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
         "src/engineering/format.ts",
         "src/engineering/EngineeringPlot.tsx",
@@ -1180,14 +1180,15 @@
       "e2e": [
         "tests/e2e/fourier-lab.spec.ts",
         "tests/e2e/transmission-editor-duration.spec.ts",
-        "tests/e2e/mesh-lab.spec.ts"
+        "tests/e2e/mesh-lab.spec.ts",
+        "tests/e2e/star-neutral.spec.ts"
       ],
-      "runtime": "Local Astro build and Chromium. No deployment in this slice.",
+      "runtime": "Local Astro full build and 134 Windows Chromium scenarios including the 72 reviewed active mesh baselines.",
       "security": "Display formatting is local. Solver and serialized numeric values stay independent from UI labels.",
       "a11y": "Plot labels and readouts retain locale and units. Fourier fields retain labels and support an exact numeric draft on focus.",
       "observability": "Browser checks compare numeric export values and visual labels independently.",
-      "gap": "The mesh screenshot baselines reflect the former number formatting.",
-      "action": "Review affected screenshot baselines at local acceptance."
+      "gap": "No gap in local visual and numerical acceptance.",
+      "action": "Retain the reviewed Windows Chromium baselines."
     },
     {
       "requirement_ids": [

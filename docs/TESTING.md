@@ -8,7 +8,9 @@
 
 LINE-UX-029: браузерные проверки Пуска, отмены и повтора Worker, паузы и стопа, эталонного напряжения и расстояния, содержимого SVG, полного JSON/CSV и сохранения обеих сторон скачка в выгрузке события. Отдельная 3D-демонстрация сохраняет тест SVG и физического курсора.
 
-SHOW-020: 532 Vitest, 49 independent beam assertions, Astro check, lint, context and full build passed. All 65 targeted Chromium tests passed, including mobile viewports, Fourier numeric draft and raw CSV, and the full transmission probe series in JSON and CSV after zoom. A broader run passed 124 of 128 with the existing mesh assertions-only mode. Three intermittent transmission workbench failures passed in the final targeted run. The legacy Star menu test still expects the pre-catalog link name. Twelve mesh screenshot cases differ from their old labels in the initial run. The PNG baselines were retained.
+SHOW-020: 532 Vitest, 49 independent beam assertions, Astro check, lint, context and full build passed. The final Windows Chromium run passed all 134 scenarios, including 12 mesh screenshot scenarios with PNG assertions enabled, RU/UK star navigation, Fourier numeric draft and raw CSV, and the full transmission probe series in JSON and CSV after zoom.
+
+ET-LAB-021-VISUAL: compared old and new workbench, matrix and power table captures for each of four mesh presets at six widths and both OS color schemes. The app rendered in light mode. The 72 active light-mode baselines changed visually and kept their dimensions. Review covered localized readings, normalized powers, unchanged circuit topology and legible labels. Workbench panel colors and borders also reflect the current light theme. The 72 historical dark PNGs remain preserved. The navigation scenario follows the current visible catalog link and verifies both localized routes. A fresh full build passed a second run of all 26 mesh, star and delta scenarios, including the 12 PNG scenarios.
 
 ## ET-LAB-020 — Монтаж и длительность
 

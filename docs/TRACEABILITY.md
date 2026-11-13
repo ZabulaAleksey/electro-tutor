@@ -12,7 +12,7 @@ FR-413..414 → editorial-learning-sections.spec.md → общий список 
 
 LINE-UX-029 → TransmissionNetworkLab → transmission-editor-duration, transmission-network и transmission-workbench. Сохранность отдельной 3D-демонстрации → engineering-standard.
 
-SHOW-020 → engineering-showcase.spec.md → engineering/format, EngineeringPlot, FourierLab → engineering.test, fourier-lab, mesh-lab, transmission-editor-duration.
+SHOW-020 → engineering-showcase.spec.md → engineering/format, EngineeringPlot, FourierLab → engineering.test, fourier-lab, mesh-lab, transmission-editor-duration. ET-LAB-021-VISUAL → mesh-lab PNG comparisons and star-neutral RU/UK catalog navigation.
 
 ## ET-LAB-020 — Монтаж и длительность
 

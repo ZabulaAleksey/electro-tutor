@@ -17,7 +17,10 @@ for (const language of ["ru", "uk"] as const) {
     const endpoint = await lab.locator(".fourier-endpoint").evaluate((node) => `${node.getAttribute("cx")},${node.getAttribute("cy")}`);
     expect(traceEnd).toBe(endpoint);
     await lab.locator("select").nth(1).selectOption("dct");
-    await expect(lab.locator(".fourier-note")).toBeVisible();
+    await expect(lab.locator(".fourier-table")).toHaveAttribute("data-basis","dct");
+    await expect(lab.locator(".fourier-table output").first()).toBeVisible();
+    await expect(lab.locator(".fourier-vector")).toHaveCount(0);
+    await expect(lab.locator(".fourier-note")).toHaveCount(0);
     const reconstructedPoints = await lab.locator(".fourier-reconstructed").getAttribute("points");
     expect(new Set((reconstructedPoints ?? "").split(/\s+/).map((point) => point.split(",")[1])).size).toBeGreaterThan(1);
     await lab.getByRole("button", { name: /Сброс фазы|Скинути фазу/ }).click();
@@ -41,11 +44,11 @@ test("Fourier drawing and mobile layout stay local and bounded", async ({ page }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("Harmonic Playground applies signal edits immediately", async ({ page }) => {
+test("signal presets apply signal edits immediately", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ru/interactive/fourier/");
   const lab = page.locator("[data-fourier-lab]");
-  await lab.locator("summary", { hasText: "Harmonic Playground" }).click();
+  await lab.locator("summary", { hasText: "Готовые сигналы" }).click();
   await lab.getByRole("button", { name: "Сигнал" }).click();
   await expect(lab.locator("[data-fourier-playground]")).toBeVisible();
   const before = await lab.locator("[data-fourier-playground] [data-plot-curve]").first().getAttribute("points");
@@ -74,7 +77,7 @@ test("disabling a selected harmonic removes its vector without substituting a hi
 
 test("playground configuration restores the actual signal after leaving its mode", async ({ page }) => {
  await page.emulateMedia({ reducedMotion: "reduce" }); await page.goto("/ru/interactive/fourier/");const lab=page.locator("[data-fourier-lab]");
- await lab.locator("summary",{hasText:"Harmonic Playground"}).click();await lab.getByRole("button",{name:"Сигнал",exact:true}).click();
+ await lab.locator("summary",{hasText:"Готовые сигналы"}).click();await lab.getByRole("button",{name:"Сигнал",exact:true}).click();
  await lab.locator(".playground-controls select").selectOption("triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
  await lab.getByRole("button",{name:"Сохранить",exact:true}).click();const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-fourier-config")!));expect(validateFourierConfig(saved),JSON.stringify({...saved,points:saved?.points?.length})).toBe(true);await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
  await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);

@@ -19,3 +19,5 @@
 ## Acceptance и rollback
 
 Draw/demo contour→resample→coefficients→epicycles+actual reconstruction+amplitude spectrum→harmonic edit→same endpoint/error→pause/phase/speed→theme/permalink/export. Build and live browser required. First vertical slice FOUR-001..004/007 must stand alone; verified source features005/006 then extend it. GIF/video and general image inference remain optional, not release prerequisites. Revert isolated feature commit if necessary; no data migration.
+
+- FOUR-UX-001. Предустановки сигнала остаются доступными под локализованным названием. Таблица коэффициентов сохраняет индексы, значения и переключатели. Для пользовательских функций график сохраняет все кривые, компактное представление скрывает повторяющуюся легенду.

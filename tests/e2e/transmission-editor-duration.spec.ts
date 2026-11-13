@@ -111,3 +111,15 @@ test("terminates a running worker and retries",async({page})=>{
  await page.getByRole("button",{name:"Повторить расчёт"}).click();
  await ready(page);
 });
+
+
+test("spatial voltage and current share the wave colors",async({page})=>{
+ await page.goto(path);await ready(page);
+ const waves=page.getByRole("checkbox",{name:"Прямая / обратная / сумма"});
+ await waves.check();
+ for(const quantity of ["U","I"]){
+  await expect(page.locator(`[data-plot-curve="${quantity}(x)"]`)).toHaveAttribute("stroke","var(--blue)");
+  await expect(page.locator(`[data-plot-curve="Прямая ${quantity}⁺"]`)).toHaveAttribute("stroke","var(--red)");
+  await expect(page.locator(`[data-plot-curve="Обратная ${quantity}⁻"]`)).toHaveAttribute("stroke","var(--green)");
+ }
+});

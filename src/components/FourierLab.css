@@ -12,7 +12,6 @@
 .fourier-status {font-size:.75rem;border:1px solid var(--line);padding:.4rem .7rem;border-radius:2rem;white-space:nowrap}
 .fourier-custom label{display:grid;gap:4px}
 .fourier-custom textarea{width:100%;min-height:5rem;resize:vertical}
-.fourier-custom-legend{display:flex;gap:8px;flex-wrap:wrap}
 .fourier-comparison table{width:100%;border-collapse:collapse;text-align:start}
 .fourier-comparison th,.fourier-comparison td{text-align:start;padding:6px;border-bottom:1px solid var(--line)}
 .fourier-toolbar label{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -50,3 +49,4 @@
 @media(max-width:480px){.fourier-toolbar button{min-height:44px;font-size:.8rem}.fourier-heading p{font-size:.8rem}.fourier-panel{padding:.7rem}.fourier-status{display:none}.fourier-page{padding:.8rem}.fourier-lab select{width:100%}.fourier-row{grid-template-columns:75px minmax(0,1fr) minmax(0,1fr)}}
 
 .fourier-fullscreen,.fourier-visual:fullscreen{position:fixed;inset:0;z-index:1000;background:var(--surface-canvas);display:flex;flex-direction:column;padding:1rem;overflow:auto;border-radius:0}.fourier-fullscreen .fourier-canvas{flex:1;min-height:0;height:75vh;max-height:none}.fourier-fullscreen .fourier-view-controls{flex:none}
+.fourier-table:not([data-basis="fourier"]) .fourier-row{grid-template-columns:minmax(75px,1fr) minmax(0,2fr)}

@@ -53,7 +53,7 @@ export default function CustomBasisExperiment({samples,language}:{samples:Comple
     curves:[{label:t("Исходный сигнал","Початковий сигнал"),color:"muted",dash:true,points:samples.map((p,i)=>[low+(high-low)*i/(samples.length-1),imaginary?p.im:p.re])},
      {label,color:"blue",points:fit.reconstruction.map((p,i)=>[low+(high-low)*i/(samples.length-1),imaginary?p.im:p.re])},
      ...fit.components.map((values,j)=>({label:`c${j+1}φ${j+1}`,color:colors[j%colors.length],points:values.map((p,i)=>[low+(high-low)*i/(samples.length-1),imaginary?p.im:p.re] as const)}))]}}
-     language={language} label={label} legendClass="fourier-custom-legend"/>
+     language={language} label={t("Аппроксимация","Апроксимація")} showLegend={false}/>
   </div>:<p role="status">{!parsed?t("Проверьте синтаксис функций.","Перевірте синтаксис функцій."):
    !validInterval?t("Задайте возрастающий интервал в пределах от −100 до 100.","Задайте зростаючий інтервал у межах від −100 до 100."):
    samples.length<2?t("Выберите или нарисуйте исходный сигнал.","Оберіть або намалюйте початковий сигнал."):

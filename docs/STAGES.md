@@ -6,16 +6,17 @@
 
 - Status: partial
 - Entry: ET-LAB-021 changes merged and pushed at b40cd21. Cloudflare Pages deployment fd019a09-89cf-48d0-b599-a4c0e38accd1 succeeded. Production and Pages alias returned the same lab asset. Browser verification confirmed the solver and CSV control on both.
-- SPEC: LINE-UX-030..032. Use existing circuit topology, routing, history and solver.
-- Acceptance: draw a wire and a marked transmission section, edit real line parameters, verify topology, undo/redo, reload and JSON.
+- SPEC: LINE-UX-030..033. Use existing circuit topology, routing, history and solver.
+- Acceptance: draw a wire and a marked transmission section, edit real line parameters, verify topology, undo/redo, reload and JSON. Reopen accepted ink, correct the same object and preserve its terminals and history.
 - Evidence: 546 Vitest, 62 Chromium in the broad regression run and 35 after review, including all eight handwriting scenarios. Full build, lint, types and context passed.
 - Implemented: per-symbol ink with correction, explicit endpoint gesture for physical lines, saved originals and validated placement on the existing network. Norton injection uses the characteristic solver in both exact-front and reactive modes.
 - ET-LAB-022-DEVICE | pending | Draw a marked line, a zigzag resistor and two crossing wires with a finger or stylus. Pinch during drawing, then undo and reload. Evidence: recognized kinds, retained endpoints, no new node at the crossing and restored ink. This closes physical input acceptance.
 - ET-LAB-022-CORPUS | pending | Collect independent handwritten samples with agreed ground-truth symbols, terminals and topology. This closes recognition quality acceptance.
-- Release: GitHub Pages run 43439931116 skipped deployment after eight root Chromium failures. Local test fixes address display expectations, primary links, remote downloads and scroll timing. Automatic approval rejected a second push to main because it would trigger publication.
+- Release: GitHub Pages run 43439931116 skipped deployment after eight root Chromium failures. Local test fixes address display expectations, primary links, remote downloads and scroll timing. After explicit approval, only 627410c was pushed. GitHub Pages run 43445342027 verified and deployed that exact SHA. The RU home and transmission lab returned HTTP 200. Chromium reached calculation-ready state on the published lab with no page errors.
 - Eval-first: the new instruction arrived after the initial implementation. The review follow-up reproduced the invalid attachment and routing paths before the final fixes. Mobile and desktop capture pairs are in test-results/handwriting-*.png.
-- Review: independent reviewer identified implicit endpoint attachment, JSON size asymmetry and stale geometry. Added explicit node checks, compact bounded JSON and section geometry cleanup. Reopening a specific accepted mark for correction remains pending.
-- ET-LAB-022-RELEASE | pending | Approve a new push of release-test commit 627410c to main. Expected evidence is a fresh GitHub Pages verify and deploy run for that commit. This action publishes from main again.
+- Review: independent reviewer identified implicit endpoint attachment, JSON size asymmetry and stale geometry. Added explicit node checks, compact bounded JSON and section geometry cleanup. Accepted ink reopens from the archive and updates the linked object, retaining its terminals and same-kind parameters. Review of this slice added import pairing, detach/reattach and relocation identity transfer, protection of existing resistance and no-op history handling.
+- ET-LAB-022-RELEASE | done | Run 43445342027, verify 131953201344 and deploy 131961570384 succeeded for 627410c. Editor changes remain in the feature branch.
+- Correction evidence: baseline browser checks failed at the absent archive action. Updated code passed 550 Vitest, 52 Chromium line scenarios, including 12 handwriting scenarios, full build, types and lint. Captures of the correction panel at 390 and 1000 px were visually checked.
 - NEXT: independent-handwriting-corpus
 
 

@@ -11,6 +11,7 @@ import { contactKind, isTwoTerminal, placementTargets, type DetachedPart, type P
 import { usePointerStroke } from "../engineering/usePointerStroke";
 import { boundedStroke, recognizeInk, type Ink, type Sketch, type SketchKind } from "../engineering/handwriting";
 import { experimentTimeLabel } from "./network-experiment";
+import { correctionKinds, correctInkTarget, type InkLink } from "./network-ink";
 import { networkError } from "./network-copy";
 import { leadPath, routeLeadPair, routeSymbolPaths, symbolBounds, type RoutedWire, type RoutingBox } from "./network-routing";
 
@@ -19,8 +20,8 @@ type View = Point & { zoom: number };
 type Gesture = { additive?:boolean; id: number; start: Point; tool?: Tool; selection?: Selection; moved: boolean };
 type Props = {
   ink: Ink[];
-  onInk: (ink: Ink[]) => void;
-  onSketchCommit: (model: Network, selection: Selection, layout: Layout, detached: DetachedPart[], ink: Ink) => void;
+  inkLinks: (InkLink | null)[];
+  onSketchCommit: (model: Network, selection: Selection | null, layout: Layout, detached: DetachedPart[], ink: Ink, kind: SketchKind, index?: number) => void;
   onDetach:(item:Selection,part:DetachedPart)=>void;
   model: Network;
   empty:boolean;
@@ -34,7 +35,7 @@ type Props = {
   onSelect: (selection: Selection | null) => void;
   detached: DetachedPart[];
   onDetached: (parts: DetachedPart[]) => void;
-  onCommit: (model: Network, selection: Selection, detachedId?:string) => void;
+  onCommit: (model: Network, selection: Selection, previous?: Selection) => void;
   inspector: (arm: (tool: Tool) => void) => ReactNode;
   undo: () => void;
   redo: () => void;
@@ -70,6 +71,10 @@ const layoutKey=(item:Selection)=>item.kind==="line"||item.kind==="detached"?ite
  item.kind==="shunt"?"@shunt-"+item.node:item.kind==="contact"?"@contact-"+item.id:item.kind==="load"&&item.id?"@load-"+item.id:"@load";
 const rotationKey=(item:Selection)=>"@rot-"+layoutKey(item).replace(/^@/,"");
 const horizontalKey=(key:string)=>key==="@load"?"@load-x":"@x-"+key.replace(/^@/,"");
+function drawnLineLayout(layout: Layout,id: string,index: number,a: Point,b: Point): Layout {
+  return {...layout,[id]:(a.y+b.y)/2,[horizontalKey(id)]:(a.x+b.x)/2-nodeX(index)-85,
+    ["@rot-"+id]:Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI,["@span-"+id]:distance(a,b)/2};
+}
 const baseX=(key:string)=>key==="@load"?82:0;
 const turned=(x:number,y:number,d:number,angle:number):Point=>{
   const radians=angle*Math.PI/180;
@@ -224,6 +229,7 @@ export default function NetworkWorkbench(props: Props) {
   const [ink, setInk] = useState<Ink>([]);
   const [correction, setCorrection] = useState<SketchKind | "">("");
   const [inkArchive, setInkArchive] = useState(false);
+  const [editingMark, setEditingMark] = useState<number | null>(null);
   const [zigzag, setZigzag] = useState(false);
   useEffect(()=>{
     try { setZigzag(localStorage.getItem("electrotutor-line-resistor-symbol")==="ansi"); } catch { /* Use the default style. */ }
@@ -271,14 +277,19 @@ export default function NetworkWorkbench(props: Props) {
   const view=camera??{x:(viewport.width-width*fit)/2-left*fit,y:(viewport.height-height*fit+32)/2-top*fit,zoom:fit};
   const tool = preview?.tool ?? armed;
   const recognition = useMemo(() => recognizeInk(ink, view.zoom), [ink, view.zoom]);
-  const sketchKind = correction || recognition?.kind;
+  const savedLink = editingMark===null ? null : props.inkLinks[editingMark]??null;
+  const recognizedKind = recognition?.kind;
+  const sketchKind = correction || (editingMark===null || !savedLink || recognizedKind && correctionKinds(savedLink).includes(recognizedKind)
+    ? recognizedKind : savedLink.kind);
   const sketchLabels: Partial<Record<SketchKind, string>> = {
     current: t("Источник тока", "Джерело струму"),
     ground: t("Заземление", "Заземлення"),
     junction: t("Узел", "Вузол"),
   };
-  const sketchKinds: SketchKind[] = ["wire","r","l","c","source","current","switch","ground","junction"];
-  if (recognition?.kind === "line") sketchKinds.unshift("line");
+  const sketchKinds: SketchKind[] = editingMark===null
+    ? ["wire","r","l","c","source","current","switch","ground","junction"]
+    : savedLink ? correctionKinds(savedLink) : [];
+  if (editingMark===null && recognition?.kind === "line") sketchKinds.unshift("line");
   const pointerInk = usePointerStroke({
     svgRef: canvas, previewRef: inkPreview, enabled: drawing, pointLimit: 256,
     toPoint: event => {
@@ -407,7 +418,7 @@ export default function NetworkWorkbench(props: Props) {
   }
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && drawing) { setInk([]); setCorrection(""); setDrawing(false); }
+      if (event.key === "Escape" && drawing) { cancelInk(); setMessage(""); }
       if (event.key === "Escape" && (armed || preview || tray || measuring || gesture.current)) {
         cancel();
         setTray(null);
@@ -461,7 +472,7 @@ export default function NetworkWorkbench(props: Props) {
   }
   function place(target?: Placement, point?:Point, nextTool=armed, dragged=false) {
     if(props.empty&&nextTool==="line"&&(target?.edit||point&&canvas.current?.contains(document.elementFromPoint(point.x,point.y)))){
-      onCommit(model,{kind:"line",id:model.sections[0].id},attaching??undefined);
+      onCommit(model,{kind:"line",id:model.sections[0].id},attaching ? {kind:"detached",id:attaching} : undefined);
       cancel();setTray(null);
       return true;
     }
@@ -496,7 +507,13 @@ export default function NetworkWorkbench(props: Props) {
           : removesEvents ? t("События прежней нагрузки будут удалены. Продолжить?", "Події попереднього навантаження буде видалено. Продовжити?") : "";
       if (warning && !window.confirm(warning)) return false;
     }
-    onCommit(target.edit.model, target.edit.selection,attaching??undefined);
+    let previous: Selection | undefined;
+    if(attaching)previous={kind:"detached",id:attaching};
+    else if(nextTool&&typeof nextTool==="object"){
+      if("relocate" in nextTool)previous={kind:"contact",id:nextTool.relocate};
+      if("moveLoad" in nextTool)previous={kind:"load",id:nextTool.moveLoad};
+    }
+    onCommit(target.edit.model,target.edit.selection,previous);
     if(attaching||!repeat||typeof armed!=="string")setArmed(null);
     setAttaching(null);
     setCursor(null);
@@ -521,23 +538,71 @@ export default function NetworkWorkbench(props: Props) {
     if (rect && (rect.bottom <= 0 || rect.top >= window.innerHeight - 56)) canvas.current?.scrollIntoView({ block: "center" });
     requestAnimationFrame(() => canvas.current?.querySelector<SVGElement>("[data-allowed=true]")?.focus({ preventScroll: true }));
   }
+  function cancelInk() {
+    pointerInk.cancel();
+    setInk([]);
+    setCorrection("");
+    setEditingMark(null);
+    setDrawing(false);
+  }
+
+  function reopenInk(index: number) {
+    cancel();
+    setTray(null);
+    setEditingMark(index);
+    setInk(props.ink[index]);
+    setCorrection(props.inkLinks[index]?.kind??"");
+    setDrawing(true);
+  }
+
   function acceptInk(kind: SketchKind) {
     if (!ink.length) return;
+    if (editingMark!==null && !savedLink) {
+      if (ink!==props.ink[editingMark]) props.onSketchCommit(model,null,layout,props.detached,ink,kind,editingMark);
+      cancelInk();
+      return;
+    }
     const all = ink.flat(), first = all[0], last = all.at(-1)!;
     const guess: Sketch = recognition ?? {kind,center:{x:(first.x+last.x)/2,y:(first.y+last.y)/2},
       angle:Math.atan2(last.y-first.y,last.x-first.x)*180/Math.PI};
     const rect = canvas.current!.getBoundingClientRect();
     const screen = (p: Point) => ({x:rect.left+view.x+p.x*view.zoom,y:rect.top+view.y+p.y*view.zoom});
-    const finishInk = () => { setInk([]); setCorrection(""); setDrawing(false); };
-    const saveInk = () => { props.onInk([...props.ink.slice(-19),ink]); finishInk(); };
+    const finishInk = cancelInk;
+    const saveInk = () => { props.onSketchCommit(model,null,layout,props.detached,ink,kind); finishInk(); };
     const unavailable = t("В этой схеме элемент нельзя подключить в этом месте.", "У цій схемі елемент не можна під’єднати в цьому місці.");
+    if (editingMark!==null && savedLink) {
+      if (kind===savedLink.kind && ink===props.ink[editingMark]) { finishInk(); return; }
+      const corrected = correctInkTarget(model,props.detached,savedLink,kind,props.empty);
+      let nextLayout = {...layout};
+      if (savedLink.target.kind==="line" && ink!==props.ink[editingMark]) {
+        if (recognition?.kind!=="line" || !recognition.terminals) { setMessage(unavailable); return; }
+        const id=savedLink.target.id, index=model.sections.findIndex(section=>section.id===id);
+        if(index<0){setMessage(unavailable);return;}
+        const oldAngle=(layout["@rot-"+id]??0)*Math.PI/180;
+        const oldCenter={x:nodeX(index)+85+(layout[horizontalKey(id)]??0),y:layout[id]??axis};
+        const oldStart={x:oldCenter.x-Math.cos(oldAngle)*lineHalfSpan(layout,id),y:oldCenter.y-Math.sin(oldAngle)*lineHalfSpan(layout,id)};
+        const [a,b]=[...recognition.terminals].sort((p,q)=>distance(p,oldStart)-distance(q,oldStart));
+        nextLayout = drawnLineLayout(layout,id,index,a,b);
+      }
+      if(savedLink.target.kind==="load" && savedLink.target.id===model.load.id) {
+        if(kind==="ground")nextLayout["@ground-load"]=1;
+        else delete nextLayout["@ground-load"];
+      }
+      if(!corrected || !traceLayout(nextLayout,corrected.model,corrected.model.load,props.empty)){
+        setMessage(unavailable);
+        return;
+      }
+      props.onSketchCommit(corrected.model,savedLink.target,nextLayout,corrected.detached,ink,kind,editingMark);
+      finishInk();
+      return;
+    }
     const options = (part: Tool) => placementTargets(model,part).filter(item=>item.edit);
     const install = (target: Placement, nextLayout = layout) => {
       if (!target.edit || !traceLayout(nextLayout,target.edit.model,target.edit.model.load,false)) {
         setMessage(explain("unroutable-layout"));
         return;
       }
-      props.onSketchCommit(target.edit.model,target.edit.selection,nextLayout,props.detached,ink);
+      props.onSketchCommit(target.edit.model,target.edit.selection,nextLayout,props.detached,ink,kind);
       finishInk();
     };
     if (kind === "line") {
@@ -559,14 +624,10 @@ export default function NetworkWorkbench(props: Props) {
       const reversed = props.empty ? firstEnd.x>secondEnd.x || firstEnd.x===secondEnd.x&&firstEnd.y>secondEnd.y : secondNode!==null;
       const [start,b] = reversed ? [secondEnd,firstEnd] : [firstEnd,secondEnd];
       const a = props.empty ? start : {x:junctionX(model.sections.length),y:axis};
-      const center = {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
       const index = props.empty ? 0 : model.sections.length;
       const id = props.empty ? model.sections[0].id : target.edit.selection.id;
       setCamera(view);
-      install(target,{
-        ...layout, [id]:center.y, [horizontalKey(id)]:center.x-nodeX(index)-85,
-        ["@rot-"+id]:Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI, ["@span-"+id]:distance(a,b)/2,
-      });
+      install(target,drawnLineLayout(layout,id,index,a,b));
       return;
     }
     if (kind === "current" || kind === "source") {
@@ -613,7 +674,7 @@ export default function NetworkWorkbench(props: Props) {
     const id = freeId();
     const rotation = ((Math.round(guess.angle/90)*90%360)+360)%360;
     setCamera(view);
-    props.onSketchCommit(model,{kind:"detached",id},layout,[...props.detached,{id,kind,...guess.center,rotation}],ink);
+    props.onSketchCommit(model,{kind:"detached",id},layout,[...props.detached,{id,kind,...guess.center,rotation}],ink,kind);
     finishInk();
   }
   function start(event: PointerEvent<Element>, next?: Tool, selection?: Selection) {
@@ -755,6 +816,7 @@ export default function NetworkWorkbench(props: Props) {
   }
   function toggle(next: typeof tray) {
     cancel();
+    if (drawing) cancelInk();
     setTray(tray === next ? null : next);
   }
   const selectedElement=useRef<SVGGElement|null>(null);
@@ -820,11 +882,17 @@ export default function NetworkWorkbench(props: Props) {
       if(armed||clearDialog.current?.open||event.altKey||
         (event.target as Element|null)?.closest("input,select,textarea,[contenteditable]"))return;
       const key=event.key.toLowerCase();
+      const historyShortcut=(event.ctrlKey||event.metaKey)&&(key==="z"||key==="y");
+      if(drawing&&(editingMark===null||!historyShortcut))return;
       if(event.ctrlKey||event.metaKey){
         if(key==="c"&&selected){event.preventDefault();copy();}
         if(key==="v"&&clipboard.current){event.preventDefault();paste();}
-        if(key==="z"){event.preventDefault();if(event.shiftKey)props.redo();else props.undo();}
-        if(key==="y"){event.preventDefault();props.redo();}
+        if(historyShortcut){
+          event.preventDefault();
+          cancel();
+          cancelInk();
+          if(key==="y"||event.shiftKey)props.redo();else props.undo();
+        }
         return;
       }
       if(!selected)return;
@@ -929,14 +997,14 @@ export default function NetworkWorkbench(props: Props) {
     onPointerCancel={event => finish(event, true)} onLostPointerCapture={event => finish(event, true)}>
     <div className="network-canvas" data-drawing-ink={drawing||undefined}>
       <div className="network-scheme-tools" role="group" aria-label={t("Управление конструктором", "Керування конструктором")}>
-        <button type="button" aria-expanded={tray==="parts"} onClick={()=>{if(tray==="parts")setTray(null);else setTray("parts");}}>{t("Элементы","Елементи")}</button>
+        <button type="button" aria-expanded={tray==="parts"} onClick={()=>{if(drawing)cancelInk();if(tray==="parts")setTray(null);else setTray("parts");}}>{t("Элементы","Елементи")}</button>
         <button type="button" aria-label={t("Рисовать схему","Малювати схему")} title={t("Рисовать схему","Малювати схему")} aria-pressed={drawing}
-          onClick={()=>{cancel();setTray(null);setDrawing(!drawing);}}><Pencil size={18}/></button>
+          onClick={()=>{cancel();setTray(null);if(drawing)cancelInk();else setDrawing(true);}}><Pencil size={18}/></button>
         {(armed||measuring)&&<button type="button" className="network-active-tool" onClick={()=>{cancel();setTray(null);}} aria-label={t("Отменить размещение","Скасувати розміщення")}>
           {measuring?t("Щуп","Щуп"):typeof armed==="string"?labels[armed]:t("Размещение","Розміщення")} <X size={15}/>
         </button>}
-        <button type="button" aria-label={t("Отменить изменение","Скасувати зміну")} disabled={!props.canUndo} onClick={()=>{cancel();props.undo();}}><Undo2 size={18}/></button>
-        <button type="button" aria-label={t("Повторить изменение","Повторити зміну")} disabled={!props.canRedo} onClick={()=>{cancel();props.redo();}}><Redo2 size={18}/></button>
+        <button type="button" aria-label={t("Отменить изменение","Скасувати зміну")} disabled={!props.canUndo} onClick={()=>{cancel();cancelInk();props.undo();}}><Undo2 size={18}/></button>
+        <button type="button" aria-label={t("Повторить изменение","Повторити зміну")} disabled={!props.canRedo} onClick={()=>{cancel();cancelInk();props.redo();}}><Redo2 size={18}/></button>
         <button type="button" aria-label={t("Очистить схему","Очистити схему")} title={t("Очистить схему","Очистити схему")}
           disabled={props.empty&&!props.detached.length&&!props.ink.length} onClick={()=>clearDialog.current?.showModal()}><Trash2 size={18}/></button>
         <button type="button" aria-label={t("Ещё инструменты и справка","Інші інструменти й довідка")} aria-expanded={tray==="help"} onClick={()=>toggle("help")}><CircleHelp size={18}/></button>
@@ -945,7 +1013,7 @@ export default function NetworkWorkbench(props: Props) {
         <p>{t("Очистить всю схему? Все размещённые элементы и соединения будут удалены.","Очистити всю схему? Усі розміщені елементи та з’єднання буде видалено.")}</p>
         <div className="network-buttons">
           <button type="button" autoFocus onClick={()=>clearDialog.current?.close()}>{t("Отмена","Скасувати")}</button>
-          <button type="button" onClick={()=>{clearDialog.current?.close();cancel();setTray(null);setInk([]);setDrawing(false);setCorrection("");setCamera(null);props.onClear();}}>{t("Очистить","Очистити")}</button>
+          <button type="button" onClick={()=>{clearDialog.current?.close();cancel();setTray(null);cancelInk();setCamera(null);props.onClear();}}>{t("Очистить","Очистити")}</button>
         </div>
       </dialog>
       {selected&&anchor&&!drawing&&!armed&&tray!=="parts"&&tray!=="help"&&<div className="network-object-actions" style={{left:anchor.x,top:anchor.y}}>
@@ -955,14 +1023,19 @@ export default function NetworkWorkbench(props: Props) {
       {drawing&&<div className="network-ink-tools" role="group" aria-label={t("Рукописный ввод","Рукописне введення")}>
         {!ink.length&&<small>{t("Для линии передачи отметьте два конца и проведите между ними штрих.", "Для лінії передачі позначте два кінці й проведіть між ними штрих.")}</small>}
         {!!ink.length&&<>
-          <select aria-label={t("Распознанный элемент","Розпізнаний елемент")} value={sketchKind??""}
+          {!!sketchKinds.length&&<select aria-label={t("Распознанный элемент","Розпізнаний елемент")} value={sketchKind??""}
             onChange={event=>setCorrection(event.target.value as SketchKind)}>
             <option value="" disabled>{t("Дорисуйте или выберите тип","Домалюйте або оберіть тип")}</option>
             {sketchKinds.map(kind=><option key={kind} value={kind}>{sketchLabels[kind]??labels[kind as Part]}</option>)}
-          </select>
-          <button type="button" disabled={!sketchKind} onClick={()=>sketchKind&&acceptInk(sketchKind)}>{t("Вставить","Вставити")}</button>
+          </select>}
+          <button type="button" disabled={!sketchKind&&!(editingMark!==null&&!savedLink)} onClick={()=>acceptInk(sketchKind??"wire")}>{editingMark===null
+            ? t("Вставить","Вставити")
+            : t("Сохранить правку","Зберегти правку")}</button>
           <button type="button" onClick={()=>{setInk(ink.slice(0,-1));setCorrection("");setMessage("");}}>{t("Убрать штрих","Прибрати штрих")}</button>
         </>}
+        {editingMark!==null&&<button type="button" onClick={()=>{cancelInk();setMessage("");}}>
+          {t("Отменить правку штриха","Скасувати правку штриха")}
+        </button>}
       </div>}
       <svg ref={canvas} className="network-schematic" data-placing={!!armed||undefined} data-network-canvas aria-label={t("Электрическая схема", "Електрична схема")}
         onPointerLeave={()=>{setCursor(null);setHovered(null);}}
@@ -1100,7 +1173,7 @@ export default function NetworkWorkbench(props: Props) {
             </g>;
           })}
           <g className="network-ink" pointerEvents="none" aria-hidden="true">
-            {[...(inkArchive?props.ink.flat():[]),...ink].map((stroke,index)=>stroke.length===1
+            {[...(inkArchive?props.ink.filter((_,index)=>index!==editingMark).flat():[]),...ink].map((stroke,index)=>stroke.length===1
               ? <circle key={index} cx={stroke[0].x} cy={stroke[0].y} r={3/view.zoom}/>
               : <polyline key={index} points={stroke.map(({x,y})=>x+","+y).join(" ")}/>)}
             {drawing&&recognition?.kind==="line"&&recognition.terminals&&<line
@@ -1167,6 +1240,9 @@ export default function NetworkWorkbench(props: Props) {
           </select></label>
           {!!props.ink.length&&<label><input type="checkbox" checked={inkArchive} onChange={event=>setInkArchive(event.target.checked)}/>
             {t("Исходные штрихи","Початкові штрихи")}</label>}
+          {inkArchive&&props.ink.map((_,index)=><button key={index} type="button" onClick={()=>reopenInk(index)}>
+            {t("Исправить штрих","Виправити штрих")} {index+1}
+          </button>)}
         </div>}
         {tray === "parts" && <div className="network-palette">
           <label className="network-repeat"><input type="checkbox" checked={repeat} onChange={event=>setRepeat(event.target.checked)}/>

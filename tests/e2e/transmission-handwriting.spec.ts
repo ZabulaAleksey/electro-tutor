@@ -217,3 +217,137 @@ test("one marked endpoint can extend the existing line at its last node", async 
   await expect(canvas.locator("[data-line-section=TL2]")).toBeVisible();
   await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
 });
+
+async function reopenMark(page: Page, index = 1) {
+  await page.getByRole("button", {name:"Ещё инструменты и справка"}).click();
+  await page.getByRole("checkbox",{name:"Исходные штрихи"}).check();
+  await page.getByRole("button",{name:`Исправить штрих ${index}`,exact:true}).click();
+}
+
+test("reopening a saved wire updates its existing branch and is one undoable edit", async ({ page }, testInfo) => {
+  await page.setViewportSize({width:1000,height:900});
+  await page.goto(route);
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  await drawing(page).click();
+  const canvas = page.locator("[data-network-canvas]");
+  const box = (await canvas.boundingBox())!;
+  const junctions = canvas.locator(".network-junction");
+  const a = (await junctions.nth(0).boundingBox())!, b = (await junctions.nth(1).boundingBox())!;
+  await stroke(page,[[a.x+a.width/2-box.x,a.y+a.height/2-box.y],[b.x+b.width/2-box.x,b.y+b.height/2-box.y]]);
+  await insert(page).click();
+  await expect(canvas.locator("[data-contact=W1]")).toHaveCount(1);
+  await page.reload();
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  await reopenMark(page);
+  await expect(kind(page)).toHaveValue("wire");
+  await page.screenshot({path:testInfo.outputPath("correction-desktop.png")});
+  await kind(page).selectOption("r");
+  await page.getByRole("button",{name:"Отменить правку штриха",exact:true}).click();
+  await expect(canvas.locator("[data-contact=W1] [data-symbol=resistor]")).toHaveCount(0);
+  await reopenMark(page);
+  await kind(page).selectOption("r");
+  await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
+  const branch=canvas.locator("[data-contact=W1]");
+  await expect(branch.locator("[data-symbol=resistor]")).toHaveCount(1);
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  const savedBranch=()=>page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-line-draft-v5")!).model.branches);
+  await expect.poll(savedBranch).toEqual([{id:"W1",from:0,to:1,resistanceOhm:100}]);
+  await reopenMark(page);
+  await page.keyboard.press("Control+z");
+  await expect(kind(page)).toHaveCount(0);
+  await expect.poll(savedBranch).toEqual([{id:"W1",from:0,to:1}]);
+  await reopenMark(page);
+  await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
+  await page.getByRole("button",{name:"Повторить изменение"}).click();
+  await expect.poll(savedBranch).toEqual([{id:"W1",from:0,to:1,resistanceOhm:100}]);
+});
+
+test("legacy archive ink can be redrawn and saved without guessing a circuit object", async ({ page }) => {
+  await page.setViewportSize({width:1000,height:900});
+  await page.goto(route);
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  await drawing(page).click();
+  await stroke(page,[[390,330],[525,343]]);
+  await insert(page).click();
+  await expect(page.locator("[data-detached=wire]")).toHaveCount(1);
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-line-draft-v5")??"{}").ink?.length)).toBe(1);
+  await page.evaluate(()=>{
+    const key="electrotutor-line-draft-v5", document=JSON.parse(localStorage.getItem(key)!);
+    delete document.inkLinks;
+    document.detached=[];
+    document.ink=[[[{x:10,y:10},{x:80,y:10}]]];
+    localStorage.setItem(key,JSON.stringify(document));
+  });
+  await page.reload();
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  const revision=await lab(page).getAttribute("data-model-revision");
+  await reopenMark(page);
+  await expect(kind(page)).toHaveCount(0);
+  await page.getByRole("button",{name:"Убрать штрих",exact:true}).click();
+  await stroke(page,[[390,330],[525,343]]);
+  await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
+  await expect(lab(page)).toHaveAttribute("data-model-revision",revision!);
+  await expect(page.locator("[data-contact], [data-detached]")).toHaveCount(0);
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-line-draft-v5")!).ink[0][0][0].x)).not.toBe(10);
+});
+
+test("redrawing a linked transmission section preserves its calculated parameters",async({page})=>{
+  await page.setViewportSize({width:1000,height:900});
+  await page.goto(route);
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  await page.getByRole("button",{name:"Очистить схему"}).click();
+  await page.getByRole("button",{name:"Очистить",exact:true}).click();
+  await drawing(page).click();
+  await stroke(page,[[350,355]]);
+  await stroke(page,[[540,390]]);
+  await stroke(page,[[350,355],[540,390]]);
+  await insert(page).click();
+  const section=page.locator("[data-line-section=TL1] .network-transmission-stroke");
+  await expect(section).toBeVisible();
+  await page.getByRole("button",{name:"Параметры",exact:true}).click();
+  await page.getByLabel("l, km").fill("500");
+  await page.getByRole("button",{name:"Закрыть панель"}).click();
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  const before=await section.getAttribute("d"),revision=await lab(page).getAttribute("data-model-revision");
+  await reopenMark(page);
+  for(let i=0;i<3;i++)await page.getByRole("button",{name:"Убрать штрих",exact:true}).click();
+  await stroke(page,[[350,355]]);
+  await stroke(page,[[540,400]]);
+  await stroke(page,[[350,355],[540,400]]);
+  await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
+  await expect(section).not.toHaveAttribute("d",before!);
+  await expect(lab(page)).toHaveAttribute("data-model-revision",revision!);
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-line-draft-v5")!).model.sections[0].lengthM)).toBe(500000);
+});
+
+test("archive follows a branch through detachment and reattachment on a narrow screen",async({page},testInfo)=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(route);
+  await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+  await drawing(page).click();
+  const canvas=page.locator("[data-network-canvas]");
+  const box=(await canvas.boundingBox())!;
+  const junctions=canvas.locator(".network-junction");
+  const a=(await junctions.nth(0).boundingBox())!,b=(await junctions.nth(1).boundingBox())!;
+  await stroke(page,[[a.x+a.width/2-box.x,a.y+a.height/2-box.y],[b.x+b.width/2-box.x,b.y+b.height/2-box.y]]);
+  await insert(page).click();
+  const contact=canvas.locator("[data-contact=W1]");
+  await expect(contact).toHaveCount(1);
+  await contact.press("Enter");
+  await page.getByRole("button",{name:"Отсоединить",exact:true}).click();
+  const draft=canvas.locator("[data-detached=wire]");
+  await expect(draft).toHaveCount(1);
+  await reopenMark(page);
+  await expect(kind(page)).toHaveValue("wire");
+  await kind(page).selectOption("r");
+  await page.screenshot({path:testInfo.outputPath("correction-mobile.png")});
+  await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
+  const resistor=canvas.locator("[data-detached=r]");
+  await expect(resistor).toHaveCount(1);
+  await resistor.press("Enter");
+  await page.getByRole("button",{name:"Подключить",exact:true}).click();
+  await canvas.getByRole("button",{name:"Шунт к опоре · TL1"}).press("Enter");
+  await expect(resistor).toHaveCount(0);
+  await reopenMark(page);
+  await expect(kind(page)).toHaveValue("r");
+});

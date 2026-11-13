@@ -56,7 +56,7 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page).toHaveURL(`${home}engineering-board/`);
     const calculator = page.locator(".calculator-card").first();
     await calculator.getByRole("textbox").first().fill("24");
-    await expect(calculator.locator(".calculator-formula")).toContainText("0,800");
+    await expect(calculator.locator(".calculator-formula")).toHaveText(/= 0,8 А$/);
   });
 
   test(`${language}: light rendering at phone and desktop widths`, async ({ page }) => {

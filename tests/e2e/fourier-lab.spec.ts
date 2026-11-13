@@ -84,7 +84,7 @@ test("playground configuration restores the actual signal after leaving its mode
  await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);
 });
 
-test("Fourier rounds its labels and keeps full precision in the CSV and editable draft", async ({ page }) => {
+test("Fourier rounds its labels and keeps full precision in the CSV and editable draft", async ({ page }, testInfo) => {
   await page.goto("/ru/interactive/fourier/");
   const lab = page.locator("[data-fourier-lab]");
   await lab.locator("select").first().selectOption("interleaved");
@@ -101,7 +101,9 @@ test("Fourier rounds its labels and keeps full precision in the CSV and editable
   await expect(harmonic).toHaveValue("0.123456789");
   const download = page.waitForEvent("download");
   await lab.getByRole("button", { name: "CSV", exact: true }).click();
-  const rows = (await readFile((await (await download).path())!, "utf8")).trim().split("\n").map(row => row.split(","));
+  const csv = testInfo.outputPath("fourier-contour.csv");
+  await (await download).saveAs(csv);
+  const rows = (await readFile(csv, "utf8")).trim().split("\n").map(row => row.split(","));
   expect(Number(rows.find(row => row[0] === "0")?.[3])).toBe(1.388e-16);
   expect(Number(rows.find(row => row[0] === "1")?.[3])).toBe(0.123456789);
 });

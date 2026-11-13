@@ -288,7 +288,8 @@ test("wheel scrolls normally, Ctrl anchors zoom and geometry does not change the
  await page.mouse.move(pivot.x,pivot.y);await page.mouse.wheel(0,100);
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBeGreaterThan(0);
  await expect(field.locator(".network-schematic-drawing")).toHaveAttribute("transform",initial!);
- await page.evaluate(()=>window.scrollTo(0,0));
+ await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+ await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(0);
  const center=await position(page,143,84);
  await page.mouse.move(center.x,center.y);await page.keyboard.down("Control");
  await page.mouse.wheel(0,-160);await page.keyboard.up("Control");

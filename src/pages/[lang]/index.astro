@@ -11,7 +11,7 @@ export function getStaticPaths() {
 
 const { lang: language } = Astro.params;
 const title = language === "ru" ? "Электротехника на практике" : "Електротехніка на практиці";
-const description = language === "ru" ? "Учебник, решения задач и интерактивные лаборатории ElectroTutor." : "Підручник, розв’язання задач та інтерактивні лабораторії ElectroTutor.";
+const description = language === "ru" ? "Интерактивные лаборатории и доска ElectroTutor." : "Інтерактивні лабораторії та дошка ElectroTutor.";
 const legacy = {
   "#learning-contents": localePath(language, "/topics/"),
   "#labs": localePath(language, "/interactive/"),

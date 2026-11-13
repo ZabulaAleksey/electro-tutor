@@ -16,7 +16,10 @@ for (const language of ["ru", "uk"]) test(`RC1 ${language} keyboard dialog, mobi
  await page.locator("#mobile-menu-toggle").click();await expect(page.locator("#mobile-menu-toggle")).toHaveAttribute("aria-expanded","true");
  await page.locator('.astro-header nav a[href$="/interactive/"]').click();
  await expect(page).toHaveURL(new RegExp(`/${language}/interactive/$`));
- await page.locator('main a[data-registered-content][href$="/board/"]').click();
+ await page.locator("#mobile-menu-toggle").click();
+ await page.locator('.astro-header nav a[href$="/board/"]').click();
+ await expect(page.locator("[data-board-ready]")).toHaveAttribute("data-board-ready","true");
+ await expect(page.locator(".board-canvas g > :not(.board-preview):not(.board-eraser-preview)")).toHaveCount(0);
  await expect(page).toHaveURL(new RegExp(`/${language}/board/$`));
  expect(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
 });

@@ -20,8 +20,8 @@ test("home opens the topic catalogue, and pointer drag commits only at the highl
   page.on("pageerror", error => failures.push(error.message));
   await page.goto("/ru/");
   await page.getByRole("link", { name: "Выбрать лабораторию", exact: true }).click();
-  await expect(page.getByRole("link", { name: "Теория и формулы" })).toHaveAttribute("href", "/ru/topics/");
-  await page.getByRole("link", { name: "Переходные процессы в линии", exact: true }).click();
+  await expect(page.locator(".site-footer").getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", "/ru/topics/");
+  await page.getByRole("link", { name: "Переходные процессы в длинных линиях", exact: true }).click();
   await ready(page);
 
   await page.getByRole("button",{name:"Элементы",exact:true}).click();

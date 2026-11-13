@@ -46,7 +46,7 @@ test("light appearance persists across reload and navigation under a dark OS", a
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await page.locator(".astro-header").getByRole("link", { name: "Учебник", exact: true }).press("Enter");
+  await page.locator(".site-footer").getByRole("link", { name: "Учебник", exact: true }).press("Enter");
   await expect(page).toHaveURL(/\/ru\/topics\/$/);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await attachViewport(page, testInfo, "light-catalog-dark-os");
@@ -72,7 +72,7 @@ test("desktop Tab navigation reaches named controls and the catalogue search", a
   const search = page.getByRole("searchbox");
   await expect(search).toBeFocused();
   expect(reachedNames.some((name) => name.includes("ElectroTutor"))).toBe(true);
-  expect(reachedNames.some((name) => name === "Решения")).toBe(true);
+  expect(reachedNames.some((name) => name === "Интерактивная доска")).toBe(true);
   await search.pressSequentially("Фурье");
   await expect(page.locator("#labs [data-directory-entry]:visible")).toHaveCount(1);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -128,7 +128,7 @@ test("essential icon controls and lesson diagrams expose accessible names and li
   const runtimeErrors = captureRuntimeErrors(page);
   await page.goto("/ru/topics/dc/mesh-current-method/");
 
-  await expect(page.locator(".astro-header").getByRole("link", { name: "Решения", exact: true })).toBeVisible();
+  await expect(page.locator(".site-footer").getByRole("link", { name: "Решения", exact: true })).toBeVisible();
   await expect(page.locator(".site-footer a[href$='/my-services/']")).toBeVisible();
   await page.getByRole("button", { name: /выбрать язык/i }).click();
   await expect(page.getByRole("menuitemradio", { name: "Українська" })).toBeVisible();

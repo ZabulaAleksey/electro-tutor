@@ -8,6 +8,8 @@ LINE-UX-025 → network-load-layout.ts, NetworkEditor и NetworkWorkbench → ne
 
 LINE-UX-027 → network-routing.ts, NetworkWorkbench и network-load-layout.ts → network-routing.test.ts, network-load-layout.test.ts и проверка JSON модели после перемещения. LINE-UX-028 → network-experiment.ts и TransmissionNetworkLab → network-experiment.test.ts и проверка скачанных JSON/CSV при зуме ×50.
 
+FR-413..414 → editorial-learning-sections.spec.md → общий список карточек, BaseLayout и EngineeringBoard → editorial-learning, content-first-navigation, product-accessibility, board-workspaces и education-release.
+
 ## ET-LAB-020 — Монтаж и длительность
 
 LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.

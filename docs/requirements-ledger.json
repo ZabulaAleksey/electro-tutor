@@ -1838,14 +1838,16 @@
       "domain": "lab-first-entry",
       "status": "VERIFIED",
       "requirement_ids": [
-        "FR-412"
+        "FR-412",
+        "FR-413",
+        "FR-414"
       ],
-      "runtime": "The RU/UK home opens the registered laboratory catalogue directly. Existing theory, solutions, and individual experiment URLs remain available.",
+      "runtime": "The RU/UK home and laboratory catalogue offer five direct lab links. The board has its own menu entry and starts empty for a new visitor. Theory, solutions, and existing experiment URLs remain available.",
       "security": "Uses public static routes within the existing education release boundary.",
       "a11y": "The primary navigation and knowledge-base links are native links.",
-      "observability": "ET-LAB-011 in STAGES and TESTING.",
+      "observability": "ET-LAB-021 in STAGES and TESTING.",
       "gap": "Published release is tracked independently.",
-      "action": "Local browser and artifact acceptance under ET-LAB-011.",
+      "action": "Local browser and artifact acceptance under ET-LAB-021.",
       "code": [
         "src/components/EditorialHome.astro",
         "src/components/LaboratoryDirectory.astro"
@@ -1857,7 +1859,10 @@
         "scripts/audit-built-lessons.mjs"
       ],
       "e2e": [
-        "tests/e2e/transmission-workbench.spec.ts"
+        "tests/e2e/transmission-workbench.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/board-workspaces.spec.ts",
+        "tests/e2e/education-release.spec.ts"
       ]
     },
     {
@@ -1938,17 +1943,17 @@
     {
       "domain": "transmission-context-and-duration",
       "status": "IMPLEMENTED",
-      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022"],
-      "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions and bounded long experiments.",
+      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022", "LINE-UX-023", "LINE-UX-024", "LINE-UX-025", "LINE-UX-026", "LINE-UX-027", "LINE-UX-028"],
+      "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions, obstacle-aware lead routing, bounded long experiments and full probe export.",
       "security": "Validated configuration and bounded solver histories; cancellation invalidates the request and terminates the worker.",
       "a11y": "Dialog, named on-canvas actions, keyboard commands, touch placement and progress.",
-      "observability": "ET-LAB-020 in STAGES and TESTING.",
+      "observability": "ET-LAB-020 and ET-LAB-021 in STAGES and TESTING.",
       "gap": "Editing is bounded to the existing network topology and long runs to physical resolution and memory budgets.",
       "action": "Use the documented reference experiments and inspect estimates for stiffer models.",
-      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/network.ts", "src/transient/network.worker.ts"],
-      "unit": ["src/transient/network-duration.test.ts"],
+      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/network.ts", "src/transient/network.worker.ts", "src/transient/network-routing.ts", "src/transient/network-experiment.ts"],
+      "unit": ["src/transient/network-duration.test.ts", "src/transient/network-routing.test.ts", "src/transient/network-experiment.test.ts"],
       "integration": [],
-      "e2e": ["tests/e2e/transmission-editor-duration.spec.ts"]
+      "e2e": ["tests/e2e/transmission-editor-duration.spec.ts", "tests/e2e/transmission-workbench.spec.ts"]
     },
     {
       "domain": "transmission-free-layout",

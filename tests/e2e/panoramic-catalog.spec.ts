@@ -1,18 +1,15 @@
 import { expect, test } from "@playwright/test";
 
-test("laboratory catalogue keeps real items, subject groups, and direct links", async ({ page }) => {
+test("laboratory catalogue keeps real items, search, and direct links", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
   await page.goto("/ru/interactive/");
   const catalogue = page.locator("#labs");
   const entries = catalogue.locator("[data-directory-entry]");
-  await expect(entries).toHaveCount(36);
-  const electronics = catalogue.locator("details").filter({ has: page.getByText("Электроника", { exact: true }) });
-  await expect(electronics.locator("[data-directory-entry]")).toHaveCount(2);
-  await electronics.locator("summary").click();
-  await expect(electronics.locator("[data-directory-entry]:visible")).toHaveCount(0);
+  await expect(entries).toHaveCount(5);
   await catalogue.getByRole("searchbox").fill("Электроника");
-  await expect(electronics.locator("[data-directory-entry]:visible")).toHaveCount(2);
-  await catalogue.getByRole("searchbox").fill("балка");
+  await expect(catalogue.locator("[data-directory-entry]:visible")).toHaveCount(0);
+  await expect(catalogue.locator("[data-directory-no-results]")).toBeVisible();
+  await catalogue.getByRole("searchbox").fill("Сопромат");
   const result = catalogue.locator("[data-directory-entry]:visible");
   await expect(result).toHaveCount(1);
   await expect(result.getByRole("link")).toHaveAttribute("href", "/ru/interactive/beam/");
@@ -32,9 +29,9 @@ test("the textbook fits narrow viewports and avoids empty topic links", async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("navigation exposes three sections and install remains reachable through services", async ({ page }) => {
+test("navigation exposes labs and the board and install remains reachable through services", async ({ page }) => {
   await page.goto("/ru/");
-  await expect(page.locator(".astro-header nav > a")).toHaveText(["Учебник", "Решения", "Лаборатории"]);
+  await expect(page.locator(".astro-header nav > a")).toHaveText(["Лаборатории", "Интерактивная доска"]);
   await expect(page.locator("#app-install")).toHaveCount(0);
   await page.locator(".site-footer").getByRole("link", { name: "Сервисы", exact: true }).click();
   await expect(page).toHaveURL("/ru/my-services/");

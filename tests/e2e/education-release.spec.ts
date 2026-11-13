@@ -30,9 +30,11 @@ test("published study sections are bilingual and reserved services stay unavaila
       }
     }
     await page.goto(at(language + "/"));
-    await expect(page.locator(".editorial-section a")).toHaveCount(3);
+    await expect(page.locator("#labs [data-registered-content]")).toHaveCount(5);
     await page.locator("#mobile-menu-toggle").click();
-    await page.locator(".astro-header nav a[href$='/solutions/']").click();
+    await page.locator(".astro-header nav a[href$='/board/']").click();
+    await expect(page).toHaveURL(new RegExp("/" + language + "/board/$"));
+    await page.locator(".site-footer a[href$='/solutions/']").click();
     await expect(page).toHaveURL(new RegExp(`/${language}/solutions/$`));
     await expect(page.locator("main [data-registered-content]")).toHaveCount(4);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);

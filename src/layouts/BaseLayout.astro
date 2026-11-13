@@ -34,8 +34,13 @@ const serviceWorkerPath = withBasePath("/sw.js");
 const webFontStylesheet = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap";
 const education = import.meta.env.PUBLIC_EDUCATION_MODE === "true";
 const publicApiOrigin = import.meta.env.PUBLIC_API_ORIGIN || "";
-const activeSection = ["tools", "engineering-board", "board"].includes(active) ? "interactive" : active;
+const activeSection = ["tools", "engineering-board"].includes(active) ? "interactive" : active;
+const primaryLinks = [
+  learningSections[2],
+  { id: "board", path: "/board/", label: { ru: "Интерактивная доска", uk: "Інтерактивна дошка" } },
+];
 const footerLinks = [
+  ...learningSections.slice(0, 2).map(item => ({ path: item.path, label: item.label[language] })),
   { path: "/contacts/", label: language === "ru" ? "Контакты" : "Контакти" },
   ...(education ? [
     { path: "/help/", label: language === "ru" ? "Помощь" : "Допомога" },
@@ -83,7 +88,7 @@ const footerLinks = [
       <span><strong>{copy.brand.display}</strong></span>
     </a>
     <nav id="site-navigation" aria-label={copy.nav.label}>
-      {learningSections.map(item => {
+      {primaryLinks.map(item => {
         const href = localePath(language, item.path);
         return <a class:list={{ active: activeSection === item.id }}
           aria-current={Astro.url.pathname === href ? "page" : undefined} href={href}>{item.label[language]}</a>;

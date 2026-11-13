@@ -8,7 +8,6 @@ import { getLocale } from "../../i18n";
 import "../../components/StarNeutralLab.css";
 import "../../components/TransmissionLineLab.css";
 import LaboratoryDirectory from "../../components/LaboratoryDirectory.astro";
-import { getContentCatalogue } from "../../learning/get-content-catalogue";
 import { contentCopy } from "../../learning/navigation-copy";
 
 export function getStaticPaths() {
@@ -17,7 +16,6 @@ export function getStaticPaths() {
 const language = Astro.params.lang as Language;
 const copy = getLocale(language);
 const title = contentCopy[language].labs;
-const catalogue = await getContentCatalogue(language);
 ---
 
 <BaseLayout
@@ -27,6 +25,6 @@ const catalogue = await getContentCatalogue(language);
   active="interactive"
   alternatePath="/interactive/"
 >
-  <LaboratoryDirectory {language} {catalogue} />
+  <LaboratoryDirectory {language} />
   <LegacyCircularRoute client:load {language} />
 </BaseLayout>

@@ -29,6 +29,18 @@ const advancedItems: CatalogueItem[] = [
   { id: "advanced:fourier", source: "advanced", category: "advanced", categoryLabel: categoryLabels.advanced, subject: "science", title: { ru: "Фурье и эпициклы", uk: "Фур’є та епіцикли" }, description: { ru: "Синтез сигнала из гармоник.", uk: "Синтез сигналу з гармонік." }, action: { ru: "Открыть лабораторию Фурье", uk: "Відкрити лабораторію Фур’є" }, href: "/interactive/fourier/", visual: "fourier", available: true },
 ];
 
+export const showcaseLaboratories = [
+  { id: "advanced:star-neutral", title: { ru: "Векторная диаграмма несимметричной звезды", uk: "Векторна діаграма несиметричної зірки" } },
+  { id: "advanced:transmission-line", title: { ru: "Переходные процессы в длинных линиях", uk: "Перехідні процеси в довгих лініях" } },
+  { id: "advanced:beam", title: { ru: "Сопромат", uk: "Опір матеріалів" } },
+  { id: "advanced:fourier", title: { ru: "Эпициклы Фурье", uk: "Епіцикли Фур’є" } },
+  { id: "advanced:circular-diagram", title: { ru: "Круговая диаграмма", uk: "Кругова діаграма" } },
+].map(({ id, title }) => {
+  const lab = advancedItems.find(item => item.id === id);
+  if (!lab?.available) throw new Error("Unavailable showcase laboratory: " + id);
+  return { ...lab, title };
+});
+
 /** Shared registry for Micro Labs, science experiments and advanced laboratories. */
 export const catalogueItems: readonly CatalogueItem[] = [...advancedItems, ...microItems, ...scienceItems];
 export const catalogueCategories = Object.keys(categoryLabels) as CatalogueCategory[];
@@ -39,5 +51,4 @@ export function filterCatalogue(items: readonly CatalogueItem[], language: Langu
 /** Standalone engineering workspaces, alongside the experiment registry above. */
 export const engineeringTools: readonly CatalogueItem[] = [
   { id: "tool:calculator", source: "advanced", kind: "tool", category: "dc", categoryLabel: categoryLabels.dc, title: { ru: "Инженерный калькулятор", uk: "Інженерний калькулятор" }, description: { ru: "Расчёт закона Ома и переходных процессов в RC-цепях.", uk: "Розрахунок за законом Ома та перехідних процесів у RC-колах." }, href: "/engineering-board/", visual: "circuit", available: true, topicIds: ["dc/ohm", "transients/first-order"] },
-  { id: "tool:board", source: "advanced", kind: "tool", category: "dc", categoryLabel: categoryLabels.dc, title: { ru: "Интерактивная доска", uk: "Інтерактивна дошка" }, description: { ru: "Сборка электрических схем и экспорт в SVG.", uk: "Побудова електричних схем та експорт у SVG." }, href: "/board/", visual: "circuit", available: true, topicIds: ["dc/kirchhoff", "dc/mesh", "dc/nodes"] },
 ];

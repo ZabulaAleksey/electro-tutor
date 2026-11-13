@@ -5,13 +5,14 @@ const textbook = "/ru/topics/";
 const mesh = "#topic-dc-mesh";
 const header = ".astro-header > nav";
 
-test("the three global catalogue links have consistent destinations on every full page", async ({ page }) => {
+test("the two primary links have consistent destinations on every full page", async ({ page }) => {
   for (const route of ["/ru/", textbook, "/ru/interactive/", "/ru/my-services/", book, book + "examples/", book + "lab/"]) {
     await page.goto(route);
     const menu = page.locator(header);
-    await expect(menu.getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", textbook);
+    await expect(page.locator(".site-footer a[href$='/topics/']")).toHaveAttribute("href", textbook);
     await expect(menu.getByRole("link", { name: "Лаборатории", exact: true })).toHaveAttribute("href", "/ru/interactive/");
-    await expect(menu.getByRole("link", { name: "Решения", exact: true })).toHaveAttribute("href", "/ru/solutions/");
+    await expect(menu.getByRole("link", { name: "Интерактивная доска", exact: true })).toHaveAttribute("href", "/ru/board/");
+    await expect(menu.getByRole("link")).toHaveCount(2);
     await expect(menu.getByRole("link", { name: "Оглавление", exact: true })).toHaveCount(0);
     expect(await menu.locator("[aria-current]").count()).toBeLessThanOrEqual(1);
   }
@@ -33,13 +34,13 @@ test("textbook search exposes real content and treats arbitrary input as text", 
   await expect(topics.locator("article:visible")).toHaveCount(count);
 });
 
-test("all registered experiments and tools resolve once in the laboratory catalogue", async ({ page, request }) => {
+test("all five featured laboratories resolve once and legacy routes still work", async ({ page, request }) => {
   const links: string[] = [];
   await page.goto("/ru/interactive/");
   links.push(...await page.locator("#labs [data-registered-content]").evaluateAll(elements =>
     elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
-  expect(links).toHaveLength(36);
-  expect(links).toContain("/ru/interactive/reactive-two-port/");
+  expect(links).toHaveLength(5);
+  expect(links).not.toContain("/ru/interactive/reactive-two-port/");
   expect(new Set(links).size).toBe(links.length);
   const paths = new Set<string>();
   for (const href of links) {
@@ -52,8 +53,7 @@ test("all registered experiments and tools resolve once in the laboratory catalo
     await page.goto(route);
     await expect(page.locator("h1")).not.toBeEmpty();
   }
-  await page.goto("/ru/interactive/");
-  await page.locator("#labs a[href$='/transmission-line-reference/']").click();
+  await page.goto("/ru/interactive/transmission-line-reference/");
   await expect(page).toHaveURL(/transmission-line-reference/);
   await page.goto("/ru/micro-labs/?learningStage=lab#micro=capacitor-charge");
   await expect(page.locator('[data-micro="capacitor-charge"]')).toHaveAttribute("data-selected", "true");
@@ -107,7 +107,7 @@ test("global textbook from the lab preserves native history and explicit topic d
   await page.goto(book + "lab/?example=4&reset=1");
   await expect(page.getByTestId("preset")).toHaveValue("4");
   await expect(page).toHaveURL(book + "lab/?example=4");
-  await page.locator(header).getByRole("link", { name: "Учебник", exact: true }).click();
+  await page.locator(".site-footer").getByRole("link", { name: "Учебник", exact: true }).click();
   await expect(page).toHaveURL(textbook);
   await page.locator(mesh).getByRole("link", { name: "Примеры решений", exact: true }).click();
   await expect(page).toHaveURL(book + "examples/");
@@ -126,7 +126,7 @@ test("keyboard navigation from a scrolled lesson reaches the catalogue and Back 
   await page.route("https://fonts.googleapis.com/**", route => route.abort());
   await page.goto(book);
   await page.evaluate(() => document.fonts.ready);
-  const link = page.locator(header).getByRole("link", { name: "Учебник", exact: true });
+  const link = page.locator(".site-footer").getByRole("link", { name: "Учебник", exact: true });
   await link.focus();
   await page.evaluate(() => scrollTo({ top: 1800, behavior: "instant" }));
   const before = await page.evaluate(() => scrollY);

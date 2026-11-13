@@ -13,8 +13,8 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await page.goto(home);
     const nav = page.locator(".astro-header > nav");
     await expect(nav.getByRole("link", { name: /^(Оглавление|Зміст)$/ })).toHaveCount(0);
-    await expect(page.locator(".editorial-paths a")).toHaveCount(3);
-    await nav.getByRole("link", { name: textbook, exact: true }).click();
+    await expect(page.locator("#labs [data-registered-content]")).toHaveCount(5);
+    await page.locator(".site-footer").getByRole("link", { name: textbook, exact: true }).click();
     await expect(page).toHaveURL(`${home}topics/`);
     const mesh = page.locator("#topic-dc-mesh");
     await mesh.getByRole("link", { name: textbook, exact: true }).click();
@@ -40,17 +40,18 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page.locator("#labs a[href*='/interactive/beam/']")).toBeHidden();
     await search.clear();
     const labLinks = await page.locator("#labs a[data-registered-content]").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
-    expect(labLinks.length).toBeGreaterThanOrEqual(31);
+    expect(labLinks).toHaveLength(5);
     expect(new Set(labLinks).size).toBe(labLinks.length);
     for (const href of new Set(labLinks.map(link => link.split("#")[0]))) {
       expect((await request.get(href)).status(), href).toBe(200);
     }
-    await nav.getByRole("link", { name: solutions, exact: true }).click();
+    await page.locator(".site-footer").getByRole("link", { name: solutions, exact: true }).click();
     await expect(page).toHaveURL(`${home}solutions/`);
     await expect(page.locator("[data-registered-content]")).toHaveCount(4);
     await page.goto(`${home}tools/`);
     await expect(page.locator("#tools a[href*='circular-diagram/']")).toBeVisible();
-    await expect(page.locator("#tools a[href*='/board/']")).toBeVisible();
+    await expect(page.locator("#tools a[href*='/board/']")).toHaveCount(0);
+    await expect(nav.locator("a[href$='/board/']")).toBeVisible();
     await page.locator("#tools a[href*='/engineering-board/']").click();
     await expect(page).toHaveURL(`${home}engineering-board/`);
     const calculator = page.locator(".calculator-card").first();
@@ -75,8 +76,8 @@ for (const { language, textbook, labs, solutions } of destinations) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(home);
       await page.locator("#mobile-menu-toggle").click();
-      await page.locator(".astro-header > nav").getByRole("link", { name: textbook, exact: true }).click();
-      await expect(page).toHaveURL(`${home}topics/`);
+      await page.locator(".astro-header > nav").getByRole("link", { name: labs, exact: true }).click();
+      await expect(page).toHaveURL(`${home}interactive/`);
       await expect(page.locator("#mobile-menu-toggle")).toHaveAttribute("aria-expanded", "false");
     }
   });

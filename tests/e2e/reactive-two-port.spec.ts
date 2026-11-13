@@ -1,11 +1,10 @@
 import {expect,test} from "@playwright/test";
 
 const route="/ru/interactive/reactive-two-port/";
-test("catalogue opens the LC experiment and a change moves the analytical resonance",async({page})=>{
+test("the direct LC route opens and a change moves the analytical resonance",async({page})=>{
  const errors:string[]=[];
  page.on("pageerror",error=>errors.push(error.message));
- await page.goto("/ru/interactive/");
- await page.locator('a[href$="/interactive/reactive-two-port/"]').first().click();
+ await page.goto(route);
  await expect(page).toHaveURL(route);
  await expect(page.locator("[data-lc-ready]")).toHaveAttribute("data-lc-ready","true");
  const zero=page.locator('[data-lc-resonance="zero"]');

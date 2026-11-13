@@ -70,6 +70,17 @@
 .network-tray-parts,.network-tray-help{position:absolute;inset:56px auto auto 8px;width:min(calc(100% - 16px),420px);margin:0;z-index:5}
 .network-tray .network-field select{width:100%}
 .network-connection-preview{fill:none;stroke:var(--selection);stroke-width:3;pointer-events:none}
+.network-object-actions{position:absolute;transform:translateX(-50%);z-index:3;display:flex;gap:4px}
+.network-lab .network-object-actions button{display:grid;place-items:center;min-width:44px;min-height:44px;padding:4px}
+.network-clear-dialog{width:min(420px,calc(100% - 30px));padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface-elevated);color:var(--ink)}
+.network-clear-dialog::backdrop{background:#07152670}
+.network-clear-dialog p{margin:0 0 14px}
+.network-empty-note{position:absolute;top:47%;left:12%;right:12%;text-align:center;pointer-events:none;color:var(--muted)}
+.network-schematic [data-group-selected=true]>.network-svg-hit{stroke:var(--blue);stroke-dasharray:4 3}
+.network-duration{display:grid;gap:6px}
+.network-measurements[hidden]{display:none}
+.network-transmission-stroke{pointer-events:stroke}
+.network-first-terminal{fill:none;stroke:var(--blue);stroke-width:3;pointer-events:none}
 .network-bridge-wire{stroke:var(--blue)}
 @media(min-width:900px){.network-tray-inspect{position:absolute;inset:56px var(--inspector-right,8px) auto var(--inspector-left,auto);width:300px;margin:0;max-height:min(50vh,390px)}}
 @media(max-width:390px){.network-speed-choice{gap:2px;font-size:.65rem}.network-lab .network-speed-choice select{min-height:44px;padding-inline:2px}.network-lab .network-toolbar button{font-size:.76rem}}

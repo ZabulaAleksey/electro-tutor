@@ -1,5 +1,5 @@
 import { DEFAULT_DIODE } from "./line-diode";
-import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validateNetwork, type BranchComponent, type Contact, type Load, type Network } from "./network";
+import { boundaries, DEFAULT_NETWORK, findLoad, MAX_SECTIONS, validBranchComponent, validateNetwork, type BranchComponent, type Contact, type Load, type Network } from "./network";
 export function replaceLoad(root:Load,id:string,next:Load):Load{return root.id===id?next:{...root,children:root.children?.map(c=>replaceLoad(c,id,next))};}
 export function removeLoad(root: Load, id: string): Load {
   if (root.id === id) return { id: root.id, kind: "open" };
@@ -11,7 +11,7 @@ export function sectionBoundaries(c:Network){return boundaries(c).slice(1,-1).ma
 
 
 export type PalettePart = "line" | "wire" | "r" | "l" | "c" | "diode" | "source" | "switch";
-export type DetachedPart = {id:string; kind:PalettePart; x:number; y:number};
+export type DetachedPart = {id:string; kind:PalettePart; x:number; y:number; rotation?:number; template?:Pick<Contact,"resistanceOhm"|"component"|"switch">};
 const partKinds:readonly PalettePart[] = ["line","wire","r","l","c","diode","source","switch"];
 export function readDetached(input:unknown):DetachedPart[]{
  if(!Array.isArray(input))return [];
@@ -19,7 +19,15 @@ export function readDetached(input:unknown):DetachedPart[]{
  return input.filter((part):part is DetachedPart=>{
   if(!part||typeof part.id!=="string"||!/^draft-[1-9][0-9]{0,8}$/.test(part.id)||seen.has(part.id)||
     !partKinds.includes(part.kind)||!Number.isFinite(part.x)||!Number.isFinite(part.y)||
-    Math.abs(part.x)>1e6||Math.abs(part.y)>1e6)return false;
+    Math.abs(part.x)>1e6||Math.abs(part.y)>1e6||part.rotation!==undefined&&![0,90,180,270].includes(part.rotation))return false;
+  if(part.template!==undefined){
+   if(!part.template||typeof part.template!=="object"||Object.keys(part.template).some(key=>!["resistanceOhm","component","switch"].includes(key)))return false;
+   const {resistanceOhm,component,switch:sw}=part.template;
+   if(resistanceOhm!==undefined&&(!Number.isFinite(resistanceOhm)||resistanceOhm<0||resistanceOhm>1e9)||
+     component!==undefined&&(!component||component.kind!==part.kind||!validBranchComponent(component))||
+     sw!==undefined&&(!sw||part.kind!=="switch"||typeof sw.closed!=="boolean"||
+       sw.atS!==undefined&&(!Number.isFinite(sw.atS)||sw.atS<0||sw.atS>10||typeof sw.closes!=="boolean")))return false;
+  }
   seen.add(part.id);
   return true;
  });
@@ -34,12 +42,13 @@ export type Selection =
 
 export type Tool =
   | "line" | "shunt" | "matched" | "r" | "l" | "c" | "open" | "wire" | "switch" | "source" | "diode"
-  | { bridgeFrom: number; id?: string; part?: TwoTerminal; wire?: boolean }
+  | { bridgeFrom: number; id?: string; part?: TwoTerminal; wire?: boolean; template?:DetachedPart['template'] }
+  | { install:DetachedPart }
   | { relocate: string }
   | { moveLoad: string }
   | { move: Extract<Selection, { kind: "line" | "shunt" }> | { kind: "source" } };
 
-export type Position = { kind: "node" | "span" | "end" | "joint" | "branch" | "branch-span" | "branch-key"; index: number };
+export type Position = { kind: "node" | "span" | "end" | "joint" | "branch" | "branch-span" | "branch-key" | "wire-insert"; index: number };
 type Edit = { model: Network; selection: Selection };
 export type Placement = Position & { edit: Edit | null; error?: string };
 
@@ -141,10 +150,21 @@ function candidate(model: Network, tool: Tool, position: Position): Edit {
   if (typeof tool === "object") {
     if ("bridgeFrom" in tool) {
       const existing=[...model.series??[],...model.branches??[]].find(link=>link.id===tool.id);
-      const contact=existing??newContact(model,tool.part??(tool.wire?"wire":"r"),true);
+      const contact=existing??{...newContact(model,tool.part??(tool.wire?"wire":"r"),true),...tool.template};
       const branch={...contact,from:tool.bridgeFrom,to:index};
       return {model:{...model,series:model.series?.filter(link=>link.id!==contact.id),
         branches:[...(model.branches??[]).filter(link=>link.id!==contact.id),branch]},selection:{kind:"contact",id:contact.id}};
+    }
+    if("install" in tool){
+      const {kind,template}=tool.install;
+      if(isTwoTerminal(kind)&&template){
+        const before=position.kind==="wire-insert"?model.branches?.[position.index]:undefined;
+        const contact={...newContact(model,kind,position.kind==="joint"||position.kind==="span"),...template};
+        if(before)return {model:{...model,branches:model.branches!.map(link=>link===before?{...contact,from:link.from,to:link.to}:link)},
+          selection:{kind:"contact",id:contact.id}};
+        return contactPlacement(model,kind,position,contact);
+      }
+      return candidate(model,kind,position);
     }
     if("moveLoad" in tool){
       const load=findLoad(model.load,tool.moveLoad)!;
@@ -176,6 +196,11 @@ function candidate(model: Network, tool: Tool, position: Position): Edit {
   }
   if (tool === "line") return appendSection(model);
   if (tool === "source") return {model:{...model,source:{...model.source,node:index}},selection:{kind:"source"}};
+  if(isTwoTerminal(tool)&&kind==="wire-insert"){
+    const bridge=model.branches![index];
+    const part=newContact(model,tool,true);
+    return {model:{...model,branches:model.branches!.map((link,i)=>i===index?{...part,from:bridge.from,to:bridge.to}:link)},selection:{kind:"contact",id:part.id}};
+  }
   if (tool==="switch" && kind==="branch-key") {
     const branch=model.branches![index];
     return {model:{...model,branches:model.branches!.map(link=>link===branch?{...link,switch:{closed:true}}:link)},selection:{kind:"contact",id:branch.id}};
@@ -204,12 +229,19 @@ function candidate(model: Network, tool: Tool, position: Position): Edit {
 }
 
 export function placementTargets(model: Network, tool: Tool): Placement[] {
+  if(typeof tool==="object"&&"install" in tool)return placementTargets(model,tool.install.kind).map(target=>{
+    if(!target.edit||!tool.install.template||!isTwoTerminal(tool.install.kind)||target.kind==="branch-key"||tool.install.kind==="switch"&&target.kind==="end")return target;
+    const edit=candidate(model,tool,target),error=validateNetwork(edit.model).join("; ");
+    return {...target,edit:error?null:edit,error:error||undefined};
+  });
   const nodes: Position[] = Array.from({ length: model.sections.length + 1 }, (_, index) => ({ kind: "node", index }));
   const spans: Position[] = model.sections.map((_, index) => ({ kind: "span", index }));
   const end: Position = { kind: "end", index: model.sections.length };
   const topology: Position[] = isTwoTerminal(tool)||typeof tool==="object"&&("relocate" in tool||"moveLoad" in tool)
     ? [...nodes.slice(1,-1).map(node=>({...node,kind:"joint" as const})),...nodes.map(node=>({...node,kind:"branch" as const})),
       ...spans.map(span=>({...span,kind:"branch-span" as const})),
+      ...(isTwoTerminal(tool)&&tool!=="wire"?(model.branches??[]).flatMap((branch,index)=>
+        contactKind(branch)==="wire"?[{kind:"wire-insert" as const,index}]:[]):[]),
       ...(tool==="switch" ? (model.branches??[]).flatMap((branch,index)=>branch.switch||branch.component?[]:[{kind:"branch-key" as const,index}]) : [])]
     : [];
   return [...(typeof tool==="object"&&"bridgeFrom" in tool?nodes: [...nodes,...spans,...topology,end])].map(position => {
@@ -231,12 +263,13 @@ export function placementTargets(model: Network, tool: Tool): Placement[] {
     } else if (moving||movingLoad) {
       const link=moving?[...model.series??[],...model.branches??[]].find(link=>link.id===tool.relocate):undefined;
       if(movingLoad||!link||link.switch||model.load.kind!=="open")error="choose-connection";
-    } else if (typeof tool === "object") {
+    } else if (typeof tool === "object"&&"move" in tool) {
       const { move } = tool;
       if (move.kind === "line" && (kind !== "span" || model.sections[index]?.id === move.id)) error = "choose-line";
       if (move.kind === "source" && (kind !== "node" || index === model.source.node)) error = "choose-node";
       if (move.kind === "shunt" && (kind !== "node" || model.shunts.some(shunt => shunt.node === index))) error = "free-node";
-    } else if(tool==="source") {
+    } else if(typeof tool==="object")return {...position,edit:null,error:"choose-connection"};
+    else if(tool==="source") {
       if(kind!=="node")error="choose-node";
     } else if (tool === "shunt") {
       if (kind === "end" || kind === "node" && (model.shunts.some(shunt => shunt.node === index)||model.branches?.some(link=>link.from===index&&link.to==="reference"))) error = "free-node";

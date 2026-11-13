@@ -16,7 +16,7 @@ export type Contact = {
  switch?: { closed: boolean; atS?: number; closes?: boolean };
 };
 export type Network = { sections:Section[]; source:{voltageV:number;resistanceOhm:number;node:number;onS:number;offS?:number};load:Load;durationS:number;events:ModelEvent[];shunts:{node:number;resistanceOhm:number}[]; series?: Array<Contact & { to: number }>; branches?: Contact[] };
-export type WaveHistory = {times:number[];values:number[]};
+export type WaveHistory = {times:number[]|Float64Array;values:number[]|Float64Array};
 export type WaveRun = {config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
 export type WaveValue={u:number;i:number;forward:number;backward:number;forwardI:number;backwardI:number;section:number};
 export function distributedParameters(section:Section){
@@ -108,7 +108,7 @@ export function historyValue(h:WaveHistory,t:number,linear=false):number{
  let lo=0,hi=h.times.length;while(lo<hi){const m=(lo+hi)>>>1;if(h.times[m]<=t+tolerance)lo=m+1;else hi=m;}const k=Math.max(0,lo-1);
  if(linear&&k+1<h.times.length&&t>h.times[k]){const f=(t-h.times[k])/(h.times[k+1]-h.times[k]);return h.values[k]*(1-f)+h.values[k+1]*f;}return h.values[k];
 }
-function push(h:WaveHistory,t:number,v:number){const n=h.times.length;if(n&&Math.abs(h.times[n-1]-t)<1e-15){h.values[n-1]=v;return;}h.times.push(t);h.values.push(v);}
+function push(h:{times:number[];values:number[]},t:number,v:number){const n=h.times.length;if(n&&Math.abs(h.times[n-1]-t)<1e-15){h.values[n-1]=v;return;}h.times.push(t);h.values.push(v);}
 function validSeriesContact(contact: Contact, count: number) {
  return Number.isInteger(contact.from) && contact.from > 0 && contact.from < count && contact.to === count + contact.from;
 }
@@ -293,14 +293,15 @@ function branchStamps(links:ReturnType<typeof reactiveLinks>, step:number, state
 }
 type Arrival={t:number;port?:number;delta?:number;eventIndex?:number};
 class Heap {items:Arrival[]=[];put(x:Arrival){if(this.items.length>=6000)throw Error("wave-queue-limit:shorten-experiment");const a=this.items;let k=a.push(x)-1;while(k){const p=(k-1)>>1;if(a[p].t<=x.t)break;a[k]=a[p];k=p;}a[k]=x;}take(){const a=this.items,first=a[0],last=a.pop()!;if(a.length){let k=0;while(2*k+1<a.length){let j=2*k+1;if(j+1<a.length&&a[j+1].t<a[j].t)j++;if(a[j].t>=last.t)break;a[k]=a[j];k=j;}a[k]=last;}return first;}get first(){return this.items[0];}}
-function exact(c:Network):WaveRun{
- const ports=c.sections.flatMap(()=>[{times:[],values:[]} as WaveHistory,{times:[],values:[]} as WaveHistory]),a=ports.map(()=>0),out=ports.map(()=>0),queue=new Heap(),overrides=new Map<string,number>(),events:number[]=[];
+function exact(c:Network,progress?:Progress):WaveRun{
+ const ports=c.sections.flatMap(()=>[{times:[] as number[],values:[] as number[]},{times:[] as number[],values:[] as number[]}]),a=ports.map(()=>0),out=ports.map(()=>0),queue=new Heap(),overrides=new Map<string,number>(),events:number[]=[];
  queue.put({t:0});queue.put({t:c.source.onS});if(c.source.offS!==undefined)queue.put({t:c.source.offS});c.events.forEach((event,eventIndex)=>queue.put({t:event.atS,eventIndex}));
  for(const contact of [...c.series ?? [],...c.branches ?? []]) if(contact.switch?.atS!==undefined)queue.put({t:contact.switch.atS});
  const diodes=nonlinearLinks(c);
  let count=0,fronts=0;while(queue.first&&queue.first.t<=c.durationS+1e-14){const t=queue.first.t, pending:number[]=[];
   while(queue.first&&sameFrontTime(t,queue.first.t)){
-   if(++count>20000)throw Error("wave-event-limit:shorten-experiment");
+   if(count%256===0)progress?.(Math.min(1,t/c.durationS));
+   if(++count>200000)throw Error("wave-event-limit:shorten-experiment");
    const e=queue.take();
    if(e.port!==undefined)a[e.port]+=e.delta!;
    if(e.eventIndex!==undefined)pending.push(e.eventIndex);
@@ -312,7 +313,7 @@ function exact(c:Network):WaveRun{
   }
   const eq=companion(c.load,1,new Map(),new Map(),overrides);events.push(t);
   const voltage=solveWithDiodes(c,a,eq,t,[],diodes);
-  for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta:delta*attenuation(c.sections[p>>1],c.sections[p>>1].lengthM)});}}
+  for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>50000)throw Error("wave-event-limit:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta:delta*attenuation(c.sections[p>>1],c.sections[p>>1].lengthM)});}}
  }
  return ranges({config:c,ports,events:[...new Set(events)].sort((a,b)=>a-b),method:"exact-fronts",stepS:0,deviceEnergy:{times:[0],values:[0]},maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
 }
@@ -350,8 +351,10 @@ function initialNetwork(c:Network,epsilon:number):{out:number[];states:Map<strin
  const verify=(l:Load)=>{if(l.kind==="switch"&&!(l.closed??true))return;const p=states.get(l.id);if(!p)return;if(!Number.isFinite(p.v)||!Number.isFinite(p.i)||Math.abs(p.v)>1e10||Math.abs(p.i)>1e10)throw Error("inconsistent-initial-state");const children=l.children?.map(x=>states.get(x.id)).filter((x):x is State=>!!x)??[];if(children.length){const series=l.kind==="series"||l.kind==="switch";if(series&&(!children.every(x=>tolerance(x.i,p.i))||!tolerance(children.reduce((s,x)=>s+x.v,0),p.v))||!series&&(!children.every(x=>tolerance(x.v,p.v))||!tolerance(children.reduce((s,x)=>s+x.i,0),p.i)))throw Error("inconsistent-initial-state");}l.children?.forEach(verify);};verify(c.load);
  return{states,out:trials[0].out.map((a,j)=>extrap(a,trials[1].out[j],trials[2].out[j]))};
 }
-function numeric(c:Network,resolution=100):WaveRun{
- const links=reactiveLinks(c),diodes=nonlinearLinks(c);
+export const DYNAMIC_STEP_LIMIT=240000;
+type Progress=(fraction:number)=>void;
+function dynamicPlan(c:Network,resolution=100){
+ const links=reactiveLinks(c);
  const minTau=Math.min(...c.sections.map(s=>s.lengthM/s.velocityMS)),leaves=loadLeaves(c.load);
  const contactResistance=[...c.series??[],...c.branches??[]]
    .filter(link=>link.resistanceOhm!==undefined&&contactClosed(link,0)).map(link=>link.resistanceOhm!);
@@ -360,11 +363,32 @@ function numeric(c:Network,resolution=100):WaveRun{
   const resistance=across(solveVoltages(c,zero,OPEN,0,true,[],link),link);
   if(resistance>0)deviceTimes.push(link.device.kind==="c"?link.device.value*resistance:link.device.value/resistance);
  }
- let h=Math.min(minTau/resolution,c.durationS/600,...deviceTimes.map(t=>t/20));const steps=Math.ceil(c.durationS/h);if(steps>24000)throw Error("dynamic-resolution-limit:shorten-experiment");h=c.durationS/steps;
+ const steps=Math.ceil(c.durationS/Math.min(minTau/resolution,c.durationS/600,...deviceTimes.map(t=>t/20)));
+ return {steps,initialStep:Math.min(...deviceTimes,minTau)*1e-4,links};
+}
+export function estimateNetwork(c:Network){
+ if(validateNetwork(c).length)return null;
+ if(!isDynamic(c))return {kind:"exact" as const,frontLimit:50000};
+ const {steps}=dynamicPlan(c);
+ return {kind:"numeric" as const,steps,bytes:(steps+1)*(2*c.sections.length+2)*8,limit:DYNAMIC_STEP_LIMIT};
+}
+function numeric(c:Network,resolution=100,progress?:Progress):WaveRun{
+ const {steps,initialStep,links}=dynamicPlan(c,resolution),diodes=nonlinearLinks(c);
+ if(steps>DYNAMIC_STEP_LIMIT)throw Error("dynamic-resolution-limit:shorten-experiment");
+ const h=c.durationS/steps;
  function storedEnergy():number{return loadEnergy(c.load,states)+links.reduce((sum,link)=>sum+loadEnergy(link.device,states),0);}
- const ports=c.sections.flatMap(()=>[{times:[],values:[]} as WaveHistory,{times:[],values:[]} as WaveHistory]),initial=initialNetwork(c,Math.min(...deviceTimes,minTau)*1e-4),states=initial.states,overrides=new Map<string,number>(),energy:WaveHistory={times:[0],values:[storedEnergy()]},events:number[]=[0];
- for(let p=0;p<ports.length;p++)push(ports[p],0,initial.out[p]);let nextEvent=0;const sorted=[...c.events].sort((a,b)=>a.atS-b.atS);
- for(let k=1;k<=steps;k++){const t=k*h,a=ports.map((_,p)=>incidentAt(c,ports,p,t,true));while(nextEvent<sorted.length&&sorted[nextEvent].atS<=t+1e-15){overrides.set(sorted[nextEvent].target,sorted[nextEvent].value);nextEvent++;}
+ const times=Float64Array.from({length:steps+1},(_,k)=>k*h);
+ const ports=c.sections.flatMap(()=>[{times,values:new Float64Array(steps+1)},{times,values:new Float64Array(steps+1)}]);
+ const initial=initialNetwork(c,initialStep),states=initial.states,overrides=new Map<string,number>();
+ const energy={times,values:new Float64Array(steps+1)},events:number[]=[0];
+ energy.values[0]=storedEnergy();
+ for(let p=0;p<ports.length;p++)ports[p].values[0]=initial.out[p];let nextEvent=0;const sorted=[...c.events].sort((a,b)=>a.atS-b.atS);
+ for(let k=1;k<=steps;k++){if(k%512===0)progress?.(k/steps);const t=k*h,a=ports.map((_,p)=>{
+   const section=c.sections[p>>1],index=k-section.lengthM/section.velocityMS/h;
+   if(index<0)return 0;
+   const j=Math.floor(index),fraction=index-j,values=ports[p^1].values;
+   return (values[j]+fraction*(values[j+1]-values[j]))*attenuation(section,section.lengthM);
+  });while(nextEvent<sorted.length&&sorted[nextEvent].atS<=t+1e-15){overrides.set(sorted[nextEvent].target,sorted[nextEvent].value);nextEvent++;}
   const eqs=new Map<string,Eq>(),eq=companion(c.load,h,states,eqs,overrides);
   const stamps=branchStamps(links,h,states);
   const voltage=solveWithDiodes(c,a,eq,t,stamps,diodes);
@@ -373,21 +397,22 @@ function numeric(c:Network,resolution=100):WaveRun{
    const v=across(voltage,stamp);
    states.set(links[index].id,{v,i:stamp.g*v+stamp.b});
   }
-  for(let port=0;port<ports.length;port++)push(ports[port],t,voltage[portNode(c,port)]-a[port]);
+  for(let port=0;port<ports.length;port++)ports[port].values[k]=voltage[portNode(c,port)]-a[port];
   const u=voltage[c.sections.length];
   commitDevice(c.load,u,eq.short?0:eq.g*u+eq.b,eqs,states,overrides);
-  push(energy,t,storedEnergy());if(k%Math.max(1,Math.ceil(steps/800))===0||k===steps)events.push(t);
+  energy.values[k]=storedEnergy();if(k%Math.max(1,Math.ceil(steps/800))===0||k===steps)events.push(t);
  }
  return ranges({config:c,ports,events,method:"characteristics-trapezoid",stepS:h,deviceEnergy:energy,maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
 }
+function waveBounds(values:WaveHistory['values']){let low=0,high=0;for(const value of values){if(value<low)low=value;if(value>high)high=value;}return [low,high];}
 function ranges(run:WaveRun):WaveRun{
  let lowU=0,highU=0,lowI=0,highI=0;const c=run.config;
  // All combinations of independent directional ranges enclose every x/t, not just displayed frames.
- c.sections.forEach((s,j)=>{const f=run.ports[2*j].values,b=run.ports[2*j+1].values;const f0=Math.min(0,...f),f1=Math.max(0,...f),b0=Math.min(0,...b),b1=Math.max(0,...b);lowU=Math.min(lowU,f0+b0);highU=Math.max(highU,f1+b1);lowI=Math.min(lowI,(f0-b1)/s.impedanceOhm);highI=Math.max(highI,(f1-b0)/s.impedanceOhm);});
+ c.sections.forEach((s,j)=>{const f=run.ports[2*j].values,b=run.ports[2*j+1].values;const [f0,f1]=waveBounds(f),[b0,b1]=waveBounds(b);lowU=Math.min(lowU,f0+b0);highU=Math.max(highU,f1+b1);lowI=Math.min(lowI,(f0-b1)/s.impedanceOhm);highI=Math.max(highI,(f1-b0)/s.impedanceOhm);});
  run.rangeU=[lowU,highU];run.rangeI=[lowI,highI];return run;
 }
-export function simulateNetwork(config:Network,options:{resolution?:number}={}):WaveRun{
- const errors=validateNetwork(config);if(errors.length)throw Error(errors.join("; "));const c=JSON.parse(JSON.stringify(config)) as Network;return isDynamic(c)?numeric(c,options.resolution):exact(c);
+export function simulateNetwork(config:Network,options:{resolution?:number;progress?:Progress}={}):WaveRun{
+ const errors=validateNetwork(config);if(errors.length)throw Error(errors.join("; "));const c=JSON.parse(JSON.stringify(config)) as Network;return isDynamic(c)?numeric(c,options.resolution,options.progress):exact(c,options.progress);
 }
 function incidentAt(c:Network,ports:WaveHistory[],p:number,time:number,linear:boolean){
  const s=c.sections[p>>1];
@@ -411,9 +436,52 @@ export function spatial(run:WaveRun,t:number,quantity:Quantity="u"):readonly[num
   else for(const x of xs)points.push([base+x,atSection(run,j,x,t)[quantity]]);points.push([base+s.lengthM,atSection(run,j,s.lengthM,t)[quantity]]);base+=s.lengthM;
  }return points;
 }
-export function timeTrace(run:WaveRun,x:number,quantity:Quantity="u"):readonly[number,number][]{
- if(run.method!=="exact-fronts")return run.events.map(t=>[t,at(run,x,t)[quantity]] as const);
- let base=0,j=0;while(j<run.config.sections.length-1&&x>base+run.config.sections[j].lengthM){base+=run.config.sections[j++].lengthM;}const s=run.config.sections[j],local=x-base,times=[0,run.config.durationS,...run.ports[2*j].times.map(t=>t+local/s.velocityMS),...run.ports[2*j+1].times.map(t=>t+(s.lengthM-local)/s.velocityMS)].filter(t=>t>=0&&t<=run.config.durationS),sorted=[...new Set(times)].sort((a,b)=>a-b);const result:[number,number][]=[];for(const t of sorted){if(t>0)result.push([t,at(run,x,Math.max(0,t-Math.max(1e-14,run.config.durationS*1e-10)))[quantity]]);result.push([t,at(run,x,t)[quantity]]);}return result;
+export function* fullTimeTrace(run:WaveRun,x:number,quantity:Quantity="u",start=0,end=run.config.durationS):Generator<readonly[number,number]>{
+ let base=0,j=0;while(j<run.config.sections.length-1&&x>base+run.config.sections[j].lengthM+1e-9){base+=run.config.sections[j++].lengthM;}const s=run.config.sections[j],local=Math.max(0,Math.min(s.lengthM,x-base));
+ const forward=run.ports[2*j].times,backward=run.ports[2*j+1].times;
+ const a=local/s.velocityMS,b=(s.lengthM-local)/s.velocityMS;
+ function lowerBound(times:WaveHistory["times"],value:number){
+  let lo=0,hi=times.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(times[mid]<value)lo=mid+1;else hi=mid;}
+  return lo;
+ }
+ let i=lowerBound(forward,start-a),k=lowerBound(backward,start-b);
+ yield [start,atSection(run,j,local,start)[quantity]];
+ while(i<forward.length||k<backward.length){
+  const f=i<forward.length?forward[i]+a:Infinity,r=k<backward.length?backward[k]+b:Infinity;
+  const t=Math.min(f,r);
+  if(t>end)break;
+  if(f===t)i++;
+  if(r===t)k++;
+  if(t<=start)continue;
+  if(run.method==="exact-fronts")yield [t,atSection(run,j,local,Math.max(start,t-Math.max(1e-14,Math.abs(t)*2e-15)))[quantity]];
+  yield [t,atSection(run,j,local,t)[quantity]];
+  if(t===end)return;
+ }
+ yield [end,atSection(run,j,local,end)[quantity]];
+}
+export function summarizeTrace(points:Iterable<readonly[number,number]>,start:number,end:number,buckets=600){
+ const result:(readonly[number,number])[]=[];
+ type Sample={index:number;point:readonly[number,number]};
+ let bucket=-1,index=0,first:Sample|undefined,last:Sample|undefined,low:Sample|undefined,high:Sample|undefined;
+ const flush=()=>{
+  if(first&&last&&low&&high)for(const sample of [...new Set([first,low,high,last])].sort((a,b)=>a.index-b.index))result.push(sample.point);
+ };
+ for(const point of points){
+  const [t,v]=point;
+  if(t<start)continue;
+  if(t>end)break;
+  const next=Math.min(buckets-1,Math.floor((t-start)/(end-start||1)*buckets)),sample={index:index++,point};
+  if(next!==bucket){flush();bucket=next;first=low=high=sample;}
+  last=sample;
+  if(v<low!.point[1])low=sample;
+  if(v>high!.point[1])high=sample;
+ }
+ flush();
+ return result;
+}
+export function timeTrace(run:WaveRun,x:number,quantity:Quantity="u",start=0,end=run.config.durationS){
+ return summarizeTrace(fullTimeTrace(run,x,quantity,start,end),start,end);
 }
 export function lineEnergy(run:WaveRun,t:number):number{const xs=[...new Set(spatial(run,t).map(p=>p[0]))].sort((a,b)=>a-b);let energy=0;for(let j=1;j<xs.length;j++){const v=at(run,(xs[j]+xs[j-1])/2,t),s=run.config.sections[v.section];const width=xs[j]-xs[j-1],argument=(s.resistanceOhmM??0)*width/s.impedanceOhm;
  const factor=run.method==="exact-fronts"&&argument?Math.sinh(argument)/argument:1;

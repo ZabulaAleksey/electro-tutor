@@ -1936,6 +1936,21 @@
       "e2e": ["tests/e2e/reactive-two-port.spec.ts"]
     },
     {
+      "domain": "transmission-context-and-duration",
+      "status": "IMPLEMENTED",
+      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022"],
+      "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions and bounded long experiments.",
+      "security": "Validated configuration and bounded solver histories; cancellation invalidates the request and terminates the worker.",
+      "a11y": "Dialog, named on-canvas actions, keyboard commands, touch placement and progress.",
+      "observability": "ET-LAB-020 in STAGES and TESTING.",
+      "gap": "Editing is bounded to the existing network topology and long runs to physical resolution and memory budgets.",
+      "action": "Use the documented reference experiments and inspect estimates for stiffer models.",
+      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/network.ts", "src/transient/network.worker.ts"],
+      "unit": ["src/transient/network-duration.test.ts"],
+      "integration": [],
+      "e2e": ["tests/e2e/transmission-editor-duration.spec.ts"]
+    },
+    {
       "domain": "transmission-free-layout",
       "status": "PARTIAL",
       "requirement_ids": ["LINE-UX-015", "LINE-UX-016", "LINE-UX-017", "LINE-UX-018"],

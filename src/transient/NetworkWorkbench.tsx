@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import { ChevronDown, CircleHelp, Crosshair, Maximize, Redo2, Undo2, X } from "lucide-react";
+import { ChevronDown, CircleHelp, Crosshair, Maximize, Redo2, RotateCw, Settings, Trash2, Undo2, X } from "lucide-react";
 import type { Language } from "../types";
 import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph } from "../engineering/symbols";
 import { formatEngineeringNumber } from "../engineering/format";
@@ -10,9 +10,14 @@ import { networkError } from "./network-copy";
 
 type Point = { x: number; y: number };
 type View = Point & { zoom: number };
-type Gesture = { id: number; start: Point; tool?: Tool; selection?: Selection; moved: boolean };
+type Gesture = { additive?:boolean; id: number; start: Point; tool?: Tool; selection?: Selection; moved: boolean };
 type Props = {
+  onDetach:(item:Selection,part:DetachedPart)=>void;
   model: Network;
+  empty:boolean;
+  onClear:()=>void;
+  onDelete:(item:Selection)=>void;
+  onProbe:(section:number)=>void;
   layout: Layout;
   language: Language;
   selected: Selection | null;
@@ -53,8 +58,14 @@ function Glyph({kind, reverse=false,closed=false}:{kind:Part|"shunt";reverse?:bo
 }
 const layoutKey=(item:Selection)=>item.kind==="line"||item.kind==="detached"?item.id:item.kind==="source"?"@source":
  item.kind==="shunt"?"@shunt-"+item.node:item.kind==="contact"?"@contact-"+item.id:item.kind==="load"&&item.id?"@load-"+item.id:"@load";
+const rotationKey=(item:Selection)=>"@rot-"+layoutKey(item).replace(/^@/,"");
 const horizontalKey=(key:string)=>key==="@load"?"@load-x":"@x-"+key.replace(/^@/,"");
 const baseX=(key:string)=>key==="@load"?82:0;
+const turned=(x:number,y:number,d:number,angle:number):Point=>{
+  const radians=angle*Math.PI/180;
+  return {x:x+Math.round(Math.cos(radians))*d,y:y+Math.round(Math.sin(radians))*d};
+};
+const routed=(x:number,y:number,target:Point,lane:number)=>`M${x} ${y}V${lane}H${target.x}V${target.y}`;
 const wire=(x:number,y:number,tx:number,ty:number,vertical=false)=>
   vertical?`M${x} ${y}H${tx}V${ty}`:`M${x} ${y}V${ty}H${tx}`;
 
@@ -62,12 +73,16 @@ export default function NetworkWorkbench(props: Props) {
   const { model, layout, language, selected, onSelect, onCommit } = props;
   const ru = language === "ru";
   const t = (a: string, b: string) => ru ? a : b;
+  const clearDialog=useRef<HTMLDialogElement>(null);
   const [tray, setTray] = useState<"parts" | "inspect" | "help" | null>(null);
   const [armed, setArmed] = useState<Tool | null>(null);
+  const [group,setGroup]=useState<Selection[]>([]),[snap,setSnap]=useState(false),[measuring,setMeasuring]=useState(false);
+  const clipboard=useRef<Pick<DetachedPart,"kind"|"rotation"|"template">|null>(null);
   const [attaching,setAttaching]=useState<string|null>(null);
   const [repeat,setRepeat]=useState(false);
   const [cursor,setCursor]=useState<Point|null>(null);
   const [geometry,setGeometry]=useState<{key:string;y:number;dx:number}|null>(null);
+  const [groupPreview,setGroupPreview]=useState<Layout|null>(null);
   const [preview, setPreview] = useState<{ tool: Tool; point: Point; touch: boolean; target?: Placement } | null>(null);
   const [message, setMessage] = useState("");
   const [hovered, setHovered] = useState<Placement | null>(null);
@@ -83,7 +98,7 @@ export default function NetworkWorkbench(props: Props) {
   const frame = useRef(0);
   const movedX=Object.entries(layout).filter(([key])=>key.startsWith("@x-")||key==="@load-x")
     .map(([key,x])=>key==="@load-x"?x-82:x);
-  const movedY=Object.entries(layout).filter(([key])=>!key.startsWith("@x-")&&key!=="@load-x").map(([,y])=>y);
+  const movedY=Object.entries(layout).filter(([key])=>!key.startsWith("@x-")&&!key.startsWith("@rot-")&&key!=="@load-x").map(([,y])=>y);
   const left=Math.min(0,...movedX.map(x=>x-25),...props.detached.map(part=>part.x-30));
   const top=Math.min(0,...movedY.map(y=>y-55),...props.detached.map(part=>part.y-30));
   const baseWidth=nodeX(model.sections.length)+135;
@@ -92,7 +107,11 @@ export default function NetworkWorkbench(props: Props) {
   const fit=Math.min(1.4,viewport.width/width,Math.max(120,viewport.height-45)/height);
   const view=camera??{x:(viewport.width-width*fit)/2-left*fit,y:(viewport.height-height*fit+32)/2-top*fit,zoom:fit};
   const tool = preview?.tool ?? armed;
-  const targets = useMemo(() => tool ? placementTargets(model, tool) : [], [model, tool]);
+  const targets = useMemo(() => {
+    if(!tool)return [];
+    const options=placementTargets(model,tool);
+    return props.empty?tool==="line"?options.filter(item=>item.kind==="end"):[]:options;
+  },[model,tool,props.empty]);
   const labels = {
     line: t("Линия передачи", "Лінія передачі"),
     shunt: t("Шунтирующий резистор", "Шунтувальний резистор"),
@@ -124,6 +143,7 @@ export default function NetworkWorkbench(props: Props) {
       case "span": return tool&&isTwoTerminal(tool)||typeof tool==="object"&&tool&&("relocate" in tool||"moveLoad" in tool)
         ? t("В разрыв линии", "У розрив лінії") : t("Вдоль линии", "Уздовж лінії");
       case "joint": return t("Последовательный стык", "Послідовний стик");
+      case "wire-insert": return t("В разрыв провода","У розрив проводу");
       case "branch-key": return t("Ключ в существующую ветвь","Ключ у наявну гілку");
       case "branch-span":
       case "branch": return t("Шунт к опоре", "Шунт до опори");
@@ -187,26 +207,28 @@ export default function NetworkWorkbench(props: Props) {
     cancelAnimationFrame(frame.current);
     setArmed(null);
     setAttaching(null);
+    setMeasuring(false);
     setCursor(null);
     setGeometry(null);
+    setGroupPreview(null);
     setHovered(null);
     setPreview(null);
     setMessage("");
   }
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && (armed || preview || tray || gesture.current)) {
+      if (event.key === "Escape" && (armed || preview || tray || measuring || gesture.current)) {
         cancel();
         setTray(null);
       }
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [armed, preview, tray]);
+  }, [armed, preview, tray,measuring]);
 
   const junctionX = (index: number) => nodeX(index)-(model.series?.some(link=>link.from===index)?15:0);
   const targetPoint = (target: Placement): Point => {
-    if(target.kind==="branch-key"){
+    if(target.kind==="branch-key"||target.kind==="wire-insert"){
       const branch=model.branches![target.index], from=junctionX(branch.from);
       const key="@contact-"+branch.id;
       return {x:view.x+((branch.to==="reference"?from-23:(from+junctionX(branch.to))/2)+positionX(key))*view.zoom,
@@ -216,6 +238,15 @@ export default function NetworkWorkbench(props: Props) {
       y:view.y+(target.kind==="span"?layout[model.sections[target.index].id]??axis:
         target.kind==="branch"||target.kind==="branch-span"?147:axis)*view.zoom};
   };
+  function firstTerminal(point:Point,touch:boolean){
+    if(!canvas.current?.contains(document.elementFromPoint(point.x,point.y)))return null;
+    const p=local(point);
+    for(let i=0;i<=model.sections.length;i++){
+      const target={x:view.x+junctionX(i)*view.zoom,y:view.y+axis*view.zoom};
+      if(distance(p,target)<(touch?15:12))return i;
+    }
+    return null;
+  }
   function targetAt(point: Point, options: Placement[], touch: boolean) {
     const hit = document.elementFromPoint(point.x, point.y);
     if (!hit || !canvas.current?.contains(hit) && !hit.closest(".network-tray-parts")) return;
@@ -231,9 +262,18 @@ export default function NetworkWorkbench(props: Props) {
         nearest = option;
       }
     }
-    return nearest;
+    if(nearest)return nearest;
+    const stroke=hit.closest('.network-transmission-stroke');
+    const section=stroke?.closest('[data-line-section]')?.getAttribute('data-line-section');
+    const index=section?model.sections.findIndex(line=>line.id===section):-1;
+    return options.find(option=>option.kind==='span'&&option.index===index);
   }
   function place(target?: Placement, point?:Point, nextTool=armed, dragged=false) {
+    if(props.empty&&nextTool==="line"&&(target?.edit||point&&canvas.current?.contains(document.elementFromPoint(point.x,point.y)))){
+      onCommit(model,{kind:"line",id:model.sections[0].id},attaching??undefined);
+      cancel();setTray(null);
+      return true;
+    }
     if(!target&&point&&!attaching&&typeof nextTool==="string"&&parts.some(group=>(group as readonly string[]).includes(nextTool))){
       const hit=document.elementFromPoint(point.x,point.y);
       const bounds=canvas.current?.getBoundingClientRect();
@@ -241,9 +281,7 @@ export default function NetworkWorkbench(props: Props) {
       if(hit&&inCanvas&&(canvas.current?.contains(hit)&&!hit.closest("[role=button]")||
           dragged&&hit.closest(".network-tray-parts"))){
         const p=local(point);
-        let index=1;
-        while(props.detached.some(part=>part.id==="draft-"+index))index++;
-        const id="draft-"+index;
+        const id=freeId();
         setCamera(view);
         props.onDetached([...props.detached,{id,kind:nextTool as Part,x:(p.x-view.x)/view.zoom,y:(p.y-view.y)/view.zoom}]);
         onSelect({kind:"detached",id});
@@ -284,7 +322,7 @@ export default function NetworkWorkbench(props: Props) {
     setTray(null);
     setMessage(typeof next === "object"
       ? "bridgeFrom" in next ? t("Выберите второй узел перемычки.", "Оберіть другий вузол перемички.")
-        : "relocate" in next||"moveLoad" in next ? explain("choose-connection")
+        : "relocate" in next||"moveLoad" in next||"install" in next ? explain("choose-connection")
           : explain(next.move.kind === "line" ? "choose-line" : next.move.kind === "source" ? "choose-node" : "free-node")
       : next==="source"?explain("choose-node"): next==="shunt" ? t("Выберите узел или середину участка.", "Оберіть вузол або середину ділянки.")
         : detachedId?explain("choose-connection"):explain());
@@ -303,13 +341,14 @@ export default function NetworkWorkbench(props: Props) {
         cancelAnimationFrame(frame.current);
         setPreview(null);
         setGeometry(null);
+        setGroupPreview(null);
         event.currentTarget.setPointerCapture(event.pointerId);
         return;
       }
     }
     if (gesture.current || pinching.current) return;
     suppress.current = false;
-    gesture.current = { id: event.pointerId, start: point, tool: next, selection, moved: false };
+    gesture.current = { additive:event.shiftKey,id: event.pointerId, start: point, tool: next, selection, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   }
   function geometryAt(item:Selection,start:Point,point:Point){
@@ -317,7 +356,19 @@ export default function NetworkWorkbench(props: Props) {
     const draft=item.kind==="detached"?props.detached.find(part=>part.id===item.id):undefined;
     const base=draft?.y??layout[key]??(item.kind==="line"?axis:82);
     const x=draft?.x??layout[horizontalKey(key)]??baseX(key);
-    return {key,y:base+(point.y-start.y)/view.zoom,dx:x+(point.x-start.x)/view.zoom};
+    const dx=(point.x-start.x)/view.zoom,dy=(point.y-start.y)/view.zoom;
+    const grid=(value:number)=>snap?Math.round(value/16)*16:value;
+    return {key,y:grid(base+dy),dx:grid(x+dx)};
+  }
+  function groupLayout(item:Selection,start:Point,point:Point){
+    const items=group.some(member=>layoutKey(member)===layoutKey(item))?group:[item];
+    const next={...layout};
+    for(const member of items){
+      if(member.kind==="detached")continue;
+      const geometry=geometryAt(member,start,point);
+      next[geometry.key]=geometry.y;next[horizontalKey(geometry.key)]=geometry.dx;
+    }
+    return next;
   }
   function move(event: PointerEvent<HTMLDivElement>) {
     const point = { x: event.clientX, y: event.clientY };
@@ -347,12 +398,13 @@ export default function NetworkWorkbench(props: Props) {
     if (current.tool) {
       const next = current.tool;
       const touch = event.pointerType === "touch";
-      const options = tool === next ? targets : placementTargets(model, next);
+      const options = props.empty?[]:tool === next ? targets : placementTargets(model, next);
       cancelAnimationFrame(frame.current);
       frame.current = requestAnimationFrame(() => setPreview({ tool: next, point, touch, target: targetAt(point, options, touch) }));
     } else if(current.selection){
       if(first)setCamera(view);
       setGeometry(geometryAt(current.selection,current.start,point));
+      if(group.length>1&&group.some(item=>layoutKey(item)===layoutKey(current.selection!)))setGroupPreview(groupLayout(current.selection,current.start,point));
     } else if (prior && !current.selection) {
       const previous = first ? current.start : prior;
       setCamera(value => ({ ...(value ?? view), x: (value ?? view).x + point.x - previous.x, y: (value ?? view).y + point.y - previous.y }));
@@ -370,11 +422,15 @@ export default function NetworkWorkbench(props: Props) {
     cancelAnimationFrame(frame.current);
     setPreview(null);
     setGeometry(null);
+    setGroupPreview(null);
     suppress.current = current.moved || canceled;
     if (canceled) return;
     if (current.moved && current.tool) {
-      const options = tool === current.tool ? targets : placementTargets(model, current.tool);
-      const target=targetAt({x:event.clientX,y:event.clientY},options,event.pointerType==="touch");
+      const options = props.empty?[]:tool === current.tool ? targets : placementTargets(model, current.tool);
+      const point={x:event.clientX,y:event.clientY};
+      const index=options.length&&isTwoTerminal(current.tool)?firstTerminal(point,event.pointerType==="touch"):null;
+      if(index!==null&&isTwoTerminal(current.tool)&&!targetAt(point,options,event.pointerType==="touch")?.edit){arm({bridgeFrom:index,part:current.tool});return;}
+      const target=targetAt(point,options,event.pointerType==="touch");
       if(place(target,{x:event.clientX,y:event.clientY},current.tool,true)&&repeat&&!attaching&&typeof current.tool==="string")arm(current.tool);
     } else if(current.moved&&current.selection){
       const bounds=canvas.current?.getBoundingClientRect();
@@ -382,15 +438,17 @@ export default function NetworkWorkbench(props: Props) {
         const next=geometryAt(current.selection,current.start,{x:event.clientX,y:event.clientY});
         if(current.selection.kind==="detached"){
           props.onDetached(props.detached.map(part=>part.id===next.key?{...part,x:next.dx,y:next.y}:part));
-        }else props.onLayout({...layout,[next.key]:next.y,[horizontalKey(next.key)]:next.dx});
+        }else props.onLayout(groupLayout(current.selection,current.start,{x:event.clientX,y:event.clientY}));
       }
     } else if(!current.moved&&armed){
       const point={x:event.clientX,y:event.clientY};
+      const index=bridgeTool?firstTerminal(point,event.pointerType==="touch"):null;
+      if(index!==null&&bridgeTool){arm({bridgeFrom:index,...bridgeTool},attaching);return;}
       place(targetAt(point,targets,event.pointerType==="touch"),point);
     } else if (!current.moved && current.selection) {
-      onSelect(current.selection);
-      if(timing.current)timing.current.open=false;
-      setTray("inspect");
+      selectObject(current.selection,current.additive);
+    } else if(!current.moved&&!current.tool){
+      onSelect(null);setGroup([]);setTray(null);
     }
   }
   function center() {
@@ -413,8 +471,89 @@ export default function NetworkWorkbench(props: Props) {
     cancel();
     setTray(tray === next ? null : next);
   }
+  const selectedElement=useRef<SVGGElement|null>(null);
+  const [anchor,setAnchor]=useState<Point|null>(null);
+  function selectObject(selection:Selection,additive=false){
+    if(measuring&&selection.kind==="line"){
+      props.onProbe(model.sections.findIndex(section=>section.id===selection.id));
+      setMeasuring(false);
+      return;
+    }
+    if(additive&&selection.kind!=="detached"){
+      setGroup(items=>{
+        const current=items.length?items:selected&&selected.kind!=="detached"?[selected]:[];
+        return current.some(item=>layoutKey(item)===layoutKey(selection))?current.filter(item=>layoutKey(item)!==layoutKey(selection)):[...current,selection];
+      });
+    }else setGroup([]);
+    onSelect(selection);
+    if(timing.current)timing.current.open=false;
+    setTray("inspect");
+  }
+  function selectedPart(){
+    if(!selected)return;
+    const part=selected.kind==="detached"?props.detached.find(item=>item.id===selected.id)?.kind:
+      selected.kind==="line"?"line":selected.kind==="source"?"source":selected.kind==="shunt"?"r":
+      selected.kind==="contact"?[...model.series??[],...model.branches??[]].find(item=>item.id===selected.id):findLoad(model.load,selected.id??model.load.id)?.kind;
+    if(!part)return;
+    const kind=typeof part==="object"?contactKind(part):part;
+    const branch=typeof part==="object"?part:undefined;
+    const draft=selected.kind==="detached"?props.detached.find(item=>item.id===selected.id):undefined;
+    const load=selected.kind==="load"?findLoad(model.load,selected.id??model.load.id):undefined;
+    const shunt=selected.kind==="shunt"?model.shunts.find(item=>item.node===selected.node):undefined;
+    const template:DetachedPart['template']=shunt?{resistanceOhm:shunt.resistanceOhm}:branch?{resistanceOhm:branch.resistanceOhm,component:branch.component,switch:branch.switch}:draft?.template??(
+      load?.kind==="r"?{resistanceOhm:load.value}:load?.kind==="l"||load?.kind==="c"?{component:{kind:load.kind,value:load.value!,initial:load.initial}}:
+      load?.kind==="diode"?{component:{kind:"diode" as const,diode:load.diode!}}:undefined);
+    if(parts.some(row=>(row as readonly string[]).includes(kind)))return {kind:kind as Part,rotation:rotation(selected),template};
+  }
+  function copy(){const part=selectedPart();if(part)clipboard.current=part;}
+  function paste(){
+    if(!clipboard.current)return;
+    const id=freeId();
+    const part=clipboard.current;
+    props.onDetached([...props.detached,{id,...part,x:(viewport.width/2-view.x)/view.zoom,y:(viewport.height*.67-view.y)/view.zoom}]);
+    selectObject({kind:"detached",id});
+  }
+  function freeId(){
+    let index=1;
+    while(props.detached.some(part=>part.id==="draft-"+index))index++;
+    return "draft-"+index;
+  }
+  function rotate(){
+    if(!selected)return;
+    const key=rotationKey(selected);
+    props.onLayout({...layout,[key]:(rotation(selected)+90)%360});
+  }
+  useEffect(()=>{
+    const element=selectedElement.current,field=canvas.current;
+    if(!selected||!element||!field){setAnchor(null);return;}
+    const area=field.getBoundingClientRect(),hit=element.querySelector(".network-svg-hit")?.getBoundingClientRect()??element.getBoundingClientRect();
+    setAnchor({x:Math.max(50,Math.min(area.width-50,hit.left+hit.width/2-area.left)),y:Math.max(55,hit.top-area.top-44)});
+  },[selected,view.x,view.y,view.zoom,layout]);
+  useEffect(()=>{
+    function shortcuts(event:KeyboardEvent){
+      if(armed||clearDialog.current?.open||event.altKey||
+        (event.target as Element|null)?.closest("input,select,textarea,[contenteditable]"))return;
+      const key=event.key.toLowerCase();
+      if(event.ctrlKey||event.metaKey){
+        if(key==="c"&&selected){event.preventDefault();copy();}
+        if(key==="v"&&clipboard.current){event.preventDefault();paste();}
+        if(key==="z"){event.preventDefault();if(event.shiftKey)props.redo();else props.undo();}
+        if(key==="y"){event.preventDefault();props.redo();}
+        return;
+      }
+      if(!selected)return;
+      if(key==="delete"){event.preventDefault();props.onDelete(selected);}
+      if(event.key.toLowerCase()==="r"){event.preventDefault();rotate();}
+      if(event.key==="Escape"){onSelect(null);setGroup([]);setTray(null);}
+    }
+    window.addEventListener("keydown",shortcuts);
+    return()=>window.removeEventListener("keydown",shortcuts);
+  });
   function object(selection: Selection, label: string) {
+    const active=!!selected&&layoutKey(selected)===layoutKey(selection);
     return {
+      'data-group-selected':group.some(member=>layoutKey(member)===layoutKey(selection))||undefined,
+      ref:active?(element:SVGGElement|null)=>{selectedElement.current=element;}:undefined,
       role: "button",
       tabIndex: tool ? -1 : 0,
       "aria-label": label,
@@ -440,14 +579,13 @@ export default function NetworkWorkbench(props: Props) {
       onKeyDown: (event: React.KeyboardEvent<SVGGElement>) => {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
-        onSelect(selection);
-        if(timing.current)timing.current.open=false;
-        setTray("inspect");
+        selectObject(selection,event.shiftKey);
       },
     };
   }
   const number = (value: number) => formatEngineeringNumber(value, language, { significantDigits: 4 });
-  const positionX=(key:string)=>(geometry?.key===key?geometry.dx:layout[horizontalKey(key)]??baseX(key))-baseX(key);
+  const rotation=(item:Selection)=>layout[rotationKey(item)]??(item.kind==="detached"?props.detached.find(part=>part.id===item.id)?.rotation??0:0);
+  const positionX=(key:string)=>(geometry?.key===key?geometry.dx:(groupPreview??layout)[horizontalKey(key)]??baseX(key))-baseX(key);
   const baseEnd=nodeX(model.sections.length)+62;
   const end=baseEnd+positionX("@load");
   const nodeAnchor = junctionX;
@@ -456,6 +594,7 @@ export default function NetworkWorkbench(props: Props) {
   const symbol=(next:Tool):Part|"shunt"=>{
     if(typeof next==="string")return next==="open"||next==="matched"?"r":next;
     if("move" in next)return next.move.kind;
+    if("install" in next)return next.install.kind;
     if("bridgeFrom" in next){
       const contact=[...model.series??[],...model.branches??[]].find(link=>link.id===next.id);
       return contact?contactKind(contact):next.part??(next.wire?"wire":"r");
@@ -464,12 +603,16 @@ export default function NetworkWorkbench(props: Props) {
     const contact=[...model.series??[],...model.branches??[]].find(link=>link.id===next.relocate);
     return contact?contactKind(contact):"r";
   };
-  const positionY=(key:string,base:number)=>geometry?.key===key?geometry.y:layout[key]??base;
+  const positionY=(key:string,base:number)=>geometry?.key===key?geometry.y:(groupPreview??layout)[key]??base;
   const sourceX=source+positionX("@source");
   const sourceY=164+positionY("@source",82)-82;
+  const sourceAngle=-90+rotation({kind:"source"}),sourceA=turned(sourceX,sourceY,-23,sourceAngle),sourceB=turned(sourceX,sourceY,23,sourceAngle);
+  const sourceR=turned(sourceX,sourceY,49,sourceAngle);
   const loadY=148.5+positionY("@load",82)-82;
+  const loadAngle=90+rotation({kind:"load"}),loadA=turned(end,loadY,-23,loadAngle),loadB=turned(end,loadY,23,loadAngle);
   const detached=selected?.kind==="detached"?props.detached.find(part=>part.id===selected.id):undefined;
-  const bridgeTool=armed&&(isTwoTerminal(armed)?{part:armed}:typeof armed==="object"&&"relocate" in armed?{id:armed.relocate}:null);
+  const bridgeTool=!props.empty&&armed&&(isTwoTerminal(armed)?{part:armed}:typeof armed==="object"&&"relocate" in armed?{id:armed.relocate}:
+   typeof armed==="object"&&"install" in armed&&isTwoTerminal(armed.install.kind)?{part:armed.install.kind,template:armed.install.template}:null);
   const active = preview ? preview.target : hovered;
   const selectedX=detached?.x??(selected?.kind==="line"?nodeX(model.sections.findIndex(line=>line.id===selected.id))+85:
     selected?.kind==="source"?source:selected?.kind==="shunt"?nodeAnchor(selected.node):
@@ -483,13 +626,26 @@ export default function NetworkWorkbench(props: Props) {
     <div className="network-canvas">
       <div className="network-scheme-tools" role="group" aria-label={t("Управление конструктором", "Керування конструктором")}>
         <button type="button" aria-expanded={tray==="parts"} onClick={()=>{if(tray==="parts")setTray(null);else setTray("parts");}}>{t("Элементы","Елементи")}</button>
-        {armed&&<button type="button" className="network-active-tool" onClick={()=>{cancel();setTray(null);}} aria-label={t("Отменить размещение","Скасувати розміщення")}>
-          {typeof armed==="string"?labels[armed]:t("Размещение","Розміщення")} <X size={15}/>
+        {(armed||measuring)&&<button type="button" className="network-active-tool" onClick={()=>{cancel();setTray(null);}} aria-label={t("Отменить размещение","Скасувати розміщення")}>
+          {measuring?t("Щуп","Щуп"):typeof armed==="string"?labels[armed]:t("Размещение","Розміщення")} <X size={15}/>
         </button>}
         <button type="button" aria-label={t("Отменить изменение","Скасувати зміну")} disabled={!props.canUndo} onClick={()=>{cancel();props.undo();}}><Undo2 size={18}/></button>
         <button type="button" aria-label={t("Повторить изменение","Повторити зміну")} disabled={!props.canRedo} onClick={()=>{cancel();props.redo();}}><Redo2 size={18}/></button>
+        <button type="button" aria-label={t("Очистить схему","Очистити схему")} title={t("Очистить схему","Очистити схему")}
+          disabled={props.empty&&!props.detached.length} onClick={()=>clearDialog.current?.showModal()}><Trash2 size={18}/></button>
         <button type="button" aria-label={t("Ещё инструменты и справка","Інші інструменти й довідка")} aria-expanded={tray==="help"} onClick={()=>toggle("help")}><CircleHelp size={18}/></button>
       </div>
+      <dialog className="network-clear-dialog" ref={clearDialog} onCancel={()=>clearDialog.current?.close()}>
+        <p>{t("Очистить всю схему? Все размещённые элементы и соединения будут удалены.","Очистити всю схему? Усі розміщені елементи та з’єднання буде видалено.")}</p>
+        <div className="network-buttons">
+          <button type="button" autoFocus onClick={()=>clearDialog.current?.close()}>{t("Отмена","Скасувати")}</button>
+          <button type="button" onClick={()=>{clearDialog.current?.close();cancel();setTray(null);setCamera(null);props.onClear();}}>{t("Очистить","Очистити")}</button>
+        </div>
+      </dialog>
+      {selected&&anchor&&!armed&&tray!=="parts"&&tray!=="help"&&<div className="network-object-actions" style={{left:anchor.x,top:anchor.y}}>
+        <button type="button" aria-label={t("Повернуть","Повернути")} title={t("Повернуть на 90°","Повернути на 90°")} onClick={rotate}><RotateCw size={18}/></button>
+        <button type="button" aria-label={t("Параметры","Параметри")} onClick={()=>setTray(tray==="inspect"?null:"inspect")}><Settings size={18}/></button>
+      </div>}
       <svg ref={canvas} className="network-schematic" data-placing={!!armed||undefined} data-network-canvas aria-label={t("Электрическая схема", "Електрична схема")}
         onPointerLeave={()=>{setCursor(null);setHovered(null);}} onPointerDown={event => {
           if ((event.target as Element).closest("[data-placement]")) {
@@ -499,14 +655,20 @@ export default function NetworkWorkbench(props: Props) {
           start(event);
         }}>
         <g transform={`translate(${view.x} ${view.y}) scale(${view.zoom})`} className="network-schematic-drawing">
+          {!props.empty&&<>
           <path d={`M${nodeX(0) - 45} 213H${baseEnd}`} />
           <path d="M103 29h50l-7-4m7 4l-7 4" /><text x="124" y="22">I</text>
           {model.sections.map((section, index) => {
             const anchor=nodeX(index), x=anchor+positionX(section.id), y=positionY(section.id,axis);
+            const angle=rotation({kind:"line",id:section.id});
+            const a=turned(x+85,y,-53,angle),b=turned(x+85,y,53,angle);
+            const left=anchor+(model.series?.some(link=>link.from===index)?15:0),right=anchor+170-(model.series?.some(link=>link.from===index+1)?15:0);
+            const links=angle? `${routed(left,axis,a,y+(a.y>y?64:-64))} ${routed(right,axis,b,y+(b.y<y?-64:64))}`:
+              `${wire(left,axis,a.x,a.y)} ${wire(right,axis,b.x,b.y)}`;
             return <g key={section.id} data-line-section={section.id} {...object({ kind: "line", id: section.id }, section.id + " · " + t("линия", "лінія"))}>
-              <path d={`${wire(anchor+(model.series?.some(link=>link.from===index)?15:0),axis,x+32,y)} ${wire(anchor+170-(model.series?.some(link=>link.from===index+1)?15:0),axis,x+138,y)}`} />
-              <path d={`M${x+32} ${y}h106`} className="network-transmission-stroke"/>
-              <rect className="network-svg-hit" x={x + 31} y={y - 30} width="108" height="60" />
+              <path d={links} />
+              <path d={`M${x+32} ${y}h106`} className="network-transmission-stroke" transform={angle?`rotate(${angle} ${x+85} ${y})`:undefined}/>
+              <rect className="network-svg-hit" x={x + 31} y={y - 30} width="108" height="60" transform={angle?`rotate(${angle} ${x+85} ${y})`:undefined}/>
               <text x={x + 34} y={y - 18}>{section.id} · {number(section.impedanceOhm)} Ω</text>
               {view.zoom >= .4 && <text x={x + 36} y={y + 24}>{number(section.lengthM / 1000)} km</text>}
             </g>;
@@ -515,34 +677,37 @@ export default function NetworkWorkbench(props: Props) {
             <g key={index}><circle className="network-junction" cx={nodeX(index)-(model.series?.some(link=>link.from===index)?15:0)} cy={axis} r="3" />
               <text x={nodeX(index) - 4} y={axis - 17}>{index}</text></g>)}
           <g {...object({ kind: "source" }, t("Источник", "Джерело"))}>
-            <path d={`${wire(source,axis,sourceX,model.source.resistanceOhm>0?sourceY-49:sourceY-23,true)} ${wire(source,213,sourceX,sourceY+23,true)}`}/>
-            {model.source.resistanceOhm>0&&<ResistorGlyph x={sourceX} y={sourceY-49} scale={.55} terminalSpan={26/.55} orientation="vertical"/>}
-            <g transform={`translate(${sourceX} ${sourceY}) rotate(-90)`}><Glyph kind="source" reverse={model.source.voltageV<0}/></g>
+            <path d={`${wire(source,axis,model.source.resistanceOhm>0?sourceR.x:sourceB.x,model.source.resistanceOhm>0?sourceR.y:sourceB.y,true)} ${wire(source,213,sourceA.x,sourceA.y,true)}`}/>
+            {model.source.resistanceOhm>0&&<g transform={`translate(${sourceX} ${sourceY}) rotate(${sourceAngle})`}><ResistorGlyph x={23} y={0} scale={.55} terminalSpan={26/.55}/></g>}
+            <g transform={`translate(${sourceX} ${sourceY}) rotate(${sourceAngle})`}><Glyph kind="source" reverse={model.source.voltageV<0}/></g>
             <rect className="network-svg-hit" x={sourceX-22} y={sourceY-26} width="50" height="53"/>
             <text x={sourceX+19} y={sourceY+3}>E = {number(Math.abs(model.source.voltageV))} V</text>
             {model.source.resistanceOhm>0&&<text x={sourceX+19} y={sourceY+19}>Rₛ = {number(model.source.resistanceOhm)} Ω</text>}
           </g>
           {load.children?.length?<g>
             <path d={`M${nodeX(model.sections.length)} ${axis}H${end}V${loadY-48} ${wire(baseEnd,213,end,loadY+48,true)}`}/>
-            <LoadCircuit load={load} language={language} displacement={id=>{
+            <LoadCircuit load={load} language={language} rotation={id=>rotation({kind:"load",id})} displacement={id=>{
                 const key="@load-"+id;
                 return {x:positionX(key),y:positionY(key,82)-82};
               }} onObject={(id,label)=>object({kind:"load",id},label) as React.SVGProps<SVGGElement>}
               region={{x:end-58,y:loadY-48,width:116,height:96}}/>
           </g>:<g {...object({ kind: "load" }, t("Нагрузка", "Навантаження"))}>
-            <path d={`M${nodeX(model.sections.length)} ${axis}H${end}V${loadY-23} ${wire(baseEnd,213,end,loadY+23,true)}`}/>
-            {load.kind==="open"?<><circle cx={end} cy={loadY-23} r="3"/><circle cx={end} cy={loadY+23} r="3"/></>:
-              <g transform={`translate(${end} ${loadY}) rotate(90)`}><Glyph kind={load.kind as Part} reverse={load.diode?.reversed}/></g>}
+            <path d={`M${nodeX(model.sections.length)} ${axis}H${loadA.x}V${loadA.y} ${wire(baseEnd,213,loadB.x,loadB.y,true)}`}/>
+            {load.kind==="open"?<><circle cx={loadA.x} cy={loadA.y} r="3"/><circle cx={loadB.x} cy={loadB.y} r="3"/></>:
+              <g transform={`translate(${end} ${loadY}) rotate(${loadAngle})`}><Glyph kind={load.kind as Part} reverse={load.diode?.reversed}/></g>}
             <rect className="network-svg-hit" x={end-22} y={loadY-27} width="48" height="54"/>
             <text x={end+16} y={loadY+4}>{load.kind==="r"?number(load.value!)+" Ω":
               load.kind==="c"?number(load.value!*1e6)+" µF":load.kind==="l"?number(load.value!*1e3)+" mH":load.kind==="diode"?"VD":""}</text>
           </g>}
-          {bridgeTool&&Array.from({length:model.sections.length+1},(_,index)=>
+          {(bridgeTool||!armed)&&Array.from({length:model.sections.length+1},(_,index)=>
             <g key={index} role="button" tabIndex={0} aria-label={t("Начать перемычку от узла ","Почати перемичку від вузла ")+index}
-              onPointerDown={event=>event.stopPropagation()} onClick={()=>arm({bridgeFrom:index,...bridgeTool},attaching)}
-              onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();arm({bridgeFrom:index,...bridgeTool},attaching);}}}>
-              <circle className="network-svg-hit" cx={nodeAnchor(index)} cy={axis+31} r="22"/><circle cx={nodeAnchor(index)} cy={axis+31} r="12"/><text x={nodeAnchor(index)-6} y={axis+35}>↔</text>
+              onPointerDown={event=>event.stopPropagation()} onClick={()=>arm({bridgeFrom:index,...(bridgeTool??{wire:true})},attaching)}
+              onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();arm({bridgeFrom:index,...(bridgeTool??{wire:true})},attaching);}}}>
+              <circle className="network-svg-hit" cx={nodeAnchor(index)} cy={axis+(bridgeTool?31:0)} r={bridgeTool?22:12}/>
+              {bridgeTool&&<><circle className="network-svg-hit" cx={nodeAnchor(index)} cy={axis} r="12"/>
+                <circle cx={nodeAnchor(index)} cy={axis+31} r="12"/><text x={nodeAnchor(index)-6} y={axis+35}>↔</text></>}
             </g>)}
+          {armed&&typeof armed==="object"&&"bridgeFrom" in armed&&<circle className="network-first-terminal" cx={nodeAnchor(armed.bridgeFrom)} cy={axis} r="10"/>}
           {([...model.series??[],...model.branches??[]]).map(link=>{
             const series=model.series?.some(item=>item.id===link.id),vertical=link.to==="reference";
             const from=series?nodeX(link.from)-15:nodeAnchor(link.from);
@@ -552,13 +717,15 @@ export default function NetworkWorkbench(props: Props) {
             const y=(series?axis:vertical?160:234+index*9)+positionY(key,82)-82;
             const closed=contactClosed(link,props.time),combined=!!link.switch&&link.resistanceOhm!==undefined;
             const scale=series?15/23:1,a=(combined?-46:-23)*scale,b=23*scale;
-            const angle=vertical?90:to<from?180:0,sign=angle===180?-1:1;
+            const rotated=rotation({kind:"contact",id:link.id}),angle=(vertical?90:to<from?180:0)+rotated;
+            const left=turned(x,y,a,angle),right=turned(x,y,b,angle);
             const label=link.resistanceOhm!==undefined?number(link.resistanceOhm)+" Ω":
               link.component?.kind==="l"?number(link.component.value*1e3)+" mH":
               link.component?.kind==="c"?number(link.component.value*1e6)+" µF":"";
             return <g key={link.id}>
-              {vertical?<path d={`${wire(from,axis,x,y+a,true)} ${wire(to,213,x,y+b,true)}`}/>:
-                <path d={`${wire(from,axis,x+a*sign,y)} ${wire(to,axis,x+b*sign,y)}`} className={series?undefined:"network-bridge-wire"}/>}
+              {rotated?<path d={`${routed(from,axis,left,y+(left.y>y?58:-58))} ${routed(to,vertical?213:axis,right,y+(right.y<y?-58:58))}`} className={series||vertical?undefined:"network-bridge-wire"}/>:
+                vertical?<path d={`${wire(from,axis,left.x,left.y,true)} ${wire(to,213,right.x,right.y,true)}`}/>:
+                <path d={`${wire(from,axis,left.x,left.y)} ${wire(to,axis,right.x,right.y)}`} className={series?undefined:"network-bridge-wire"}/>}
               {!series&&<><circle className="network-junction" cx={from} cy={axis} r="3"/><circle className="network-junction" cx={to} cy={vertical?213:axis} r="3"/></>}
               <g {...object({kind:"contact",id:link.id},link.id+" · "+labels[kind])}
                 data-contact={link.id} data-closed={link.switch?closed:undefined}>
@@ -573,20 +740,24 @@ export default function NetworkWorkbench(props: Props) {
           })}
           {model.shunts.map(shunt => {
             const anchor=nodeAnchor(shunt.node),x=anchor-33+positionX("@shunt-"+shunt.node),y=161+positionY("@shunt-"+shunt.node,82)-82;
+            const angle=90+rotation({kind:"shunt",node:shunt.node});
+            const a=turned(x,y,-15,angle),b=turned(x,y,15,angle);
             return <g key={shunt.node} {...object({ kind: "shunt", node: shunt.node }, labels.shunt + " · " + shunt.node)}>
-              <path d={`${wire(anchor,axis,x,y-15,true)} ${wire(anchor-33,213,x,y+15,true)}`}/>
-              <ResistorGlyph x={x} y={y-15} scale={.75} terminalSpan={40} orientation="vertical"/>
+              <path d={`${wire(anchor,axis,a.x,a.y,true)} ${wire(anchor-33,213,b.x,b.y,true)}`}/>
+              <g transform={`translate(${x} ${y}) rotate(${angle})`}><ResistorGlyph x={-15} y={0} scale={.75} terminalSpan={40}/></g>
               <rect className="network-svg-hit" x={x-21} y={y-25} width="44" height="50"/>
               <text x={x-13} y={y+31}>{number(shunt.resistanceOhm)} Ω</text>
             </g>;
           })}
+          </>}
           {props.detached.map(part=>{
             const x=geometry?.key===part.id?geometry.dx:part.x,y=geometry?.key===part.id?geometry.y:part.y;
             return <g key={part.id} data-detached={part.kind} transform={`translate(${x} ${y})`}
               {...object({kind:"detached",id:part.id},labels[part.kind]+" · "+t("не подключён","не під’єднано"))}>
               <rect className="network-svg-hit" x="-26" y="-24" width="52" height="48"/>
-              <Glyph kind={part.kind}/>
-              <circle cx="-23" r="3"/><circle cx="23" r="3"/>
+              <g transform={`rotate(${rotation({kind:"detached",id:part.id})})`}>
+                <Glyph kind={part.kind}/><circle cx="-23" r="3"/><circle cx="23" r="3"/>
+              </g>
             </g>;
           })}
         </g>
@@ -624,6 +795,7 @@ export default function NetworkWorkbench(props: Props) {
           </g>;
         })}
       </svg>
+      {props.empty&&!armed&&!props.detached.length&&<p className="network-empty-note">{t("Выберите линию в палитре, чтобы начать схему.","Оберіть лінію на палітрі, щоб почати схему.")}</p>}
       <div className="network-camera">
         <button type="button" onClick={() => setCamera(null)} aria-label={t("Показать всю схему", "Показати всю схему")}><Maximize size={18} /></button>
         <button type="button" disabled={!selected} onClick={center} aria-label={t("Центрировать объект", "Центрувати об’єкт")}><Crosshair size={18} /></button>
@@ -650,17 +822,26 @@ export default function NetworkWorkbench(props: Props) {
               onClick={event=>{if(event.detail===0||!suppress.current){if(armed===part){cancel();setTray(null);}else arm(part);}}}>
               <svg aria-hidden="true" viewBox="-26 -19 52 38" width="27" height="23"><Glyph kind={part}/></svg>{labels[part]}</button>)}</div>
           </div>)}
+          <button type="button" disabled={props.empty} onClick={()=>{cancel();setMeasuring(true);setTray(null);setMessage(t("Выберите линию для измерения.","Оберіть лінію для вимірювання."));}}>{t("Щуп напряжения и тока","Щуп напруги й струму")}</button>
         </div>}
         {tray === "inspect" && (detached ? <div className="network-inspector">
           <strong>{labels[detached.kind]}</strong>
           <small>{t("Не подключён к схеме","Не під’єднано до схеми")}</small>
           <div className="network-buttons">
-            <button type="button" onClick={()=>arm(detached.kind,detached.id)}>{t("Подключить","Під’єднати")}</button>
+            <button type="button" onClick={()=>arm(detached.template?{install:detached}:detached.kind,detached.id)}>{t("Подключить","Під’єднати")}</button>
             <button type="button" onClick={()=>{props.onDetached(props.detached.filter(part=>part.id!==detached.id));onSelect(null);setTray(null);}}>{t("Удалить","Видалити")}</button>
           </div>
         </div> : selected ? props.inspector(arm) : <p>{t("Выберите объект на схеме.", "Оберіть об’єкт на схемі.")}</p>)}
+        {tray==="inspect"&&selected&&selected.kind!=="detached"&&selected.kind!=="source"&&selectedPart()&&
+          <button type="button" onClick={()=>{
+            const part=selectedPart();
+            if(!part||!anchor)return;
+            props.onDetach(selected,{...part,id:freeId(),x:(anchor.x-view.x)/view.zoom,y:(anchor.y+65-view.y)/view.zoom});
+          }}>{t("Отсоединить","Від’єднати")}</button>}
         {tray === "help" && <div>
           <div className="network-buttons">{props.tools}</div>
+          <label><input type="checkbox" checked={snap} onChange={event=>setSnap(event.target.checked)}/>{t("Привязка к сетке","Прив’язка до сітки")}</label>
+          <button type="button" onClick={()=>{props.onLayout(Object.fromEntries(Object.entries(layout).filter(([key])=>key.startsWith("@rot-"))));setCamera(null);}}>{t("Упорядочить схему","Упорядкувати схему")}</button>
           <strong>{t("Как распространяются волны", "Як поширюються хвилі")}</strong>
           <p>{t("Напряжение U = U⁺ + U⁻, ток I = (U⁺ − U⁻) / Z₀. При согласованной нагрузке R = Z₀ отражённая волна отсутствует.",
             "Напруга U = U⁺ + U⁻, струм I = (U⁺ − U⁻) / Z₀. За узгодженого навантаження R = Z₀ відбита хвиля відсутня.")}</p>

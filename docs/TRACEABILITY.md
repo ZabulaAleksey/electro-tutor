@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-020 — Монтаж и длительность
+
+LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.
+
 ## ET-LAB-016–019 — Эталоны, фазоры, Фурье и затухание
 
 CIR-GUIDE-001..003 → circular-diagram-state SPEC → circular-diagram.ts и CircularDiagram → circular-diagram.test.ts и circular-diagram-guide.spec.ts.

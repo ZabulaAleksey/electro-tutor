@@ -7,6 +7,7 @@ import { contactClosed, findLoad, type Load, type Network } from "./network";
 import { LoadCircuit, type Layout } from "./NetworkEditor";
 import { contactKind, isTwoTerminal, placementTargets, type DetachedPart, type Placement, type Selection, type Tool } from "./network-edit";
 import { networkError } from "./network-copy";
+import { leadPath, routeLeadPair, type RoutingBox } from "./network-routing";
 
 type Point = { x: number; y: number };
 type View = Point & { zoom: number };
@@ -68,6 +69,39 @@ const turned=(x:number,y:number,d:number,angle:number):Point=>{
 const routed=(x:number,y:number,target:Point,lane:number)=>`M${x} ${y}V${lane}H${target.x}V${target.y}`;
 const wire=(x:number,y:number,tx:number,ty:number,vertical=false)=>
   vertical?`M${x} ${y}H${tx}V${ty}`:`M${x} ${y}V${ty}H${tx}`;
+
+function loadGeometry(positions: Layout, sections: Network["sections"], source: number, labelled: boolean) {
+  const baseEnd = nodeX(sections.length)+62;
+  const x = baseEnd + (positions["@load-x"] ?? 82) - 82;
+  const y = 148.5 + (positions["@load"] ?? 82) - 82;
+  const angle = 90 + (positions["@rot-load"] ?? 0);
+  const vertical = angle % 180 !== 0;
+  const box = (cx: number, cy: number, halfWidth: number, halfHeight: number): RoutingBox =>
+    ({left:cx-halfWidth, right:cx+halfWidth, top:cy-halfHeight, bottom:cy+halfHeight});
+  const body = box(x,y,vertical ? 13 : 23,vertical ? 23 : 13);
+  const label = {x:x+(vertical ? 16 : 24),y:y+(vertical ? 4 : 21)};
+  const lines = sections.map((section,index) => {
+    const rotated = (positions["@rot-"+section.id] ?? 0) % 180 !== 0;
+    return box(nodeX(index)+85+(positions["@x-"+section.id] ?? 0),positions[section.id] ?? axis,
+      rotated ? 7 : 57,rotated ? 57 : 7);
+  });
+  const sourceVertical = (positions["@rot-source"] ?? 0) % 180 === 0;
+  const sourceBody = box(source+(positions["@x-source"] ?? 0),164+(positions["@source"] ?? 82)-82,
+    sourceVertical ? 15 : 23,sourceVertical ? 23 : 15);
+  const returnRail = {left:nodeX(0)-45,right:baseEnd-1,top:212,bottom:214};
+  const occupied = [...lines,sourceBody,returnRail];
+  const signal = {x:nodeX(sections.length),y:axis};
+  const ground = {x:baseEnd,y:213};
+  const overlaps = (a: RoutingBox, b: RoutingBox) =>
+    a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
+  if (occupied.some(other => overlaps(body,other))) return null;
+  if (labelled) occupied.push({left:label.x-2,right:label.x+43,top:label.y-11,bottom:label.y+3});
+  const routes = routeLeadPair([
+    {node:signal,pin:turned(x,y,-23,angle),exit:turned(x,y,-35,angle)},
+    {node:ground,pin:turned(x,y,23,angle),exit:turned(x,y,35,angle)},
+  ],occupied,body);
+  return routes ? {x,y,angle,label,paths:routes.map(leadPath)} : null;
+}
 
 export default function NetworkWorkbench(props: Props) {
   const { model, layout, language, selected, onSelect, onCommit } = props;
@@ -135,7 +169,8 @@ export default function NetworkWorkbench(props: Props) {
     "section-limit": t("Достигнут предел участков расчётной модели.", "Досягнуто межі ділянок розрахункової моделі."),
     "short-section": t("Участок слишком короткий для разделения.", "Ділянка закоротка для поділу."),
   };
-  const explain = (error?: string) => error ? reasons[error] ?? networkError(error, language) :
+  const explain = (error?: string) => error === "unroutable-layout" ? t("Проводники здесь пересекаются или перекрывают элемент.","Провідники тут перетинаються або перекривають елемент.") :
+    error ? reasons[error] ?? networkError(error, language) :
     t("Выберите подсвеченную точку на схеме.", "Оберіть підсвічену точку на схемі.");
   const zone = (target: Placement) => {
     switch (target.kind) {
@@ -438,7 +473,7 @@ export default function NetworkWorkbench(props: Props) {
         const next=geometryAt(current.selection,current.start,{x:event.clientX,y:event.clientY});
         if(current.selection.kind==="detached"){
           props.onDetached(props.detached.map(part=>part.id===next.key?{...part,x:next.dx,y:next.y}:part));
-        }else props.onLayout(groupLayout(current.selection,current.start,{x:event.clientX,y:event.clientY}));
+        }else commitLayout(groupLayout(current.selection,current.start,{x:event.clientX,y:event.clientY}));
       }
     } else if(!current.moved&&armed){
       const point={x:event.clientX,y:event.clientY};
@@ -521,7 +556,7 @@ export default function NetworkWorkbench(props: Props) {
   function rotate(){
     if(!selected)return;
     const key=rotationKey(selected);
-    props.onLayout({...layout,[key]:(rotation(selected)+90)%360});
+    commitLayout({...layout,[key]:(rotation(selected)+90)%360});
   }
   useEffect(()=>{
     const element=selectedElement.current,field=canvas.current;
@@ -610,6 +645,25 @@ export default function NetworkWorkbench(props: Props) {
   const sourceR=turned(sourceX,sourceY,49,sourceAngle);
   const loadY=148.5+positionY("@load",82)-82;
   const loadAngle=90+rotation({kind:"load"}),loadA=turned(end,loadY,-23,loadAngle),loadB=turned(end,loadY,23,loadAngle);
+  function commitLayout(next: Layout) {
+    if (!props.empty && !load.children?.length && !loadGeometry(next,model.sections,source,labelledLoad)) {
+      setMessage(explain("unroutable-layout"));
+      return;
+    }
+    setMessage("");
+    props.onLayout(next);
+  }
+  const simpleLoad = !props.empty && !load.children?.length;
+  const labelledLoad = load.kind === "r" || load.kind === "c" || load.kind === "l" || load.kind === "diode";
+  const savedLoad = useMemo(() => simpleLoad ? loadGeometry(layout,model.sections,source,labelledLoad) : null,
+    [simpleLoad,layout,model.sections,source,labelledLoad]);
+  const liveLayout = groupPreview ?? (geometry ? {...layout,[geometry.key]:geometry.y,[horizontalKey(geometry.key)]:geometry.dx} : layout);
+  const visibleLoad = simpleLoad && liveLayout !== layout
+    ? loadGeometry(liveLayout,model.sections,source,labelledLoad) ?? savedLoad : savedLoad;
+  const visibleX = visibleLoad?.x ?? end, visibleY = visibleLoad?.y ?? loadY;
+  const visibleAngle = visibleLoad?.angle ?? loadAngle;
+  const visibleA = visibleLoad ? turned(visibleX,visibleY,-23,visibleAngle) : loadA;
+  const visibleB = visibleLoad ? turned(visibleX,visibleY,23,visibleAngle) : loadB;
   const detached=selected?.kind==="detached"?props.detached.find(part=>part.id===selected.id):undefined;
   const bridgeTool=!props.empty&&armed&&(isTwoTerminal(armed)?{part:armed}:typeof armed==="object"&&"relocate" in armed?{id:armed.relocate}:
    typeof armed==="object"&&"install" in armed&&isTwoTerminal(armed.install.kind)?{part:armed.install.kind,template:armed.install.template}:null);
@@ -692,11 +746,12 @@ export default function NetworkWorkbench(props: Props) {
               }} onObject={(id,label)=>object({kind:"load",id},label) as React.SVGProps<SVGGElement>}
               region={{x:end-58,y:loadY-48,width:116,height:96}}/>
           </g>:<g {...object({ kind: "load" }, t("Нагрузка", "Навантаження"))}>
-            <path d={`M${nodeX(model.sections.length)} ${axis}H${loadA.x}V${loadA.y} ${wire(baseEnd,213,loadB.x,loadB.y,true)}`}/>
-            {load.kind==="open"?<><circle cx={loadA.x} cy={loadA.y} r="3"/><circle cx={loadB.x} cy={loadB.y} r="3"/></>:
-              <g transform={`translate(${end} ${loadY}) rotate(${loadAngle})`}><Glyph kind={load.kind as Part} reverse={load.diode?.reversed}/></g>}
-            <rect className="network-svg-hit" x={end-22} y={loadY-27} width="48" height="54"/>
-            <text x={end+16} y={loadY+4}>{load.kind==="r"?number(load.value!)+" Ω":
+            {visibleLoad ? visibleLoad.paths.map((d,index) => <path key={index} data-load-lead={index} d={d}/>) :
+              <path d={`M${nodeX(model.sections.length)} ${axis}H${loadA.x}V${loadA.y} ${wire(baseEnd,213,loadB.x,loadB.y,true)}`}/>}
+            {load.kind==="open"?<><circle cx={visibleA.x} cy={visibleA.y} r="3"/><circle cx={visibleB.x} cy={visibleB.y} r="3"/></>:
+              <g transform={`translate(${visibleX} ${visibleY}) rotate(${visibleAngle})`}><Glyph kind={load.kind as Part} reverse={load.diode?.reversed}/></g>}
+            <rect className="network-svg-hit" x={visibleX-22} y={visibleY-27} width="48" height="54"/>
+            <text x={visibleLoad?.label.x??end+16} y={visibleLoad?.label.y??loadY+4}>{load.kind==="r"?number(load.value!)+" Ω":
               load.kind==="c"?number(load.value!*1e6)+" µF":load.kind==="l"?number(load.value!*1e3)+" mH":load.kind==="diode"?"VD":""}</text>
           </g>}
           {(bridgeTool||!armed)&&Array.from({length:model.sections.length+1},(_,index)=>

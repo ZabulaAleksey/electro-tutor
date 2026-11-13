@@ -1,5 +1,9 @@
 # Traceability
 
+## ET-LAB-021 — Трассировка нагрузки
+
+LINE-UX-023 → network-routing.ts и NetworkWorkbench → network-routing.test.ts и transmission-workbench.spec.ts.
+
 ## ET-LAB-020 — Монтаж и длительность
 
 LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.

@@ -317,7 +317,9 @@ test("cursor placement, ordinary wire and nonlinear diode use the real solver",a
  await expect(page.locator(".network-drag-ghost")).toBeVisible();
  await page.mouse.click(end.x,end.y);
  await ready(page);
- await expect(field.getByRole("button",{name:"Нагрузка",exact:true}).locator("path")).toHaveCount(2);
+ const shortedLoad = field.getByRole("button",{name:"Нагрузка",exact:true});
+ await expect(shortedLoad.locator("[data-load-lead]")).toHaveCount(2);
+ await expect(shortedLoad.locator("g path")).toHaveAttribute("d","M-23 0H23");
  await part("diode");
  await field.getByRole("button",{name:"Конец линии",exact:true}).press("Enter");
  await ready(page);
@@ -397,4 +399,33 @@ test("a detached capacitor moves freely, survives reload, then connects and rewi
  await connected.press("Enter");
  await expect(page.getByRole("spinbutton",{name:"C, µF"})).toHaveValue("20");
  await expect(page.getByRole("button",{name:"Сменить второй узел"})).toBeVisible();
+});
+
+
+test("reroutes both load leads when the load moves above the line", async ({ page }) => {
+  await page.goto(path);
+  await ready(page);
+  const field = canvas(page);
+  const lab = page.locator("[data-network-lab]");
+  const revision = await lab.getAttribute("data-model-revision");
+  const lead = field.locator("[data-load-lead='0']");
+  const previous = await lead.getAttribute("d");
+  expect(previous).toBeTruthy();
+  const load = field.getByRole("button",{name:"Нагрузка",exact:true}).locator("rect.network-svg-hit");
+  const start = await middle(load);
+  const destination = await position(page,336,46);
+  await page.mouse.move(start.x,start.y);
+  await page.mouse.down();
+  await page.mouse.move(destination.x,destination.y,{steps:12});
+  await expect(lead).not.toHaveAttribute("d",previous!);
+  await page.mouse.up();
+  const moved = await lead.getAttribute("d");
+  expect(moved).not.toBe(previous);
+  await expect(lab).toHaveAttribute("data-model-revision",revision!);
+  await ready(page);
+  await page.getByRole("button",{name:"Отменить изменение"}).click();
+  await expect(lead).toHaveAttribute("d",previous!);
+  await page.getByRole("button",{name:"Повторить изменение"}).click();
+  await expect(lead).toHaveAttribute("d",moved!);
+  await expect(lab).toHaveAttribute("data-model-revision",revision!);
 });

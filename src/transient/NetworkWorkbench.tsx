@@ -7,8 +7,9 @@ import { contactClosed, findLoad, type Load, type Network } from "./network";
 import { LoadCircuit, type Layout } from "./NetworkEditor";
 import { compoundLoadRoutes } from "./network-load-layout";
 import { contactKind, isTwoTerminal, placementTargets, type DetachedPart, type Placement, type Selection, type Tool } from "./network-edit";
+import { experimentTimeLabel } from "./network-experiment";
 import { networkError } from "./network-copy";
-import { leadPath, routeLeadPair, routeSymbolLeads, symbolBounds, type RoutingBox } from "./network-routing";
+import { leadPath, routeLeadPair, routeSymbolPaths, symbolBounds, type RoutedWire, type RoutingBox } from "./network-routing";
 
 type Point = { x: number; y: number };
 type View = Point & { zoom: number };
@@ -71,7 +72,7 @@ const routed=(x:number,y:number,target:Point,lane:number)=>`M${x} ${y}V${lane}H$
 const wire=(x:number,y:number,tx:number,ty:number,vertical=false)=>
   vertical?`M${x} ${y}H${tx}V${ty}`:`M${x} ${y}V${ty}H${tx}`;
 
-function loadGeometry(positions: Layout, sections: Network["sections"], source: number, labelled: boolean) {
+function loadGeometry(positions: Layout, sections: Network["sections"], source: number, labelled: boolean, wires: RoutedWire[]) {
   const baseEnd = nodeX(sections.length)+62;
   const x = baseEnd + (positions["@load-x"] ?? 82) - 82;
   const y = 148.5 + (positions["@load"] ?? 82) - 82;
@@ -100,8 +101,8 @@ function loadGeometry(positions: Layout, sections: Network["sections"], source: 
   const routes = routeLeadPair([
     {node:signal,pin:turned(x,y,-23,angle),exit:turned(x,y,-35,angle)},
     {node:ground,pin:turned(x,y,23,angle),exit:turned(x,y,35,angle)},
-  ],occupied,body);
-  return routes ? {x,y,angle,label,paths:routes.map(leadPath)} : null;
+  ],occupied,body,wires);
+  return routes ? {x,y,angle,label,paths:routes.map(leadPath),wires:routes.map(points=>({points,anchors:[points[0]]}))} : null;
 }
 
 function traceLayout(positions:Layout,model:Network,load:Load,empty:boolean) {
@@ -121,17 +122,15 @@ function traceLayout(positions:Layout,model:Network,load:Load,empty:boolean) {
     const after=(index:number)=>nodeX(index)+(model.series?.some(link=>link.from===index)?15:0);
     const compound=load.children?.length?compoundLoadRoutes(load,96,id=>({x:dx("@load-"+id),y:dy("@load-"+id)}),id=>rotationOf("@load-"+id)):undefined;
     if(compound===null)return null;
-    const terminalLoad=simpleLoad?loadGeometry(positions,sections,source,labelledLoad):null;
-    if(simpleLoad&&!terminalLoad)return null;
-    const components:{key:string;nodes:[Point,Point];center:Point;angle:number;pins:[number,number];height:number;changed:boolean}[]=[];
-    const route=(key:string,nodes:[Point,Point],center:Point,angle:number,pins:[number,number],height:number,baselineY=82)=>{
+    const components:{key:string;nodes:[Point,Point];center:Point;angle:number;pins:[number,number];height:number;changed:boolean;verticalFirst:boolean}[]=[];
+    const route=(key:string,nodes:[Point,Point],center:Point,angle:number,pins:[number,number],height:number,baselineY=82,verticalFirst=false)=>{
       const changed=!!(dx(key)||rotationOf(key)||(positions[key]??baselineY)!==baselineY);
-      components.push({key,nodes,center,angle,pins,height,changed});
+      components.push({key,nodes,center,angle,pins,height,changed,verticalFirst});
     };
     sections.forEach((section,i)=>route(section.id,[{x:after(i),y:axis},{x:before(i+1),y:axis}],
       {x:nodeX(i)+85+dx(section.id),y:positions[section.id]??axis},rotationOf(section.id),[-53,53],5,axis));
     route("@source",[{x:source,y:groundY},{x:source,y:axis}],{x:source+dx("@source"),y:164+dy("@source")},
-      -90+rotationOf("@source"),[-23,model.source.resistanceOhm>0?49:23],15);
+      -90+rotationOf("@source"),[-23,model.source.resistanceOhm>0?49:23],15,82,true);
     contacts.forEach(link=>{
       const series=model.series?.some(item=>item.id===link.id),vertical=link.to==="reference";
       const from=before(link.from);
@@ -140,27 +139,58 @@ function traceLayout(positions:Layout,model:Network,load:Load,empty:boolean) {
       const scale=series?15/23:1,combined=!!link.switch&&link.resistanceOhm!==undefined;
       route(key,[{x:from,y:axis},{x:to,y:vertical?groundY:axis}],
         {x:(vertical?to:(from+to)/2)+dx(key),y:(series?axis:vertical?160:234+(model.branches?.indexOf(link)??0)*9)+dy(key)},
-        (vertical?90:to<from?180:0)+rotationOf(key),[(combined?-46:-23)*scale,23*scale],12*scale);
+        (vertical?90:to<from?180:0)+rotationOf(key),[(combined?-46:-23)*scale,23*scale],12*scale,82,vertical);
     });
     model.shunts.forEach(shunt=>{
       const anchor=before(shunt.node),key="@shunt-"+shunt.node;
       route(key,[{x:anchor,y:axis},{x:anchor-33,y:groundY}],
-        {x:anchor-33+dx(key),y:161+dy(key)},90+rotationOf(key),[-15,15],9);
+        {x:anchor-33+dx(key),y:161+dy(key)},90+rotationOf(key),[-15,15],9,82,true);
     });
-    if(compound&&(dx("@load")||dy("@load"))){
-      const outer=routeSymbolLeads([{x:terminal,y:axis},{x:baseEnd,y:groundY}],
-        {x:baseEnd+dx("@load"),y:148.5+dy("@load")},90,[-48,48],58);
-      if(!outer)return null;
-      parts.set("@load",outer);
+    const movedLoad=!!(dx("@load")||dy("@load")||rotationOf("@load"));
+    const loadNodes:[Point,Point]=[{x:terminal,y:axis},{x:baseEnd,y:groundY}];
+    const loadCenter={x:baseEnd+dx("@load"),y:148.5+dy("@load")};
+    const loadAngle=compound?90:90+rotationOf("@load");
+    const loadPins:[number,number]=compound?[-48,48]:[-23,23];
+    const loadBody=symbolBounds(loadCenter,loadAngle,loadPins,compound?58:13);
+    const wires:RoutedWire[]=[{
+      points:[{x:nodeX(0)-45,y:groundY},{x:baseEnd,y:groundY}],
+      anchors:[loadNodes[1],...components.flatMap(item=>item.nodes.filter(node=>node.y===groundY))],
+    }];
+    const addDefault=(nodes:[Point,Point],center:Point,pins:[number,number],angle:number,verticalFirst:boolean)=>{
+      nodes.forEach((node,i)=>{
+        const pin=turned(center.x,center.y,pins[i],angle);
+        const bend=verticalFirst?{x:pin.x,y:node.y}:{x:node.x,y:pin.y};
+        wires.push({points:[node,bend,pin],anchors:[node]});
+      });
+    };
+    for(const item of components){
+      if(!item.changed)addDefault(item.nodes,item.center,item.pins,item.angle,item.verticalFirst);
+    }
+    let terminalLoad=null;
+    if(!movedLoad){
+      if(simpleLoad)terminalLoad=loadGeometry(positions,sections,source,labelledLoad,[]);
+      if(terminalLoad)wires.push(...terminalLoad.wires);
+      else addDefault(loadNodes,loadCenter,loadPins,loadAngle,true);
     }
     const boxes=components.map(item=>symbolBounds(item.center,item.angle,item.pins,item.height));
     for(const [i,item] of components.entries()){
       if(!item.changed)continue;
       const obstacles=boxes.filter((_,j)=>j!==i);
-      if(terminalLoad)obstacles.push(symbolBounds({x:terminalLoad.x,y:terminalLoad.y},terminalLoad.angle,[-23,23],13));
-      const paths=routeSymbolLeads(item.nodes,item.center,item.angle,item.pins,item.height,obstacles);
+      obstacles.push(loadBody);
+      const paths=routeSymbolPaths(item.nodes,item.center,item.angle,item.pins,item.height,obstacles,wires);
       if(!paths)return null;
-      parts.set(item.key,paths);
+      parts.set(item.key,paths.map(leadPath));
+      wires.push(...paths.map((points,j)=>({points,anchors:[item.nodes[j]]})));
+    }
+    if(movedLoad){
+      if(simpleLoad){
+        terminalLoad=loadGeometry(positions,sections,source,labelledLoad,wires);
+        if(!terminalLoad)return null;
+      }else{
+        const outer=routeSymbolPaths(loadNodes,loadCenter,loadAngle,loadPins,58,boxes,wires);
+        if(!outer)return null;
+        parts.set("@load",outer.map(leadPath));
+      }
     }
     return {parts,compound,load:terminalLoad};
   }
@@ -966,7 +996,7 @@ export default function NetworkWorkbench(props: Props) {
     </div>}
     <div className="network-dock" style={{ bottom: visible.inset }}>
       <details className="network-timing" ref={timing}>
-        <summary>{t("Время","Час")} · {number(props.time*1000)} {t("мс","мс")}</summary>
+        <summary>{t("Время","Час")}: {experimentTimeLabel(props.time,language)} <ChevronDown size={14} aria-hidden="true"/></summary>
         <div>{props.timing}</div>
       </details>
       <div className="network-toolbar" role="group" aria-label={t("Управление симуляцией","Керування симуляцією")}>{props.transport}</div>

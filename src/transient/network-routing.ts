@@ -1,5 +1,9 @@
 export type RoutingPoint = { x: number; y: number };
 export type RoutingBox = { left: number; top: number; right: number; bottom: number };
+export type RoutedWire = { points: RoutingPoint[]; anchors: RoutingPoint[] };
+type WireSegment = RoutingBox & { anchors: RoutingPoint[] };
+const samePoint = (a: RoutingPoint, b: RoutingPoint) => a.x === b.x && a.y === b.y;
+
 type Lead = { node: RoutingPoint; pin: RoutingPoint; exit: RoutingPoint };
 type LeadPair = [Lead, Lead];
 type Routes = [RoutingPoint[], RoutingPoint[]];
@@ -14,13 +18,30 @@ function segmentBox(a: RoutingPoint, b: RoutingPoint): RoutingBox {
     top: Math.min(a.y,b.y), bottom: Math.max(a.y,b.y) };
 }
 
+function wireSegments(wires: RoutedWire[]): WireSegment[] {
+  return wires.flatMap(({points,anchors}) => points.slice(1).flatMap((point,i) =>
+    samePoint(points[i],point) ? [] : [{...segmentBox(points[i],point),anchors}]));
+}
+
+function wireBlocked(a: RoutingPoint, b: RoutingPoint, node: RoutingPoint, wires: WireSegment[]) {
+  const edge=segmentBox(a,b);
+  return wires.some(wire => {
+    const left=Math.max(edge.left,wire.left), right=Math.min(edge.right,wire.right);
+    const top=Math.max(edge.top,wire.top), bottom=Math.min(edge.bottom,wire.bottom);
+    if(left>right||top>bottom)return false;
+    const atNode=left===right&&top===bottom&&left===node.x&&top===node.y;
+    return !atNode || !wire.anchors.some(anchor=>samePoint(anchor,node));
+  });
+}
+
 /** Route geometry only. Pin escape segments remain aligned with the symbol terminals. */
-export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: RoutingBox): Routes | null {
+export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: RoutingBox, wires: RoutedWire[] = []): Routes | null {
+  const segments=wireSegments(wires);
   const escapes = leads.map(({ pin, exit }) => segmentBox(pin, exit));
-  if (leads.some(({ pin, exit }) => obstacles.some(box => hits(pin, exit, box)))) return null;
+  if (leads.some(({ pin, exit }) => obstacles.some(box => hits(pin, exit, box)) || wireBlocked(pin,exit,pin,segments))) return null;
   const boxes = [...obstacles, body];
   const coordinates = (axis: "x" | "y") => {
-    const edges = boxes.flatMap(box => axis === "x" ? [box.left - 8, box.right + 8] : [box.top - 8, box.bottom + 8]);
+    const edges = [...boxes,...segments].flatMap(box => axis === "x" ? [box.left - 8, box.right + 8] : [box.top - 8, box.bottom + 8]);
     const ports = leads.flatMap(({ node, exit }) => [node[axis], exit[axis]]);
     return [...new Set([...ports, ...edges])].sort((a,b) => a-b);
   };
@@ -52,12 +73,16 @@ export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: Ro
         for (let cursor: number | undefined = state; cursor !== undefined; cursor = parents.get(cursor)) {
           route.push(points[Math.floor(cursor/3)]);
         }
-        return route.reverse();
+        return route.reverse().filter((point,i,list)=>{
+          const previous=list[i-1], next=list[i+1];
+          return !previous || !next || !((previous.x===point.x&&next.x===point.x)||
+            (previous.y===point.y&&next.y===point.y));
+        });
       }
       open.delete(state);
       for (const next of edges[i]) {
         const a = points[i], b = points[next];
-        if (forbidden.some(box => hits(a,b,box))) continue;
+        if (forbidden.some(box => hits(a,b,box)) || wireBlocked(a,b,lead.node,segments)) continue;
         if (next === goal && (a.x-b.x)*(lead.pin.x-b.x)+(a.y-b.y)*(lead.pin.y-b.y) > 0) continue;
         const heading = a.x === b.x ? 1 : 2;
         const key = next*3+heading;
@@ -87,7 +112,6 @@ export function leadPath(points: RoutingPoint[]) {
   return points.map(({x,y},i) => (i === 0 ? "M" : "L") + x + " " + y).join("");
 }
 
-
 export function symbolBounds(center: RoutingPoint, angle: number, pins: [number, number], halfHeight: number): RoutingBox {
   const radians = angle*Math.PI/180;
   const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
@@ -98,8 +122,8 @@ export function symbolBounds(center: RoutingPoint, angle: number, pins: [number,
     top:Math.min(...corners.map(p=>p.y)),bottom:Math.max(...corners.map(p=>p.y))};
 }
 
-export function routeSymbolLeads(nodes: [RoutingPoint, RoutingPoint], center: RoutingPoint,
-  angle: number, pins: [number, number], halfHeight: number, obstacles: RoutingBox[] = []) {
+export function routeSymbolPaths(nodes: [RoutingPoint, RoutingPoint], center: RoutingPoint,
+  angle: number, pins: [number, number], halfHeight: number, obstacles: RoutingBox[] = [], wires: RoutedWire[] = []) {
   const radians = angle*Math.PI/180;
   const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
   const at = (distance: number) => ({x:center.x+distance*dx,y:center.y+distance*dy});
@@ -108,5 +132,5 @@ export function routeSymbolLeads(nodes: [RoutingPoint, RoutingPoint], center: Ro
   return routeLeadPair([
     {node:nodes[0],pin:at(pins[0]),exit:at(pins[0]-10)},
     {node:nodes[1],pin:at(pins[1]),exit:at(pins[1]+10)},
-  ],obstacles,body)?.map(leadPath) ?? null;
+  ],obstacles,body,wires);
 }

@@ -455,7 +455,12 @@ test("compound load and bridge movement preserve the exported electrical model",
   await page.mouse.move(p.x,p.y);await page.mouse.down();await page.mouse.move(p.x+dx,p.y+dy,{steps:8});await page.mouse.up();
  }
  const before=await child.getAttribute("d");
- await drag(child.locator("..").locator("rect.network-svg-hit"),35,-40);
+ const handle=child.locator("..").locator("rect.network-svg-hit");
+ const origin=await middle(handle);
+ const sibling=await middle(field.locator('[data-compound-leads="R1"]').locator("..").locator("rect.network-svg-hit"));
+ await drag(handle,sibling.x-origin.x,sibling.y-origin.y);
+ await expect(child).toHaveAttribute("d",before!);
+ await drag(handle,24,0);
  await expect(child).not.toHaveAttribute("d",before!);
  const bridge=field.locator('[data-contact="R3"]');
  await drag(bridge.locator("rect.network-svg-hit"),25,20);

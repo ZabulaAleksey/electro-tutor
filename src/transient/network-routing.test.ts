@@ -48,3 +48,21 @@ describe("terminal lead routing", () => {
     ],[box(40,34,4,4)],box(40,50,8,10))).toBeNull();
   });
 });
+
+
+it("routes around a laid conductor and meets a shared node only at the endpoint",()=>{
+  const body=box(90,50,10,15);
+  const leads:[{node:RoutingPoint;pin:RoutingPoint;exit:RoutingPoint},{node:RoutingPoint;pin:RoutingPoint;exit:RoutingPoint}]=[
+    {node:{x:0,y:20},pin:{x:90,y:35},exit:{x:90,y:25}},
+    {node:{x:0,y:90},pin:{x:90,y:65},exit:{x:90,y:75}},
+  ];
+  const wire={points:[{x:45,y:0},{x:45,y:100}],anchors:[]};
+  const shared={points:[{x:0,y:20},{x:25,y:20}],anchors:[{x:0,y:20}]};
+  const paths=routeLeadPair(leads,[],body,[wire,shared]);
+  expect(paths).not.toBeNull();
+  const [a,b]=paths!;
+  expect(a[0]).toEqual(shared.anchors[0]);
+  expect(segments(a).every((segment,index)=>index===0||!overlaps(segment,segments(shared.points)[0]))).toBe(true);
+  expect([a,b].every(path=>segments(path).every(segment=>!overlaps(segment,segments(wire.points)[0])))).toBe(true);
+  expect(routeLeadPair(leads,[],body,[{...shared,anchors:[]}])).toBeNull();
+});

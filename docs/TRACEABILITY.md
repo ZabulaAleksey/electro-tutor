@@ -6,6 +6,8 @@ LINE-UX-023 → network-routing.ts и NetworkWorkbench → network-routing.test.
 
 LINE-UX-025 → network-load-layout.ts, NetworkEditor и NetworkWorkbench → network-load-layout.test.ts и передвижение с экспортом модели в transmission-workbench.spec.ts. LINE-UX-026 → TransmissionNetworkLab → сценарий MCP и измерений в transmission-editor-duration.spec.ts.
 
+LINE-UX-027 → network-routing.ts, NetworkWorkbench и network-load-layout.ts → network-routing.test.ts, network-load-layout.test.ts и проверка JSON модели после перемещения. LINE-UX-028 → network-experiment.ts и TransmissionNetworkLab → network-experiment.test.ts и проверка скачанных JSON/CSV при зуме ×50.
+
 ## ET-LAB-020 — Монтаж и длительность
 
 LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.

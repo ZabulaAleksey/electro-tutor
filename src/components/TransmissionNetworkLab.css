@@ -63,7 +63,7 @@
 .network-speed-choice{display:flex;align-items:center;justify-content:center;gap:4px;font-size:.78rem}
 .network-lab .network-speed-choice select{min-height:44px;padding:4px}
 .network-timing{pointer-events:auto;max-width:530px;margin:0 auto!important;color:var(--ink);text-align:right}
-.network-timing summary{width:max-content;margin-left:auto;padding:2px 10px;border-radius:8px 8px 0 0;background:var(--surface-elevated);cursor:pointer}
+.network-timing summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;padding:2px 10px;border-radius:8px 8px 0 0;background:var(--surface-elevated);cursor:pointer}
 .network-timing>div{display:grid;gap:6px;text-align:left;padding:8px;background:var(--surface-elevated);border:1px solid var(--line)}
 .network-tray{position:fixed;z-index:24;left:4px;right:4px;bottom:calc(80px + env(safe-area-inset-bottom,0px));max-width:460px}
 .network-workspace{position:relative}
@@ -108,3 +108,7 @@
 @media (max-width:440px) and (min-height:620px){
  .network-lab .network-tray-parts{max-height:min(48dvh,310px)}
 }
+
+.network-timing summary:hover{background:var(--surface-plot)}
+.network-timing summary:focus-visible{outline:2px solid var(--selection);outline-offset:-2px}
+.network-timing[open] summary svg{transform:rotate(180deg)}

@@ -103,9 +103,9 @@ function shorted(l:Load):boolean{if(l.kind==="wire"||l.kind==="r"&&l.value===0)r
 export function findLoad(l:Load,id:string):Load|undefined{return l.id===id?l:l.children?.map(x=>findLoad(x,id)).find(Boolean);}
 export function totalLength(c:Network){return c.sections.reduce((n,s)=>n+s.lengthM,0);}
 export function boundaries(c:Network){let x=0;return [0,...c.sections.map(s=>x+=s.lengthM)];}
-export function historyValue(h:WaveHistory,t:number,linear=false):number{
- const tolerance=64*Number.EPSILON*Math.max(Math.abs(t),Math.abs(h.times.at(-1)??0),Number.MIN_VALUE);if(!h.times.length||t<h.times[0]-tolerance)return 0;
- let lo=0,hi=h.times.length;while(lo<hi){const m=(lo+hi)>>>1;if(h.times[m]<=t+tolerance)lo=m+1;else hi=m;}const k=Math.max(0,lo-1);
+export function historyValue(h:WaveHistory,t:number,linear=false,leftLimit=false):number{
+ const tolerance=64*Number.EPSILON*Math.max(Math.abs(t),Math.abs(h.times.at(-1)??0),Number.MIN_VALUE);if(!h.times.length)return 0;
+ let lo=0,hi=h.times.length;while(lo<hi){const m=(lo+hi)>>>1;if(leftLimit?h.times[m]<t-tolerance:h.times[m]<=t+tolerance)lo=m+1;else hi=m;}if(!lo)return 0;const k=lo-1;
  if(linear&&k+1<h.times.length&&t>h.times[k]){const f=(t-h.times[k])/(h.times[k+1]-h.times[k]);return h.values[k]*(1-f)+h.values[k+1]*f;}return h.values[k];
 }
 function push(h:{times:number[];values:number[]},t:number,v:number){const n=h.times.length;if(n&&Math.abs(h.times[n-1]-t)<1e-15){h.values[n-1]=v;return;}h.times.push(t);h.values.push(v);}
@@ -418,7 +418,7 @@ function incidentAt(c:Network,ports:WaveHistory[],p:number,time:number,linear:bo
  const s=c.sections[p>>1];
  return historyValue(ports[p^1],time-s.lengthM/s.velocityMS,linear)*attenuation(s,s.lengthM);
 }
-function atSection(run:WaveRun,j:number,local:number,t:number):WaveValue{const s=run.config.sections[j],linear=run.method!=="exact-fronts",forward=historyValue(run.ports[2*j],t-local/s.velocityMS,linear)*attenuation(s,local),backward=historyValue(run.ports[2*j+1],t-(s.lengthM-local)/s.velocityMS,linear)*attenuation(s,s.lengthM-local);return{u:forward+backward,i:(forward-backward)/s.impedanceOhm,forward,backward,forwardI:forward/s.impedanceOhm,backwardI:-backward/s.impedanceOhm,section:j};}
+function atSection(run:WaveRun,j:number,local:number,t:number,leftLimit=false):WaveValue{const s=run.config.sections[j],linear=run.method!=="exact-fronts",forward=historyValue(run.ports[2*j],t-local/s.velocityMS,linear,leftLimit)*attenuation(s,local),backward=historyValue(run.ports[2*j+1],t-(s.lengthM-local)/s.velocityMS,linear,leftLimit)*attenuation(s,s.lengthM-local);return{u:forward+backward,i:(forward-backward)/s.impedanceOhm,forward,backward,forwardI:forward/s.impedanceOhm,backwardI:-backward/s.impedanceOhm,section:j};}
 export function at(run:WaveRun,x:number,t:number):WaveValue{const c=run.config;let left=0,j=0;for(;j<c.sections.length-1&&x>left+c.sections[j].lengthM+1e-9;j++)left+=c.sections[j].lengthM;return atSection(run,j,Math.max(0,Math.min(c.sections[j].lengthM,x-left)),t);}
 export type Quantity="u"|"i"|"forward"|"backward"|"forwardI"|"backwardI";
 export function spatial(run:WaveRun,t:number,quantity:Quantity="u"):readonly[number,number][]{
@@ -454,7 +454,7 @@ export function* fullTimeTrace(run:WaveRun,x:number,quantity:Quantity="u",start=
   if(f===t)i++;
   if(r===t)k++;
   if(t<=start)continue;
-  if(run.method==="exact-fronts")yield [t,atSection(run,j,local,Math.max(start,t-Math.max(1e-14,Math.abs(t)*2e-15)))[quantity]];
+  if(run.method==="exact-fronts")yield [t,atSection(run,j,local,t,true)[quantity]];
   yield [t,atSection(run,j,local,t)[quantity]];
   if(t===end)return;
  }

@@ -133,3 +133,36 @@ test("the lab announces MCP without adding a control and keeps measurements avai
  await expect(page.getByRole("heading",{name:"Измерения",exact:true})).toBeVisible();
  await expect(page.getByText("Расчёт готов",{exact:true})).toHaveCount(0);
 });
+
+
+test("duration accepts units and both result downloads cover the full experiment",async({page},testInfo)=>{
+ const {readFile}=await import("node:fs/promises");
+ await page.goto(path);await ready(page);
+ const summary=page.locator(".network-timing summary");
+ await summary.press("Enter");
+ const duration=page.getByRole("textbox",{name:"Длительность расчёта"});
+ await duration.fill("12,5 мс");
+ await duration.press("Enter");
+ await ready(page);
+ await expect(duration).toHaveValue("12,5 ms");
+ await page.getByLabel("Окно времени").selectOption("50");
+ await expect(page.getByLabel("Центр окна")).toHaveAttribute("max","0.0125");
+ await page.getByText("Экспорт результатов",{exact:true}).click();
+ const download=async(format:"JSON"|"CSV")=>{
+  const event=page.waitForEvent("download");
+  await page.getByRole("button",{name:format,exact:true}).click();
+  const file=testInfo.outputPath("result."+format.toLowerCase());
+  await (await event).saveAs(file);
+  return readFile(file,"utf8");
+ };
+ const json=JSON.parse(await download("JSON"));
+ expect(json.schema).toBe("electrotutor-line-experiment-v1");
+ expect(json.circuit.model.durationS).toBe(.0125);
+ expect(json.units).toEqual({position:"m",time:"s",voltage:"V",current:"A"});
+ expect(json.measurements[0][0]).toBe(0);
+ expect(json.measurements.at(-1)[0]).toBe(.0125);
+ expect(json.measurements.some((row:number[])=>row[1]!==0)).toBe(true);
+ const [header,...rows]=(await download("CSV")).split("\n");
+ expect(header).toBe("time_s,voltage_V,current_A");
+ expect(rows.map(row=>row.split(",").map(Number))).toEqual(json.measurements);
+});

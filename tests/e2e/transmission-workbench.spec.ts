@@ -237,7 +237,7 @@ test("visual series key changes both the symbol and worker result at the schedul
 });
 
 
-test("selects both bridge ends, switches the branch and restores its v3 JSON",async({page})=>{
+test("selects both bridge ends, switches the branch and restores its v3 JSON",async({page},testInfo)=>{
  await page.goto(path);
  await ready(page);
  const scheme=canvas(page);
@@ -265,14 +265,16 @@ test("selects both bridge ends, switches the branch and restores its v3 JSON",as
  const downloaded=page.waitForEvent("download");
  await page.getByRole("button",{name:"Сохранить схему"}).click();
  const file=await downloaded;
- const json=JSON.parse(await (await import("node:fs/promises")).readFile((await file.path())!,"utf8"));
+ const exportedPath=testInfo.outputPath("transmission-line.json");
+ await file.saveAs(exportedPath);
+ const json=JSON.parse(await (await import("node:fs/promises")).readFile(exportedPath,"utf8"));
  expect(json.schema).toBe("electrotutor-line-v3");
  expect(json.model.branches).toEqual([{id:"R1",from:0,to:1,resistanceOhm:80,switch:{closed:true}}]);
  await page.locator('input[type="file"]').setInputFiles({name:"legacy.json",mimeType:"application/json",
   buffer:Buffer.from(JSON.stringify({schema:"electrotutor-line-v2",model:{...json.model,branches:undefined},layout:{}}))});
  await ready(page);
  await expect(key).toHaveCount(0);
- await page.locator('input[type="file"]').setInputFiles((await file.path())!);
+ await page.locator('input[type="file"]').setInputFiles(exportedPath);
  await ready(page);
  await expect(key).toHaveAttribute("data-closed","true");
 });

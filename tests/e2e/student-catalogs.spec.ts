@@ -18,7 +18,7 @@ test("home uses the shared student shell and three editorial section links", asy
 test("laboratory catalogue keeps real tool links and honest services state", async ({ page }) => {
   await page.goto("/ru/interactive/");
   await expect(page.getByRole("heading", { name: "Лаборатории", exact: true })).toBeVisible();
-  await expect(page.locator("#labs [data-directory-entry]")).toHaveCount(35);
+  await expect(page.locator("#labs [data-directory-entry]")).toHaveCount(36);
   expect(await page.locator("h1").evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeLessThanOrEqual(44);
   await expect(page.locator("#labs a[href$='/interactive/star-neutral/']")).toBeVisible();
   await expect(page.locator("#labs a[data-registered-content][href$='/board/']")).toBeVisible();
@@ -52,7 +52,8 @@ test("catalogue links fit on a phone and remain stable under either OS appearanc
     await page.goto(`/${lang}/interactive/`);
     const links = page.locator("#labs a[data-registered-content]");
     const before = await links.evaluateAll(nodes => nodes.map(node => node.getAttribute("href")));
-    expect(before).toHaveLength(lang === "ru" ? 35 : 34);
+    expect(before).toHaveLength(lang === "ru" ? 36 : 35);
+    expect(before).toContain(`/${lang}/interactive/reactive-two-port/`);
     expect(new Set(before).size).toBe(before.length);
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");

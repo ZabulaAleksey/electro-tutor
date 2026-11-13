@@ -5,7 +5,7 @@ test("laboratory catalogue keeps real items, subject groups, and direct links", 
   await page.goto("/ru/interactive/");
   const catalogue = page.locator("#labs");
   const entries = catalogue.locator("[data-directory-entry]");
-  await expect(entries).toHaveCount(35);
+  await expect(entries).toHaveCount(36);
   const electronics = catalogue.locator("details").filter({ has: page.getByText("Электроника", { exact: true }) });
   await expect(electronics.locator("[data-directory-entry]")).toHaveCount(2);
   await electronics.locator("summary").click();

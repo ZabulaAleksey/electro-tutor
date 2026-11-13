@@ -38,7 +38,8 @@ test("all registered experiments and tools resolve once in the laboratory catalo
   await page.goto("/ru/interactive/");
   links.push(...await page.locator("#labs [data-registered-content]").evaluateAll(elements =>
     elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
-  expect(links).toHaveLength(35);
+  expect(links).toHaveLength(36);
+  expect(links).toContain("/ru/interactive/reactive-two-port/");
   expect(new Set(links).size).toBe(links.length);
   const paths = new Set<string>();
   for (const href of links) {

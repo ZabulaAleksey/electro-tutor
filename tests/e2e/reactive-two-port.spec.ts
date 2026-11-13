@@ -23,7 +23,7 @@ test("catalogue opens the LC experiment and a change moves the analytical resona
  expect(errors).toEqual([]);
 });
 
-test("a mobile user changes topology, opens a reduction and exchanges a validated document",async({browser})=>{
+test("a mobile user changes topology, opens a reduction and exchanges a validated document",async({browser},testInfo)=>{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const page=await context.newPage();
  await page.goto(route);
@@ -41,7 +41,9 @@ test("a mobile user changes topology, opens a reduction and exchanges a validate
  await page.getByRole("button",{name:"Один элемент"}).tap();
  await expect(pole).toHaveCount(0);
  const input=page.locator('input[type="file"]');
- await input.setInputFiles((await exported.path())!);
+ const exportedPath=testInfo.outputPath("reactive-two-port.json");
+ await exported.saveAs(exportedPath);
+ await input.setInputFiles(exportedPath);
  await expect(pole).toHaveAttribute("data-omega","1000");
  await input.setInputFiles({name:"broken.json",mimeType:"application/json",buffer:Buffer.from('{"schema":"electrotutor-reactive-two-port-v1","circuit":{"kind":"l","value":0}}')});
  await expect(page.getByRole("status").filter({hasText:"Файл не соответствует формату LC."})).toBeVisible();

@@ -208,6 +208,7 @@ for (const returnToButton of [false,true]) {
       const start={x:returnToButton?button.x+button.width/2:button.x+6,y:button.y+button.height/2,radiusX:1,radiusY:1};
       const outside={...start,x:button.x-4};
       await confirm.evaluate((element,{start,outside})=>{
+        if(!(element instanceof HTMLButtonElement))throw Error("Expected the Insert button");
         if(!element.contains(document.elementFromPoint(start.x,start.y))||
           element.contains(document.elementFromPoint(outside.x,outside.y)))throw Error("Unexpected touch hit targets");
         element.addEventListener("pointerdown",event=>{

@@ -185,33 +185,55 @@ test("the first touch on Insert commits the drawn wire between its terminals", a
   } finally { await context.close(); }
 });
 
-test("sliding a finger away from Insert leaves the stroke pending", async ({ browser }) => {
-  const context = await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
-  try {
-    const page = await context.newPage();
-    await page.goto(route);
-    await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
-    await drawing(page).tap();
-    await stroke(page,[[90,205],[160,275]]);
-    await expect(kind(page)).toHaveValue("wire");
-    const button = (await insert(page).boundingBox())!;
-    const start = {x:button.x+button.width-2,y:button.y+button.height/2};
-    const touch = await context.newCDPSession(page);
-    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[start]});
-    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:start.x+5,y:start.y}]});
-    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
-    await expect(insert(page)).toBeEnabled();
-    await expect(page.locator("[data-detached]")).toHaveCount(0);
-    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[start]});
-    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:start.x-24,y:start.y}]});
-    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[start]});
-    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
-    await expect(insert(page)).toBeEnabled();
-    await expect(page.locator("[data-detached]")).toHaveCount(0);
-    await insert(page).tap();
-    await expect(page.locator("[data-detached=wire]")).toHaveCount(1);
-  } finally { await context.close(); }
-});
+for (const returnToButton of [false,true]) {
+  test("sliding a finger off Insert leaves the stroke pending " + (returnToButton ? "after returning" : "after releasing outside"),async({browser})=>{
+    const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
+    try {
+      const page=await context.newPage();
+      await page.goto(route);
+      await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
+      await drawing(page).tap();
+      const canvas=page.locator("[data-network-canvas]");
+      await canvas.scrollIntoViewIfNeeded();
+      const rect=(await canvas.boundingBox())!;
+      const touch=await context.newCDPSession(page);
+      await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:rect.x+90,y:rect.y+205}]});
+      await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:rect.x+160,y:rect.y+275}]});
+      await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+      await expect(kind(page)).toHaveValue("wire");
+
+      const confirm=insert(page);
+      await confirm.scrollIntoViewIfNeeded();
+      const button=(await confirm.boundingBox())!;
+      const start={x:returnToButton?button.x+button.width/2:button.x+6,y:button.y+button.height/2,radiusX:1,radiusY:1};
+      const outside={...start,x:button.x-4};
+      await confirm.evaluate((element,{start,outside})=>{
+        if(!element.contains(document.elementFromPoint(start.x,start.y))||
+          element.contains(document.elementFromPoint(outside.x,outside.y)))throw Error("Unexpected touch hit targets");
+        element.addEventListener("pointerdown",event=>{
+          if(event.pointerType==="touch")element.dataset.testTouchStarted="true";
+        });
+        element.addEventListener("pointermove",event=>{
+          if(event.pointerType==="touch"&&Math.abs(event.clientX-start.x)>=8)element.dataset.testTouchMoved="true";
+        });
+        element.addEventListener("pointercancel",event=>{
+          if(event.pointerType==="touch")element.dataset.testTouchMoved="true";
+        });
+      },{start,outside});
+      await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[start]});
+      await expect(confirm).toHaveAttribute("data-test-touch-started","true");
+      await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[outside]});
+      await expect(confirm).toHaveAttribute("data-test-touch-moved","true");
+      if(returnToButton)await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[start]});
+      await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+      await expect(kind(page)).toHaveValue("wire");
+      await expect(confirm).toBeEnabled();
+      await expect(canvas.locator("[data-detached]")).toHaveCount(0);
+      await confirm.tap();
+      await expect(canvas.locator("[data-detached=wire]")).toHaveCount(1);
+    } finally { await context.close(); }
+  });
+}
 
 test("a straight ink stroke between named circuit nodes creates an explicit bridge", async ({ page }, testInfo) => {
   await page.setViewportSize({width:1000,height:900});

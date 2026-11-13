@@ -10,6 +10,12 @@
 .fourier-heading h2 {font-size:1.3rem;margin:1rem 0 .3rem}
 .fourier-heading p {margin:0 0 1rem;color:var(--muted)}
 .fourier-status {font-size:.75rem;border:1px solid var(--line);padding:.4rem .7rem;border-radius:2rem;white-space:nowrap}
+.fourier-custom label{display:grid;gap:4px}
+.fourier-custom textarea{width:100%;min-height:5rem;resize:vertical}
+.fourier-custom-legend{display:flex;gap:8px;flex-wrap:wrap}
+.fourier-comparison table{width:100%;border-collapse:collapse;text-align:start}
+.fourier-comparison th,.fourier-comparison td{text-align:start;padding:6px;border-bottom:1px solid var(--line)}
+.fourier-toolbar label{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .fourier-toolbar,.fourier-view-controls,.playground-controls {display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:.7rem 0}
 .fourier-lab button,.fourier-lab select,.fourier-lab input[type=number] {font:inherit;color:var(--ink);background:var(--surface-elevated);border:1px solid var(--line);border-radius:.5rem;padding:.5rem .65rem;min-height:40px;max-width:100%}
 .fourier-lab button {cursor:pointer}.fourier-lab button:hover {border-color:var(--blue)}

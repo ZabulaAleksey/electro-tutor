@@ -1,0 +1,22 @@
+import {expect,test} from "@playwright/test";
+test("line parameters apply distributed attenuation and survive reload",async({page})=>{
+ await page.goto("/ru/interactive/transmission-line/");
+ const lab=page.locator("[data-network-lab]");
+ await expect(lab).toHaveAttribute("data-calculation-ready","true");
+ await page.locator("[data-line-section=TL1]").press("Enter");
+ await page.getByText("Параметры распространения",{exact:true}).click();
+ const loss=page.getByLabel("R′, Ω/km");
+ await loss.fill(String(50*Math.log(2)/1000));
+ await expect(lab).toHaveAttribute("data-calculation-ready","true");
+ await expect(page.locator(".network-inspector")).toContainText("R′/L′ = G′/C′");
+ await page.locator(".network-tray-close").click();
+ await page.getByRole("slider",{name:"Точка наблюдения x"}).press("End");
+ await page.locator(".network-timing summary").click();
+ await page.getByLabel("Физическое время t, ms").fill("6");
+ await expect.poll(async()=>Number(await lab.getAttribute("data-probe-u"))).toBeCloseTo(100,6);
+ await page.reload();
+ await expect(lab).toHaveAttribute("data-calculation-ready","true");
+ await page.locator("[data-line-section=TL1]").press("Enter");
+ await page.getByText("Параметры распространения",{exact:true}).click();
+ await expect.poll(async()=>Number(await loss.inputValue())).toBeCloseTo(50*Math.log(2)/1000,12);
+});

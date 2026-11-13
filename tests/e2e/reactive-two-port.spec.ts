@@ -1,0 +1,54 @@
+import {expect,test} from "@playwright/test";
+
+const route="/ru/interactive/reactive-two-port/";
+test("catalogue opens the LC experiment and a change moves the analytical resonance",async({page})=>{
+ const errors:string[]=[];
+ page.on("pageerror",error=>errors.push(error.message));
+ await page.goto("/ru/interactive/");
+ await page.locator('a[href$="/interactive/reactive-two-port/"]').first().click();
+ await expect(page).toHaveURL(route);
+ await expect(page.locator("[data-lc-ready]")).toHaveAttribute("data-lc-ready","true");
+ const zero=page.locator('[data-lc-resonance="zero"]');
+ await expect(zero).toHaveAttribute("data-omega","1000");
+ await expect(page.getByRole("img",{name:"X(ω)",exact:true})).toBeVisible();
+ await expect(page.locator("[data-plot-curve]")).toHaveCount(2);
+ await expect(page.locator("[data-lc-formula]")).toContainText("(20q^2 + 20) / (q)");
+ await page.getByLabel("Номинал C, µF").fill("200");
+ await expect(zero).toHaveAttribute("data-omega","500");
+ await zero.click();
+ await expect(page.locator("[data-lc-cursor]")).toContainText("X = 0 Ω");
+ await page.reload();
+ await expect(page.getByLabel("Номинал C, µF")).toHaveValue("200");
+ await expect(zero).toHaveAttribute("data-omega","500");
+ expect(errors).toEqual([]);
+});
+
+test("a mobile user changes topology, opens a reduction and exchanges a validated document",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ await page.goto(route);
+ await expect(page.locator("[data-lc-ready]")).toHaveAttribute("data-lc-ready","true");
+ await page.getByRole("button",{name:"Параллельный LC",exact:true}).tap();
+ const pole=page.locator('[data-lc-resonance="pole"]');
+ await expect(pole).toHaveAttribute("data-omega","1000");
+ await pole.tap();
+ await expect(page.locator("[data-lc-cursor]")).toContainText("|X| → ∞");
+ await page.locator(".lc-steps summary").tap();
+ await expect(page.locator(".lc-steps")).toContainText("Z₁Z₂");
+ const download=page.waitForEvent("download");
+ await page.getByRole("button",{name:"Скачать JSON"}).tap();
+ const exported=await download;
+ await page.getByRole("button",{name:"Один элемент"}).tap();
+ await expect(pole).toHaveCount(0);
+ const input=page.locator('input[type="file"]');
+ await input.setInputFiles((await exported.path())!);
+ await expect(pole).toHaveAttribute("data-omega","1000");
+ await input.setInputFiles({name:"broken.json",mimeType:"application/json",buffer:Buffer.from('{"schema":"electrotutor-reactive-two-port-v1","circuit":{"kind":"l","value":0}}')});
+ await expect(page.getByRole("status").filter({hasText:"Файл не соответствует формату LC."})).toBeVisible();
+ await expect(pole).toHaveAttribute("data-omega","1000");
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+ await page.goto("/uk/interactive/reactive-two-port/");
+ await expect(page.getByRole("heading",{name:"Реактивний двополюсник"})).toBeVisible();
+ await expect(page.getByRole("button",{name:"Паралельний LC",exact:true})).toBeVisible();
+ await context.close();
+});

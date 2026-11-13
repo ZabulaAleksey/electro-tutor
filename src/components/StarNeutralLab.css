@@ -11,6 +11,11 @@
 .star-presets > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .star-presets button, .star-plot-actions button { border: 1px solid var(--line); background: var(--white); padding: 8px 11px; border-radius: 8px; cursor: pointer; }
 .star-presets button:hover, .star-plot-actions button:hover { border-color: var(--green); }
+.star-line-results table{width:100%;border-collapse:collapse;text-align:start}
+.star-line-results th,.star-line-results td{text-align:start;border-bottom:1px solid var(--line);padding:7px}
+.star-practice-plane{width:min(100%,300px);height:auto;background:var(--surface-plot);cursor:crosshair}
+.star-topology{max-width:260px;margin:0}
+.star-source-fields{display:grid;gap:8px;margin:10px 0}
 .star-top-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .star-card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 15px; background: var(--white); }
 .star-card h2 { font-size: 20px; margin: 0 0 17px; }

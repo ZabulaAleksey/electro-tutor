@@ -1,9 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { complexMagnitude } from "./circular-diagram";
 import {
-  calculateStar, polarToRectangular, rectangularToPolar, STAR_PRESETS,
+  calculateDelta, calculateStar, readThreePhaseDraft, polarToRectangular, rectangularToPolar, STAR_PRESETS,
   type StarParameters,
 } from "./star-neutral";
+
+it("solves balanced delta magnitudes and unbalanced current balance",()=>{
+ const balanced=calculateDelta(STAR_PRESETS.balanced);
+ if(!balanced.ok)throw Error("delta failed");
+ expect(complexMagnitude(balanced.result.voltages.A)).toBeCloseTo(230*Math.sqrt(3),10);
+ expect(complexMagnitude(balanced.result.currents.A)).toBeCloseTo(5*Math.sqrt(3),10);
+ expect(complexMagnitude(balanced.result.lineCurrents!.A)).toBeCloseTo(15,10);
+ const parameters={...STAR_PRESETS.unbalanced,source:{
+  A:{magnitude:180,angle:5},B:{magnitude:210,angle:-100},C:{magnitude:250,angle:95}
+ }};
+ const unbalanced=calculateDelta(parameters);
+ if(!unbalanced.ok)throw Error("unbalanced delta failed");
+ const {lineCurrents,currents,voltages}=unbalanced.result;
+ expect(voltages.A.re).toBeCloseTo(180*Math.cos(5*Math.PI/180)-210*Math.cos(-100*Math.PI/180),10);
+ expect(lineCurrents!.A.re).toBeCloseTo(currents.A.re-currents.C.re,10);
+ expect(lineCurrents!.A.im+lineCurrents!.B.im+lineCurrents!.C.im).toBeCloseTo(0,10);
+ expect(lineCurrents!.A.re+lineCurrents!.B.re+lineCurrents!.C.re).toBeCloseTo(0,10);
+ expect(readThreePhaseDraft({version:1,topology:"delta",parameters})?.parameters.source).toEqual(parameters.source);
+ expect(readThreePhaseDraft({version:1,topology:"delta",parameters:{...parameters,source:{A:{magnitude:180,angle:181}}}})).toBeNull();
+});
 
 const expectNear = (actual: number, expected: number, tolerance = 1e-8) =>
   expect(Math.abs(actual - expected)).toBeLessThan(tolerance);

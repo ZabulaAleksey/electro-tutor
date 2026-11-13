@@ -6,7 +6,7 @@ import {downloadSvg} from "../engineering/exportSvg";
 import {useLocalZoom} from "../engineering/useLocalZoom";
 import {zoomAt} from "../engineering/gestures";
 import {surfaceFaces} from "./network-surface";
-import {at,boundaries,spatial,totalLength,type WaveRun} from "./network";
+import {at,boundaries,hasLineLoss,spatial,totalLength,type WaveRun} from "./network";
 export default function NetworkSurface({run,time,probe,quantity,domain,language,onProbe}:{run:WaveRun;time:number;probe:number;quantity:"u"|"i";domain:readonly[number,number];language:Language;onProbe:(x:number)=>void}){
  const ru=language==="ru",[angle,setAngle]=useState(-.55),[zoom,setZoom]=useState(1),[pan,setPan]=useState({x:0,y:0});const svg=useRef<SVGSVGElement>(null),drag=useRef<{x:number;y:number;a:number;pan:{x:number;y:number};shift:boolean}|null>(null),faces=useMemo(()=>surfaceFaces(run,quantity),[run,quantity]);
  useLocalZoom(svg,(anchor,factor)=>{const value=zoomAt(zoom,pan,anchor,{x:350,y:295},factor,.45,1.5);setZoom(value.zoom);setPan(value.pan);},!!faces);
@@ -31,6 +31,6 @@ export default function NetworkSurface({run,time,probe,quantity,domain,language,
    <g fill="var(--ink)" fontSize="11">{xs.map(x=>{const p=project(x,0,domain[0]);return <text key={x} x={p[0]} y={p[1]+15}>{n(inEngineeringUnit(x,xu),language)}</text>;})}{ts.map(t=>{const p=project(0,t,domain[0]);return <text key={t} x={p[0]-27} y={p[1]+4}>{n(inEngineeringUnit(t,tu),language)}</text>;})}{zs.map(z=>{const p=project(0,0,z);return <text key={z} x={p[0]-40} y={p[1]+4}>{n(inEngineeringUnit(z,unit),language)}</text>;})}<text x="530" y="390">x, {xu.symbol}</text><text x="110" y="390">t, {tu.symbol}</text><text x="100" y="35">{quantity.toUpperCase()}, {unit.symbol}</text><text x="25" y="418">{ru?"Количественная шкала":"Кількісна шкала"}: {n(inEngineeringUnit(domain[0],unit),language)} … {n(inEngineeringUnit(domain[1],unit),language)} {unit.symbol}</text></g>
    <g>{Array.from({length:20},(_,k)=><rect key={k} x={360+k*10} y="407" width="10" height="8" fill={color(domain[0]+(domain[1]-domain[0])*k/19)}/>)}</g>
   </svg>
-  <p className="network-note">{run.method==="exact-fronts"?(ru?"Плоские области разделены физическими фронтами; 2D остаётся точным сечением.":"Плоскі області розділено фізичними фронтами; 2D лишається точним перерізом."):(ru?"Численная поверхность по данным расчёта; цвет и высота — количественные. Точные отсчёты — в 2D.":"Чисельна поверхня за даними розрахунку; колір і висота — кількісні. Точні відліки — у 2D.")}</p>
+  <p className="network-note">{run.method==="exact-fronts"&&!hasLineLoss(run.config)?(ru?"Плоские области разделены физическими фронтами; 2D остаётся точным сечением.":"Плоскі області розділено фізичними фронтами; 2D лишається точним перерізом."):(ru?"Численная поверхность по данным расчёта; цвет и высота — количественные. Точные отсчёты — в 2D.":"Чисельна поверхня за даними розрахунку; колір і висота — кількісні. Точні відліки — у 2D.")}</p>
  </div>;
 }

@@ -1,12 +1,29 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCircularDiagramModel,
+  locusGeometry,
   complexFromPolar,
   currentAtResistance,
   resistanceFromPosition,
   type CircularDiagramParameters,
   type Complex,
 } from "./circular-diagram";
+
+it("puts the endpoint and independent finite-load samples on the analytical circle",()=>{
+  const i0={re:0,im:0},ik={re:2,im:0};
+  const geometry=locusGeometry(i0,ik,60);
+  if(geometry.kind!=="circle")throw Error("circle expected");
+  expect(geometry.center.re).toBeCloseTo(1,12);
+  expect(geometry.center.im).toBeCloseTo(-1/Math.sqrt(3),12);
+  expect(geometry.radius).toBeCloseTo(2/Math.sqrt(3),12);
+  for(const r of [0,.2,4,7,100,Infinity]){
+    const current=currentAtResistance(i0,ik,{re:2,im:2*Math.sqrt(3)},0,r)!;
+    expect(Math.hypot(current.re-geometry.center.re,current.im-geometry.center.im)).toBeCloseTo(geometry.radius,12);
+  }
+  expect(locusGeometry(i0,ik,0)).toEqual({kind:"line"});
+  expect(locusGeometry(i0,ik,180)).toEqual({kind:"line"});
+  expect(locusGeometry(i0,i0,60)).toEqual({kind:"point"});
+});
 
 const defaultParameters: CircularDiagramParameters = {
   i0Magnitude: 1.5,

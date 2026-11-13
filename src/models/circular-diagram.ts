@@ -19,7 +19,23 @@ export type CircularDiagramParameters = {
   position: number;
 };
 
+export type LocusGeometry = {kind:"point"|"line"} | {kind:"circle";center:Complex;radius:number};
+
+export function locusGeometry(i0:Complex,ik:Complex,relativeAngle:number):LocusGeometry{
+  const chord=subtractComplex(ik,i0);
+  const length=complexMagnitude(chord);
+  if(length<=Number.EPSILON*Math.max(complexMagnitude(i0),complexMagnitude(ik))*8)return {kind:"point"};
+  const angle=relativeAngle*DEGREES_TO_RADIANS,sine=Math.sin(angle);
+  if(Math.abs(sine)<1e-12)return {kind:"line"};
+  const halfCotangent=Math.cos(angle)/(2*sine);
+  return {kind:"circle",center:{
+    re:(i0.re+ik.re)/2+chord.im*halfCotangent,
+    im:(i0.im+ik.im)/2-chord.re*halfCotangent,
+  },radius:length/(2*Math.abs(sine))};
+}
+
 export type CircularDiagramModel = {
+  geometry:LocusGeometry;
   i0: Complex;
   ik: Complex;
   current: Complex | null;
@@ -181,5 +197,5 @@ export function buildCircularDiagramModel(
     return `${command}${plotPoint.x.toFixed(2)},${plotPoint.y.toFixed(2)}`;
   }).join(" ");
 
-  return { i0, ik, current, resistance, extent, scale, xy, path };
+  return { i0, ik, current, resistance, extent, scale, xy, path, geometry:locusGeometry(i0,ik,outputImpedanceAngle-loadAngle) };
 }

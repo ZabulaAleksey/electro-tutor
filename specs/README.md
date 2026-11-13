@@ -19,6 +19,7 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/context-automation.spec.md` | Действует | Project overlay и запуск следующего этапа одной командой |
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
+| `features/reactive-two-port.spec.md` | Действует | Реактивный LC-двухполюсник, резонансы и шаги эквивалентного преобразования |
 | `features/star-neutral-phasors.spec.md` | Действует | Локальный трёхфазный интерактив: комплексные сопротивления, три режима нейтрали, векторные диаграммы и численная защита |
 | `features/transmission-line-transient.spec.md` | Действует | Rust/WASM Worker transient линии, Canvas эпюры и отдельные маршруты интерактивов |
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |

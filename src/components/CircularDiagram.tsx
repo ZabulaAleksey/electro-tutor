@@ -26,6 +26,10 @@ export default function CircularDiagram({ language, route = "/interactive/circul
   const [parameters, setParameters] = useState<CircularDiagramState>({
     ...CIRCULAR_DIAGRAM_DEFAULTS,
   });
+  const ru=language==="ru";
+  const t=(r:string,u:string)=>ru?r:u;
+  const [ready,setReady]=useState(false);
+  const [step,setStep]=useState<number|null>(null);
   const [urlStatus, setUrlStatus] = useState<CircularDiagramParseStatus>("valid");
 
   const writeUrl = (state: CircularDiagramState, mode: "push" | "replace") => {
@@ -47,9 +51,18 @@ export default function CircularDiagram({ language, route = "/interactive/circul
     };
 
     restoreFromLocation();
+    setReady(true);
     addEventListener("popstate", restoreFromLocation);
     return () => removeEventListener("popstate", restoreFromLocation);
   }, [pathname]);
+
+  const example=(curved:boolean)=>{
+    const next=normalizeCircularDiagramState({...CIRCULAR_DIAGRAM_DEFAULTS,i0m:0,ikm:2,ika:0,zm:4,
+      za:curved?60:0,phi:0,r:50});
+    setParameters(next);
+    setUrlStatus("valid");
+    writeUrl(next,"push");
+  };
 
   const updateParameter = (key: keyof CircularDiagramState, value: number) => {
     setParameters((current) => normalizeCircularDiagramState({ ...current, [key]: value }));
@@ -82,6 +95,19 @@ export default function CircularDiagram({ language, route = "/interactive/circul
     { id: "short", label: "Iк", value: model.ik },
     ...(model.current ? [{ id: "active", label: "I(R)", value: model.current }] : []),
   ];
+  const geometry=model.geometry;
+  const center=geometry.kind==="circle"?model.xy(geometry.center):null;
+  const end=model.xy(model.ik);
+  const centerVisible=center&&center.x>=25&&center.x<=695&&center.y>=25&&center.y<=495;
+  const visibleVectors=step===null||step===2?vectors:vectors.filter(vector=>vector.id!=="active");
+  const guide=[
+    t("I₀ соответствует разомкнутому выходу, Iк — короткому замыканию. Эти точки задают хорду годографа.","I₀ відповідає розімкненому виходу, Iк — короткому замиканню. Ці точки задають хорду годографа."),
+    geometry.kind==="circle"
+      ?t("Центр лежит на серединном перпендикуляре к хорде. Разность углов Z и нагрузки задаёт радиус.","Центр лежить на серединному перпендикулярі до хорди. Різниця кутів Z і навантаження задає радіус.")
+      :geometry.kind==="line"?t("Импедансы коллинеарны. Ток движется по прямой.","Імпеданси колінеарні. Струм рухається прямою.")
+        :t("Предельные токи совпадают. Годограф сводится к одной точке.","Граничні струми збігаються. Годограф зводиться до однієї точки."),
+    t("Изменяйте нагрузку. I(R) движется от Iк к I₀ вдоль рассчитанной траектории.","Змінюйте навантаження. I(R) рухається від Iк до I₀ уздовж розрахованої траєкторії."),
+  ];
   const axis=engineeringAxis(-model.extent,model.extent,{symmetric:true,targetTicks:7}),ticks=axis.ticks.filter(v=>Math.abs(v)<=model.extent);
   const axisUnit=chooseEngineeringUnit("A",model.extent,language);
   const field = (key: keyof CircularDiagramState) => ({
@@ -100,6 +126,20 @@ export default function CircularDiagram({ language, route = "/interactive/circul
     {urlStatus === "recovered" && <p className="circle-state-notice" role="status">
       {copy.diagram.recovered}
     </p>}
+    <div className="circle-guide">
+      <div className="circle-guide-actions">
+        <button type="button" disabled={!ready} onClick={()=>example(true)}>{t("Пример с дугой","Приклад із дугою")}</button>
+        <button type="button" disabled={!ready} onClick={()=>example(false)}>{t("Пример с прямой","Приклад із прямою")}</button>
+        <button type="button" disabled={!ready} aria-pressed={step!==null} onClick={()=>setStep(step===null?0:null)}>{t("Пошаговое построение","Покрокова побудова")}</button>
+      </div>
+      {step!==null&&<div className="circle-guide-body">
+        <p role="status"><b>{step+1}/3</b> {guide[step]}</p>
+        <div className="circle-guide-actions">
+          <button type="button" disabled={step===0} onClick={()=>setStep(step-1)}>{t("Назад","Назад")}</button>
+          <button type="button" disabled={step===2} onClick={()=>setStep(step+1)}>{t("Далее","Далі")}</button>
+        </div>
+      </div>}
+    </div>
     <div className="circle-lab-layout">
       <div className="circle-controls">
         <Group title={copy.diagram.idle}><Field label={copy.diagram.magnitude} {...field("i0m")} step={.1}/><Field label={copy.diagram.angle} {...field("i0a")} step={1}/></Group>
@@ -112,11 +152,19 @@ export default function CircularDiagram({ language, route = "/interactive/circul
           <defs>{vectors.map(v => <marker id={`arrow-${v.id}`} key={v.id} markerWidth="12" markerHeight="7" refX="10.5" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5,.8 L11,3.5 L.5,6.2 L3,3.5 Z" className={`math-arrow arrow-head ${v.id}`}/></marker>)}</defs>
           <g className="plot-grid">{ticks.map(t => { const x = model.xy({ re: t, im: 0 }).x, y = model.xy({ re: 0, im: t }).y; return <g key={t}><line x1={x} y1="25" x2={x} y2="495"/><line x1="25" y1={y} x2="695" y2={y}/>{t !== 0 && <><text x={x + 5} y="277">{formatEngineeringNumber(inEngineeringUnit(t,axisUnit),language)}</text><text x="367" y={y - 6}>{formatEngineeringNumber(inEngineeringUnit(t,axisUnit),language)}</text></>}</g>; })}</g>
           <g className="plot-axes"><line x1="25" y1="260" x2="695" y2="260"/><line x1="360" y1="25" x2="360" y2="495"/><text x="640" y="247">{`Re I, ${axisUnit.symbol}`}</text><text x="370" y="38">{`Im I, ${axisUnit.symbol}`}</text></g>
-          <path d={model.path} className="current-locus"/>
-          {vectors.map(v => { const p = model.xy(v.value); return <g className={`current-vector ${v.id}`} key={v.id}><line x1="360" y1="260" x2={p.x} y2={p.y} markerEnd={`url(#arrow-${v.id})`}/><circle cx={p.x} cy={p.y} r={v.id === "active" ? 6 : 4}/><text x={p.x + 10} y={p.y - 10}>{v.label}</text></g>; })}
+          {(step===null||step===2)&&<path d={model.path} className="current-locus"/>}
+          {step!==null&&<g className="circle-construction">
+            <line x1={model.xy(model.i0).x} y1={model.xy(model.i0).y} x2={end.x} y2={end.y}/>
+            {step>=1&&centerVisible&&<><line x1={center.x} y1={center.y} x2={end.x} y2={end.y}/>
+              <circle cx={center.x} cy={center.y} r="4"/><text x={center.x+8} y={center.y-8}>O</text></>}
+          </g>}
+          {visibleVectors.map(v => { const p = model.xy(v.value); return <g className={`current-vector ${v.id}`} key={v.id}><line x1="360" y1="260" x2={p.x} y2={p.y} markerEnd={`url(#arrow-${v.id})`}/><circle cx={p.x} cy={p.y} r={v.id === "active" ? 6 : 4}/><text x={p.x + 10} y={p.y - 10}>{v.label}</text></g>; })}
         </svg>
         <div className="circle-readout" aria-live="polite">
-          {vectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
+          {step!==null&&step>=1&&geometry.kind==="circle"&&<span data-circle-radius={geometry.radius}>
+            O = ({fmt(geometry.center.re,4)}; {fmt(geometry.center.im,4)}) A · r = {fmt(geometry.radius,4)} A
+          </span>}
+          {visibleVectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
           {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {copy.diagram.singularity}</span>}
         </div>
       </div>

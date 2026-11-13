@@ -6,16 +6,17 @@ import type { EngineeringLocale, EngineeringUnit } from "./format";
 
 export type PlotMarker = { point: PlotPoint; label: string };
 const screen = (v: number) => Number(v.toFixed(3));
-export default function EngineeringPlot({ plot, language, kind="line", compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering" }: {
+export default function EngineeringPlot({ plot, language, kind="line", compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering", selectAcrossCurves=false }: {
   kind?:"line"|"stem"; plot: EngineeringPlotData; language: EngineeringLocale; compact?: boolean; svgClass?: string; legendClass?: string;
   area?:{points:readonly PlotPoint[];baseline?:number;color?:string}; domains?: {x?:readonly[number,number];y?:readonly[number,number]}; onSelect?:(point:PlotPoint)=>void; verticals?:{x:number;label:string}[];
-  selected?: PlotPoint; characteristic?: PlotMarker; cursorTime?: number; label: string; showLegend?: boolean; gridMode?: "engineering" | "millimeter";
+  selected?: PlotPoint; characteristic?: PlotMarker; cursorTime?: number; label: string; showLegend?: boolean; gridMode?: "engineering" | "millimeter"; selectAcrossCurves?:boolean;
 }) {
   const id=useId().replace(/:/g,""), svg=useRef<SVGSVGElement>(null), units=useRef<{x?:EngineeringUnit;y?:EngineeringUnit}>({});
   const [hover,setHoverState]=useState<PlotPoint|null>(null);
   // Keep the last readout on blur so nearby buttons do not move during a click.
   const lastHover=useRef<PlotPoint|null>(null);
   const setHover=(point:PlotPoint|null)=>{if(point)lastHover.current=point;setHoverState(point);};
+  const selectable=useMemo(()=>selectAcrossCurves?plot.curves.flatMap(curve=>curve.points).sort((a,b)=>a[0]-b[0]):plot.curves[0]?.points??[],[plot,selectAcrossCurves]);
   const errors=validatePlotData(plot), valid=!errors.length;
   const cx=characteristic?.point[0], cy=characteristic?.point[1];
   const axes=useMemo(()=>{if(!valid)return null;const a=plotAxes(plot,cx!==undefined&&cy!==undefined?[[cx,cy]]:[],{targetTicks:compact?4:6});if(domains?.x)a.x=engineeringAxis(...domains.x,{targetTicks:compact?4:6,logarithmic:plot.logarithmic});if(domains?.y)a.y=engineeringAxis(...domains.y,{targetTicks:compact?4:6,step:plot.yTickStep});return a;},[plot,cx,cy,compact,valid,domains]);
@@ -30,10 +31,10 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
   const tick=(v:number,which:"x"|"y")=>formatEngineeringNumber(inEngineeringUnit(v,choices[which]),language,{significantDigits:Math.min(14,Math.max(4,Math.ceil(Math.log10(Math.max(...axes[which].domain.map(Math.abs))/axes[which].step))+2))});
   const coordinates=(p:PlotPoint)=>`${names.x.quantity} = ${plot.categories?plot.categories[Math.round(p[0])]:formatEngineeringNumber(inEngineeringUnit(p[0],choices.x),language,{significantDigits:6})+" "+choices.x.symbol}; ${names.y.quantity} = ${formatEngineeringNumber(inEngineeringUnit(p[1],choices.y),language,{significantDigits:6})} ${choices.y.symbol}`;
   const current=hover??selected;
-  function move(clientX:number) { const el=svg.current;if(!el)return; const matrix=el.getScreenCTM();if(!matrix)return;const local=new DOMPoint(clientX,0).matrixTransform(matrix.inverse());const point=nearestSample(plot.curves[0]?.points??[],axes!.x.invert(Math.max(0,Math.min(1,(local.x-62)/342))));if(point)setHover(point);return point; }
+  function move(clientX:number) { const el=svg.current;if(!el)return; const matrix=el.getScreenCTM();if(!matrix)return;const local=new DOMPoint(clientX,0).matrixTransform(matrix.inverse());const point=nearestSample(selectable,axes!.x.invert(Math.max(0,Math.min(1,(local.x-62)/342))));if(point)setHover(point);return point; }
   return <div className="engineering-plot-wrap" data-engineering-plot data-x-scale={axes.x.logarithmic?"log":"linear"} data-grid-mode={gridMode} data-x-domain={axes.x.domain.join(",")} data-y-domain={axes.y.domain.join(",")} data-x-unit={choices.x.symbol} data-y-unit={choices.y.symbol}>
     <svg ref={svg} className={`${svgClass} engineering-plot`} viewBox="0 0 440 245" role="img" aria-label={label} tabIndex={0}
-      onPointerDown={e=>{const point=move(e.clientX);if(point)onSelect?.(point);}} onPointerMove={e=>move(e.clientX)} onPointerLeave={()=>setHover(null)} onBlur={()=>setHover(null)} onKeyDown={e=>{if(e.key==="Escape"){setHover(null);return;}if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;e.preventDefault();const points=plot.curves[0]?.points??[];const index=current?Math.max(0,points.findIndex(p=>p[0]>=current[0])):0;const next=e.key==="Home"?0:e.key==="End"?points.length-1:Math.max(0,Math.min(points.length-1,index+(e.key==="ArrowRight"?1:-1)));if(points[next]){setHover(points[next]);onSelect?.(points[next]);}}}>
+      onPointerDown={e=>{const point=move(e.clientX);if(point)onSelect?.(point);}} onPointerMove={e=>move(e.clientX)} onPointerLeave={()=>setHover(null)} onBlur={()=>setHover(null)} onKeyDown={e=>{if(e.key==="Escape"){setHover(null);return;}if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;e.preventDefault();const points=selectable;const index=current?Math.max(0,points.findIndex(p=>p[0]>=current[0])):0;const next=e.key==="Home"?0:e.key==="End"?points.length-1:Math.max(0,Math.min(points.length-1,index+(e.key==="ArrowRight"?1:-1)));if(points[next]){setHover(points[next]);onSelect?.(points[next]);}}}>
       <defs><clipPath id={`engineering-clip-${id}`}><rect x="60" y="37" width="347" height="155"/></clipPath></defs>
       <g className="engineering-minor-grid" stroke="var(--line)" strokeWidth=".6" opacity=".55">
         {gridMode==="engineering" ? <>{axes.x.minorTicks.map(v=><path key={`x${v}`} d={`M${x(v)} 39 V190`}/>)}{axes.y.minorTicks.map(v=><path key={`y${v}`} d={`M62 ${y(v)} H404`}/>)}</> : <>{Array.from({length:69},(_,k)=><path key={`gx${k}`} d={`M${62+k*5} 39 V190`}/>)}{Array.from({length:31},(_,k)=><path key={`gy${k}`} d={`M62 ${40+k*5} H404`}/>)}</>}

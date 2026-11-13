@@ -3,7 +3,7 @@ import { formatEngineeringValue } from "../engineering/format";
 import EngineeringPlot from "../engineering/EngineeringPlot";
 import { diodeCurrent, type DiodeParameters } from "./line-diode";
 import { LoadEditor, NumberEdit } from "./NetworkEditor";
-import { findLoad, isDynamic, type Load, type Network } from "./network";
+import { distributedParameters, findLoad, isDynamic, type Load, type Network } from "./network";
 import { contactKind, loadReplacement, removeLoad, replaceLoad } from "./network-edit";
 import type { Selection, Tool } from "./network-edit";
 
@@ -33,13 +33,19 @@ export default function NetworkInspector(props: Props) {
     const index = model.sections.findIndex(section => section.id === selection.id);
     const section = model.sections[index];
     if (!section) return null;
+    const distributed=distributedParameters(section);
     const edit = (next: Partial<typeof section>) => onEdit({ ...model, sections: model.sections.map((s, i) => i === index ? { ...s, ...next } : s) });
     return <div className="network-inspector" key={section.id}>
       <strong>{t("Линия", "Лінія")} {section.id}</strong>
       <div className="network-inspector-fields">
         <NumberEdit label="l, km" value={section.lengthM / 1000} min={.000001} max={1e6} onChange={v => edit({ lengthM: v * 1000 })} />
         <NumberEdit label={`${section.id} · Z₀, Ω`} value={section.impedanceOhm} min={.001} max={1e6} onChange={v => edit({ impedanceOhm: v })} />
-        <details><summary>{t("Параметры распространения","Параметри поширення")}</summary><NumberEdit label="v, km/s" value={section.velocityMS / 1000} min={.001} max={300000} onChange={v => edit({ velocityMS: v * 1000 })} /></details>
+        <details><summary>{t("Параметры распространения","Параметри поширення")}</summary><NumberEdit label="v, km/s" value={section.velocityMS / 1000} min={.001} max={300000} onChange={v => edit({ velocityMS: v * 1000 })} />
+          <NumberEdit label="R′, Ω/km" value={distributed.r*1000} min={0} max={50000*section.impedanceOhm/section.lengthM}
+            onChange={v=>edit({resistanceOhmM:v/1000})}/>
+          <p>{t("Условие Хевисайда","Умова Гевісайда")} R′/L′ = G′/C′</p>
+          <small>L′ = {formatEngineeringValue(distributed.l,"H/m",language)} · G′ = {formatEngineeringValue(distributed.g,"S/m",language)} · C′ = {formatEngineeringValue(distributed.c,"F/m",language)}</small>
+        </details>
       </div>
       <small>τ = {formatEngineeringValue(section.lengthM / section.velocityMS, "s", language)}</small>
       <div className="network-buttons">

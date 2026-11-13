@@ -4,7 +4,7 @@ import { formatEngineeringNumber } from "../engineering/format";
 import type { Language } from "../types";
 import { useRef, useState } from "react";
 import { complexMagnitude, type Complex } from "../models/circular-diagram";
-import { MAX_INPUT, PHASES, type Phase, type PhaseValues, type StarResult } from "../models/star-neutral";
+import { LINE_PAIRS, MAX_INPUT, PHASES, type Phase, type PhaseValues, type StarResult } from "../models/star-neutral";
 
 type Copy = {
   impedancePlane: string; combinedPlot: string; fit: string; zoomIn: string;
@@ -108,13 +108,13 @@ function Vector({ id, from, to, label, kind, offset = 0 }: {
   </g>;
 }
 
-export function StarVectorDiagram({ result, copy, language = "ru" }: { result: StarResult; copy: Copy; language?:Language }) {
+export function StarVectorDiagram({ result, copy, language = "ru", delta=false }: { result: StarResult; copy: Copy; language?:Language;delta?:boolean }) {
   const origin = { x: 250, y: 250 };
   const maxVoltage = Math.max(1, ...PHASES.map(phase => complexMagnitude(result.sources[phase])),
     complexMagnitude(result.displacement));
   const voltagePixels = nicePixelsPerUnit(maxVoltage,175);
   const maxCurrent = Math.max(1, ...PHASES.map(phase => complexMagnitude(result.currents[phase])),
-    complexMagnitude(result.neutralCurrent));
+    ...PHASES.map(phase=>complexMagnitude(result.lineCurrents?.[phase]??result.neutralCurrent)));
   const currentPixels = nicePixelsPerUnit(maxCurrent,Math.max(25,190-complexMagnitude(result.displacement)*voltagePixels));
   const placeVoltage = (value: Complex): DiagramPoint => ({
     x: origin.x + value.re * voltagePixels, y: origin.y - value.im * voltagePixels,
@@ -124,7 +124,7 @@ export function StarVectorDiagram({ result, copy, language = "ru" }: { result: S
   const placeCurrent = (value: Complex): DiagramPoint => ({
     x: neutral.x + value.re * currentPixels, y: neutral.y - value.im * currentPixels,
   });
-  const linePairs = [["AB", "B", "A"], ["BC", "C", "B"], ["CA", "A", "C"]] as const;
+  const linePairs = LINE_PAIRS.map(([name,to,from])=>[name,from,to] as const);
   return <section className="star-card star-phasors">
     <h2>{copy.combinedPlot}</h2>
     <svg viewBox="0 0 500 500" role="img" aria-label={copy.combinedPlot}>
@@ -139,13 +139,16 @@ export function StarVectorDiagram({ result, copy, language = "ru" }: { result: S
         label={`U${phase}`} kind="source" offset={phase === "A" ? -13 : -7} />)}
       {linePairs.map(([name, from, to]) => <Vector key={name} id={`line-${name}`} from={source[from]} to={source[to]}
         label={`U${name}`} kind="line" offset={name === "CA" ? -16 : 12} />)}
-      <Vector id="displacement" from={origin} to={neutral} label="UₙN" kind="displacement" offset={-19} />
-      {PHASES.map((phase, index) => <Vector key={`load-${phase}`} id={`load-${phase}`} from={neutral} to={source[phase]}
+      {!delta&&<Vector id="displacement" from={origin} to={neutral} label="UₙN" kind="displacement" offset={-19} />}
+      {!delta&&PHASES.map((phase, index) => <Vector key={`load-${phase}`} id={`load-${phase}`} from={neutral} to={source[phase]}
         label={`U${phase.toLowerCase()}`} kind="load" offset={index === 0 ? 13 : 11} />)}
       {PHASES.map((phase, index) => <Vector key={`current-${phase}`} id={`current-${phase}`} from={neutral}
-        to={placeCurrent(result.currents[phase])} label={`I${phase}`} kind="current" offset={12 + index * 7} />)}
-      <Vector id="current-N" from={neutral} to={placeCurrent(result.neutralCurrent)} label="Iₙ" kind="current" offset={-16} />
+        to={placeCurrent(result.currents[phase])} label={delta?`I${LINE_PAIRS[index][0]}`:`I${phase}`} kind="current" offset={12 + index * 7} />)}
+      {result.lineCurrents?PHASES.map((phase,index)=><Vector key={phase} id={`line-current-${phase}`} from={neutral}
+        to={placeCurrent(result.lineCurrents![phase])} label={`I${phase}`} kind="current" offset={-12-index*4}/>):
+        <Vector id="current-N" from={neutral} to={placeCurrent(result.neutralCurrent)} label="Iₙ" kind="current" offset={-16} />}
       {(["A", "B", "C", "n", "N"] as const).map(name => {
+        if(delta&&name==="n")return null;
         const point = name === "N" ? origin : name === "n" ? neutral : source[name];
         const shift = name === "n" && Math.hypot(neutral.x - origin.x, neutral.y - origin.y) < 14 ? -16 : 0;
         return <g key={name} className="star-node"><circle cx={point.x} cy={point.y} r="4" />
@@ -157,9 +160,9 @@ export function StarVectorDiagram({ result, copy, language = "ru" }: { result: S
     <div className="star-legend">
       <span className="star-key-source">{copy.sourceVectors} UA · UB · UC</span>
       <span className="star-key-line">{copy.lineVectors} UAB · UBC · UCA</span>
-      <span className="star-key-load">{copy.loadVectors} Ua · Ub · Uc</span>
-      <span className="star-key-displacement">{copy.displacementVector} UₙN</span>
-      <span className="star-key-current">{copy.currentVectors} IA · IB · IC · Iₙ</span>
+      {!delta&&<span className="star-key-load">{copy.loadVectors} Ua · Ub · Uc</span>}
+      {!delta&&<span className="star-key-displacement">{copy.displacementVector} UₙN</span>}
+      <span className="star-key-current">{copy.currentVectors} {delta?"IAB · IBC · ICA · IA · IB · IC":"IA · IB · IC · Iₙ"}</span>
     </div>
   </section>;
 }

@@ -1,0 +1,27 @@
+.lc-lab,.lc-workspace,.lc-panel,.lc-branches{display:grid;gap:1rem;min-width:0}
+.lc-lab{margin:1rem 0 2rem}
+.lc-workspace{grid-template-columns:minmax(0,1fr) minmax(0,1.16fr);align-items:start}
+.lc-panel{background:var(--surface-elevated);border:1px solid var(--line);border-radius:12px;padding:clamp(12px,2vw,22px)}
+.lc-panel :is(h2,p,ul,ol){margin:0;overflow-wrap:anywhere}
+.lc-panel fieldset{min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;margin:0}
+.lc-panel fieldset[data-lc-selected=true]{border-color:var(--blue)}
+.lc-actions{display:flex;flex-wrap:wrap;gap:6px}
+.lc-lab button,.lc-panel input[type=number]{min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface-elevated);color:var(--ink);padding:5px 10px;font:inherit;max-width:100%}
+.lc-lab button{text-align:start;cursor:pointer}
+.lc-lab button:hover,.lc-lab button:focus-visible{border-color:var(--blue)}
+.lc-element label{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.lc-element input{width:9ch}
+.lc-group>.lc-branches{margin-top:8px}
+.lc-drawing{display:grid;place-items:center;background:var(--surface-plot);border-radius:8px}
+.lc-schematic{width:100%;max-width:640px;display:block;color:var(--ink);stroke:currentColor;stroke-width:1.5;fill:none}
+.lc-schematic text{fill:var(--ink);stroke:none;font:10px sans-serif}
+.lc-symbol-hit{fill:transparent;stroke:none;cursor:pointer}
+.lc-schematic [aria-pressed=true]>.lc-symbol-hit,.lc-schematic [role=button]:focus-visible>.lc-symbol-hit{stroke:var(--blue)}
+.lc-signs{display:flex;gap:1em;flex-wrap:wrap}
+.lc-signs span:first-child{color:var(--blue)}
+.lc-signs span:last-child{color:var(--orange)}
+.lc-resonances{list-style:none;padding:0;display:grid;gap:6px}
+.lc-results .engineering-plot{display:block;width:100%}
+.lc-steps{padding-inline-start:1.4rem}
+.lc-steps svg{max-width:330px}
+@media(max-width:820px){.lc-workspace{grid-template-columns:minmax(0,1fr)}}

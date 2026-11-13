@@ -1,5 +1,16 @@
 # Traceability
 
+## ET-LAB-016–019 — Эталоны, фазоры, Фурье и затухание
+
+CIR-GUIDE-001..003 → circular-diagram-state SPEC → circular-diagram.ts и CircularDiagram → circular-diagram.test.ts и circular-diagram-guide.spec.ts.
+THREE-LAB-001..004 → star-neutral-phasors SPEC → star-neutral.ts и StarNeutralLab → star-neutral.test.ts и three-phase-delta.spec.ts.
+FOUR-SHAPE-001..003 → fourier-laboratory SPEC → contour.ts и custom-basis.ts → contour.test.ts, custom-basis.test.ts и fourier-shapes.spec.ts.
+LINE-LOSS-001..002 → transmission-line-transient SPEC и ADR-059 → характеристический Worker и NetworkInspector → network-loss.test.ts и transmission-loss.spec.ts.
+
+## ET-LAB-015 — Реактивный двухполюсник
+
+LC-001..004 → reactive-two-port SPEC → reactive-two-port.ts, ReactiveTwoPortLab.tsx и каталог → reactive-two-port.test.ts и reactive-two-port.spec.ts.
+
 ## ET-LAB-014 — Свободная компоновка и промежуточные двухполюсники
 
 LINE-UX-015..018 → transmission-line-transient SPEC и ADR-058 → NetworkWorkbench, NetworkEditor, NetworkInspector, network-edit и Worker → network-advanced.test.ts и transmission-workbench.spec.ts.

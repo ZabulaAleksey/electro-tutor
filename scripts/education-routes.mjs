@@ -1,7 +1,7 @@
 import { publicPath } from "./public-mvp-contract.mjs";
 
 const learningPages = [
-  "interactive", "interactive/beam", "interactive/circular-diagram", "interactive/fourier",
+  "interactive", "interactive/beam", "interactive/circular-diagram", "interactive/fourier", "interactive/reactive-two-port",
   "interactive/star-neutral", "interactive/transmission-line", "interactive/transmission-line-reference",
   "interactive/experiments/[family]/[slug]", "board", "engineering-board", "micro-labs",
   "showcase", "solutions", "tools",

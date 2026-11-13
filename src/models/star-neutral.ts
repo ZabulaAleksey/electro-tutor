@@ -6,7 +6,15 @@ import {
 export type Phase = "A" | "B" | "C";
 export type NeutralMode = "ideal" | "finite" | "open";
 export type PhaseValues = Record<Phase, Complex>;
+export type PolarSource = Record<Phase,{magnitude:number;angle:number}>;
+export const LINE_PAIRS = [["AB","A","B"],["BC","B","C"],["CA","C","A"]] as const;
+export const phaseSources=(voltage:number,independent?:PolarSource):PhaseValues=>({
+ A:complexFromPolar(independent?.A.magnitude??voltage,independent?.A.angle??0),
+ B:complexFromPolar(independent?.B.magnitude??voltage,independent?.B.angle??-120),
+ C:complexFromPolar(independent?.C.magnitude??voltage,independent?.C.angle??120),
+});
 export type StarParameters = {
+  source?:PolarSource;
   uPhase: number;
   phases: PhaseValues;
   neutral: Complex;
@@ -18,6 +26,7 @@ export type StarResult = {
   voltages: PhaseValues;
   currents: PhaseValues;
   neutralCurrent: Complex;
+  lineCurrents?:PhaseValues;
 };
 export type StarCalculation =
   | { ok: true; result: StarResult }
@@ -56,13 +65,38 @@ export function polarToRectangular(magnitude: number, angle: number): Complex {
   return complexFromPolar(magnitude, angle);
 }
 
+export function validSource(source:PolarSource){
+ return PHASES.every(key=>source[key]&&Number.isFinite(source[key].magnitude)&&source[key].magnitude>=0&&
+   source[key].magnitude<=MAX_INPUT&&Number.isFinite(source[key].angle)&&Math.abs(source[key].angle)<=180);
+}
+export function readThreePhaseDraft(input:unknown){
+ try{
+  const raw=input as {version:number;parameters:StarParameters;topology:"star"|"delta"};
+  if(raw.version!==1||!["star","delta"].includes(raw.topology)||!["ideal","finite","open"].includes(raw.parameters.mode))return null;
+  const result=raw.topology==="star"?calculateStar(raw.parameters):calculateDelta(raw.parameters);
+  return result.ok?raw:null;
+ }catch{return null;}
+}
+export function calculateDelta(parameters:StarParameters):StarCalculation{
+ const {uPhase,phases,source}=parameters;
+ if(!Number.isFinite(uPhase)||uPhase<0||uPhase>MAX_INPUT||source&&!validSource(source)||
+   !PHASES.every(key=>finiteComplex(phases[key])&&phases[key].re>=0&&phases[key].re<=MAX_INPUT&&
+     Math.abs(phases[key].im)<=MAX_INPUT))return {ok:false,reason:"range"};
+ if(PHASES.some(key=>complexMagnitude(phases[key])<PHASE_EPSILON))return {ok:false,reason:"phase-short"};
+ const sources=phaseSources(uPhase,source);
+ const voltages={A:subtractComplex(sources.A,sources.B),B:subtractComplex(sources.B,sources.C),C:subtractComplex(sources.C,sources.A)};
+ const currents={A:divideComplex(voltages.A,phases.A),B:divideComplex(voltages.B,phases.B),C:divideComplex(voltages.C,phases.C)};
+ const lineCurrents={A:subtractComplex(currents.A,currents.C),B:subtractComplex(currents.B,currents.A),C:subtractComplex(currents.C,currents.B)};
+ return {ok:true,result:{sources,voltages,currents,lineCurrents,displacement:ZERO,neutralCurrent:ZERO}};
+}
+
 function finiteComplex(value: Complex): boolean {
   return Number.isFinite(value.re) && Number.isFinite(value.im);
 }
 
 export function calculateStar(parameters: StarParameters): StarCalculation {
   const { uPhase, phases, neutral, mode } = parameters;
-  if (!Number.isFinite(uPhase) || uPhase < 0 || uPhase > MAX_INPUT ||
+  if (parameters.source&&!validSource(parameters.source) || !Number.isFinite(uPhase) || uPhase < 0 || uPhase > MAX_INPUT ||
       !PHASES.every(phase => finiteComplex(phases[phase]) &&
         Math.abs(phases[phase].re) <= MAX_INPUT && Math.abs(phases[phase].im) <= MAX_INPUT) ||
       !finiteComplex(neutral) || Math.abs(neutral.re) > MAX_INPUT ||
@@ -71,11 +105,7 @@ export function calculateStar(parameters: StarParameters): StarCalculation {
     return { ok: false, reason: "phase-short" };
   }
 
-  const sources: PhaseValues = {
-    A: complexFromPolar(uPhase, 0),
-    B: complexFromPolar(uPhase, -120),
-    C: complexFromPolar(uPhase, 120),
-  };
+  const sources = phaseSources(uPhase,parameters.source);
   let displacement: Complex = ZERO;
   if (mode !== "ideal" && !(mode === "finite" && complexMagnitude(neutral) === 0)) {
     const admittance = PHASES.map(phase => divideComplex(ONE, phases[phase]));

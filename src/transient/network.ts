@@ -1,7 +1,7 @@
 import { diodeCurrent, diodeVoltage, type DiodeParameters } from "./line-diode";
 
-/** Lossless characteristic-wave network. SI throughout; presentation has no solver state. */
-export type Section = { id:string; lengthM:number; impedanceOhm:number; velocityMS:number };
+/** Characteristic-wave network. SI throughout; presentation has no solver state. */
+export type Section = { id:string; lengthM:number; impedanceOhm:number; velocityMS:number; resistanceOhmM?:number };
 export type Load = { id:string; kind:"r"|"l"|"c"|"wire"|"open"|"series"|"parallel"|"switch"|"diode"; diode?:DiodeParameters; value?:number; initial?:number; closed?:boolean; children?:Load[] };
 export type ModelEvent = { id:string; atS:number; target:string; kind:"resistance"|"switch"; value:number; previous?:number };
 export type BranchComponent =
@@ -19,6 +19,12 @@ export type Network = { sections:Section[]; source:{voltageV:number;resistanceOh
 export type WaveHistory = {times:number[];values:number[]};
 export type WaveRun = {config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
 export type WaveValue={u:number;i:number;forward:number;backward:number;forwardI:number;backwardI:number;section:number};
+export function distributedParameters(section:Section){
+ const {impedanceOhm:z,velocityMS:v}=section,r=section.resistanceOhmM??0;
+ return {r,l:z/v,g:r/(z*z),c:1/(z*v)};
+}
+export const hasLineLoss=(model:Network)=>model.sections.some(section=>(section.resistanceOhmM??0)>0);
+const attenuation=(section:Section,distance:number)=>Math.exp(-(section.resistanceOhmM??0)*distance/section.impedanceOhm);
 export const MAX_SECTIONS = 6;
 export const DEFAULT_NETWORK:Network={sections:[{id:"TL1",lengthM:1e6,impedanceOhm:50,velocityMS:2e8}],source:{voltageV:100,resistanceOhm:0,node:0,onS:0},load:{id:"load",kind:"open"},durationS:.02,events:[],shunts:[]};
 export function loadLeaves(load:Load):Load[]{return load.children?.flatMap(loadLeaves)??[load];}
@@ -39,6 +45,8 @@ function validateNetworkShape(c:Network):string[]{
  const errors:string[]=[];const finite=(v:number)=>Number.isFinite(v);let nodes=0;
  if(!Array.isArray(c.sections)||c.sections.length<1||c.sections.length>MAX_SECTIONS)return [`sections:1..${MAX_SECTIONS}`];
  const ids=new Set<string>();const validId=(id:unknown)=>typeof id==="string"&&/^[A-Za-z][A-Za-z0-9_-]{0,39}$/.test(id)&&!Object.prototype.hasOwnProperty.call(Object.prototype,id);for(const s of c.sections){if(!validId(s.id))errors.push("invalid-id");if(ids.has(s.id))errors.push("duplicate-id");ids.add(s.id);if(![s.lengthM,s.impedanceOhm,s.velocityMS].every(v=>finite(v)&&v>0)||s.lengthM<.001||s.lengthM>1e9||s.velocityMS<1||s.velocityMS>3e8||s.impedanceOhm<.001||s.impedanceOhm>1e6)errors.push("invalid-line");}
+ if(c.sections.some(s=>s.resistanceOhmM!==undefined&&
+   (!finite(s.resistanceOhmM)||s.resistanceOhmM<0||s.resistanceOhmM*s.lengthM/s.impedanceOhm>50)))errors.push("invalid-line-loss");
  if(!Number.isFinite(c.sections.reduce((n,s)=>n+s.lengthM,0))||!c.sections.every(s=>[s.lengthM/s.velocityMS,s.impedanceOhm/s.velocityMS,1/(s.impedanceOhm*s.velocityMS)].every(Number.isFinite)))errors.push("invalid-derived-line-parameters");
  const q=c.source;if(!q||![q.voltageV,q.resistanceOhm,q.onS,c.durationS].every(finite)||Math.abs(q.voltageV)>1e6||q.resistanceOhm<0||q.resistanceOhm>1e9||q.resistanceOhm>0&&q.resistanceOhm<1e-6||q.onS<0||q.onS>c.durationS||c.durationS<1e-9||c.durationS>10||!Number.isInteger(q.node)||q.node<0||q.node>c.sections.length||q.offS!==undefined&&(!finite(q.offS)||q.offS<=q.onS||q.offS>c.durationS))errors.push("invalid-source-or-time");
  const series = c.series === undefined ? [] : c.series, branches = c.branches === undefined ? [] : c.branches;
@@ -304,7 +312,7 @@ function exact(c:Network):WaveRun{
   }
   const eq=companion(c.load,1,new Map(),new Map(),overrides);events.push(t);
   const voltage=solveWithDiodes(c,a,eq,t,[],diodes);
-  for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta});}}
+  for(let p=0;p<ports.length;p++){const u=voltage[portNode(c,p)];const b=u-a[p],delta=b-out[p];if(!Number.isFinite(b)||Math.abs(b)>1e12)throw Error("non-finite-wave");if(Math.abs(delta)>1e-12*Math.max(1,Math.abs(c.source.voltageV))){if(++fronts>2400)throw Error("wave-render-budget:shorten-experiment");out[p]=b;push(ports[p],t,b);queue.put({t:t+c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,port:p^1,delta:delta*attenuation(c.sections[p>>1],c.sections[p>>1].lengthM)});}}
  }
  return ranges({config:c,ports,events:[...new Set(events)].sort((a,b)=>a-b),method:"exact-fronts",stepS:0,deviceEnergy:{times:[0],values:[0]},maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
 }
@@ -356,7 +364,7 @@ function numeric(c:Network,resolution=100):WaveRun{
  function storedEnergy():number{return loadEnergy(c.load,states)+links.reduce((sum,link)=>sum+loadEnergy(link.device,states),0);}
  const ports=c.sections.flatMap(()=>[{times:[],values:[]} as WaveHistory,{times:[],values:[]} as WaveHistory]),initial=initialNetwork(c,Math.min(...deviceTimes,minTau)*1e-4),states=initial.states,overrides=new Map<string,number>(),energy:WaveHistory={times:[0],values:[storedEnergy()]},events:number[]=[0];
  for(let p=0;p<ports.length;p++)push(ports[p],0,initial.out[p]);let nextEvent=0;const sorted=[...c.events].sort((a,b)=>a.atS-b.atS);
- for(let k=1;k<=steps;k++){const t=k*h,a=ports.map((_,p)=>historyValue(ports[p^1],t-c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,true));while(nextEvent<sorted.length&&sorted[nextEvent].atS<=t+1e-15){overrides.set(sorted[nextEvent].target,sorted[nextEvent].value);nextEvent++;}
+ for(let k=1;k<=steps;k++){const t=k*h,a=ports.map((_,p)=>incidentAt(c,ports,p,t,true));while(nextEvent<sorted.length&&sorted[nextEvent].atS<=t+1e-15){overrides.set(sorted[nextEvent].target,sorted[nextEvent].value);nextEvent++;}
   const eqs=new Map<string,Eq>(),eq=companion(c.load,h,states,eqs,overrides);
   const stamps=branchStamps(links,h,states);
   const voltage=solveWithDiodes(c,a,eq,t,stamps,diodes);
@@ -381,13 +389,25 @@ function ranges(run:WaveRun):WaveRun{
 export function simulateNetwork(config:Network,options:{resolution?:number}={}):WaveRun{
  const errors=validateNetwork(config);if(errors.length)throw Error(errors.join("; "));const c=JSON.parse(JSON.stringify(config)) as Network;return isDynamic(c)?numeric(c,options.resolution):exact(c);
 }
-function atSection(run:WaveRun,j:number,local:number,t:number):WaveValue{const s=run.config.sections[j],linear=run.method!=="exact-fronts",forward=historyValue(run.ports[2*j],t-local/s.velocityMS,linear),backward=historyValue(run.ports[2*j+1],t-(s.lengthM-local)/s.velocityMS,linear);return{u:forward+backward,i:(forward-backward)/s.impedanceOhm,forward,backward,forwardI:forward/s.impedanceOhm,backwardI:-backward/s.impedanceOhm,section:j};}
+function incidentAt(c:Network,ports:WaveHistory[],p:number,time:number,linear:boolean){
+ const s=c.sections[p>>1];
+ return historyValue(ports[p^1],time-s.lengthM/s.velocityMS,linear)*attenuation(s,s.lengthM);
+}
+function atSection(run:WaveRun,j:number,local:number,t:number):WaveValue{const s=run.config.sections[j],linear=run.method!=="exact-fronts",forward=historyValue(run.ports[2*j],t-local/s.velocityMS,linear)*attenuation(s,local),backward=historyValue(run.ports[2*j+1],t-(s.lengthM-local)/s.velocityMS,linear)*attenuation(s,s.lengthM-local);return{u:forward+backward,i:(forward-backward)/s.impedanceOhm,forward,backward,forwardI:forward/s.impedanceOhm,backwardI:-backward/s.impedanceOhm,section:j};}
 export function at(run:WaveRun,x:number,t:number):WaveValue{const c=run.config;let left=0,j=0;for(;j<c.sections.length-1&&x>left+c.sections[j].lengthM+1e-9;j++)left+=c.sections[j].lengthM;return atSection(run,j,Math.max(0,Math.min(c.sections[j].lengthM,x-left)),t);}
 export type Quantity="u"|"i"|"forward"|"backward"|"forwardI"|"backwardI";
 export function spatial(run:WaveRun,t:number,quantity:Quantity="u"):readonly[number,number][]{
  const points:[number,number][]=[];let base=0;for(let j=0;j<run.config.sections.length;j++){const s=run.config.sections[j],positions=[0,s.lengthM];if(run.method==="exact-fronts"){for(const time of run.ports[2*j].times){const x=(t-time)*s.velocityMS;if(x>0&&x<s.lengthM)positions.push(x);}for(const time of run.ports[2*j+1].times){const x=s.lengthM-(t-time)*s.velocityMS;if(x>0&&x<s.lengthM)positions.push(x);}}
   else for(let k=1;k<120;k++)positions.push(s.lengthM*k/120);
-  const xs=[...new Set(positions)].sort((a,b)=>a-b);points.push([base,atSection(run,j,0,t)[quantity]]);if(run.method==="exact-fronts")for(let k=0;k<xs.length-1;k++){const mid=base+(xs[k]+xs[k+1])/2,value=atSection(run,j,mid-base,t)[quantity];points.push([base+xs[k],value],[base+xs[k+1],value]);}
+  const xs=[...new Set(positions)].sort((a,b)=>a-b);points.push([base,atSection(run,j,0,t)[quantity]]);if(run.method==="exact-fronts")for(let k=0;k<xs.length-1;k++){const from=xs[k],to=xs[k+1],mid=(from+to)/2;
+   const value=atSection(run,j,mid,t);
+   const alpha=(s.resistanceOhmM??0)/s.impedanceOhm;
+   if(!alpha)points.push([base+from,value[quantity]],[base+to,value[quantity]]);
+   else for(let n=0;n<=16;n++){
+    const x=from+(to-from)*n/16,f=value.forward*Math.exp(-alpha*(x-mid)),b=value.backward*Math.exp(alpha*(x-mid));
+    const quantities={u:f+b,i:(f-b)/s.impedanceOhm,forward:f,backward:b,forwardI:f/s.impedanceOhm,backwardI:-b/s.impedanceOhm};
+    points.push([base+x,quantities[quantity]]);
+   }}
   else for(const x of xs)points.push([base+x,atSection(run,j,x,t)[quantity]]);points.push([base+s.lengthM,atSection(run,j,s.lengthM,t)[quantity]]);base+=s.lengthM;
  }return points;
 }
@@ -395,8 +415,10 @@ export function timeTrace(run:WaveRun,x:number,quantity:Quantity="u"):readonly[n
  if(run.method!=="exact-fronts")return run.events.map(t=>[t,at(run,x,t)[quantity]] as const);
  let base=0,j=0;while(j<run.config.sections.length-1&&x>base+run.config.sections[j].lengthM){base+=run.config.sections[j++].lengthM;}const s=run.config.sections[j],local=x-base,times=[0,run.config.durationS,...run.ports[2*j].times.map(t=>t+local/s.velocityMS),...run.ports[2*j+1].times.map(t=>t+(s.lengthM-local)/s.velocityMS)].filter(t=>t>=0&&t<=run.config.durationS),sorted=[...new Set(times)].sort((a,b)=>a-b);const result:[number,number][]=[];for(const t of sorted){if(t>0)result.push([t,at(run,x,Math.max(0,t-Math.max(1e-14,run.config.durationS*1e-10)))[quantity]]);result.push([t,at(run,x,t)[quantity]]);}return result;
 }
-export function lineEnergy(run:WaveRun,t:number):number{const xs=[...new Set(spatial(run,t).map(p=>p[0]))].sort((a,b)=>a-b);let energy=0;for(let j=1;j<xs.length;j++){const v=at(run,(xs[j]+xs[j-1])/2,t),s=run.config.sections[v.section];energy+=(v.forward*v.forward+v.backward*v.backward)/(s.impedanceOhm*s.velocityMS)*(xs[j]-xs[j-1]);}return energy;}
-export function nodePort(run:WaveRun,node:number,t:number){const c=run.config,ps=portsAt(c,node),u=ps.length?historyValue(run.ports[ps[0]],t,run.stepS>0)+historyValue(run.ports[ps[0]^1],t-c.sections[ps[0]>>1].lengthM/c.sections[ps[0]>>1].velocityMS,run.stepS>0):0;const intoLines=ps.reduce((sum,p)=>sum+(historyValue(run.ports[p],t,run.stepS>0)-historyValue(run.ports[p^1],t-c.sections[p>>1].lengthM/c.sections[p>>1].velocityMS,run.stepS>0))/c.sections[p>>1].impedanceOhm,0);return{u,intoLines};}
+export function lineEnergy(run:WaveRun,t:number):number{const xs=[...new Set(spatial(run,t).map(p=>p[0]))].sort((a,b)=>a-b);let energy=0;for(let j=1;j<xs.length;j++){const v=at(run,(xs[j]+xs[j-1])/2,t),s=run.config.sections[v.section];const width=xs[j]-xs[j-1],argument=(s.resistanceOhmM??0)*width/s.impedanceOhm;
+ const factor=run.method==="exact-fronts"&&argument?Math.sinh(argument)/argument:1;
+ energy+=(v.forward*v.forward+v.backward*v.backward)/(s.impedanceOhm*s.velocityMS)*width*factor;}return energy;}
+export function nodePort(run:WaveRun,node:number,t:number){const c=run.config,ps=portsAt(c,node),u=ps.length?historyValue(run.ports[ps[0]],t,run.stepS>0)+incidentAt(c,run.ports,ps[0],t,run.stepS>0):0;const intoLines=ps.reduce((sum,p)=>sum+(historyValue(run.ports[p],t,run.stepS>0)-incidentAt(c,run.ports,p,t,run.stepS>0))/c.sections[p>>1].impedanceOhm,0);return{u,intoLines};}
 
 export function branchVoltage(run:WaveRun,link:Terminal,time:number){
  return nodePort(run,link.from,time).u-(link.to==="reference"?0:nodePort(run,link.to,time).u);

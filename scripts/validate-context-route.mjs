@@ -92,6 +92,11 @@ const ledgerTextFields = [
   "action",
 ];
 const requirementIdPrefixes = [
+  "LC",
+  "CIR-GUIDE",
+  "THREE-LAB",
+  "FOUR-SHAPE",
+  "LINE-LOSS",
   "PAN",
   "BEAM",
   "SYMBOL",

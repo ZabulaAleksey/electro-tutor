@@ -230,6 +230,8 @@ export default function NetworkWorkbench(props: Props) {
   const [correction, setCorrection] = useState<SketchKind | "">("");
   const [inkArchive, setInkArchive] = useState(false);
   const [editingMark, setEditingMark] = useState<number | null>(null);
+  const inkConfirmTouch = useRef<{id: number; start: Point} | null>(null);
+  const inkConfirmUsesTouch = useRef(false);
   const [zigzag, setZigzag] = useState(false);
   useEffect(()=>{
     try { setZigzag(localStorage.getItem("electrotutor-line-resistor-symbol")==="ansi"); } catch { /* Use the default style. */ }
@@ -539,6 +541,7 @@ export default function NetworkWorkbench(props: Props) {
     requestAnimationFrame(() => canvas.current?.querySelector<SVGElement>("[data-allowed=true]")?.focus({ preventScroll: true }));
   }
   function cancelInk() {
+    inkConfirmTouch.current=null;
     pointerInk.cancel();
     setInk([]);
     setCorrection("");
@@ -1028,7 +1031,33 @@ export default function NetworkWorkbench(props: Props) {
             <option value="" disabled>{t("Дорисуйте или выберите тип","Домалюйте або оберіть тип")}</option>
             {sketchKinds.map(kind=><option key={kind} value={kind}>{sketchLabels[kind]??labels[kind as Part]}</option>)}
           </select>}
-          <button type="button" disabled={!sketchKind&&!(editingMark!==null&&!savedLink)} onClick={()=>acceptInk(sketchKind??"wire")}>{editingMark===null
+          <button type="button" disabled={!sketchKind&&!(editingMark!==null&&!savedLink)}
+            onPointerDown={event=>{
+              if(!event.isPrimary||event.button!==0)return;
+              inkConfirmUsesTouch.current=event.pointerType==="touch";
+              inkConfirmTouch.current=inkConfirmUsesTouch.current
+                ? {id:event.pointerId,start:{x:event.clientX,y:event.clientY}} : null;
+            }}
+            onPointerMove={event=>{
+              const touch=inkConfirmTouch.current;
+              if(touch?.id===event.pointerId&&distance(touch.start,{x:event.clientX,y:event.clientY})>12)inkConfirmTouch.current=null;
+            }}
+            onPointerCancel={event=>{if(inkConfirmTouch.current?.id===event.pointerId)inkConfirmTouch.current=null;}}
+            onLostPointerCapture={event=>{if(inkConfirmTouch.current?.id===event.pointerId)inkConfirmTouch.current=null;}}
+            onPointerUp={event=>{
+              const touch=inkConfirmTouch.current;
+              if(touch?.id!==event.pointerId)return;
+              inkConfirmTouch.current=null;
+              const point={x:event.clientX,y:event.clientY};
+              if(distance(touch.start,point)>12||
+                !event.currentTarget.contains(document.elementFromPoint(point.x,point.y)))return;
+              // Chromium may omit the first click after a drawing gesture.
+              acceptInk(sketchKind??"wire");
+            }}
+            onClick={event=>{
+              if(inkConfirmUsesTouch.current&&event.detail>0)return;
+              acceptInk(sketchKind??"wire");
+            }}>{editingMark===null
             ? t("Вставить","Вставити")
             : t("Сохранить правку","Зберегти правку")}</button>
           <button type="button" onClick={()=>{setInk(ink.slice(0,-1));setCorrection("");setMessage("");}}>{t("Убрать штрих","Прибрати штрих")}</button>

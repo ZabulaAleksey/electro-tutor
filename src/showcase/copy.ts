@@ -1,6 +1,7 @@
 import type { SceneKind } from "./physics";
 import type { Category, LocalText } from "./catalog";
-import { n, rc } from "./physics";
+import { rc } from "./physics";
+import { formatEngineeringNumber, type EngineeringLocale } from "../engineering/format";
 const ru = {
   heading: "Электротехника в действии", kicker: "ПОТЕНЦИАЛ / ИНЖЕНЕРНАЯ ЛАБОРАТОРИЯ", next: "Следующий сюжет", previous: "Предыдущий сюжет", autoplay: "Автопоказ", resume: "Включить автопоказ", stop: "Остановить автопоказ", play: "Пуск", pause: "Пауза", reset: "Сначала", scheme: "Схема", calculation: "Расчёт", graphs: "Графики", animation: "Анимация", all: "Все категории", gallery: "Каталог инженерных сюжетов", search: "Найти сюжет", more: "Показать ещё", empty: "Опубликованных сюжетов в этой категории пока нет.", dynamic: "Интерактивная модель", static: "Расчётный пример · статический", illustration: "Учебная иллюстрация", lesson: "Опубликованный урок", open: "Открыть раздел", select: "Выбрать сюжет", reduced: "Движение отключено настройкой устройства", slowed: "Анимация замедлена", conventional: "Маркеры показывают направление тока условно, не скорость электронов.", realTime: "Время модели", frequency: "Частота f, Hz", resistance: "Сопротивление R, Ω", source: "ЭДС E, V", firstResistance: "Сопротивление R₁, Ω", capacitance: "Ёмкость C, µF", params: "Исходные данные", voltage: "Напряжение", current: "Ток", units: "Единицы указаны на осях", code: "Код и вычисленный результат", software: "Инженерное ПО", softwareNote: "Собственные иллюстрации задач, не скриншоты интерфейсов. Программы не запускаются на сайте.", softwareTools: "Другие направления", sessions: "Занятия: от схемы к результату", formats: "Форматы занятий и запись", booking: "Записаться / связаться", unavailable: "Запись пока не открыта. Канал связи ещё не подключён.", noPrice: "Стоимость и длительность уточняются у преподавателя.", route: "Перейти к учебному материалу", normalized: "Нормированные сигналы; амплитуды приведены в расчёте.", zoom: "Открыть расчётный сюжет", sourceStep: "E включено при t = 0; uC(0) = 0 V.", charging: "Заряд", snapshot: "Снимок модели", linkCopied: "Постоянная ссылка", sensor: "Точка наблюдения", selected: "Выбранный сюжет",
 };
@@ -35,9 +36,9 @@ export const formatDetails: LocalText[] = [
   { ru: "Сопоставление формул и численного решения.", uk: "Зіставлення формул і чисельного розв’язку." },
   { ru: "Разбор методов и тренировочных задач.", uk: "Розбір методів і тренувальних задач." },
 ];
-export const softwareExamples = [
-  { name: "Python · NumPy", code: "import numpy as np\nt = np.linspace(0, 5, 101)\nu = 12 * (1 - np.exp(-t))", result: `u(1 s) = ${n(rc(1).uc, 3)} V`, kind: "rc" as const },
+export const softwareExamples = (language: EngineeringLocale) => [
+  { name: "Python · NumPy", code: "import numpy as np\nt = np.linspace(0, 5, 101)\nu = 12 * (1 - np.exp(-t))", result: `u(1 s) = ${formatEngineeringNumber(rc(1).uc, language)} V`, kind: "rc" as const },
   { name: "NumPy · Jupyter", code: "import numpy as np\nR = [[6, -2], [-2, 8]]\nI = np.linalg.solve(R, [24, 12])", result: "I₁ = 54/11 A; I₂ = 30/11 A", kind: "dc" as const },
-  { name: "LTspice · RC", code: "V1 in 0 PULSE(0 12 0 1n 1n 10 20)\nR1 in out 1k\nC1 out 0 1000u\n.tran 0 5 0 1m", result: `τ = ${n(rc(0).tau)} s; uC(5 s) ≈ ${n(rc(5).uc, 3)} V`, kind: "rc" as const },
+  { name: "LTspice · RC", code: "V1 in 0 PULSE(0 12 0 1n 1n 10 20)\nR1 in out 1k\nC1 out 0 1000u\n.tran 0 5 0 1m", result: `τ = ${formatEngineeringNumber(rc(0).tau, language)} s; uC(5 s) = ${formatEngineeringNumber(rc(5).uc, language)} V`, kind: "rc" as const },
   { name: "SMath · Mathcad", code: "R := 1000 Ω\nC := 1000 μF\nτ := R · C\nu(t) := 12 V · (1 − exp(−t/τ))", result: "u(τ) = 12(1 − e⁻¹) V", kind: "rc" as const },
 ];

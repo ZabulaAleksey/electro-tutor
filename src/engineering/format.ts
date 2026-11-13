@@ -16,13 +16,52 @@ function decode(unit: string) {
   }
   return {base:unit,factor:1};
 }
-export function formatEngineeringNumber(value: number, language: EngineeringLocale, options: {significantDigits?: number; maximumFractionDigits?: number; zeroTolerance?: number} = {}) {
+type NumberDisplayOptions = { significantDigits?: number; maximumFractionDigits?: number; zeroTolerance?: number };
+const numberFormats = new Map<string, Intl.NumberFormat>();
+const superscriptDigits = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+
+function numberFormat(language: EngineeringLocale, digits: number, scientific: boolean) {
+  const key = [language, digits, scientific].join(":");
+  let format = numberFormats.get(key);
+  if (!format) {
+    format = new Intl.NumberFormat(locales[language], {
+      useGrouping: false,
+      ...(scientific ? { notation: "scientific", maximumSignificantDigits: digits } : { maximumFractionDigits: digits }),
+    });
+    numberFormats.set(key, format);
+  }
+  return format;
+}
+
+export function formatEngineeringNumber(value: number, language: EngineeringLocale, options: NumberDisplayOptions = {}) {
   if (!Number.isFinite(value)) return "—";
-  if (value === 0 || Math.abs(value) <= (options.zeroTolerance ?? 0)) return "0";
-  const digits=options.significantDigits ?? 4, magnitude=Math.abs(value);
-  const scientific=magnitude>=1e9 || magnitude<10**-(options.maximumFractionDigits ?? 4);
-  const config:Intl.NumberFormatOptions = {useGrouping:false, ...(scientific ? {notation:"scientific",maximumSignificantDigits:digits} : options.maximumFractionDigits !== undefined ? {maximumFractionDigits:options.maximumFractionDigits} : {maximumSignificantDigits:digits})};
-  return new Intl.NumberFormat(locales[language],config).format(value).replace(/^-0$/, "0");
+  const magnitude = Math.abs(value);
+  if (magnitude <= (options.zeroTolerance ?? 0)) return "0";
+  const fractions = options.maximumFractionDigits ?? 3;
+  const scientific = magnitude >= 1e9 || magnitude < Math.max(0.001, 0.5 * 10 ** -fractions);
+  const formatter = numberFormat(language, scientific ? (options.significantDigits ?? 4) : fractions, scientific);
+  if (!scientific) return formatter.format(value).replace(/^-0$/, "0");
+  return formatter.formatToParts(value).map(({ type, value: part }) => {
+    if (type === "exponentSeparator") return "·10";
+    if (type === "exponentMinusSign") return "⁻";
+    if (type === "exponentInteger") return Array.from(part, digit => superscriptDigits[Number(digit)]).join("");
+    return part;
+  }).join("");
+}
+
+export function formatEngineeringTicks(values: readonly number[], language: EngineeringLocale) {
+  let labels = values.map(value => formatEngineeringNumber(value, language));
+  // A narrow zoom window may place adjacent ticks inside the same rounding interval.
+  for (let fractions = 4; fractions <= 16 && new Set(labels).size < labels.length; fractions++) {
+    labels = values.map(value => formatEngineeringNumber(value, language, { maximumFractionDigits: fractions, significantDigits: fractions + 1 }));
+  }
+  return labels;
+}
+
+export function formatEngineeringLatexNumber(value: number, language: EngineeringLocale) {
+  const [mantissa, exponent] = formatEngineeringNumber(value, language).split("·10");
+  const digits = exponent && Array.from(exponent, digit => digit === "⁻" ? "-" : superscriptDigits.indexOf(digit)).join("");
+  return mantissa.replace(",", "{,}") + (digits ? `\\cdot10^{${digits}}` : "");
 }
 export function chooseEngineeringUnit(unit: string, reference: number, language: EngineeringLocale, options: {previous?: EngineeringUnit; fixed?: boolean} = {}): EngineeringUnit {
   const decoded=decode(unit), absolute=Math.abs(reference*decoded.factor), index=language==="en"?2:language==="uk"?1:0;

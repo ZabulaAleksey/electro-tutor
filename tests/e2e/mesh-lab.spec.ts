@@ -3,13 +3,22 @@ import { readFileSync } from "node:fs";
 import type FixtureData from "../../src/models/mesh-reference.json";
 const fixtures: typeof FixtureData = JSON.parse(readFileSync(new URL("../../src/models/mesh-reference.json", import.meta.url), "utf8"));
 const route = "/ru/topics/dc/mesh-current-method/lab/";
-const human = (v: number) => (Object.is(v, -0) ? 0 : v).toPrecision(3).replace(".", ",");
+function verifyDisplayedNumber(text: string, value: number, unit: string) {
+  expect(text).toMatch(new RegExp(`^-?(?:0|[1-9]\\d*)(?:,\\d{0,2}[1-9])? ${unit}$`));
+  expect(Math.abs(Number(text.split(" ")[0].replace(",", ".")) - value)).toBeLessThanOrEqual(0.000500000001);
+}
 async function ready(page: Page, example = 1) { await page.goto(`${route}?example=${example}`); await expect(page.locator(".mesh-lab")).toHaveAttribute("data-ready", "true"); await expect(page.getByTestId("preset")).toHaveValue(String(example)); }
 async function edit(page: Page, key: string, value: string | number) { await page.getByTestId("parameter").selectOption(key); await page.getByTestId("parameter-value").fill(String(value)); }
 async function readings(page: Page, f: typeof fixtures[number]) {
-  for (const key of ["mesh", "branch"] as const) for (const [k, v] of f.expected[key].entries()) await expect(page.getByTestId(`${key}-${k + 1}`)).toHaveText(`${human(v)} A`);
-  for (const [k, v] of f.expected.voltages.entries()) await expect(page.getByTestId(`voltage-${k + 1}`)).toHaveText(`${human(v)} V`);
-  await expect(page.getByTestId("power-summary")).toHaveText(`${human(f.expected.generated)} W / ${human(f.expected.absorbed)} W`);
+  for (const key of ["mesh", "branch"] as const) for (const [k, v] of f.expected[key].entries()) {
+    verifyDisplayedNumber(await page.getByTestId(`${key}-${k + 1}`).innerText(), v, "A");
+  }
+  for (const [k, v] of f.expected.voltages.entries()) {
+    verifyDisplayedNumber(await page.getByTestId(`voltage-${k + 1}`).innerText(), v, "V");
+  }
+  const [generated, absorbed] = (await page.getByTestId("power-summary").innerText()).split(" / ");
+  verifyDisplayedNumber(generated, f.expected.generated, "W");
+  verifyDisplayedNumber(absorbed, f.expected.absorbed, "W");
   await expect(page.getByRole("alert")).toHaveCount(0); await expect(page.locator(".katex-error")).toHaveCount(0);
 }
 for (const example of [1, 2, 3, 4]) test(`RUN3D real browser example${example}: published and three independently checked modified circuits`, async ({ page }) => {
@@ -25,12 +34,12 @@ for (const example of [1, 2, 3, 4]) test(`RUN3D real browser example${example}: 
 });
 test("RUN3D textbook→examples→lab keeps the selected example and returns to its solution", async ({ page }) => {
   await page.goto("/ru/topics/dc/mesh-current-method/"); await page.getByRole("link", { name: "Перейти к подробным примерам решений →", exact: true }).click(); await page.getByRole("link", { name: "Открыть в лаборатории пример 4 →", exact: true }).click();
-  await expect(page.getByTestId("preset")).toHaveValue("4"); await expect(page.getByTestId("mesh-1")).toHaveText("2,67 A"); await page.reload(); await expect(page.getByTestId("preset")).toHaveValue("4");
+  await expect(page.getByTestId("preset")).toHaveValue("4"); await expect(page.getByTestId("mesh-1")).toHaveText("2,667 A"); await page.reload(); await expect(page.getByTestId("preset")).toHaveValue("4");
   await page.getByRole("link", { name: "Исходный пример №4 ↗", exact: true }).click(); await expect(page).toHaveURL(/examples\/#example-4$/); await expect(page.locator("#example-4 h2")).toBeInViewport();
 });
 test("RUN3D source reversal updates physical polarity/current direction and signed source power", async ({ page }) => {
-  await ready(page, 2); await expect(page.getByTestId("branch-3")).toHaveText("-3,60 A"); await edit(page, "E2", 24); await page.getByTestId("reverse").click(); await expect(page.getByTestId("parameter-value")).toHaveValue("-24"); await expect(page.locator('[data-element="E2"] text').first()).toHaveText("−"); await expect(page.getByTestId("mesh-2")).toHaveText("6,00 A");
-  await page.getByTestId("preset").selectOption("4"); await edit(page, "J", 1); await page.getByTestId("reverse").click(); await expect(page.locator('[data-current-direction]')).toHaveAttribute("data-current-direction", "B-to-A"); await expect(page.getByTestId("mesh-1")).toHaveText("1,33 A"); await expect(page.locator('[data-source="J"] td').last()).toHaveText("-9,33");
+  await ready(page, 2); await expect(page.getByTestId("branch-3")).toHaveText("-3,6 A"); await edit(page, "E2", 24); await page.getByTestId("reverse").click(); await expect(page.getByTestId("parameter-value")).toHaveValue("-24"); await expect(page.locator('[data-element="E2"] text').first()).toHaveText("−"); await expect(page.getByTestId("mesh-2")).toHaveText("6 A");
+  await page.getByTestId("preset").selectOption("4"); await edit(page, "J", 1); await page.getByTestId("reverse").click(); await expect(page.locator('[data-current-direction]')).toHaveAttribute("data-current-direction", "B-to-A"); await expect(page.getByTestId("mesh-1")).toHaveText("1,333 A"); await expect(page.locator('[data-source="J"] td').last()).toHaveText("-9,333");
 });
 test("RUN3D invalid drafts, inconsistent and underdetermined circuits suppress stale results and recover", async ({ page }) => {
   await ready(page);
@@ -43,15 +52,15 @@ test("RUN3D invalid drafts, inconsistent and underdetermined circuits suppress s
     await expect(page.getByRole("alert")).toHaveAttribute("data-code", "underdetermined");
     await page.getByRole("button", { name: "Сброс параметров", exact: true }).click(); await readings(page, fixtures.find(v => v.name === `example${example}-published`)!);
   }
-  await page.getByTestId("preset").selectOption("1"); await edit(page, "R3", 0); await expect(page.getByTestId("mesh-1")).toHaveText("6,00 A"); await expect(page.getByTestId("mesh-2")).toHaveText("0,00 A"); await expect(page.getByRole("alert")).toHaveCount(0);
+  await page.getByTestId("preset").selectOption("1"); await edit(page, "R3", 0); await expect(page.getByTestId("mesh-1")).toHaveText("6 A"); await expect(page.getByTestId("mesh-2")).toHaveText("0 A"); await expect(page.getByRole("alert")).toHaveCount(0);
 });
 test("RUN3D keyboard, touch controls and no-JS baseline are honest; unknown query is explicit", async ({ page, browser, baseURL }) => {
   await ready(page); await page.getByTestId("parameter-value").focus(); await page.keyboard.press("ControlOrMeta+A"); await page.keyboard.type("4"); await expect(page.getByTestId("mesh-1")).toHaveText("2,25 A");
   await page.getByRole("button", { name: "Выделить контур I2", exact: true }).focus(); await page.keyboard.press("Enter"); await expect(page.locator('[data-mesh-current="2"]')).toHaveClass(/mesh-selected-loop/);
   const touch = await browser.newContext({ baseURL, viewport: { width: 375, height: 900 }, isMobile: true, hasTouch: true });
-  try { const p = await touch.newPage(); await ready(p); await p.getByTestId("parameter-value").tap(); await p.getByTestId("parameter-value").fill("4"); await expect(p.getByTestId("mesh-1")).toHaveText("2,25 A"); await p.getByRole("button", { name: "Сброс параметров", exact: true }).tap(); await expect(p.getByTestId("mesh-1")).toHaveText("3,60 A"); } finally { await touch.close(); }
+  try { const p = await touch.newPage(); await ready(p); await p.getByTestId("parameter-value").tap(); await p.getByTestId("parameter-value").fill("4"); await expect(p.getByTestId("mesh-1")).toHaveText("2,25 A"); await p.getByRole("button", { name: "Сброс параметров", exact: true }).tap(); await expect(p.getByTestId("mesh-1")).toHaveText("3,6 A"); } finally { await touch.close(); }
   const nojs = await browser.newContext({ baseURL, javaScriptEnabled: false });
-  try { const p = await nojs.newPage(); await p.goto(route); await expect(p.getByTestId("parameter-value")).toBeDisabled(); await expect(p.getByTestId("preset")).toBeDisabled(); await expect(p.getByTestId("mesh-1")).toHaveText("3,60 A"); await expect(p.locator(".mesh-nojs")).toContainText("Без JavaScript"); await expect(p.locator("link[hreflang='uk'],a[data-language-link]")).toHaveCount(0); } finally { await nojs.close(); }
+  try { const p = await nojs.newPage(); await p.goto(route); await expect(p.getByTestId("parameter-value")).toBeDisabled(); await expect(p.getByTestId("preset")).toBeDisabled(); await expect(p.getByTestId("mesh-1")).toHaveText("3,6 A"); await expect(p.locator(".mesh-nojs")).toContainText("Без JavaScript"); await expect(p.locator("link[hreflang='uk'],a[data-language-link]")).toHaveCount(0); } finally { await nojs.close(); }
   await page.goto(`${route}?example=invalid`); await expect(page.locator(".mesh-lab")).toHaveAttribute("data-ready", "true"); await expect(page.getByRole("status").first()).toContainText("Неизвестный пример");
 });
 for (const width of [320, 375, 390, 768, 1280, 1920]) for (const theme of ["light", "dark"] as const) test(`RUN3D ${width}px OS ${theme}: adjacent controls and physical schemes`, async ({ page }, testInfo) => {

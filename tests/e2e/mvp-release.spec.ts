@@ -22,7 +22,7 @@ test('enforced release CSP allows light navigation practice four schemes and off
  for(const path of ['ru/','ru/help/','ru/contacts/','ru/privacy/']){const response=await page.goto(base+path);expect(response?.headers()['content-security-policy']).toContain("frame-ancestors 'none'");await noViolation();}
  await page.goto(book);await expect(page.locator('#practice-answer')).toBeEnabled();await page.locator('#practice-answer').fill('2.18');await page.getByRole('button',{name:'Проверить',exact:true}).click();await expect(page.getByText('Верно. Сравните результат с выводом в учебнике.',{exact:true})).toBeVisible();await noViolation();
  await page.getByRole('link',{name:'Следующий этап',exact:true}).click();await expect(page).toHaveURL(book+'examples/#example-1');await noViolation();await page.getByRole('link',{name:'Следующий этап',exact:true}).click();await expect(page.locator('.mesh-lab')).toHaveAttribute('data-ready','true');
- const expected=['3,60 A','1,20 A','8,82 A','2,67 A'];
+ const expected=['3,6 A','1,2 A','8,824 A','2,667 A'];
  for(let n=1;n<=4;n++){await page.getByTestId('preset').selectOption(String(n));await expect(page.getByTestId('mesh-1')).toHaveText(expected[n-1]);await page.getByTestId('parameter-value').fill('3');await expect(page.getByRole('alert')).toHaveCount(0);await page.getByRole('button',{name:'Сброс параметров'}).click();await noViolation();}
  await page.emulateMedia({colorScheme:'dark'});await expect(page.locator('html')).toHaveAttribute('data-theme','light');await expect(page.locator('#mvp-theme,#theme-toggle')).toHaveCount(0);await noViolation();
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);

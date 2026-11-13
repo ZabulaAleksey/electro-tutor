@@ -1,9 +1,7 @@
 import type { MeshParameters, MeshSolution } from "../models/mesh-current";
-export const format3 = (v: number) => (Object.is(v, -0) ? 0 : v).toPrecision(3).replace(".", ",");
-export function latexNumber(v: number) {
-  const s = (Object.is(v, -0) ? 0 : v).toPrecision(3), [mantissa, exponent] = s.split("e");
-  return mantissa.replace(".", "{,}") + (exponent ? `\\cdot10^{${Number(exponent)}}` : "");
-}
+import { formatEngineeringLatexNumber, formatEngineeringNumber } from "../engineering/format";
+export const formatMeshReading = (value: number) => formatEngineeringNumber(value, "ru");
+const latexNumber = (value: number) => formatEngineeringLatexNumber(value, "ru");
 export const parseValue = (s: string) => s.length <= 32 && /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:e[+-]?\d+)?$/i.test(s.trim()) ? Number(s.trim().replace(",", ".")) : NaN;
 export function parameterKeys(p: MeshParameters) { return [...p.r.map((_, k) => `R${k + 1}`), ...p.emf.map((_, k) => `E${k + 1}`), ...(p.example === 4 ? ["J"] : [])]; }
 export function makeDraft(p: MeshParameters): Record<string, string> { return Object.fromEntries([...p.r.map((v, k) => [`R${k + 1}`, String(v)]), ...p.emf.map((v, k) => [`E${k + 1}`, String(v)]), ...(p.example === 4 ? [["J", String(p.current)]] : [])]); }

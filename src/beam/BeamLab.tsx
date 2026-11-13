@@ -11,10 +11,10 @@ const STORE = "electrotutor-beam-v1";
 type AddKind = BeamLoad["kind"] | BeamSupport["kind"] | "uniform";
 const presets: BeamPreset[] = ["simple", "left", "right", "fixed", "triangle", "continuous", "combined"];
 function Numeric({ label, value, min = -1e9, max = 1e9, step = "any", onChange }: { label: string; value: number; min?: number; max?: number; step?: number | "any"; onChange: (n: number) => void }) {
-  const [draft, setDraft] = useState(String(Number(value.toPrecision(10))));
+  const [draft, setDraft] = useState(String(value));
   const [invalid, setInvalid] = useState(false);
-  useEffect(() => { setDraft(String(Number(value.toPrecision(10)))); setInvalid(false); }, [value]);
-  return <label className="beam-number"><span>{label}</span><input aria-label={label} type="number" min={min} max={max} step={step} value={draft} aria-invalid={invalid} onChange={e => { const text = e.target.value; setDraft(text); const n = Number(text); const bad = text.trim() === "" || !Number.isFinite(n) || n < min || n > max; setInvalid(bad); if (!bad) onChange(n); }} onBlur={() => { setDraft(String(Number(value.toPrecision(10)))); setInvalid(false); }} /></label>;
+  useEffect(() => { setDraft(String(value)); setInvalid(false); }, [value]);
+  return <label className="beam-number"><span>{label}</span><input aria-label={label} type="number" min={min} max={max} step={step} value={draft} aria-invalid={invalid} onChange={e => { const text = e.target.value; setDraft(text); const n = Number(text); const bad = text.trim() === "" || !Number.isFinite(n) || n < min || n > max; setInvalid(bad); if (!bad) onChange(n); }} onBlur={() => { setDraft(String(value)); setInvalid(false); }} /></label>;
 }
 
 export default function BeamLab({ language = "ru" }: { language: Language }) {
@@ -29,7 +29,7 @@ export default function BeamLab({ language = "ru" }: { language: Language }) {
   const factor = unit === "m" ? 1 : unit === "cm" ? 100 : 1000;
   useEffect(() => setReady(true), []);
   const result = useMemo(() => solveBeam(s), [s]), solution = result.status === "ok" ? result : null;
-  const num = (n: number) => formatEngineeringNumber(n, language, { maximumFractionDigits: 4 });
+  const num = (n: number) => formatEngineeringNumber(n, language);
   const at = Math.min(s.length, cursor), load = s.loads.find(l => l.id === selected), support = s.supports.find(a => a.id === selected);
   function commit(next: BeamScheme) { try { dispatch({ type: "commit", value: validateBeam(next) }); setMessage(""); } catch { setMessage(c.invalid); } }
   function updateLoad(next: BeamLoad) { commit({ ...s, loads: s.loads.map(l => l.id === next.id ? next : l) }); }

@@ -8,6 +8,8 @@
 
 LINE-UX-029: браузерные проверки Пуска, отмены и повтора Worker, паузы и стопа, эталонного напряжения и расстояния, содержимого SVG, полного JSON/CSV и сохранения обеих сторон скачка в выгрузке события. Отдельная 3D-демонстрация сохраняет тест SVG и физического курсора.
 
+SHOW-020: 532 Vitest, 49 independent beam assertions, Astro check, lint, context and full build passed. All 65 targeted Chromium tests passed, including mobile viewports, Fourier numeric draft and raw CSV, and the full transmission probe series in JSON and CSV after zoom. A broader run passed 124 of 128 with the existing mesh assertions-only mode. Three intermittent transmission workbench failures passed in the final targeted run. The legacy Star menu test still expects the pre-catalog link name. Twelve mesh screenshot cases differ from their old labels in the initial run. The PNG baselines were retained.
+
 ## ET-LAB-020 — Монтаж и длительность
 
 511 тестов Vitest и 31 целевой сценарий Chromium прошли. В браузере отдельно проверены секундный расчёт, отмена отложенного запуска Worker и повтор, очистка с подтверждением, Undo/Redo, поворот и копирование номинала. Типизация, lint и учебная сборка прошли. Физический смартфон остаётся в ET-LAB-020-TOUCH.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { engineeringAxis, niceTicks } from "./scale";
-import { chooseEngineeringUnit, formatEngineeringNumber, formatEngineeringValue, inEngineeringUnit } from "./format";
+import { chooseEngineeringUnit, formatEngineeringLatexNumber, formatEngineeringNumber, formatEngineeringTicks, formatEngineeringValue, inEngineeringUnit } from "./format";
 import { nearestSample, plotAxes, validatePlotData, type EngineeringPlotData } from "./plot";
 import { firstOrderBode } from "./bode";
 import { microModel } from "../showcase/micro-models";
@@ -87,4 +87,17 @@ describe("plot/model consistency",()=>{
     for(const f of [0,.3333,.5,.73,1]){const s=sampleAtFraction(f,n,length,domain);expect(s.x).toBe(s.index*length/(n-1));expect(s.index).toBeGreaterThanOrEqual(0);expect(s.index).toBeLessThan(n);}
     expect(sampleAtFraction(1,n,length,domain)).toEqual({index:100,x:100000});
   });
+});
+
+it("formats ordinary decimals and normalized powers without changing numeric data", () => {
+  expect([1.500, 12.000, Math.PI, .2500, 1234.56789].map(value => formatEngineeringNumber(value, "ru")))
+    .toEqual(["1,5", "12", "3,142", "0,25", "1234,568"]);
+  expect(formatEngineeringNumber(1.388e-16, "ru")).toBe("1,388·10⁻¹⁶");
+  expect(formatEngineeringNumber(-6.084e-17, "uk")).toBe("-6,084·10⁻¹⁷");
+  expect(formatEngineeringNumber(9.9999e-16, "en")).toBe("1·10⁻¹⁵");
+  expect(formatEngineeringNumber(1.25e12, "en")).toBe("1.25·10¹²");
+  expect(formatEngineeringNumber(Number.MIN_VALUE, "ru")).toBe("5·10⁻³²⁴");
+  expect(formatEngineeringLatexNumber(1.388e-16, "ru")).toBe("1{,}388\\cdot10^{-16}");
+  expect(formatEngineeringTicks([1, 1.0001, 1.0002], "ru")).toEqual(["1", "1,0001", "1,0002"]);
+  expect(formatEngineeringTicks([1e12, 1.0001e12], "ru")).toEqual(["1·10¹²", "1,0001·10¹²"]);
 });

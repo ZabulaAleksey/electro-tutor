@@ -29,7 +29,7 @@ function field(label: string, value: number, set: (value: number) => void, min: 
 
 export default function TransmissionLineLab({ language }: { language: Language }) {
   const t = lineCopy(language);
-  const fmt=(value:number,digits=4)=>formatEngineeringNumber(value,language,{significantDigits:digits});
+  const fmt=(value:number)=>formatEngineeringNumber(value,language);
   const appliedRef=useRef<TransientConfig>(OPEN_PRESET), geometry=useRef<{v?:PlotGeometry;i?:PlotGeometry}>({});
   const [draft, setDraft] = useState<TransientConfig>(OPEN_PRESET);
   const [applied, setApplied] = useState<TransientConfig>(OPEN_PRESET);
@@ -142,7 +142,7 @@ export default function TransmissionLineLab({ language }: { language: Language }
       </div>
       <div className="line-transport-fields">
         {field(t.stop, stopMs, setStopMs, 0.001, 1000)}
-        <label className="line-field"><span>{t.speed}: {speed}×</span><input type="range" min="0.1" max="100" step="0.1" value={speed} onChange={event => setSpeed(Number(event.currentTarget.value))} /></label>
+        <label className="line-field"><span>{t.speed}: {fmt(speed)}×</span><input type="range" min="0.1" max="100" step="0.1" value={speed} onChange={event => setSpeed(Number(event.currentTarget.value))} /></label>
         {field(t.seek, seekMs, setSeekMs, 0, stopMs)}
         <button type="button" disabled={busy || !Number.isFinite(seekMs) || seekMs < 0} onClick={() => make({ type: "seek", targetS: seekMs / 1000 })}>{t.seek}</button>
       </div>

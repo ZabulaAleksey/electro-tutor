@@ -94,7 +94,7 @@ export default function ReactiveTwoPortLab({language}:{language:Language}){
  const roots=useMemo(()=>resonances(solved.impedance),[solved]);
  const graph=useMemo(()=>makePlot(solved.impedance,roots,language),[solved,roots,language]);
  const ends=limits(solved.impedance);
- const format=(n:number)=>formatEngineeringNumber(n,language,{significantDigits:9});
+ const format=(n:number)=>formatEngineeringNumber(n,language);
  const groupName=(kind:"series"|"parallel")=>kind==="series"?t("Последовательно","Послідовно"):t("Параллельно","Паралельно");
  const mode=(kind:"zero"|"pole")=>kind==="zero"?t("Нуль · резонанс напряжений","Нуль · резонанс напруг"):
   t("Полюс · резонанс токов","Полюс · резонанс струмів");

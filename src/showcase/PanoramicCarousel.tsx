@@ -10,8 +10,8 @@ const d=dc(),r=rc(1);
 import "./panorama-carousel.css";
 
 function PanoramaPlot({ id, language }: { id: PanoramaId; language: Language }) {
-  const value = (n: number, unit: string) => formatEngineeringValue(n,unit,language,{significantDigits:3});
-  const description = id === "dc" ? `E = ${value(24,"V")} · R₁ + R₂ = ${value(100,"Ω")} · I = ${value(d.i,"A")}` : id === "transient" ? `uC(0) = ${value(0,"V")} · τ = ${value(1,"s")} · uC(τ) = ${value(r.uc,"V")}` : id === "machines" ? "iA + iB + iC = 0 · Δφ = 120°" : `Z₀ = ${value(50,"Ω")} · Rн = ${value(100,"Ω")} · Γ = ${formatEngineeringNumber(lineStep(0,0).gamma,language,{significantDigits:3})}`;
+  const value = (n: number, unit: string) => formatEngineeringValue(n,unit,language);
+  const description = id === "dc" ? `E = ${value(24,"V")} · R₁ + R₂ = ${value(100,"Ω")} · I = ${value(d.i,"A")}` : id === "transient" ? `uC(0) = ${value(0,"V")} · τ = ${value(1,"s")} · uC(τ) = ${value(r.uc,"V")}` : id === "machines" ? "iA + iB + iC = 0 · Δφ = 120°" : `Z₀ = ${value(50,"Ω")} · Rн = ${value(100,"Ω")} · Γ = ${formatEngineeringNumber(lineStep(0,0).gamma,language)}`;
   return <div className="panorama-analysis" aria-label={language === "ru" ? "Аналитический пример" : "Аналітичний приклад"}>
     <span>{language === "ru" ? "Расчётная модель" : "Розрахункова модель"}</span>
     <EngineeringPlot plot={panoramaPlots[id]} language={language} compact label={panoramas.find(p => p.id === id)!.title[language]} />

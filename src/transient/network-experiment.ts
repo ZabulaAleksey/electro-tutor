@@ -1,3 +1,4 @@
+import { formatEngineeringNumber } from "../engineering/format";
 import type { Language } from "../types";
 import { fullTimeTrace, type WaveRun } from "./network";
 
@@ -14,7 +15,7 @@ export function experimentTimeLabel(seconds: number, language: Language, editabl
   const [value, unit] = seconds >= 1 ? [seconds,"s"] : seconds >= .001 || seconds === 0
     ? [seconds*1e3,"ms"] : [seconds*1e6,"\u00b5s"];
   const raw = editable ? value.toLocaleString("en-US",{useGrouping:false,maximumFractionDigits:20})
-    : value.toLocaleString(language === "ru" ? "ru-RU" : "uk-UA",{useGrouping:false,maximumFractionDigits:3});
+    : formatEngineeringNumber(value, language);
   return raw.replace(".",",")+" "+unit;
 }
 

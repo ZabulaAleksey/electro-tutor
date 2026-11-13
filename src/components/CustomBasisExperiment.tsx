@@ -31,7 +31,7 @@ export default function CustomBasisExperiment({samples,language}:{samples:Comple
  const validInterval=Math.abs(low)<=100&&Math.abs(high)<=100&&high>low;
  const fit=useMemo(()=>parsed&&validInterval?fitBasis(samples,parsed,[low,high],weighted,normalize):null,
   [samples,parsed,validInterval,low,high,weighted,normalize]);
- const format=(v:number)=>formatEngineeringNumber(v,language,{significantDigits:5});
+ const format=(v:number)=>formatEngineeringNumber(v,language);
  const colors=["green","orange","violet","muted"] as const;
  const label=t("Сумма компонент","Сума компонентів");
  return <div className="fourier-custom">

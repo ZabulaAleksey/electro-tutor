@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import katex from "katex";
 import fixtures from "./mesh-reference.json";
 import { meshPreset, solveMesh, type MeshParameters, type MeshExample } from "./mesh-current";
-import { format3, makeDraft, meshLatex, parameters, parseValue } from "../mesh/presentation";
+import { formatMeshReading, makeDraft, meshLatex, parameters, parseValue } from "../mesh/presentation";
 describe("mesh lab: independent nodal reference fixtures", () => {
   for (const f of fixtures) it(f.name, () => {
     const s = solveMesh(f.input as MeshParameters); expect(s.status).toBe("ok"); if (s.status !== "ok") throw Error(s.code);
@@ -40,8 +40,8 @@ it("rejects malformed, nonfinite, negative and out-of-domain inputs without clam
   for (const raw of ["", " ", "abc", "Infinity", "1e309", "1,2,3", "0x10"]) expect(Number.isFinite(parseValue(raw))).toBe(false);
   expect(parseValue("-1,25")).toBe(-1.25); expect(parseValue("1e3")).toBe(1000);
 });
-it("preserves full precision and source data; formats calculated values with three significant figures", () => {
-  expect(format3(1.2)).toBe("1,20"); expect(format3(-0)).toBe("0,00"); expect(format3(12345)).toBe("1,23e+4");
+it("preserves full precision and source data; formats calculated values with the common display precision", () => {
+  expect(formatMeshReading(1.2)).toBe("1,2"); expect(formatMeshReading(-0)).toBe("0"); expect(formatMeshReading(12345)).toBe("12345");
   const p = meshPreset(1); p.r[0] = 2.333333; const before = structuredClone(p); const s = solveMesh(p); expect(p).toEqual(before);
   expect(s.status).toBe("ok"); if (s.status === "ok") { expect(s.mesh[0]).not.toBe(Number(s.mesh[0].toPrecision(3))); expect(s.matrix[0][0]).toBe(4.333333); }
 });

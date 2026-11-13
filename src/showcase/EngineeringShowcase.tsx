@@ -1,14 +1,13 @@
 import {navigate} from "astro:transitions/client";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { Language } from "../types";
-import { formatNumber } from "../i18n";
 import { localePath } from "../site-path";
-import { localizeLatexNumbers } from "../engineering/format";
+import { formatEngineeringNumber, localizeLatexNumbers } from "../engineering/format";
 import Formula from "../components/Formula";
 import CircuitDiagram from "../components/CircuitDiagram";
 import { findStory, type Story } from "./catalog";
 import { assumptions, showcaseCopy, softwareExamples } from "./copy";
-import { INITIAL, ac, model, n, rc, type Parameters } from "./physics";
+import { INITIAL, ac, model, rc, type Parameters } from "./physics";
 import { CircuitVisual, Phasors, ScenePlot } from "./SceneVisual";
 import "./showcase.css";
 import PanoramicCarousel from "./PanoramicCarousel";
@@ -23,7 +22,7 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
   const [time, setTime] = useState(store.times[story.id] ?? (story.interaction === "illustration" ? 1 : 0));
   const [running, setRunning] = useState(store.running[story.id] ?? true);
   const timeRef = useRef(time), lastPaint = useRef(0);
-  const view = useMemo(() => model(story.visual, parameters), [story.visual, parameters]);
+  const view = useMemo(() => model(story.visual, parameters, language), [story.visual, parameters, language]);
   const dynamic = story.interaction === "dynamic";
   const maximumTime = story.visual === "rc" ? 5 * parameters.rc.resistance * parameters.rc.capacitance : Infinity;
   useEffect(() => {
@@ -49,9 +48,9 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
   const charge = rc(time, parameters.rc.resistance, parameters.rc.capacitance);
   const metrics = story.visual === "rc" ? [...view.metrics, { label: "uC(t)", value: charge.uc, unit: "V", color: "blue" }, { label: "i(t)", value: charge.i * 1000, unit: "mA", color: "orange" }] : view.metrics;
   const mesh = story.id === "numpy-mesh" || story.template === "lesson";
-  const software = story.template === "software" ? softwareExamples.find(item => item.name.startsWith(story.id === "python-rc" ? "Python" : story.id === "numpy-mesh" ? "NumPy" : "LTspice")) : undefined;
+  const software = story.template === "software" ? softwareExamples(language).find(item => item.name.startsWith(story.id === "python-rc" ? "Python" : story.id === "numpy-mesh" ? "NumPy" : "LTspice")) : undefined;
   function slider(label: string, value: number, min: number, max: number, step: number, update: (v: number) => void) {
-    return <label className="lab-slider"><span>{label}<strong>{formatNumber(language, value)}</strong></span><input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={event => update(Number(event.target.value))} /></label>;
+    return <label className="lab-slider"><span>{label}<strong>{formatEngineeringNumber(value, language)}</strong></span><input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={event => update(Number(event.target.value))} /></label>;
   }
   if (story.visual === "line") return <div className="panoramic-line-scene" data-scene={story.id} data-motion="paused"><LineSurface language={language} store={store} /><div className="lab-result-footer"><a href={localePath(language,story.route)}>{copy.open} ↗</a></div></div>;
   return <div className="lab-scene-grid" data-scene={story.id} data-template={story.template} data-motion={dynamic && running && motion && !reduced && time < maximumTime ? "running" : "paused"}>
@@ -66,8 +65,8 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
       </div>
       <div className={`lab-motion-controls ${dynamic ? "" : "lab-static-controls"}`}>
         {dynamic && <><button type="button" disabled={reduced} aria-label={running && !reduced ? copy.pause : copy.play} aria-pressed={running && !reduced} onClick={() => { if (!running && time >= maximumTime) reset(); else { store.running[story.id] = !running; setRunning(!running); } }}>{running && !reduced ? "Ⅱ" : "▷"} {running && !reduced ? copy.pause : copy.play}</button><button type="button" onClick={reset}>↺ {copy.reset}</button></>}
-        {story.visual === "rc" && <span data-model-time aria-live="off">{copy.realTime}: {formatNumber(language, time)} s</span>}
-        {story.visual === "ac" && <span>{copy.slowed} ×{n(phase.frequency * 4)}</span>}
+        {story.visual === "rc" && <span data-model-time aria-live="off">{copy.realTime}: {formatEngineeringNumber(time, language)} s</span>}
+        {story.visual === "ac" && <span>{copy.slowed} ×{formatEngineeringNumber(phase.frequency * 4, language)}</span>}
         {reduced && dynamic && <span>{copy.reduced}</span>}
       </div>
       <p className="lab-assumption">{assumptions[story.visual][language]}{story.visual === "dc" && ` ${copy.conventional}`}</p>
@@ -78,7 +77,7 @@ function LiveScene({ story, language, store, motion, reduced, bookingUrl }: { st
         {mesh ? <><CachedFormula>{String.raw`\begin{bmatrix}6&-2\\-2&8\end{bmatrix}\begin{bmatrix}I_1\\I_2\end{bmatrix}=\begin{bmatrix}24\\12\end{bmatrix}`}</CachedFormula><CachedFormula>{String.raw`I_1=\frac{54}{11}\,\mathrm A,\quad I_2=\frac{30}{11}\,\mathrm A`}</CachedFormula></> : <><CachedFormula>{localizeLatexNumbers(view.formula,language)}</CachedFormula><CachedFormula>{localizeLatexNumbers(view.substitution,language)}</CachedFormula></>}
       </div>
       <div className="lab-metrics">
-        {(mesh ? [{ label: "I₁", value: 54 / 11, unit: "A", color: "orange" }, { label: "I₂", value: 30 / 11, unit: "A", color: "violet" }, { label: "I₃", value: 24 / 11, unit: "A", color: "green" }] : metrics).map(metric => <div key={metric.label} className={`lab-metric ${metric.color ?? ""}`}><span>{metric.label}</span><strong data-result={metric.label}>{formatNumber(language, metric.value, 3)} <small>{metric.unit}</small></strong></div>)}
+        {(mesh ? [{ label: "I₁", value: 54 / 11, unit: "A", color: "orange" }, { label: "I₂", value: 30 / 11, unit: "A", color: "violet" }, { label: "I₃", value: 24 / 11, unit: "A", color: "green" }] : metrics).map(metric => <div key={metric.label} className={`lab-metric ${metric.color ?? ""}`}><span>{metric.label}</span><strong data-result={metric.label}>{formatEngineeringNumber(metric.value, language)} <small>{metric.unit}</small></strong></div>)}
       </div>
       {software ? <div className="lab-code"><span>{copy.code}</span><pre><code>{software.code}</code></pre><strong>{software.result}</strong><small>{copy.softwareNote}</small></div> : mesh ? <a className="lab-lesson-link" href={localePath(language, story.route)}>{copy.lesson} →</a> : <div className="lab-graph-panel">
         <div className="lab-panel-kicker"><span>03 / {copy.graphs}</span><span>{story.visual === "rc" ? "uC / E · i / i₀" : ""}</span></div>

@@ -16,7 +16,7 @@ const labels = {
 const categoryKeys = ["all", "math", "mechanics", "fluids", "waves", "thermo", "optics"] as const;
 const initialValues = Object.fromEntries(scienceCatalog.map((definition) => [definition.id, definition.parameters.map((parameter) => parameter.initial)])) as Values;
 
-const fmt = (value: number, language: Language, digits = 3) => formatEngineeringNumber(value, language, { significantDigits: 5, maximumFractionDigits: digits });
+const fmt = (value: number, language: Language, digits = 3) => formatEngineeringNumber(value, language, { maximumFractionDigits: digits });
 const finite = (value: number) => Number.isFinite(value);
 
 function plotFor(id: ScienceId, result: ScienceResult, language: Language) {

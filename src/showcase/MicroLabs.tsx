@@ -1,6 +1,5 @@
 import { type CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react";
 import type { Language } from "../types";
-import { formatNumber } from "../i18n";
 import { localePath } from "../site-path";
 import ToolCard from "../components/ToolCard";
 import Formula from "../components/Formula";
@@ -17,10 +16,10 @@ const initial = (lab: MicroLab): CardState => ({ a: lab.parameters[0].initial, b
 
 export function LiveParameter({ spec, value, language, onChange }: { spec: LiveParameterSpec; value: number; language: Language; onChange: (value: number) => void }) {
   const label = `${spec.symbol}, ${spec.unit}`;
-  return <label className="micro-parameter"><span>{label}<span className="micro-value">{formatNumber(language, value, 3)}</span></span><input style={{"--fill":`${(value-spec.min)/(spec.max-spec.min)*100}%`} as CSSProperties} type="range" aria-label={label} min={spec.min} max={spec.max} step={spec.step} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;
+  return <label className="micro-parameter"><span>{label}<span className="micro-value">{formatEngineeringNumber(value, language)}</span></span><input style={{"--fill":`${(value-spec.min)/(spec.max-spec.min)*100}%`} as CSSProperties} type="range" aria-label={label} min={spec.min} max={spec.max} step={spec.step} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;
 }
 export function TimeController({ time, max, language, onChange }: { time: number; max: number; language: Language; onChange: (value: number) => void }) {
-  return <label className="micro-time"><span>{microCopy[language].time}<span className="micro-value" data-micro-time>{formatNumber(language, time, 3)}</span></span><input style={{"--fill":`${time/max*100}%`} as CSSProperties} aria-label={microCopy[language].time} type="range" min={0} max={max} step={max / 100} value={time} onChange={event => onChange(Number(event.target.value))} /></label>;
+  return <label className="micro-time"><span>{microCopy[language].time}<span className="micro-value" data-micro-time>{formatEngineeringNumber(time, language)}</span></span><input style={{"--fill":`${time/max*100}%`} as CSSProperties} aria-label={microCopy[language].time} type="range" min={0} max={max} step={max / 100} value={time} onChange={event => onChange(Number(event.target.value))} /></label>;
 }
 const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected, update }: { lab: MicroLab; state: CardState; language: Language; selected: boolean; update: (id: string, state: CardState) => void }) {
   const [expanded, setExpanded] = useState(false), [paper,setPaper] = useState(false);

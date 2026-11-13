@@ -16,7 +16,7 @@
 .fourier-comparison th,.fourier-comparison td{text-align:start;padding:6px;border-bottom:1px solid var(--line)}
 .fourier-toolbar label{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .fourier-toolbar,.fourier-view-controls,.playground-controls {display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:.7rem 0}
-.fourier-lab button,.fourier-lab select,.fourier-lab input[type=number] {font:inherit;color:var(--ink);background:var(--surface-elevated);border:1px solid var(--line);border-radius:.5rem;padding:.5rem .65rem;min-height:40px;max-width:100%}
+.fourier-lab button,.fourier-lab select,.fourier-lab input[type=number],.fourier-row input[inputmode=decimal] {font:inherit;color:var(--ink);background:var(--surface-elevated);border:1px solid var(--line);border-radius:.5rem;padding:.5rem .65rem;min-height:40px;max-width:100%}
 .fourier-lab button {cursor:pointer}.fourier-lab button:hover {border-color:var(--blue)}
 .fourier-lab input[type=range] {width:100%;accent-color:var(--blue);min-height:32px}
 .fourier-lab input[type=checkbox] {accent-color:var(--blue);margin-right:.4rem}
@@ -41,7 +41,7 @@
 .fourier-lower {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin:1rem 0}
 .fourier-card h3 {font-size:1rem;margin:0 0 .7rem}
 .fourier-row {display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;align-items:center;border-bottom:1px solid var(--line);padding:.4rem 0;font-size:.8rem}
-.fourier-row label {min-width:0}.fourier-row input[type=number] {width:100%;font-variant-numeric:tabular-nums}
+.fourier-row label {min-width:0}.fourier-row input[inputmode=decimal] {width:100%;font-variant-numeric:tabular-nums}
 .fourier-playground summary {cursor:pointer;font-weight:650}
 .playground-controls label {display:grid;gap:.25rem;min-width:120px;flex:1}
 .fourier-lab :focus-visible {outline:2px solid var(--blue);outline-offset:3px}

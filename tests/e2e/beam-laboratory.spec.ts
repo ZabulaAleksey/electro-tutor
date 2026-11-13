@@ -22,7 +22,7 @@ test("inline editing, sign, deletion and real zero epures", async ({ page }) => 
 test("indeterminate fixed ends, section cursor/limits and variable stiffness editing", async ({ page }) => {
   await open(page); await page.getByLabel("Пример", { exact: true }).selectOption("fixed");
   expect(await value(page, "A-Fy")).toBe(8); expect(await value(page, "A-M")).toBeCloseTo(5.33333, 3); expect(await value(page, "B-M")).toBeCloseTo(-5.33333, 3);
-  await page.getByLabel("Сечение x, m", { exact: true }).fill("2"); await expect(page.locator('[data-beam-value="M"]')).toContainText("2,6667");
+  await page.getByLabel("Сечение x, m", { exact: true }).fill("2"); await expect(page.locator('[data-beam-value="M"]')).toContainText("2,667");
   await page.getByRole("button", { name: "Разделить участок", exact: true }).click(); await page.getByLabel("EI2, MN·m²").fill("40"); await expect(page.locator("[data-beam-segment]")).toHaveCount(2); await expect(page.locator("[data-beam-lab]")).toHaveAttribute("data-solver-status", "ok");
   expect(await value(page, "A-M")).not.toBeCloseTo(5.33333, 2);
 });

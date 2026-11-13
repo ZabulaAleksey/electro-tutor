@@ -7,7 +7,7 @@ test("an example constructs the chord, radius and working point with reproducibl
  await expect(page.locator(".circle-guide [role=status]")).toContainText("1/3");
  await expect(page.locator(".current-locus")).toHaveCount(0);
  await page.getByRole("button",{name:"Далее",exact:true}).click();
- await expect(page.locator("[data-circle-radius]")).toContainText("1,1547");
+ await expect(page.locator("[data-circle-radius]")).toContainText("1,155");
  await page.getByRole("button",{name:"Далее",exact:true}).click();
  await expect(page.locator(".current-locus")).toBeVisible();
  await expect(page.locator(".circle-readout")).toContainText("I(R)");
@@ -23,7 +23,7 @@ test("an example constructs the chord, radius and working point with reproducibl
   await guide.click();
   await page.getByRole("button",{name:"Далее",exact:true}).click();
  }
- await expect(page.locator("[data-circle-radius]")).toContainText("1,1547");
+ await expect(page.locator("[data-circle-radius]")).toContainText("1,155");
  await page.reload();
  await expect(page).toHaveURL(/ika=0.*za=60.*r=50/);
 });

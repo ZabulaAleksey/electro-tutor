@@ -5,7 +5,7 @@ import { meshPreset, solveMesh, type MeshExample } from "../models/mesh-current"
 import { localePath } from "../site-path";
 import MeshLabScheme from "./MeshLabScheme";
 import { copy, errors } from "./ru";
-import { format3, makeDraft, meshLatex, parameterKeys, parameters, parseValue, unitFor } from "./presentation";
+import { formatMeshReading, makeDraft, meshLatex, parameterKeys, parameters, parseValue, unitFor } from "./presentation";
 import "./mesh-lab.css";
 const base = "/topics/dc/mesh-current-method/";
 export default function MeshLab({persistContext=false,showMaterialLinks=true}: {persistContext?:boolean;showMaterialLinks?:boolean}) {
@@ -25,7 +25,7 @@ export default function MeshLab({persistContext=false,showMaterialLinks=true}: {
   const p = parameters(example, draft), result = solveMesh(p), ok = result.status === "ok" ? result : null, keys = parameterKeys(p), math = ok ? meshLatex(ok) : null;
   const choose = (id: MeshExample) => { setExample(id); setDraft(makeDraft(meshPreset(id))); setActive("R1"); setLoop(1); setUnknown(false); const url = new URL(location.href); url.searchParams.set("example", String(id)); history.replaceState(history.state, "", url); };
   const reset = () => { setDraft(makeDraft(meshPreset(example))); setActive("R1"); setLoop(1); };
-  const reading = (v: number | undefined, unit: string) => v === undefined ? "—" : `${format3(v)} ${unit}`;
+  const reading = (v: number | undefined, unit: string) => v === undefined ? "—" : `${formatMeshReading(v)} ${unit}`;
   return <div className="mesh-lab" data-ready={ready}>
     {showMaterialLinks && <nav className="mesh-lab-links" aria-label={copy.navigation}><a href={localePath("ru", base)}>{copy.textbook}</a><a href={`${localePath("ru", `${base}examples/`)}#example-${example}`}>{copy.examples}</a></nav>}
     <h1 tabIndex={persistContext ? -1 : undefined}>{copy.title}</h1><p className="mesh-lab-intro">{copy.staticHint}</p>
@@ -54,8 +54,8 @@ export default function MeshLab({persistContext=false,showMaterialLinks=true}: {
       <div className="mesh-math-scroll" tabIndex={0} aria-label={copy.matrixScroll}><Formula>{math.matrix}</Formula></div><div className="mesh-math-scroll"><Formula>{math.rhs}</Formula></div>
       {math.rows.map((row, k) => <div key={k} className="mesh-equation-row"><div className="mesh-math-scroll"><Formula>{row}</Formula></div><span>{ok.rowUnits[k]}</span></div>)}
       <p>{copy.nodalHint}</p><p>{copy.ohm}: {reading(ok.residuals.ohm, "A")}</p>
-      <h2>{copy.power}</h2><p>{copy.powerHint}</p><table><thead><tr><th>{copy.element}</th><th>{copy.voltage}</th><th>{copy.absorbedPower}</th></tr></thead><tbody>{ok.resistorPower.map((power, k) => <tr key={`R${k}`}><th>R{k + 1}</th><td>{format3(ok.voltages[k])}</td><td>{format3(power)}</td></tr>)}{ok.sources.map(source => <tr key={source.id} data-source={source.id}><th>{source.id}</th><td>{format3(source.voltage)}</td><td>{format3(source.power)}</td></tr>)}</tbody></table>
-      <p>{copy.sources}; V<sub>A</sub> = {reading(ok.nodeVoltage, "V")}{example === 4 && <>; {copy.sourceJ}: {reading(ok.nodeVoltage, "V")}; {copy.constraint}: {format3(ok.residuals.constraint)}</>}.</p>
+      <h2>{copy.power}</h2><p>{copy.powerHint}</p><table><thead><tr><th>{copy.element}</th><th>{copy.voltage}</th><th>{copy.absorbedPower}</th></tr></thead><tbody>{ok.resistorPower.map((power, k) => <tr key={`R${k}`}><th>R{k + 1}</th><td>{formatMeshReading(ok.voltages[k])}</td><td>{formatMeshReading(power)}</td></tr>)}{ok.sources.map(source => <tr key={source.id} data-source={source.id}><th>{source.id}</th><td>{formatMeshReading(source.voltage)}</td><td>{formatMeshReading(source.power)}</td></tr>)}</tbody></table>
+      <p>{copy.sources}; V<sub>A</sub> = {reading(ok.nodeVoltage, "V")}{example === 4 && <>; {copy.sourceJ}: {reading(ok.nodeVoltage, "V")}; {copy.constraint}: {formatMeshReading(ok.residuals.constraint)}</>}.</p>
     </> : <p>{copy.unavailable}</p>}</details>
   </div>;
 }

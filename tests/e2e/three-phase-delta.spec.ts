@@ -5,7 +5,7 @@ test("balanced delta shows separate branch and line currents and restores an ind
  const topology=page.getByLabel("Соединение нагрузки");
  await topology.selectOption("delta");
  await expect(page.getByRole("row").filter({has:page.getByRole("rowheader",{name:"IA",exact:true})})).toContainText("15 ∠");
- await expect(page.getByRole("row").filter({has:page.getByRole("rowheader",{name:"IAB",exact:true})})).toContainText("8.66 ∠");
+ await expect(page.getByRole("row").filter({has:page.getByRole("rowheader",{name:"IAB",exact:true})})).toContainText("8,66 ∠");
  await expect(page.locator("[data-vector=line-current-A]")).toBeVisible();
  await expect(page.locator("[data-vector=current-N]")).toHaveCount(0);
  await page.getByText("Самостоятельное построение",{exact:true}).click();

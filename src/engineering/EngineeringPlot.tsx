@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { chooseEngineeringUnit, formatAxisLabel, formatEngineeringNumber, inEngineeringUnit, parseAxisLabel } from "./format";
+import { chooseEngineeringUnit, formatAxisLabel, formatEngineeringNumber, formatEngineeringTicks, inEngineeringUnit, parseAxisLabel } from "./format";
 import { engineeringAxis } from "./scale";
 import { nearestSample, plotAxes, validatePlotData, type EngineeringPlotData, type PlotPoint } from "./plot";
 import type { EngineeringLocale, EngineeringUnit } from "./format";
@@ -28,8 +28,11 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
   useEffect(()=>{if(choices)units.current=choices;},[choices]);
   if(!axes||!choices) return <p className="engineering-plot-invalid" role="status">{language==="en"?"Invalid plot data":language==="uk"?"Некоректні дані графіка":"Некорректные данные графика"}</p>;
   const x=(v:number)=>screen(62+axes.x.position(v)*342), y=(v:number)=>screen(190-axes.y.position(v)*151);
-  const tick=(v:number,which:"x"|"y")=>formatEngineeringNumber(inEngineeringUnit(v,choices[which]),language,{significantDigits:Math.min(14,Math.max(4,Math.ceil(Math.log10(Math.max(...axes[which].domain.map(Math.abs))/axes[which].step))+2))});
-  const coordinates=(p:PlotPoint)=>`${names.x.quantity} = ${plot.categories?plot.categories[Math.round(p[0])]:formatEngineeringNumber(inEngineeringUnit(p[0],choices.x),language,{significantDigits:6})+" "+choices.x.symbol}; ${names.y.quantity} = ${formatEngineeringNumber(inEngineeringUnit(p[1],choices.y),language,{significantDigits:6})} ${choices.y.symbol}`;
+  const tickLabels = {
+    x: formatEngineeringTicks(axes.x.ticks.map(value => inEngineeringUnit(value, choices.x)), language),
+    y: formatEngineeringTicks(axes.y.ticks.map(value => inEngineeringUnit(value, choices.y)), language),
+  };
+  const coordinates=(p:PlotPoint)=>`${names.x.quantity} = ${plot.categories?plot.categories[Math.round(p[0])]:formatEngineeringNumber(inEngineeringUnit(p[0],choices.x),language)+" "+choices.x.symbol}; ${names.y.quantity} = ${formatEngineeringNumber(inEngineeringUnit(p[1],choices.y),language)} ${choices.y.symbol}`;
   const current=hover??selected;
   function move(clientX:number) { const el=svg.current;if(!el)return; const matrix=el.getScreenCTM();if(!matrix)return;const local=new DOMPoint(clientX,0).matrixTransform(matrix.inverse());const point=nearestSample(selectable,axes!.x.invert(Math.max(0,Math.min(1,(local.x-62)/342))));if(point)setHover(point);return point; }
   return <div className="engineering-plot-wrap" data-engineering-plot data-x-scale={axes.x.logarithmic?"log":"linear"} data-grid-mode={gridMode} data-x-domain={axes.x.domain.join(",")} data-y-domain={axes.y.domain.join(",")} data-x-unit={choices.x.symbol} data-y-unit={choices.y.symbol}>
@@ -40,7 +43,7 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
         {gridMode==="engineering" ? <>{axes.x.minorTicks.map(v=><path key={`x${v}`} d={`M${x(v)} 39 V190`}/>)}{axes.y.minorTicks.map(v=><path key={`y${v}`} d={`M62 ${y(v)} H404`}/>)}</> : <>{Array.from({length:69},(_,k)=><path key={`gx${k}`} d={`M${62+k*5} 39 V190`}/>)}{Array.from({length:31},(_,k)=><path key={`gy${k}`} d={`M62 ${40+k*5} H404`}/>)}</>}
       </g>
       <g className="engineering-major-grid" stroke="var(--line)" strokeWidth="1">{axes.x.ticks.map(v=><path key={`x${v}`} d={`M${x(v)} 39 V190`}/>)}{axes.y.ticks.map(v=><path key={`y${v}`} d={`M62 ${y(v)} H404`}/>)}</g>
-      <g fill="var(--muted)" fontSize={compact?15:12} className="engineering-ticks">{axes.x.ticks.map(v=><text key={`x${v}`} x={x(v)} y="211" textAnchor="middle">{plot.categories?.[Math.round(v)]??tick(v,"x")}</text>)}{axes.y.ticks.map(v=><text key={`y${v}`} x="53" y={y(v)+4} textAnchor="end">{tick(v,"y")}</text>)}</g>
+      <g fill="var(--muted)" fontSize={compact?15:12} className="engineering-ticks">{axes.x.ticks.map((v,index)=><text key={`x${v}`} x={x(v)} y="211" textAnchor="middle">{plot.categories?.[Math.round(v)]??tickLabels.x[index]}</text>)}{axes.y.ticks.map((v,index)=><text key={`y${v}`} x="53" y={y(v)+4} textAnchor="end">{tickLabels.y[index]}</text>)}</g>
       <path d="M62 37 V190 H407" stroke="var(--muted)" fill="none"/>
       <g fill="var(--ink)" fontSize={compact?16:13}><text data-axis-label="y" x="62" y="20">{formatAxisLabel(names.y.quantity,choices.y)}</text><text data-axis-label="x" x="405" y="238" textAnchor="end">{plot.categories?names.x.quantity:formatAxisLabel(names.x.quantity,choices.x)}</text></g>
       <g clipPath={`url(#engineering-clip-${id})`}>

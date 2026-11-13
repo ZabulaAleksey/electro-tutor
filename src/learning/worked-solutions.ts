@@ -19,7 +19,7 @@ export function getWorkedSolutions(language: Language) {
       lab: localePath("ru", `${mesh}lab/?example=${id}`),
       theory: localePath(language, mesh),
     })),
-    software: softwareExamples.map((example, index) => ({
+    software: softwareExamples(language).map((example, index) => ({
       ...example,
       lab: example.kind === "dc" ? localePath("ru", `${mesh}lab/?example=2`) : rcLab,
       theory: example.kind === "dc" ? localePath(language, mesh) : undefined,

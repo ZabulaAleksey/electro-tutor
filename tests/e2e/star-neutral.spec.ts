@@ -21,7 +21,7 @@ test("rectangular and polar fields share one impedance without stale calculation
   await resistance.fill("30");
   await reactance.fill("40");
   await expect(magnitude).toHaveValue("50");
-  await expect(angle).toHaveValue("53.130102");
+  await expect(angle).toHaveValue(String(Math.atan2(40, 30) * 180 / Math.PI));
   await magnitude.fill("80");
   await angle.fill("60");
   await resistance.blur();

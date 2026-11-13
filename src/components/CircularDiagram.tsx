@@ -22,7 +22,7 @@ import type { Language } from "../types";
 export default function CircularDiagram({ language, route = "/interactive/circular-diagram/" }: { language: Language; route?: string }) {
   const pathname = localePath(language, route);
   const copy = getLocale(language);
-  const fmt = (value:number,digits=2)=>formatEngineeringNumber(value,language,{maximumFractionDigits:digits});
+  const fmt = (value:number)=>formatEngineeringNumber(value,language);
   const [parameters, setParameters] = useState<CircularDiagramState>({
     ...CIRCULAR_DIAGRAM_DEFAULTS,
   });
@@ -162,9 +162,9 @@ export default function CircularDiagram({ language, route = "/interactive/circul
         </svg>
         <div className="circle-readout" aria-live="polite">
           {step!==null&&step>=1&&geometry.kind==="circle"&&<span data-circle-radius={geometry.radius}>
-            O = ({fmt(geometry.center.re,4)}; {fmt(geometry.center.im,4)}) A · r = {fmt(geometry.radius,4)} A
+            O = ({fmt(geometry.center.re)}; {fmt(geometry.center.im)}) A · r = {fmt(geometry.radius)} A
           </span>}
-          {visibleVectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value), 1)}° A</span>)}
+          {visibleVectors.map(v => <span key={v.id}><b>{v.label}</b> = {fmt(complexMagnitude(v.value))}∠{fmt(complexArgumentDegrees(v.value))}° A</span>)}
           {!model.current && <span className="singularity-note"><b>I(R) → ∞</b> — {copy.diagram.singularity}</span>}
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { formatEngineeringNumber } from "../engineering/format";
 import { useMemo, useRef, useState, useEffect } from "react";
 import {subtractComplex,type Complex} from "../models/circular-diagram";
 import {
@@ -12,21 +13,13 @@ import "./StarNeutralLab.css";
 type StarCopy = ReturnType<typeof getLocale>["star"];
 type ImpedancePart = "re" | "im" | "magnitude" | "angle";
 
-function display(value: number, digits = 2): string {
-  return Number(value.toFixed(digits)).toString();
-}
-
-function inputDisplay(value: number): string {
-  return Number(value.toPrecision(8)).toString();
-}
-
 function NumberField({ label, value, min, max, onChange }: {
   label: string; value: number; min: number; max: number; onChange: (value: number) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState(() => inputDisplay(value));
+  const [draft, setDraft] = useState(() => String(value));
   useEffect(() => {
-    if (document.activeElement !== input.current) setDraft(inputDisplay(value));
+    if (document.activeElement !== input.current) setDraft(String(value));
   }, [value]);
   return <label className="star-field"><span>{label}</span><input ref={input} type="number" inputMode="decimal"
     min={min} max={max} step="any" value={draft}
@@ -36,10 +29,10 @@ function NumberField({ label, value, min, max, onChange }: {
       const parsed = Number(raw);
       if (!Number.isFinite(parsed)) { setDraft(raw); return; }
       const bounded = Math.min(max, Math.max(min, parsed));
-      setDraft(parsed === bounded ? raw : inputDisplay(bounded));
+      setDraft(parsed === bounded ? raw : String(bounded));
       onChange(bounded);
     }}
-    onBlur={() => setDraft(inputDisplay(value))} /></label>;
+    onBlur={() => setDraft(String(value))} /></label>;
 }
 
 function PhasorPractice({voltage,current,language}:{voltage:Complex;current:Complex;language:Language}){
@@ -110,12 +103,13 @@ function ImpedanceFields({ label, value, onChange, copy, disabled = false }: {
   </fieldset>;
 }
 
-function ComplexReadout({ label, value, unit }: { label: string; value: Complex; unit: string }) {
+function ComplexReadout({ label, value, unit, language }: { label: string; value: Complex; unit: string; language: Language }) {
+  const display = (number: number) => formatEngineeringNumber(number, language);
   const polar = rectangularToPolar(value);
-  const angle = polar.magnitude < 1e-9 ? 0 : polar.angle;
-  const sign = value.im < 0 && display(value.im) !== "0" ? "−" : "+";
+  const angle = polar.magnitude === 0 ? 0 : polar.angle;
+  const sign = value.im < 0 ? "−" : "+";
   return <tr><th scope="row">{label}</th>
-    <td>{display(polar.magnitude)} ∠ {display(angle, 1)}° {unit}</td>
+    <td>{display(polar.magnitude)} ∠ {display(angle)}° {unit}</td>
     <td>{display(value.re)} {sign} j{display(Math.abs(value.im))} {unit}</td></tr>;
 }
 
@@ -169,16 +163,16 @@ export default function StarNeutralLab({ language }: { language: Language }) {
     {calculation.ok && <section className="star-card star-results" aria-live="polite"><h2>{copy.results}</h2>
       <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
         <tbody>
-          {!delta&&<ComplexReadout label="UₙN" value={calculation.result.displacement} unit="V" />}
-          {PHASES.map(phase => <ComplexReadout key={`U${phase}`} label={delta?`UΔ,${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`U${phase.toLowerCase()}`} value={calculation.result.voltages[phase]} unit="V" />)}
-          {PHASES.map(phase => <ComplexReadout key={`I${phase}`} label={delta?`I${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`I${phase}`} value={calculation.result.currents[phase]} unit="A" />)}
-          {calculation.result.lineCurrents?PHASES.map(phase=><ComplexReadout key={phase} label={`I${phase}`}
-            value={calculation.result.lineCurrents![phase]} unit="A"/>):<ComplexReadout label="Iₙ" value={calculation.result.neutralCurrent} unit="A"/>}
+          {!delta&&<ComplexReadout language={language} label="UₙN" value={calculation.result.displacement} unit="V" />}
+          {PHASES.map(phase => <ComplexReadout language={language} key={`U${phase}`} label={delta?`UΔ,${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`U${phase.toLowerCase()}`} value={calculation.result.voltages[phase]} unit="V" />)}
+          {PHASES.map(phase => <ComplexReadout language={language} key={`I${phase}`} label={delta?`I${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`I${phase}`} value={calculation.result.currents[phase]} unit="A" />)}
+          {calculation.result.lineCurrents?PHASES.map(phase=><ComplexReadout language={language} key={phase} label={`I${phase}`}
+            value={calculation.result.lineCurrents![phase]} unit="A"/>):<ComplexReadout language={language} label="Iₙ" value={calculation.result.neutralCurrent} unit="A"/>}
         </tbody></table></div>
     </section>}
     {calculation.ok&&<section className="star-card star-line-results"><h2>{t("Линейные напряжения","Лінійні напруги")}</h2>
       <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
-        <tbody>{LINE_PAIRS.map(([name,from,to])=><ComplexReadout key={name} label={"U"+name}
+        <tbody>{LINE_PAIRS.map(([name,from,to])=><ComplexReadout language={language} key={name} label={"U"+name}
           value={subtractComplex(calculation.result.sources[from],calculation.result.sources[to])} unit="V"/>)}</tbody>
       </table></div>
     </section>}

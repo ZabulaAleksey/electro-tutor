@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { validateFourierConfig } from "../../src/fourier/config";
 import { expect, test } from "@playwright/test";
 
@@ -65,7 +66,7 @@ test("negative phase entry preserves a composable numeric draft", async ({ page 
   await field.fill("");
   await field.pressSequentially("-1.25");
   await field.press("Tab");
-  await expect(field).toHaveValue("-1.25");
+  await expect(field).toHaveValue("-1,25");
 });
 
 test("disabling a selected harmonic removes its vector without substituting a hidden one", async ({ page }) => {
@@ -81,4 +82,26 @@ test("playground configuration restores the actual signal after leaving its mode
  await lab.locator(".playground-controls select").selectOption("triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
  await lab.getByRole("button",{name:"Сохранить",exact:true}).click();const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-fourier-config")!));expect(validateFourierConfig(saved),JSON.stringify({...saved,points:saved?.points?.length})).toBe(true);await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
  await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);
+});
+
+test("Fourier rounds its labels and keeps full precision in the CSV and editable draft", async ({ page }) => {
+  await page.goto("/ru/interactive/fourier/");
+  const lab = page.locator("[data-fourier-lab]");
+  await lab.locator("select").first().selectOption("interleaved");
+  const dc = lab.getByLabel("amplitude 0", { exact: true });
+  const harmonic = lab.getByLabel("amplitude 1", { exact: true });
+  await expect(dc).toHaveValue("0");
+  await dc.fill("1,388e-16");
+  await dc.press("Tab");
+  await expect(dc).toHaveValue("1,388·10⁻¹⁶");
+  await harmonic.fill("0,123456789");
+  await harmonic.press("Tab");
+  await expect(harmonic).toHaveValue("0,123");
+  await harmonic.focus();
+  await expect(harmonic).toHaveValue("0.123456789");
+  const download = page.waitForEvent("download");
+  await lab.getByRole("button", { name: "CSV", exact: true }).click();
+  const rows = (await readFile((await (await download).path())!, "utf8")).trim().split("\n").map(row => row.split(","));
+  expect(Number(rows.find(row => row[0] === "0")?.[3])).toBe(1.388e-16);
+  expect(Number(rows.find(row => row[0] === "1")?.[3])).toBe(0.123456789);
 });

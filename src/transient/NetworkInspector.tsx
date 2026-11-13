@@ -1,5 +1,5 @@
 import type { Language } from "../types";
-import { formatEngineeringValue } from "../engineering/format";
+import { formatEngineeringNumber, formatEngineeringValue } from "../engineering/format";
 import EngineeringPlot from "../engineering/EngineeringPlot";
 import { diodeCurrent, type DiodeParameters } from "./line-diode";
 import { LoadEditor, NumberEdit } from "./NetworkEditor";
@@ -217,7 +217,7 @@ function DiodeInspector({language,title,parameters,point,update,move,remove,brid
       curves:[{label:"Iᴅ(Uᴅ)",color:"blue",points}]}}
     domains={{x:[min,max],y:[points[0][1],Math.max(10,points.at(-1)![1])]}}
     selected={point!==undefined?[point,diodeCurrent(point,parameters)*1000]:undefined}/>
-   {point!==undefined&&<output data-diode-point data-diode-voltage={point} data-diode-current={diodeCurrent(point,parameters)}>Uᴅ = {point.toPrecision(4)} V · Iᴅ = {(diodeCurrent(point,parameters)*1000).toPrecision(4)} mA</output>}
+   {point!==undefined&&<output data-diode-point data-diode-voltage={point} data-diode-current={diodeCurrent(point,parameters)}>Uᴅ = {formatEngineeringNumber(point, language)} V · Iᴅ = {formatEngineeringNumber(diodeCurrent(point,parameters)*1000, language)} mA</output>}
    <small>{t("300 K. Модель учитывает статическую ВАХ.","300 K. Модель враховує статичну ВАХ.")}</small>
   </details>
  </div>;

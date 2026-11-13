@@ -710,7 +710,7 @@ export default function NetworkWorkbench(props: Props) {
       },
     };
   }
-  const number = (value: number) => formatEngineeringNumber(value, language, { significantDigits: 4 });
+  const number = (value: number) => formatEngineeringNumber(value, language);
   const rotation=(item:Selection)=>layout[rotationKey(item)]??(item.kind==="detached"?props.detached.find(part=>part.id===item.id)?.rotation??0:0);
   const positionX=(key:string)=>(drawnLayout[horizontalKey(key)]??baseX(key))-baseX(key);
   const baseEnd=nodeX(model.sections.length)+62;

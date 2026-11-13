@@ -5,9 +5,10 @@ import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph } from "../eng
 import { formatEngineeringNumber } from "../engineering/format";
 import { contactClosed, findLoad, type Load, type Network } from "./network";
 import { LoadCircuit, type Layout } from "./NetworkEditor";
+import { compoundLoadRoutes } from "./network-load-layout";
 import { contactKind, isTwoTerminal, placementTargets, type DetachedPart, type Placement, type Selection, type Tool } from "./network-edit";
 import { networkError } from "./network-copy";
-import { leadPath, routeLeadPair, type RoutingBox } from "./network-routing";
+import { leadPath, routeLeadPair, routeSymbolLeads, symbolBounds, type RoutingBox } from "./network-routing";
 
 type Point = { x: number; y: number };
 type View = Point & { zoom: number };
@@ -102,6 +103,67 @@ function loadGeometry(positions: Layout, sections: Network["sections"], source: 
   ],occupied,body);
   return routes ? {x,y,angle,label,paths:routes.map(leadPath)} : null;
 }
+
+function traceLayout(positions:Layout,model:Network,load:Load,empty:boolean) {
+    if(empty)return {parts:new Map<string,string[]>(),compound:undefined,load:null};
+    const parts=new Map<string,string[]>();
+    const dx=(key:string)=>(positions[horizontalKey(key)]??baseX(key))-baseX(key);
+    const dy=(key:string)=>(positions[key]??82)-82;
+    const rotationOf=(key:string)=>positions["@rot-"+key.replace(/^@/,"")]??0;
+    const sections=model.sections;
+    const terminal=nodeX(sections.length),baseEnd=terminal+62;
+    const groundY=213;
+    const contacts=[...model.series??[],...model.branches??[]];
+    const before=(index:number)=>nodeX(index)-(model.series?.some(link=>link.from===index)?15:0);
+    const source=before(model.source.node);
+    const simpleLoad=!load.children?.length;
+    const labelledLoad=["r","l","c","diode"].includes(load.kind);
+    const after=(index:number)=>nodeX(index)+(model.series?.some(link=>link.from===index)?15:0);
+    const compound=load.children?.length?compoundLoadRoutes(load,96,id=>({x:dx("@load-"+id),y:dy("@load-"+id)}),id=>rotationOf("@load-"+id)):undefined;
+    if(compound===null)return null;
+    const terminalLoad=simpleLoad?loadGeometry(positions,sections,source,labelledLoad):null;
+    if(simpleLoad&&!terminalLoad)return null;
+    const components:{key:string;nodes:[Point,Point];center:Point;angle:number;pins:[number,number];height:number;changed:boolean}[]=[];
+    const route=(key:string,nodes:[Point,Point],center:Point,angle:number,pins:[number,number],height:number,baselineY=82)=>{
+      const changed=!!(dx(key)||rotationOf(key)||(positions[key]??baselineY)!==baselineY);
+      components.push({key,nodes,center,angle,pins,height,changed});
+    };
+    sections.forEach((section,i)=>route(section.id,[{x:after(i),y:axis},{x:before(i+1),y:axis}],
+      {x:nodeX(i)+85+dx(section.id),y:positions[section.id]??axis},rotationOf(section.id),[-53,53],5,axis));
+    route("@source",[{x:source,y:groundY},{x:source,y:axis}],{x:source+dx("@source"),y:164+dy("@source")},
+      -90+rotationOf("@source"),[-23,model.source.resistanceOhm>0?49:23],15);
+    contacts.forEach(link=>{
+      const series=model.series?.some(item=>item.id===link.id),vertical=link.to==="reference";
+      const from=before(link.from);
+      const to=vertical?from-23:series?after(link.from):before(link.to as number);
+      const key="@contact-"+link.id;
+      const scale=series?15/23:1,combined=!!link.switch&&link.resistanceOhm!==undefined;
+      route(key,[{x:from,y:axis},{x:to,y:vertical?groundY:axis}],
+        {x:(vertical?to:(from+to)/2)+dx(key),y:(series?axis:vertical?160:234+(model.branches?.indexOf(link)??0)*9)+dy(key)},
+        (vertical?90:to<from?180:0)+rotationOf(key),[(combined?-46:-23)*scale,23*scale],12*scale);
+    });
+    model.shunts.forEach(shunt=>{
+      const anchor=before(shunt.node),key="@shunt-"+shunt.node;
+      route(key,[{x:anchor,y:axis},{x:anchor-33,y:groundY}],
+        {x:anchor-33+dx(key),y:161+dy(key)},90+rotationOf(key),[-15,15],9);
+    });
+    if(compound&&(dx("@load")||dy("@load"))){
+      const outer=routeSymbolLeads([{x:terminal,y:axis},{x:baseEnd,y:groundY}],
+        {x:baseEnd+dx("@load"),y:148.5+dy("@load")},90,[-48,48],58);
+      if(!outer)return null;
+      parts.set("@load",outer);
+    }
+    const boxes=components.map(item=>symbolBounds(item.center,item.angle,item.pins,item.height));
+    for(const [i,item] of components.entries()){
+      if(!item.changed)continue;
+      const obstacles=boxes.filter((_,j)=>j!==i);
+      if(terminalLoad)obstacles.push(symbolBounds({x:terminalLoad.x,y:terminalLoad.y},terminalLoad.angle,[-23,23],13));
+      const paths=routeSymbolLeads(item.nodes,item.center,item.angle,item.pins,item.height,obstacles);
+      if(!paths)return null;
+      parts.set(item.key,paths);
+    }
+    return {parts,compound,load:terminalLoad};
+  }
 
 export default function NetworkWorkbench(props: Props) {
   const { model, layout, language, selected, onSelect, onCommit } = props;
@@ -620,9 +682,8 @@ export default function NetworkWorkbench(props: Props) {
   }
   const number = (value: number) => formatEngineeringNumber(value, language, { significantDigits: 4 });
   const rotation=(item:Selection)=>layout[rotationKey(item)]??(item.kind==="detached"?props.detached.find(part=>part.id===item.id)?.rotation??0:0);
-  const positionX=(key:string)=>(geometry?.key===key?geometry.dx:(groupPreview??layout)[horizontalKey(key)]??baseX(key))-baseX(key);
+  const positionX=(key:string)=>(drawnLayout[horizontalKey(key)]??baseX(key))-baseX(key);
   const baseEnd=nodeX(model.sections.length)+62;
-  const end=baseEnd+positionX("@load");
   const nodeAnchor = junctionX;
   const source = nodeAnchor(model.source.node);
   const load = props.load;
@@ -638,28 +699,28 @@ export default function NetworkWorkbench(props: Props) {
     const contact=[...model.series??[],...model.branches??[]].find(link=>link.id===next.relocate);
     return contact?contactKind(contact):"r";
   };
-  const positionY=(key:string,base:number)=>geometry?.key===key?geometry.y:(groupPreview??layout)[key]??base;
-  const sourceX=source+positionX("@source");
-  const sourceY=164+positionY("@source",82)-82;
-  const sourceAngle=-90+rotation({kind:"source"}),sourceA=turned(sourceX,sourceY,-23,sourceAngle),sourceB=turned(sourceX,sourceY,23,sourceAngle);
-  const sourceR=turned(sourceX,sourceY,49,sourceAngle);
-  const loadY=148.5+positionY("@load",82)-82;
-  const loadAngle=90+rotation({kind:"load"}),loadA=turned(end,loadY,-23,loadAngle),loadB=turned(end,loadY,23,loadAngle);
+  const positionY=(key:string,base:number)=>drawnLayout[key]??base;
   function commitLayout(next: Layout) {
-    if (!props.empty && !load.children?.length && !loadGeometry(next,model.sections,source,labelledLoad)) {
+    if (!traceLayout(next,model,model.load,props.empty)) {
       setMessage(explain("unroutable-layout"));
       return;
     }
     setMessage("");
     props.onLayout(next);
   }
-  const simpleLoad = !props.empty && !load.children?.length;
-  const labelledLoad = load.kind === "r" || load.kind === "c" || load.kind === "l" || load.kind === "diode";
-  const savedLoad = useMemo(() => simpleLoad ? loadGeometry(layout,model.sections,source,labelledLoad) : null,
-    [simpleLoad,layout,model.sections,source,labelledLoad]);
   const liveLayout = groupPreview ?? (geometry ? {...layout,[geometry.key]:geometry.y,[horizontalKey(geometry.key)]:geometry.dx} : layout);
-  const visibleLoad = simpleLoad && liveLayout !== layout
-    ? loadGeometry(liveLayout,model.sections,source,labelledLoad) ?? savedLoad : savedLoad;
+  const savedRoutes=useMemo(()=>traceLayout(layout,model,model.load,props.empty),[layout,model,props.empty]);
+  const previewRoutes=liveLayout!==layout?traceLayout(liveLayout,model,model.load,props.empty):savedRoutes;
+  const drawnLayout=previewRoutes?liveLayout:layout;
+  const routes=previewRoutes??savedRoutes;
+  const visibleLoad=routes?.load;
+  const end=baseEnd+positionX("@load");
+  const sourceX=source+positionX("@source");
+  const sourceY=164+positionY("@source",82)-82;
+  const sourceAngle=-90+rotation({kind:"source"}),sourceA=turned(sourceX,sourceY,-23,sourceAngle),sourceB=turned(sourceX,sourceY,23,sourceAngle);
+  const sourceR=turned(sourceX,sourceY,49,sourceAngle);
+  const loadY=148.5+positionY("@load",82)-82;
+  const loadAngle=90+rotation({kind:"load"}),loadA=turned(end,loadY,-23,loadAngle),loadB=turned(end,loadY,23,loadAngle);
   const visibleX = visibleLoad?.x ?? end, visibleY = visibleLoad?.y ?? loadY;
   const visibleAngle = visibleLoad?.angle ?? loadAngle;
   const visibleA = visibleLoad ? turned(visibleX,visibleY,-23,visibleAngle) : loadA;
@@ -720,7 +781,7 @@ export default function NetworkWorkbench(props: Props) {
             const links=angle? `${routed(left,axis,a,y+(a.y>y?64:-64))} ${routed(right,axis,b,y+(b.y<y?-64:64))}`:
               `${wire(left,axis,a.x,a.y)} ${wire(right,axis,b.x,b.y)}`;
             return <g key={section.id} data-line-section={section.id} {...object({ kind: "line", id: section.id }, section.id + " · " + t("линия", "лінія"))}>
-              <path d={links} />
+              <path data-component-leads={section.id} d={routes?.parts.get(section.id)?.join(" ")??links} />
               <path d={`M${x+32} ${y}h106`} className="network-transmission-stroke" transform={angle?`rotate(${angle} ${x+85} ${y})`:undefined}/>
               <rect className="network-svg-hit" x={x + 31} y={y - 30} width="108" height="60" transform={angle?`rotate(${angle} ${x+85} ${y})`:undefined}/>
               <text x={x + 34} y={y - 18}>{section.id} · {number(section.impedanceOhm)} Ω</text>
@@ -731,7 +792,7 @@ export default function NetworkWorkbench(props: Props) {
             <g key={index}><circle className="network-junction" cx={nodeX(index)-(model.series?.some(link=>link.from===index)?15:0)} cy={axis} r="3" />
               <text x={nodeX(index) - 4} y={axis - 17}>{index}</text></g>)}
           <g {...object({ kind: "source" }, t("Источник", "Джерело"))}>
-            <path d={`${wire(source,axis,model.source.resistanceOhm>0?sourceR.x:sourceB.x,model.source.resistanceOhm>0?sourceR.y:sourceB.y,true)} ${wire(source,213,sourceA.x,sourceA.y,true)}`}/>
+            <path data-component-leads="@source" d={routes?.parts.get("@source")?.join(" ")??`${wire(source,axis,model.source.resistanceOhm>0?sourceR.x:sourceB.x,model.source.resistanceOhm>0?sourceR.y:sourceB.y,true)} ${wire(source,213,sourceA.x,sourceA.y,true)}`}/>
             {model.source.resistanceOhm>0&&<g transform={`translate(${sourceX} ${sourceY}) rotate(${sourceAngle})`}><ResistorGlyph x={23} y={0} scale={.55} terminalSpan={26/.55}/></g>}
             <g transform={`translate(${sourceX} ${sourceY}) rotate(${sourceAngle})`}><Glyph kind="source" reverse={model.source.voltageV<0}/></g>
             <rect className="network-svg-hit" x={sourceX-22} y={sourceY-26} width="50" height="53"/>
@@ -739,8 +800,8 @@ export default function NetworkWorkbench(props: Props) {
             {model.source.resistanceOhm>0&&<text x={sourceX+19} y={sourceY+19}>Rₛ = {number(model.source.resistanceOhm)} Ω</text>}
           </g>
           {load.children?.length?<g>
-            <path d={`M${nodeX(model.sections.length)} ${axis}H${end}V${loadY-48} ${wire(baseEnd,213,end,loadY+48,true)}`}/>
-            <LoadCircuit load={load} language={language} rotation={id=>rotation({kind:"load",id})} displacement={id=>{
+            <path d={routes?.parts.get("@load")?.join(" ")??`M${nodeX(model.sections.length)} ${axis}H${end}V${loadY-48} ${wire(baseEnd,213,end,loadY+48,true)}`}/>
+            <LoadCircuit routes={routes?.compound} load={load} language={language} rotation={id=>rotation({kind:"load",id})} displacement={id=>{
                 const key="@load-"+id;
                 return {x:positionX(key),y:positionY(key,82)-82};
               }} onObject={(id,label)=>object({kind:"load",id},label) as React.SVGProps<SVGGElement>}
@@ -778,7 +839,7 @@ export default function NetworkWorkbench(props: Props) {
               link.component?.kind==="l"?number(link.component.value*1e3)+" mH":
               link.component?.kind==="c"?number(link.component.value*1e6)+" µF":"";
             return <g key={link.id}>
-              {rotated?<path d={`${routed(from,axis,left,y+(left.y>y?58:-58))} ${routed(to,vertical?213:axis,right,y+(right.y<y?-58:58))}`} className={series||vertical?undefined:"network-bridge-wire"}/>:
+              {routes?.parts.has(key)?<path data-component-leads={link.id} d={routes.parts.get(key)!.join(" ")}/>:rotated?<path d={`${routed(from,axis,left,y+(left.y>y?58:-58))} ${routed(to,vertical?213:axis,right,y+(right.y<y?-58:58))}`} className={series||vertical?undefined:"network-bridge-wire"}/>:
                 vertical?<path d={`${wire(from,axis,left.x,left.y,true)} ${wire(to,213,right.x,right.y,true)}`}/>:
                 <path d={`${wire(from,axis,left.x,left.y)} ${wire(to,axis,right.x,right.y)}`} className={series?undefined:"network-bridge-wire"}/>}
               {!series&&<><circle className="network-junction" cx={from} cy={axis} r="3"/><circle className="network-junction" cx={to} cy={vertical?213:axis} r="3"/></>}
@@ -798,7 +859,7 @@ export default function NetworkWorkbench(props: Props) {
             const angle=90+rotation({kind:"shunt",node:shunt.node});
             const a=turned(x,y,-15,angle),b=turned(x,y,15,angle);
             return <g key={shunt.node} {...object({ kind: "shunt", node: shunt.node }, labels.shunt + " · " + shunt.node)}>
-              <path d={`${wire(anchor,axis,a.x,a.y,true)} ${wire(anchor-33,213,b.x,b.y,true)}`}/>
+              <path data-component-leads={`shunt-${shunt.node}`} d={routes?.parts.get("@shunt-"+shunt.node)?.join(" ")??`${wire(anchor,axis,a.x,a.y,true)} ${wire(anchor-33,213,b.x,b.y,true)}`}/>
               <g transform={`translate(${x} ${y}) rotate(${angle})`}><ResistorGlyph x={-15} y={0} scale={.75} terminalSpan={40}/></g>
               <rect className="network-svg-hit" x={x-21} y={y-25} width="44" height="50"/>
               <text x={x-13} y={y+31}>{number(shunt.resistanceOhm)} Ω</text>

@@ -1,3 +1,4 @@
+import { size } from "./network-load-layout";
 import {useEffect,useRef,useState} from "react";
 import {replaceLoad,removeLoad} from "./network-edit";
 import type {Language} from "../types";
@@ -22,12 +23,10 @@ export function LoadEditor({load,onChange,language,live,timeS,onResistance,compa
  return <div>{render(load)}<small>{ru?"Начальные uC(0) и iL(0) заданы для каждого элемента. Несогласованные состояния блокируют расчёт. R/L/C — сосредоточенные линейные элементы.":"Початкові uC(0) та iL(0) задано для кожного елемента. Неузгоджені стани блокують розрахунок. R/L/C — зосереджені лінійні елементи."}</small></div>;
 }
 export type Layout=Record<string,number>;
-type Size={w:number;h:number};
-function size(l:Load):Size{if(!l.children?.length)return{w:90,h:90};const sizes=l.children.map(size);if(l.kind==="switch")return{w:sizes[0].w+30,h:sizes[0].h+70};if(l.kind==="parallel")return{w:sizes.reduce((s,x)=>s+x.w,0)+20,h:Math.max(...sizes.map(s=>s.h))+40};return{w:Math.max(...sizes.map(s=>s.w))+20,h:sizes.reduce((s,x)=>s+x.h,0)+20};}
-export function LoadCircuit({load,language,onObject,region,displacement,rotation}:{load:Load;language:Language;
+export function LoadCircuit({load,language,onObject,region,displacement,rotation,routes}:{load:Load;language:Language;
  onObject?:(id:string,label:string)=>React.SVGProps<SVGGElement>;
  region?:{x:number;y:number;width:number;height:number};
- displacement?:(id:string)=>{x:number;y:number}; rotation?:(id:string)=>number}){
+ displacement?:(id:string)=>{x:number;y:number}; rotation?:(id:string)=>number; routes?:Map<string,string[]>}){
  const root=size(load),scale=region?region.height/root.h:1;
  const turn=(x:number,y:number,center:number,angle:number)=>{
   const r=angle*Math.PI/180,dx=x,dy=y-center;
@@ -36,13 +35,13 @@ export function LoadCircuit({load,language,onObject,region,displacement,rotation
  const leads=(fromX:number,fromY:number,toX:number,toY:number)=>`M${fromX} ${fromY}H${toX}V${toY}`;
  const render=(l:Load,x:number,y:number):React.ReactNode=>{const s=size(l),anchor=x+s.w/2,move=displacement?.(l.id),cx=anchor+(move?.x??0)/scale,dy=(move?.y??0)/scale;
   if(l.kind==="switch"&&l.children?.length){const child=l.children[0],cs=size(child),closed=l.closed??true,angle=rotation?.(l.id)??0,center=y+30+dy;
- const a=turn(0,y+20+dy,center,angle),b=turn(0,y+40+dy,center,angle);return <g key={l.id}><g {...onObject?.(l.id,l.id+" · "+(language==="ru"?"Ключ":"Ключ"))} data-load-switch={l.id} data-closed={closed}><path d={`${leads(anchor,y,cx+a.x,a.y)} ${leads(anchor,y+50,cx+b.x,b.y)} M${anchor} ${y+50+cs.h}V${y+s.h}`}/><g transform={`rotate(${angle} ${cx} ${center})`}><path d={closed?`M${cx} ${y+20+dy}V${y+40+dy}`:`M${cx} ${y+20+dy}L${cx+18} ${y+35+dy}`}/><circle cx={cx} cy={y+20+dy} r="2" fill="var(--surface-canvas)"/><circle cx={cx} cy={y+40+dy} r="2" fill="var(--surface-canvas)"/><text x={cx+25} y={y+30+dy} fill="var(--ink)" stroke="none" fontSize="11">K · {l.id}</text><rect className="network-svg-hit" x={cx-14} y={y+9+dy} width="48" height="37"/></g></g>{render(child,anchor-cs.w/2,y+50)}</g>;}
+ const a=turn(0,y+20+dy,center,angle),b=turn(0,y+40+dy,center,angle);return <g key={l.id}><g {...onObject?.(l.id,l.id+" · "+(language==="ru"?"Ключ":"Ключ"))} data-load-switch={l.id} data-closed={closed}><path d={`${routes?.get(l.id)?.join(" ")??(leads(anchor,y,cx+a.x,a.y)+" "+leads(anchor,y+50,cx+b.x,b.y))} M${anchor} ${y+50+cs.h}V${y+s.h}`}/><g transform={`rotate(${angle} ${cx} ${center})`}><path d={closed?`M${cx} ${y+20+dy}V${y+40+dy}`:`M${cx} ${y+20+dy}L${cx+18} ${y+35+dy}`}/><circle cx={cx} cy={y+20+dy} r="2" fill="var(--surface-canvas)"/><circle cx={cx} cy={y+40+dy} r="2" fill="var(--surface-canvas)"/><text x={cx+25} y={y+30+dy} fill="var(--ink)" stroke="none" fontSize="11">K · {l.id}</text><rect className="network-svg-hit" x={cx-14} y={y+9+dy} width="48" height="37"/></g></g>{render(child,anchor-cs.w/2,y+50)}</g>;}
   if(l.children?.length){if(l.kind==="parallel"){let next=x;return <g key={l.id}><path d={`M${cx} ${y}V${y+15} M${x+45} ${y+15}H${x+s.w-45} M${x+45} ${y+s.h-15}H${x+s.w-45} M${cx} ${y+s.h-15}V${y+s.h}`}/>{l.children.map(child=>{const cs=size(child),xx=next;next+=cs.w;return <g key={child.id}><path d={`M${xx+cs.w/2} ${y+15}V${y+20} M${xx+cs.w/2} ${y+20+cs.h}V${y+s.h-15}`}/>{render(child,xx,y+20)}</g>;})}</g>;}let top=y+10;return <g key={l.id}><path d={`M${cx} ${y}V${y+10} M${cx} ${y+s.h-10}V${y+s.h}`}/>{l.children.map(child=>{const cs=size(child),yy=top;top+=cs.h;return render(child,cx-cs.w/2,yy);})}{l.kind==="switch"&&<text x={cx+25} y={y+8} stroke="none" fill="var(--muted)" fontSize="11">K · {l.closed?"1":"0"}</text>}</g>;}
   const originY=y;
   y+=dy;
   const angle=rotation?.(l.id)??0,center=y+45;
   const a=turn(0,y+25,center,angle),b=turn(0,y+65,center,angle);
-  return <g key={l.id} {...onObject?.(l.id,l.id+" · "+l.kind.toUpperCase())}><path d={`${leads(anchor,originY,cx+a.x,a.y)} ${leads(anchor,originY+s.h,cx+b.x,b.y)}`}/><g transform={`rotate(${angle} ${cx} ${center})`}><rect className="network-svg-hit" x={cx-20} y={y+22} width="62" height="46"/>{l.kind==="r"?<rect x={cx-9} y={y+25} width="18" height="40" fill="var(--surface-canvas)"/>:l.kind==="c"?<path d={`M${cx} ${y+25}V${y+39} M${cx-18} ${y+39}H${cx+18} M${cx-18} ${y+51}H${cx+18} M${cx} ${y+51}V${y+65}`}/>:l.kind==="l"?<path d={`M${cx} ${y+25}a10 5 0 0 1 0 10a10 5 0 0 1 0 10a10 5 0 0 1 0 10a10 5 0 0 1 0 10`}/>:l.kind==="wire"?<path d={`M${cx} ${y+25}V${y+65}`}/>:<><circle cx={cx} cy={y+30} r="3"/><circle cx={cx} cy={y+60} r="3"/></>}<text x={cx+23} y={y+48} fill="var(--ink)" stroke="none" fontSize="11">{l.id}{l.value!==undefined?` = ${number(l.value,language,{significantDigits:3})} ${l.kind==="r"?"Ω":l.kind==="c"?"F":"H"}`:""}</text></g></g>;
+  return <g key={l.id} {...onObject?.(l.id,l.id+" · "+l.kind.toUpperCase())}><path data-compound-leads={l.id} d={routes?.get(l.id)?.join(" ")??(leads(anchor,originY,cx+a.x,a.y)+" "+leads(anchor,originY+s.h,cx+b.x,b.y))}/><g transform={`rotate(${angle} ${cx} ${center})`}><rect className="network-svg-hit" x={cx-20} y={y+22} width="62" height="46"/>{l.kind==="r"?<rect x={cx-9} y={y+25} width="18" height="40" fill="var(--surface-canvas)"/>:l.kind==="c"?<path d={`M${cx} ${y+25}V${y+39} M${cx-18} ${y+39}H${cx+18} M${cx-18} ${y+51}H${cx+18} M${cx} ${y+51}V${y+65}`}/>:l.kind==="l"?<path d={`M${cx} ${y+25}a10 5 0 0 1 0 10a10 5 0 0 1 0 10a10 5 0 0 1 0 10a10 5 0 0 1 0 10`}/>:l.kind==="wire"?<path d={`M${cx} ${y+25}V${y+65}`}/>:<><circle cx={cx} cy={y+30} r="3"/><circle cx={cx} cy={y+60} r="3"/></>}<text x={cx+23} y={y+48} fill="var(--ink)" stroke="none" fontSize="11">{l.id}{l.value!==undefined?` = ${number(l.value,language,{significantDigits:3})} ${l.kind==="r"?"Ω":l.kind==="c"?"F":"H"}`:""}</text></g></g>;
  };
  if(region){
   return <g transform={`translate(${region.x+region.width/2-root.w*scale/2} ${region.y}) scale(${scale})`}>{render(load,0,0)}</g>;

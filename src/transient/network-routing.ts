@@ -86,3 +86,27 @@ export function routeLeadPair(leads: LeadPair, obstacles: RoutingBox[], body: Ro
 export function leadPath(points: RoutingPoint[]) {
   return points.map(({x,y},i) => (i === 0 ? "M" : "L") + x + " " + y).join("");
 }
+
+
+export function symbolBounds(center: RoutingPoint, angle: number, pins: [number, number], halfHeight: number): RoutingBox {
+  const radians = angle*Math.PI/180;
+  const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
+  const corners = pins.flatMap(distance => [-halfHeight,halfHeight].map(offset => ({
+    x: center.x+distance*dx-dy*offset, y: center.y+distance*dy+dx*offset,
+  })));
+  return {left:Math.min(...corners.map(p=>p.x)),right:Math.max(...corners.map(p=>p.x)),
+    top:Math.min(...corners.map(p=>p.y)),bottom:Math.max(...corners.map(p=>p.y))};
+}
+
+export function routeSymbolLeads(nodes: [RoutingPoint, RoutingPoint], center: RoutingPoint,
+  angle: number, pins: [number, number], halfHeight: number, obstacles: RoutingBox[] = []) {
+  const radians = angle*Math.PI/180;
+  const dx = Math.round(Math.cos(radians)), dy = Math.round(Math.sin(radians));
+  const at = (distance: number) => ({x:center.x+distance*dx,y:center.y+distance*dy});
+  const body = symbolBounds(center,angle,pins,halfHeight);
+  if (obstacles.some(box => hits({x:body.left,y:body.top},{x:body.right,y:body.bottom},box))) return null;
+  return routeLeadPair([
+    {node:nodes[0],pin:at(pins[0]),exit:at(pins[0]-10)},
+    {node:nodes[1],pin:at(pins[1]),exit:at(pins[1]+10)},
+  ],obstacles,body)?.map(leadPath) ?? null;
+}

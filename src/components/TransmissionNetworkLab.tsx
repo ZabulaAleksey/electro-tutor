@@ -269,7 +269,6 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
       <NumberEdit key={durationUnit} label={ru?"Длительность расчёта":"Тривалість розрахунку"} value={model.durationS*durationScale} min={earliest*durationScale} max={10*durationScale} onChange={v=>duration(v/durationScale)}/>
       <div className="network-buttons">{[.001,.01,.1,1,10].map(seconds=><button type="button" key={seconds} onClick={()=>duration(seconds)}>{seconds<1?seconds*1000+" ms":seconds+" s"}</button>)}</div>
       {cost?.kind==="numeric"&&<small>{n(cost.steps,language)} {ru?"шагов":"кроків"} · {n(cost.bytes/1048576,language)} MiB {ru?"данных":"даних"}{cost.steps>cost.limit?(ru?" · превышен расчётный бюджет":" · перевищено розрахунковий бюджет"):""}</small>}
-      {cost?.kind==="exact"&&<small>{ru?"Событийный расчёт · до 50 000 записей фронтов":"Подієвий розрахунок · до 50 000 записів фронтів"}</small>}
      </div>
      <NumberEdit label={ru?"Физическое время t, ms":"Фізичний час t, ms"} value={time*1000} min={0} max={run.config.durationS*1000} onChange={v=>seek(v/1000)}/>
      <input type="range" aria-label={ru?"Курсор времени":"Курсор часу"} min="0" max={run.config.durationS} step={run.config.durationS/2000} value={time} onChange={e=>seek(Number(e.target.value))}/>
@@ -280,13 +279,13 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
      </div>
     </>}
     reference={localePath(language,"/interactive/transmission-line-reference/")}/>
-   <div className="network-workbench-links"><a hidden={empty} href="#network-results">{ru?"Измерения и графики":"Вимірювання та графіки"} ↓</a>
-    <OperationStatus busy={busy} error={!!error} message={empty?(ru?"Добавьте линию":"Додайте лінію"):busy?operationCopy.busy:error||operationCopy.ready}/>
+   <div className="network-workbench-links"><small>{ru?"MCP — скоро":"MCP — незабаром"}</small>
+    {empty&&<OperationStatus busy={false} message={ru?"Добавьте линию":"Додайте лінію"}/>}
     {busy&&!empty&&<><progress max={1} value={progress} aria-label={ru?"Прогресс расчёта":"Хід розрахунку"}/><button type="button" onClick={cancelCalculation}>{ru?"Отменить расчёт":"Скасувати розрахунок"}</button></>}
     {!busy&&error&&!empty&&<button type="button" onClick={()=>setRetry(value=>value+1)}>{ru?"Повторить расчёт":"Повторити розрахунок"}</button>}</div>
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
   </section>
-  <section hidden={empty} id="network-results" aria-label={ru?"Измерения и графики":"Вимірювання та графіки"} className="network-measurements"><div className="network-section-head"><h2>{ru?"Измерения":"Вимірювання"}</h2><OperationStatus busy={busy} error={!!error} message={busy?operationCopy.busy:error||operationCopy.ready}/></div>{error&&<p role="alert" className="network-error">{error}</p>}
+  <section hidden={empty} id="network-results" aria-label={ru?"Измерения и графики":"Вимірювання та графіки"} className="network-measurements"><div className="network-section-head"><h2>{ru?"Измерения":"Вимірювання"}</h2>{busy&&<OperationStatus busy message={operationCopy.busy}/>}</div>{error&&<p role="alert" className="network-error">{error}</p>}
    <button type="button" disabled={!valid} onClick={exportTrace}>{ru?"Скачать данные щупа (CSV)":"Завантажити дані щупа (CSV)"}</button>
    <label>{ru?"Окно времени":"Вікно часу"} <select value={timeZoom} onChange={event=>{setWindowCenter(time);setTimeZoom(Number(event.target.value));}}>
     {[1,2,5,10,50,100].map(factor=><option key={factor} value={factor}>×{factor}</option>)}

@@ -123,3 +123,13 @@ test("spatial voltage and current share the wave colors",async({page})=>{
   await expect(page.locator(`[data-plot-curve="Обратная ${quantity}⁻"]`)).toHaveAttribute("stroke","var(--green)");
  }
 });
+
+
+test("the lab announces MCP without adding a control and keeps measurements available",async({page})=>{
+ await page.goto(path);await ready(page);
+ await expect(page.getByText("MCP — скоро",{exact:true})).toBeVisible();
+ await expect(page.getByRole("button",{name:/MCP/})).toHaveCount(0);
+ await expect(page.getByRole("link",{name:/Измерения и графики/})).toHaveCount(0);
+ await expect(page.getByRole("heading",{name:"Измерения",exact:true})).toBeVisible();
+ await expect(page.getByText("Расчёт готов",{exact:true})).toHaveCount(0);
+});

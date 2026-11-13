@@ -429,3 +429,50 @@ test("reroutes both load leads when the load moves above the line", async ({ pag
   await expect(lead).toHaveAttribute("d",moved!);
   await expect(lab).toHaveAttribute("data-model-revision",revision!);
 });
+
+
+test("compound load and bridge movement preserve the exported electrical model",async({page},testInfo)=>{
+ const {readFile}=await import("node:fs/promises");
+ const original={
+  sections:[{id:"TL1",lengthM:1e6,impedanceOhm:50,velocityMS:2e8}],
+  source:{voltageV:100,resistanceOhm:0,node:0,onS:0},
+  load:{id:"load",kind:"parallel",children:[{id:"R1",kind:"r",value:100},{id:"R2",kind:"r",value:200}]},
+  branches:[{id:"R3",from:0,to:1,resistanceOhm:80}],
+  durationS:.02,events:[],shunts:[],
+ };
+ await page.goto(path);await ready(page);
+ await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
+ await page.locator('input[type="file"]').setInputFiles({name:"circuit.json",mimeType:"application/json",
+  buffer:Buffer.from(JSON.stringify({schema:"electrotutor-line-v3",model:original,layout:{}}))});
+ const help=page.getByRole("button",{name:"Ещё инструменты и справка"});
+ if(await help.getAttribute("aria-expanded")==="true")await help.click();
+ const field=canvas(page),lab=page.locator("[data-network-lab]");
+ const child=field.locator('[data-compound-leads="R2"]');
+ await expect(child).toHaveCount(1);await ready(page);
+ const rev=await lab.getAttribute("data-model-revision");
+ async function drag(symbol:ReturnType<Page["locator"]>,dx:number,dy:number){
+  const p=await middle(symbol);
+  await page.mouse.move(p.x,p.y);await page.mouse.down();await page.mouse.move(p.x+dx,p.y+dy,{steps:8});await page.mouse.up();
+ }
+ const before=await child.getAttribute("d");
+ await drag(child.locator("..").locator("rect.network-svg-hit"),35,-40);
+ await expect(child).not.toHaveAttribute("d",before!);
+ const bridge=field.locator('[data-contact="R3"]');
+ await drag(bridge.locator("rect.network-svg-hit"),25,20);
+ await expect(field.locator('[data-component-leads="R3"]')).toBeVisible();
+ const check=async(name:string)=>{
+  await expect(lab).toHaveAttribute("data-model-revision",rev!);
+  const download=page.waitForEvent("download");
+  await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
+  await page.getByRole("button",{name:"Сохранить схему"}).click();
+  const file=testInfo.outputPath(name+".json");
+  await(await download).saveAs(file);
+  expect(JSON.parse(await readFile(file,"utf8")).model).toEqual(original);
+  await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
+ };
+ await check("moved");
+ await page.getByRole("button",{name:"Отменить изменение"}).click();
+ await check("undo");
+ await page.getByRole("button",{name:"Повторить изменение"}).click();
+ await check("redo");
+});

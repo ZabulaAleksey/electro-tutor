@@ -3,7 +3,7 @@ import type { Drawing, Placement, Point } from "./drawing";
 type Box = { left: number; right: number; top: number; bottom: number };
 type Port = { pin: Point; escape: Point; owner?: string };
 export type Routing = { paths: Record<string, Point[]>; unrouted: string[] };
-const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, line: 29 };
+const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, current: 22, switch: 24, line: 29 };
 const bounds = { left: 1, right: 539, top: 1, bottom: 359 };
 const limit = 9_000;
 const equal = (a: Point, b: Point) => a.x === b.x && a.y === b.y;

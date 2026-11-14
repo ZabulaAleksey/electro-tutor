@@ -1,3 +1,4 @@
+import CircuitEditor, { type CircuitReading } from "../circuit/CircuitEditor";
 import { parseCircuit } from "../circuit/document";
 import { transmissionCircuitAdapter } from "../transient/circuit-adapter";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
@@ -19,7 +20,7 @@ import { experimentRows, experimentTimeLabel, parseExperimentDuration } from "..
 import type { Ink } from "../engineering/handwriting";
 import {linkMatches,readInkDocument,sameInkTarget,type InkLink,type InkTarget} from "../transient/network-ink";
 import "./TransmissionNetworkLab.css";
-type Document = {model:Network; layout:Layout; detached:DetachedPart[]; ink?:Ink[]; inkLinks?:(InkLink|null)[]; empty?:boolean};
+type Document = {model:Network; layout:Layout; detached:DetachedPart[]; ink?:Ink[]; inkLinks?:(InkLink|null)[]; empty?:boolean; circuit?:string};
 const documentByteLimit = 320_000;
 const documentSize = (value: string) => new TextEncoder().encode(value).byteLength;
 const draftKey = "electrotutor-line-draft-v5";
@@ -32,6 +33,12 @@ function withoutSectionLayout(layout: Layout, id: string): Layout {
  const next = {...layout};
  for(const key of [id,"@x-"+id,"@rot-"+id,"@span-"+id])delete next[key];
  return next;
+}
+function matchesCircuit(text: string, model: Network) {
+ try {
+  const converted = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology).model;
+  return JSON.stringify({ ...converted, durationS: model.durationS }) === JSON.stringify(model);
+ } catch { return false; }
 }
 const legacyDraftKey = "electrotutor-line-draft";
 const usesNewComponents=(model:Network)=>model.load?.kind==="diode"||
@@ -49,6 +56,10 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const [inkLinks,setInkLinks]=useState<(InkLink|null)[]>([]);
  const [detached,setDetached]=useState<DetachedPart[]>([]);
  const [actionError,setActionError]=useState("");
+ const [circuit,setCircuit]=useState<string>();
+ const [editorSeed,setEditorSeed]=useState<string>();
+ const [editorRevision,setEditorRevision]=useState(0);
+ const [editorVisited,setEditorVisited]=useState(false);
  const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:structuredClone(DEFAULT_NETWORK),layout:{},detached:[]}));const restore=useRef(false);
  const worker=useRef<Worker|null>(null),request=useRef(0),preserve=useRef(false),timeRef=useRef(0),speedRef=useRef(1),past=useRef<Document[]>([]),future=useRef<Document[]>([]),file=useRef<HTMLInputElement>(null);
  useEffect(()=>{timeRef.current=time;},[time]);useEffect(()=>{speedRef.current=speed;},[speed]);
@@ -65,9 +76,15 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    const restored=parsed.empty===true?structuredClone(DEFAULT_NETWORK):parsed.model;
    const layout=restoreNetworkLayout(readLayout(parsed.layout),restored,parsed.empty===true);
    const {ink:restoredInk,links:restoredLinks}=readInkDocument(parsed.ink,parsed.inkLinks,restored,detached,parsed.empty===true);
+   let circuit: string | undefined;
+   if (typeof parsed.circuit === "string" && matchesCircuit(parsed.circuit, restored)) {
+    circuit = parsed.circuit;
+    setCircuit(circuit);
+    setEditorSeed(circuit);
+   }
    setInk(restoredInk);setInkLinks(restoredLinks);
    setModel(restored);setLayout(layout);setDetached(detached);setEmpty(parsed.empty===true);
-   setSavedDocument(JSON.stringify({model:restored,layout,detached,...(restoredInk.length?{ink:restoredInk}:{}),...(restoredLinks.some(Boolean)?{inkLinks:restoredLinks}:{}),...(parsed.empty===true?{empty:true}:{})}));
+   setSavedDocument(JSON.stringify({model:restored,layout,detached,...(restoredInk.length?{ink:restoredInk}:{}),...(restoredLinks.some(Boolean)?{inkLinks:restoredLinks}:{}),...(parsed.empty===true?{empty:true}:{}),...(circuit?{circuit}:{})}));
   }catch{/* Existing model stays usable when local storage is unavailable. */}
  },[]);
  useEffect(()=>setMounted(true),[]);
@@ -91,6 +108,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  },[model,language,empty,retry,ru]);
  useEffect(()=>{if(!running)return;let frame=0,last:number|undefined;const media=matchMedia("(prefers-reduced-motion: reduce)");const stop=()=>{if(document.hidden||media.matches)setRunning(false);};if(document.hidden||media.matches){setRunning(false);return;}const tick=(now:number)=>{if(last!==undefined){const dt=Math.min(.1,(now-last)/1000)*speedRef.current*run.config.durationS/8;const next=Math.min(run.config.durationS,timeRef.current+dt);timeRef.current=next;setTime(next);if(next>=run.config.durationS){setRunning(false);return;}}last=now;frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);document.addEventListener("visibilitychange",stop);media.addEventListener("change",stop);return()=>{cancelAnimationFrame(frame);document.removeEventListener("visibilitychange",stop);media.removeEventListener("change",stop);};},[running,run]);
  function apply(next:Document,keep=false){
+  setCircuit(next.circuit);
   setInk(next.ink??[]);
   setInkLinks(next.inkLinks??[]);
   setLayout(next.layout);
@@ -103,20 +121,24 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   setModel(next.model);
   setProbe(x=>Math.min(x,totalLength(next.model)));
  }
- function edit(next:Network,keep=false,nextLayout=layout,nextDetached=detached,nextEmpty=empty,nextInk=ink,nextLinks=inkLinks){
+ function edit(next:Network,keep=false,nextLayout=layout,nextDetached=detached,nextEmpty=empty,nextInk=ink,nextLinks=inkLinks,nextCircuit?:string|null){
   if(next!==model&&JSON.stringify(next)===JSON.stringify(model))next=model;
-  if(next===model&&JSON.stringify(nextLayout)===JSON.stringify(layout)&&JSON.stringify(nextDetached)===JSON.stringify(detached)&&nextEmpty===empty&&nextInk===ink&&nextLinks===inkLinks)return;
+  const circuitForEdit = nextCircuit === null ? undefined : nextCircuit ?? (
+   !nextEmpty && (next === model || JSON.stringify({ ...model, durationS: next.durationS }) === JSON.stringify(next))
+    ? circuit : undefined
+  );
+  if(circuitForEdit===circuit&&next===model&&JSON.stringify(nextLayout)===JSON.stringify(layout)&&JSON.stringify(nextDetached)===JSON.stringify(detached)&&nextEmpty===empty&&nextInk===ink&&nextLinks===inkLinks)return;
   setActionError("");
-  past.current.push({model,layout,detached,ink,inkLinks,empty});
+  past.current.push({model,layout,detached,ink,inkLinks,empty,circuit});
   if(past.current.length>40)past.current.shift();
   future.current=[];
   const validLinks=nextInk.length ? nextLinks.map(link=>link&&linkMatches(link,next,nextDetached,nextEmpty)?link:null) : [];
-  apply({model:next,layout:nextLayout,detached:nextDetached,ink:nextInk,inkLinks:validLinks,empty:nextEmpty},keep);
+  apply({model:next,layout:nextLayout,detached:nextDetached,ink:nextInk,inkLinks:validLinks,empty:nextEmpty,circuit:circuitForEdit},keep);
  }
  function history(direction:"undo"|"redo"){
   const from=direction==="undo"?past:future,to=direction==="undo"?future:past,next=from.current.pop();
   if(!next)return;
-  to.current.push({model,layout,detached,ink,inkLinks,empty});
+  to.current.push({model,layout,detached,ink,inkLinks,empty,circuit});
   apply(next);
  }
  const selected=selection&&(!empty||selection.kind==="detached")&&(selection.kind==="detached"?detached.some(part=>part.id===selection.id):selection.kind==="line"?model.sections.some(s=>s.id===selection.id):
@@ -177,7 +199,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  }
  const source=nodePort(run,run.config.source.node,time),loadPort=nodePort(run,run.config.sections.length,time),boundary=sectionBoundaries(run.config);
  const numericErrors=empty?[]:validateNetwork(model),valid=!empty&&mounted&&!numericErrors.length&&!busy&&!error&&JSON.stringify(run.config)===JSON.stringify(model);
- const documentValue=JSON.stringify({model,layout,detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})});
+ const documentValue=JSON.stringify({model,layout,detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{}),...(circuit?{circuit}:{})});
  const version5=model.source.currentA!==undefined||ink.length>0||empty||detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||key.startsWith("@rot-")||value<50||value>110)||
   (contactsOf(model).some(link=>link.component)||hasLineLoss(model));
  const inspectedDiode=selected?.kind==="contact"?contactsOf(model).find(link=>link.id===selected.id):undefined;
@@ -189,8 +211,35 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   if(!mounted||documentValue===savedDocument||documentSize(documentValue)>documentByteLimit||validateNetwork(model).length)return;
   try{localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);}catch{/* Explicit save and navigation guard remain available. */}
  },[mounted,documentValue,savedDocument,model]);
+ function calculateCircuit(text: string) {
+  try {
+   const { model: converted } = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology);
+   edit({ ...converted, durationS: model.durationS }, false, {}, [], false, [], [], text);
+   setSelection(null);
+  } catch (error) {
+   setActionError(networkError(String(error),language));
+   throw error;
+  }
+ }
+ const readings = useMemo(() => {
+  const values = new Map<string, CircuitReading>();
+  if (!valid || !circuit) return values;
+  let offset = 0;
+  for (const section of run.config.sections) {
+   const sample = at(run, offset + section.lengthM / 2, time);
+   offset += section.lengthM;
+   values.set(section.id, { voltage: formatEngineeringValue(sample.u,"V",language), current: formatEngineeringValue(sample.i,"A",language) });
+  }
+  for (const branch of contactsOf(run.config)) {
+   values.set(branch.id, { voltage: formatEngineeringValue(branchVoltage(run,branch,time),"V",language) });
+  }
+  if (!run.config.load.children?.length && run.config.load.kind !== "open") {
+   values.set(run.config.load.id, { voltage: formatEngineeringValue(nodePort(run,run.config.sections.length,time).u,"V",language) });
+  }
+  return values;
+ }, [valid, circuit, run, time, language]);
  const navigationDialog=useUnsavedChanges({dirty:documentValue!==savedDocument,onSave:saveLocal,language});
- const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(version5?{detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})}:{})}),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(circuit?{circuit}:{}),...(version5?{detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})}:{})}),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  const start=()=>{if(time>=run.config.durationS)seek(0);setRunning(true);};
  const eventTimes=[0,...run.events,run.config.durationS].sort((a,b)=>a-b),next=eventTimes.find(t=>t>time+1e-12),previous=[...eventTimes].reverse().find(t=>t<time-1e-12);
  const units=(v:number,unit:string)=>formatEngineeringValue(v,unit,language);
@@ -299,10 +348,10 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
        if(f.size>documentByteLimit)throw Error("file-limit:320kB");
        const text = await f.text();
        const saved = JSON.parse(text);
-       if (saved?.schemaVersion === 1) {
-        const { model } = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology);
-        edit(model, false, {}, [], false, [], []);
-        setSelection(null);
+       if (saved?.schemaVersion === 1 || saved?.schemaVersion === 2) {
+        calculateCircuit(text);
+        setEditorSeed(text);
+        setEditorRevision(value => value+1);
         return;
        }
        if(!["electrotutor-line-v2","electrotutor-line-v3","electrotutor-line-v4","electrotutor-line-v5"].includes(saved.schema))throw Error("schema");
@@ -318,7 +367,12 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
        const restoredLayout=restoreNetworkLayout(importedLayout,imported,blank);
        const importedParts=latest?readDetached(saved.detached):[];
        const archive=latest?readInkDocument(saved.ink,saved.inkLinks,imported,importedParts,blank):{ink:[],links:[]};
-       edit(imported,false,restoredLayout,importedParts,blank,archive.ink,archive.links);
+       const importedCircuit = !blank && typeof saved.circuit === "string" && matchesCircuit(saved.circuit, imported) ? saved.circuit : null;
+       edit(imported,false,restoredLayout,importedParts,blank,archive.ink,archive.links,importedCircuit);
+       if (importedCircuit) {
+        setEditorSeed(importedCircuit);
+        setEditorRevision(value=>value+1);
+       }
        if (restoredLayout!==importedLayout) setActionError(networkError("unroutable-layout",language));
        setSelection(null);
       }catch(error){setActionError(networkError(String(error),language));}finally{e.target.value="";}
@@ -374,6 +428,11 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
     {busy&&!empty&&<><progress max={1} value={progress} aria-label={ru?"Прогресс расчёта":"Хід розрахунку"}/><button type="button" onClick={cancelCalculation}>{ru?"Отменить расчёт":"Скасувати розрахунок"}</button></>}
     {!busy&&error&&!empty&&<button type="button" onClick={()=>setRetry(value=>value+1)}>{ru?"Повторить расчёт":"Повторити розрахунок"}</button>}</div>
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
+   <details onToggle={event=>{if(event.currentTarget.open)setEditorVisited(true);}}>
+    <summary>{ru?"Универсальный редактор схем":"Універсальний редактор схем"}</summary>
+    {editorVisited && <CircuitEditor key={editorRevision} language={language} embedded initial={editorSeed} activeDocument={circuit}
+     onCalculate={calculateCircuit} readings={readings}/>}
+   </details>
   </section>
   <section hidden={empty} id="network-results" aria-labelledby="network-measurements-title" className="network-measurements">
    <h2 id="network-measurements-title">{ru?"Измерения":"Вимірювання"}</h2>

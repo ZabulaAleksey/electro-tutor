@@ -17,10 +17,19 @@ it("round-trips an edited RLC circuit, metadata and presentation settings", () =
 
 it("rejects oversized, unknown-version, and mismatched geometry documents", () => {
   expect(() => parseCircuit(" ".repeat(maxCircuitFileBytes + 1))).toThrow("file-limit");
-  expect(() => parseCircuit('{"schemaVersion":2}')).toThrow("unsupported-version");
+  expect(() => parseCircuit('{"schemaVersion":3}')).toThrow("unsupported-version");
   const original = serializeCircuit(demoDrawing(), defaultCircuitSettings);
   const object = JSON.parse(original);
   delete object.geometry.positions.V1;
   expect(() => parseCircuit(JSON.stringify(object))).toThrow("invalid-document");
   expect(() => parseCircuit(original.replace('"ohm": 100', '"ohm": -100'))).toThrow("invalid-parameter");
+});
+
+
+it("migrates v1 with its original grid alignment behaviour", () => {
+  const v1 = JSON.parse(serializeCircuit(demoDrawing(), defaultCircuitSettings));
+  v1.schemaVersion = 1;
+  delete v1.settings.snap;
+  expect(parseCircuit(JSON.stringify(v1)).settings.snap).toBe(true);
+  expect(JSON.parse(serializeCircuit(demoDrawing(), { ...defaultCircuitSettings, snap: false })).schemaVersion).toBe(2);
 });

@@ -45,3 +45,5 @@
   .circuit-toolbar { gap: .3rem; }
   .circuit-toolbar button, .circuit-toolbar select { font-size: .875rem; padding-inline: .45rem; }
 }
+
+.circuit-viewport polyline[data-wire-selected="true"] { stroke: #117bb1; stroke-width: 3; }

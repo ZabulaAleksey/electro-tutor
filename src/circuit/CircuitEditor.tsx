@@ -3,41 +3,59 @@ import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph, SourceGlyph }
 import { ZigzagResistors } from "../engineering/symbol-style";
 import type { Language } from "../types";
 import { circuitCopy } from "./copy";
-import { defaultCircuitSettings, maxCircuitFileBytes, parseCircuit, serializeCircuit } from "./document";
-import { canPlace, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
+import { defaultCircuitSettings, maxCircuitFileBytes, parseCircuit, serializeCircuit, type CircuitSettings } from "./document";
+import { canPlace, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, splitWireAt, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
 import { clearGeometry, drawingPorts, optimizeDrawing, optimizeLayout, routeDrawing, type Routing } from "./routing";
-import { netlist, removeComponent } from "./topology";
+import { disconnect, netlist, removeComponent, type Parameter } from "./topology";
 import "./circuit-editor.css";
 
 const storageKey = "electrotutor.circuit.v1";
 const boardWidth = 540;
 const boardHeight = 360;
+type Snapshot = { drawing: Drawing; routing: Routing; settings: CircuitSettings; title: string };
 type Gesture = { pointer: number; component: string | null; terminal: string | null; wire: string | null; start: Point; origin: Point };
 
-function Glyph({ kind, span = 58 }: { kind: PartKind; span?: number }) {
+function Glyph({ kind, span = 58, closed }: { kind: PartKind; span?: number; closed?: boolean }) {
   switch (kind) {
     case "line": return <g stroke="var(--ink)" fill="var(--white)" strokeWidth="1.7"><path d={`M${-span / 2} 0H${span / 2}`} /><rect x={-span / 2 + 8} y="-9" width={span - 16} height="18" rx="9" /><path d="M-12 0H12M7 -4L12 0L7 4" fill="none" /></g>;
     case "r": return <ResistorGlyph x={-29} y={0} />;
     case "l": return <InductorGlyph x={-27} y={0} />;
     case "c": return <CapacitorGlyph x={0} y={0} terminalSpan={54} orientation="horizontal" />;
     case "diode": return <DiodeGlyph x={-11.5} y={0} />;
-    case "voltage": return <g transform="rotate(-90)"><SourceGlyph x={0} y={0} /></g>;
+    case "voltage":
+    case "current": return <g transform="rotate(-90)"><SourceGlyph x={0} y={0} current={kind === "current"} /></g>;
+    case "switch": return <path d={closed ? "M-24 0H24" : "M-24 0H-10L10 -10M10 0H24"}
+      stroke="var(--ink)" strokeWidth="1.7" fill="none" />;
   }
 }
 
-export default function CircuitEditor({ language }: { language: Language }) {
+export type CircuitReading = { voltage: string; current?: string };
+
+export default function CircuitEditor({ language, embedded = false, initial, activeDocument, onCalculate, readings }: {
+  language: Language;
+  embedded?: boolean;
+  initial?: string;
+  activeDocument?: string;
+  onCalculate?: (document: string) => void;
+  readings?: ReadonlyMap<string, CircuitReading>;
+}) {
   const copy = circuitCopy(language);
-  const [snapshot, setSnapshot] = useState(() => ({ drawing: emptyDrawing(), routing: routeDrawing(emptyDrawing()) }));
-  const { drawing, routing } = snapshot;
+  const [snapshot, setSnapshot] = useState<Snapshot>(() => {
+    if (initial) return parseCircuit(initial);
+    const drawing = emptyDrawing();
+    return { drawing, routing: routeDrawing(drawing), settings: defaultCircuitSettings, title: "" };
+  });
+  const { drawing, routing, settings, title } = snapshot;
+  const { grid, showGrid, zigzag, snap: alignToGrid } = settings;
+  const importSequence = useRef(0);
   const undo = useRef<typeof snapshot[]>([]);
   const redo = useRef<typeof snapshot[]>([]);
   const [tool, setTool] = useState<PartKind | "wire" | "junction" | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectionWire, setSelectionWire] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [grid, setGrid] = useState(10);
-  const [showGrid, setShowGrid] = useState(false);
-  const [zigzag, setZigzag] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(embedded);
+  const [calculated, setCalculated] = useState(() => initial ? { topology: snapshot.drawing.topology, document: initial } : null);
   const [conflict, setConflict] = useState<"collision" | "routeError" | "fileError" | "saved" | null>(null);
   const [lineStart, setLineStart] = useState<Point | null>(null);
   const [wireStart, setWireStart] = useState<string | null>(null);
@@ -60,17 +78,25 @@ export default function CircuitEditor({ language }: { language: Language }) {
       return false;
     }
     if (next === drawing && planned === routing) return true;
+    record({ ...snapshot, drawing: next, routing: planned });
+    return true;
+  }
+  function record(next: Snapshot) {
+    importSequence.current++;
     undo.current = [...undo.current.slice(-79), snapshot];
     redo.current = [];
-    setSnapshot({ drawing: next, routing: planned });
+    setSnapshot(next);
     setConflict(null);
-    return true;
+  }
+  function updateSettings<Setting extends keyof CircuitSettings>(key: Setting, value: CircuitSettings[Setting]) {
+    if (settings[key] !== value) record({ ...snapshot, settings: { ...settings, [key]: value } });
   }
   function travel(back: boolean) {
     const source = back ? undo.current : redo.current;
     const target = back ? redo.current : undo.current;
     const previous = source.pop();
     if (!previous) return;
+    importSequence.current++;
     target.push(snapshot);
     chooseTool(null);
     setSnapshot(previous);
@@ -85,36 +111,39 @@ export default function CircuitEditor({ language }: { language: Language }) {
     }
   }
   function chooseTool(next: typeof tool) {
+    gesture.current = null;
+    setPreview(null);
     setTool(next);
     setLineStart(null);
     setSelected(null);
+    setSelectionWire(null);
     setWireStart(null);
     setConflict(null);
   }
   const drawingLayer = useRef<SVGGElement>(null);
   const gesture = useRef<Gesture | null>(null);
-  const [title, setTitle] = useState("");
-  const importSequence = useRef(0);
+  const touches = useRef(new Map<number, Point>());
+  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
+  function touchDistance() {
+    const [first, second] = touches.current.values();
+    return first && second ? Math.hypot(first.x - second.x, first.y - second.y) : 0;
+  }
   const fileInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    if (embedded) return;
     try {
       const saved = window.localStorage.getItem(storageKey);
       if (saved) {
-        const parsed = parseCircuit(saved);
-        setSnapshot({ drawing: parsed.drawing, routing: parsed.routing });
-        setGrid(parsed.settings.grid);
-        setShowGrid(parsed.settings.showGrid);
-        setZigzag(parsed.settings.zigzag);
-        setTitle(parsed.title);
+        setSnapshot(parseCircuit(saved));
       }
     } catch {
       setConflict("fileError");
     }
     setReady(true);
-  }, []);
+  }, [embedded]);
 
   function serialized() {
-    return serializeCircuit(drawing, { ...defaultCircuitSettings, grid, showGrid, zigzag }, title);
+    return serializeCircuit(drawing, settings, title);
   }
   function saveLocal() {
     try {
@@ -142,13 +171,8 @@ export default function CircuitEditor({ language }: { language: Language }) {
       if (file.size > maxCircuitFileBytes) throw Error("file-limit");
       const parsed = parseCircuit(await file.text());
       if (sequence !== importSequence.current) return;
-      if (commit(parsed.drawing, parsed.routing)) {
-        chooseTool(null);
-        setGrid(parsed.settings.grid);
-        setShowGrid(parsed.settings.showGrid);
-        setZigzag(parsed.settings.zigzag);
-        setTitle(parsed.title);
-      }
+      record(parsed);
+      chooseTool(null);
     } catch {
       if (sequence === importSequence.current) setConflict("fileError");
     }
@@ -162,13 +186,23 @@ export default function CircuitEditor({ language }: { language: Language }) {
   }
 
   function snap(at: Point) {
-    const snapAxis = (value: number, max: number) => grid * Math.max(
+    const snapAxis = (value: number, max: number) => !alignToGrid ? Math.max(40, Math.min(max - 40, Math.round(value))) : grid * Math.max(
       Math.ceil(40 / grid), Math.min(Math.floor((max - 40) / grid), Math.round(value / grid)),
     );
     return { x: snapAxis(at.x, boardWidth), y: snapAxis(at.y, boardHeight) };
   }
 
   function start(event: PointerEvent<SVGSVGElement>) {
+    if (event.pointerType === "touch") {
+      touches.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (touches.current.size >= 2) {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        if (!pinch.current) pinch.current = { distance: Math.max(1, touchDistance()), zoom };
+        gesture.current = null;
+        setPreview(null);
+        return;
+      }
+    }
     if (event.button !== 0 || gesture.current) return;
     const at = point(event);
     if (!at) return;
@@ -181,13 +215,20 @@ export default function CircuitEditor({ language }: { language: Language }) {
     };
     event.currentTarget.setPointerCapture(event.pointerId);
     setConflict(null);
-    if (target) setSelected(target);
+    if (target) { setSelected(target); setSelectionWire(null); }
   }
 
   function drag(event: PointerEvent<SVGSVGElement>) {
+    if (touches.current.has(event.pointerId)) {
+      touches.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (pinch.current && touches.current.size >= 2) {
+        setZoom(Math.max(1, Math.min(2, pinch.current.zoom * touchDistance() / pinch.current.distance)));
+        return;
+      }
+    }
     const held = gesture.current;
     const at = point(event);
-    if (tool === "wire" || !held?.component || held.pointer !== event.pointerId || !at) return;
+    if (tool === "wire" || !held?.component || drawing.positions[held.component].pinned || held.pointer !== event.pointerId || !at) return;
     if (Math.hypot(at.x - held.start.x, at.y - held.start.y) < 4) {
       setPreview(null);
       return;
@@ -202,6 +243,9 @@ export default function CircuitEditor({ language }: { language: Language }) {
   }
 
   function finish(event: PointerEvent<SVGSVGElement>) {
+    const wasPinching = pinch.current !== null;
+    releaseTouch(event.pointerId);
+    if (wasPinching) return;
     const held = gesture.current;
     const at = point(event);
     if (!held || held.pointer !== event.pointerId) return;
@@ -213,20 +257,33 @@ export default function CircuitEditor({ language }: { language: Language }) {
       if (!moved && held.terminal) choose(held.terminal);
       return;
     }
-    if (held.component && moved) {
+    if (held.component && moved && !drawing.positions[held.component].pinned) {
       const id = held.component;
       const destination = snap({ x: held.origin.x + at.x - held.start.x, y: held.origin.y + at.y - held.start.y });
-      commit({ ...drawing, positions: { ...drawing.positions, [id]: { ...drawing.positions[id], ...destination } } });
+      if (destination.x !== held.origin.x || destination.y !== held.origin.y) {
+        commit({ ...drawing, positions: { ...drawing.positions, [id]: { ...drawing.positions[id], ...destination } } });
+      }
     }
     if (!held.component && !moved) {
       setSelected(null);
-      if (!tool) return;
+      if (!tool) { setSelectionWire(held.wire); return; }
       const destination = snap(at);
       if (tool === "junction") {
-        const blocked = Object.values(drawing.positions).some(p => Math.abs(p.x - destination.x) < 40 && Math.abs(p.y - destination.y) < 40);
-        const coincides = [...ports.values()].some(({ pin }) => pin.x === destination.x && pin.y === destination.y);
+        let location = destination;
+        if (held.wire) {
+          const path = routing.paths[held.wire];
+          const segment = path.slice(1).map((end, i) => [path[i], end]).find(([a, b]) =>
+            a.x === b.x ? Math.abs(at.x - a.x) < 8 && destination.y > Math.min(a.y, b.y) && destination.y < Math.max(a.y, b.y) :
+              Math.abs(at.y - a.y) < 8 && destination.x > Math.min(a.x, b.x) && destination.x < Math.max(a.x, b.x));
+          if (!segment) return setConflict("routeError");
+          const [a, b] = segment;
+          location = a.x === b.x ? { x: a.x, y: destination.y } : { x: destination.x, y: a.y };
+        }
+        const blocked = Object.values(drawing.positions).some(p => Math.abs(p.x - location.x) < 40 && Math.abs(p.y - location.y) < 40);
+        const coincides = [...ports.values()].some(({ pin }) => pin.x === location.x && pin.y === location.y);
         if (blocked || coincides) return setConflict("collision");
-        if (commit(junctionAt(drawing, destination))) setTool(null);
+        const next = held.wire ? splitWireAt(drawing, held.wire, location) : junctionAt(drawing, location);
+        if (commit(next)) setTool(null);
         return;
       }
       if (tool === "line") {
@@ -265,7 +322,13 @@ export default function CircuitEditor({ language }: { language: Language }) {
     }
   }
 
+  function releaseTouch(pointer: number) {
+    touches.current.delete(pointer);
+    if (!touches.current.size) pinch.current = null;
+  }
+
   function cancel(event: PointerEvent<SVGSVGElement>) {
+    releaseTouch(event.pointerId);
     if (gesture.current?.pointer !== event.pointerId) return;
     gesture.current = null;
     setPreview(null);
@@ -275,6 +338,7 @@ export default function CircuitEditor({ language }: { language: Language }) {
   function rotate() {
     if (!selected) return;
     const current = drawing.positions[selected];
+    if (current.pinned) return;
     commit({ ...drawing, positions: {
       ...drawing.positions, [selected]: { ...current, rotation: (current.rotation + 90) % 360 },
     } });
@@ -290,17 +354,24 @@ export default function CircuitEditor({ language }: { language: Language }) {
 
   const selectedItem = drawing.topology.components.find(item => item.id === selected);
   const parameters = selectedItem ? Object.entries(selectedItem.parameters) : [];
-  function saveParameter(name: string, previous: unknown, raw: string) {
-    if (!selectedItem || !raw.trim()) return;
-    const value = Number(raw);
-    if (!Number.isFinite(value) || (selectedItem.kind !== "voltage" && value <= 0)) return;
+  function saveParameter(name: string, previous: Parameter, raw: string | boolean) {
+    if (!selectedItem || typeof raw === "string" && !raw.trim()) return;
+    const value = typeof raw === "boolean" ? raw : Number(raw);
+    if (typeof value === "number" && (!Number.isFinite(value) || (name !== "voltageV" && name !== "currentA" && value <= 0))) return;
     if (previous === value) return;
     commit({ ...drawing, topology: { ...drawing.topology, components: drawing.topology.components.map(item =>
       item === selectedItem ? { ...item, parameters: { ...item.parameters, [name]: value } } : item) } }, routing);
   }
 
-  return <section className="circuit-editor" data-circuit-editor data-ready={ready}>
-    <h1>{copy.title}</h1>
+  return <section className="circuit-editor" data-circuit-editor data-ready={ready} onKeyDown={event => {
+    if (event.key === "Escape") chooseTool(null);
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" &&
+        !(event.target as Element).closest("input, textarea, [contenteditable]")) {
+      event.preventDefault();
+      travel(!event.shiftKey);
+    }
+  }}>
+    {embedded ? <h3>{copy.title}</h3> : <h1>{copy.title}</h1>}
     <div className="circuit-toolbar" role="group" aria-label={copy.tools}>
       <button type="button" aria-pressed={tool === null} onClick={() => chooseTool(null)}>{copy.select}</button>
       {(Object.keys(parts) as PartKind[]).map(kind => <button type="button" key={kind}
@@ -329,7 +400,16 @@ export default function CircuitEditor({ language }: { language: Language }) {
         onClick={() => { if (window.confirm(copy.confirm) && commit(emptyDrawing())) chooseTool(null); }}>{copy.clear}</button>
     </div>
     <div className="circuit-toolbar">
-      <button type="button" onClick={saveLocal}>{copy.save}</button>
+      {!embedded && <button type="button" onClick={saveLocal}>{copy.save}</button>}
+      {onCalculate && <button type="button" onClick={() => {
+        try {
+          const document = serialized();
+          onCalculate(document);
+          setCalculated({ topology: drawing.topology, document });
+        } catch {
+          setConflict("fileError");
+        }
+      }}>{copy.calculate}</button>}
       <button type="button" onClick={exportFile}>{copy.exportFile}</button>
       <button type="button" onClick={() => fileInput.current?.click()}>{copy.importFile}</button>
       <input hidden ref={fileInput} aria-label={copy.importFile} type="file" accept="application/json,.json"
@@ -342,11 +422,12 @@ export default function CircuitEditor({ language }: { language: Language }) {
     <div className="circuit-toolbar">
       <button type="button" aria-label={copy.zoomOut} disabled={zoom <= 1} onClick={() => setZoom(zoom / 1.25)}>−</button>
       <button type="button" aria-label={copy.zoomIn} disabled={zoom >= 1.95} onClick={() => setZoom(zoom * 1.25)}>+</button>
-      <label>{copy.grid} <select value={grid} onChange={event => setGrid(Number(event.target.value))}>
+      <label>{copy.grid} <select value={grid} onChange={event => updateSettings("grid", Number(event.target.value))}>
         <option value={5}>5</option><option value={10}>10</option><option value={20}>20</option>
       </select></label>
-      <label><input type="checkbox" checked={showGrid} onChange={event => setShowGrid(event.target.checked)} /> {copy.showGrid}</label>
-      <label><input type="checkbox" checked={zigzag} onChange={event => setZigzag(event.target.checked)} /> {copy.zigzag}</label>
+      <label><input type="checkbox" checked={alignToGrid} onChange={event => updateSettings("snap", event.target.checked)} /> {copy.snap}</label>
+      <label><input type="checkbox" checked={showGrid} onChange={event => updateSettings("showGrid", event.target.checked)} /> {copy.showGrid}</label>
+      <label><input type="checkbox" checked={zigzag} onChange={event => updateSettings("zigzag", event.target.checked)} /> {copy.zigzag}</label>
     </div>
     <div className="circuit-viewport" data-circuit-nets={JSON.stringify(nets)}>
       <svg data-circuit-board data-zoom={zoom} aria-label={copy.board}
@@ -360,16 +441,20 @@ export default function CircuitEditor({ language }: { language: Language }) {
           {lineStart && <circle cx={lineStart.x} cy={lineStart.y} r="5" fill="#117bb1" />}
           {showGrid && <rect width={boardWidth} height={boardHeight} fill="url(#circuit-grid)" />}
           {Object.entries(previewRoutes?.paths ?? routing.paths).map(([id, points]) =>
-            <polyline key={id} data-circuit-wire={id} points={points.map(p => p.x + "," + p.y).join(" ")} />)}
+            <polyline key={id} data-circuit-wire={id} data-wire-selected={selectionWire === id} points={points.map(p => p.x + "," + p.y).join(" ")} />)}
           <ZigzagResistors.Provider value={zigzag}>
             {drawing.topology.components.map(item => {
               const { rotation, span, ...stored } = drawing.positions[item.id];
+              const reading = calculated?.topology === drawing.topology && calculated.document === activeDocument ? readings?.get(item.id) : undefined;
               const { x, y } = selected === item.id && preview ? preview : stored;
               return <g key={item.id} data-component-id={item.id} data-rotation={rotation}
                 transform={`translate(${x} ${y})`} className={selected === item.id ? "circuit-selected" : undefined}>
                 <rect x="-36" y="-29" width="72" height="58" rx="8" className="circuit-component-hit" />
-                <g transform={`rotate(${rotation})`}><Glyph kind={item.kind as PartKind} span={span} /></g>
+                <g transform={`rotate(${rotation})`}><Glyph kind={item.kind as PartKind} span={span} closed={item.parameters.closed === true} /></g>
                 <text x="0" y="-25" textAnchor="middle">{item.id}</text>
+                {reading && <text data-circuit-reading={item.id} x="0" y="31" textAnchor="middle">
+                  {reading.current ? `${reading.voltage} · ${reading.current}` : reading.voltage}
+                </text>}
               </g>;
             })}
           </ZigzagResistors.Provider>
@@ -383,11 +468,13 @@ export default function CircuitEditor({ language }: { language: Language }) {
       </svg>
     </div>
     <div className="circuit-toolbar circuit-selection">
-      <label>{copy.select} <select aria-label={copy.select} value={selected ?? ""} onChange={event => setSelected(event.target.value || null)}>
+      <label>{copy.select} <select aria-label={copy.select} value={selected ?? ""} onChange={event => { setSelectionWire(null); setSelected(event.target.value || null); }}>
         <option value="">—</option>
         {drawing.topology.components.map(item => <option value={item.id} key={item.id}>{item.id}</option>)}
       </select></label>
-      {parameters.map(([name, value]) => <form key={selected + name} onSubmit={event => {
+      {parameters.map(([name, value]) => typeof value === "boolean" ? <label key={selected + name}>
+        <input type="checkbox" checked={value} onChange={event => saveParameter(name, value, event.target.checked)} /> {copy.closed}
+      </label> : <form key={selected + name} onSubmit={event => {
         event.preventDefault();
         const field = new FormData(event.currentTarget).get("nominal");
         if (typeof field === "string") saveParameter(name, value, field);
@@ -397,7 +484,10 @@ export default function CircuitEditor({ language }: { language: Language }) {
             defaultValue={String(value)} onBlur={event => saveParameter(name, value, event.target.value)} />
         </label>
       </form>)}
-      {selected && <><button type="button" onClick={rotate}>{copy.rotate}</button>
+      {selectionWire && <button type="button" onClick={() => {
+        if (commit({ ...drawing, topology: disconnect(drawing.topology, selectionWire) })) setSelectionWire(null);
+      }}>{copy.remove} {selectionWire}</button>}
+      {selected && <><button type="button" disabled={drawing.positions[selected].pinned} onClick={rotate}>{copy.rotate}</button>
         <button type="button" aria-pressed={!!drawing.positions[selected].pinned} onClick={() => {
           const p = drawing.positions[selected];
           commit({ ...drawing, positions: { ...drawing.positions, [selected]: { ...p, pinned: !p.pinned } } }, routing);

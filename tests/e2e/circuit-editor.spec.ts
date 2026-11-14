@@ -198,3 +198,97 @@ test.describe("small touch viewport", () => {
     await editor(page).screenshot({ path: info.outputPath("circuit-line-mobile.png") });
   });
 });
+
+test("undo and redo include settings and an imported document", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  const grid = page.getByLabel("Показать сетку");
+  await grid.check();
+  await page.getByRole("button", { name: "Отменить", exact: true }).click({ timeout: 2000 });
+  await expect(grid).not.toBeChecked();
+  await page.getByRole("button", { name: "Повторить", exact: true }).click();
+  await expect(grid).toBeChecked();
+  const payload = { schemaVersion: 1, topology: { components: [], junctions: [], wires: [] },
+    geometry: { positions: {}, junctionPositions: {} }, metadata: { title: "Imported" },
+    settings: { grid: 20, showGrid: false, zigzag: true } };
+  await editor(page).getByLabel("Импорт JSON").setInputFiles({
+    name: "settings.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(payload)),
+  });
+  await expect(grid).not.toBeChecked();
+  await page.getByRole("button", { name: "Отменить", exact: true }).click();
+  await expect(grid).toBeChecked();
+  await expect(page.getByLabel("Шаг сетки")).toHaveValue("10");
+  await page.getByRole("button", { name: "Повторить", exact: true }).click();
+  await expect(page.getByLabel("Шаг сетки")).toHaveValue("20");
+});
+
+test("uses the integrated editor, shows live readings, and restores its calculated diagram", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const revision = await lab.getAttribute("data-model-revision");
+  const panel = page.getByText("Универсальный редактор схем", { exact: true });
+  await panel.click();
+  await editor(page).getByRole("button", { name: "Пример длинной линии" }).click();
+  await editor(page).getByRole("button", { name: "Рассчитать эту схему" }).click();
+  await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const line = editor(page).locator('[data-circuit-reading="TL1"]');
+  await expect(line).toContainText(/0\s+В/);
+  const cursor = lab.getByRole("slider", { name: "Курсор времени", includeHidden: true });
+  await cursor.evaluate((slider: HTMLInputElement) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(slider, "0.01");
+    slider.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await expect(line).toContainText("12");
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("TL1");
+  const length = editor(page).getByRole("spinbutton", { name: "Длина, m" });
+  await length.fill("600000");
+  await length.press("Enter");
+  await expect(line).toHaveCount(0);
+  await page.reload();
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await panel.click();
+  await expect(line).toBeVisible();
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("TL1");
+  await expect(length).toHaveValue("500000");
+});
+
+test.describe("mobile zoom gesture", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  test("pinches the canvas without placing an armed component", async ({ page }) => {
+    await page.goto(route);
+    await expect(editor(page)).toHaveAttribute("data-ready", "true");
+    await page.getByRole("button", { name: "Резистор", exact: true }).tap();
+    await board(page).scrollIntoViewIfNeeded();
+    const box = (await board(page).boundingBox())!;
+    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const session = await page.context().newCDPSession(page);
+    const point = (id: number, dx: number) => ({ id, x: center.x + dx, y: center.y });
+    await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point(1, -30), point(2, 30)] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [point(1, -55), point(2, 55)] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await expect(board(page)).not.toHaveAttribute("data-zoom", "1");
+    await expect(component(page)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Отменить", exact: true })).toBeDisabled();
+  });
+});
+
+test("browser layout keeps the netlist and completes on a narrow viewport", async ({ page }, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример RLC" }).click();
+  const viewport = editor(page).locator("[data-circuit-nets]");
+  const nets = await viewport.getAttribute("data-circuit-nets");
+  const optimize = page.getByRole("button", { name: "Оптимизировать схему", exact: true });
+  const elapsedMs = await optimize.evaluate(button => {
+    const now = performance.now();
+    (button as HTMLButtonElement).click();
+    return performance.now() - now;
+  });
+  await info.attach("browser-layout-ms", { body: String(elapsedMs), contentType: "text/plain" });
+  expect(elapsedMs).toBeLessThan(500);
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+  await expect(board(page).locator("[data-circuit-wire]")).toHaveCount(4);
+});

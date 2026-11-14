@@ -2,12 +2,12 @@ import { canPlace, parts, type Drawing, type PartKind, type Placement, type Poin
 import { clearGeometry, routeDrawing, type Routing } from "./routing";
 import { validateCircuit, type CircuitTopology } from "./topology";
 
-export type CircuitSettings = { grid: number; showGrid: boolean; zigzag: boolean };
-export const defaultCircuitSettings: CircuitSettings = { grid: 10, showGrid: false, zigzag: false };
+export type CircuitSettings = { grid: number; showGrid: boolean; zigzag: boolean; snap: boolean };
+export const defaultCircuitSettings: CircuitSettings = { grid: 10, showGrid: false, zigzag: false, snap: true };
 export const maxCircuitFileBytes = 160_000;
 
 export type CircuitDocument = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   topology: CircuitTopology;
   geometry: { positions: Record<string, Placement>; junctionPositions: Record<string, Point> };
   metadata: { title: string };
@@ -26,7 +26,7 @@ function parsePoint(value: unknown): Point {
 
 export function serializeCircuit(drawing: Drawing, settings: CircuitSettings, title = ""): string {
   const document: CircuitDocument = {
-    schemaVersion: 1, topology: drawing.topology,
+    schemaVersion: 2, topology: drawing.topology,
     geometry: { positions: drawing.positions, junctionPositions: drawing.junctionPositions },
     metadata: { title }, settings,
   };
@@ -38,8 +38,10 @@ export function serializeCircuit(drawing: Drawing, settings: CircuitSettings, ti
 export function parseCircuit(text: string): { drawing: Drawing; settings: CircuitSettings; routing: Routing; title: string } {
   if (new TextEncoder().encode(text).length > maxCircuitFileBytes) throw Error("file-limit");
   const value: unknown = JSON.parse(text);
-  if (!isRecord(value) || value.schemaVersion !== 1) throw Error("unsupported-version");
-  const { topology, geometry, settings, metadata } = value;
+  if (!isRecord(value) || (value.schemaVersion !== 1 && value.schemaVersion !== 2)) throw Error("unsupported-version");
+  const { topology, geometry, metadata } = value;
+  const settings = value.schemaVersion === 1 && isRecord(value.settings)
+    ? { ...value.settings, snap: true } : value.settings;
   if (validateCircuit(topology).length || !isRecord(geometry) || !isRecord(geometry.positions) ||
     !isRecord(geometry.junctionPositions) || !isRecord(settings) || !isRecord(metadata) ||
     typeof metadata.title !== "string" || metadata.title.length > 120) throw Error("invalid-document");
@@ -49,14 +51,15 @@ export function parseCircuit(text: string): { drawing: Drawing; settings: Circui
     Object.keys(geometry.junctionPositions).length !== graph.junctions.length) throw Error("invalid-document");
   const grid = settings.grid;
   if (typeof grid !== "number" || ![5, 10, 20].includes(grid) ||
-    typeof settings.showGrid !== "boolean" || typeof settings.zigzag !== "boolean") throw Error("invalid-settings");
+    typeof settings.showGrid !== "boolean" || typeof settings.zigzag !== "boolean" || typeof settings.snap !== "boolean") throw Error("invalid-settings");
   const drawing: Drawing = { topology: graph, positions: Object.create(null), junctionPositions: Object.create(null) };
   for (const component of graph.components) {
     if (!Object.hasOwn(parts, component.kind) || component.terminals.length !== 2) throw Error("unsupported-component");
     const defaults = parts[component.kind as PartKind].parameters;
     const entries = Object.entries(component.parameters);
     if (entries.length !== Object.keys(defaults).length || entries.some(([key, parameter]) =>
-      !Object.hasOwn(defaults, key) || typeof parameter !== "number" || (key !== "voltageV" && parameter <= 0))) {
+      !Object.hasOwn(defaults, key) || typeof parameter !== typeof (defaults as Record<string, unknown>)[key] ||
+      (typeof parameter === "number" && key !== "voltageV" && key !== "currentA" && parameter <= 0))) {
       throw Error("invalid-parameter");
     }
     const raw = geometry.positions[component.id];
@@ -85,5 +88,5 @@ export function parseCircuit(text: string): { drawing: Drawing; settings: Circui
   if (!clearGeometry(drawing)) throw Error("invalid-geometry");
   const routing = routeDrawing(drawing);
   if (routing.unrouted.length) throw Error("unroutable-document");
-  return { drawing, routing, settings: { grid, showGrid: settings.showGrid, zigzag: settings.zigzag }, title: metadata.title };
+  return { drawing, routing, settings: { grid, showGrid: settings.showGrid, zigzag: settings.zigzag, snap: settings.snap }, title: metadata.title };
 }

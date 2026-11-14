@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { demoDrawing, insertInWire } from "./drawing";
+import { demoDrawing, insertInWire, splitWireAt } from "./drawing";
 import { routeDrawing } from "./routing";
 import { netlist } from "./topology";
 
@@ -12,5 +12,12 @@ it("inserts a component into an existing conductor and keeps both original termi
   expect(nets).not.toContainEqual(["L1:a", "R1:b"]);
   expect(before.topology.wires).toHaveLength(4);
   expect(next.topology.wires).toHaveLength(5);
+  expect(routeDrawing(next).unrouted).toEqual([]);
+});
+
+it("inserts an explicit junction in a wire without splitting its electrical net", () => {
+  const drawing = demoDrawing();
+  const next = splitWireAt(drawing, "W2", { x: 270, y: 90 });
+  expect(netlist(next.topology)).toContainEqual(["J1", "L1:a", "R1:b"]);
   expect(routeDrawing(next).unrouted).toEqual([]);
 });

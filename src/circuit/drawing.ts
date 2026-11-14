@@ -7,6 +7,8 @@ export const parts = {
   r: { prefix: "R", parameters: { ohm: 100 } },
   l: { prefix: "L", parameters: { henry: 0.01 } },
   c: { prefix: "C", parameters: { farad: 0.0001 } },
+  current: { prefix: "I", parameters: { currentA: 0.1 } },
+  switch: { prefix: "S", parameters: { closed: true } },
   voltage: { prefix: "V", parameters: { voltageV: 12 } },
   line: { prefix: "TL", parameters: { lengthM: 500_000, impedanceOhm: 50, velocityMS: 200_000_000 } },
   diode: { prefix: "D", parameters: {} },
@@ -17,10 +19,7 @@ export const emptyDrawing = (): Drawing => ({ topology: emptyCircuit(), position
 
 export function placeComponent(drawing: Drawing, kind: PartKind, point: Point): Drawing {
   const { prefix, parameters } = parts[kind];
-  const ids = new Set(drawing.topology.components.map(item => item.id));
-  let number = 1;
-  while (ids.has(prefix + number)) number++;
-  const id = prefix + number;
+  const id = unusedId(drawing, prefix, true);
   const component: CircuitComponent = { id, kind, terminals: [id + ":a", id + ":b"], parameters };
   return {
     ...drawing,
@@ -46,20 +45,26 @@ export function demoDrawing() {
   return drawing;
 }
 
-function unusedId(ids: string[], prefix: string) {
-  const taken = new Set(ids);
+function unusedId(drawing: Drawing, prefix: string, withTerminals = false) {
+  const taken = new Set([
+    ...drawing.topology.junctions,
+    ...drawing.topology.wires.map(wire => wire.id),
+    ...drawing.topology.components.flatMap(part => [part.id, ...part.terminals]),
+  ]);
   let number = 1;
-  while (taken.has(prefix + number)) number++;
+  const available = (id: string) => !taken.has(id) &&
+    (!withTerminals || !taken.has(id + ":a") && !taken.has(id + ":b"));
+  while (!available(prefix + number)) number++;
   return prefix + number;
 }
 
 export function wireDrawing(drawing: Drawing, from: string, to: string): Drawing {
-  const id = unusedId(drawing.topology.wires.map(wire => wire.id), "W");
+  const id = unusedId(drawing, "W");
   return { ...drawing, topology: connect(drawing.topology, id, from, to) };
 }
 
 export function junctionAt(drawing: Drawing, point: Point): Drawing {
-  const id = unusedId([...drawing.topology.junctions], "J");
+  const id = unusedId(drawing, "J");
   return {
     ...drawing, topology: addJunction(drawing.topology, id),
     junctionPositions: { ...drawing.junctionPositions, [id]: point },
@@ -105,4 +110,13 @@ export function placeLine(drawing: Drawing, first: Point, second: Point): Drawin
   const next = placeComponent(drawing, "line", center);
   const id = next.topology.components.at(-1)!.id;
   return { ...next, positions: { ...next.positions, [id]: { ...center, rotation, span } } };
+}
+
+
+export function splitWireAt(drawing: Drawing, wireId: string, point: Point): Drawing {
+  const wire = drawing.topology.wires.find(item => item.id === wireId);
+  if (!wire) throw Error("unknown-wire");
+  const joined = junctionAt({ ...drawing, topology: disconnect(drawing.topology, wireId) }, point);
+  const id = joined.topology.junctions.at(-1)!;
+  return wireDrawing(wireDrawing(joined, wire.from, id), id, wire.to);
 }

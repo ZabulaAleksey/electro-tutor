@@ -31,6 +31,26 @@
 }
 
 .circuit-viewport svg { display: block; max-width: none; touch-action: none; user-select: none; }
+.network-workbench .circuit-editor { width: 100%; min-width: 0; margin-block: 0; }
+.circuit-editor[data-embedded] > .circuit-viewport { scroll-margin-block: 85px 105px; }
+.network-workbench .circuit-viewport svg > g { fill: none; stroke: none; }
+.network-workbench .circuit-viewport .network-junction { fill: var(--ink); }
+.network-workbench .circuit-viewport .network-first-terminal .network-junction { fill: var(--selection); stroke: none; }
+.network-workbench .circuit-viewport text { stroke: none; }
+.network-workbench .circuit-viewport { height: clamp(220px, 57svh, 480px); }
+.circuit-viewport .circuit-component-hit { pointer-events: all; }
+.circuit-viewport [data-component-id] { scroll-margin-block: 100px; }
+.network-workbench .circuit-viewport > svg { min-height: min(52svh, 395px); }
+@media (max-width: 650px) {
+  .network-workbench .circuit-viewport > svg { min-height: min(50svh, 360px); }
+}
+.network-workbench .circuit-viewport [data-line-start] { fill: transparent; cursor: crosshair; }
+.network-workbench .circuit-viewport .circuit-component-hit { fill: transparent; }
+.network-workbench .circuit-viewport .circuit-selected .circuit-component-hit { fill: #e4f4fe; }
+.circuit-target[data-snapped="true"] circle:last-child { fill: #156a99; }
+.circuit-target[data-allowed="false"] circle:last-child { fill: #fff; stroke: #65788c; stroke-dasharray: 2 2; }
+.circuit-target circle:first-child { fill: transparent; }
+.network-workbench .circuit-viewport .circuit-target circle:first-child { fill: transparent; }
 .circuit-component-hit { fill: transparent; cursor: move; }
 .circuit-selected .circuit-component-hit { fill: #e4f4fe; stroke: #1784bc; stroke-width: 1; }
 .circuit-viewport text { fill: var(--ink); font-size: 10px; pointer-events: none; }
@@ -47,3 +67,9 @@
 }
 
 .circuit-viewport polyline[data-wire-selected="true"] { stroke: #117bb1; stroke-width: 3; }
+
+.circuit-target { cursor: crosshair; }
+.circuit-target circle:last-child { fill: #e0f2fc; stroke: #156a99; stroke-width: 2; }
+.circuit-target:focus-visible circle:last-child { fill: #156a99; }
+.circuit-ink { pointer-events: none; }
+.circuit-viewport .circuit-ink polyline { stroke: #156a99; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }

@@ -38,6 +38,10 @@ export function requiresV4(model: Network): boolean {
     contactsOf(model).some(link => link.resistanceOhm === undefined && !link.switch);
 }
 
+export function isLineArchiveGraph(text: string): boolean {
+  return isArchivedCircuit(parseCircuit(text).drawing);
+}
+
 export function decodeLineCircuit(text: string): Network {
   const { drawing } = parseCircuit(text);
   return isArchivedCircuit(drawing) ? circuitToArchivedNetwork(drawing) : transmissionCircuitAdapter.convert(drawing.topology).model;
@@ -51,7 +55,7 @@ export function matchesLineCircuit(text: string, model: Network): boolean {
   }
 }
 
-export function readLineArchive(text: string, draft = false, allowLegacyRecovery = false) {
+export function readLineArchive(text: string, draft = false) {
   if (lineArchiveSize(text) > lineArchiveByteLimit) throw Error("file-limit");
   const input: unknown = JSON.parse(text);
   if (!object(input)) throw Error("schema");
@@ -70,18 +74,22 @@ export function readLineArchive(text: string, draft = false, allowLegacyRecovery
   const detached = version === 5 ? readDetached(input.detached) : [];
   const { ink, links: inkLinks } = version === 5 ? readInkDocument(input.ink, input.inkLinks, model, detached, empty)
     : { ink: [], links: [] };
-  const existing = typeof input.circuit === "string" && !empty && matchesLineCircuit(input.circuit, model) ? input.circuit : undefined;
-  let circuit: string | undefined = existing;
-  if (!circuit) {
-    try {
-      circuit = serializeLineCircuit(model, layout, detached, empty);
-      // Confirm that geometry is usable before changing the editor or Worker.
-      parseCircuit(circuit);
-    } catch (error) {
-      if (!allowLegacyRecovery) throw error;
-      circuit = undefined;
+  let existing: string | undefined;
+  if (typeof input.circuit === "string") {
+    if (!empty && matchesLineCircuit(input.circuit, model)) {
+      existing = input.circuit;
+    } else if (draft || input.schema === "electrotutor-line-v5") {
+      try {
+        parseCircuit(input.circuit);
+        existing = input.circuit;
+      } catch {
+        // Older drafts may have optional editor data that cannot be read.
+      }
     }
   }
+  const circuit = existing ?? serializeLineCircuit(model, layout, detached, empty);
+  // Confirm that geometry is usable before changing the editor or Worker.
+  if (!existing) parseCircuit(circuit);
   return { model, layout, detached, ink, inkLinks, empty, circuit };
 }
 

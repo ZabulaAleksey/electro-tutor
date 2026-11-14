@@ -163,7 +163,7 @@ test("exports a line diagram that the existing laboratory calculates", async ({ 
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
   const revision = await lab.getAttribute("data-model-revision");
   await page.getByRole("button", { name: "Ещё инструменты и справка" }).click();
-  await lab.locator('input[type="file"]').setInputFiles((await file.path())!);
+  await lab.locator('input[accept=".json,application/json"]').setInputFiles((await file.path())!);
   await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
   await expect(lab).toHaveAttribute("data-method", "exact-fronts");
@@ -373,4 +373,34 @@ test("shows per-device measurements for a reactive parallel load from the Worker
   const voltage = async (id: string) => (await editor(page).locator('[data-circuit-reading="' + id + '"]').textContent())?.trim().split(" · ")[0];
   await expect.poll(async () => Number((await voltage("C1"))?.split(/\s+/)[0].replace(",", "."))).toBeGreaterThan(0);
   expect(await voltage("C1")).toBe(await voltage("R1"));
+});
+
+test("optimizes a larger diagram through the routing Worker and preserves its netlist", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const sections = Array.from({ length: 6 }, (_, index) => ({
+    id: "TL" + (index + 1), lengthM: 100_000, impedanceOhm: 50, velocityMS: 200_000_000,
+  }));
+  await page.locator('input[accept=".json,application/json"]').setInputFiles({
+    name: "six-sections.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({
+      schema: "electrotutor-line-v2", model: {
+        sections, source: { voltageV: 100, resistanceOhm: 50, node: 0, onS: 0 },
+        load: { id: "load", kind: "r", value: 50 }, shunts: [], events: [], durationS: .02,
+      },
+    })),
+  });
+  const circuit = editor(page);
+  await expect(circuit.locator("[data-line-section]")).toHaveCount(6);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const netlist = circuit.locator("[data-circuit-nets]");
+  const before = await netlist.getAttribute("data-circuit-nets");
+  const revision = await lab.getAttribute("data-model-revision");
+  const worker = page.waitForEvent("worker", { predicate: item => /routing.worker/.test(item.url()) });
+  const optimize = circuit.getByRole("button", { name: "Оптимизировать схему", exact: true });
+  await optimize.click();
+  await worker;
+  await expect(optimize).toBeEnabled();
+  await expect(netlist).toHaveAttribute("data-circuit-nets", before!);
+  await expect(lab).toHaveAttribute("data-model-revision", revision!);
 });

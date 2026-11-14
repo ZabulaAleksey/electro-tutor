@@ -1,4 +1,4 @@
-import { defaultBoard, type Drawing, type Placement, type Point } from "./drawing";
+import { defaultBoard, type Drawing, type Point } from "./drawing";
 import { netlist } from "./topology";
 
 type Box = { left: number; right: number; top: number; bottom: number };
@@ -13,10 +13,10 @@ const limit = 25_000;
 const equal = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
 const distance = (a: Point, b: Point) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 
-function offset(placement: Placement, delta: number): Point {
-  const right = [1, 0, -1, 0][placement.rotation / 90];
-  const down = [0, 1, 0, -1][placement.rotation / 90];
-  return { x: placement.x + right * delta, y: placement.y + down * delta };
+function direction(rotation: number): Point {
+  if (rotation % 90 === 0) return { x: [1, 0, -1, 0][rotation / 90], y: [0, 1, 0, -1][rotation / 90] };
+  const radians = rotation * Math.PI / 180;
+  return { x: Math.cos(radians), y: Math.sin(radians) };
 }
 
 function contains(box: Box, point: Point): boolean {
@@ -40,7 +40,12 @@ export function drawingPorts(drawing: Drawing): Map<string, Port> {
     if (!placement || !size || component.terminals.length !== 2) continue;
     component.terminals.forEach((terminal, index) => {
       const side = index ? 1 : -1;
-      ports.set(terminal, { pin: offset(placement, size * side), escape: offset(placement, (size + 7) * side), owner: component.id });
+      const axis = direction(placement.rotation);
+      const pin = { x: placement.x + axis.x * size * side, y: placement.y + axis.y * size * side };
+      const escape = Math.abs(axis.x) >= Math.abs(axis.y)
+        ? { ...pin, x: placement.x + Math.sign(axis.x) * (Math.abs(axis.x) * size + Math.abs(axis.y) * 22 + 7) * side }
+        : { ...pin, y: placement.y + Math.sign(axis.y) * (Math.abs(axis.y) * size + Math.abs(axis.x) * 22 + 7) * side };
+      ports.set(terminal, { pin, escape, owner: component.id });
     });
   }
   return ports;
@@ -169,9 +174,10 @@ function componentBoxes(drawing: Drawing): [string, Box][] {
     const position = drawing.positions[component.id];
     if (!position) return [];
     const { x, y, rotation, span } = position;
-    const vertical = rotation % 180 !== 0;
+    const axis = direction(rotation);
     const halfLength = (span ? span / 2 : terminalOffsets[component.kind] ?? 29) + 4;
-    const w = vertical ? 22 : halfLength, h = vertical ? halfLength : 22;
+    const w = Math.abs(axis.x) * halfLength + Math.abs(axis.y) * 22;
+    const h = Math.abs(axis.y) * halfLength + Math.abs(axis.x) * 22;
     return [[component.id, { left: x - w, right: x + w, top: y - h, bottom: y + h }]];
   });
 }

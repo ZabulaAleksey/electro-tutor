@@ -24,7 +24,16 @@ it("checks optimizer quality on series RLC, a loaded line, parallel branches and
   );
   dense.positions.R1.pinned = true;
   dense.positions.R6.pinned = true;
-  const fixtures = [demoDrawing(), lineDemoDrawing(), branches, crossings, bridge, ring, dense];
+  const twoLines = wireDrawing(placeComponent(lineDemoDrawing(), "line", { x: 270, y: 245 }), "V1:a", "TL2:a");
+  const loadedBranches = wireDrawing(wireDrawing(placeComponent(twoLines, "r", { x: 440, y: 245 }),
+    "TL2:b", "R2:a"), "R2:b", "V1:b");
+  const seeded = Array.from({ length: 8 }, (_, seed) => {
+    let state = seed + 1;
+    const random = () => { state = (1664525 * state + 1013904223) >>> 0; return state % 25; };
+    const drawing = junctions(Array.from({ length: 5 }, (_, i): [number, number] => [70 + 100 * i, 95 + random()]));
+    return [1, 2, 3, 4].reduce((draft, i) => wireDrawing(draft, "J" + i, "J" + (i + 1)), drawing);
+  });
+  const fixtures = [demoDrawing(), lineDemoDrawing(), branches, crossings, bridge, ring, dense, twoLines, loadedBranches, ...seeded];
   for (const drawing of fixtures) {
     const initial = routeDrawing(drawing);
     const optimized = optimizeDrawing(drawing, initial);
@@ -36,6 +45,11 @@ it("checks optimizer quality on series RLC, a loaded line, parallel branches and
         initial: routingScore(initial), arranged: routingScore(arranged.routing), elapsedMs: Math.round(elapsedMs * 100) / 100 }));
     }
     expect(arranged.routing.unrouted).toEqual([]);
+    expect(optimizeLayout(drawing, initial, 10)).toEqual(arranged);
+    for (const path of Object.values(arranged.routing.paths)) for (const [i, point] of path.entries()) {
+      const before = path[i - 1];
+      if (before) expect((before.x === point.x) !== (before.y === point.y)).toBe(true);
+    }
     expect(arranged.drawing.topology).toBe(drawing.topology);
     for (const [id, position] of Object.entries(drawing.positions)) {
       if (position.pinned) expect(arranged.drawing.positions[id]).toEqual(position);

@@ -9,6 +9,11 @@ const lab = (page: Page) => page.locator("[data-network-lab]");
 async function stroke(page: Page, points: [number, number][]) {
   const canvas = page.locator("[data-network-canvas]");
   await canvas.scrollIntoViewIfNeeded();
+  const pointY = Math.max(...points.map(point => point[1]));
+  await canvas.evaluate((svg, y) => {
+    const at = svg.getBoundingClientRect().top + y;
+    if (at > innerHeight - 110) window.scrollBy({ top: at - innerHeight + 110, behavior: "instant" });
+  }, pointY);
   const box = (await canvas.boundingBox())!;
   await page.mouse.move(box.x + points[0][0], box.y + points[0][1]);
   await page.mouse.down();
@@ -37,8 +42,8 @@ test("a wire remains a wire and a marked line becomes a persisted solver section
   const section = page.locator("[data-line-section=TL1]");
   await expect(section).toBeVisible();
   await expect(lab(page)).toHaveAttribute("data-calculation-ready", "true");
-  await expect(section.locator(".network-transmission-stroke")).toHaveAttribute("transform", /^rotate\(10\./);
-  const linePath = await section.locator(".network-transmission-stroke").getAttribute("d");
+  await expect(section.locator("[data-line-angle]")).toHaveAttribute("data-line-angle", /^10\./);
+  const linePath = await section.locator(".network-transmission-stroke").getAttribute("width");
   await page.getByRole("button", { name: "Параметры", exact:true }).click();
   await expect(page.getByLabel("l, km")).toHaveValue("1000");
   await page.getByLabel("l, km").fill("500");
@@ -50,7 +55,7 @@ test("a wire remains a wire and a marked line becomes a persisted solver section
   await page.getByRole("button",{name:"Повторить изменение"}).click();
   await expect(section).toHaveCount(1);
   await page.reload();
-  await expect(section.locator(".network-transmission-stroke")).toHaveAttribute("d",linePath!);
+  await expect(section.locator(".network-transmission-stroke")).toHaveAttribute("width",linePath!);
   await expect(lab(page)).toHaveAttribute("data-calculation-ready", "true");
   await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
   const download = page.waitForEvent("download");
@@ -61,7 +66,7 @@ test("a wire remains a wire and a marked line becomes a persisted solver section
   expect(data.model.sections.map((item: {id:string})=>item.id)).toEqual(["TL1"]);
   expect(data.ink[0]).toHaveLength(3);
   await page.locator('input[accept=".json,application/json"]').setInputFiles(json);
-  await expect(section.locator(".network-transmission-stroke")).toHaveAttribute("d",linePath!);
+  await expect(section.locator(".network-transmission-stroke")).toHaveAttribute("width",linePath!);
   await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
 });
 
@@ -106,7 +111,7 @@ test("a drawn current source drives the existing line from its selected node", a
   await expect(page.locator('[data-symbol="current-source"]')).toBeVisible();
   await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
   await page.getByRole("button",{name:"Параметры",exact:true}).click();
-  await expect(page.getByLabel("I, A")).toHaveValue("1");
+  await expect(page.locator("[data-line-inspector]").getByLabel("I, A")).toHaveValue("1");
 });
 
 test("crossing touch strokes remain unconnected without explicit endpoints", async ({ browser }) => {
@@ -406,14 +411,14 @@ test("redrawing a linked transmission section preserves its calculated parameter
   await page.getByLabel("l, km").fill("500");
   await page.getByRole("button",{name:"Закрыть панель"}).click();
   await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
-  const before=await section.getAttribute("d"),revision=await lab(page).getAttribute("data-model-revision");
+  const before=await section.getAttribute("width"),revision=await lab(page).getAttribute("data-model-revision");
   await reopenMark(page);
   for(let i=0;i<3;i++)await page.getByRole("button",{name:"Убрать штрих",exact:true}).click();
   await stroke(page,[[350,355]]);
   await stroke(page,[[540,400]]);
   await stroke(page,[[350,355],[540,400]]);
   await page.getByRole("button",{name:"Сохранить правку",exact:true}).click();
-  await expect(section).not.toHaveAttribute("d",before!);
+  await expect(section).not.toHaveAttribute("width",before!);
   await expect(lab(page)).toHaveAttribute("data-model-revision",revision!);
   await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-line-draft-v5")!).model.sections[0].lengthM)).toBe(500000);
 });

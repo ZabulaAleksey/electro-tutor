@@ -21,6 +21,9 @@ async function archive(page: Page, document: object) {
 for (const version of [2, 3, 4, 5]) {
   test(`opens a v${version} archive as an editable universal graph`, async ({ page }) => {
     await page.goto(path);
+    await expect(editor(page)).toHaveCount(1);
+    await expect(page.locator("[data-network-canvas]")).toHaveCount(1);
+    await expect(page.locator(".network-workspace, .network-schematic, .network-object-actions")).toHaveCount(0);
     await ready(page);
     const savedModel = version === 5 ? { ...model, sections: [{ ...line, resistanceOhmM: 1e-6 }] }
       : version === 4 ? { ...model, load: { id: "load", kind: "diode", diode: { saturationA: 1e-12, ideality: 1.5, reversed: false } } }

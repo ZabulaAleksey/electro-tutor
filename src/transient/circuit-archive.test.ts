@@ -81,3 +81,28 @@ it("projects a parallel ideal branch onto separate wires and keeps its original 
   expect(restored.circuit).toBeDefined();
   expect(circuitToArchivedNetwork(parseCircuit(restored.circuit!).drawing)).toEqual(model);
 });
+
+it("keeps the angle, span and physical length of an archived handwritten line", () => {
+  const layout = { TL1: 240, "@x-TL1": 185, "@span-TL1": 83, "@rot-TL1": 10.44 };
+  const restored = readLineArchive(JSON.stringify({ schema: "electrotutor-line-v5", model: open, layout }));
+  const { drawing, routing } = parseCircuit(restored.circuit);
+  expect(drawing.positions.TL1).toMatchObject({ x: 330, y: 261, span: 166, rotation: expect.closeTo(10.44) });
+  expect(routing.unrouted).toEqual([]);
+  expect(circuitToArchivedNetwork(drawing)).toEqual(open);
+});
+
+it("projects six sections with an inline key, multiple branches and a nested terminal network", () => {
+  const model: Network = {
+    ...open,
+    sections: Array.from({ length: 6 }, (_, index) => ({ ...open.sections[0], id: "TL" + (index + 1) })),
+    series: [{ id: "Key", from: 3, to: 9, switch: { closed: true, atS: .01, closes: false } }],
+    branches: Array.from({ length: 5 }, (_, index) => ({ id: "B" + index, from: index, to: "reference", resistanceOhm: 100 })),
+    load: { id: "P", kind: "parallel", children: [
+      { id: "RS", kind: "series", children: Array.from({ length: 4 }, (_, index) => ({ id: "R" + index, kind: "r", value: 50 })) },
+      { id: "RO", kind: "r", value: 75 },
+    ] },
+  };
+  expect(validateNetwork(model)).toEqual([]);
+  const restored = parseCircuit(serializeCircuit(networkToCircuit(model), defaultCircuitSettings));
+  expect(circuitToArchivedNetwork(restored.drawing)).toEqual(model);
+});

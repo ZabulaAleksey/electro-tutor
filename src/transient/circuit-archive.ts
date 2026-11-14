@@ -162,14 +162,19 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
   drawing.topology.components.forEach(({ id }, i) => {
     positions[id] = { x: 150 + i % 4 * 130, y: 120 + Math.floor(i / 4) * 118, rotation: 0 };
   });
-  drawing.topology.junctions.forEach((id, i) => { junctionPositions[id] = { x: 80, y: 60 + 24 * i }; });
+  const width = Math.max(670, 240 + count * 130);
+  drawing.topology.junctions.forEach((id, i) => { junctionPositions[id] = { x: 80, y: 125 + 24 * i }; });
+  for (let i = 0; i <= count; i++) junctionPositions[nodes[i]] = { x: 80 + i * 130, y: 65 };
+  model.sections.forEach((section, i) => positions[section.id] = { x: 145 + i * 130, y: 105, rotation: 0 });
+  const others = drawing.topology.components.filter(part => part.kind !== "line" || !model.sections.some(section => section.id === part.id));
+  others.forEach(({ id }, i) => { positions[id] = { x: 145 + i % 4 * 130, y: 200 + Math.floor(i / 4) * 118, rotation: 0 }; });
   const data: LineBinding = { version: 1, source, sections: model.sections.map(part => part.id),
     ...(model.series ? { series: model.series.map(part => part.id) } : {}),
     ...(model.branches ? { branches: model.branches.map(part => part.id) } : {}),
     shunts, load, durationS: model.durationS, events: structuredClone(model.events), pins, reference, nodes, detached: detached.map(item => item.id) };
   const base: Drawing = { ...drawing, positions, junctionPositions,
-    board: { width: 670, height: Math.max(360, (drawing.topology.junctions.length - 1) * 24 + 110,
-      170 + Math.floor((drawing.topology.components.length - 1) / 4) * 118) },
+    board: { width, height: Math.max(360, (drawing.topology.junctions.length - 1) * 24 + 175,
+      250 + Math.floor((others.length - 1) / 4) * 118) },
     extension: { adapter: adapterId, data },
   };
   if (!Object.keys(layout).length && !detached.length) return base;
@@ -188,7 +193,8 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
     moved.positions[id] = {
       ...position, x: position.x + (x === undefined ? 0 : x - (key === "@load" ? 82 : 0)),
       y: position.y + (y === undefined ? 0 : y - yBase),
-      rotation: rotation === undefined ? position.rotation : (Math.round(rotation / 90) * 90 % 360 + 360) % 360,
+      rotation: rotation === undefined ? position.rotation :
+        (((span ? rotation : Math.round(rotation / 90) * 90) % 360) + 360) % 360,
       ...(span && span >= 30 && span <= 200 ? { span: 2 * span } : {}),
     };
   }
@@ -201,10 +207,38 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
     item.children?.forEach(child => locateLoad(child));
   };
   locateLoad(load, true);
-  for (const item of detached) moved.positions[item.id] = { x: item.x, y: item.y, rotation: item.rotation ?? 0 };
+  for (const item of detached) moved.positions[item.id] = {
+    x: Math.max(40,item.x), y: Math.max(40,item.y), rotation: item.rotation ?? 0,
+  };
   const coords = Object.values(moved.positions);
+  moved.board = {
+    width: Math.min(4096, Math.ceil(Math.max(base.board!.width, ...coords.map(p => p.x + (p.span ?? 0) / 2 + 40)))),
+    height: Math.min(8192, Math.ceil(Math.max(base.board!.height, ...coords.map(p => p.y + (p.span ?? 0) / 2 + 40)))),
+  };
   const inside = coords.every(p => p.x >= 40 && p.x <= moved.board!.width - 40 && p.y >= 40 && p.y <= moved.board!.height - 40);
-  return inside && clearGeometry(moved) && !routeDrawing(moved).unrouted.length ? moved : base;
+  if (inside && clearGeometry(moved) && !routeDrawing(moved).unrouted.length) return moved;
+  // A collision in archived geometry must never hide the underlying components.
+  // Preserve each independently admissible position before falling back to the layout.
+  const repaired = { ...base, positions: { ...positions }, board: moved.board };
+  for (const [id, position] of Object.entries(moved.positions)) {
+    const before = repaired.positions[id];
+    if (position.x < 40 || position.x > repaired.board!.width - 40 ||
+        position.y < 40 || position.y > repaired.board!.height - 40) continue;
+    repaired.positions[id] = position;
+    if (!clearGeometry(repaired) || routeDrawing(repaired).unrouted.length) repaired.positions[id] = before;
+  }
+  for (const [id, requested] of Object.entries(moved.positions)) {
+    if (!requested.span || repaired.positions[id] === requested) continue;
+    const basePosition = repaired.positions[id];
+    const alternatives = [requested, ...[55, -55, 110, -110, 165].map(delta => ({ ...requested, y: requested.y + delta }))];
+    for (const candidate of alternatives) {
+      if (candidate.y < 40 || candidate.y > repaired.board!.height - 40) continue;
+      repaired.positions[id] = candidate;
+      if (clearGeometry(repaired) && !routeDrawing(repaired).unrouted.length) break;
+      repaired.positions[id] = basePosition;
+    }
+  }
+  return repaired;
 }
 
 function diode(part: CircuitComponent): DiodeParameters {
@@ -359,14 +393,27 @@ export function circuitToArchivedNetwork(drawing: Drawing): Network {
 }
 
 /** Inspector selection follows the archive's stable identities. */
+function visibleBinding(drawing: Drawing): LineBinding | undefined {
+  const binding = drawing.extension?.data;
+  if (!isArchivedCircuit(drawing) || !record(binding) || binding.version !== 1 ||
+      !Array.isArray(binding.nodes) || !Array.isArray(binding.sections) ||
+      !Array.isArray(binding.shunts) || !record(binding.pins) ||
+      !validId(binding.source) || !validId(binding.reference) ||
+      binding.detached !== undefined && !Array.isArray(binding.detached) ||
+      binding.series !== undefined && !Array.isArray(binding.series) ||
+      binding.branches !== undefined && !Array.isArray(binding.branches)) return undefined;
+  return binding as LineBinding;
+}
+
 export function archivedSelection(drawing: Drawing, id: string): Selection | null {
-  if (!isArchivedCircuit(drawing)) return null;
-  const binding = drawing.extension!.data as LineBinding;
+  const binding = visibleBinding(drawing);
+  if (!binding) return null;
   if (id === binding.source) return { kind: "source" };
   if (binding.sections.includes(id)) return { kind: "line", id };
   if ([...binding.series ?? [], ...binding.branches ?? []].includes(id)) return { kind: "contact", id };
   if (binding.shunts.includes(id)) {
-    const [node] = binding.pins[id];
+    const [node] = Array.isArray(binding.pins[id]) ? binding.pins[id] : [];
+    if (node === undefined) return null;
     return { kind: "shunt", node: binding.nodes.indexOf(node) };
   }
   if (binding.detached?.includes(id)) return { kind: "detached", id };
@@ -374,17 +421,36 @@ export function archivedSelection(drawing: Drawing, id: string): Selection | nul
 }
 
 export function archivedAnchors(drawing: Drawing): { signal: readonly string[]; reference: string } | null {
-  if (!isArchivedCircuit(drawing)) return null;
-  const binding = drawing.extension!.data as LineBinding;
-  if (!Array.isArray(binding.nodes) || !Array.isArray(binding.sections)) return null;
+  const binding = visibleBinding(drawing);
+  if (!binding) return null;
   return { signal: binding.nodes.slice(0, binding.sections.length + 1), reference: binding.reference };
 }
 
 export function preserveArchivedPositions(next: Drawing, before: Drawing): Drawing {
-  const positions = Object.fromEntries(Object.entries(next.positions).map(([id, position]) => [id, before.positions[id] ?? position]));
+  const positions = Object.fromEntries(Object.entries(next.positions).map(([id, position]) => {
+    const old = before.positions[id];
+    return [id, old && !position.span ? old : position];
+  }));
   const moved = { ...next, positions, board: {
     width: Math.max(next.board!.width, before.board?.width ?? 0),
     height: Math.max(next.board!.height, before.board?.height ?? 0),
   } };
   return clearGeometry(moved) && !routeDrawing(moved).unrouted.length ? moved : next;
+}
+
+
+export function detachedTemplate(part: CircuitComponent): Pick<DetachedPart, "kind" | "template"> | null {
+  if (part.kind === "open") return null;
+  if (part.kind === "line") return { kind: "line" };
+  if (part.kind === "current" || part.kind === "voltage") return { kind: "source" };
+  const { resistanceOhm, component, switch: key } = readContact(part, 0, 1);
+  return { kind: part.kind === "bridge" ? "wire" : part.kind as DetachedPart["kind"], template: { resistanceOhm, component, switch: key } };
+}
+
+export function archivedPartId(drawing: Drawing, selection: Selection | null, load: Load): string | undefined {
+  if (!selection) return undefined;
+  const binding = visibleBinding(drawing);
+  if (selection.kind === "source") return binding?.source;
+  if (selection.kind === "shunt") return binding?.shunts.find(id => binding.pins[id]?.[0] === binding.nodes[selection.node]);
+  return selection.kind === "load" ? selection.id ?? load.id : selection.id;
 }

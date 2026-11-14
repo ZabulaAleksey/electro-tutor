@@ -25,8 +25,9 @@ test("home opens the topic catalogue, and pointer drag commits only at the highl
   await ready(page);
 
   await page.getByRole("button",{name:"Элементы",exact:true}).click();
+  await page.locator('[data-network-tool="line"]').scrollIntoViewIfNeeded();
   const from = await middle(page.locator('[data-network-tool="line"]'));
-  const target = await position(page, 290, 84);
+  const target = await position(page, 277, 65);
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
   await page.mouse.move(target.x, target.y, { steps: 12 });
@@ -52,9 +53,10 @@ test("invalid and canceled drops preserve the existing circuit", async ({ page }
   await page.goto(path);
   await ready(page);
   await page.getByRole("button",{name:"Элементы",exact:true}).click();
+  await page.locator('[data-network-tool="line"]').scrollIntoViewIfNeeded();
   const from = await middle(page.locator('[data-network-tool="line"]'));
-  const invalid = await position(page, 143, 84);
-  const valid = await position(page, 290, 84);
+  const invalid = await position(page, 145, 105);
+  const valid = await position(page, 277, 65);
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
   await page.mouse.move(invalid.x, invalid.y, { steps: 8 });
@@ -83,7 +85,7 @@ test("keyboard places a line and the inspector removes it", async ({ page }) => 
   await page.keyboard.press("Enter");
   await expect(sections(page)).toHaveCount(2);
   await canvas(page).getByRole("button", { name: "TL2 · линия" }).press("Enter");
-  await page.locator(".network-tray").getByRole("button", { name: "Удалить", exact: true }).click();
+  await page.locator("[data-line-inspector]").getByRole("button", { name: "Удалить", exact: true }).click();
   await expect(sections(page)).toHaveCount(1);
   await ready(page);
 });
@@ -99,8 +101,9 @@ test.describe("touch workspace", () => {
       session.send("Input.dispatchTouchEvent", { type, touchPoints: points });
     const toolbar = page.getByRole("group", { name: "Управление конструктором" });
     await toolbar.getByRole("button", { name: "Элементы" }).tap();
+    await page.locator('[data-network-tool="r"]').scrollIntoViewIfNeeded();
     const start = await middle(page.locator('[data-network-tool="r"]'));
-    const target = await position(page, 143, 147);
+    const target = await position(page, 145, 155);
     await dispatch("touchStart", [start]);
     await dispatch("touchMove", [{ x: start.x, y: start.y - 26 }]);
     await dispatch("touchMove", [target]);
@@ -112,28 +115,29 @@ test.describe("touch workspace", () => {
     await ready(page);
 
     await canvas(page).getByRole("button", { name: "R1 · Резистор" }).tap();
-    const resistance = page.locator(".network-tray").getByRole("spinbutton", { name: "Сопротивление R, Ω" });
+    const resistance = page.locator("[data-line-inspector]").getByRole("spinbutton", { name: "Сопротивление R, Ω" });
     await resistance.fill("125");
     await expect(page.getByRole("group",{name:"Управление симуляцией"})).toBeVisible();
-    await page.locator(".network-tray").getByRole("button", { name: "Переподключить" }).tap();
+    await page.locator("[data-line-inspector]").getByRole("button", { name: "Переподключить" }).tap();
     await canvas(page).getByRole("button", { name: "Шунт к опоре · 0" }).tap();
     await canvas(page).getByRole("button", { name: "R1 · Резистор" }).tap();
     await expect(resistance).toHaveValue("125");
-    await page.locator(".network-tray").getByRole("button", { name: "Удалить" }).tap();
+    await page.locator("[data-line-inspector]").getByRole("button", { name: "Удалить" }).tap();
     await expect(canvas(page).getByRole("button", { name: "R1 · Резистор" })).toHaveCount(0);
 
     await toolbar.getByRole("button", { name: "Элементы" }).tap();
     await page.locator('[data-network-tool="r"]').tap();
     await canvas(page).getByRole("button", { name: "Конец линии" }).tap();
     await ready(page);
-    const original = await canvas(page).locator(".network-schematic-drawing").getAttribute("transform");
-    const origin = await middle(canvas(page));
+    const original = await canvas(page).getAttribute("data-zoom");
+    await canvas(page).scrollIntoViewIfNeeded();
+    const origin = await position(page, 300, 175);
     await dispatch("touchStart", [{ x: origin.x - 30, y: origin.y, id: 1 }, { x: origin.x + 30, y: origin.y, id: 2 }]);
     await dispatch("touchMove", [{ x: origin.x - 75, y: origin.y, id: 1 }, { x: origin.x + 75, y: origin.y, id: 2 }]);
     await dispatch("touchEnd", []);
-    await expect(canvas(page).locator(".network-schematic-drawing")).not.toHaveAttribute("transform", original!);
+    await expect(canvas(page)).not.toHaveAttribute("data-zoom", original!);
     await page.getByRole("button", { name: "Показать всю схему" }).tap();
-    await expect(canvas(page).locator(".network-schematic-drawing")).toHaveAttribute("transform", original!);
+    await expect(canvas(page)).toHaveAttribute("data-zoom", original!);
     await expect(sections(page)).toHaveCount(2);
   });
 
@@ -146,7 +150,7 @@ test.describe("touch workspace", () => {
     await diode.scrollIntoViewIfNeeded();
     const palette=await middle(diode);
     expect(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest("[data-network-tool]")?.getAttribute("data-network-tool"),palette)).toBe("diode");
-    const blank=await position(page,115,266);
+    const blank=await position(page,460,115);
     await session.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[palette]});
     await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:palette.x,y:palette.y-26}]});
     await session.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[blank]});
@@ -270,11 +274,11 @@ test("selects both bridge ends, switches the branch and restores its v3 JSON",as
  const json=JSON.parse(await (await import("node:fs/promises")).readFile(exportedPath,"utf8"));
  expect(json.schema).toBe("electrotutor-line-v3");
  expect(json.model.branches).toEqual([{id:"R1",from:0,to:1,resistanceOhm:80,switch:{closed:true}}]);
- await page.locator('input[type="file"]').setInputFiles({name:"legacy.json",mimeType:"application/json",
+ await page.locator('input[accept=".json,application/json"]').setInputFiles({name:"legacy.json",mimeType:"application/json",
   buffer:Buffer.from(JSON.stringify({schema:"electrotutor-line-v2",model:{...json.model,branches:undefined},layout:{}}))});
  await ready(page);
  await expect(key).toHaveCount(0);
- await page.locator('input[type="file"]').setInputFiles(exportedPath);
+ await page.locator('input[accept=".json,application/json"]').setInputFiles(exportedPath);
  await ready(page);
  await expect(key).toHaveAttribute("data-closed","true");
 });
@@ -283,25 +287,28 @@ test("selects both bridge ends, switches the branch and restores its v3 JSON",as
 test("wheel scrolls normally, Ctrl anchors zoom and geometry does not change the solver",async({page})=>{
  await page.goto(path);await ready(page);
  const field=canvas(page), lab=page.locator("[data-network-lab]");
- const initial=await field.locator(".network-schematic-drawing").getAttribute("transform");
- const pivot=await position(page,143,84);
+ const initial=await field.getAttribute("data-zoom");
+ await field.scrollIntoViewIfNeeded();
+ const pivot=await position(page,145,105);
  await page.mouse.move(pivot.x,pivot.y);await page.mouse.wheel(0,100);
  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBeGreaterThan(0);
- await expect(field.locator(".network-schematic-drawing")).toHaveAttribute("transform",initial!);
- await page.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
- await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(0);
- const center=await position(page,143,84);
+ await expect(field).toHaveAttribute("data-zoom",initial!);
+ await field.scrollIntoViewIfNeeded();
+ const center=await position(page,145,105);
  await page.mouse.move(center.x,center.y);await page.keyboard.down("Control");
  await page.mouse.wheel(0,-160);await page.keyboard.up("Control");
- await expect(field.locator(".network-schematic-drawing")).not.toHaveAttribute("transform",initial!);
- const anchored=await position(page,143,84);
+ await expect(field).not.toHaveAttribute("data-zoom",initial!);
+ const anchored=await position(page,145,105);
  expect(Math.hypot(anchored.x-center.x,anchored.y-center.y)).toBeLessThan(1);
  await page.getByRole("button",{name:"Показать всю схему"}).click();
  const rev=await lab.getAttribute("data-model-revision");
- const start=await position(page,143,84);
+ const section=field.locator("[data-line-section=TL1]");
+ await section.scrollIntoViewIfNeeded();
+ const before=await section.getAttribute("transform");
+ const start=await position(page,145,105);
  await page.mouse.move(start.x,start.y);await page.mouse.down();
- await page.mouse.move(start.x,start.y+28,{steps:6});await page.mouse.up();
- await expect(field.locator("[data-line-section=TL1] .network-transmission-stroke")).not.toHaveAttribute("d","M90 84h106");
+ await page.mouse.move(start.x,start.y+42,{steps:6});await page.mouse.up();
+ await expect(section).not.toHaveAttribute("transform",before!);
  await expect(lab).toHaveAttribute("data-model-revision",rev!);
 });
 
@@ -313,14 +320,14 @@ test("cursor placement, ordinary wire and nonlinear diode use the real solver",a
   await page.locator(`[data-network-tool="${tool}"]`).click();
  };
  await part("wire");
- const end=await position(page,290,84);
+ const end=await position(page,277,65);
  await page.mouse.move(end.x,end.y);
  await expect(page.locator(".network-drag-ghost")).toBeVisible();
  await page.mouse.click(end.x,end.y);
  await ready(page);
  const shortedLoad = field.getByRole("button",{name:"Нагрузка",exact:true});
- await expect(shortedLoad.locator("[data-load-lead]")).toHaveCount(2);
- await expect(shortedLoad.locator("g path")).toHaveAttribute("d","M-23 0H23");
+ await expect(field.locator("[data-load-lead]")).toHaveCount(2);
+ await expect(shortedLoad.locator("g path")).toHaveAttribute("d","M-24 0H24");
  await part("diode");
  await field.getByRole("button",{name:"Конец линии",exact:true}).press("Enter");
  await ready(page);
@@ -368,16 +375,25 @@ test("a detached capacitor moves freely, survives reload, then connects and rewi
  const revision=await lab.getAttribute("data-model-revision");
  await page.getByRole("button",{name:"Элементы",exact:true}).click();
  await page.locator('[data-network-tool="c"]').click();
- const blank=await position(page,160,30);
+ const blank=await position(page,400,90);
  await page.mouse.click(blank.x,blank.y);
  const draft=field.locator('[data-detached="c"]');
  await expect(draft).toBeVisible();
  await expect(lab).toHaveAttribute("data-model-revision",revision!);
  await page.locator(".network-tray-close").click();
- const start=await middle(draft);
+ await draft.locator(".circuit-component-hit").scrollIntoViewIfNeeded();
+ await page.waitForFunction(() => {
+   const part = document.querySelector('[data-detached="c"] .circuit-component-hit');
+   const box = part?.getBoundingClientRect();
+   return !!box && !!document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest('[data-detached="c"]');
+ });
+ const start=await middle(draft.locator(".circuit-component-hit"));
  const original=await draft.getAttribute("transform");
+ expect(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest("[data-component-id]")?.getAttribute("data-component-id"),start)).toBe("draft-1");
  await page.mouse.move(start.x,start.y);await page.mouse.down();
- await page.mouse.move(start.x+125,start.y+35,{steps:8});await page.mouse.up();
+ await page.mouse.move(start.x+125,start.y+35,{steps:8});
+ await expect(draft).not.toHaveAttribute("transform",original!);
+ await page.mouse.up();
  await expect(draft).not.toHaveAttribute("transform",original!);
  await expect(lab).toHaveAttribute("data-model-revision",revision!);
  const moved=await draft.getAttribute("transform");
@@ -410,24 +426,32 @@ test("reroutes both load leads when the load moves above the line", async ({ pag
   const lab = page.locator("[data-network-lab]");
   const revision = await lab.getAttribute("data-model-revision");
   const lead = field.locator("[data-load-lead='0']");
-  const previous = await lead.getAttribute("d");
+  const previous = await lead.getAttribute("points");
   expect(previous).toBeTruthy();
-  const load = field.getByRole("button",{name:"Нагрузка",exact:true}).locator("rect.network-svg-hit");
+  const load = field.getByRole("button",{name:"Нагрузка",exact:true}).locator("rect.circuit-component-hit");
+  await page.evaluate(() => window.scrollBy({ top: 180, behavior: "instant" }));
+  await load.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => {
+    const part = document.querySelector('[data-component-id="load"] .circuit-component-hit');
+    const box = part?.getBoundingClientRect();
+    return !!box && !!document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest('[data-component-id="load"]');
+  });
   const start = await middle(load);
-  const destination = await position(page,336,46);
+  const destination = await position(page,390,40);
+  expect(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest("[data-component-id]")?.getAttribute("data-component-id"),start)).toBe("load");
   await page.mouse.move(start.x,start.y);
   await page.mouse.down();
   await page.mouse.move(destination.x,destination.y,{steps:12});
-  await expect(lead).not.toHaveAttribute("d",previous!);
+  await expect(lead).not.toHaveAttribute("points",previous!);
   await page.mouse.up();
-  const moved = await lead.getAttribute("d");
+  const moved = await lead.getAttribute("points");
   expect(moved).not.toBe(previous);
   await expect(lab).toHaveAttribute("data-model-revision",revision!);
   await ready(page);
   await page.getByRole("button",{name:"Отменить изменение"}).click();
-  await expect(lead).toHaveAttribute("d",previous!);
+  await expect(lead).toHaveAttribute("points",previous!);
   await page.getByRole("button",{name:"Повторить изменение"}).click();
-  await expect(lead).toHaveAttribute("d",moved!);
+  await expect(lead).toHaveAttribute("points",moved!);
   await expect(lab).toHaveAttribute("data-model-revision",revision!);
 });
 
@@ -443,29 +467,36 @@ test("compound load and bridge movement preserve the exported electrical model",
  };
  await page.goto(path);await ready(page);
  await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
- await page.locator('input[type="file"]').setInputFiles({name:"circuit.json",mimeType:"application/json",
+ await page.locator('input[accept=".json,application/json"]').setInputFiles({name:"circuit.json",mimeType:"application/json",
   buffer:Buffer.from(JSON.stringify({schema:"electrotutor-line-v3",model:original,layout:{}}))});
  const help=page.getByRole("button",{name:"Ещё инструменты и справка"});
- if(await help.getAttribute("aria-expanded")==="true")await help.click();
+ if(await help.locator("..").getAttribute("open")!==null)await help.click();
  const field=canvas(page),lab=page.locator("[data-network-lab]");
- const child=field.locator('[data-compound-leads="R2"]');
+ const child=field.locator('[data-wire-endpoint="R2:a"]');
  await expect(child).toHaveCount(1);await ready(page);
  const rev=await lab.getAttribute("data-model-revision");
  async function drag(symbol:ReturnType<Page["locator"]>,dx:number,dy:number){
+  await symbol.scrollIntoViewIfNeeded();
+  await expect.poll(() => symbol.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest("[data-component-id]") ===
+      element.closest("[data-component-id]");
+  })).toBe(true);
   const p=await middle(symbol);
   await page.mouse.move(p.x,p.y);await page.mouse.down();await page.mouse.move(p.x+dx,p.y+dy,{steps:8});await page.mouse.up();
  }
- const before=await child.getAttribute("d");
- const handle=child.locator("..").locator("rect.network-svg-hit");
+ const before=await child.getAttribute("points");
+ const handle=field.locator('[data-component-id="R2"] rect.circuit-component-hit');
+ await handle.scrollIntoViewIfNeeded();
  const origin=await middle(handle);
- const sibling=await middle(field.locator('[data-compound-leads="R1"]').locator("..").locator("rect.network-svg-hit"));
+ const sibling=await middle(field.locator('[data-component-id="R1"] rect.circuit-component-hit'));
  await drag(handle,sibling.x-origin.x,sibling.y-origin.y);
- await expect(child).toHaveAttribute("d",before!);
+ await expect(child).toHaveAttribute("points",before!);
  await drag(handle,24,0);
- await expect(child).not.toHaveAttribute("d",before!);
+ await expect(child).not.toHaveAttribute("points",before!);
  const bridge=field.locator('[data-contact="R3"]');
- await drag(bridge.locator("rect.network-svg-hit"),25,20);
- await expect(field.locator('[data-component-leads="R3"]')).toBeVisible();
+ await drag(bridge.locator("rect.circuit-component-hit"),25,20);
+ await expect(field.locator('[data-wire-endpoint="R3:a"]')).toBeVisible();
  const check=async(name:string)=>{
   await expect(lab).toHaveAttribute("data-model-revision",rev!);
   const download=page.waitForEvent("download");

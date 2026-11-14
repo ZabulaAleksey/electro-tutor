@@ -1,16 +1,20 @@
 # Traceability
 
+CE-007 → circuit-engine SPEC → circuit-archive, line-archive-document, CircuitEditor и расчётный Worker → circuit-archive.test.ts и transmission-archive-migration.spec.ts.
+
+CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.
+
 ## ET-LAB-022
 
-LINE-UX-030..033 → transmission-line-transient SPEC → engineering/handwriting, NetworkWorkbench, network-routing, network-ink, network.ts and document history → handwriting.test.ts, network-ink.test.ts, network-current-source.test.ts and transmission-handwriting.spec.ts.
+LINE-UX-030..033 → transmission-line-transient SPEC → engineering/handwriting, CircuitEditor и useLineOperations, network-routing, network-ink, network.ts and document history → handwriting.test.ts, network-ink.test.ts, network-current-source.test.ts and transmission-handwriting.spec.ts.
 
 ## ET-LAB-021 — Трассировка нагрузки
 
-LINE-UX-023 → network-routing.ts и NetworkWorkbench → network-routing.test.ts и transmission-workbench.spec.ts.
+LINE-UX-023 → network-routing.ts и CircuitEditor и useLineOperations → network-routing.test.ts и transmission-workbench.spec.ts.
 
-LINE-UX-025 → network-load-layout.ts, NetworkEditor и NetworkWorkbench → network-load-layout.test.ts и передвижение с экспортом модели в transmission-workbench.spec.ts. LINE-UX-026 → TransmissionNetworkLab → сценарий MCP и измерений в transmission-editor-duration.spec.ts.
+LINE-UX-025 → network-load-layout.ts, NetworkEditor и CircuitEditor и useLineOperations → network-load-layout.test.ts и передвижение с экспортом модели в transmission-workbench.spec.ts. LINE-UX-026 → TransmissionNetworkLab → сценарий MCP и измерений в transmission-editor-duration.spec.ts.
 
-LINE-UX-027 → network-routing.ts, NetworkWorkbench и network-load-layout.ts → network-routing.test.ts, network-load-layout.test.ts и проверка JSON модели после перемещения. LINE-UX-028 → network-experiment.ts и TransmissionNetworkLab → network-experiment.test.ts и проверка скачанных JSON/CSV при зуме ×50.
+LINE-UX-027 → network-routing.ts, CircuitEditor и useLineOperations и network-load-layout.ts → network-routing.test.ts, network-load-layout.test.ts и проверка JSON модели после перемещения. LINE-UX-028 → network-experiment.ts и TransmissionNetworkLab → network-experiment.test.ts и проверка скачанных JSON/CSV при зуме ×50.
 
 FR-413..414 → editorial-learning-sections.spec.md → общий список карточек, BaseLayout и EngineeringBoard → editorial-learning, content-first-navigation, product-accessibility, board-workspaces и education-release.
 
@@ -20,7 +24,7 @@ SHOW-020 → engineering-showcase.spec.md → engineering/format, EngineeringPlo
 
 ## ET-LAB-020 — Монтаж и длительность
 
-LINE-UX-019..022 → transmission-line-transient SPEC → NetworkWorkbench, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.
+LINE-UX-019..022 → transmission-line-transient SPEC → CircuitEditor и useLineOperations, TransmissionNetworkLab, network-edit, network.ts и Worker → network-duration.test.ts и transmission-editor-duration.spec.ts.
 
 ## ET-LAB-016–019 — Эталоны, фазоры, Фурье и затухание
 
@@ -35,19 +39,19 @@ LC-001..004 → reactive-two-port SPEC → reactive-two-port.ts, ReactiveTwoPort
 
 ## ET-LAB-014 — Свободная компоновка и промежуточные двухполюсники
 
-LINE-UX-015..018 → transmission-line-transient SPEC и ADR-058 → NetworkWorkbench, NetworkEditor, NetworkInspector, network-edit и Worker → network-advanced.test.ts и transmission-workbench.spec.ts.
+LINE-UX-015..018 → transmission-line-transient SPEC и ADR-058 → CircuitEditor и useLineOperations, NetworkEditor, NetworkInspector, network-edit и Worker → network-advanced.test.ts и transmission-workbench.spec.ts.
 
 ## ET-LAB-013 — Палитра, жесты, УГО и диод
 
-LINE-UX-011..014 → transmission-line-transient SPEC, ADR-057 → NetworkWorkbench, NetworkInspector, line-diode и Worker → network-edit.test.ts и transmission-workbench.spec.ts.
+LINE-UX-011..014 → transmission-line-transient SPEC, ADR-057 → CircuitEditor и useLineOperations, NetworkInspector, line-diode и Worker → network-edit.test.ts и transmission-workbench.spec.ts.
 
 ## ET-LAB-012 — Транспорт и коммутация
 
-LINE-UX-006..010 → transmission-line-transient SPEC и ADR-056 → NetworkWorkbench, NetworkInspector и характеристический Worker → аналитические проверки network-edit.test.ts и браузерные сценарии transmission-workbench.spec.ts, transmission-network.spec.ts, product-pwa.spec.ts и education-release.spec.ts.
+LINE-UX-006..010 → transmission-line-transient SPEC и ADR-056 → CircuitEditor и useLineOperations, NetworkInspector и характеристический Worker → аналитические проверки network-edit.test.ts и браузерные сценарии transmission-workbench.spec.ts, transmission-network.spec.ts, product-pwa.spec.ts и education-release.spec.ts.
 
 ## ET-LAB-011 — Каталог и конструктор сети
 
-FR-412 и LINE-UX-001..005 → editorial-learning-sections и transmission-line-transient SPEC → ADR-055 → каталог, NetworkWorkbench и network-edit → численная проверка network-edit.test.ts, Chromium transmission-workbench.spec.ts и регрессия transmission-network.spec.ts/transmission-line.spec.ts. Ручной сенсорный сценарий ведётся в STAGES.
+FR-412 и LINE-UX-001..005 → editorial-learning-sections и transmission-line-transient SPEC → ADR-055 → каталог, CircuitEditor и useLineOperations и network-edit → численная проверка network-edit.test.ts, Chromium transmission-workbench.spec.ts и регрессия transmission-network.spec.ts/transmission-line.spec.ts. Ручной сенсорный сценарий ведётся в STAGES.
 
 ## ET-UI-010 — презентационная главная и инвентаризация
 

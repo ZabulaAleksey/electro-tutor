@@ -78,7 +78,8 @@ export function parseCircuit(text: string): { drawing: Drawing; settings: Circui
     }
     const raw = geometry.positions[component.id];
     const point = parsePoint(raw, size);
-    if (!isRecord(raw) || typeof raw.rotation !== "number" || ![0, 90, 180, 270].includes(raw.rotation)) {
+    if (!isRecord(raw) || typeof raw.rotation !== "number" || !Number.isFinite(raw.rotation) ||
+      raw.rotation < 0 || raw.rotation >= 360 || raw.rotation % 90 !== 0 && component.kind !== "line") {
       throw Error("invalid-rotation");
     }
     const span = raw.span;

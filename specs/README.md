@@ -69,3 +69,5 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/language-switcher-ui.spec.md` | Approved START2026-11-09 | ET-UI-008: RU/UK icon menu/persistence, EN type reservation, honest worker status |
 | `features/content-first-navigation.spec.md` | Утверждено запросом владельца | FR-401..406: навигация по доступным материалам и временный светлый режим |
 | `features/editorial-learning-sections.spec.md` | Утверждено запросом владельца | FR-407..411: презентационная главная, разделы и инвентаризация full preview |
+
+Утверждённый контракт [Circuit Engine](features/circuit-engine.spec.md) описывает универсальный граф, редактор, трассировку, JSON и первый лабораторный адаптер.

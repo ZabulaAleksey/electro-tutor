@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/circuit-engine.spec.md",
       "specs/features/engineering-showcase.spec.md",
       "specs/features/productization-rc1.spec.md",
       "specs/features/booking-reminders.spec.md",
@@ -2117,6 +2118,146 @@
         "tests/e2e/product-shell-audit.spec.ts",
         "tests/e2e/education-release.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "CE-001"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "circuit-engine",
+      "runtime": "Standalone TypeScript topology",
+      "security": "Reject invalid topology",
+      "a11y": "Library API",
+      "observability": "Validation diagnostics",
+      "gap": "Editor integration pending",
+      "action": "Exercise topology through the standalone editor.",
+      "code": [
+        "src/circuit/topology.ts"
+      ],
+      "unit": [
+        "src/circuit/topology.test.ts"
+      ],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-002"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Build the localized standalone editor.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-003"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Add explicit joints and geometry-aware routing.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-004"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Benchmark and verify whole-schematic optimization.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-005"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Verify touch and atomic editing gestures.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-006"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Verify storage, migration and adapter contracts.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-007"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Run the real line laboratory comparison suite.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-008"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Planned Circuit Engine slice",
+      "security": "Review at slice acceptance",
+      "a11y": "Verify where the slice has user controls",
+      "observability": "Slice test evidence",
+      "gap": "Implementation and acceptance pending",
+      "action": "Run the final property, visual and performance gates.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

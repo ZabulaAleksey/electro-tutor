@@ -15,7 +15,8 @@
 - Risk: неверная связность при пересечениях, тихая порча импортов, избыточный бюджет поиска и регрессии solver. Покрытие: независимые топологические/геометрические утверждения, ограниченные операции и проверки реальных браузерных сценариев.
 - User actions: none.
 - Editor evidence: RU/UK routes built in the education profile. Initial Chromium 404 on both routes; after explicit route registration, 2/2 Chromium PASS for blank placement, drag, rotation, zoom, removal and 390 px touch placement. Astro check and targeted ESLint PASS.
-- NEXT: explicit-wiring
+- Wiring evidence: 557 Vitest PASS, including 100 seeded geometry edits preserving netlist and obstacle avoidance. Chromium 3/3 PASS, including explicit terminal/junction wiring and rotation with unchanged connectivity. Education build and types PASS.
+- NEXT: global-layout
 
 ## ET-LAB-022 — Рукописный ввод схемы
 

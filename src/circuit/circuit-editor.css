@@ -35,3 +35,6 @@
 .circuit-selected .circuit-component-hit { fill: #e4f4fe; stroke: #1784bc; stroke-width: 1; }
 .circuit-viewport text { fill: var(--ink); font-size: 10px; pointer-events: none; }
 .circuit-message { min-height: 1.5em; }
+
+.circuit-viewport polyline { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.circuit-pin { cursor: crosshair; }

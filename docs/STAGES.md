@@ -1,39 +1,36 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-CIRCUIT-LAB-PARITY
+- Stage ID: final-qualification
 
-## ET-CIRCUIT-LAB-PARITY — Universal Circuit Engine
+## final-qualification
 
-- Status: partial
+- Status: completed
 - Goal: независимый редактор схем и проверенный адаптер лаборатории длинных линий.
 - Entry: чистый main ef16730, pnpm test PASS (550). Текущая интеграция линий работает по ET-LAB-021. Физический ввод и внешний корпус ET-LAB-022 остаются в своём record и не требуются для топологического ядра.
 - SPEC: specs/features/circuit-engine.spec.md, CE-001..008.
 - Invariants: существующий solver и Network-документы совместимы, электрические соединения явные, координаты живут отдельно, редактирование сохраняет идентичность выводов.
 - Core evidence: исходные 550 тестов PASS. Eval-first FAIL на отсутствующем модуле. Публичный API прошёл 5 целевых проверок на разветвление, циклы, удаление, отказы и валидацию. Consumer path: Vitest создаёт электрическую цепь через публичные операции и проверяет состав каждой сети, явное разветвление, разрыв, отклонение некорректной правки и сохранение идентичности. Внешние сервисы не требуются.
-- Reuse audit: `src/transient/NetworkWorkbench.tsx` объединяет жесты, канву и редактирование, опираясь на индексы узлов решателя. `network-edit.ts` ограничен последовательностью секций; `network-routing.ts` содержит ортогональный поиск для пары выводов и проверки препятствий. `TransmissionNetworkLab.tsx` владеет сохранением, Undo/Redo и Worker. `src/engineering/symbols.tsx` содержит общие УГО. Static route и React island берутся из интерактивного раздела. Новый граф не наследует индексную модель.
+- Ownership: CircuitEditor хранит граф и геометрию. Лабораторный адаптер импорта сохраняет физическую модель, события и рукописный архив. TransmissionNetworkLab управляет историей, расчётным Worker и результатами.
 - Scope order: topology → standalone UI → wiring → layout → editing → interchange → line adapter → qualification. Каждый следующий slice требует PASS предыдущего.
 - Risk: неверная связность при пересечениях, тихая порча импортов, избыточный бюджет поиска и регрессии solver. Покрытие: независимые топологические/геометрические утверждения, ограниченные операции и проверки реальных браузерных сценариев.
-- User actions: none.
+- ET-CIRCUIT-MERGE | pending | Разрешить локальное слияние feature/circuit-engine в main ответом «Да, сливай». Evidence: явное разрешение владельца. Разблокирует проверку интеграции с main.
 - Editor evidence: RU/UK routes built in the education profile. Initial Chromium 404 on both routes; after explicit route registration, 2/2 Chromium PASS for blank placement, drag, rotation, zoom, removal and 390 px touch placement. Astro check and targeted ESLint PASS.
 - Wiring evidence: 557 Vitest PASS, including 100 seeded geometry edits preserving netlist and obstacle avoidance. Chromium 3/3 PASS, including explicit terminal/junction wiring and rotation with unchanged connectivity. Education build and types PASS.
 - Layout and editing evidence: incremental routing retains unrelated paths. Global wire-order search compares unrouted count, crossings, bends and length; broader layout benchmarks and component repositioning remain pending. Ten focused Vitest and 5/5 Chromium PASS, including RLC wire optimization, clearing with undo/redo, series diode insertion and resistor value editing.
-- Interchange and first laboratory path: versioned JSON, validated import, local save/reload and export; 7 Chromium PASS, including export from the editor and import through the real transmission lab Worker. The adapter supports one ideal voltage source, 1–6 contiguous sections and an optional terminal R, L or C. Physical length remains independent of the two-point screen span. Nine Chromium editor scenarios pass, including two-point line placement on a 320 px touch viewport and pinned components during whole-layout search. Five routing corpus classes pass. Visual frames at desktop and 320 px were inspected; fixed line-label overlap and localized the visible import control.
-- Final verified snapshot: 567 Vitest PASS, 65 Chromium PASS (9 editor, 56 lab), education build, lint, Astro types and context validator PASS. Benchmark: 5 circuit classes, 0.12–12.34 ms in one Windows Vitest run. Whole-layout search eliminated two RLC crossings and shortened the dense circuit's paths by 10 units; all candidates preserve topology and pinned locations.
-- Editing qualification: seven prior modules plus new regressions pass. A snapshot includes topology, positions, paths, document settings and title. The browser confirms settings/import undo-redo, pinch without accidental placement, two-point touch line construction, and safe rejection of unsupported models. Version 1 JSON migrates to version 2 with grid snapping preserved.
-- Laboratory integration: the embedded CircuitEditor sends an explicitly submitted graph to the existing Worker. R/L/C series/parallel loads, supported intermediate branches, an inline device between two sections and voltage/current source conversion are covered. Section and contact readings update with the experiment time; readings are associated with the calculated document, and the active graph survives reload. All 56 existing lab regressions pass. The original workbench still handles scheduled events and legacy-only cases, including configurations the graph adapter cannot currently represent.
-- Qualification evidence: 573 Vitest PASS; 69 Chromium PASS in one editor+lab run, followed by 14/14 editor PASS including invalid-model rejection. Reviewed desktop and 320 px screenshots; 390 px Chromium optimization met the 500 ms budget. Astro check, lint, education build and context PASS. Repeated seeded tests cover 100 geometry changes and 40 sequences of electrical edits. No physical-device evidence.
-- Latest evidence: 577 Vitest PASS; Chromium 71/71 editor+lab and 16/16 editor including per-device reactive Worker samples (72 unique scenarios across both runs). The browser verifies 12 V → 16 V after a graph-authored resistance event. Source and inline switch timing, losses, and series resistive division have independent test assertions. Optional numeric tracing leaves port solutions identical on the tested fixture. Build, types, lint, context and diff checks PASS. Seven routing fixtures pass, including bridge, ring and fixed dense placement.
-- Remaining scope: migrate unsupported legacy topologies and archive-writing workflows to the universal editor before removing the original workbench. Circuit graph scheduling currently supports bounded solver-compatible source/switch timing and terminal resistance changes. There is no physical-device evidence, and the corpus does not yet cover all requested classes or the largest editing loads.
-- Active acceptance: line-v2..v5 → universal graph → equivalent Network → real Worker → reload/export. Migrate component selection, placement/connection, source/load/contact edits, time/measurements and ink correction. Replace the old workbench only with passing archive and consumer evidence. Existing browser scenarios change only to follow the explicitly requested single-editor UI.
-- NEXT: ET-CIRCUIT-LAB-PARITY
+- ET-CIRCUIT-LAB-PARITY PASS: архивы line-v2..v5 проходят импорт, редактирование, расчёт в действующем Worker, перезагрузку и экспорт. Структура нагрузки, параметры элементов, потери линии, события, начальные состояния и связи с исходными штрихами проходят циклические проверки. Для конфликтной геометрии предусмотрено допустимое размещение с сохранением исходных архивных координат.
+- CircuitEditor — единственная доска лаборатории. NetworkWorkbench удалён после браузерных проверок. Мышь, клавиатура, touch, измерения, время, составные нагрузки, Undo/Redo, сохранение и исправление штрихов проверены через обычные точки входа.
+- Final evidence: 590 Vitest PASS, 77 Chromium PASS для редактора и лаборатории, 2 Chromium PASS для учебного релиза, образование build, Astro check, ESLint, context и diff PASS. Ранее два теста перетаскивания зависели от прокрутки под закреплённой панелью. Итоговый прогон проверяет попадание указателя по SVG перед жестом.
+- Routing qualification: 17 схем, повторное сравнение оптимизированных путей и netlist. Windows benchmark 0.18–27.94 ms. RLC: два пересечения устранены, нагруженные ветви: длина 1606 → 1566 при прежних поворотах и числе пересечений. В Chromium подтверждён Worker оптимизации шестисекционной схемы и сохранение netlist. Просмотрены кадры desktop, 320 px и редактирование штрихов на 390 px.
+- Verification limits: физический ввод и независимый корпус распознавания ведутся в ET-LAB-022. Проверка оптимизации ограничена измеренными схемами и браузерными сценариями. Интеграция в main требует отдельного разрешения.
+- NEXT: merge-approval
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 4,
+  "state_revision": 5,
   "master": {
     "id": "ET-CIRCUIT-001",
-    "status": "partial",
+    "status": "completed",
     "source": {
       "backend": "user_attachment",
       "queue_id": "none",
@@ -49,10 +46,14 @@
       "repository": "~/projects/electro-tutor",
       "worktree": "~/projects/electro-tutor",
       "branch": "feature/circuit-engine",
-      "checkpoint": "3312a27ec5750b6a778391b07da17129cc4122b8",
+      "checkpoint": "8c460e4acad23cec83eb7a8481d810dc2f4af836",
       "ownership": [
         "src/circuit",
         "src/transient/circuit-adapter.ts",
+        "src/transient/circuit-archive.ts",
+        "src/transient/line-archive-document.ts",
+        "src/transient/useLineInk.tsx",
+        "src/transient/useLineOperations.tsx",
         "src/components/TransmissionNetworkLab.tsx"
       ],
       "status": "active"
@@ -292,26 +293,28 @@
       "id": "ET-CIRCUIT-LAB-PARITY",
       "master_id": "ET-CIRCUIT-001",
       "title": "Complete remaining legacy graph and archive compatibility before retiring the original workbench",
-      "status": "ready",
+      "status": "completed",
       "predecessors": [
         "ET-CIRCUIT-QUALIFY-EDITING"
       ],
       "dependencies": [],
       "worktree_track": "circuit-engine",
-      "checkpoint_before": "8c639b78a51f9ab82b3fdd1821fcae3d9c73ba38",
-      "checkpoint_after": "",
+      "checkpoint_before": "8f79422",
+      "checkpoint_after": "8c460e4acad23cec83eb7a8481d810dc2f4af836",
       "required_evidence": [
         "L3",
         "L5"
       ],
       "evidence": [
+        "L2",
         "L3",
         "L5"
       ],
       "context_scope": [
         "specs/features/circuit-engine.spec.md",
-        "src/circuit",
-        "tests/e2e/circuit-editor.spec.ts"
+        "src/transient/circuit-archive.ts",
+        "src/components/TransmissionNetworkLab.tsx",
+        "tests/e2e/transmission-archive-migration.spec.ts"
       ],
       "requirements": [
         "CE-007"
@@ -325,19 +328,22 @@
       "id": "final-qualification",
       "master_id": "ET-CIRCUIT-001",
       "title": "Complete visual, property and performance acceptance",
-      "status": "queued",
+      "status": "completed",
       "predecessors": [
         "ET-CIRCUIT-LAB-PARITY"
       ],
       "dependencies": [],
       "worktree_track": "circuit-engine",
-      "checkpoint_before": "",
-      "checkpoint_after": "",
+      "checkpoint_before": "8c460e4acad23cec83eb7a8481d810dc2f4af836",
+      "checkpoint_after": "8c460e4acad23cec83eb7a8481d810dc2f4af836",
       "required_evidence": [
         "L2",
         "L5"
       ],
-      "evidence": [],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
       "context_scope": [
         "specs/features/circuit-engine.spec.md",
         "src/circuit",
@@ -363,7 +369,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "ET-CIRCUIT-LAB-PARITY",
+  "next_action": "Local acceptance complete. Await owner decision before integration.",
   "integration": {
     "required": false,
     "reason": ""

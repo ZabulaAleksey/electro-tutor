@@ -2,21 +2,31 @@ import { addComponent, addJunction, connect, disconnect, emptyCircuit, type Circ
 
 export type Point = { x: number; y: number };
 export type Placement = Point & { rotation: number; span?: number; pinned?: boolean };
-export type Drawing = { topology: CircuitTopology; positions: Record<string, Placement>; junctionPositions: Record<string, Point> };
+export type BoardSize = { width: number; height: number };
+export const defaultBoard: BoardSize = { width: 540, height: 360 };
+export type Drawing = {
+  topology: CircuitTopology;
+  positions: Record<string, Placement>;
+  junctionPositions: Record<string, Point>;
+  board?: BoardSize;
+  extension?: { adapter: string; data: unknown };
+};
 export const parts = {
   r: { prefix: "R", parameters: { ohm: 100, changeAtS: 0, nextOhm: 100 } },
-  l: { prefix: "L", parameters: { henry: 0.01 } },
-  c: { prefix: "C", parameters: { farad: 0.0001 } },
+  l: { prefix: "L", parameters: { henry: 0.01, initial: 0 } },
+  c: { prefix: "C", parameters: { farad: 0.0001, initial: 0 } },
   current: { prefix: "I", parameters: { currentA: 0.1, onS: 0, offS: 0 } },
-  switch: { prefix: "S", parameters: { closed: true, atS: 0, closes: false } },
+  switch: { prefix: "S", parameters: { closed: true, atS: 0, closes: false, contactOhm: 0 } },
   voltage: { prefix: "V", parameters: { voltageV: 12, resistanceOhm: 0, onS: 0, offS: 0 } },
   line: { prefix: "TL", parameters: { lengthM: 500_000, impedanceOhm: 50, velocityMS: 200_000_000, resistanceOhmM: 0 } },
-  diode: { prefix: "D", parameters: {} },
+  diode: { prefix: "D", parameters: { saturationA: 1e-12, ideality: 1.5, reversed: false } },
+  bridge: { prefix: "B", parameters: {} },
+  open: { prefix: "O", parameters: {} },
 };
 export type PartKind = keyof typeof parts;
-export const optionalPartParameters = new Set(["onS", "offS", "atS", "closes", "resistanceOhm", "resistanceOhmM", "changeAtS", "nextOhm"]);
+export const optionalPartParameters = new Set(["onS", "offS", "atS", "closes", "resistanceOhm", "resistanceOhmM", "changeAtS", "nextOhm", "initial", "saturationA", "ideality", "reversed", "contactOhm", "closed"]);
 export function validPartParameter(name: string, value: number) {
-  return Number.isFinite(value) && (name === "voltageV" || name === "currentA" ||
+  return Number.isFinite(value) && (name === "voltageV" || name === "currentA" || name === "initial" || (name === "ohm" && value === 0) ||
     (optionalPartParameters.has(name) && name !== "nextOhm" ? value >= 0 : value > 0));
 }
 

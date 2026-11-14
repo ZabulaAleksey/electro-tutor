@@ -1,6 +1,6 @@
 import CircuitEditor, { type CircuitReading } from "../circuit/CircuitEditor";
-import { parseCircuit } from "../circuit/document";
-import { resistiveLoadReadings, transmissionCircuitAdapter } from "../transient/circuit-adapter";
+import { resistiveLoadReadings } from "../transient/circuit-adapter";
+import { decodeLineCircuit, lineArchiveByteLimit, lineArchiveSize, readLineArchive, requiresV4, sameNetwork, serializeLineCircuit } from "../transient/line-archive-document";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
 import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -14,35 +14,20 @@ import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import NetworkWorkbench, {restoreNetworkLayout} from "../transient/NetworkWorkbench";
 import NetworkInspector from "../transient/NetworkInspector";
 import {networkError} from "../transient/network-copy";
-import {loadReplacement,readDetached,removeLoad,removeSection,sectionBoundaries,type DetachedPart,type Selection} from "../transient/network-edit";
+import {loadReplacement,removeLoad,removeSection,sectionBoundaries,type DetachedPart,type Selection} from "../transient/network-edit";
 import { downloadSvg } from "../engineering/exportSvg";
 import { experimentRows, experimentTimeLabel, parseExperimentDuration } from "../transient/network-experiment";
 import type { Ink } from "../engineering/handwriting";
-import {linkMatches,readInkDocument,sameInkTarget,type InkLink,type InkTarget} from "../transient/network-ink";
+import {linkMatches,sameInkTarget,type InkLink,type InkTarget} from "../transient/network-ink";
 import "./TransmissionNetworkLab.css";
 type Document = {model:Network; layout:Layout; detached:DetachedPart[]; ink?:Ink[]; inkLinks?:(InkLink|null)[]; empty?:boolean; circuit?:string};
-const documentByteLimit = 320_000;
-const documentSize = (value: string) => new TextEncoder().encode(value).byteLength;
 const draftKey = "electrotutor-line-draft-v5";
-function readLayout(input:unknown):Layout{
- if(!input||typeof input!=="object")return {};
- return Object.fromEntries(Object.entries(input).filter(([id,value])=>
-  /^@?[A-Za-z][A-Za-z0-9_-]{0,79}$/.test(id)&&typeof value==="number"&&Number.isFinite(value)&&Math.abs(value)<=1e6));
-}
 function withoutSectionLayout(layout: Layout, id: string): Layout {
  const next = {...layout};
  for(const key of [id,"@x-"+id,"@rot-"+id,"@span-"+id])delete next[key];
  return next;
 }
-function matchesCircuit(text: string, model: Network) {
- try {
-  const converted = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology).model;
-  return JSON.stringify({ ...converted, durationS: model.durationS }) === JSON.stringify(model);
- } catch { return false; }
-}
 const legacyDraftKey = "electrotutor-line-draft";
-const usesNewComponents=(model:Network)=>model.load?.kind==="diode"||
- [...model.series??[],...model.branches??[]].some(link=>link.resistanceOhm===undefined&&!link.switch);
 type Limits={u:readonly[number,number];i:readonly[number,number]};
 const limits=(run:WaveRun):Limits=>({u:engineeringAxis(...run.rangeU,{includeZero:true,targetTicks:5}).domain,i:engineeringAxis(...run.rangeI,{includeZero:true,targetTicks:5}).domain});
 const speeds=Array.from({length:10},(_,index)=>2**(index-4));
@@ -70,22 +55,19 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   try{
    const data=[draftKey,"electrotutor-line-draft-v4","electrotutor-line-draft-v3",legacyDraftKey]
     .map(key=>localStorage.getItem(key)).find(value=>value!==null);
-   if(!data||documentSize(data)>documentByteLimit)return;
-   const parsed=JSON.parse(data);
-   if(validateNetwork(parsed.model).length)return;
-   const detached=readDetached(parsed.detached);
-   const restored=parsed.empty===true?structuredClone(DEFAULT_NETWORK):parsed.model;
-   const layout=restoreNetworkLayout(readLayout(parsed.layout),restored,parsed.empty===true);
-   const {ink:restoredInk,links:restoredLinks}=readInkDocument(parsed.ink,parsed.inkLinks,restored,detached,parsed.empty===true);
-   let circuit: string | undefined;
-   if (typeof parsed.circuit === "string" && matchesCircuit(parsed.circuit, restored)) {
-    circuit = parsed.circuit;
-    setCircuit(circuit);
-    setEditorSeed(circuit);
+   if (!data) return;
+   const restored = readLineArchive(data, true, true);
+   setModel(restored.model);setLayout(restored.layout);setDetached(restored.detached);setEmpty(restored.empty);
+   setInk(restored.ink);setInkLinks(restored.inkLinks);
+   if (!restored.empty && restored.circuit) {
+    setCircuit(restored.circuit);
+    setEditorSeed(restored.circuit);
    }
-   setInk(restoredInk);setInkLinks(restoredLinks);
-   setModel(restored);setLayout(layout);setDetached(detached);setEmpty(parsed.empty===true);
-   setSavedDocument(JSON.stringify({model:restored,layout,detached,...(restoredInk.length?{ink:restoredInk}:{}),...(restoredLinks.some(Boolean)?{inkLinks:restoredLinks}:{}),...(parsed.empty===true?{empty:true}:{}),...(circuit?{circuit}:{})}));
+   setSavedDocument(JSON.stringify({
+    model:restored.model,layout:restored.layout,detached:restored.detached,
+    ...(restored.ink.length?{ink:restored.ink}:{}),...(restored.inkLinks.some(Boolean)?{inkLinks:restored.inkLinks}:{}),
+    ...(restored.empty?{empty:true}:restored.circuit?{circuit:restored.circuit}:{}),
+   }));
   }catch{/* Existing model stays usable when local storage is unavailable. */}
  },[]);
  useEffect(()=>setMounted(true),[]);
@@ -123,9 +105,9 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   setProbe(x=>Math.min(x,totalLength(next.model)));
  }
  function edit(next:Network,keep=false,nextLayout=layout,nextDetached=detached,nextEmpty=empty,nextInk=ink,nextLinks=inkLinks,nextCircuit?:string|null){
-  if(next!==model&&JSON.stringify(next)===JSON.stringify(model))next=model;
+  if(next!==model&&sameNetwork(next,model))next=model;
   const circuitForEdit = nextCircuit === null ? undefined : nextCircuit ?? (
-   !nextEmpty && (next === model || JSON.stringify({ ...model, durationS: next.durationS }) === JSON.stringify(next))
+   !nextEmpty && (next === model || sameNetwork({ ...model, durationS: next.durationS }, next))
     ? circuit : undefined
   );
   if(circuitForEdit===circuit&&next===model&&JSON.stringify(nextLayout)===JSON.stringify(layout)&&JSON.stringify(nextDetached)===JSON.stringify(detached)&&nextEmpty===empty&&nextInk===ink&&nextLinks===inkLinks)return;
@@ -207,15 +189,15 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const diodePoint=!valid?undefined:inspectedDiode?.component?.kind==="diode"?
   (inspectedDiode.component.diode.reversed?-1:1)*branchVoltage(run,inspectedDiode,time):
   run.config.load.kind==="diode"?(run.config.load.diode?.reversed?-1:1)*at(run,L,time).u:undefined;
- const saveLocal=()=>{try{if(documentSize(documentValue)>documentByteLimit||validateNetwork(model).length)throw Error();localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);return true;}catch{return false;}};
+ const saveLocal=()=>{try{if(lineArchiveSize(documentValue)>lineArchiveByteLimit||validateNetwork(model).length)throw Error();localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);return true;}catch{return false;}};
  useEffect(()=>{
-  if(!mounted||documentValue===savedDocument||documentSize(documentValue)>documentByteLimit||validateNetwork(model).length)return;
+  if(!mounted||documentValue===savedDocument||lineArchiveSize(documentValue)>lineArchiveByteLimit||validateNetwork(model).length)return;
   try{localStorage.setItem(draftKey,documentValue);setSavedDocument(documentValue);}catch{/* Explicit save and navigation guard remain available. */}
  },[mounted,documentValue,savedDocument,model]);
  function calculateCircuit(text: string) {
   try {
-   const { model: converted } = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology);
-   edit({ ...converted, durationS: Math.max(model.durationS, converted.durationS) }, false, {}, [], false, [], [], text);
+   const converted = decodeLineCircuit(text);
+   edit({ ...converted, durationS: Math.max(model.durationS, converted.durationS) }, false, layout, detached, false, ink, inkLinks, text);
    setSelection(null);
   } catch (error) {
    setActionError(networkError(String(error),language));
@@ -250,7 +232,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   return values;
  }, [valid, circuit, run, time, language]);
  const navigationDialog=useUnsavedChanges({dirty:documentValue!==savedDocument,onSave:saveLocal,language});
- const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":usesNewComponents(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(circuit?{circuit}:{}),...(version5?{detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})}:{})}),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":requiresV4(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(circuit?{circuit}:{}),...(version5?{detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})}:{})}),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  const start=()=>{if(time>=run.config.durationS)seek(0);setRunning(true);};
  const eventTimes=[0,...run.events,run.config.durationS].sort((a,b)=>a-b),next=eventTimes.find(t=>t>time+1e-12),previous=[...eventTimes].reverse().find(t=>t<time-1e-12);
  const units=(v:number,unit:string)=>formatEngineeringValue(v,unit,language);
@@ -356,7 +338,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
      <input ref={file} hidden type="file" accept=".json,application/json" onChange={async e=>{
       const f=e.target.files?.[0];if(!f)return;
       try{
-       if(f.size>documentByteLimit)throw Error("file-limit:320kB");
+       if(f.size>lineArchiveByteLimit)throw Error("file-limit:320kB");
        const text = await f.text();
        const saved = JSON.parse(text);
        if (saved?.schemaVersion === 1 || saved?.schemaVersion === 2) {
@@ -365,26 +347,12 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
         setEditorRevision(value => value+1);
         return;
        }
-       if(!["electrotutor-line-v2","electrotutor-line-v3","electrotutor-line-v4","electrotutor-line-v5"].includes(saved.schema))throw Error("schema");
-       if(saved.schema!=="electrotutor-line-v5"&&saved.model?.source?.currentA!==undefined)throw Error("schema");
-       if(saved.schema==="electrotutor-line-v2"&&(saved.model?.series?.length||saved.model?.branches?.length)||
-          ["electrotutor-line-v2","electrotutor-line-v3"].includes(saved.schema)&&usesNewComponents(saved.model))throw Error("schema");
-       const errors=validateNetwork(saved.model);if(errors.length)throw Error(errors.join(";"));
-       const latest=saved.schema==="electrotutor-line-v5";
-       if(!latest&&(contactsOf(saved.model).some(link=>link.component)||hasLineLoss(saved.model)))throw Error("schema");
-       const blank=latest&&saved.empty===true;
-       const imported=blank?structuredClone(DEFAULT_NETWORK):saved.model;
-       const importedLayout=readLayout(saved.layout);
-       const restoredLayout=restoreNetworkLayout(importedLayout,imported,blank);
-       const importedParts=latest?readDetached(saved.detached):[];
-       const archive=latest?readInkDocument(saved.ink,saved.inkLinks,imported,importedParts,blank):{ink:[],links:[]};
-       const importedCircuit = !blank && typeof saved.circuit === "string" && matchesCircuit(saved.circuit, imported) ? saved.circuit : null;
-       edit(imported,false,restoredLayout,importedParts,blank,archive.ink,archive.links,importedCircuit);
-       if (importedCircuit) {
-        setEditorSeed(importedCircuit);
-        setEditorRevision(value=>value+1);
-       }
-       if (restoredLayout!==importedLayout) setActionError(networkError("unroutable-layout",language));
+       const archive = readLineArchive(text);
+       const restoredLayout=restoreNetworkLayout(archive.layout,archive.model,archive.empty);
+       edit(archive.model,false,restoredLayout,archive.detached,archive.empty,archive.ink,archive.inkLinks,archive.empty?null:archive.circuit);
+       setEditorSeed(archive.circuit);
+       setEditorRevision(value=>value+1);
+       if (restoredLayout!==archive.layout) setActionError(networkError("unroutable-layout",language));
        setSelection(null);
       }catch(error){setActionError(networkError(String(error),language));}finally{e.target.value="";}
      }}/></>}
@@ -439,7 +407,17 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
     {busy&&!empty&&<><progress max={1} value={progress} aria-label={ru?"Прогресс расчёта":"Хід розрахунку"}/><button type="button" onClick={cancelCalculation}>{ru?"Отменить расчёт":"Скасувати розрахунок"}</button></>}
     {!busy&&error&&!empty&&<button type="button" onClick={()=>setRetry(value=>value+1)}>{ru?"Повторить расчёт":"Повторити розрахунок"}</button>}</div>
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
-   <details onToggle={event=>{if(event.currentTarget.open)setEditorVisited(true);}}>
+   <details onToggle={event=>{
+    if (!event.currentTarget.open) return;
+    if (!editorVisited && !editorSeed) {
+     try {
+      const seed = serializeLineCircuit(model, layout, detached, empty);
+      setEditorSeed(seed);
+      if (!empty) setCircuit(seed);
+     } catch (error) { setActionError(networkError(String(error),language)); }
+    }
+    setEditorVisited(true);
+   }}>
     <summary>{ru?"Универсальный редактор схем":"Універсальний редактор схем"}</summary>
     {editorVisited && <CircuitEditor key={editorRevision} language={language} embedded initial={editorSeed} activeDocument={circuit}
      onCalculate={calculateCircuit} readings={readings}/>}

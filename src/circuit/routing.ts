@@ -1,11 +1,15 @@
-import type { Drawing, Placement, Point } from "./drawing";
+import { defaultBoard, type Drawing, type Placement, type Point } from "./drawing";
+import { netlist } from "./topology";
 
 type Box = { left: number; right: number; top: number; bottom: number };
 type Port = { pin: Point; escape: Point; owner?: string };
 export type Routing = { paths: Record<string, Point[]>; unrouted: string[] };
-const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, current: 22, switch: 24, line: 29 };
-const bounds = { left: 1, right: 539, top: 1, bottom: 359 };
-const limit = 9_000;
+const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, current: 22, switch: 24, line: 29, bridge: 24, open: 24 };
+function drawingBounds(drawing: Drawing): Box {
+  const board = drawing.board ?? defaultBoard;
+  return { left: 1, right: board.width - 1, top: 1, bottom: board.height - 1 };
+}
+const limit = 25_000;
 const equal = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
 const distance = (a: Point, b: Point) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 
@@ -59,7 +63,7 @@ function positiveOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
     Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)) > Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x));
 }
 
-function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Point[][]): Point[] | null {
+function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Point[][], bounds: Box): Point[] | null {
   if (equal(from.pin, to.pin) || [from, to].some(({ pin, escape, owner }) =>
     obstacles.some(([id, box]) => id !== owner && intersects(box, pin, escape)))) return null;
   const segments = wirePaths.flatMap(path => path.slice(1).map((point, i) => [path[i], point] as const));
@@ -67,7 +71,8 @@ function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Poin
   const boxes = obstacles.map(([, box]) => box);
   const axis = (key: "x" | "y", low: "left" | "top", high: "right" | "bottom") =>
     [...new Set([from.escape[key], to.escape[key], bounds[low], bounds[high],
-      ...boxes.flatMap(box => [box[low] - 2, box[high] + 2])])]
+      ...boxes.flatMap(box => [box[low] - 2, box[high] + 2]),
+      ...segments.flatMap(([a, b]) => a[key] === b[key] ? [a[key] - 2, a[key] + 2] : [])])]
       .filter(value => value >= bounds[low] && value <= bounds[high]).sort((a, b) => a - b);
   const xs = axis("x", "left", "right"), ys = axis("y", "top", "bottom");
   if (xs.length * ys.length > limit) return null;
@@ -172,6 +177,7 @@ function componentBoxes(drawing: Drawing): [string, Box][] {
 }
 
 export function clearGeometry(drawing: Drawing): boolean {
+  const bounds = drawingBounds(drawing);
   const boxes = componentBoxes(drawing);
   return boxes.every(([, box], i) =>
     box.left >= bounds.left && box.right <= bounds.right && box.top >= bounds.top && box.bottom <= bounds.bottom &&
@@ -184,6 +190,9 @@ export function routeDrawing(
   drawing: Drawing, wires = drawing.topology.wires, reuse?: Routing,
 ): Routing {
   const ports = drawingPorts(drawing);
+  const bounds = drawingBounds(drawing);
+  const netIds = new Map(netlist(drawing.topology).flatMap((net, i) => net.map(pin => [pin, i] as const)));
+  const netByWire = new Map(wires.map(wire => [wire.id, netIds.get(wire.from)]));
   const obstacles = componentBoxes(drawing);
   function obstaclesFor(from: string, to: string) {
     const junctions = drawing.topology.junctions.flatMap((id): [string, Box][] => {
@@ -204,13 +213,17 @@ export function routeDrawing(
     if (path.some((end, i) => i > 0 && obstaclesFor(wire.from, wire.to).some(([id, box]) =>
       !(i === 1 && id === from.owner) && !(i === path.length - 1 && id === to.owner) &&
       intersects(box, path[i - 1], end)))) continue;
-    paths[wire.id] = path;
+    const overlaps = Object.entries(paths).some(([id, other]) =>
+      netByWire.get(id) !== netByWire.get(wire.id) && path.some((end, i) => i > 0 &&
+        other.some((to, j) => j > 0 && positiveOverlap(path[i - 1], end, other[j - 1], to))));
+    if (!overlaps) paths[wire.id] = path;
   }
   for (const wire of wires) {
     if (paths[wire.id]) continue;
     const from = ports.get(wire.from), to = ports.get(wire.to);
     const points = from && to && contains(bounds, from.escape) && contains(bounds, to.escape)
-      ? route(from, to, obstaclesFor(wire.from, wire.to), Object.values(paths)) : null;
+      ? route(from, to, obstaclesFor(wire.from, wire.to), Object.entries(paths)
+        .filter(([id]) => netByWire.get(id) !== netByWire.get(wire.id)).map(([, path]) => path), bounds) : null;
     if (points) paths[wire.id] = points;
     else unrouted.push(wire.id);
   }
@@ -241,7 +254,7 @@ export function optimizeLayout(drawing: Drawing, routing: Routing, grid: number)
     const p = drawing.positions[item.id];
     for (const [dx, dy] of moves) {
       const candidate = { ...drawing, positions: { ...drawing.positions, [item.id]: { ...p, x: p.x + dx, y: p.y + dy } } };
-      if (p.x + dx < 40 || p.x + dx > 500 || p.y + dy < 40 || p.y + dy > 320 || !clearGeometry(candidate)) continue;
+      if (p.x + dx < 40 || p.x + dx > (drawing.board ?? defaultBoard).width - 40 || p.y + dy < 40 || p.y + dy > (drawing.board ?? defaultBoard).height - 40 || !clearGeometry(candidate)) continue;
       const planned = routeDrawing(candidate, wires, best.routing);
       const score = evaluate(candidate, planned);
       if (improves(score, bestScore)) {

@@ -3,7 +3,7 @@ import type { Drawing, Placement, Point } from "./drawing";
 type Box = { left: number; right: number; top: number; bottom: number };
 type Port = { pin: Point; escape: Point; owner?: string };
 export type Routing = { paths: Record<string, Point[]>; unrouted: string[] };
-const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22 };
+const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, line: 29 };
 const bounds = { left: 1, right: 539, top: 1, bottom: 359 };
 const limit = 9_000;
 const equal = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
@@ -32,7 +32,7 @@ export function drawingPorts(drawing: Drawing): Map<string, Port> {
   }
   for (const component of drawing.topology.components) {
     const placement = drawing.positions[component.id];
-    const size = terminalOffsets[component.kind];
+    const size = placement?.span ? placement.span / 2 : terminalOffsets[component.kind];
     if (!placement || !size || component.terminals.length !== 2) continue;
     component.terminals.forEach((terminal, index) => {
       const side = index ? 1 : -1;
@@ -159,17 +159,32 @@ export function optimizeDrawing(drawing: Drawing, current: Routing): Routing {
   return best;
 }
 
+function componentBoxes(drawing: Drawing): [string, Box][] {
+  return drawing.topology.components.flatMap((component): [string, Box][] => {
+    const position = drawing.positions[component.id];
+    if (!position) return [];
+    const { x, y, rotation, span } = position;
+    const vertical = rotation % 180 !== 0;
+    const halfLength = (span ? span / 2 : terminalOffsets[component.kind] ?? 29) + 4;
+    const w = vertical ? 22 : halfLength, h = vertical ? halfLength : 22;
+    return [[component.id, { left: x - w, right: x + w, top: y - h, bottom: y + h }]];
+  });
+}
+
+export function clearGeometry(drawing: Drawing): boolean {
+  const boxes = componentBoxes(drawing);
+  return boxes.every(([, box], i) =>
+    box.left >= bounds.left && box.right <= bounds.right && box.top >= bounds.top && box.bottom <= bounds.bottom &&
+    !boxes.slice(i + 1).some(([, other]) =>
+      box.left <= other.right && other.left <= box.right && box.top <= other.bottom && other.top <= box.bottom) &&
+    !Object.values(drawing.junctionPositions).some(point => contains(box, point)));
+}
+
 export function routeDrawing(
   drawing: Drawing, wires = drawing.topology.wires, reuse?: Routing,
 ): Routing {
   const ports = drawingPorts(drawing);
-  const obstacles = Object.entries(drawing.positions).map(([id, { x, y, rotation }]): [string, Box] => {
-    const vertical = rotation % 180 !== 0;
-    const component = drawing.topology.components.find(item => item.id === id);
-    const halfLength = (terminalOffsets[component?.kind ?? ""] ?? 29) + 4;
-    const w = vertical ? 22 : halfLength, h = vertical ? halfLength : 22;
-    return [id, { left: x - w, right: x + w, top: y - h, bottom: y + h }];
-  });
+  const obstacles = componentBoxes(drawing);
   function obstaclesFor(from: string, to: string) {
     const junctions = drawing.topology.junctions.flatMap((id): [string, Box][] => {
       const p = drawing.junctionPositions[id];
@@ -200,4 +215,40 @@ export function routeDrawing(
     else unrouted.push(wire.id);
   }
   return { paths, unrouted };
+}
+
+
+export function optimizeLayout(drawing: Drawing, routing: Routing, grid: number): { drawing: Drawing; routing: Routing } {
+  const wires = drawing.topology.wires;
+  if (!wires.length || wires.length > 48) return { drawing, routing };
+  const moves = [[grid, 0], [-grid, 0], [0, grid], [0, -grid]];
+  let best = { drawing, routing: optimizeDrawing(drawing, routing) };
+  const evaluate = (candidate: Drawing, routes: Routing) => {
+    const score = routingScore(routes);
+    let displacement = 0, crowding = 0;
+    const positions = Object.entries(candidate.positions);
+    positions.forEach(([id, p], index) => {
+      displacement += distance(p, drawing.positions[id]);
+      for (const [, other] of positions.slice(index + 1)) {
+        crowding += Math.max(0, 110 - distance(p, other));
+      }
+    });
+    return [score[0], score[1], score[2], score[3] + displacement + crowding];
+  };
+  let bestScore = evaluate(best.drawing, best.routing);
+  const movable = drawing.topology.components.filter(item => !drawing.positions[item.id].pinned).slice(0, 8);
+  for (const item of movable) {
+    const p = drawing.positions[item.id];
+    for (const [dx, dy] of moves) {
+      const candidate = { ...drawing, positions: { ...drawing.positions, [item.id]: { ...p, x: p.x + dx, y: p.y + dy } } };
+      if (p.x + dx < 40 || p.x + dx > 500 || p.y + dy < 40 || p.y + dy > 320 || !clearGeometry(candidate)) continue;
+      const planned = routeDrawing(candidate, wires, best.routing);
+      const score = evaluate(candidate, planned);
+      if (improves(score, bestScore)) {
+        best = { drawing: candidate, routing: planned };
+        bestScore = score;
+      }
+    }
+  }
+  return best;
 }

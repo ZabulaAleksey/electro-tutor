@@ -2168,103 +2168,141 @@
       "requirement_ids": [
         "CE-003"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Add explicit joints and geometry-aware routing.",
-      "code": [],
-      "unit": [],
+      "runtime": "Explicit wire and junction actions with bounded orthogonal routing",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Routing geometry and topology regressions",
+      "action": "Complete the remaining acceptance listed in STAGES.",
+      "code": [
+        "src/circuit/routing.ts"
+      ],
+      "unit": [
+        "src/circuit/routing.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
         "CE-004"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Benchmark and verify whole-schematic optimization.",
-      "code": [],
-      "unit": [],
+      "runtime": "Incremental wire retention and bounded whole-diagram wire ordering",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Component placement, pinning and performance qualification pending",
+      "action": "Complete the remaining acceptance listed in STAGES.",
+      "code": [
+        "src/circuit/routing.ts"
+      ],
+      "unit": [
+        "src/circuit/optimization.test.ts",
+        "src/circuit/routing-corpus.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
         "CE-005"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Verify touch and atomic editing gestures.",
-      "code": [],
-      "unit": [],
+      "runtime": "Wire insertion, parameter edits, touch placement and history",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Advanced touch, two-point UX and contextual preview qualification pending",
+      "action": "Complete the remaining acceptance listed in STAGES.",
+      "code": [
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [
+        "src/circuit/editing.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
         "CE-006"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Verify storage, migration and adapter contracts.",
-      "code": [],
-      "unit": [],
+      "runtime": "Versioned JSON validation, local storage and laboratory adapter contract",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Migration evidence and extensibility qualification pending",
+      "action": "Complete the remaining acceptance listed in STAGES.",
+      "code": [
+        "src/circuit/document.ts",
+        "src/circuit/adapter.ts"
+      ],
+      "unit": [
+        "src/circuit/document.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
         "CE-007"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Run the real line laboratory comparison suite.",
-      "code": [],
-      "unit": [],
+      "runtime": "Existing transmission lab accepts supported graph JSON and drives its Worker",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Broader legacy editing parity and result integration pending",
+      "action": "Complete the remaining acceptance listed in STAGES.",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
         "CE-008"
       ],
-      "status": "PLANNED",
+      "status": "PARTIAL",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Run the final property, visual and performance gates.",
+      "runtime": "Seeded netlist, routing corpus and desktop/touch browser coverage",
+      "security": "Validated local input and bounded routing",
+      "a11y": "Localized browser controls or TypeScript API",
+      "observability": "Automated feature tests",
+      "gap": "Full visual and performance gates pending",
+      "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [],
-      "unit": [],
+      "unit": [
+        "src/circuit/routing.test.ts",
+        "src/circuit/routing-corpus.test.ts"
+      ],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     }
   ]
 }

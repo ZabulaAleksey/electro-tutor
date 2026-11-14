@@ -124,3 +124,77 @@ test("inserts a diode into an RLC wire and changes a resistor value", async ({ p
   await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("R1");
   await expect(input).toHaveValue("220");
 });
+
+test("saves across reload, exports JSON, and rejects malformed import atomically", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример RLC" }).click();
+  const viewport = editor(page).locator("[data-circuit-nets]");
+  const nets = await viewport.getAttribute("data-circuit-nets");
+  await page.getByRole("button", { name: "Сохранить в браузере" }).click();
+  await expect(page.getByRole("status")).toHaveText("Схема сохранена в браузере.");
+  await page.reload();
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Экспорт JSON" }).click();
+  const file = await downloaded;
+  expect(file.suggestedFilename()).toBe("circuit.json");
+  const imported = editor(page).getByLabel("Импорт JSON");
+  await imported.setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from("{}") });
+  await expect(page.getByRole("status")).toHaveText("Не удалось прочитать или сохранить схему.");
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+  page.once("dialog", dialog => dialog.accept());
+  await page.getByRole("button", { name: "Очистить поле" }).click();
+  await expect(component(page)).toHaveCount(0);
+  await imported.setInputFiles((await file.path())!);
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+});
+
+test("exports a line diagram that the existing laboratory calculates", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример длинной линии" }).click();
+  await expect(board(page).locator('[data-component-id="TL1"]')).toBeVisible();
+  const pending = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Экспорт JSON" }).click();
+  const file = await pending;
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const revision = await lab.getAttribute("data-model-revision");
+  await page.getByRole("button", { name: "Ещё инструменты и справка" }).click();
+  await lab.locator('input[type="file"]').setInputFiles((await file.path())!);
+  await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await expect(lab).toHaveAttribute("data-method", "exact-fronts");
+  await expect(lab.locator("[data-line-section]")).toHaveCount(1);
+});
+
+test("keeps a fixed resistor in place during whole-diagram optimization", async ({ page }, info) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример RLC" }).click();
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("R1");
+  const resistor = board(page).locator('[data-component-id="R1"]');
+  const initial = await resistor.getAttribute("transform");
+  await page.getByRole("button", { name: "Зафиксировать положение" }).click();
+  await page.getByRole("button", { name: "Оптимизировать схему", exact: true }).click();
+  await expect(resistor).toHaveAttribute("transform", initial!);
+  await expect(board(page).locator("polyline")).toHaveCount(4);
+  await editor(page).screenshot({ path: info.outputPath("circuit-layout-desktop.png") });
+});
+
+test.describe("small touch viewport", () => {
+  test.use({ viewport: { width: 320, height: 740 }, hasTouch: true, isMobile: true });
+  test("places a transmission section with two taps and keeps controls within the viewport", async ({ page }, info) => {
+    await page.goto(route);
+    await expect(editor(page)).toHaveAttribute("data-ready", "true");
+    await page.getByRole("button", { name: "Длинная линия", exact: true }).tap();
+    await board(page).tap({ position: { x: 70, y: 90 } });
+    await board(page).tap({ position: { x: 240, y: 90 } });
+    await expect(board(page).locator('[data-component-id="TL1"]')).toBeVisible();
+    await expect(page.getByRole("spinbutton", { name: "Длина, m" })).toHaveValue("500000");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
+    await editor(page).screenshot({ path: info.outputPath("circuit-line-mobile.png") });
+  });
+});

@@ -40,3 +40,8 @@
 .circuit-pin { cursor: crosshair; }
 
 .circuit-selection input { width: 8ch; }
+
+@media (max-width: 480px) {
+  .circuit-toolbar { gap: .3rem; }
+  .circuit-toolbar button, .circuit-toolbar select { font-size: .875rem; padding-inline: .45rem; }
+}

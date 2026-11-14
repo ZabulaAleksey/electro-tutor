@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { demoDrawing } from "./drawing";
-import { optimizeDrawing, routeDrawing, routingScore } from "./routing";
+import { optimizeDrawing, optimizeLayout, routeDrawing, routingScore } from "./routing";
 import { netlist } from "./topology";
 
 it("scores the complete diagram and keeps the better routing without changing positions or connectivity", () => {
@@ -28,4 +28,14 @@ it("keeps unrelated lead geometry during an incremental edit", () => {
   expect(updated.unrouted).toEqual([]);
   expect(updated.paths.W2).toBe(initial.paths.W2);
   expect(updated.paths.W3.at(-1)).not.toEqual(initial.paths.W3.at(-1));
+});
+
+
+it("preserves pinned components and connectivity during bounded whole-diagram layout", () => {
+  const drawing = demoDrawing();
+  drawing.positions.R1 = { ...drawing.positions.R1, pinned: true };
+  const result = optimizeLayout(drawing, routeDrawing(drawing), 10);
+  expect(result.drawing.positions.R1).toEqual(drawing.positions.R1);
+  expect(result.drawing.topology).toBe(drawing.topology);
+  expect(result.routing.unrouted).toEqual([]);
 });

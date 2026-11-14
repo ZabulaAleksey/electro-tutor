@@ -1,3 +1,5 @@
+import { parseCircuit } from "../circuit/document";
+import { transmissionCircuitAdapter } from "../transient/circuit-adapter";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
 import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -295,7 +297,14 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
       const f=e.target.files?.[0];if(!f)return;
       try{
        if(f.size>documentByteLimit)throw Error("file-limit:320kB");
-       const saved=JSON.parse(await f.text());
+       const text = await f.text();
+       const saved = JSON.parse(text);
+       if (saved?.schemaVersion === 1) {
+        const { model } = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology);
+        edit(model, false, {}, [], false, [], []);
+        setSelection(null);
+        return;
+       }
        if(!["electrotutor-line-v2","electrotutor-line-v3","electrotutor-line-v4","electrotutor-line-v5"].includes(saved.schema))throw Error("schema");
        if(saved.schema!=="electrotutor-line-v5"&&saved.model?.source?.currentA!==undefined)throw Error("schema");
        if(saved.schema==="electrotutor-line-v2"&&(saved.model?.series?.length||saved.model?.branches?.length)||
@@ -312,7 +321,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
        edit(imported,false,restoredLayout,importedParts,blank,archive.ink,archive.links);
        if (restoredLayout!==importedLayout) setActionError(networkError("unroutable-layout",language));
        setSelection(null);
-      }catch(error){setActionError(networkError(String(error),language));}e.target.value="";
+      }catch(error){setActionError(networkError(String(error),language));}finally{e.target.value="";}
      }}/></>}
     transport={<>
      <button type="button" className="network-play" disabled={!valid||running} aria-busy={busy&&!empty} onClick={start}>

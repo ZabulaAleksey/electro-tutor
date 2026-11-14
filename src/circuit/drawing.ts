@@ -1,13 +1,14 @@
 import { addComponent, addJunction, connect, disconnect, emptyCircuit, type CircuitComponent, type CircuitTopology } from "./topology";
 
 export type Point = { x: number; y: number };
-export type Placement = Point & { rotation: number };
+export type Placement = Point & { rotation: number; span?: number; pinned?: boolean };
 export type Drawing = { topology: CircuitTopology; positions: Record<string, Placement>; junctionPositions: Record<string, Point> };
 export const parts = {
   r: { prefix: "R", parameters: { ohm: 100 } },
   l: { prefix: "L", parameters: { henry: 0.01 } },
   c: { prefix: "C", parameters: { farad: 0.0001 } },
   voltage: { prefix: "V", parameters: { voltageV: 12 } },
+  line: { prefix: "TL", parameters: { lengthM: 500_000, impedanceOhm: 50, velocityMS: 200_000_000 } },
   diode: { prefix: "D", parameters: {} },
 };
 export type PartKind = keyof typeof parts;
@@ -76,4 +77,32 @@ export function insertInWire(drawing: Drawing, wireId: string, kind: PartKind, p
     ...placed.positions, [component.id]: { ...point, rotation },
   } };
   return wireDrawing(wireDrawing(draft, wire.from, first), second, wire.to);
+}
+
+
+export function lineDemoDrawing(): Drawing {
+  let drawing = placeComponent(emptyDrawing(), "voltage", { x: 100, y: 140 });
+  drawing = placeComponent(drawing, "line", { x: 270, y: 140 });
+  drawing = placeComponent(drawing, "r", { x: 440, y: 140 });
+  drawing = { ...drawing, topology: {
+    ...drawing.topology, components: drawing.topology.components.map(item =>
+      item.kind === "r" ? { ...item, parameters: { ohm: 50 } } : item),
+  } };
+  for (const [from, to] of [["V1:a", "TL1:a"], ["TL1:b", "R1:a"], ["R1:b", "V1:b"]]) {
+    drawing = wireDrawing(drawing, from, to);
+  }
+  return drawing;
+}
+
+
+export function placeLine(drawing: Drawing, first: Point, second: Point): Drawing {
+  const vertical = Math.abs(second.y - first.y) > Math.abs(second.x - first.x);
+  const delta = vertical ? second.y - first.y : second.x - first.x;
+  const span = Math.abs(delta);
+  if (span < 60) throw Error("line-span");
+  const center = vertical ? { x: first.x, y: first.y + delta / 2 } : { x: first.x + delta / 2, y: first.y };
+  const rotation = vertical ? (delta > 0 ? 90 : 270) : (delta > 0 ? 0 : 180);
+  const next = placeComponent(drawing, "line", center);
+  const id = next.topology.components.at(-1)!.id;
+  return { ...next, positions: { ...next.positions, [id]: { ...center, rotation, span } } };
 }

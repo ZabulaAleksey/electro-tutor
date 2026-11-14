@@ -1,8 +1,8 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-CIRCUIT-001
+- Stage ID: ET-CIRCUIT-QUALIFY-EDITING
 
-## ET-CIRCUIT-001 — Universal Circuit Engine
+## ET-CIRCUIT-QUALIFY-EDITING — Universal Circuit Engine
 
 - Status: partial
 - Goal: независимый редактор схем и проверенный адаптер лаборатории длинных линий.
@@ -17,7 +17,348 @@
 - Editor evidence: RU/UK routes built in the education profile. Initial Chromium 404 on both routes; after explicit route registration, 2/2 Chromium PASS for blank placement, drag, rotation, zoom, removal and 390 px touch placement. Astro check and targeted ESLint PASS.
 - Wiring evidence: 557 Vitest PASS, including 100 seeded geometry edits preserving netlist and obstacle avoidance. Chromium 3/3 PASS, including explicit terminal/junction wiring and rotation with unchanged connectivity. Education build and types PASS.
 - Layout and editing evidence: incremental routing retains unrelated paths. Global wire-order search compares unrouted count, crossings, bends and length; broader layout benchmarks and component repositioning remain pending. Ten focused Vitest and 5/5 Chromium PASS, including RLC wire optimization, clearing with undo/redo, series diode insertion and resistor value editing.
-- NEXT: circuit-json
+- Interchange and first laboratory path: versioned JSON, validated import, local save/reload and export; 7 Chromium PASS, including export from the editor and import through the real transmission lab Worker. The adapter supports one ideal voltage source, 1–6 contiguous sections and an optional terminal R, L or C. Physical length remains independent of the two-point screen span. Nine Chromium editor scenarios pass, including two-point line placement on a 320 px touch viewport and pinned components during whole-layout search. Five routing corpus classes pass. Visual frames at desktop and 320 px were inspected; fixed line-label overlap and localized the visible import control.
+- Final verified snapshot: 567 Vitest PASS, 65 Chromium PASS (9 editor, 56 lab), education build, lint, Astro types and context validator PASS. Benchmark: 5 circuit classes, 0.12–12.34 ms in one Windows Vitest run. Whole-layout search eliminated two RLC crossings and shortened the dense circuit's paths by 10 units; all candidates preserve topology and pinned locations.
+- Remaining scope: finish drag/touch controls and document history, broaden the lab adapter to match existing workflows and draw calculation results in the new editor, then qualify the larger routing corpus, mobile performance and browser visuals. Existing legacy-format checks are included in the 56 lab regressions.
+- NEXT: ET-CIRCUIT-QUALIFY-EDITING
+
+```master-execution
+{
+  "schema_version": 2,
+  "state_revision": 2,
+  "master": {
+    "id": "ET-CIRCUIT-001",
+    "status": "needs_continuation",
+    "source": {
+      "backend": "user_attachment",
+      "queue_id": "none",
+      "item_id": "6c796bca-1a7f-424a-942d-4275bfb56c48",
+      "revision": "b36aa80a200739f4346415509fa8898a199cb362abc38c7f2f1047511d585765",
+      "prompt_type": "master_prompt",
+      "retention": "user attachment and project SPEC"
+    }
+  },
+  "tracks": [
+    {
+      "id": "circuit-engine",
+      "repository": "~/projects/electro-tutor",
+      "worktree": "~/projects/electro-tutor",
+      "branch": "feature/circuit-engine",
+      "checkpoint": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "ownership": [
+        "src/circuit",
+        "src/transient/circuit-adapter.ts",
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "status": "active"
+    }
+  ],
+  "slices": [
+    {
+      "id": "topology",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Audit and topology",
+      "status": "verified",
+      "predecessors": [],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "",
+      "checkpoint_after": "d73cf4a2ca58093c7a9860a3423fad1d5b5694fd",
+      "required_evidence": [
+        "L1",
+        "L2"
+      ],
+      "evidence": [
+        "L1",
+        "L2"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-001"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "editor",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Localized editor",
+      "status": "verified",
+      "predecessors": [
+        "topology"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "d73cf4a2ca58093c7a9860a3423fad1d5b5694fd",
+      "checkpoint_after": "403addb50c96fcb2494a96a9e833f2876283fe60",
+      "required_evidence": [
+        "L1",
+        "L5"
+      ],
+      "evidence": [
+        "L1",
+        "L5"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-002"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "wiring",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Explicit topology and routing",
+      "status": "verified",
+      "predecessors": [
+        "editor"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "403addb50c96fcb2494a96a9e833f2876283fe60",
+      "checkpoint_after": "99d8c9e5de9119f31c7e9104fc18d9e361dc3c37",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-003"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "working-layout",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Bounded layout and atomic editing",
+      "status": "verified",
+      "predecessors": [
+        "wiring"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "99d8c9e5de9119f31c7e9104fc18d9e361dc3c37",
+      "checkpoint_after": "d8ca78b4d57b0132ec52d9221e2898bec2cfd3a2",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-004"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "interchange",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Version 1 document and existing Worker path",
+      "status": "verified",
+      "predecessors": [
+        "working-layout"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "d8ca78b4d57b0132ec52d9221e2898bec2cfd3a2",
+      "checkpoint_after": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-006"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "ET-CIRCUIT-QUALIFY-LAYOUT",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Expand layout quality and performance evidence",
+      "status": "verified",
+      "predecessors": [
+        "interchange"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "checkpoint_after": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-004"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "ET-CIRCUIT-QUALIFY-EDITING",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Finish interactive editing, touch and document acceptance",
+      "status": "ready",
+      "predecessors": [
+        "ET-CIRCUIT-QUALIFY-LAYOUT"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "checkpoint_after": "",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-005"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "lab-parity",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Preserve complete supported lab editing and map results onto the new editor",
+      "status": "queued",
+      "predecessors": [
+        "ET-CIRCUIT-QUALIFY-EDITING"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "",
+      "checkpoint_after": "",
+      "required_evidence": [
+        "L3",
+        "L5"
+      ],
+      "evidence": [],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-007"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    },
+    {
+      "id": "final-qualification",
+      "master_id": "ET-CIRCUIT-001",
+      "title": "Complete visual, property and performance acceptance",
+      "status": "queued",
+      "predecessors": [
+        "lab-parity"
+      ],
+      "dependencies": [],
+      "worktree_track": "circuit-engine",
+      "checkpoint_before": "",
+      "checkpoint_after": "",
+      "required_evidence": [
+        "L2",
+        "L5"
+      ],
+      "evidence": [],
+      "context_scope": [
+        "specs/features/circuit-engine.spec.md",
+        "src/circuit",
+        "tests/e2e/circuit-editor.spec.ts"
+      ],
+      "requirements": [
+        "CE-008"
+      ],
+      "capabilities": [],
+      "model_class": "HIGH",
+      "reasoning_effort": "high",
+      "stop_after": false
+    }
+  ],
+  "blockers": [],
+  "decisions": [
+    "ADR-060"
+  ],
+  "context_budget": {
+    "max_chars": 55000,
+    "max_items": 8,
+    "max_contours": 3,
+    "max_decisions": 2,
+    "max_evidence_threads": 4
+  },
+  "next_action": "ET-CIRCUIT-QUALIFY-EDITING",
+  "integration": {
+    "required": false,
+    "reason": ""
+  }
+}
+```
 
 ## ET-LAB-022 — Рукописный ввод схемы
 

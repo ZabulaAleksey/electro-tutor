@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { demoDrawing, emptyDrawing, junctionAt, lineDemoDrawing, wireDrawing } from "./drawing";
-import { optimizeDrawing, routeDrawing, routingScore } from "./routing";
+import { demoDrawing, emptyDrawing, junctionAt, lineDemoDrawing, placeComponent, wireDrawing } from "./drawing";
+import { optimizeDrawing, optimizeLayout, routeDrawing, routingScore } from "./routing";
 
 it("checks optimizer quality on series RLC, a loaded line, parallel branches and forced crossings", () => {
   const junctions = (points: [number, number][]) => points.reduce(
@@ -11,9 +11,26 @@ it("checks optimizer quality on series RLC, a loaded line, parallel branches and
   const branches = [["J1", "J2"], ["J1", "J3"], ["J2", "J4"], ["J3", "J4"]].reduce(
     (draft, [from, to]) => wireDrawing(draft, from, to), junctions([[100, 150], [270, 65], [270, 235], [440, 150]]),
   );
-  for (const drawing of [demoDrawing(), lineDemoDrawing(), branches, crossings]) {
+  let dense = emptyDrawing();
+  for (const y of [80, 180, 280]) {
+    for (const x of [80, 205, 330, 455]) dense = placeComponent(dense, "r", { x, y });
+  }
+  for (const offset of [0, 4, 8]) {
+    for (let index = 1; index < 4; index++) dense = wireDrawing(dense, `R${offset + index}:b`, `R${offset + index + 1}:a`);
+  }
+  const fixtures = [demoDrawing(), lineDemoDrawing(), branches, crossings, dense];
+  for (const drawing of fixtures) {
     const initial = routeDrawing(drawing);
     const optimized = optimizeDrawing(drawing, initial);
+    const measuredAt = performance.now();
+    const arranged = optimizeLayout(drawing, initial, 10);
+    const elapsedMs = performance.now() - measuredAt;
+    if (process.env.CIRCUIT_BENCHMARK === "1") {
+      console.info(JSON.stringify({ parts: drawing.topology.components.length, wires: drawing.topology.wires.length,
+        initial: routingScore(initial), arranged: routingScore(arranged.routing), elapsedMs: Math.round(elapsedMs * 100) / 100 }));
+    }
+    expect(arranged.routing.unrouted).toEqual([]);
+    expect(arranged.drawing.topology).toBe(drawing.topology);
     expect(optimized.unrouted).toEqual([]);
     const before = routingScore(initial), after = routingScore(optimized);
     const first = after.findIndex((value, index) => value !== before[index]);

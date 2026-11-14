@@ -13,21 +13,22 @@
 - Ownership: CircuitEditor хранит граф и геометрию. Лабораторный адаптер импорта сохраняет физическую модель, события и рукописный архив. TransmissionNetworkLab управляет историей, расчётным Worker и результатами.
 - Scope order: topology → standalone UI → wiring → layout → editing → interchange → line adapter → qualification. Каждый следующий slice требует PASS предыдущего.
 - Risk: неверная связность при пересечениях, тихая порча импортов, избыточный бюджет поиска и регрессии solver. Покрытие: независимые топологические/геометрические утверждения, ограниченные операции и проверки реальных браузерных сценариев.
-- ET-CIRCUIT-MERGE | pending | Разрешить локальное слияние feature/circuit-engine в main ответом «Да, сливай». Evidence: явное разрешение владельца. Разблокирует проверку интеграции с main.
+- ET-CIRCUIT-MERGE | completed | Владелец разрешил локальное слияние. `main` обновлена fast-forward с `ef16730` до `50dfab8`.
 - Editor evidence: RU/UK routes built in the education profile. Initial Chromium 404 on both routes; after explicit route registration, 2/2 Chromium PASS for blank placement, drag, rotation, zoom, removal and 390 px touch placement. Astro check and targeted ESLint PASS.
 - Wiring evidence: 557 Vitest PASS, including 100 seeded geometry edits preserving netlist and obstacle avoidance. Chromium 3/3 PASS, including explicit terminal/junction wiring and rotation with unchanged connectivity. Education build and types PASS.
 - Layout and editing evidence: incremental routing retains unrelated paths. Global wire-order search compares unrouted count, crossings, bends and length; broader layout benchmarks and component repositioning remain pending. Ten focused Vitest and 5/5 Chromium PASS, including RLC wire optimization, clearing with undo/redo, series diode insertion and resistor value editing.
 - ET-CIRCUIT-LAB-PARITY PASS: архивы line-v2..v5 проходят импорт, редактирование, расчёт в действующем Worker, перезагрузку и экспорт. Структура нагрузки, параметры элементов, потери линии, события, начальные состояния и связи с исходными штрихами проходят циклические проверки. Для конфликтной геометрии предусмотрено допустимое размещение с сохранением исходных архивных координат.
 - CircuitEditor — единственная доска лаборатории. NetworkWorkbench удалён после браузерных проверок. Мышь, клавиатура, touch, измерения, время, составные нагрузки, Undo/Redo, сохранение и исправление штрихов проверены через обычные точки входа.
 - Final evidence: 590 Vitest PASS, 77 Chromium PASS для редактора и лаборатории, 2 Chromium PASS для учебного релиза, образование build, Astro check, ESLint, context и diff PASS. Ранее два теста перетаскивания зависели от прокрутки под закреплённой панелью. Итоговый прогон проверяет попадание указателя по SVG перед жестом.
+- Проверка после слияния на `main` (`50dfab8`): 590 Vitest и 79 Chromium PASS, включая редактор, лабораторию и учебный релиз. Учебная сборка, Astro check, ESLint, context и Git diff PASS.
 - Routing qualification: 17 схем, повторное сравнение оптимизированных путей и netlist. Windows benchmark 0.18–27.94 ms. RLC: два пересечения устранены, нагруженные ветви: длина 1606 → 1566 при прежних поворотах и числе пересечений. В Chromium подтверждён Worker оптимизации шестисекционной схемы и сохранение netlist. Просмотрены кадры desktop, 320 px и редактирование штрихов на 390 px.
-- Verification limits: физический ввод и независимый корпус распознавания ведутся в ET-LAB-022. Проверка оптимизации ограничена измеренными схемами и браузерными сценариями. Интеграция в main требует отдельного разрешения.
-- NEXT: merge-approval
+- Verification limits: физический ввод и независимый корпус распознавания ведутся в ET-LAB-022. Проверка оптимизации ограничена измеренными схемами и браузерными сценариями.
+- NEXT: complete
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 5,
+  "state_revision": 6,
   "master": {
     "id": "ET-CIRCUIT-001",
     "status": "completed",
@@ -46,7 +47,7 @@
       "repository": "~/projects/electro-tutor",
       "worktree": "~/projects/electro-tutor",
       "branch": "feature/circuit-engine",
-      "checkpoint": "8c460e4acad23cec83eb7a8481d810dc2f4af836",
+      "checkpoint": "50dfab8d44b84cd25e8957d5c93144b31d304150",
       "ownership": [
         "src/circuit",
         "src/transient/circuit-adapter.ts",
@@ -56,7 +57,7 @@
         "src/transient/useLineOperations.tsx",
         "src/components/TransmissionNetworkLab.tsx"
       ],
-      "status": "active"
+      "status": "integrated"
     }
   ],
   "slices": [
@@ -369,7 +370,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Local acceptance complete. Await owner decision before integration.",
+  "next_action": "Integrated locally into main and verified.",
   "integration": {
     "required": false,
     "reason": ""

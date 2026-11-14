@@ -1982,7 +1982,7 @@
       "observability": "ET-LAB-022 and TESTING.",
       "gap": "The solver handles one excitation and its supported network graph. Physical phone and independent handwriting corpus still pending.",
       "action": "Verify physical-device gestures and extend corpus coverage.",
-      "code": ["src/engineering/handwriting.ts", "src/transient/NetworkWorkbench.tsx", "src/transient/network-ink.ts", "src/transient/network.ts"],
+      "code": ["src/engineering/handwriting.ts", "src/transient/useLineInk.tsx", "src/transient/network-ink.ts", "src/transient/network.ts"],
       "unit": ["src/engineering/handwriting.test.ts", "src/transient/network-ink.test.ts", "src/transient/network-current-source.test.ts"],
       "integration": [],
       "e2e": ["tests/e2e/transmission-handwriting.spec.ts"]
@@ -1997,7 +1997,7 @@
       "observability": "ET-LAB-020 and ET-LAB-021 in STAGES and TESTING.",
       "gap": "Editing is bounded to the existing network topology and long runs to physical resolution and memory budgets.",
       "action": "Use the documented reference experiments and inspect estimates for stiffer models.",
-      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/network.ts", "src/transient/network.worker.ts", "src/transient/network-routing.ts", "src/transient/network-experiment.ts"],
+      "code": ["src/components/TransmissionNetworkLab.tsx", "src/circuit/CircuitEditor.tsx", "src/transient/network.ts", "src/transient/network.worker.ts", "src/circuit/routing.ts", "src/transient/network-experiment.ts"],
       "unit": ["src/transient/network-duration.test.ts", "src/transient/network-routing.test.ts", "src/transient/network-experiment.test.ts"],
       "integration": [],
       "e2e": ["tests/e2e/transmission-editor-duration.spec.ts", "tests/e2e/transmission-workbench.spec.ts"]
@@ -2012,7 +2012,7 @@
       "observability": "ET-LAB-014 in STAGES and TESTING.",
       "gap": "Physical smartphone and OS keyboard acceptance.",
       "action": "Follow the physical-device scenario in STAGES.",
-      "code": ["src/transient/NetworkWorkbench.tsx", "src/components/TransmissionNetworkLab.tsx", "src/transient/network.ts"],
+      "code": ["src/circuit/CircuitEditor.tsx", "src/components/TransmissionNetworkLab.tsx", "src/transient/network.ts"],
       "unit": ["src/transient/network-advanced.test.ts"],
       "integration": [],
       "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
@@ -2027,7 +2027,7 @@
       "observability": "ET-LAB-013 in STAGES and TESTING.",
       "gap": "Physical smartphone and arbitrary nonlinear topology remain outside automated evidence.",
       "action": "Run physical-device acceptance for the supported connection model.",
-      "code": ["src/transient/NetworkWorkbench.tsx", "src/transient/line-diode.ts", "src/transient/network.ts"],
+      "code": ["src/transient/useLineOperations.tsx", "src/transient/line-diode.ts", "src/transient/network.ts"],
       "unit": ["src/transient/network-edit.test.ts"],
       "integration": ["scripts/transient-wasm.mjs"],
       "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
@@ -2042,7 +2042,7 @@
       "observability": "ET-LAB-012 in STAGES and TESTING.",
       "gap": "Physical smartphone evidence and explicit scope for distributed branches.",
       "action": "Verify browser and analytical scenarios before physical-device acceptance.",
-      "code": ["src/transient/network.ts", "src/transient/NetworkWorkbench.tsx", "src/components/TransmissionNetworkLab.tsx"],
+      "code": ["src/transient/network.ts", "src/transient/useLineOperations.tsx", "src/components/TransmissionNetworkLab.tsx"],
       "unit": ["src/transient/network-edit.test.ts"],
       "integration": ["scripts/transient-wasm.mjs"],
       "e2e": ["tests/e2e/transmission-workbench.spec.ts", "tests/e2e/transmission-network.spec.ts"]
@@ -2064,7 +2064,8 @@
       "gap": "Physical smartphone and system keyboard evidence pending.",
       "action": "Run the on-device scenario recorded in STAGES.",
       "code": [
-        "src/transient/NetworkWorkbench.tsx",
+        "src/circuit/CircuitEditor.tsx",
+        "src/transient/useLineOperations.tsx",
         "src/transient/network-edit.ts",
         "src/components/TransmissionNetworkLab.tsx"
       ],

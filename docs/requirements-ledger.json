@@ -2268,7 +2268,7 @@
       "security": "Validated local input and bounded routing",
       "a11y": "Localized browser controls or TypeScript API",
       "observability": "Automated feature tests",
-      "gap": "Embedded calculation and section readings passed; scheduled events and compound load readings pending",
+      "gap": "Embedded calculation, supported scheduled events and compound load readings passed; legacy model parity remains open",
       "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [
         "src/transient/circuit-adapter.ts",
@@ -2292,7 +2292,7 @@
       "security": "Validated local input and bounded routing",
       "a11y": "Localized browser controls or TypeScript API",
       "observability": "Automated feature tests",
-      "gap": "Desktop and narrow Chromium passed; expanded routing corpus and physical-device evidence pending",
+      "gap": "Desktop and narrow Chromium, seven routing fixtures and limited browser timings passed; larger corpus and physical-device evidence are open",
       "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [],
       "unit": [

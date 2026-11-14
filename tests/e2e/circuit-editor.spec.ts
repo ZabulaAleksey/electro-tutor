@@ -333,3 +333,44 @@ test("calculates an edited resistance event through the integrated Worker", asyn
   await seek("0.011");
   await expect(reading).toContainText(/16\s+В/);
 });
+
+test("shows per-device measurements for a reactive parallel load from the Worker", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await editor(page).getByRole("button", { name: "Пример длинной линии" }).click();
+  const pending = page.waitForEvent("download");
+  await editor(page).getByRole("button", { name: "Экспорт JSON" }).click();
+  const download = await pending;
+  const fs = await import("node:fs/promises");
+  const document = JSON.parse(await fs.readFile((await download.path())!, "utf8"));
+  document.topology.components.push({ id: "C1", kind: "c", terminals: ["C1:a", "C1:b"], parameters: { farad: 0.0001 } });
+  document.topology.junctions.push("J1", "J2");
+  document.topology.wires = [
+    document.topology.wires[0], { id: "W2", from: "TL1:b", to: "J1" }, { id: "W3", from: "R1:b", to: "J2" },
+    { id: "W4", from: "J1", to: "R1:a" }, { id: "W5", from: "J1", to: "C1:a" },
+    { id: "W6", from: "C1:b", to: "J2" }, { id: "W7", from: "J2", to: "V1:b" },
+  ];
+  document.geometry.junctionPositions = { J1: { x: 350, y: 140 }, J2: { x: 170, y: 220 } };
+  document.geometry.positions.C1 = { x: 410, y: 250, rotation: 0 };
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await page.getByText("Универсальный редактор схем", { exact: true }).click();
+  await editor(page).getByLabel("Импорт JSON").setInputFiles({
+    name: "reactive.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(document)),
+  });
+  await expect(component(page)).toHaveCount(4);
+  await editor(page).getByRole("button", { name: "Рассчитать эту схему" }).click();
+  await expect(lab).toHaveAttribute("data-method", "characteristics-trapezoid");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await expect(editor(page).locator('[data-circuit-reading="C1"]')).toContainText(/0\s+В/);
+  await expect(editor(page).locator('[data-circuit-reading="R1"]')).toContainText(/0\s+В/);
+  const cursor = lab.getByRole("slider", { name: "Курсор времени", includeHidden: true });
+  await cursor.evaluate((slider: HTMLInputElement) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(slider, "0.01");
+    slider.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const voltage = async (id: string) => (await editor(page).locator('[data-circuit-reading="' + id + '"]').textContent())?.trim().split(" · ")[0];
+  await expect.poll(async () => Number((await voltage("C1"))?.split(/\s+/)[0].replace(",", "."))).toBeGreaterThan(0);
+  expect(await voltage("C1")).toBe(await voltage("R1"));
+});

@@ -22,13 +22,14 @@
 - Editing qualification: seven prior modules plus new regressions pass. A snapshot includes topology, positions, paths, document settings and title. The browser confirms settings/import undo-redo, pinch without accidental placement, two-point touch line construction, and safe rejection of unsupported models. Version 1 JSON migrates to version 2 with grid snapping preserved.
 - Laboratory integration: the embedded CircuitEditor sends an explicitly submitted graph to the existing Worker. R/L/C series/parallel loads, supported intermediate branches, an inline device between two sections and voltage/current source conversion are covered. Section and contact readings update with the experiment time; readings are associated with the calculated document, and the active graph survives reload. All 56 existing lab regressions pass. The original workbench still handles scheduled events and legacy-only cases, including configurations the graph adapter cannot currently represent.
 - Qualification evidence: 573 Vitest PASS; 69 Chromium PASS in one editor+lab run, followed by 14/14 editor PASS including invalid-model rejection. Reviewed desktop and 320 px screenshots; 390 px Chromium optimization met the 500 ms budget. Astro check, lint, education build and context PASS. Repeated seeded tests cover 100 geometry changes and 40 sequences of electrical edits. No physical-device evidence.
-- Remaining scope: preserve editable scheduling, source timing and full legacy laboratory coverage in the universal editor; map readings for compound load leaves; broaden the routing corpus to bridge, ring and fixed dense fixtures. Keep the original workbench available while semantic parity and final qualification are incomplete.
+- Latest evidence: 577 Vitest PASS; Chromium 71/71 editor+lab and 16/16 editor including per-device reactive Worker samples (72 unique scenarios across both runs). The browser verifies 12 V → 16 V after a graph-authored resistance event. Source and inline switch timing, losses, and series resistive division have independent test assertions. Optional numeric tracing leaves port solutions identical on the tested fixture. Build, types, lint, context and diff checks PASS. Seven routing fixtures pass, including bridge, ring and fixed dense placement.
+- Remaining scope: migrate unsupported legacy topologies and archive-writing workflows to the universal editor before removing the original workbench. Circuit graph scheduling currently supports bounded solver-compatible source/switch timing and terminal resistance changes. There is no physical-device evidence, and the corpus does not yet cover all requested classes or the largest editing loads.
 - NEXT: ET-CIRCUIT-LAB-PARITY
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 3,
+  "state_revision": 4,
   "master": {
     "id": "ET-CIRCUIT-001",
     "status": "partial",
@@ -47,7 +48,7 @@
       "repository": "~/projects/electro-tutor",
       "worktree": "~/projects/electro-tutor",
       "branch": "feature/circuit-engine",
-      "checkpoint": "8c639b78a51f9ab82b3fdd1821fcae3d9c73ba38",
+      "checkpoint": "3312a27ec5750b6a778391b07da17129cc4122b8",
       "ownership": [
         "src/circuit",
         "src/transient/circuit-adapter.ts",
@@ -289,7 +290,7 @@
     {
       "id": "ET-CIRCUIT-LAB-PARITY",
       "master_id": "ET-CIRCUIT-001",
-      "title": "Preserve complete supported lab editing and map results onto the new editor",
+      "title": "Complete remaining legacy graph and archive compatibility before retiring the original workbench",
       "status": "ready",
       "predecessors": [
         "ET-CIRCUIT-QUALIFY-EDITING"

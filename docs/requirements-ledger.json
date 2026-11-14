@@ -2144,18 +2144,25 @@
       "requirement_ids": [
         "CE-002"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "circuit-engine",
-      "runtime": "Planned Circuit Engine slice",
-      "security": "Review at slice acceptance",
-      "a11y": "Verify where the slice has user controls",
-      "observability": "Slice test evidence",
-      "gap": "Implementation and acceptance pending",
-      "action": "Build the localized standalone editor.",
-      "code": [],
+      "runtime": "Localized Astro route and React workbench",
+      "security": "Local browser state",
+      "a11y": "Localized controls and keyboard component selector",
+      "observability": "Browser gesture checks",
+      "gap": "Final UI and visual qualification pending",
+      "action": "Extend through explicit terminal wiring.",
+      "code": [
+        "src/circuit/CircuitEditor.tsx",
+        "src/pages/[lang]/interactive/circuit-editor.astro"
+      ],
       "unit": [],
-      "integration": [],
-      "e2e": []
+      "integration": [
+        "scripts/education-routes.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts"
+      ]
     },
     {
       "requirement_ids": [

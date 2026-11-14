@@ -14,7 +14,8 @@
 - Scope order: topology → standalone UI → wiring → layout → editing → interchange → line adapter → qualification. Каждый следующий slice требует PASS предыдущего.
 - Risk: неверная связность при пересечениях, тихая порча импортов, избыточный бюджет поиска и регрессии solver. Покрытие: независимые топологические/геометрические утверждения, ограниченные операции и проверки реальных браузерных сценариев.
 - User actions: none.
-- NEXT: standalone-editor
+- Editor evidence: RU/UK routes built in the education profile. Initial Chromium 404 on both routes; after explicit route registration, 2/2 Chromium PASS for blank placement, drag, rotation, zoom, removal and 390 px touch placement. Astro check and targeted ESLint PASS.
+- NEXT: explicit-wiring
 
 ## ET-LAB-022 — Рукописный ввод схемы
 

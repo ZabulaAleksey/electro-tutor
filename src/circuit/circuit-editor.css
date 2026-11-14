@@ -1,0 +1,37 @@
+.circuit-editor {
+  display: grid;
+  gap: .65rem;
+  max-width: 70rem;
+  margin: 1.5rem auto;
+  padding-inline: clamp(.75rem, 3vw, 2rem);
+}
+
+.circuit-editor h1, .circuit-message { margin: 0; }
+.circuit-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.circuit-toolbar label { display: inline-flex; align-items: center; gap: .35rem; }
+.circuit-toolbar button, .circuit-toolbar select {
+  min-height: 2.5rem;
+  padding: .35rem .65rem;
+  border: 1px solid #8f9fb1;
+  border-radius: .4rem;
+  background: #fff;
+  color: #182838;
+  font: inherit;
+}
+
+.circuit-toolbar button[aria-pressed="true"] { border-color: #156a99; background: #e0f2fc; }
+.circuit-toolbar button:disabled { opacity: .5; }
+.circuit-viewport {
+  --white: #fff;
+  --ink: #172d42;
+  overflow: auto;
+  border: 1px solid #a7b7c8;
+  border-radius: .7rem;
+  background: #fff;
+}
+
+.circuit-viewport svg { display: block; max-width: none; touch-action: none; user-select: none; }
+.circuit-component-hit { fill: transparent; cursor: move; }
+.circuit-selected .circuit-component-hit { fill: #e4f4fe; stroke: #1784bc; stroke-width: 1; }
+.circuit-viewport text { fill: var(--ink); font-size: 10px; pointer-events: none; }
+.circuit-message { min-height: 1.5em; }

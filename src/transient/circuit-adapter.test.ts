@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 import { emptyDrawing, lineDemoDrawing, placeComponent, placeLine, wireDrawing } from "../circuit/drawing";
 import { disconnect, netlist } from "../circuit/topology";
-import { transmissionCircuitAdapter } from "./circuit-adapter";
-import { at, simulateNetwork } from "./network";
+import { resistiveLoadReadings, transmissionCircuitAdapter } from "./circuit-adapter";
+import { at, historyValue, simulateNetwork } from "./network";
 
 it("converts the editor graph into a solvable matched line with stable section and load IDs", () => {
   const drawing = lineDemoDrawing();
@@ -69,4 +69,60 @@ it("converts a switch between physical sections and a standalone Norton source",
   expect(model.sections.map(section => section.id)).toEqual(["TL1", "TL2"]);
   expect(model.series).toEqual([{ id: "S1", from: 1, to: 3, switch: { closed: true } }]);
   expect(at(simulateNetwork(model), 1_000_000, 0.01).u).toBeCloseTo(12);
+});
+
+it("keeps programmed source timing, switch timing and distributed losses", () => {
+  let drawing = lineDemoDrawing();
+  drawing.topology = disconnect(drawing.topology, "W2");
+  drawing = placeComponent(drawing, "line", { x: 260, y: 250 });
+  drawing = placeComponent(drawing, "switch", { x: 110, y: 250 });
+  drawing.topology = { ...drawing.topology, components: drawing.topology.components.map(part => {
+    if (part.id === "V1") return { ...part, parameters: { voltageV: 12, resistanceOhm: 50, onS: 0.001, offS: 0.04 } };
+    if (part.id === "S1") return { ...part, parameters: { closed: false, atS: 0.004, closes: true } };
+    if (part.id === "TL1") return { ...part, parameters: { ...part.parameters, resistanceOhmM: 1e-6 } };
+    return part;
+  }) };
+  drawing = wireDrawing(wireDrawing(wireDrawing(drawing, "TL1:b", "S1:a"), "S1:b", "TL2:a"), "TL2:b", "R1:a");
+  const { model } = transmissionCircuitAdapter.convert(drawing.topology);
+  expect(model.source).toMatchObject({ resistanceOhm: 50, onS: 0.001, offS: 0.04 });
+  expect(model.durationS).toBe(0.04);
+  expect(model.sections[0].resistanceOhmM).toBe(1e-6);
+  expect(model.series?.[0].switch).toEqual({ closed: false, atS: 0.004, closes: true });
+  const run = simulateNetwork(model);
+  expect(at(run, 1_000_000, 0.003).u).toBeCloseTo(0);
+  expect(at(run, 1_000_000, 0.015).u).toBeGreaterThan(0);
+});
+
+it("maps the series voltage division back to stable resistor identifiers", () => {
+  const readings = resistiveLoadReadings({ id: "combined", kind: "series", children: [
+    { id: "r1", kind: "r", value: 20 }, { id: "r2", kind: "r", value: 30 },
+  ] }, 10);
+  expect(readings.get("r1")).toEqual({ voltage: 4, current: 0.2 });
+  expect(readings.get("r2")).toEqual({ voltage: 6, current: 0.2 });
+});
+
+it("maps an edited terminal resistance schedule to the correct solver and reading IDs", () => {
+  const drawing = lineDemoDrawing();
+  drawing.topology = { ...drawing.topology, components: drawing.topology.components.map(part =>
+    part.id === "R1" ? { ...part, parameters: { ...part.parameters, changeAtS: 0.01, nextOhm: 100 } } : part) };
+  const { model } = transmissionCircuitAdapter.convert(drawing.topology);
+  expect(model.events).toEqual([expect.objectContaining({ target: "R1", atS: 0.01, value: 100 })]);
+  expect(resistiveLoadReadings(model.load, 12, model.events, 0.005).get("R1")?.current).toBe(0.24);
+  expect(resistiveLoadReadings(model.load, 12, model.events, 0.015).get("R1")?.current).toBe(0.12);
+  expect(at(simulateNetwork(model), 500_000, 0.011).u).toBeGreaterThan(12);
+});
+
+it("maps bounded sampled states of a reactive compound load without changing the calculation", () => {
+  let drawing = lineDemoDrawing();
+  drawing = placeComponent(drawing, "c", { x: 420, y: 240 });
+  drawing = wireDrawing(wireDrawing(drawing, "TL1:b", "C1:a"), "C1:b", "V1:b");
+  const { model } = transmissionCircuitAdapter.convert(drawing.topology);
+  const run = simulateNetwork(model, { reportDevices: true });
+  expect(run.method).toBe("characteristics-trapezoid");
+  const c = run.deviceTraces?.C1;
+  const r = run.deviceTraces?.R1;
+  expect(c?.voltage.values.length).toBeLessThanOrEqual(2002);
+  expect(r?.voltage.times.at(-1)).toBeCloseTo(model.durationS);
+  expect(historyValue(c!.voltage, 0.009, true)).toBeCloseTo(historyValue(r!.voltage, 0.009, true));
+  expect(run.ports).toEqual(simulateNetwork(model).ports);
 });

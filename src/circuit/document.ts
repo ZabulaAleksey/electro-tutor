@@ -1,4 +1,4 @@
-import { canPlace, parts, type Drawing, type PartKind, type Placement, type Point } from "./drawing";
+import { canPlace, optionalPartParameters, parts, validPartParameter, type Drawing, type PartKind, type Placement, type Point } from "./drawing";
 import { clearGeometry, routeDrawing, type Routing } from "./routing";
 import { validateCircuit, type CircuitTopology } from "./topology";
 
@@ -57,9 +57,9 @@ export function parseCircuit(text: string): { drawing: Drawing; settings: Circui
     if (!Object.hasOwn(parts, component.kind) || component.terminals.length !== 2) throw Error("unsupported-component");
     const defaults = parts[component.kind as PartKind].parameters;
     const entries = Object.entries(component.parameters);
-    if (entries.length !== Object.keys(defaults).length || entries.some(([key, parameter]) =>
+    if (Object.keys(defaults).some(key => !optionalPartParameters.has(key) && !Object.hasOwn(component.parameters, key)) || entries.some(([key, parameter]) =>
       !Object.hasOwn(defaults, key) || typeof parameter !== typeof (defaults as Record<string, unknown>)[key] ||
-      (typeof parameter === "number" && key !== "voltageV" && key !== "currentA" && parameter <= 0))) {
+      (typeof parameter === "number" && !validPartParameter(key, parameter)))) {
       throw Error("invalid-parameter");
     }
     const raw = geometry.positions[component.id];

@@ -1,10 +1,10 @@
 import {simulateNetwork,type Network} from "./network";
 
 const worker=self as unknown as {postMessage:(message:unknown,transfer?:Transferable[])=>void};
-self.onmessage=({data:{id,config}}:MessageEvent<{id:number;config:Network}>)=>{
+self.onmessage=({data:{id,config,reportDevices}}:MessageEvent<{id:number;config:Network;reportDevices?:boolean}>)=>{
  let last=-Infinity;
  try{
-  const run=simulateNetwork(config,{progress:fraction=>{
+  const run=simulateNetwork(config,{reportDevices,progress:fraction=>{
    const now=performance.now();
    if(now-last<60)return;
    last=now;

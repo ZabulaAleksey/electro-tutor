@@ -4,16 +4,21 @@ export type Point = { x: number; y: number };
 export type Placement = Point & { rotation: number; span?: number; pinned?: boolean };
 export type Drawing = { topology: CircuitTopology; positions: Record<string, Placement>; junctionPositions: Record<string, Point> };
 export const parts = {
-  r: { prefix: "R", parameters: { ohm: 100 } },
+  r: { prefix: "R", parameters: { ohm: 100, changeAtS: 0, nextOhm: 100 } },
   l: { prefix: "L", parameters: { henry: 0.01 } },
   c: { prefix: "C", parameters: { farad: 0.0001 } },
-  current: { prefix: "I", parameters: { currentA: 0.1 } },
-  switch: { prefix: "S", parameters: { closed: true } },
-  voltage: { prefix: "V", parameters: { voltageV: 12 } },
-  line: { prefix: "TL", parameters: { lengthM: 500_000, impedanceOhm: 50, velocityMS: 200_000_000 } },
+  current: { prefix: "I", parameters: { currentA: 0.1, onS: 0, offS: 0 } },
+  switch: { prefix: "S", parameters: { closed: true, atS: 0, closes: false } },
+  voltage: { prefix: "V", parameters: { voltageV: 12, resistanceOhm: 0, onS: 0, offS: 0 } },
+  line: { prefix: "TL", parameters: { lengthM: 500_000, impedanceOhm: 50, velocityMS: 200_000_000, resistanceOhmM: 0 } },
   diode: { prefix: "D", parameters: {} },
 };
 export type PartKind = keyof typeof parts;
+export const optionalPartParameters = new Set(["onS", "offS", "atS", "closes", "resistanceOhm", "resistanceOhmM", "changeAtS", "nextOhm"]);
+export function validPartParameter(name: string, value: number) {
+  return Number.isFinite(value) && (name === "voltageV" || name === "currentA" ||
+    (optionalPartParameters.has(name) && name !== "nextOhm" ? value >= 0 : value > 0));
+}
 
 export const emptyDrawing = (): Drawing => ({ topology: emptyCircuit(), positions: {}, junctionPositions: {} });
 
@@ -91,7 +96,7 @@ export function lineDemoDrawing(): Drawing {
   drawing = placeComponent(drawing, "r", { x: 440, y: 140 });
   drawing = { ...drawing, topology: {
     ...drawing.topology, components: drawing.topology.components.map(item =>
-      item.kind === "r" ? { ...item, parameters: { ohm: 50 } } : item),
+      item.kind === "r" ? { ...item, parameters: { ...item.parameters, ohm: 50 } } : item),
   } };
   for (const [from, to] of [["V1:a", "TL1:a"], ["TL1:b", "R1:a"], ["R1:b", "V1:b"]]) {
     drawing = wireDrawing(drawing, from, to);

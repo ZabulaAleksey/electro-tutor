@@ -17,7 +17,8 @@ export type Contact = {
 };
 export type Network = { sections:Section[]; source:{voltageV:number;currentA?:number;resistanceOhm:number;node:number;onS:number;offS?:number};load:Load;durationS:number;events:ModelEvent[];shunts:{node:number;resistanceOhm:number}[]; series?: Array<Contact & { to: number }>; branches?: Contact[] };
 export type WaveHistory = {times:number[]|Float64Array;values:number[]|Float64Array};
-export type WaveRun = {config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
+export type DeviceTrace = { voltage: WaveHistory; current: WaveHistory };
+export type WaveRun = {deviceTraces?: Record<string, DeviceTrace>; config:Network;ports:WaveHistory[];events:number[];method:"exact-fronts"|"characteristics-trapezoid";stepS:number;deviceEnergy:WaveHistory;maxResidual:number;rangeU:readonly[number,number];rangeI:readonly[number,number]};
 export type WaveValue={u:number;i:number;forward:number;backward:number;forwardI:number;backwardI:number;section:number};
 export function distributedParameters(section:Section){
  const {impedanceOhm:z,velocityMS:v}=section,r=section.resistanceOhmM??0;
@@ -375,7 +376,7 @@ export function estimateNetwork(c:Network){
  const {steps}=dynamicPlan(c);
  return {kind:"numeric" as const,steps,bytes:(steps+1)*(2*c.sections.length+2)*8,limit:DYNAMIC_STEP_LIMIT};
 }
-function numeric(c:Network,resolution=100,progress?:Progress):WaveRun{
+function numeric(c:Network,resolution=100,progress?:Progress,reportDevices=false):WaveRun{
  const {steps,initialStep,links}=dynamicPlan(c,resolution),diodes=nonlinearLinks(c);
  if(steps>DYNAMIC_STEP_LIMIT)throw Error("dynamic-resolution-limit:shorten-experiment");
  const h=c.durationS/steps;
@@ -385,6 +386,23 @@ function numeric(c:Network,resolution=100,progress?:Progress):WaveRun{
  const initial=initialNetwork(c,initialStep),states=initial.states,overrides=new Map<string,number>();
  const energy={times,values:new Float64Array(steps+1)},events:number[]=[0];
  energy.values[0]=storedEnergy();
+ const traceStride = Math.max(1, Math.ceil(steps / 2000));
+ const observedIds = reportDevices ? [...loadLeaves(c.load).map(leaf => leaf.id), ...links.map(link => link.id)] : [];
+ const deviceTraces = Object.fromEntries(observedIds.map(id => [id, {
+  voltage: { times: [] as number[], values: [] as number[] },
+  current: { times: [] as number[], values: [] as number[] },
+ }]));
+ function captureDevices(time: number) {
+  for (const [id, trace] of Object.entries(deviceTraces)) {
+   const state = states.get(id);
+   if (!state) continue;
+   trace.voltage.times.push(time);
+   trace.voltage.values.push(state.v);
+   trace.current.times.push(time);
+   trace.current.values.push(state.i);
+  }
+ }
+ if (reportDevices) captureDevices(0);
  for(let p=0;p<ports.length;p++)ports[p].values[0]=initial.out[p];let nextEvent=0;const sorted=[...c.events].sort((a,b)=>a.atS-b.atS);
  for(let k=1;k<=steps;k++){if(k%512===0)progress?.(k/steps);const t=k*h,a=ports.map((_,p)=>{
    const section=c.sections[p>>1],index=k-section.lengthM/section.velocityMS/h;
@@ -403,9 +421,10 @@ function numeric(c:Network,resolution=100,progress?:Progress):WaveRun{
   for(let port=0;port<ports.length;port++)ports[port].values[k]=voltage[portNode(c,port)]-a[port];
   const u=voltage[c.sections.length];
   commitDevice(c.load,u,eq.short?0:eq.g*u+eq.b,eqs,states,overrides);
+  if (observedIds.length && (k % traceStride === 0 || k === steps)) captureDevices(t);
   energy.values[k]=storedEnergy();if(k%Math.max(1,Math.ceil(steps/800))===0||k===steps)events.push(t);
  }
- return ranges({config:c,ports,events,method:"characteristics-trapezoid",stepS:h,deviceEnergy:energy,maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
+ return ranges({...(observedIds.length ? {deviceTraces} : {}),config:c,ports,events,method:"characteristics-trapezoid",stepS:h,deviceEnergy:energy,maxResidual:0,rangeU:[0,0],rangeI:[0,0]});
 }
 function waveBounds(values:WaveHistory['values']){let low=0,high=0;for(const value of values){if(value<low)low=value;if(value>high)high=value;}return [low,high];}
 function ranges(run:WaveRun):WaveRun{
@@ -414,8 +433,8 @@ function ranges(run:WaveRun):WaveRun{
  c.sections.forEach((s,j)=>{const f=run.ports[2*j].values,b=run.ports[2*j+1].values;const [f0,f1]=waveBounds(f),[b0,b1]=waveBounds(b);lowU=Math.min(lowU,f0+b0);highU=Math.max(highU,f1+b1);lowI=Math.min(lowI,(f0-b1)/s.impedanceOhm);highI=Math.max(highI,(f1-b0)/s.impedanceOhm);});
  run.rangeU=[lowU,highU];run.rangeI=[lowI,highI];return run;
 }
-export function simulateNetwork(config:Network,options:{resolution?:number;progress?:Progress}={}):WaveRun{
- const errors=validateNetwork(config);if(errors.length)throw Error(errors.join("; "));const c=JSON.parse(JSON.stringify(config)) as Network;return isDynamic(c)?numeric(c,options.resolution,options.progress):exact(c,options.progress);
+export function simulateNetwork(config:Network,options:{resolution?:number;progress?:Progress;reportDevices?:boolean}={}):WaveRun{
+ const errors=validateNetwork(config);if(errors.length)throw Error(errors.join("; "));const c=JSON.parse(JSON.stringify(config)) as Network;return isDynamic(c)?numeric(c,options.resolution,options.progress,options.reportDevices):exact(c,options.progress);
 }
 function incidentAt(c:Network,ports:WaveHistory[],p:number,time:number,linear:boolean){
  const s=c.sections[p>>1];

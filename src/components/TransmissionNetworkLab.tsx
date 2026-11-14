@@ -1,6 +1,6 @@
 import CircuitEditor, { type CircuitReading } from "../circuit/CircuitEditor";
 import { parseCircuit } from "../circuit/document";
-import { transmissionCircuitAdapter } from "../transient/circuit-adapter";
+import { resistiveLoadReadings, transmissionCircuitAdapter } from "../transient/circuit-adapter";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
 import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -9,7 +9,7 @@ import EngineeringPlot from "../engineering/EngineeringPlot";
 import {engineeringAxis} from "../engineering/scale";
 import {formatEngineeringNumber as n,formatEngineeringValue} from "../engineering/format";
 import {localePath} from "../site-path";
-import {at,branchVoltage,contactsOf,estimateNetwork,hasLineLoss,DEFAULT_NETWORK,findLoad,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
+import {at,branchVoltage,contactsOf,estimateNetwork,hasLineLoss,historyValue,DEFAULT_NETWORK,findLoad,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
 import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import NetworkWorkbench, {restoreNetworkLayout} from "../transient/NetworkWorkbench";
 import NetworkInspector from "../transient/NetworkInspector";
@@ -61,6 +61,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const [editorRevision,setEditorRevision]=useState(0);
  const [editorVisited,setEditorVisited]=useState(false);
  const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:structuredClone(DEFAULT_NETWORK),layout:{},detached:[]}));const restore=useRef(false);
+ const reportDevices = !!circuit;
  const worker=useRef<Worker|null>(null),request=useRef(0),preserve=useRef(false),timeRef=useRef(0),speedRef=useRef(1),past=useRef<Document[]>([]),future=useRef<Document[]>([]),file=useRef<HTMLInputElement>(null);
  useEffect(()=>{timeRef.current=time;},[time]);useEffect(()=>{speedRef.current=speed;},[speed]);
  useEffect(()=>{
@@ -103,9 +104,9 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   if(errors.length){setBusy(false);setError(networkError(errors.join("; "),language));return;}
   setBusy(true);setError("");
   const w=new Worker(new URL("../transient/network.worker.ts",import.meta.url),{type:"module"});worker.current=w;w.onmessage=(e:MessageEvent<{id:number;run?:WaveRun;error?:string;progress?:number}>)=>{if(e.data.id!==request.current)return;if(e.data.progress!==undefined){setProgress(e.data.progress);return;}setBusy(false);if(e.data.error){setError(networkError(e.data.error,language));setRunning(false);return;}if(e.data.run){setRun(e.data.run);if(!preserve.current)setDomains(limits(e.data.run));setError("");}};w.onerror=()=>{setError(ru?"Вычислитель недоступен. Расчёт не выполнен.":"Обчислювач недоступний. Розрахунок не виконано.");setBusy(false);setRunning(false);};
-  const timer=setTimeout(()=>{if(request.current===id)w.postMessage({id,config:model});},120);
+  const timer=setTimeout(()=>{if(request.current===id)w.postMessage({id,config:model,reportDevices});},120);
   return()=>{clearTimeout(timer);w.terminate();if(worker.current===w)worker.current=null;};
- },[model,language,empty,retry,ru]);
+ },[model,language,empty,retry,ru,reportDevices]);
  useEffect(()=>{if(!running)return;let frame=0,last:number|undefined;const media=matchMedia("(prefers-reduced-motion: reduce)");const stop=()=>{if(document.hidden||media.matches)setRunning(false);};if(document.hidden||media.matches){setRunning(false);return;}const tick=(now:number)=>{if(last!==undefined){const dt=Math.min(.1,(now-last)/1000)*speedRef.current*run.config.durationS/8;const next=Math.min(run.config.durationS,timeRef.current+dt);timeRef.current=next;setTime(next);if(next>=run.config.durationS){setRunning(false);return;}}last=now;frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);document.addEventListener("visibilitychange",stop);media.addEventListener("change",stop);return()=>{cancelAnimationFrame(frame);document.removeEventListener("visibilitychange",stop);media.removeEventListener("change",stop);};},[running,run]);
  function apply(next:Document,keep=false){
   setCircuit(next.circuit);
@@ -214,7 +215,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  function calculateCircuit(text: string) {
   try {
    const { model: converted } = transmissionCircuitAdapter.convert(parseCircuit(text).drawing.topology);
-   edit({ ...converted, durationS: model.durationS }, false, {}, [], false, [], [], text);
+   edit({ ...converted, durationS: Math.max(model.durationS, converted.durationS) }, false, {}, [], false, [], [], text);
    setSelection(null);
   } catch (error) {
    setActionError(networkError(String(error),language));
@@ -233,8 +234,18 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   for (const branch of contactsOf(run.config)) {
    values.set(branch.id, { voltage: formatEngineeringValue(branchVoltage(run,branch,time),"V",language) });
   }
+  const loadVoltage = nodePort(run,run.config.sections.length,time).u;
   if (!run.config.load.children?.length && run.config.load.kind !== "open") {
-   values.set(run.config.load.id, { voltage: formatEngineeringValue(nodePort(run,run.config.sections.length,time).u,"V",language) });
+   values.set(run.config.load.id, { voltage: formatEngineeringValue(loadVoltage,"V",language) });
+  }
+  for (const [id, reading] of resistiveLoadReadings(run.config.load, loadVoltage, run.config.events, time)) {
+   values.set(id, { voltage: formatEngineeringValue(reading.voltage,"V",language), current: formatEngineeringValue(reading.current,"A",language) });
+  }
+  for (const [id, trace] of Object.entries(run.deviceTraces ?? {})) {
+   values.set(id, {
+    voltage: formatEngineeringValue(historyValue(trace.voltage,time,true),"V",language),
+    current: formatEngineeringValue(historyValue(trace.current,time,true),"A",language),
+   });
   }
   return values;
  }, [valid, circuit, run, time, language]);

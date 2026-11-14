@@ -1,7 +1,7 @@
 import type { LaboratoryAdapter } from "../circuit/adapter";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 import { DEFAULT_DIODE } from "./line-diode";
-import { DEFAULT_NETWORK, MAX_SECTIONS, validateNetwork, type Contact, type Load, type Network, type Section } from "./network";
+import { DEFAULT_NETWORK, MAX_SECTIONS, validateNetwork, type Contact, type Load, type ModelEvent, type Network, type Section } from "./network";
 
 function numeric(component: CircuitComponent, name: string): number {
   const value = component.parameters[name];
@@ -20,7 +20,13 @@ function contactFor(part: CircuitComponent, from: number, to: Contact["to"], rev
   const terminal = { id: part.id, from, to };
   switch (part.kind) {
     case "diode": return { ...terminal, component: { kind: "diode", diode: { ...DEFAULT_DIODE, reversed } } };
-    case "switch": return { ...terminal, switch: { closed: part.parameters.closed === true } };
+    case "switch": {
+      const atS = part.parameters.atS;
+      return { ...terminal, switch: {
+        closed: part.parameters.closed === true,
+        ...(typeof atS === "number" && atS > 0 ? { atS, closes: part.parameters.closes === true } : {}),
+      } };
+    }
     case "r": return { ...terminal, resistanceOhm: numeric(part, "ohm") };
     case "l": return { ...terminal, component: { kind: "l", value: numeric(part, "henry") } };
     case "c": return { ...terminal, component: { kind: "c", value: numeric(part, "farad") } };
@@ -108,7 +114,7 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
         lengthM: numeric(part, "lengthM"),
         impedanceOhm: numeric(part, "impedanceOhm"),
         velocityMS: numeric(part, "velocityMS"),
-        ...(Object.hasOwn(part.parameters, "resistanceOhmM") ? { resistanceOhmM: numeric(part, "resistanceOhmM") } : {}),
+        ...(Number(part.parameters.resistanceOhmM) > 0 ? { resistanceOhmM: numeric(part, "resistanceOhmM") } : {}),
       });
       nodeByNet.set(next, sections.length);
       current = next;
@@ -125,9 +131,14 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
     const resultIds = new Map(sections.map(section => [section.id, section.id]));
     const branches: Contact[] = [];
     const loadEdges: LoadEdge[] = [];
+    const events: ModelEvent[] = [];
     for (const part of devices) {
       resultIds.set(part.id, part.id);
-      if (inlineIds.has(part.id)) continue;
+      const changeAt = Number(part.parameters.changeAtS ?? 0);
+      if (inlineIds.has(part.id)) {
+        if (changeAt > 0) throw Error("unsupported-line-resistance-event");
+        continue;
+      }
       const [a, b] = terminals(part);
       if (extraNets.has(a) || extraNets.has(b)) throw Error("unsupported-series-node");
       if (a === b) throw Error("shorted-line-device");
@@ -143,21 +154,29 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
         const left = (flipped ? to : from)!;
         const right = flipped || b === reference ? "reference" : to!;
         if (load.kind === "switch" && right === "reference") throw Error("unsupported-line-switch");
+        if (changeAt > 0) throw Error("unsupported-line-resistance-event");
         branches.push(contactFor(part, left, right, flipped));
       } else {
         if (load.kind === "switch") throw Error("unsupported-line-switch");
         const touchesIntermediate = [a, b].some(net => net !== current && nodeByNet.has(net));
         if (touchesIntermediate) throw Error("unsupported-line-load");
+        if (kind === "r" && changeAt > 0) events.push({
+          id: allocateId(), atS: changeAt, target: part.id, kind: "resistance", value: numeric(part, "nextOhm"),
+        });
         loadEdges.push({ from: a, to: b, load });
       }
     }
     loadEdges.sort((a, b) => a.load.id.localeCompare(b.load.id));
+    const onS = Number(source.parameters.onS ?? 0);
+    const offS = Number(source.parameters.offS ?? 0);
+    const latestEvent = Math.max(onS, offS, ...events.map(event => event.atS), ...[...inline, ...branches].map(link => link.switch?.atS ?? 0));
     const model: Network = {
-      ...DEFAULT_NETWORK, sections, load: terminalLoad(loadEdges, current, reference, allocateId), events: [], shunts: [],
+      ...DEFAULT_NETWORK, durationS: Math.max(DEFAULT_NETWORK.durationS, latestEvent), sections, load: terminalLoad(loadEdges, current, reference, allocateId), events, shunts: [],
       source: {
         voltageV: source.kind === "current" ? 0 : numeric(source, "voltageV"),
         ...(source.kind === "current" ? { currentA: numeric(source, "currentA") } : {}),
-        resistanceOhm: 0, onS: 0, node: 0,
+        resistanceOhm: Number(source.parameters.resistanceOhm ?? 0), onS, node: 0,
+        ...(offS > 0 ? { offS } : {}),
       },
       ...(inline.length ? { series: inline } : {}),
       ...(branches.length ? { branches } : {}),
@@ -167,3 +186,28 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
     return { model, resultIds };
   },
 };
+
+/** The Worker exposes terminal voltage. For a purely resistive equivalent the
+ * internal voltages follow directly; mixed reactances need solver state. */
+export function resistiveLoadReadings(load: Load, voltage: number, events: readonly ModelEvent[] = [], time = 0): Map<string, { voltage: number; current: number }> {
+  const values = new Map<string, { voltage: number; current: number }>();
+  const overrides = new Map(events.filter(event => event.kind === "resistance" && event.atS <= time)
+    .sort((a, b) => a.atS - b.atS).map(event => [event.target, event.value]));
+  function resistance(item: Load): number | undefined {
+    if (item.kind === "r") return overrides.get(item.id) ?? item.value;
+    if (item.kind !== "parallel" && item.kind !== "series") return undefined;
+    const legs = item.children!.map(resistance);
+    if (legs.some(leg => leg === undefined || leg <= 0)) return undefined;
+    if (item.kind === "series") return legs.reduce<number>((sum, leg) => sum + leg!, 0);
+    return 1 / legs.reduce<number>((sum, leg) => sum + 1 / leg!, 0);
+  }
+  function visit(item: Load, u: number) {
+    const equivalent = resistance(item);
+    if (!equivalent) return;
+    const i = u / equivalent;
+    if (item.kind === "r") values.set(item.id, { voltage: u, current: i });
+    for (const child of item.children ?? []) visit(child, item.kind === "series" ? resistance(child)! * i : u);
+  }
+  visit(load, voltage);
+  return values;
+}

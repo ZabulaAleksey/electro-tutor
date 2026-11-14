@@ -305,3 +305,31 @@ test("does not replace a running model when the embedded graph is unsupported", 
   await expect(lab).toHaveAttribute("data-model-revision", revision!);
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
 });
+
+test("calculates an edited resistance event through the integrated Worker", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const revision = await lab.getAttribute("data-model-revision");
+  await page.getByText("Универсальный редактор схем", { exact: true }).click();
+  await editor(page).getByRole("button", { name: "Пример длинной линии" }).click();
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("R1");
+  for (const [name, value] of [["tᵣ, s", "0.01"], ["R₂, Ω", "100"]]) {
+    const input = editor(page).getByRole("spinbutton", { name });
+    await input.fill(value);
+    await input.press("Enter");
+  }
+  await editor(page).getByRole("button", { name: "Рассчитать эту схему" }).click();
+  await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const reading = editor(page).locator('[data-circuit-reading="R1"]');
+  const cursor = lab.getByRole("slider", { name: "Курсор времени", includeHidden: true });
+  const seek = (time: string) => cursor.evaluate((slider: HTMLInputElement, value) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(slider, value);
+    slider.dispatchEvent(new Event("input", { bubbles: true }));
+  }, time);
+  await seek("0.005");
+  await expect(reading).toContainText(/12\s+В/);
+  await seek("0.011");
+  await expect(reading).toContainText(/16\s+В/);
+});

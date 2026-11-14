@@ -4,7 +4,7 @@ import { ZigzagResistors } from "../engineering/symbol-style";
 import type { Language } from "../types";
 import { circuitCopy } from "./copy";
 import { defaultCircuitSettings, maxCircuitFileBytes, parseCircuit, serializeCircuit, type CircuitSettings } from "./document";
-import { canPlace, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, splitWireAt, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
+import { canPlace, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, splitWireAt, validPartParameter, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
 import { clearGeometry, drawingPorts, optimizeDrawing, optimizeLayout, routeDrawing, type Routing } from "./routing";
 import { disconnect, netlist, removeComponent, type Parameter } from "./topology";
 import "./circuit-editor.css";
@@ -353,12 +353,12 @@ export default function CircuitEditor({ language, embedded = false, initial, act
   }
 
   const selectedItem = drawing.topology.components.find(item => item.id === selected);
-  const parameters = selectedItem ? Object.entries(selectedItem.parameters) : [];
+  const parameters = selectedItem ? Object.entries({ ...parts[selectedItem.kind as PartKind].parameters, ...selectedItem.parameters }) : [];
   function saveParameter(name: string, previous: Parameter, raw: string | boolean) {
     if (!selectedItem || typeof raw === "string" && !raw.trim()) return;
     const value = typeof raw === "boolean" ? raw : Number(raw);
-    if (typeof value === "number" && (!Number.isFinite(value) || (name !== "voltageV" && name !== "currentA" && value <= 0))) return;
-    if (previous === value) return;
+    if (typeof value === "number" && !validPartParameter(name, value)) return;
+    if (previous === value && Object.hasOwn(selectedItem.parameters, name)) return;
     commit({ ...drawing, topology: { ...drawing.topology, components: drawing.topology.components.map(item =>
       item === selectedItem ? { ...item, parameters: { ...item.parameters, [name]: value } } : item) } }, routing);
   }
@@ -473,13 +473,13 @@ export default function CircuitEditor({ language, embedded = false, initial, act
         {drawing.topology.components.map(item => <option value={item.id} key={item.id}>{item.id}</option>)}
       </select></label>
       {parameters.map(([name, value]) => typeof value === "boolean" ? <label key={selected + name}>
-        <input type="checkbox" checked={value} onChange={event => saveParameter(name, value, event.target.checked)} /> {copy.closed}
+        <input type="checkbox" checked={value} onChange={event => saveParameter(name, value, event.target.checked)} /> {name === "closes" ? copy.closes : copy.closed}
       </label> : <form key={selected + name} onSubmit={event => {
         event.preventDefault();
         const field = new FormData(event.currentTarget).get("nominal");
         if (typeof field === "string") saveParameter(name, value, field);
       }}>
-        <label>{parameters.length === 1 ? copy.parameter : copy.parameterLabels[name as keyof typeof copy.parameterLabels]}
+        <label>{(parameters.length === 1 || name === "ohm") ? copy.parameter : copy.parameterLabels[name as keyof typeof copy.parameterLabels]}
           <input key={String(value)} name="nominal" type="number" step="any"
             defaultValue={String(value)} onBlur={event => saveParameter(name, value, event.target.value)} />
         </label>

@@ -18,7 +18,13 @@ it("checks optimizer quality on series RLC, a loaded line, parallel branches and
   for (const offset of [0, 4, 8]) {
     for (let index = 1; index < 4; index++) dense = wireDrawing(dense, `R${offset + index}:b`, `R${offset + index + 1}:a`);
   }
-  const fixtures = [demoDrawing(), lineDemoDrawing(), branches, crossings, dense];
+  const bridge = wireDrawing(branches, "J2", "J3");
+  const ring = [["J1", "J2"], ["J2", "J3"], ["J3", "J4"], ["J4", "J5"], ["J5", "J1"]].reduce(
+    (draft, [from, to]) => wireDrawing(draft, from, to), junctions([[95, 120], [240, 70], [435, 130], [390, 245], [130, 255]]),
+  );
+  dense.positions.R1.pinned = true;
+  dense.positions.R6.pinned = true;
+  const fixtures = [demoDrawing(), lineDemoDrawing(), branches, crossings, bridge, ring, dense];
   for (const drawing of fixtures) {
     const initial = routeDrawing(drawing);
     const optimized = optimizeDrawing(drawing, initial);
@@ -31,6 +37,9 @@ it("checks optimizer quality on series RLC, a loaded line, parallel branches and
     }
     expect(arranged.routing.unrouted).toEqual([]);
     expect(arranged.drawing.topology).toBe(drawing.topology);
+    for (const [id, position] of Object.entries(drawing.positions)) {
+      if (position.pinned) expect(arranged.drawing.positions[id]).toEqual(position);
+    }
     expect(optimized.unrouted).toEqual([]);
     const before = routingScore(initial), after = routingScore(optimized);
     const first = after.findIndex((value, index) => value !== before[index]);

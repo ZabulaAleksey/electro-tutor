@@ -292,3 +292,16 @@ test("browser layout keeps the netlist and completes on a narrow viewport", asyn
   await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
   await expect(board(page).locator("[data-circuit-wire]")).toHaveCount(4);
 });
+
+test("does not replace a running model when the embedded graph is unsupported", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const revision = await lab.getAttribute("data-model-revision");
+  await page.getByText("Универсальный редактор схем", { exact: true }).click();
+  await editor(page).getByRole("button", { name: "Пример RLC" }).click();
+  await editor(page).getByRole("button", { name: "Рассчитать эту схему" }).click();
+  await expect(lab.getByRole("alert")).toContainText("Электрическая схема не поддерживается");
+  await expect(lab).toHaveAttribute("data-model-revision", revision!);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+});

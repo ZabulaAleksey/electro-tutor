@@ -1,8 +1,8 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-CIRCUIT-QUALIFY-EDITING
+- Stage ID: ET-CIRCUIT-LAB-PARITY
 
-## ET-CIRCUIT-QUALIFY-EDITING — Universal Circuit Engine
+## ET-CIRCUIT-LAB-PARITY — Universal Circuit Engine
 
 - Status: partial
 - Goal: независимый редактор схем и проверенный адаптер лаборатории длинных линий.
@@ -19,16 +19,19 @@
 - Layout and editing evidence: incremental routing retains unrelated paths. Global wire-order search compares unrouted count, crossings, bends and length; broader layout benchmarks and component repositioning remain pending. Ten focused Vitest and 5/5 Chromium PASS, including RLC wire optimization, clearing with undo/redo, series diode insertion and resistor value editing.
 - Interchange and first laboratory path: versioned JSON, validated import, local save/reload and export; 7 Chromium PASS, including export from the editor and import through the real transmission lab Worker. The adapter supports one ideal voltage source, 1–6 contiguous sections and an optional terminal R, L or C. Physical length remains independent of the two-point screen span. Nine Chromium editor scenarios pass, including two-point line placement on a 320 px touch viewport and pinned components during whole-layout search. Five routing corpus classes pass. Visual frames at desktop and 320 px were inspected; fixed line-label overlap and localized the visible import control.
 - Final verified snapshot: 567 Vitest PASS, 65 Chromium PASS (9 editor, 56 lab), education build, lint, Astro types and context validator PASS. Benchmark: 5 circuit classes, 0.12–12.34 ms in one Windows Vitest run. Whole-layout search eliminated two RLC crossings and shortened the dense circuit's paths by 10 units; all candidates preserve topology and pinned locations.
-- Remaining scope: finish drag/touch controls and document history, broaden the lab adapter to match existing workflows and draw calculation results in the new editor, then qualify the larger routing corpus, mobile performance and browser visuals. Existing legacy-format checks are included in the 56 lab regressions.
-- NEXT: ET-CIRCUIT-QUALIFY-EDITING
+- Editing qualification: seven prior modules plus new regressions pass. A snapshot includes topology, positions, paths, document settings and title. The browser confirms settings/import undo-redo, pinch without accidental placement, two-point touch line construction, and safe rejection of unsupported models. Version 1 JSON migrates to version 2 with grid snapping preserved.
+- Laboratory integration: the embedded CircuitEditor sends an explicitly submitted graph to the existing Worker. R/L/C series/parallel loads, supported intermediate branches, an inline device between two sections and voltage/current source conversion are covered. Section and contact readings update with the experiment time; readings are associated with the calculated document, and the active graph survives reload. All 56 existing lab regressions pass. The original workbench still handles scheduled events and legacy-only cases, including configurations the graph adapter cannot currently represent.
+- Qualification evidence: 573 Vitest PASS; 69 Chromium PASS in one editor+lab run, followed by 14/14 editor PASS including invalid-model rejection. Reviewed desktop and 320 px screenshots; 390 px Chromium optimization met the 500 ms budget. Astro check, lint, education build and context PASS. Repeated seeded tests cover 100 geometry changes and 40 sequences of electrical edits. No physical-device evidence.
+- Remaining scope: preserve editable scheduling, source timing and full legacy laboratory coverage in the universal editor; map readings for compound load leaves; broaden the routing corpus to bridge, ring and fixed dense fixtures. Keep the original workbench available while semantic parity and final qualification are incomplete.
+- NEXT: ET-CIRCUIT-LAB-PARITY
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 2,
+  "state_revision": 3,
   "master": {
     "id": "ET-CIRCUIT-001",
-    "status": "needs_continuation",
+    "status": "partial",
     "source": {
       "backend": "user_attachment",
       "queue_id": "none",
@@ -44,7 +47,7 @@
       "repository": "~/projects/electro-tutor",
       "worktree": "~/projects/electro-tutor",
       "branch": "feature/circuit-engine",
-      "checkpoint": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
+      "checkpoint": "8c639b78a51f9ab82b3fdd1821fcae3d9c73ba38",
       "ownership": [
         "src/circuit",
         "src/transient/circuit-adapter.ts",
@@ -254,19 +257,22 @@
       "id": "ET-CIRCUIT-QUALIFY-EDITING",
       "master_id": "ET-CIRCUIT-001",
       "title": "Finish interactive editing, touch and document acceptance",
-      "status": "ready",
+      "status": "verified",
       "predecessors": [
         "ET-CIRCUIT-QUALIFY-LAYOUT"
       ],
       "dependencies": [],
       "worktree_track": "circuit-engine",
       "checkpoint_before": "ad96ff9e86254a2439e691a963aa1464bed6aaca",
-      "checkpoint_after": "",
+      "checkpoint_after": "8c639b78a51f9ab82b3fdd1821fcae3d9c73ba38",
       "required_evidence": [
         "L2",
         "L5"
       ],
-      "evidence": [],
+      "evidence": [
+        "L2",
+        "L5"
+      ],
       "context_scope": [
         "specs/features/circuit-engine.spec.md",
         "src/circuit",
@@ -281,22 +287,25 @@
       "stop_after": false
     },
     {
-      "id": "lab-parity",
+      "id": "ET-CIRCUIT-LAB-PARITY",
       "master_id": "ET-CIRCUIT-001",
       "title": "Preserve complete supported lab editing and map results onto the new editor",
-      "status": "queued",
+      "status": "ready",
       "predecessors": [
         "ET-CIRCUIT-QUALIFY-EDITING"
       ],
       "dependencies": [],
       "worktree_track": "circuit-engine",
-      "checkpoint_before": "",
+      "checkpoint_before": "8c639b78a51f9ab82b3fdd1821fcae3d9c73ba38",
       "checkpoint_after": "",
       "required_evidence": [
         "L3",
         "L5"
       ],
-      "evidence": [],
+      "evidence": [
+        "L3",
+        "L5"
+      ],
       "context_scope": [
         "specs/features/circuit-engine.spec.md",
         "src/circuit",
@@ -316,7 +325,7 @@
       "title": "Complete visual, property and performance acceptance",
       "status": "queued",
       "predecessors": [
-        "lab-parity"
+        "ET-CIRCUIT-LAB-PARITY"
       ],
       "dependencies": [],
       "worktree_track": "circuit-engine",
@@ -352,7 +361,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "ET-CIRCUIT-QUALIFY-EDITING",
+  "next_action": "ET-CIRCUIT-LAB-PARITY",
   "integration": {
     "required": false,
     "reason": ""

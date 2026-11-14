@@ -2244,7 +2244,7 @@
       "security": "Validated local input and bounded routing",
       "a11y": "Localized browser controls or TypeScript API",
       "observability": "Automated feature tests",
-      "gap": "Migration evidence and extensibility qualification pending",
+      "gap": "Version 1 to version 2 migration passed; general component extensibility still requires qualification",
       "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [
         "src/circuit/document.ts",
@@ -2268,7 +2268,7 @@
       "security": "Validated local input and bounded routing",
       "a11y": "Localized browser controls or TypeScript API",
       "observability": "Automated feature tests",
-      "gap": "Broader legacy editing parity and result integration pending",
+      "gap": "Embedded calculation and section readings passed; scheduled events and compound load readings pending",
       "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [
         "src/transient/circuit-adapter.ts",
@@ -2292,7 +2292,7 @@
       "security": "Validated local input and bounded routing",
       "a11y": "Localized browser controls or TypeScript API",
       "observability": "Automated feature tests",
-      "gap": "Full visual and performance gates pending",
+      "gap": "Desktop and narrow Chromium passed; expanded routing corpus and physical-device evidence pending",
       "action": "Complete the remaining acceptance listed in STAGES.",
       "code": [],
       "unit": [

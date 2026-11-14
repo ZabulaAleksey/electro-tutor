@@ -1,4 +1,4 @@
-import { addComponent, addJunction, connect, emptyCircuit, type CircuitComponent, type CircuitTopology } from "./topology";
+import { addComponent, addJunction, connect, disconnect, emptyCircuit, type CircuitComponent, type CircuitTopology } from "./topology";
 
 export type Point = { x: number; y: number };
 export type Placement = Point & { rotation: number };
@@ -28,10 +28,10 @@ export function placeComponent(drawing: Drawing, kind: PartKind, point: Point): 
   };
 }
 
-export function canPlace(drawing: Drawing, point: Point, except?: string): boolean {
+export function canPlace(drawing: Drawing, point: Point, except?: string, clearance = 76): boolean {
   return Object.values(drawing.junctionPositions).every(junction =>
     Math.abs(junction.x - point.x) >= 40 || Math.abs(junction.y - point.y) >= 40) && Object.entries(drawing.positions).every(([id, other]) =>
-    id === except || Math.abs(other.x - point.x) >= 76 || Math.abs(other.y - point.y) >= 76);
+    id === except || Math.abs(other.x - point.x) >= clearance || Math.abs(other.y - point.y) >= clearance);
 }
 
 export function demoDrawing() {
@@ -63,4 +63,17 @@ export function junctionAt(drawing: Drawing, point: Point): Drawing {
     ...drawing, topology: addJunction(drawing.topology, id),
     junctionPositions: { ...drawing.junctionPositions, [id]: point },
   };
+}
+
+
+export function insertInWire(drawing: Drawing, wireId: string, kind: PartKind, point: Point, rotation: number): Drawing {
+  const wire = drawing.topology.wires.find(item => item.id === wireId);
+  if (!wire) throw Error("unknown-wire");
+  const placed = placeComponent(drawing, kind, point);
+  const component = placed.topology.components.at(-1)!;
+  const [first, second] = component.terminals;
+  const draft = { ...placed, topology: disconnect(placed.topology, wireId), positions: {
+    ...placed.positions, [component.id]: { ...point, rotation },
+  } };
+  return wireDrawing(wireDrawing(draft, wire.from, first), second, wire.to);
 }

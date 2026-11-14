@@ -38,3 +38,5 @@
 
 .circuit-viewport polyline { stroke: var(--ink); stroke-width: 1.6; fill: none; }
 .circuit-pin { cursor: crosshair; }
+
+.circuit-selection input { width: 8ch; }

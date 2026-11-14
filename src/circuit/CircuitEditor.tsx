@@ -3,14 +3,14 @@ import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph, SourceGlyph }
 import { ZigzagResistors } from "../engineering/symbol-style";
 import type { Language } from "../types";
 import { circuitCopy } from "./copy";
-import { canPlace, demoDrawing, emptyDrawing, junctionAt, parts, placeComponent, wireDrawing, type PartKind, type Point } from "./drawing";
-import { drawingPorts, routeDrawing } from "./routing";
+import { canPlace, demoDrawing, emptyDrawing, insertInWire, junctionAt, parts, placeComponent, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
+import { drawingPorts, optimizeDrawing, routeDrawing, type Routing } from "./routing";
 import { netlist, removeComponent } from "./topology";
 import "./circuit-editor.css";
 
 const boardWidth = 540;
 const boardHeight = 360;
-type Gesture = { pointer: number; component: string | null; terminal: string | null; start: Point; origin: Point };
+type Gesture = { pointer: number; component: string | null; terminal: string | null; wire: string | null; start: Point; origin: Point };
 
 function Glyph({ kind }: { kind: PartKind }) {
   switch (kind) {
@@ -24,7 +24,10 @@ function Glyph({ kind }: { kind: PartKind }) {
 
 export default function CircuitEditor({ language }: { language: Language }) {
   const copy = circuitCopy(language);
-  const [drawing, setDrawing] = useState(emptyDrawing);
+  const [snapshot, setSnapshot] = useState(() => ({ drawing: emptyDrawing(), routing: routeDrawing(emptyDrawing()) }));
+  const { drawing, routing } = snapshot;
+  const undo = useRef<typeof snapshot[]>([]);
+  const redo = useRef<typeof snapshot[]>([]);
   const [tool, setTool] = useState<PartKind | "wire" | "junction" | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -34,18 +37,28 @@ export default function CircuitEditor({ language }: { language: Language }) {
   const [ready, setReady] = useState(false);
   const [conflict, setConflict] = useState<"collision" | "routeError" | null>(null);
   const [wireStart, setWireStart] = useState<string | null>(null);
-  const routing = useMemo(() => routeDrawing(drawing), [drawing]);
   const ports = useMemo(() => drawingPorts(drawing), [drawing]);
   const nets = useMemo(() => netlist(drawing.topology), [drawing.topology]);
-  function commit(next: typeof drawing) {
-    const planned = routeDrawing(next);
+  function commit(next: Drawing, planned: Routing = routeDrawing(next, next.topology.wires, routing)) {
     if (planned.unrouted.length) {
       setConflict("routeError");
       return false;
     }
-    setDrawing(next);
+    if (next === drawing && planned === routing) return true;
+    undo.current = [...undo.current.slice(-79), snapshot];
+    redo.current = [];
+    setSnapshot({ drawing: next, routing: planned });
     setConflict(null);
     return true;
+  }
+  function travel(back: boolean) {
+    const source = back ? undo.current : redo.current;
+    const target = back ? redo.current : undo.current;
+    const previous = source.pop();
+    if (!previous) return;
+    target.push(snapshot);
+    chooseTool(null);
+    setSnapshot(previous);
   }
   function choose(endpoint: string) {
     if (!wireStart) return setWireStart(endpoint);
@@ -87,9 +100,10 @@ export default function CircuitEditor({ language }: { language: Language }) {
     if (!at) return;
     const element = event.target as Element;
     const terminal = element.closest("[data-circuit-terminal]")?.getAttribute("data-circuit-terminal") ?? null;
+    const wire = element.closest("[data-circuit-wire]")?.getAttribute("data-circuit-wire") ?? null;
     const target = element.closest("[data-component-id]")?.getAttribute("data-component-id") ?? null;
     gesture.current = {
-      pointer: event.pointerId, component: target, terminal, start: at, origin: target ? drawing.positions[target] : at,
+      pointer: event.pointerId, component: target, terminal, wire, start: at, origin: target ? drawing.positions[target] : at,
     };
     event.currentTarget.setPointerCapture(event.pointerId);
     setConflict(null);
@@ -138,11 +152,26 @@ export default function CircuitEditor({ language }: { language: Language }) {
         if (commit(junctionAt(drawing, destination))) setTool(null);
         return;
       }
-      if (!canPlace(drawing, destination)) return setConflict("collision");
-      const next = placeComponent(drawing, tool, destination);
+      let next: Drawing;
+      if (held.wire) {
+        const path = routing.paths[held.wire];
+        const margin = tool === "diode" ? 16 : 36;
+        const segment = path.slice(1).map((b, i) => [path[i], b] as const).find(([a, b]) =>
+          a.x === b.x ? Math.abs(a.x - at.x) < 8 && at.y >= Math.min(a.y, b.y) + margin && at.y <= Math.max(a.y, b.y) - margin :
+            Math.abs(a.y - at.y) < 8 && at.x >= Math.min(a.x, b.x) + margin && at.x <= Math.max(a.x, b.x) - margin);
+        if (!segment) return setConflict("routeError");
+        const [a, b] = segment;
+        const vertical = a.x === b.x;
+        const onWire = vertical ? { x: a.x, y: destination.y } : { x: destination.x, y: a.y };
+        if (!canPlace(drawing, onWire, undefined, tool === "diode" ? 53 : 76)) return setConflict("collision");
+        const rotation = vertical ? (a.y < b.y ? 90 : 270) : (a.x < b.x ? 0 : 180);
+        next = insertInWire(drawing, held.wire, tool, onWire, rotation);
+      } else {
+        if (!canPlace(drawing, destination)) return setConflict("collision");
+        next = placeComponent(drawing, tool, destination);
+      }
       if (!commit(next)) return;
       setSelected(next.topology.components.at(-1)!.id);
-      setTool(null);
     }
   }
 
@@ -169,6 +198,18 @@ export default function CircuitEditor({ language }: { language: Language }) {
     setSelected(null);
   }
 
+  const selectedItem = drawing.topology.components.find(item => item.id === selected);
+  const parameter = selectedItem && Object.entries(selectedItem.parameters)[0];
+  function saveParameter(raw: string) {
+    if (!selectedItem || !parameter || !raw.trim()) return;
+    const value = Number(raw);
+    if (!Number.isFinite(value) || (selectedItem.kind !== "voltage" && value <= 0)) return;
+    const [name, previous] = parameter;
+    if (previous === value) return;
+    commit({ ...drawing, topology: { ...drawing.topology, components: drawing.topology.components.map(item =>
+      item === selectedItem ? { ...item, parameters: { ...item.parameters, [name]: value } } : item) } }, routing);
+  }
+
   return <section className="circuit-editor" data-circuit-editor data-ready={ready}>
     <h1>{copy.title}</h1>
     <div className="circuit-toolbar" role="group" aria-label={copy.tools}>
@@ -179,7 +220,16 @@ export default function CircuitEditor({ language }: { language: Language }) {
       </button>)}
       <button type="button" aria-pressed={tool === "wire"} onClick={() => chooseTool("wire")}>{copy.wire}</button>
       <button type="button" aria-pressed={tool === "junction"} onClick={() => chooseTool("junction")}>{copy.junction}</button>
-      <button type="button" onClick={() => { if (commit(demoDrawing())) chooseTool(null); }}>{copy.demo}</button>
+      <button type="button" onClick={() => {
+        const demo = demoDrawing();
+        if (commit(demo, routeDrawing(demo))) chooseTool(null);
+      }}>{copy.demo}</button>
+      <button type="button" disabled={!drawing.topology.wires.length}
+        onClick={() => commit(drawing, optimizeDrawing(drawing, routing))}>{copy.optimize}</button>
+      <button type="button" disabled={!undo.current.length} onClick={() => travel(true)}>{copy.undo}</button>
+      <button type="button" disabled={!redo.current.length} onClick={() => travel(false)}>{copy.redo}</button>
+      <button type="button" disabled={!drawing.topology.components.length && !drawing.topology.junctions.length}
+        onClick={() => { if (window.confirm(copy.confirm) && commit(emptyDrawing())) chooseTool(null); }}>{copy.clear}</button>
     </div>
     <div className="circuit-toolbar">
       <button type="button" aria-label={copy.zoomOut} disabled={zoom <= 1} onClick={() => setZoom(zoom / 1.25)}>−</button>
@@ -228,6 +278,14 @@ export default function CircuitEditor({ language }: { language: Language }) {
         <option value="">—</option>
         {drawing.topology.components.map(item => <option value={item.id} key={item.id}>{item.id}</option>)}
       </select></label>
+      {parameter && <form onSubmit={event => {
+        event.preventDefault();
+        const field = new FormData(event.currentTarget).get("nominal");
+        if (typeof field === "string") saveParameter(field);
+      }}>
+        <label>{copy.parameter} <input key={selected + String(parameter[1])} name="nominal" type="number" step="any"
+          defaultValue={String(parameter[1])} onBlur={event => saveParameter(event.target.value)} /></label>
+      </form>}
       {selected && <><button type="button" onClick={rotate}>{copy.rotate}</button>
         <button type="button" onClick={remove}>{copy.remove}</button></>}
     </div>

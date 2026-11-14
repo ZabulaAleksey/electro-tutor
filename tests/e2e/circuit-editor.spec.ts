@@ -76,3 +76,51 @@ test("connects named terminals and a junction without changing the net during ro
   await expect(viewport).toHaveAttribute("data-circuit-nets", before!);
   await expect(board(page).locator("polyline")).toHaveCount(2);
 });
+
+test("optimizes a real example and restores both geometry and topology after clearing", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример RLC" }).click();
+  const wires = board(page).locator("[data-circuit-wire]");
+  await expect(wires).toHaveCount(4);
+  const viewport = editor(page).locator("[data-circuit-nets]");
+  const nets = await viewport.getAttribute("data-circuit-nets");
+  await page.getByRole("button", { name: "Оптимизировать провода" }).click();
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+  const paths = await wires.evaluateAll(items => items.map(item => item.getAttribute("points")).sort());
+  page.once("dialog", dialog => dialog.accept());
+  await page.getByRole("button", { name: "Очистить поле" }).click();
+  await expect(wires).toHaveCount(0);
+  await page.getByRole("button", { name: "Отменить", exact: true }).click();
+  await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
+  expect(await wires.evaluateAll(items => items.map(item => item.getAttribute("points")).sort())).toEqual(paths);
+  await page.getByRole("button", { name: "Повторить", exact: true }).click();
+  await expect(wires).toHaveCount(0);
+});
+
+test("inserts a diode into an RLC wire and changes a resistor value", async ({ page }) => {
+  await page.goto(route);
+  await expect(editor(page)).toHaveAttribute("data-ready", "true");
+  await page.getByRole("button", { name: "Пример RLC" }).click();
+  const viewport = editor(page).locator("[data-circuit-nets]");
+  const original = await viewport.getAttribute("data-circuit-nets");
+  await page.getByRole("button", { name: "Диод", exact: true }).click();
+  const coordinates = await board(page).evaluate(svg => {
+    const frame = (svg as unknown as SVGSVGElement).getScreenCTM()!;
+    const point = new DOMPoint(270, 90).matrixTransform(frame);
+    return { x: point.x, y: point.y };
+  });
+  await page.mouse.click(coordinates.x, coordinates.y);
+  await expect(board(page).locator('[data-component-id="D1"]')).toBeVisible();
+  const edited = await viewport.getAttribute("data-circuit-nets");
+  expect(JSON.parse(edited!)).toContainEqual(["D1:b", "L1:a"]);
+  await page.getByRole("button", { name: "Отменить", exact: true }).click();
+  await expect(viewport).toHaveAttribute("data-circuit-nets", original!);
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("R1");
+  const input = page.getByRole("spinbutton", { name: "Номинал" });
+  await input.fill("220");
+  await input.press("Enter");
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("L1");
+  await editor(page).getByLabel("Выбрать", { exact: true }).selectOption("R1");
+  await expect(input).toHaveValue("220");
+});

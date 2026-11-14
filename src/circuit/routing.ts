@@ -36,7 +36,7 @@ export function drawingPorts(drawing: Drawing): Map<string, Port> {
     if (!placement || !size || component.terminals.length !== 2) continue;
     component.terminals.forEach((terminal, index) => {
       const side = index ? 1 : -1;
-      ports.set(terminal, { pin: offset(placement, size * side), escape: offset(placement, 36 * side), owner: component.id });
+      ports.set(terminal, { pin: offset(placement, size * side), escape: offset(placement, (size + 7) * side), owner: component.id });
     });
   }
   return ports;
@@ -51,9 +51,19 @@ function simplify(points: Point[]): Point[] {
   });
 }
 
+function positiveOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
+  if (a.x === b.x && c.x === d.x && a.x === c.x) {
+    return Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y)) > Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y));
+  }
+  return a.y === b.y && c.y === d.y && a.y === c.y &&
+    Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)) > Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x));
+}
+
 function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Point[][]): Point[] | null {
   if (equal(from.pin, to.pin) || [from, to].some(({ pin, escape, owner }) =>
     obstacles.some(([id, box]) => id !== owner && intersects(box, pin, escape)))) return null;
+  const segments = wirePaths.flatMap(path => path.slice(1).map((point, i) => [path[i], point] as const));
+  if ([from, to].some(({ pin, escape }) => segments.some(([c, d]) => positiveOverlap(pin, escape, c, d)))) return null;
   const boxes = obstacles.map(([, box]) => box);
   const axis = (key: "x" | "y", low: "left" | "top", high: "right" | "bottom") =>
     [...new Set([from.escape[key], to.escape[key], bounds[low], bounds[high],
@@ -69,7 +79,6 @@ function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Poin
   const costs = new Map([[start * 3, 0]]);
   const previous = new Map<number, number>();
   const open = new Set([start * 3]);
-  const segments = wirePaths.flatMap(path => path.slice(1).map((point, i) => [path[i], point] as const));
   let steps = 0;
   while (open.size && steps++ < limit) {
     let state = -1, best = Infinity;
@@ -94,10 +103,7 @@ function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Poin
       const b = points[candidate];
       if (!b || boxes.some(box => intersects(box, a, b))) continue;
       const vertical = a.x === b.x;
-      const overlap = segments.some(([c, d]) => vertical
-        ? c.x === a.x && d.x === a.x && Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y)) > Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y))
-        : c.y === a.y && d.y === a.y && Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)) > Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x)));
-      if (overlap) continue;
+      if (segments.some(([c, d]) => positiveOverlap(a, b, c, d))) continue;
       const direction = vertical ? 1 : 2;
       const key = candidate * 3 + direction;
       const bend = state % 3 && state % 3 !== direction ? 24 : 0;
@@ -111,19 +117,85 @@ function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Poin
   return null;
 }
 
-export function routeDrawing(drawing: Drawing): Routing {
+export function routingScore(routing: Routing): number[] {
+  const paths = Object.values(routing.paths);
+  const segments = paths.flatMap((path, wire) => path.slice(1).map((end, i) => ({ start: path[i], end, wire })));
+  let crossings = 0;
+  let length = 0;
+  segments.forEach(({ start, end, wire }, index) => {
+    length += distance(start, end);
+    for (const other of segments.slice(index + 1)) {
+      if (other.wire === wire || (start.x === end.x) === (other.start.x === other.end.x)) continue;
+      const vertical = start.x === end.x ? { start, end } : other;
+      const horizontal = start.x === end.x ? other : { start, end };
+      if (vertical.start.x > Math.min(horizontal.start.x, horizontal.end.x) &&
+          vertical.start.x < Math.max(horizontal.start.x, horizontal.end.x) &&
+          horizontal.start.y > Math.min(vertical.start.y, vertical.end.y) &&
+          horizontal.start.y < Math.max(vertical.start.y, vertical.end.y)) crossings++;
+    }
+  });
+  return [routing.unrouted.length, crossings, paths.reduce((sum, path) => sum + path.length - 2, 0), length];
+}
+
+function improves(candidate: number[], current: number[]): boolean {
+  const first = candidate.findIndex((value, index) => value !== current[index]);
+  return first !== -1 && candidate[first] < current[first];
+}
+
+export function optimizeDrawing(drawing: Drawing, current: Routing): Routing {
+  let best = current;
+  let score = routingScore(best);
+  const wires = drawing.topology.wires;
+  // Try different allocation orders. Hard constraints apply to every candidate.
+  const orders = [[...wires].reverse(), [...wires].sort((a, b) => a.id.localeCompare(b.id))];
+  for (const order of orders) {
+    const candidate = routeDrawing(drawing, order);
+    const candidateScore = routingScore(candidate);
+    if (improves(candidateScore, score)) {
+      best = candidate;
+      score = candidateScore;
+    }
+  }
+  return best;
+}
+
+export function routeDrawing(
+  drawing: Drawing, wires = drawing.topology.wires, reuse?: Routing,
+): Routing {
   const ports = drawingPorts(drawing);
   const obstacles = Object.entries(drawing.positions).map(([id, { x, y, rotation }]): [string, Box] => {
     const vertical = rotation % 180 !== 0;
-    const w = vertical ? 22 : 31, h = vertical ? 31 : 22;
+    const component = drawing.topology.components.find(item => item.id === id);
+    const halfLength = (terminalOffsets[component?.kind ?? ""] ?? 29) + 4;
+    const w = vertical ? 22 : halfLength, h = vertical ? halfLength : 22;
     return [id, { left: x - w, right: x + w, top: y - h, bottom: y + h }];
   });
+  function obstaclesFor(from: string, to: string) {
+    const junctions = drawing.topology.junctions.flatMap((id): [string, Box][] => {
+      const p = drawing.junctionPositions[id];
+      if (!p || id === from || id === to) return [];
+      return [[id, { left: p.x - 2, right: p.x + 2, top: p.y - 2, bottom: p.y + 2 }]];
+    });
+    return [...obstacles, ...junctions];
+  }
   const paths: Record<string, Point[]> = Object.create(null);
   const unrouted: string[] = [];
-  for (const wire of drawing.topology.wires) {
+  // Reserve unaffected wires first. Moving a part can only invalidate paths at
+  // changed endpoints or through its new clearance box.
+  for (const wire of wires) {
+    const path = reuse?.paths[wire.id];
+    const from = ports.get(wire.from), to = ports.get(wire.to);
+    if (!path || !from || !to || !equal(path[0], from.pin) || !equal(path.at(-1)!, to.pin)) continue;
+    if (path.some((end, i) => i > 0 && obstaclesFor(wire.from, wire.to).some(([id, box]) =>
+      !(i === 1 && id === from.owner) && !(i === path.length - 1 && id === to.owner) &&
+      intersects(box, path[i - 1], end)))) continue;
+    paths[wire.id] = path;
+  }
+  for (const wire of wires) {
+    if (paths[wire.id]) continue;
     const from = ports.get(wire.from), to = ports.get(wire.to);
     const points = from && to && contains(bounds, from.escape) && contains(bounds, to.escape)
-      ? route(from, to, obstacles, Object.values(paths)) : null;
+      ? route(from, to, obstaclesFor(wire.from, wire.to), Object.values(paths)) : null;
     if (points) paths[wire.id] = points;
     else unrouted.push(wire.id);
   }

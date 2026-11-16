@@ -19,7 +19,7 @@ async function archive(page: Page, document: object) {
 }
 
 for (const version of [2, 3, 4, 5]) {
-  test(`opens a v${version} archive as an editable universal graph`, async ({ page }) => {
+  test(`opens a v${version} archive as an editable universal graph`, async ({ page }, testInfo) => {
     await page.goto(path);
     await expect(editor(page)).toHaveCount(1);
     await expect(page.locator("[data-network-canvas]")).toHaveCount(1);
@@ -51,7 +51,9 @@ for (const version of [2, 3, 4, 5]) {
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "JSON", exact: true }).click();
     const file = await download;
-    const exported = JSON.parse(await readFile((await file.path())!, "utf8"));
+    const savedPath = testInfo.outputPath("line-archive.json");
+    await file.saveAs(savedPath);
+    const exported = JSON.parse(await readFile(savedPath, "utf8"));
     expect(exported.circuit.model).toEqual({
       ...savedModel, sections: [{ ...savedModel.sections[0], lengthM: 750_000 }],
     });

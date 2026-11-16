@@ -125,7 +125,7 @@ test("inserts a diode into an RLC wire and changes a resistor value", async ({ p
   await expect(input).toHaveValue("220");
 });
 
-test("saves across reload, exports JSON, and rejects malformed import atomically", async ({ page }) => {
+test("saves across reload, exports JSON, and rejects malformed import atomically", async ({ page }, testInfo) => {
   await page.goto(route);
   await expect(editor(page)).toHaveAttribute("data-ready", "true");
   await page.getByRole("button", { name: "Пример RLC" }).click();
@@ -146,11 +146,13 @@ test("saves across reload, exports JSON, and rejects malformed import atomically
   page.once("dialog", dialog => dialog.accept());
   await page.getByRole("button", { name: "Очистить поле" }).click();
   await expect(component(page)).toHaveCount(0);
-  await imported.setInputFiles((await file.path())!);
+  const savedPath = testInfo.outputPath("circuit.json");
+  await file.saveAs(savedPath);
+  await imported.setInputFiles(savedPath);
   await expect(viewport).toHaveAttribute("data-circuit-nets", nets!);
 });
 
-test("exports a line diagram that the existing laboratory calculates", async ({ page }) => {
+test("exports a line diagram that the existing laboratory calculates", async ({ page }, testInfo) => {
   await page.goto(route);
   await expect(editor(page)).toHaveAttribute("data-ready", "true");
   await page.getByRole("button", { name: "Пример длинной линии" }).click();
@@ -163,7 +165,9 @@ test("exports a line diagram that the existing laboratory calculates", async ({ 
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
   const revision = await lab.getAttribute("data-model-revision");
   await page.getByRole("button", { name: "Ещё инструменты и справка" }).click();
-  await lab.locator('input[accept=".json,application/json"]').setInputFiles((await file.path())!);
+  const savedPath = testInfo.outputPath("circuit.json");
+  await file.saveAs(savedPath);
+  await lab.locator('input[accept=".json,application/json"]').setInputFiles(savedPath);
   await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
   await expect(lab).toHaveAttribute("data-method", "exact-fronts");
@@ -334,7 +338,7 @@ test("calculates an edited resistance event through the integrated Worker", asyn
   await expect(reading).toContainText(/16\s+В/);
 });
 
-test("shows per-device measurements for a reactive parallel load from the Worker", async ({ page }) => {
+test("shows per-device measurements for a reactive parallel load from the Worker", async ({ page }, testInfo) => {
   await page.goto(route);
   await expect(editor(page)).toHaveAttribute("data-ready", "true");
   await editor(page).getByRole("button", { name: "Пример длинной линии" }).click();
@@ -342,7 +346,9 @@ test("shows per-device measurements for a reactive parallel load from the Worker
   await editor(page).getByRole("button", { name: "Экспорт JSON" }).click();
   const download = await pending;
   const fs = await import("node:fs/promises");
-  const document = JSON.parse(await fs.readFile((await download.path())!, "utf8"));
+  const savedPath = testInfo.outputPath("circuit.json");
+  await download.saveAs(savedPath);
+  const document = JSON.parse(await fs.readFile(savedPath, "utf8"));
   document.topology.components.push({ id: "C1", kind: "c", terminals: ["C1:a", "C1:b"], parameters: { farad: 0.0001 } });
   document.topology.junctions.push("J1", "J2");
   document.topology.wires = [

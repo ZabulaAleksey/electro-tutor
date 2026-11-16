@@ -23,6 +23,7 @@
 - Проверка после слияния на `main` (`50dfab8`): 590 Vitest и 79 Chromium PASS, включая редактор, лабораторию и учебный релиз. Учебная сборка, Astro check, ESLint, context и Git diff PASS.
 - Routing qualification: 17 схем, повторное сравнение оптимизированных путей и netlist. Windows benchmark 0.18–27.94 ms. RLC: два пересечения устранены, нагруженные ветви: длина 1606 → 1566 при прежних поворотах и числе пересечений. В Chromium подтверждён Worker оптимизации шестисекционной схемы и сохранение netlist. Просмотрены кадры desktop, 320 px и редактирование штрихов на 390 px.
 - Verification limits: физический ввод и независимый корпус распознавания ведутся в ET-LAB-022. Проверка оптимизации ограничена измеренными схемами и браузерными сценариями.
+- ET-CIRCUIT-CI-DOWNLOADS: release verification repair. GitHub Pages run 43599889619 failed seven remote Chromium scenarios because Download.path() is unavailable over Playwright WebSocket. RED reproduced on the existing circuit import test. GREEN: all seven scenarios passed with the remote connection after saving JSON with Download.saveAs() in the test output directory. Same import, export, archive and solver assertions. Targeted ESLint and 590 Vitest tests passed. Production build and deployment are verified separately.
 - NEXT: complete
 
 ```master-execution

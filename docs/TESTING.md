@@ -1,5 +1,9 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## Circuit download compatibility in GitHub Pages CI
+
+Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.
+
 ## ET-CIRCUIT-001 — Circuit Engine
 
 - `pnpm test` проверяет топологию, 100 воспроизводимых перемещений, маршрутизацию, историю операций на уровне модели, JSON и адаптер к действующему решателю. Corpus: RLC, согласованная длинная линия, параллельные ветви, пересекающиеся провода, мост, кольцо и 12 резисторов с девятью соединениями и двумя зафиксированными компонентами. Набор дополнен источником с двумя длинными линиями, двумя нагруженными ветвями и восемью детерминированными графами. Для каждой схемы повторно сверяются топология, ортогональность и результат оптимизации.

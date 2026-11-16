@@ -4,7 +4,9 @@
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.
 
-GitHub Pages run 43956203495 passed the download scenarios but failed the board eraser scenario (365 Chromium passed, 6 skipped, 1 failed). The original straight-stroke test passed 12/12 locally. RED with a bent stroke reproduced the one-fragment failure because the bounding-box midpoint was off the path. The test now waits for the board and eraser to be ready and clicks the actual SVG midpoint in screen coordinates. All 54 remote Chromium checks passed across six repetitions of the board and workspace scenarios. The application is unchanged.
+GitHub Pages run 43956203495 passed the download scenarios but failed the board eraser scenario (365 Chromium passed, 6 skipped, 1 failed). The original straight-stroke test passed 12/12 locally. RED with a bent stroke reproduced the one-fragment failure because the bounding-box midpoint was off the path. The test now waits for the board and eraser to be ready and clicks the actual SVG midpoint in screen coordinates. All 54 remote Chromium checks passed across six repetitions of the board and workspace scenarios.
+
+[GitHub Pages run 43960006523](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/43960006523) passed full verification and deployment on 955bdb0. CI passed 590 Vitest and 366 Chromium checks, with six Chromium skips. Cloudflare Pages deployed the same commit (229b9827-2daf-4bbb-87c6-397967d0b686). Hosted Chromium verified Russian and Ukrainian and exported a four-component RLC circuit as JSON on electrotutor.org, electrotutor.pages.dev, and the /electro-tutor/ GitHub Pages mirror, with zero page errors.
 
 ## ET-CIRCUIT-001 — Circuit Engine
 

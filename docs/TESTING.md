@@ -4,6 +4,8 @@
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.
 
+GitHub Pages run 43956203495 passed the download scenarios but failed the board eraser scenario (365 Chromium passed, 6 skipped, 1 failed). The original straight-stroke test passed 12/12 locally. RED with a bent stroke reproduced the one-fragment failure because the bounding-box midpoint was off the path. The test now waits for the board and eraser to be ready and clicks the actual SVG midpoint in screen coordinates. All 54 remote Chromium checks passed across six repetitions of the board and workspace scenarios. The application is unchanged.
+
 ## ET-CIRCUIT-001 — Circuit Engine
 
 - `pnpm test` проверяет топологию, 100 воспроизводимых перемещений, маршрутизацию, историю операций на уровне модели, JSON и адаптер к действующему решателю. Corpus: RLC, согласованная длинная линия, параллельные ветви, пересекающиеся провода, мост, кольцо и 12 резисторов с девятью соединениями и двумя зафиксированными компонентами. Набор дополнен источником с двумя длинными линиями, двумя нагруженными ветвями и восемью детерминированными графами. Для каждой схемы повторно сверяются топология, ортогональность и результат оптимизации.

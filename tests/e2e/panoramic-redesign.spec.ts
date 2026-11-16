@@ -42,16 +42,32 @@ test("lossless surface, schematic and time section share boundary and parameter 
 
 test("local board draws, erases, undoes clear/erase, and exports actual SVG", async ({page},testInfo) => {
   const errors:string[]=[]; page.on("pageerror",e=>errors.push(e.message));
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ru/board/"); const board=page.locator("#engineering-board"), canvas=board.locator(".board-canvas");
+  await expect(board).toHaveAttribute("data-board-ready", "true");
   await canvas.scrollIntoViewIfNeeded(); const b=(await canvas.boundingBox())!;
   await page.mouse.move(b.x+b.width*.45,b.y+b.height*.45); await page.mouse.down();
-  await page.mouse.move(b.x+b.width*.6,b.y+b.height*.6,{steps:8}); await page.mouse.up();
+  await page.mouse.move(b.x+b.width*.65,b.y+b.height*.45,{steps:8});
+  await page.mouse.move(b.x+b.width*.65,b.y+b.height*.7,{steps:8}); await page.mouse.up();
   await expect(board.locator("[data-board-stroke]")).toHaveCount(1);
   await board.getByRole("button",{name:"Очистить",exact:true}).click(); await expect(board.locator("[data-board-stroke]")).toHaveCount(0);
   await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(board.locator("[data-board-stroke]")).toHaveCount(1);
-  await board.getByRole("button",{name:"Ластик",exact:true}).click();
-  const stroke=board.locator("[data-board-stroke]");const original=await stroke.getAttribute("points"); const sb=(await stroke.boundingBox())!;
-  await page.mouse.click(sb.x+sb.width/2,sb.y+sb.height/2); await expect(stroke).toHaveCount(2);
+  const eraser = board.getByRole("button", { name: "Ластик", exact: true });
+  await eraser.click();
+  await expect(eraser).toHaveAttribute("aria-pressed", "true");
+  await canvas.scrollIntoViewIfNeeded();
+  const stroke = board.locator("[data-board-stroke]");
+  const original = await stroke.getAttribute("points");
+  const { x, y } = await stroke.evaluate((polyline) => {
+    if (!(polyline instanceof SVGPolylineElement)) throw new Error("Board stroke is not a polyline");
+    const screenTransform = polyline.getScreenCTM();
+    if (!screenTransform) throw new Error("Board stroke has no screen transform");
+    const midpoint = polyline.getPointAtLength(polyline.getTotalLength() / 2);
+    const point = midpoint.matrixTransform(screenTransform);
+    return { x: point.x, y: point.y };
+  });
+  await page.mouse.click(x, y);
+  await expect(stroke).toHaveCount(2);
   await board.getByRole("button",{name:"↶ Отменить",exact:true}).click(); await expect(stroke).toHaveCount(1);await expect(stroke).toHaveAttribute("points",original!);
   const download=page.waitForEvent("download"); await board.getByRole("button",{name:"Сохранить SVG ↓",exact:true}).click();
   const saved=await download, file=testInfo.outputPath("board.svg"); await saved.saveAs(file); const text=await readFile(file,"utf8");

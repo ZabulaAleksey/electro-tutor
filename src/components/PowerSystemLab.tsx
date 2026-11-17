@@ -8,10 +8,12 @@ import {
   powerVoltagePresetsKv, resolveEffectivePowerType, selectPowerType, type PowerConfiguration,
 } from "../power-system/configuration";
 import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagram";
+import { normalizeLoad, normalizePowerSource } from "../power-system/injections";
 import type { PowerElement, PowerSource } from "../power-system/network";
 import type { Language } from "../types";
 import { TransformerEquivalentPanel } from "./TransformerEquivalentPanel";
 import { LineEquivalentPanel } from "./LineEquivalentPanel";
+import { PowerLoadParameters } from "./PowerLoadParameters";
 import PowerEquipmentParameters from "./PowerEquipmentParameters";
 import "./PowerSystemLab.css";
 
@@ -23,7 +25,7 @@ const copy = {
     tap: "Позиция отпайки", voltages: "Напряжение", target: "Узел или источник", preset: "Уровень напряжения",
     custom: "Своё значение", value: "Напряжение, kV", base: "Каталожные параметры", override: "Переопределено в этой схеме",
     importError: "Проверьте формат каталога, происхождение и ревизии типов.", error: "Проверьте параметры. Сохранено предыдущее значение.",
-    source: "Питающий источник", transformer: "Трансформатор", line: "Линия", load: "Нагрузка", switch: "Коммутационный аппарат",
+    angle: "Угол источника, °", source: "Питающий источник", transformer: "Трансформатор", line: "Линия", load: "Нагрузка", switch: "Коммутационный аппарат",
   },
   uk: {
     device: "Обладнання", type: "Тип обладнання", unassigned: "Тип не вибрано", import: "Імпорт типів JSON",
@@ -31,7 +33,7 @@ const copy = {
     tap: "Позиція відгалуження", voltages: "Напруга", target: "Вузол або джерело", preset: "Рівень напруги",
     custom: "Власне значення", value: "Напруга, kV", base: "Каталожні параметри", override: "Перевизначено в цій схемі",
     importError: "Перевірте формат каталогу, походження та ревізії типів.", error: "Перевірте параметри. Збережено попереднє значення.",
-    source: "Джерело живлення", transformer: "Трансформатор", line: "Лінія", load: "Навантаження", switch: "Комутаційний апарат",
+    angle: "Кут джерела, °", source: "Джерело живлення", transformer: "Трансформатор", line: "Лінія", load: "Навантаження", switch: "Комутаційний апарат",
   },
 };
 
@@ -82,6 +84,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   const overridden = configuration.overrides.has(equipmentId);
   const source = network.elements.find((element): element is PowerSource =>
     element.kind === "source" && "source:" + element.id === voltageTarget);
+  const loads = network.elements.filter(element => element.kind === "load");
   const bus = network.buses.find(candidate => "bus:" + candidate.id === voltageTarget);
   const displayedVoltage = source?.voltageKv ?? bus?.nominalKv ?? 110;
   const knownVoltage = powerVoltagePresetsKv.some(value => value === displayedVoltage);
@@ -93,7 +96,12 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   }
 
   function changeVoltage(voltageKv: number): boolean {
-    if (source) return changeElement(source.id, element => element.kind === "source" ? { ...element, voltageKv } : element);
+    if (source) {
+      const presetKv = powerVoltagePresetsKv.find(value => value === voltageKv);
+      return changeElement(source.id, element => element.kind === "source"
+        ? normalizePowerSource({ id: element.id, busId: element.busId, inService: element.inService, angleDeg: element.angleDeg,
+          ...(presetKv === undefined ? { voltageKv } : { presetKv }) }) : element);
+    }
     if (!bus) return false;
     return update(previous => changePowerNetwork(previous, {
       ...previous.network, buses: previous.network.buses.map(entry => entry.id === bus.id ? { ...entry, nominalKv: voltageKv } : entry),
@@ -200,10 +208,19 @@ export default function PowerSystemLab({ language }: { language: Language }) {
             </select></label>
             {(customVoltage || !knownVoltage) && <NumberField key={voltageTarget} label={words.value}
               value={displayedVoltage} onCommit={changeVoltage} />}
+            {source && <NumberField key={source.id + "-angle"} label={words.angle} value={source.angleDeg}
+              onCommit={angleDeg => changeElement(source.id, element => element.kind === "source"
+                ? normalizePowerSource({ ...element, angleDeg }) : element)} />}
           </div>
+          {source && <p data-power-source-angle={source.angleDeg}>{words.angle} {formatEngineeringNumber(source.angleDeg, language)}°</p>}
           <output data-power-voltage={displayedVoltage}>{formatEngineeringNumber(displayedVoltage, language)} kV</output>
         </section>
       </div>
+      {loads.map(load => <section className="power-panel power-load" key={load.id}>
+        <h2>{words.load} {load.id}</h2>
+        <PowerLoadParameters load={load} language={language} onApply={input => changeElement(load.id,
+          element => element.kind === "load" ? { ...element, ...normalizeLoad(input) } : element)} />
+      </section>)}
       {error && <p role="alert">{error}</p>}
     </div>
   </fieldset>;

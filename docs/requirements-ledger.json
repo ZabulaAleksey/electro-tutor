@@ -2909,18 +2909,28 @@
         "POWER-014",
         "POWER-015"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Canonical signed PQ loads and source phasors",
       "security": "Validate power factor, numerical range, and voltage selection",
       "a11y": "Bilingual input modes, labeled sign and computed Q before apply",
       "observability": "Accepted P, Q, source line voltage and angle",
       "action": "Enter the same signed reactive power in both modes and change the feeding phasor in the live network.",
-      "gap": "Stage 22 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/injections.ts",
+        "src/components/PowerLoadParameters.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/injections.test.ts"
+      ],
+      "integration": [
+        "src/power-system/injections.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-injections.spec.ts"
+      ]
     }
   ]
 }

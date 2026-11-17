@@ -27,3 +27,4 @@
 @media(max-width:420px){.power-equipment-parameters fieldset{grid-template-columns:minmax(0,1fr)}}
 .power-line-equivalent svg{display:block;width:100%;max-height:11rem;color:var(--ink)}
 .power-line-equivalent p{margin-top:.4rem}
+.power-load form{display:grid;gap:.65rem}

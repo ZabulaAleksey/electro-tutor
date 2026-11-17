@@ -1,0 +1,403 @@
+{
+  "stage": "ET-UNIVERSAL-000",
+  "source": "53793834d6e803b594bc210edcd339413aaa8e83",
+  "cloudflareDeployment": "22cc6eb6-0e39-4fe1-a376-baee1854ba52",
+  "githubPagesRun": 44038295894,
+  "hostedChromium": {
+    "browser": "151.0.7922.34",
+    "evidence": [
+      {
+        "name": "editor",
+        "layout": "desktop",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/circuit-editor/",
+        "status": 200,
+        "domContentLoadedMs": 121,
+        "horizontalOverflow": 0
+      },
+      {
+        "name": "line",
+        "layout": "desktop",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/transmission-line/",
+        "status": 200,
+        "domContentLoadedMs": 201,
+        "horizontalOverflow": 0
+      },
+      {
+        "name": "reactive",
+        "layout": "desktop",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/reactive-two-port/",
+        "status": 200,
+        "domContentLoadedMs": 119,
+        "horizontalOverflow": 0
+      },
+      {
+        "name": "editor",
+        "layout": "mobile",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/circuit-editor/",
+        "status": 200,
+        "domContentLoadedMs": 109,
+        "horizontalOverflow": 0
+      },
+      {
+        "name": "line",
+        "layout": "mobile",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/transmission-line/",
+        "status": 200,
+        "domContentLoadedMs": 159,
+        "horizontalOverflow": 0
+      },
+      {
+        "name": "reactive",
+        "layout": "mobile",
+        "url": "https://22cc6eb6.electrotutor.pages.dev/ru/interactive/reactive-two-port/",
+        "status": 200,
+        "domContentLoadedMs": 82,
+        "horizontalOverflow": 0
+      }
+    ]
+  },
+  "routing": {
+    "platform": "Windows, Node 22.23.1",
+    "minMs": 0.17,
+    "medianMs": 0.46,
+    "maxMs": 35.85,
+    "cases": [
+      {
+        "parts": 4,
+        "wires": 4,
+        "initial": [
+          0,
+          2,
+          8,
+          804
+        ],
+        "arranged": [
+          0,
+          0,
+          8,
+          804
+        ],
+        "elapsedMs": 35.85
+      },
+      {
+        "parts": 3,
+        "wires": 3,
+        "initial": [
+          0,
+          0,
+          8,
+          746
+        ],
+        "arranged": [
+          0,
+          0,
+          8,
+          726
+        ],
+        "elapsedMs": 6.39
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          1020
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          1020
+        ],
+        "elapsedMs": 0.48
+      },
+      {
+        "parts": 0,
+        "wires": 2,
+        "initial": [
+          0,
+          1,
+          0,
+          540
+        ],
+        "arranged": [
+          0,
+          1,
+          0,
+          540
+        ],
+        "elapsedMs": 0.17
+      },
+      {
+        "parts": 0,
+        "wires": 5,
+        "initial": [
+          0,
+          0,
+          4,
+          1190
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          1190
+        ],
+        "elapsedMs": 0.5
+      },
+      {
+        "parts": 0,
+        "wires": 5,
+        "initial": [
+          0,
+          0,
+          5,
+          1050
+        ],
+        "arranged": [
+          0,
+          0,
+          5,
+          1050
+        ],
+        "elapsedMs": 1.11
+      },
+      {
+        "parts": 12,
+        "wires": 9,
+        "initial": [
+          0,
+          0,
+          0,
+          603
+        ],
+        "arranged": [
+          0,
+          0,
+          0,
+          593
+        ],
+        "elapsedMs": 12.8
+      },
+      {
+        "parts": 4,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          10,
+          1028
+        ],
+        "arranged": [
+          0,
+          0,
+          10,
+          998
+        ],
+        "elapsedMs": 9.33
+      },
+      {
+        "parts": 5,
+        "wires": 6,
+        "initial": [
+          0,
+          0,
+          14,
+          1606
+        ],
+        "arranged": [
+          0,
+          0,
+          14,
+          1566
+        ],
+        "elapsedMs": 21.48
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          420
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          420
+        ],
+        "elapsedMs": 0.32
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          444
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          444
+        ],
+        "elapsedMs": 0.46
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          470
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          470
+        ],
+        "elapsedMs": 0.41
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          2,
+          417
+        ],
+        "arranged": [
+          0,
+          0,
+          2,
+          417
+        ],
+        "elapsedMs": 0.17
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          3,
+          431
+        ],
+        "arranged": [
+          0,
+          0,
+          3,
+          431
+        ],
+        "elapsedMs": 0.24
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          427
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          427
+        ],
+        "elapsedMs": 0.22
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          3,
+          430
+        ],
+        "arranged": [
+          0,
+          0,
+          3,
+          430
+        ],
+        "elapsedMs": 0.23
+      },
+      {
+        "parts": 0,
+        "wires": 4,
+        "initial": [
+          0,
+          0,
+          4,
+          446
+        ],
+        "arranged": [
+          0,
+          0,
+          4,
+          446
+        ],
+        "elapsedMs": 0.34
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "filename": "editor-desktop.png",
+      "width": 1280,
+      "height": 1301,
+      "sha256": "92b2741f4b2e7ee6db5805580ba36e4df9767b26419143fe0eda8bef2ae34405"
+    },
+    {
+      "filename": "editor-mobile.png",
+      "width": 390,
+      "height": 1163,
+      "sha256": "c0c17784c8b85b554f1a1474789e9f17b36ad1a6992406c7e0c9879c04d7f2a0"
+    },
+    {
+      "filename": "line-desktop.png",
+      "width": 1280,
+      "height": 4186,
+      "sha256": "d725c782b9bd0bda1b8c8465f6320656101849cadfe009dbf1c01bf4bf4c4df7"
+    },
+    {
+      "filename": "line-mobile.png",
+      "width": 390,
+      "height": 2799,
+      "sha256": "759977abe2938e0e53a2fbd047559a687cffac649e8625da7b9a01af281f88cc"
+    },
+    {
+      "filename": "reactive-desktop.png",
+      "width": 1280,
+      "height": 1506,
+      "sha256": "761bc059726989ab05618cfba7e60192cc3efc30b70fa700622907bb925ff6f5"
+    },
+    {
+      "filename": "reactive-mobile.png",
+      "width": 390,
+      "height": 2250,
+      "sha256": "ff5da714ee2c1635e121798eb74331b7a866edeabde1375b1737c963883d76f9"
+    }
+  ],
+  "githubPages": {
+    "deployment": 7847187452,
+    "conclusion": "success",
+    "unitPassed": 590,
+    "rootBrowserPassed": 366,
+    "rootBrowserSkipped": 6,
+    "productionBrowserPassed": 2,
+    "hostedSmoke": "passed"
+  }
+}

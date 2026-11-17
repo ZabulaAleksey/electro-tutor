@@ -1,5 +1,9 @@
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
+## ET-UNIVERSAL-000 — исходная проверка
+
+См. [результаты и ограничения прогонов](STAGES.md#et-universal-000--stage-0-baseline-snapshot) и [Chromium, трассировку и SHA-256 контрольных кадров](evidence/universal-labs-stage-0.json). Замеры трассировки основаны на 17 схемах. Браузерные метрики навигации — одно наблюдение на маршрут и viewport. Сенсорный профиль Chromium имеет ширину 390 px.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

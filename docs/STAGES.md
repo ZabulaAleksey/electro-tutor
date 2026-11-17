@@ -1,6 +1,27 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: final-qualification
+- Stage ID: ET-UNIVERSAL-000
+
+## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
+
+- Status: completed
+- Goal: воспроизводимая исходная точка для универсальных электрических лабораторий и сетей. Вход: чистый GitHub main 53793834d6e803b594bc210edcd339413aaa8e83 после интеграции 14 веток и публикации.
+- Launcher: ElectroTutor Master Prompt v2, редакция Google Drive от 2026-11-16, § 24, 28. Scope: baseline. Контракты: CE-001..008, LC-001..004, SPEC переходных процессов и pre-deploy quality gates.
+- Baseline: CircuitEditor хранит явные узлы, стабильные выводы и связность отдельно от координат. В браузере проверены RLC с четырьмя проводниками, RU/UK, готовность переходного расчёта линии и LC-двухполюсник с отдельным деревом соединений. Изменение C с 50 до 200 µF переносит нуль реактивности с 1000 до 500 rad/s. Синусоидальная длинная линия и расчёт сетей не найдены среди действующих маршрутов и солверов. Синтез Фостера/Кауэра выходит за текущий LC-контракт.
+- Reproduce: pnpm verify:full, pnpm backend:check, pnpm build и pnpm test:e2e:production-smoke. Для измерения трассировки: CIRCUIT_BENCHMARK=1 и pnpm exec vitest run src/circuit/routing-corpus.test.ts --disableConsoleIntercept --silent=false.
+- Windows: frozen restore, context, lint, Astro check (422 файла, 3 подсказки), 590 Vitest (82 файла), 13 независимых аналитических задач и 49 утверждений, root build 103 страницы, education build 98 страниц и production smoke 2/2. Параллельный Playwright: 360 PASS, 6 SKIP, 6 таймаутов. Эти шесть сценариев прошли последовательно на свежем root-артефакте с одним воркером. Аудит Node: 5 LOW, 7 MODERATE, HIGH gate PASS. Backend: 208 быстрых, 81 интеграционный и 9 проверок каталога PostgreSQL PASS, 2 интеграционных SKIP, API live/ready 200, Python runtime audit без находок.
+- GitHub Pages: [run 44038295894](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44038295894) verify и deploy PASS для 5379383. PostgreSQL и Python runtime audit PASS. 590 Vitest, 366 Chromium PASS, 6 SKIP, production smoke 2/2. Deployment 7847187452. Hosted Chromium подтвердил RU/UK, редактор RLC, расчёт линии и LC-резонанс под /electro-tutor/.
+- Cloudflare Pages: production 22cc6eb6-0e39-4fe1-a376-baee1854ba52, источник 5379383. Chromium 151 на [публичном домене](https://electrotutor.org/) и [точной выкладке](https://22cc6eb6.electrotutor.pages.dev/): RLC, готовый расчёт длинной линии и изменение резонанса LC PASS. Домен добавляет Cloudflare Insights. Страницы Pages alias совпадают с точной выкладкой на сверенных маршрутах.
+- Performance and visual evidence: [измерения и SHA-256 PNG](evidence/universal-labs-stage-0.json), 17 схем, 0,17–35,85 мс, медиана 0,46 мс на этом Windows-хосте. Шесть PNG на ширинах 1280 и 390 px. На трёх поверхностях горизонтальный overflow равен 0. Кадры длинной линии фиксируют частичное перекрытие органов управления закреплённой панелью воспроизведения и большую вертикальную дистанцию между схемой и эпюрами.
+- NEXT: complete
+- Next action: Stage 1 brief готов. Запуск ограничен Stage 0 по § 28.
+
+### Stage 1 brief — Inventory editor architecture
+
+- Рекомендуемая модель: CHEAP / Medium. Нужны прослеживание TypeScript/React точек входа, состояния, Worker и форматов документов и план переноса.
+- Цель: составить карту CircuitEditor → topology/drawing/document → адаптеры → Worker/solver → results. Сопоставить её с отдельным LC-деревом, перечислить допущения адаптера длинной линии и определить минимальный путь переиспользования редактора для остальных режимов.
+- Риски: произвольный граф шире области расчёта существующих солверов. При переносе нужно сохранить стабильные ID, события, измерения и действующие форматы line-v2..v5 и LC JSON.
+- Обязательные evals: проследить размещение RLC до netlist и JSON, архив линии до адаптера, Worker и показаний, изменение LC до Z(s) и частоты резонанса. Приложить входы, выходы, границы валидации и результаты существующих сценариев. Для PASS карта и план должны показать доказанные возможности, пробелы и первую обратимо проверяемую интеграцию без потери поддерживаемых документов.
 
 ## final-qualification
 

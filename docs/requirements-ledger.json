@@ -2476,6 +2476,23 @@
         "src/circuit/rlc-reduction.test.ts"
       ],
       "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-036"
+      ],
+      "status": "PLANNED",
+      "domain": "transmission-line",
+      "runtime": "Reduced free topology through the line Worker",
+      "security": "Explicit topology validation",
+      "a11y": "Localized calculation diagnostics",
+      "observability": "Original component results and worker readiness",
+      "gap": "Live Stage 7 evidence pending.",
+      "action": "Verify reduction, readings, restoring the graph and archived experiments.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

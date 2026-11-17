@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-006
+- Stage ID: ET-UNIVERSAL-007
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -85,18 +85,29 @@
 
 ## ET-UNIVERSAL-006 — Stage 6. RLC reduction engine
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 5 verified на f43490c. Входы: явный CircuitTopology, канонический netlist и физический контракт CE-013–015.
 - Goal: из неизменяемой схемы получить меньший расчётный граф эквивалентов R, L и C с соответствием исходным ID и направлениям.
 - Evals: потребитель строит реальный CircuitTopology, получает уменьшенный граф и проверяет эквивалент по независимым импедансам или через существующий решатель. Все шесть однородных соединений, полярность начальных состояний, запрещённый свёрткой внешний отвод, сохранность оригинала и явная диагностика.
 - Scope: редукция и вычислительная приёмка. Подключение сокращённого графа к переходной лаборатории проходит в Stage 7.
 - User actions: none
-- NEXT: stage6-reduction
+- Evidence: eval-first зафиксировал отсутствие редуктора. Затем 22 целевых и 630 полных Vitest PASS, 13 независимых инженерных задач и 49 утверждений PASS. Astro check, ESLint, production build и аудиты артефакта PASS. Реальный адаптер передал прежнюю цепочку и эквивалент решателю, совпали отсчёты напряжения и тока нагрузки. GitHub подтвердил 2542bba40213fb9f9b487223056f5e1a39f042b8.
+- NEXT: ET-UNIVERSAL-007
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, TRACEABILITY, Circuit Engine SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-007 — Stage 7. Transient solver integration
+
+- Status: in_progress
+- Entry: Stage 6 verified на 2542bba. Доступны явные электрические сети, сокращённая топология, связи эквивалентов и штатный Worker.
+- Goal: свободный граф переходной линии преобразуется и редуцируется до вызова реального Worker. Показания возвращаются на исходные компоненты.
+- Evals: новый граф с составной нагрузкой и входным ключом рассчитывается из редактора. Численный результат и исходные ID сохраняются при восстановлении. Неподдерживаемая топология и несовместимые начальные состояния явно диагностируются. Прежние эксперименты и архивы v2–v5 заново проверяются.
+- User actions: none
+- NEXT: stage7-worker
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 6,
+  "state_revision": 7,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -115,7 +126,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "f43490cdbd5f1d149e8afb00893d3c87ec92585e",
+      "checkpoint": "2542bba40213fb9f9b487223056f5e1a39f042b8",
       "ownership": [
         "src",
         "specs",
@@ -132,8 +143,8 @@
     {"id":"ET-UNIVERSAL-003","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Recursive branching","status":"verified","predecessors":["ET-UNIVERSAL-002"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"636154396b243b312ac49c581c0bfdd595430314","checkpoint_after":"74965923d8a23032f12ac0fed807b5e61446bdaf","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-004","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Shared mode adapter","status":"verified","predecessors":["ET-UNIVERSAL-003"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"74965923d8a23032f12ac0fed807b5e61446bdaf","checkpoint_after":"1c68dee5de43a026ac3b508b1eb867007ad4809c","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-006","CE-007","CE-012"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-005","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient default template and switching","status":"verified","predecessors":["ET-UNIVERSAL-004"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1c68dee5de43a026ac3b508b1eb867007ad4809c","checkpoint_after":"f43490cdbd5f1d149e8afb00893d3c87ec92585e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/transient/network.ts","src/transient/circuit-mode.ts","src/components/TransmissionNetworkLab.tsx"],"requirements":["CE-007","LINE-UX-034","LINE-UX-035"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-006","master_id":"ET-UNIVERSAL-MASTER-V2","title":"RLC reduction engine","status":"running","predecessors":["ET-UNIVERSAL-005"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f43490cdbd5f1d149e8afb00893d3c87ec92585e","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit/topology.ts","src/circuit/rlc-reduction.ts","src/circuit/rlc-reduction.test.ts"],"requirements":["CE-013","CE-014","CE-015"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"queued","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-006","master_id":"ET-UNIVERSAL-MASTER-V2","title":"RLC reduction engine","status":"verified","predecessors":["ET-UNIVERSAL-005"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f43490cdbd5f1d149e8afb00893d3c87ec92585e","checkpoint_after":"2542bba40213fb9f9b487223056f5e1a39f042b8","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit/topology.ts","src/circuit/rlc-reduction.ts","src/circuit/rlc-reduction.test.ts"],"requirements":["CE-013","CE-014","CE-015"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"running","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2542bba40213fb9f9b487223056f5e1a39f042b8","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-transient.spec.md","src/transient/circuit-adapter.ts","src/transient/line-archive-document.ts","src/components/TransmissionNetworkLab.tsx"],"requirements":["CE-007","LINE-UX-036"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"queued","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"queued","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"queued","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -169,7 +180,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Prove series and parallel RLC reduction on the calculation graph with topology and initial-state oracles.",
+  "next_action": "Connect the reduced electrical calculation graph to the live transient Worker and map readings to original components.",
   "integration": {
     "required": false,
     "reason": ""

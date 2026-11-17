@@ -87,7 +87,9 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
 }) {
   const copy = circuitCopy(language);
-  const [snapshot, setSnapshot] = useState<Snapshot>(() => parseCircuit(initial ?? mode.createDefaultDocument()));
+  const [editableSnapshot, setSnapshot] = useState<Snapshot>(() => parseCircuit(initial ?? mode.createDefaultDocument()));
+  const inspectionSnapshot = useMemo(() => inspectOnly && activeDocument ? parseCircuit(activeDocument) : null, [inspectOnly, activeDocument]);
+  const snapshot = inspectionSnapshot ?? editableSnapshot;
   const { drawing, routing, settings, title } = snapshot;
   const { width: boardWidth, height: boardHeight } = drawing.board ?? defaultBoard;
   const { grid, showGrid, zigzag, snap: alignToGrid } = settings;

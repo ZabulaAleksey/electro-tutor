@@ -3022,18 +3022,30 @@
         "POWER-022",
         "POWER-023"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Independent general AC mesh solver and physical network import",
       "security": "Bound document size and numerical effort, validate before replacing the live study",
       "a11y": "Bilingual import, diagnostics and scrollable result tables",
       "observability": "Reference phasor, terminal flows, series losses, mismatch and unpowered buses",
       "action": "Import a two-loop network and solve it, then reject invalid data and preserve the operating result.",
-      "gap": "Stage 26 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/ac-power-flow.ts",
+        "src/power-system/ac-linear-system.ts",
+        "src/power-system/layout.ts",
+        "src/components/ACPowerFlowPanel.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/ac-power-flow.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ac-power-flow.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-ac.spec.ts"
+      ]
     }
   ]
 }

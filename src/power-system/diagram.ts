@@ -25,9 +25,10 @@ const symbols: Record<PowerNetwork["elements"][number]["kind"], PartKind> = {
 
 export function createPowerDiagram(
   network: PowerNetwork, positions: Record<string, Placement>, busPositions: Record<string, Point>,
+  board: Drawing["board"] = { width: 780, height: 360 },
 ): string {
   let drawing: Drawing = {
-    board: { width: 780, height: 360 },
+    board,
     positions,
     junctionPositions: busPositions,
     topology: {

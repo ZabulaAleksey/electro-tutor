@@ -16,7 +16,7 @@ const conjugate = ({ re, im }: Complex): Complex => ({ re, im: -im });
 const power = (voltage: Complex, current: Complex): Complex => scale(multiplyComplex(voltage, conjugate(current)), 3);
 const finite = ({ re, im }: Complex): boolean => Number.isFinite(re) && Number.isFinite(im);
 
-type BranchModel = Readonly<{
+export type BranchModel = Readonly<{
   from: string; to: string; impedance: Complex; tap: Complex; shuntFrom: Complex; shuntTo: Complex;
 }>;
 type OrientedBranch = Readonly<{ id: string; parent: string; child: string; reverse: boolean; model: BranchModel;
@@ -33,7 +33,7 @@ export type RadialFlowResult = Readonly<{
   iterations: number; voltageResidualPu: number; powerBalanceErrorMva: number;
 }>;
 
-function branchModel(configuration: PowerConfiguration, branch: PowerBranch): BranchModel {
+export function buildPowerBranchModel(configuration: PowerConfiguration, branch: PowerBranch): BranchModel {
   const [from, to] = powerBranchEndpoints(branch);
   if (branch.kind === "switch") return { from, to, impedance: zero, tap: one, shuntFrom: zero, shuntTo: zero };
   try {
@@ -97,7 +97,7 @@ export function solveRadialFlow(configuration: PowerConfiguration, options: { ma
   const loads = new Map(island.busIds.map(id => [id, zero]));
   const nominalKv = new Map(study.physical.buses.map(bus => [bus.id, bus.nominalKv]));
   for (const id of island.branchIds) {
-    const model = branchModel(configuration, byId.get(id) as PowerBranch);
+    const model = buildPowerBranchModel(configuration, byId.get(id) as PowerBranch);
     adjacency.get(model.from)!.push({ id, model });
     adjacency.get(model.to)!.push({ id, model });
     shunts.set(model.from, addComplex(shunts.get(model.from)!, model.shuntFrom));

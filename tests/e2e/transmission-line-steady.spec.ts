@@ -20,12 +20,13 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
 
   await page.evaluate(() => document.fonts.ready);
   await current.scrollIntoViewIfNeeded();
-  const target = await current.evaluate(node => {
+  const positionOnPlot = await current.evaluate(node => {
     const svg = node as SVGSVGElement;
-    const point = new DOMPoint(62 + .64 * 342, 100).matrixTransform(svg.getScreenCTM()!);
-    return { x: point.x, y: point.y };
+    const bounds = svg.getBoundingClientRect();
+    const point = new DOMPoint(62 + .55 * 342, 100).matrixTransform(svg.getScreenCTM()!);
+    return { x: point.x - bounds.left, y: point.y - bounds.top };
   });
-  await page.mouse.click(target.x, target.y);
+  await current.click({ position: positionOnPlot });
   await expect.poll(async () => Number(await lab.getAttribute("data-coordinate"))).toBeGreaterThan(250000);
   const position = await lab.getAttribute("data-coordinate");
   expect(Number(position)).toBeLessThan(400000);

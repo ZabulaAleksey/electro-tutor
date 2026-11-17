@@ -147,4 +147,6 @@ LINE-AC-006–007 → transmission-line-steady SPEC → steady-line/phasors.ts +
 
 LC-005–007 → reactive-two-port SPEC → reactive-lc-mode.ts + reactive-lc-graph.ts + ReactiveLcGraphLab → reactive-lc-graph.test.ts + reactive-lc-graph.spec.ts.
 
-LC-008–009 → reactive-two-port SPEC → reactive-foster-i.ts + FosterIResults → reactive-foster-i.test.ts + reactive-foster-i.spec.ts.
+LC-008–009 → reactive-two-port SPEC → reactive-foster-i.ts + FosterResults → reactive-foster-i.test.ts + reactive-foster-i.spec.ts.
+
+LC-010–011 → reactive-two-port SPEC → reactive-foster-ii.ts + FosterResults → reactive-foster-ii.test.ts + reactive-foster-ii.spec.ts.

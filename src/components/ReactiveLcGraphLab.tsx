@@ -3,7 +3,7 @@ import CircuitEditor from "../circuit/CircuitEditor";
 import { reactiveLcMode } from "../circuit/reactive-lc-mode";
 import type { Language } from "../types";
 import { ReactiveImpedanceResults } from "./ReactiveImpedanceResults";
-import { FosterIResults } from "./FosterIResults";
+import { FosterResults } from "./FosterResults";
 import "./ReactiveTwoPortLab.css";
 
 const initialDocument = reactiveLcMode.createDefaultDocument();
@@ -71,7 +71,8 @@ export default function ReactiveLcGraphLab({ language }: { language: Language })
             <p>{copy.nodeCount} {result.nodeCount}. Yₗ = 1/(sL), Y꜀ = sC.</p>
             <p>Y(s)U(s) = I(s), Z(s) = U₁ / I₁.</p>
           </details>}
-          <FosterIResults result={result} cursor={cursor} language={language} />
+          <FosterResults result={result} cursor={cursor} language={language} form="i" />
+          <FosterResults result={result} cursor={cursor} language={language} form="ii" />
         </div>
       </div>
     </div>

@@ -2659,7 +2659,7 @@
       "action": "Re-evaluate synthesized elements at independent frequencies.",
       "code": [
         "src/models/reactive-foster-i.ts",
-        "src/components/FosterIResults.tsx",
+        "src/components/FosterResults.tsx",
         "src/components/ReactiveCircuitSchematic.tsx"
       ],
       "unit": [
@@ -2677,18 +2677,28 @@
         "LC-010",
         "LC-011"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "reactive-one-port",
       "runtime": "Foster II parallel realization",
       "security": "Finite positive synthesized component values",
       "a11y": "RU/UK admittance decomposition and accessible topology",
       "observability": "Comparison against original impedance using the synthesized branches",
       "action": "Verify admittance residues and rebuild the original reactance.",
-      "gap": "Stage 14 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/models/reactive-foster-ii.ts",
+        "src/components/FosterResults.tsx",
+        "src/components/ReactiveCircuitSchematic.tsx"
+      ],
+      "unit": [
+        "src/models/reactive-foster-ii.test.ts"
+      ],
+      "integration": [
+        "src/models/reactive-foster-ii.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/reactive-foster-ii.spec.ts"
+      ]
     }
   ]
 }

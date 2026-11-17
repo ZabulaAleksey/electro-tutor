@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-024
+- Stage ID: ET-UNIVERSAL-025
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -298,18 +298,30 @@
 
 ## ET-UNIVERSAL-024 — Stage 24. Simple ring preliminary flow
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 23 verified. Физический фидер рассчитывается с рабочими потерями и контролем сходимости.
 - Goal: определить предварительные P и Q в простом кольце как двухстороннем питании. Сравнить методы по длинам и комплексным сопротивлениям, показывать обратные направления и раздельные точки потокораздела. Сохранить условные разрезы без изменения проводящих соединений.
 - Evals: ручной однородный пример, комплексные веса для неоднородного примера, различающиеся разрезы P и Q, отрицательный знаковый поток и проверка связности. В браузере открыть живое кольцо и сравнить оба метода.
 - Deferred: уточнение с потерями, общая узловая модель, физическая коммутация.
 - User actions: none
-- NEXT: stage24-ring-preliminary
+- Evidence: 723 Vitest, 44 локальных и 24 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Оба метода дали одинаковые потоки в однородном примере, неоднородное кольцо сверено независимым комплексным расчётом. На L2 активная мощность −0,5 MW отображена B3 → B2, точки раздела P и Q различаются. Разрезы сохранили физический цикл. SHA 2074109a8bee19531debd9369f57f763df04846b. Preview https://f021372c.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-025
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-025 — Stage 25. Ring loss refinement
+
+- Status: in_progress
+- Entry: Stage 24 verified. Предварительные потоки, физическое кольцо и условные разрезы доступны в лаборатории.
+- Goal: условно разделить кольцо на два пути к выбранной шине, итерационно вычислить токи, потери, напряжения и баланс. Привести напряжения обоих путей к одному комплексному значению на разрезе.
+- Evals: показать ненулевые потери, пересчитать напряжения и проверить совпадение результатов при смене условного разреза. Отдельно проверить ограничение итераций и сохранение физического кольца. Browser E2E проходит тот же сценарий.
+- Deferred: независимый Ybus для многоконтурных сетей.
+- User actions: none
+- NEXT: stage25-ring-refinement
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 24,
+  "state_revision": 25,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -328,7 +340,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "4503884fcef12921ba7f18de9c15324e9e23c93c",
+      "checkpoint": "2074109a8bee19531debd9369f57f763df04846b",
       "ownership": [
         "src",
         "specs",
@@ -363,8 +375,8 @@
     {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"verified","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"aab8c10123bc1c4a97d488b559d8f1917518c303","checkpoint_after":"18c8c301294c026d291e66c072a83e8be700db4a","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/transformer-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-012","POWER-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"verified","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"18c8c301294c026d291e66c072a83e8be700db4a","checkpoint_after":"9303da6d25ff7bbe28b7854a917bbd02ed1b22cb","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/injections.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-014","POWER-015"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"verified","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"9303da6d25ff7bbe28b7854a917bbd02ed1b22cb","checkpoint_after":"4503884fcef12921ba7f18de9c15324e9e23c93c","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/radial-flow.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-016","POWER-017"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"running","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4503884fcef12921ba7f18de9c15324e9e23c93c","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-preliminary.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-018","POWER-019"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"queued","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"verified","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4503884fcef12921ba7f18de9c15324e9e23c93c","checkpoint_after":"2074109a8bee19531debd9369f57f763df04846b","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-preliminary.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-018","POWER-019"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"running","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2074109a8bee19531debd9369f57f763df04846b","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-refinement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-020","POWER-021"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"queued","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"queued","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"queued","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
@@ -382,7 +394,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Implement lossless preliminary ring flow, separate P and Q split points and mathematical cuts.",
+  "next_action": "Refine the two calculated feeding paths with branch losses and converge on a shared cut voltage.",
   "integration": {
     "required": false,
     "reason": ""

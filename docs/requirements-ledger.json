@@ -2965,14 +2965,14 @@
         "POWER-018",
         "POWER-019"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Lossless ring power by length or complex impedance",
       "security": "Validate simple topology, matched voltage bases and effective branch types",
       "a11y": "Bilingual results and independent keyboard cut selectors",
       "observability": "Directional signed P/Q, two splitting points and unchanged closed ring",
       "action": "Compare a live homogeneous ring by both methods and assign distinct P/Q study cuts.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/ring-preliminary.ts",
         "src/power-system/ring-example.ts",
@@ -2988,6 +2988,24 @@
       "e2e": [
         "tests/e2e/power-system-ring.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-020",
+        "POWER-021"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Loss-aware two-path ring iteration and live refinement",
+      "security": "Bound numerical work and validate closure and power balance",
+      "a11y": "Bilingual path and voltage tables with bounded scroll",
+      "observability": "Calculated split, terminal flows, actual losses, voltage mismatch and balance",
+      "action": "Solve the ring, change the calculation split, and confirm that physical branch connectivity and voltages remain consistent.",
+      "gap": "Stage 25 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

@@ -160,3 +160,5 @@ POWER-001–003 → power-system SPEC → power-system/network.ts + topology.ts 
 POWER-004–006 → power-system SPEC → power-system/catalogue.ts + network.ts + validation.ts → power-system/catalogue.test.ts.
 
 POWER-007–009 → power-system SPEC → PowerSystemLab + PowerEquipmentParameters + power-system/configuration.ts + diagram.ts → configuration.test.ts + power-system-config.spec.ts.
+
+POWER-010–011 → power-system SPEC → power-system/line-equivalent.ts + LineEquivalentPanel → line-equivalent.test.ts + power-system-line.spec.ts.

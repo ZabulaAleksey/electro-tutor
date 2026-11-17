@@ -10,6 +10,7 @@ import {
 import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagram";
 import type { PowerElement, PowerSource } from "../power-system/network";
 import type { Language } from "../types";
+import { LineEquivalentPanel } from "./LineEquivalentPanel";
 import PowerEquipmentParameters from "./PowerEquipmentParameters";
 import "./PowerSystemLab.css";
 
@@ -176,6 +177,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
               onApply={candidate => update(previous => applyPowerOverride(previous, device.id, candidate))}
               onReset={() => update(previous => clearPowerOverride(previous, device.id))} />
           </details>}
+          {device.kind === "line" && <LineEquivalentPanel configuration={configuration} lineId={device.id} language={language} />}
         </section>
         <section className="power-panel power-voltage">
           <h2>{words.voltages}</h2>

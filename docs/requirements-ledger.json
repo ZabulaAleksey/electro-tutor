@@ -2965,18 +2965,29 @@
         "POWER-018",
         "POWER-019"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Lossless ring power by length or complex impedance",
       "security": "Validate simple topology, matched voltage bases and effective branch types",
       "a11y": "Bilingual results and independent keyboard cut selectors",
       "observability": "Directional signed P/Q, two splitting points and unchanged closed ring",
       "action": "Compare a live homogeneous ring by both methods and assign distinct P/Q study cuts.",
-      "gap": "Stage 24 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/ring-preliminary.ts",
+        "src/power-system/ring-example.ts",
+        "src/components/RingFlowPanel.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/ring-preliminary.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ring-preliminary.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-ring.spec.ts"
+      ]
     }
   ]
 }

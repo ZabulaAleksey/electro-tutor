@@ -10,10 +10,12 @@ import {
 import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagram";
 import { normalizeLoad, normalizePowerSource } from "../power-system/injections";
 import type { PowerElement, PowerSource } from "../power-system/network";
+import { exampleRingConfiguration, exampleRingDiagram } from "../power-system/ring-example";
 import type { Language } from "../types";
 import { TransformerEquivalentPanel } from "./TransformerEquivalentPanel";
 import { LineEquivalentPanel } from "./LineEquivalentPanel";
 import { PowerLoadParameters } from "./PowerLoadParameters";
+import { RingFlowPanel } from "./RingFlowPanel";
 import { RadialFlowPanel } from "./RadialFlowPanel";
 import PowerEquipmentParameters from "./PowerEquipmentParameters";
 import "./PowerSystemLab.css";
@@ -21,7 +23,7 @@ import "./PowerSystemLab.css";
 const initial: PowerConfiguration = { network: examplePowerNetwork, catalogue: { schemaVersion: 1, types: [] }, overrides: new Map() };
 const copy = {
   ru: {
-    device: "Оборудование", type: "Тип оборудования", unassigned: "Тип не выбран", import: "Импорт типов JSON",
+    study: "Учебная сеть", radial: "Радиальная сеть", ring: "Кольцевая сеть", device: "Оборудование", type: "Тип оборудования", unassigned: "Тип не выбран", import: "Импорт типов JSON",
     advanced: "Дополнительно", length: "Длина, km", circuits: "Параллельные цепи", units: "Параллельные трансформаторы",
     tap: "Позиция отпайки", voltages: "Напряжение", target: "Узел или источник", preset: "Уровень напряжения",
     custom: "Своё значение", value: "Напряжение, kV", base: "Каталожные параметры", override: "Переопределено в этой схеме",
@@ -29,7 +31,7 @@ const copy = {
     angle: "Угол источника, °", source: "Питающий источник", transformer: "Трансформатор", line: "Линия", load: "Нагрузка", switch: "Коммутационный аппарат",
   },
   uk: {
-    device: "Обладнання", type: "Тип обладнання", unassigned: "Тип не вибрано", import: "Імпорт типів JSON",
+    study: "Навчальна мережа", radial: "Радіальна мережа", ring: "Кільцева мережа", device: "Обладнання", type: "Тип обладнання", unassigned: "Тип не вибрано", import: "Імпорт типів JSON",
     advanced: "Додатково", length: "Довжина, km", circuits: "Паралельні ланцюги", units: "Паралельні трансформатори",
     tap: "Позиція відгалуження", voltages: "Напруга", target: "Вузол або джерело", preset: "Рівень напруги",
     custom: "Власне значення", value: "Напруга, kV", base: "Каталожні параметри", override: "Перевизначено в цій схемі",
@@ -56,6 +58,8 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   const words = copy[language];
   const [configuration, setConfiguration] = useState(initial);
   const current = useRef(initial);
+  const [study, setStudy] = useState<"radial" | "ring">("radial");
+  const saved = useRef({ radial: initial, ring: exampleRingConfiguration });
   const [ready, setReady] = useState(false);
   const [equipmentId, setEquipmentId] = useState("L1");
   const [voltageTarget, setVoltageTarget] = useState("bus:B1");
@@ -75,6 +79,18 @@ export default function PowerSystemLab({ language }: { language: Language }) {
       setError(message);
       return false;
     }
+  }
+
+  function changeStudy(next: "radial" | "ring") {
+    if (next === study) return;
+    saved.current[study] = current.current;
+    current.current = saved.current[next];
+    setConfiguration(current.current);
+    setEquipmentId("L1");
+    setVoltageTarget("bus:B1");
+    setCustomVoltage(false);
+    setError("");
+    setStudy(next);
   }
 
   const network = configuration.network;
@@ -111,7 +127,14 @@ export default function PowerSystemLab({ language }: { language: Language }) {
 
   return <fieldset className="lab-hydration-guard" disabled={!ready}>
     <div className="power-workspace" data-power-ready={ready} data-power-device={device.id}>
-      <CircuitEditor language={language} embedded inspectOnly initial={examplePowerDiagram} selectedComponentId={equipmentId}
+      <section className="power-panel">
+        <label>{words.study}<select aria-label={words.study} value={study}
+          onChange={event => changeStudy(event.target.value === "ring" ? "ring" : "radial")}>
+          <option value="radial">{words.radial}</option><option value="ring">{words.ring}</option>
+        </select></label>
+      </section>
+      <CircuitEditor key={study} language={language} embedded inspectOnly
+        initial={study === "ring" ? exampleRingDiagram : examplePowerDiagram} selectedComponentId={equipmentId}
         extension={{
           onSelect(id) {
             if (id && devices.some(part => part.id === id)) setEquipmentId(id);
@@ -222,7 +245,8 @@ export default function PowerSystemLab({ language }: { language: Language }) {
         <PowerLoadParameters load={load} language={language} onApply={input => changeElement(load.id,
           element => element.kind === "load" ? { ...element, ...normalizeLoad(input) } : element)} />
       </section>)}
-      <RadialFlowPanel configuration={configuration} language={language} />
+      {study === "ring" ? <RingFlowPanel configuration={configuration} language={language} />
+        : <RadialFlowPanel configuration={configuration} language={language} />}
       {error && <p role="alert">{error}</p>}
     </div>
   </fieldset>;

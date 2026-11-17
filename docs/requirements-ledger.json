@@ -2881,18 +2881,28 @@
         "POWER-012",
         "POWER-013"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "HV-referred transformer equivalent and nominal losses",
       "security": "Reject inconsistent nameplate input and invalid tap",
       "a11y": "Bilingual keyboard disclosure and labeled transformer equivalent",
       "observability": "Series impedance, magnetizing shunt, ratio and separate losses",
       "action": "Select catalog transformer, change tap and parallel units, and compare equivalent and losses with independent values.",
-      "gap": "Stage 21 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/transformer-equivalent.ts",
+        "src/components/TransformerEquivalentPanel.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/transformer-equivalent.test.ts"
+      ],
+      "integration": [
+        "src/power-system/transformer-equivalent.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-transformer.spec.ts"
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-017
+- Stage ID: ET-UNIVERSAL-018
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -214,18 +214,30 @@
 
 ## ET-UNIVERSAL-017 — Stage 17. Power-system domain model
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 16 verified. LC-режим завершён. Общий редактор хранит связность независимо от геометрии.
 - Goal: версионированная физическая сеть из шин, питающих источников, линий, двухобмоточных трансформаторов, нагрузок и коммутационных аппаратов. Эксплуатационная связность отделена от расчётных разрезов.
 - Evals: импорт реального примера кольца и трансформаторной нагрузки, открытие аппарата сохраняет оборудование и меняет связность, исключённый трансформатор создаёт остров без питания, условные разрезы P и Q сохраняют физическую связность.
 - Deferred: каталог, UI и решатели потокораспределения.
 - User actions: none
-- NEXT: stage17-power-system-domain
+- Evidence: 5 целевых и 693 общих Vitest, check/lint/build PASS. Импорт кольца, физическое открытие аппарата, непитаемый остров и разрезы P/Q проверены через производственные доменные функции. Браузерный редактор выделен в поздние этапы. GitHub SHA c54ed7f94ed95641fbcfcea37b67f4cce846abb6.
+- NEXT: ET-UNIVERSAL-018
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, TRACEABILITY, SPEC электрических сетей, индекс SPEC и coverage ledger. Проверены README, ROADMAP, DESIGN, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-018 — Stage 18. Equipment catalog schema
+
+- Status: in_progress
+- Entry: Stage 17 verified. Физические устройства хранят идентификатор каталожного типа отдельно от электрической связности.
+- Goal: версионируемые типы линий и двухобмоточных трансформаторов с происхождением, проверкой параметров и пользовательскими записями.
+- Evals: указание точной версии, сохранение ссылки старого документа, выбор пользовательского типа, отклонение дубликатов, неполного происхождения и недопустимых паспортных данных.
+- Deferred: интерфейс каталога и вычисление схем замещения.
+- User actions: none
+- NEXT: stage18-equipment-catalogue
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 17,
+  "state_revision": 18,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -244,7 +256,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "ba3b37b7665c096dc15c01448bf47a1dab41ec15",
+      "checkpoint": "c54ed7f94ed95641fbcfcea37b67f4cce846abb6",
       "ownership": [
         "src",
         "specs",
@@ -272,8 +284,8 @@
     {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"verified","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d1f28815c4980ab0eb50b7d6e20ffc22863ae262","checkpoint_after":"f551934d20c52263876dc4fc5e4caa637226a647","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-foster-i.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-010","LC-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"verified","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f551934d20c52263876dc4fc5e4caa637226a647","checkpoint_after":"3e786989c158806f146defbba3711d82f242b0c5","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/lc-polynomial.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-012","LC-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"verified","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"3e786989c158806f146defbba3711d82f242b0c5","checkpoint_after":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-cauer-i.ts","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-014","LC-015","LC-016"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"running","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/circuit/topology.ts","src/power-system"],"requirements":["POWER-001","POWER-002","POWER-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"queued","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"verified","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","checkpoint_after":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/topology.ts","src/power-system"],"requirements":["POWER-001","POWER-002","POWER-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"running","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/network.ts","src/power-system/topology.ts"],"requirements":["POWER-004","POWER-005","POWER-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"queued","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -298,7 +310,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Build a versioned physical bus-and-equipment power network and derive its operating connectivity independently of calculation cuts.",
+  "next_action": "Define and validate revisioned line and transformer types with documented provenance and custom records.",
   "integration": {
     "required": false,
     "reason": ""

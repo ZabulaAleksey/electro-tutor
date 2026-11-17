@@ -2788,6 +2788,25 @@
         "src/power-system/topology.test.ts"
       ],
       "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "POWER-004",
+        "POWER-005",
+        "POWER-006"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Revisioned equipment catalogue and power equipment references",
+      "security": "Validated equipment parameters, catalogue revision identity and provenance",
+      "a11y": "Pure catalogue model, configuration UI scheduled in Stage 19",
+      "observability": "Documented origin and stable old and new revision lookup",
+      "action": "Resolve specific line and transformer revisions and validate provenance, parameters and user-defined entries.",
+      "gap": "Stage 18 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

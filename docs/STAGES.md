@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-031
+- Stage ID: ET-UNIVERSAL-032
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -382,18 +382,29 @@
 
 ## ET-UNIVERSAL-031 — Stage 31. Cross-mode regression
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 30 verified. Экраны сети и условные разрезы готовы для проверки вместе с лабораториями линий и LC.
 - Goal: проверить четыре явно определённых адаптера общего редактора. Сохранить отдельные палитры, начальные документы, расчётные требования и единый механизм связности.
 - Evals: один реальный CircuitEditor на каждом маршруте, переход из переходного режима в установившийся, изолированные палитры, корректные Z(s) и Ybus, отказ неподходящих документов. Проверить отсутствие регрессии свободного редактора.
 - Deferred: полный выпускной цикл.
 - User actions: none
-- NEXT: stage31-cross-mode
+- Evidence: 738 Vitest, 52 локальных и 32 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Все четыре режима прошли в одном сеансе. Подтверждены общий CircuitEditor, отдельные палитры и расчёты, отсутствие чужих элементов и отказ несовместимых документов. SHA 6ff79d26dff7a57822557c7a7b320e33108feff0. Preview https://37ffbf0e.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-032
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-032 — Stage 32. Production readiness
+
+- Status: in_progress
+- Entry: Stage 31 verified. Четыре режима проверены совместно, включая переключение длинной линии, LC и физические сети.
+- Goal: квалифицировать точный выпуск на Windows, довести штатный CI и развёртывания GitHub Pages и Cloudflare Pages, подтвердить фактический runtime, записать предыдущую точку и доказательство обратимости.
+- Evals: полный `pnpm verify:full`, основной GitHub workflow с backend, два независимых production hosts и smoke RU/UK, совпадение SHA, HTTP previous immutable и проверка обратного Git patch. Канонический статус синхронизируется после проверки эксплуатации.
+- User actions: none
+- NEXT: stage32-production-verification
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 31,
+  "state_revision": 32,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -412,7 +423,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "7c02894a627ff43f95c2a9d216c84c9ad4afd070",
+      "checkpoint": "6ff79d26dff7a57822557c7a7b320e33108feff0",
       "ownership": [
         "src",
         "specs",
@@ -454,8 +465,8 @@
     {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"verified","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","checkpoint_after":"0e74f380c378754ac0e805e34cf2ecf640edb041","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/power-system/flow-overlay.ts"],"requirements":["POWER-026","POWER-027"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"verified","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"0e74f380c378754ac0e805e34cf2ecf640edb041","checkpoint_after":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/normally-open.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-028","POWER-029"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"verified","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","checkpoint_after":"7c02894a627ff43f95c2a9d216c84c9ad4afd070","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-030","POWER-031"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"running","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"7c02894a627ff43f95c2a9d216c84c9ad4afd070","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/circuit/editor-mode.ts","src/circuit/CircuitEditor.tsx","tests/e2e/power-system-cross-mode.spec.ts"],"requirements":["POWER-032","POWER-033"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"queued","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
+    {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"verified","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"7c02894a627ff43f95c2a9d216c84c9ad4afd070","checkpoint_after":"6ff79d26dff7a57822557c7a7b320e33108feff0","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/editor-mode.ts","src/circuit/CircuitEditor.tsx","tests/e2e/power-system-cross-mode.spec.ts"],"requirements":["POWER-032","POWER-033"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"running","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"6ff79d26dff7a57822557c7a7b320e33108feff0","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","README.md","docs/ROADMAP.md","scripts/full-verify.mjs",".github/workflows/pages.yml"],"requirements":["POWER-034","POWER-035"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
   ],
   "blockers": [],
   "decisions": [],
@@ -466,7 +477,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Verify four distinct adapters share the same live editor and reject electrical data or part leakage between modes.",
+  "next_action": "Qualify the exact release, advance main, verify both production deployments and persist rollback evidence.",
   "integration": {
     "required": false,
     "reason": ""

@@ -3168,14 +3168,14 @@
         "POWER-032",
         "POWER-033"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Four isolated live adapters in one diagram editor",
       "security": "Reject mode-incompatible electrical inputs at their adapter boundaries",
       "a11y": "One usable editor and mode-owned controls on each route",
       "observability": "Explicit editor mode tag, palette and accepted calculation",
       "action": "Visit all four labs, observe their legitimate electrical outputs, and reject unrelated mode data.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/circuit/CircuitEditor.tsx",
         "src/circuit/editor-mode.ts",
@@ -3192,6 +3192,34 @@
       ],
       "e2e": [
         "tests/e2e/power-system-cross-mode.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-034",
+        "POWER-035"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "power-system",
+      "runtime": "Production build, CI, hosted smoke and audited rollback point",
+      "security": "Exact Git revision, high-severity dependency audit and existing publication gates",
+      "a11y": "Public RU/UK labs with functional browser smoke on both hosting bases",
+      "observability": "Exact release head, CI run, hosted deployment and rollback evidence",
+      "action": "Qualify the precise release, deploy using existing infrastructure and retest the actual hosted artifacts.",
+      "gap": "Production CI, hosted validation, and rollback evidence are pending.",
+      "code": [
+        "scripts/full-verify.mjs",
+        ".github/workflows/pages.yml"
+      ],
+      "unit": [
+        "src/power-system/editor-mode.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ac-power-flow.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-cross-mode.spec.ts",
+        "tests/e2e/education-release.spec.ts"
       ]
     }
   ]

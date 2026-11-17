@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatEngineeringNumber, formatEngineeringValue } from "../engineering/format";
 import type { LcPortAnalysis } from "../models/reactive-lc-graph";
 import { fosterIReactance, synthesizeFosterI, type FosterITerm } from "../models/reactive-foster-i";
@@ -28,6 +28,10 @@ export function FosterResults({ result, cursor, language, form }: {
   form: FosterForm;
 }) {
   const [open, setOpen] = useState(false);
+  const disclosure = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (disclosure.current?.open) setOpen(true);
+  }, []);
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
   const solution = useMemo(() => {
     if (!open || result.kind !== "finite") return null;
@@ -56,7 +60,7 @@ export function FosterResults({ result, cursor, language, form }: {
   const circuit = solution?.terms.map(asCircuit).reduce<Circuit | null>((left, right) =>
     left ? { kind: form === "i" ? "series" : "parallel", left, right } : right, null);
 
-  return <details className="lc-panel lc-foster" data-foster-i={form === "i" ? "" : undefined} data-foster-ii={form === "ii" ? "" : undefined} onToggle={event => setOpen(event.currentTarget.open)}>
+  return <details ref={disclosure} suppressHydrationWarning className="lc-panel lc-foster" data-foster-i={form === "i" ? "" : undefined} data-foster-ii={form === "ii" ? "" : undefined} onToggle={event => setOpen(event.currentTarget.open)}>
     <summary>{form === "i" ? t("Первая форма Фостера", "Перша форма Фостера") : t("Вторая форма Фостера", "Друга форма Фостера")}</summary>
     {result.kind !== "finite" && <p>{t("Для разомкнутого или закороченного порта синтез не требуется.",
       "Для розімкненого або закороченого порту синтез не потрібен.")}</p>}

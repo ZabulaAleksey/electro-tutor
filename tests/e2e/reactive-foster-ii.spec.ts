@@ -34,9 +34,22 @@ test("shows both Foster realizations for the same accepted bridge", async ({ pag
 
 test("opens the Ukrainian admittance realization at 390 px without widening the document", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const panel = document.querySelector<HTMLDetailsElement>("[data-foster-ii]");
+      if (!panel) return;
+      if (panel.closest("[data-lc-graph-ready=false]")) {
+        document.documentElement.dataset.fosterOpenedEarly = "true";
+        panel.open = true;
+      }
+      observer.disconnect();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  });
   await page.goto(route.replace("/ru/", "/uk/"));
+  await expect(page.locator("html")).toHaveAttribute("data-foster-opened-early", "true");
   const panel = page.locator("[data-foster-ii]");
-  await panel.getByText("Друга форма Фостера", { exact: true }).click();
+  await expect(panel.getByText("Друга форма Фостера", { exact: true })).toBeVisible();
   await expect(panel.getByRole("table", { name: "Номінали форми Фостера" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });

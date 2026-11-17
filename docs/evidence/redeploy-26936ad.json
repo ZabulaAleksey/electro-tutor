@@ -1,0 +1,27 @@
+{
+  "stage": "ET-NAV-006",
+  "scope": "explicit requested redeploy, identical public MVP",
+  "deployment": "f0d636b1-1d56-4a1d-85de-54de67ffa633",
+  "source": "26936ada3038e06594cf1aac593c023c0b3108b3",
+  "origin": "https://electrotutor.pages.dev",
+  "previous_safe_deployment": "7ba2859a-4b84-449a-8550-ba7084b9f3ef",
+  "fresh_build_files": 96,
+  "all96sha_identical_to_prior": true,
+  "public_200": 7,
+  "hidden_404_checks": 24,
+  "served_sha_exact_matches": 92,
+  "local_accepted_browser": "4/4 PASS",
+  "hosted_accepted_smoke": "3/3 PASS, no retries",
+  "pwa": {
+    "contentVersion": "689264eb202cf73d6b12",
+    "changed": false,
+    "same_production_context": true,
+    "unrelatedStorage": "KEEP",
+    "offlineLabHidden404": "PASS"
+  },
+  "previous_math_and_visual_evidence": "reused by exact96file equality; not rerun",
+  "configuration_dns_billing_backend_kernel_changes": false,
+  "push": false,
+  "receipts": "outputs/ElectroTutor_deploy_26936ad.md; work/run6_redeploy_26936ad",
+  "remaining": "existing Linux CI/manual/legal/video/dev-SSR scope remains separate"
+}

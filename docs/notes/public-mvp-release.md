@@ -176,3 +176,7 @@ SW получает fingerprint по содержимому финального
 ## Собственный домен позже
 
 Сначала подтвердить принадлежность имени и разрешение владельца. Добавить имя в Pages Custom domains до DNS; для subdomain внешнего DNS обычно нужен CNAME на `<project>.pages.dev`, для apex Cloudflare требует обслуживаемую зону. Эти действия и domain registration в RUN5 не выполняются. После выдачи TLS сменить SITE_URL, пересобрать/re-audit artifact, решить primary-host redirect/canonical и заново проверить SEO/PWA scope/storage: другой origin имеет отдельные caches/данные. Не обещать автоматический перенос локального прогресса между origins. Источник: [Custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/).
+
+## Исторический повторный выпуск RUN6
+
+Для ревизии "26936ad" Cloudflare Pages выпустил "f0d636b1". Все 96 артефактов совпали с предыдущим RUN6. Проверки 7 публичных и 24 скрытых маршрутов, 92 хешей отдаваемых файлов, 3 сценариев в браузере и офлайн PWA прошли. [Свидетельство](../evidence/redeploy-26936ad.json).

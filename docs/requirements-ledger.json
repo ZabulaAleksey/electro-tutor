@@ -2937,18 +2937,28 @@
         "POWER-016",
         "POWER-017"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Iterative radial branch flow and live bilingual results",
       "security": "Bound iteration and reject missing or nonphysical models",
       "a11y": "Readable bus and branch tables, keyboard-accessible narrow scrolling",
       "observability": "Branch losses, convergence iterations, voltage and independently calculated power balance",
       "action": "Configure two lines and transformer, solve the live network, and update one load to observe the voltage change.",
-      "gap": "Stage 23 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/radial-flow.ts",
+        "src/components/RadialFlowPanel.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/radial-flow.test.ts"
+      ],
+      "integration": [
+        "src/power-system/radial-flow.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-radial.spec.ts"
+      ]
     }
   ]
 }

@@ -14,6 +14,7 @@ import type { Language } from "../types";
 import { TransformerEquivalentPanel } from "./TransformerEquivalentPanel";
 import { LineEquivalentPanel } from "./LineEquivalentPanel";
 import { PowerLoadParameters } from "./PowerLoadParameters";
+import { RadialFlowPanel } from "./RadialFlowPanel";
 import PowerEquipmentParameters from "./PowerEquipmentParameters";
 import "./PowerSystemLab.css";
 
@@ -221,6 +222,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
         <PowerLoadParameters load={load} language={language} onApply={input => changeElement(load.id,
           element => element.kind === "load" ? { ...element, ...normalizeLoad(input) } : element)} />
       </section>)}
+      <RadialFlowPanel configuration={configuration} language={language} />
       {error && <p role="alert">{error}</p>}
     </div>
   </fieldset>;

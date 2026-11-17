@@ -166,3 +166,5 @@ POWER-010–011 → power-system SPEC → power-system/line-equivalent.ts + Line
 POWER-012–013 → power-system SPEC → power-system/transformer-equivalent.ts + TransformerEquivalentPanel → transformer-equivalent.test.ts + power-system-transformer.spec.ts.
 
 POWER-014–015 → power-system SPEC → power-system/injections.ts + PowerLoadParameters + PowerSystemLab → injections.test.ts + power-system-injections.spec.ts.
+
+POWER-016–017 → power-system SPEC → power-system/radial-flow.ts + RadialFlowPanel + PowerSystemLab → radial-flow.test.ts + power-system-radial.spec.ts.

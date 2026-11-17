@@ -28,3 +28,7 @@
 .power-line-equivalent svg{display:block;width:100%;max-height:11rem;color:var(--ink)}
 .power-line-equivalent p{margin-top:.4rem}
 .power-load form{display:grid;gap:.65rem}
+.power-flow-table{overflow-x:auto;margin-top:.65rem}
+.power-flow-table table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.power-flow-table caption,.power-flow-table :is(th,td){text-align:start;padding:.35rem .55rem;white-space:nowrap}
+.power-flow-table :is(th,td){border-bottom:1px solid var(--line)}

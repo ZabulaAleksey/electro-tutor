@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-011
+- Stage ID: ET-UNIVERSAL-012
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -143,17 +143,29 @@
 
 ## ET-UNIVERSAL-011 — Stage 11. Phasor inspection by coordinate
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 10 verified. Рассчитаны ABCD, локальные секции и граничное условие.
 - Goal: на живой RU/UK странице выбор x синхронизирует эпюры и векторы прямой, обратной и суммарной волн напряжения и тока.
 - Evals: независимые численные эталоны фазоров, случай с постоянными модулями двух волн и меняющейся суммой, соответствие координаты эпюр и векторов в браузере, работа применённой схемы из общего редактора.
 - User actions: none
-- NEXT: stage11-phasors
+- Evidence: Windows `pnpm verify:full` PASS для runtime d0c52299c9cd9e2e874f9cf6cf257f0b94b0132c, Chromium использовал сценарии из e143e70cdd60500b6dc9644bd48a8d6ca0fc2992. 666 Vitest, 377 Chromium, 6 предусмотренных пропусков, 2 production smoke, audit HIGH PASS. Исправлена гидратация SVG title в обеих локализациях. На [точном Cloudflare preview](https://2eb54caa.electrotutor.pages.dev/) 12 браузерных сценариев PASS, включая общий x и сохранение расчёта после отклонения схемы.
+- NEXT: ET-UNIVERSAL-012
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, частотная SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-012 — Stage 12. Reactive one-port Z(s)
+
+- Status: in_progress
+- Entry: Stage 11 verified. Общий CircuitEditor хранит связность отдельно от геометрии, действующая LC-лаборатория вычисляет точные Z(s) для последовательно-параллельного дерева.
+- Goal: между явно выбранной парой выводов произвольный граф идеальных L и C, включая мост. В RU/UK доступны точное Z(s), X(ω), конечные полюсы и нули и предельные режимы.
+- Evals: асимметричный мост из пяти ветвей с независимым расчётом по узловым напряжениям, отмена ненаблюдаемого резонанса, разомкнутый и замкнутый порт, правка графа и пересчёт в браузере, прежние LC-сценарии.
+- Deferred: эквивалентные реализации Фостера и Кауэра по отдельным этапам.
+- User actions: none
+- NEXT: stage12-lc-graph
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 11,
+  "state_revision": 12,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -172,7 +184,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "ac0175e97abe345ced7379aa24fcc3fbd06ca064",
+      "checkpoint": "e143e70cdd60500b6dc9644bd48a8d6ca0fc2992",
       "ownership": [
         "src",
         "specs",
@@ -194,8 +206,8 @@
     {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"verified","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4e88a5d0a350e8bebd3e39c73b9833b2449a437d","checkpoint_after":"1a664a3346208241c5e504f2da753c858fcb59c6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/components/TransmissionNetworkLab.tsx","src/components/TransmissionNetworkLab.css","src/engineering/EngineeringPlot.tsx"],"requirements":["LINE-UX-024","LINE-UX-037"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"verified","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1a664a3346208241c5e504f2da753c858fcb59c6","checkpoint_after":"60aa04d87aec6240c954a18050538ee2c98e7b13","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/line.test.ts","src/models/circular-diagram.ts"],"requirements":["LINE-AC-001","LINE-AC-002","LINE-AC-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"verified","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"60aa04d87aec6240c954a18050538ee2c98e7b13","checkpoint_after":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/cascade.ts"],"requirements":["LINE-AC-004","LINE-AC-005"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"running","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line","src/circuit/CircuitEditor.tsx"],"requirements":["LINE-AC-006","LINE-AC-007"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"queued","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"verified","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","checkpoint_after":"e143e70cdd60500b6dc9644bd48a8d6ca0fc2992","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line","src/circuit/CircuitEditor.tsx"],"requirements":["LINE-AC-006","LINE-AC-007"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"running","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"e143e70cdd60500b6dc9644bd48a8d6ca0fc2992","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-two-port.ts","src/circuit/CircuitEditor.tsx"],"requirements":["LC-005","LC-006","LC-007"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"queued","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"queued","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"queued","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -226,7 +238,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Expose loaded forward, reflected and total voltage/current phasors at a shared spatial coordinate.",
+  "next_action": "Solve an arbitrary two-terminal LC graph and expose its rational driving-point impedance on the live editor route.",
   "integration": {
     "required": false,
     "reason": ""

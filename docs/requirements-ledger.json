@@ -2588,13 +2588,13 @@
         "LINE-AC-006",
         "LINE-AC-007"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "transmission-line",
       "runtime": "Loaded signed phasors and local coordinate inspection",
       "security": "Bounded validated editor document",
       "a11y": "RU/UK plot, keyboard controls and numeric readings",
       "observability": "Shared coordinate and component phasors",
-      "gap": "Full verify and hosted browser evidence are pending.",
+      "gap": "None.",
       "action": "Verify physical phasors and edit→calculation→inspection.",
       "code": [
         "src/steady-line/phasors.ts",
@@ -2611,6 +2611,25 @@
       "e2e": [
         "tests/e2e/transmission-line-steady.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "LC-005",
+        "LC-006",
+        "LC-007"
+      ],
+      "status": "PLANNED",
+      "domain": "reactive-one-port",
+      "runtime": "Arbitrary two-terminal LC graph and exact driving-point impedance",
+      "security": "Bounded graph and documented component values",
+      "a11y": "RU/UK editor and keyboard-readable resonance results",
+      "observability": "Exact rational form, reactance, poles and zeros",
+      "gap": "Stage 12 browser evidence pending.",
+      "action": "Compare an asymmetric bridge against independent nodal values.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

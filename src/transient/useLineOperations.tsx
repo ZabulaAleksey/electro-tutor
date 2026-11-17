@@ -156,7 +156,8 @@ export function useLineOperations(props: Props): CircuitBoardExtension {
       case "span": return (tool && isTwoTerminal(tool) ? t("В разрыв линии", "У розрив лінії") : t("Вдоль линии", "Уздовж лінії")) + " · " + section;
       case "branch-span": return t("Шунт к опоре", "Шунт до опори") + " · " + section;
       case "branch": return t("Шунт к опоре", "Шунт до опори") + " · " + option.index;
-      case "joint": return t("Последовательный стык", "Послідовний стик") + " · " + option.index;
+      case "joint": return option.index === 0 ? t("Перед первой секцией", "Перед першою секцією") :
+        t("Последовательный стык", "Послідовний стик") + " · " + option.index;
       case "wire-insert": return t("В разрыв провода", "У розрив проводу") + " · " + option.index;
       case "branch-key": return t("Ключ в существующую ветвь", "Ключ у наявну гілку") + " · " + option.index;
       default: return t("Узел соединения", "Вузол з’єднання") + " · " + option.index;

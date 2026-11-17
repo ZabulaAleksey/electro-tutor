@@ -1,4 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
+import { useOpenLineDraft } from "./helpers/open-line-draft";
+
+test.beforeEach(async ({ page }) => useOpenLineDraft(page));
 
 const path = "/ru/interactive/transmission-line/";
 const canvas = (page: Page) => page.locator("[data-network-canvas]");

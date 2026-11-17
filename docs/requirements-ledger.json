@@ -2399,6 +2399,58 @@
         "tests/e2e/circuit-editor.spec.ts",
         "tests/e2e/transmission-archive-migration.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-034"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Direct termination selector",
+      "security": "Existing Network validation",
+      "a11y": "Localized native control",
+      "observability": "Model revision and calculation readiness",
+      "gap": "None in the termination selector scope.",
+      "action": "Run the termination scenario and legacy archive migration replay.",
+      "code": [
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/transient-ending.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-035"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Transient starter and ideal input switch",
+      "security": "Existing Network validation",
+      "a11y": "Localized existing switch fields",
+      "observability": "Model revision and calculation readiness",
+      "gap": "Full stage qualification tracked in STAGES.",
+      "action": "Verify the real Worker, archive replay and fresh template.",
+      "code": [
+        "src/transient/circuit-mode.ts",
+        "src/transient/network.ts",
+        "src/transient/network.worker.ts",
+        "src/transient/circuit-archive.ts",
+        "src/transient/NetworkInspector.tsx"
+      ],
+      "unit": [
+        "src/transient/network-stage5.test.ts",
+        "src/transient/network-edit.test.ts"
+      ],
+      "integration": [
+        "src/transient/circuit-archive.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/transient-starter.spec.ts",
+        "tests/e2e/transmission-archive-migration.spec.ts"
+      ]
     }
   ]
 }

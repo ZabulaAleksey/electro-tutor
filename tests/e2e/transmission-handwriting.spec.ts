@@ -1,5 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
+import { useOpenLineDraft } from "./helpers/open-line-draft";
+
+test.beforeEach(async ({ page }) => useOpenLineDraft(page));
 
 const route = "/ru/interactive/transmission-line/";
 const drawing = (page: Page) => page.getByRole("button", { name: "Рисовать схему", exact: true });
@@ -118,6 +121,7 @@ test("crossing touch strokes remain unconnected without explicit endpoints", asy
   const context = await browser.newContext({ hasTouch:true,isMobile:true,viewport:{width:390,height:844} });
   try {
     const page = await context.newPage();
+    await useOpenLineDraft(page);
     await page.goto(route);
     await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
     await drawing(page).tap();
@@ -147,6 +151,7 @@ test("the first touch on Insert commits the drawn wire between its terminals", a
   const context = await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
   try {
     const page = await context.newPage();
+    await useOpenLineDraft(page);
     await page.goto(route);
     await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
     await drawing(page).tap();
@@ -194,6 +199,7 @@ test("recognizes a straight touch stroke when the canvas shifts before release",
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   try {
     const page = await context.newPage();
+    await useOpenLineDraft(page);
     await page.goto(route);
     await expect(lab(page)).toHaveAttribute("data-calculation-ready", "true");
     await drawing(page).tap();
@@ -227,6 +233,7 @@ for (const returnToButton of [false,true]) {
     const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
     try {
       const page=await context.newPage();
+      await useOpenLineDraft(page);
       await page.goto(route);
       await expect(lab(page)).toHaveAttribute("data-calculation-ready","true");
       await drawing(page).tap();

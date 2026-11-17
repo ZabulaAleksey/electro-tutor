@@ -11,7 +11,7 @@ self.onmessage=({data:{id,config,reportDevices}}:MessageEvent<{id:number;config:
    worker.postMessage({id,progress:fraction});
   }});
   const buffers=new Set<Transferable>();
-  for(const {times,values} of [...run.ports,run.deviceEnergy]){
+  for(const {times,values} of [...run.ports,run.deviceEnergy,...(run.inputVoltage?[run.inputVoltage]:[])]){
    if(times instanceof Float64Array)buffers.add(times.buffer);
    if(values instanceof Float64Array)buffers.add(values.buffer);
   }

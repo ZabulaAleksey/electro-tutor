@@ -10,7 +10,7 @@ import EngineeringPlot from "../engineering/EngineeringPlot";
 import {engineeringAxis} from "../engineering/scale";
 import {formatEngineeringNumber as n,formatEngineeringValue} from "../engineering/format";
 import {localePath} from "../site-path";
-import {at,branchVoltage,contactClosed,contactsOf,estimateNetwork,hasLineLoss,historyValue,DEFAULT_NETWORK,findLoad,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
+import {at,branchVoltage,contactClosed,contactsOf,estimateNetwork,hasLineLoss,historyValue,DEFAULT_NETWORK,inputContact,findLoad,nodePort,simulateNetwork,spatial,timeTrace,totalLength,validateNetwork,type Network,type WaveRun} from "../transient/network";
 import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import { parseCircuit } from "../circuit/document";
 import { archivedPartId, detachedTemplate } from "../transient/circuit-archive";
@@ -24,6 +24,7 @@ import type { Ink } from "../engineering/handwriting";
 import {linkMatches,sameInkTarget,type InkLink,type InkTarget} from "../transient/network-ink";
 import "./TransmissionNetworkLab.css";
 const initialCircuit = transientCircuitMode.createDefaultDocument();
+const initialModel = transientCircuitMode.readModel(initialCircuit);
 type Document = {model:Network; layout:Layout; detached:DetachedPart[]; ink?:Ink[]; inkLinks?:(InkLink|null)[]; empty?:boolean; circuit?:string};
 const draftKey = "electrotutor-line-draft-v5";
 function withoutSectionLayout(layout: Layout, id: string): Layout {
@@ -36,7 +37,7 @@ type Limits={u:readonly[number,number];i:readonly[number,number]};
 const limits=(run:WaveRun):Limits=>({u:engineeringAxis(...run.rangeU,{includeZero:true,targetTicks:5}).domain,i:engineeringAxis(...run.rangeI,{includeZero:true,targetTicks:5}).domain});
 const speeds=Array.from({length:10},(_,index)=>2**(index-4));
 export default function TransmissionNetworkLab({language}:{language:Language}){
- const ru=language==="ru",[mounted,setMounted]=useState(false),[model,setModel]=useState<Network>(()=>structuredClone(DEFAULT_NETWORK)),[run,setRun]=useState<WaveRun>(()=>simulateNetwork(DEFAULT_NETWORK)),[time,setTime]=useState(0),[speed,setSpeed]=useState(1),[running,setRunning]=useState(false),[probe,setProbe]=useState(750000),[mode,setMode]=useState<"recalculate"|"live">("recalculate"),[domains,setDomains]=useState<Limits>(()=>limits(simulateNetwork(DEFAULT_NETWORK))),[busy,setBusy]=useState(true),[error,setError]=useState(""),[waves,setWaves]=useState(true),[layout,setLayout]=useState<Layout>({}),[selection,setSelection]=useState<Selection|null>(null),[revision,setRevision]=useState(0);
+ const ru=language==="ru",[mounted,setMounted]=useState(false),[model,setModel]=useState<Network>(()=>structuredClone(initialModel)),[run,setRun]=useState<WaveRun>(()=>simulateNetwork(initialModel)),[time,setTime]=useState(0),[speed,setSpeed]=useState(1),[running,setRunning]=useState(false),[probe,setProbe]=useState(750000),[mode,setMode]=useState<"recalculate"|"live">("recalculate"),[domains,setDomains]=useState<Limits>(()=>limits(simulateNetwork(initialModel))),[busy,setBusy]=useState(true),[error,setError]=useState(""),[waves,setWaves]=useState(true),[layout,setLayout]=useState<Layout>({}),[selection,setSelection]=useState<Selection|null>(null),[revision,setRevision]=useState(0);
  const [progress,setProgress]=useState(0),[retry,setRetry]=useState(0);
  const [durationDraft,setDurationDraft]=useState<string|null>(null),[timeZoom,setTimeZoom]=useState(1),[windowCenter,setWindowCenter]=useState(0);
  const voltagePlot=useRef<HTMLDivElement>(null);
@@ -48,7 +49,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const [circuit,setCircuit]=useState<string>(initialCircuit);
  const [editorSeed,setEditorSeed]=useState<string>(initialCircuit);
  const [editorRevision,setEditorRevision]=useState(0);
- const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:structuredClone(DEFAULT_NETWORK),layout:{},detached:[]}));const restore=useRef(false),failedRestore=useRef(false);
+ const [savedDocument,setSavedDocument]=useState(JSON.stringify({model:initialModel,layout:{},detached:[],circuit:initialCircuit}));const restore=useRef(false),failedRestore=useRef(false);
  const reportDevices = !empty;
  const worker=useRef<Worker|null>(null),request=useRef(0),preserve=useRef(false),timeRef=useRef(0),speedRef=useRef(1),past=useRef<Document[]>([]),future=useRef<Document[]>([]),file=useRef<HTMLInputElement>(null);
  useEffect(()=>{timeRef.current=time;},[time]);useEffect(()=>{speedRef.current=speed;},[speed]);
@@ -160,6 +161,16 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   const prior=model.events.filter(e=>e.target===id&&e.atS<=time).sort((a,b)=>a.atS-b.atS).at(-1)?.value??findLoad(model.load,id)?.value??Number(findLoad(model.load,id)?.closed??true);
   edit({...model,events:[...model.events.filter(e=>!(e.target===id&&Math.abs(e.atS-time)<1e-12)),{id:`event-${Date.now()}`,atS:time,target:id,kind,value,previous:prior}]},true);
  }
+ const ending = model.load.kind === "open" ? "open" :
+  model.load.kind === "wire" || model.load.kind === "r" && model.load.value === 0 ? "short" : "load";
+ function changeEnding(value: string) {
+  if (empty || value === ending) return;
+  const { id, children } = model.load;
+  if (children?.length && !window.confirm(ru?"Заменить концевую нагрузку и её вложенные элементы?":"Замінити кінцеве навантаження та вкладені елементи?")) return;
+  if (value === "load") changeLoad({ id, kind: "r", value: model.sections.at(-1)!.impedanceOhm });
+  if (value === "short") changeLoad({ id, kind: "wire" });
+  if (value === "open") changeLoad({ id, kind: "open" });
+ }
  function changeLoad(load:Network["load"]){
   if(mode==="live"&&time>0){
    const all=(item:Network["load"]):Network["load"][]=>[item,...(item.children?.flatMap(all)??[])];
@@ -202,7 +213,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const numericErrors=empty?[]:validateNetwork(model),valid=!empty&&mounted&&!numericErrors.length&&!busy&&!error&&JSON.stringify(run.config)===JSON.stringify(model);
  const documentValue=JSON.stringify({model,layout,detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{}),...(circuit?{circuit}:{})});
  const activeArchiveEquivalent = useMemo(() => matchesLineCircuit(circuit, model), [circuit, model]);
- const version5=!activeArchiveEquivalent||model.source.currentA!==undefined||ink.length>0||empty||detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||key.startsWith("@rot-")||value<50||value>110)||
+ const version5=!!inputContact(model)||!activeArchiveEquivalent||model.source.currentA!==undefined||ink.length>0||empty||detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||key.startsWith("@rot-")||value<50||value>110)||
   (contactsOf(model).some(link=>link.component)||hasLineLoss(model));
  const inspectedDiode=selected?.kind==="contact"?contactsOf(model).find(link=>link.id===selected.id):undefined;
  const diodePoint=!valid?undefined:inspectedDiode?.component?.kind==="diode"?
@@ -411,6 +422,14 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
        setSelection(null);
       }catch(error){setActionError(networkError(String(error),language));}finally{e.target.value="";}
      }}/><a href={localePath(language,"/interactive/transmission-line-reference/")}>{ru?"Справка":"Довідка"}</a></div>
+    <label className="network-field">
+     <span>{ru?"Окончание линии":"Закінчення лінії"}</span>
+     <select value={ending} disabled={empty} onChange={event=>changeEnding(event.target.value)}>
+      <option value="load">{ru?"Нагрузка":"Навантаження"}</option>
+      <option value="short">{ru?"Короткое замыкание":"Коротке замикання"}</option>
+      <option value="open">{ru?"Обрыв":"Обрив"}</option>
+     </select>
+    </label>
     <p><strong>{ru?"Как распространяются волны":"Як поширюються хвилі"}</strong></p>
     <p>{ru?"Напряжение U = U⁺ + U⁻, ток I = (U⁺ − U⁻) / Z₀. При согласованной нагрузке отражённая волна отсутствует."
      :"Напруга U = U⁺ + U⁻, струм I = (U⁺ − U⁻) / Z₀. За узгодженого навантаження відбита хвиля відсутня."}</p>

@@ -1,5 +1,8 @@
 import { readFile } from "node:fs/promises";
 import {expect,test} from "@playwright/test";
+import { useOpenLineDraft } from "./helpers/open-line-draft";
+
+test.beforeEach(async ({ page }) => useOpenLineDraft(page));
 const url="/ru/interactive/transmission-line/";
 const scheme=(page:import("@playwright/test").Page)=>page.locator("[data-network-canvas]");
 const openTiming=async(page:import("@playwright/test").Page)=>{

@@ -1,9 +1,21 @@
 import { DEFAULT_DIODE, diodeCurrent } from "./line-diode";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_NETWORK, MAX_SECTIONS, at, simulateNetwork, validateNetwork } from "./network";
-import { appendSection, placementTargets, removeSection } from "./network-edit";
+import { DEFAULT_NETWORK, MAX_SECTIONS, STARTER_NETWORK, at, simulateNetwork, validateNetwork } from "./network";
+import { appendSection, placementTargets, removeSection, splitSection } from "./network-edit";
 
 describe("visual network operations", () => {
+  it("preserves the separate input-switch node as sections change", () => {
+    const appended = appendSection(STARTER_NETWORK).model;
+    const split = splitSection(appended, 0);
+    const removed = removeSection(split, 2);
+    expect(appended.series?.[0].to).toBe(4);
+    expect(split.series?.[0].to).toBe(6);
+    expect(removed).toMatchObject({ model: { series: [{ from: 0, to: 4 }] } });
+    expect(validateNetwork(split)).toEqual([]);
+    const inlet = placementTargets(DEFAULT_NETWORK, "switch").find(target => target.kind === "joint" && target.index === 0);
+    expect(inlet?.edit?.model.series).toEqual([expect.objectContaining({ from: 0, to: 2, switch: { closed: false } })]);
+  });
+
   it("splits a section without moving existing connections or changing total delay", () => {
     const model = { ...DEFAULT_NETWORK, source: { ...DEFAULT_NETWORK.source, node: 1 }, shunts: [{ node: 1, resistanceOhm: 75 }] };
     const targets = placementTargets(model, "shunt");

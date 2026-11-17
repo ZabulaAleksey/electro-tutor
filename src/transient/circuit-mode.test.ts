@@ -3,7 +3,7 @@ import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "../circu
 import { demoDrawing, emptyDrawing, lineDemoDrawing } from "../circuit/drawing";
 import { circuitPartKinds, freeCircuitMode } from "../circuit/editor-mode";
 import { transientCircuitMode } from "./circuit-mode";
-import { DEFAULT_NETWORK } from "./network";
+import { STARTER_NETWORK } from "./network";
 
 it("gives the free editor an empty document and the generic palette", () => {
   const { drawing } = parseCircuit(freeCircuitMode.createDefaultDocument());
@@ -11,9 +11,9 @@ it("gives the free editor an empty document and the generic palette", () => {
   expect(freeCircuitMode.availableParts(drawing)).toEqual(circuitPartKinds);
 });
 
-it("opens the existing transient template and validates a free-form line graph", () => {
+it("opens the transient starter template and validates a free-form line graph", () => {
   const initial = transientCircuitMode.createDefaultDocument();
-  expect(transientCircuitMode.readModel(initial)).toEqual(DEFAULT_NETWORK);
+  expect(transientCircuitMode.readModel(initial)).toEqual(STARTER_NETWORK);
   expect(transientCircuitMode.availableParts(parseCircuit(initial).drawing)).toEqual([]);
   const line = lineDemoDrawing();
   expect(transientCircuitMode.availableParts(line)).toEqual(circuitPartKinds);

@@ -3,7 +3,7 @@ import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "../circu
 import { circuitToArchivedNetwork, networkToCircuit } from "./circuit-archive";
 import { readLineArchive } from "./line-archive-document";
 import { DEFAULT_DIODE } from "./line-diode";
-import { DEFAULT_NETWORK, validateNetwork, type Network } from "./network";
+import { DEFAULT_NETWORK, STARTER_NETWORK, validateNetwork, type Network } from "./network";
 
 const open = structuredClone(DEFAULT_NETWORK);
 const reactive: Network = {
@@ -35,12 +35,22 @@ const bridge: Network = { ...open, sections: [...open.sections, { ...open.sectio
   branches: [{ id: "Path", from: 0, to: 1 }],
 };
 describe("archive graph migration", () => {
-  it.each([open, reactive, scheduled, bridge])("survives universal JSON without altering the physical model", model => {
+  it.each([open, reactive, scheduled, bridge, STARTER_NETWORK])("survives universal JSON without altering the physical model", model => {
     expect(validateNetwork(model)).toEqual([]);
     const drawing = networkToCircuit(model);
     const restored = parseCircuit(serializeCircuit(drawing, defaultCircuitSettings));
     expect(circuitToArchivedNetwork(restored.drawing)).toEqual(model);
     expect(restored.routing.unrouted).toEqual([]);
+  });
+
+  it("requires v5 for input switches and restores them with separate terminal nets", () => {
+    const model = STARTER_NETWORK;
+    const circuit = serializeCircuit(networkToCircuit(model), defaultCircuitSettings);
+    for (const version of [2, 3, 4]) {
+      expect(() => readLineArchive(JSON.stringify({ schema: "electrotutor-line-v" + version, model, circuit }))).toThrow("schema");
+    }
+    const archived = readLineArchive(JSON.stringify({ schema: "electrotutor-line-v5", model, circuit }));
+    expect(circuitToArchivedNetwork(parseCircuit(archived.circuit).drawing)).toEqual(model);
   });
 
   it("reads an edited parameter and refuses to reuse connectivity from disconnected pins", () => {

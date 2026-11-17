@@ -232,11 +232,11 @@ function SwitchFields({language,duration,closed,atS,closes,canSchedule,onChange}
  const t=(ru:string,uk:string)=>language==="ru"?ru:uk;
  return <div className="network-inspector-fields">
   <label className="network-field">{t("Начальное состояние","Початковий стан")}
-   <select value={String(closed)} onChange={e=>onChange({closed:e.target.value==="true",atS,closes})}>
+   <select value={String(closed)} onChange={e=>onChange({closed:e.target.value==="true",...(atS===undefined?{}:{atS,closes})})}>
     <option value="false">{t("Разомкнут","Розімкнений")}</option><option value="true">{t("Замкнут","Замкнений")}</option>
    </select></label>
   <label><input type="checkbox" checked={atS!==undefined} disabled={!canSchedule}
-    onChange={e=>onChange({closed,atS:e.target.checked?duration/2:undefined,closes:!closed})}/>{t("Коммутация","Комутація")}</label>
+    onChange={e=>onChange(e.target.checked?{closed,atS:duration/2,closes:!closed}:{closed})}/>{t("Коммутация","Комутація")}</label>
   {!canSchedule&&<small>{t("Коммутация доступна для резистивных цепей.","Комутація доступна для резистивних кіл.")}</small>}
   {atS!==undefined&&<>
    <NumberEdit label={t("Время коммутации, мс","Час комутації, мс")} value={atS*1000} min={0} max={duration*1000}

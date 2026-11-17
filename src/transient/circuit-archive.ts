@@ -4,7 +4,7 @@ import { clearGeometry, routeDrawing } from "../circuit/routing";
 import type { Layout } from "./NetworkEditor";
 import type { DetachedPart, Selection } from "./network-edit";
 import { DEFAULT_DIODE, type DiodeParameters } from "./line-diode";
-import { validateNetwork, type Contact, type Load, type ModelEvent, type Network, type Section } from "./network";
+import { inputContact, validateNetwork, type Contact, type Load, type ModelEvent, type Network, type Section } from "./network";
 
 const adapterId = "transmission-line";
 type Pins = readonly [string, string];
@@ -59,7 +59,11 @@ function contactParameters(contact: Contact): [PartKind, Record<string, Paramete
     return [kind, { [valueKeys[kind]]: value, ...(initial === undefined ? {} : { initial }) }];
   }
   if (contact.switch) {
-    return ["switch", { ...contact.switch, ...(contact.resistanceOhm === undefined ? {} : { contactOhm: contact.resistanceOhm }) }];
+    const { closed, atS, closes } = contact.switch;
+    return ["switch", { closed,
+      ...(atS === undefined ? {} : { atS, closes: closes! }),
+      ...(contact.resistanceOhm === undefined ? {} : { contactOhm: contact.resistanceOhm }),
+    }];
   }
   return contact.resistanceOhm === undefined ? ["bridge", {}] : ["r", { ohm: contact.resistanceOhm }];
 }
@@ -91,7 +95,8 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
   const source = newId("source");
   const count = model.sections.length;
   const reference = junction();
-  const nodes = Array.from({ length: count * 2 }, junction);
+  const input = inputContact(model);
+  const nodes = Array.from({ length: count * 2 + Number(!!input) }, junction);
   const pins: Record<string, Pins> = Object.create(null);
 
   function part(id: string, kind: PartKind, parameters: Record<string, Parameter>, from: string, to: string) {
@@ -109,7 +114,7 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
   }, nodes[node], reference);
 
   model.sections.forEach(({ id, ...parameters }, i) => {
-    const from = model.series?.some(contact => contact.from === i) ? count + i : i;
+    const from = model.series?.find(contact => contact.from === i)?.to ?? i;
     part(id, "line", parameters, nodes[from], nodes[i + 1]);
   });
   for (const link of [...model.series ?? [], ...model.branches ?? []]) {
@@ -168,6 +173,17 @@ export function networkToCircuit(model: Network, layout: Layout = {}, detached: 
   model.sections.forEach((section, i) => positions[section.id] = { x: 145 + i * 130, y: 105, rotation: 0 });
   const others = drawing.topology.components.filter(part => part.kind !== "line" || !model.sections.some(section => section.id === part.id));
   others.forEach(({ id }, i) => { positions[id] = { x: 145 + i % 4 * 130, y: 200 + Math.floor(i / 4) * 118, rotation: 0 }; });
+  if (input && model.source.node === 0 && count === 1 &&
+      others.length === 3 && !model.load.children?.length) {
+    positions[source] = { x: 90, y: 185, rotation: 90 };
+    positions[input.id] = { x: 220, y: 100, rotation: 0 };
+    positions[model.sections[0].id] = { x: 395, y: 100, rotation: 0 };
+    positions[model.load.id] = { x: 525, y: 185, rotation: 90 };
+    junctionPositions[nodes[0]] = { x: 90, y: 100 };
+    junctionPositions[nodes[input.to]] = { x: 310, y: 100 };
+    junctionPositions[nodes[1]] = { x: 525, y: 100 };
+    junctionPositions[reference] = { x: 310, y: 265 };
+  }
   const data: LineBinding = { version: 1, source, sections: model.sections.map(part => part.id),
     ...(model.series ? { series: model.series.map(part => part.id) } : {}),
     ...(model.branches ? { branches: model.branches.map(part => part.id) } : {}),
@@ -280,15 +296,15 @@ export function circuitToArchivedNetwork(drawing: Drawing): Network {
     throw Error("invalid-archive-binding");
   }
   const sections = idList(data.sections, 6);
-  const nodes = idList(data.nodes, 12);
+  const nodes = idList(data.nodes, 13);
   if (data.detached !== undefined) idList(data.detached, 64);
-  const series = data.series === undefined ? undefined : idList(data.series, 5);
+  const series = data.series === undefined ? undefined : idList(data.series, 6);
   const branches = data.branches === undefined ? undefined : idList(data.branches, 12);
   const shunts = idList(data.shunts, 7);
   const pins = data.pins;
   if (Object.keys(pins).length > 64) throw Error("invalid-archive-binding");
   const junctions = new Set(drawing.topology.junctions);
-  if (nodes.length !== sections.length * 2 || !junctions.has(data.reference) ||
+  if (![sections.length * 2, sections.length * 2 + 1].includes(nodes.length) || !junctions.has(data.reference) ||
       nodes.includes(data.reference) || nodes.some(node => !junctions.has(node))) throw Error("invalid-archive-binding");
   const nets = new Map(netlist(drawing.topology).flatMap((net, i) => net.map(id => [id, i] as const)));
   const anchors = [...new Set([data.reference, ...nodes, ...Object.values(pins).flatMap(pair => idList(pair, 2))])];
@@ -372,6 +388,7 @@ export function circuitToArchivedNetwork(drawing: Drawing): Network {
   }
   const errors = validateNetwork(model);
   if (errors.length) throw Error(errors.join("; "));
+  if (nodes.length !== sections.length * 2 + Number(!!inputContact(model))) throw Error("invalid-archive-binding");
   // Lab binding is untrusted JSON. Re-derive the expected terminal groups from
   // the decoded model and reject any binding that disagrees with actual nets.
   const canonical = networkToCircuit(model);

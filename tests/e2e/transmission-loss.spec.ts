@@ -1,4 +1,7 @@
 import {expect,test} from "@playwright/test";
+import { useOpenLineDraft } from "./helpers/open-line-draft";
+
+test.beforeEach(async ({ page }) => useOpenLineDraft(page));
 test("line parameters apply distributed attenuation and survive reload",async({page})=>{
  await page.goto("/ru/interactive/transmission-line/");
  const lab=page.locator("[data-network-lab]");

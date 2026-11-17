@@ -58,7 +58,7 @@ function uniqueSectionId(model: Network) {
 
 export function appendSection(model: Network): Edit {
   const section = { ...DEFAULT_NETWORK.sections[0], id: uniqueSectionId(model) };
-  return { model: { ...model, sections: [...model.sections, section], series: model.series?.map(contact=>({...contact,to:contact.to+1})) }, selection: { kind: "line", id: section.id } };
+  return { model: { ...model, sections: [...model.sections, section], series: model.series?.map(contact=>({...contact,to:contact.from===0 ? 2*(model.sections.length+1) : contact.to+1})) }, selection: { kind: "line", id: section.id } };
 }
 
 export function removeSection(model: Network, index: number) {
@@ -76,7 +76,7 @@ export function removeSection(model: Network, index: number) {
     sections: model.sections.filter((_, i) => i !== index),
     source: { ...model.source, node: remap(model.source.node) },
     shunts: model.shunts.map(shunt => ({ ...shunt, node: remap(shunt.node) })),
-    series: model.series?.map(contact => ({ ...contact, from: remap(contact.from), to: model.sections.length-1+remap(contact.from) })),
+    series: model.series?.map(contact => ({ ...contact, from: remap(contact.from), to: contact.from===0 ? 2*(model.sections.length-1) : model.sections.length-1+remap(contact.from) })),
     branches: model.branches?.map(contact => ({ ...contact, from: remap(contact.from), to: contact.to === "reference" ? contact.to : remap(contact.to) })),
   };
   const error = validateNetwork(next).join("; ");
@@ -114,7 +114,7 @@ export function splitSection(model: Network, index: number) {
  const remap=(node:number)=>node>index?node+1:node;
  return {...model,sections,source:{...model.source,node:remap(model.source.node)},
   shunts:model.shunts.map(shunt=>({...shunt,node:remap(shunt.node)})),
-  series:model.series?.map(contact=>({...contact,from:remap(contact.from),to:sections.length+remap(contact.from)})),
+  series:model.series?.map(contact=>({...contact,from:remap(contact.from),to:contact.from===0 ? 2*sections.length : sections.length+remap(contact.from)})),
   branches:model.branches?.map(contact=>({...contact,from:remap(contact.from),to:contact.to==="reference"?contact.to:remap(contact.to)}))};
 }
 
@@ -140,7 +140,7 @@ function contactPlacement(model: Network, tool: TwoTerminal, position: Position,
   const load:Load={id,kind:tool,value:contact.resistanceOhm,...contact.component};
   return {model:loadReplacement(model,load),selection:{kind:"load"}};
  }
- if(inline)return {model:{...next,series:[...next.series??[],{...contact,from,to:next.sections.length+from}]},selection:{kind:"contact",id}};
+ if(inline)return {model:{...next,series:[...next.series??[],{...contact,from,to:from===0?2*next.sections.length:next.sections.length+from}]},selection:{kind:"contact",id}};
  const resistanceOhm=tool==="switch"?contact.resistanceOhm??100:contact.resistanceOhm;
  return {model:{...next,branches:[...next.branches??[],{...contact,from,to:"reference",resistanceOhm}]},selection:{kind:"contact",id}};
 }
@@ -237,8 +237,10 @@ export function placementTargets(model: Network, tool: Tool): Placement[] {
   const nodes: Position[] = Array.from({ length: model.sections.length + 1 }, (_, index) => ({ kind: "node", index }));
   const spans: Position[] = model.sections.map((_, index) => ({ kind: "span", index }));
   const end: Position = { kind: "end", index: model.sections.length };
+  const movesSwitch = typeof tool === "object" && "relocate" in tool &&
+    [...model.series??[],...model.branches??[]].some(contact=>contact.id===tool.relocate && contact.switch && contact.resistanceOhm===undefined);
   const topology: Position[] = isTwoTerminal(tool)||typeof tool==="object"&&("relocate" in tool||"moveLoad" in tool)
-    ? [...nodes.slice(1,-1).map(node=>({...node,kind:"joint" as const})),...nodes.map(node=>({...node,kind:"branch" as const})),
+    ? [...nodes.slice(tool==="switch"||movesSwitch?0:1,-1).map(node=>({...node,kind:"joint" as const})),...nodes.map(node=>({...node,kind:"branch" as const})),
       ...spans.map(span=>({...span,kind:"branch-span" as const})),
       ...(isTwoTerminal(tool)&&tool!=="wire"?(model.branches??[]).flatMap((branch,index)=>
         contactKind(branch)==="wire"?[{kind:"wire-insert" as const,index}]:[]):[]),

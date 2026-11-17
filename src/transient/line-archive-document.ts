@@ -2,7 +2,7 @@ import { emptyDrawing } from "../circuit/drawing";
 import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "../circuit/document";
 import { circuitToArchivedNetwork, isArchivedCircuit, networkToCircuit, preserveArchivedPositions } from "./circuit-archive";
 import type { Layout } from "./NetworkEditor";
-import { contactsOf, DEFAULT_NETWORK, hasLineLoss, validateNetwork, type Network } from "./network";
+import { contactsOf, DEFAULT_NETWORK, hasLineLoss, inputContact, validateNetwork, type Network } from "./network";
 import { transmissionCircuitAdapter } from "./circuit-adapter";
 import { readDetached, type DetachedPart } from "./network-edit";
 import { readInkDocument } from "./network-ink";
@@ -64,7 +64,7 @@ export function readLineArchive(text: string, draft = false) {
   const errors = validateNetwork(input.model);
   if (errors.length) throw Error(errors.join("; "));
   const archived = input.model as Network;
-  if (version < 5 && (archived.source.currentA !== undefined || hasLineLoss(archived) || contactsOf(archived).some(link => link.component)) ||
+  if (version < 5 && (inputContact(archived) || archived.source.currentA !== undefined || hasLineLoss(archived) || contactsOf(archived).some(link => link.component)) ||
       version === 2 && contactsOf(archived).length || version < 4 && requiresV4(archived)) {
     throw Error("schema");
   }

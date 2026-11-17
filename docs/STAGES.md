@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-022
+- Stage ID: ET-UNIVERSAL-023
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -274,18 +274,30 @@
 
 ## ET-UNIVERSAL-022 — Stage 22. Load and source normalization
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 21 verified. Сеть хранит типизированные линии и трансформаторы и показывает их схемы замещения.
 - Goal: принимать прямые P и Q либо P и коэффициент мощности с характером нагрузки, показывать вычисленное Q. Источник принимает независимые линейное действующее напряжение и фазовый угол.
 - Evals: совпадение двух способов ввода, положительная и отрицательная Q, отклонение неверного cos φ, нулевая Q при cos φ = 1, стандартное и пользовательское напряжение, канонический угол. Browser E2E подтверждает принятие нагрузки и фазора в той же сети.
 - Deferred: итерационный расчёт режима.
 - User actions: none
-- NEXT: stage22-injections
+- Evidence: 715 Vitest, 42 локальных и 22 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Браузер подтвердил для 10 MW и cos φ = 0,8 реактивную мощность ±7,5 MVAr, совпадение ёмкостного ввода с прямым и независимую настройку фазора источника 220 kV, −30°. SHA 9303da6d25ff7bbe28b7854a917bbd02ed1b22cb. Preview https://c49761af.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-023
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-023 — Stage 23. Radial educational load flow
+
+- Status: in_progress
+- Entry: Stage 22 verified. Источник, нагрузки и эквиваленты ветвей имеют общие единицы и физические связи.
+- Goal: решать радиальный режим обратным суммированием комплексной мощности с потерями и прямым пересчётом напряжений. Публиковать напряжения шин, токи, потоки, потери, итерации и невязку.
+- Evals: одна линия и нагрузка, две последовательные линии, ответвление, двусторонний трансформатор, знак шунта, баланс, сходимость и диагностические сценарии. В браузере назначить типы реальным ветвям, рассчитать фидер и наблюдать обновление напряжения после изменения нагрузки.
+- Deferred: кольцевой и общий сетевой режим.
+- User actions: none
+- NEXT: stage23-radial-flow
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 22,
+  "state_revision": 23,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -304,7 +316,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "18c8c301294c026d291e66c072a83e8be700db4a",
+      "checkpoint": "9303da6d25ff7bbe28b7854a917bbd02ed1b22cb",
       "ownership": [
         "src",
         "specs",
@@ -337,8 +349,8 @@
     {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"verified","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d6eca951ca91938713903a64dc36c1bbe34234ae","checkpoint_after":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/catalogue.ts","src/power-system/network.ts","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-007","POWER-008","POWER-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"verified","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","checkpoint_after":"aab8c10123bc1c4a97d488b559d8f1917518c303","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/line-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-010","POWER-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"verified","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"aab8c10123bc1c4a97d488b559d8f1917518c303","checkpoint_after":"18c8c301294c026d291e66c072a83e8be700db4a","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/transformer-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-012","POWER-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"running","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"18c8c301294c026d291e66c072a83e8be700db4a","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/injections.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-014","POWER-015"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"queued","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"verified","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"18c8c301294c026d291e66c072a83e8be700db4a","checkpoint_after":"9303da6d25ff7bbe28b7854a917bbd02ed1b22cb","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/injections.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-014","POWER-015"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"running","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"9303da6d25ff7bbe28b7854a917bbd02ed1b22cb","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/radial-flow.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-016","POWER-017"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"queued","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"queued","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"queued","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -358,7 +370,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Normalize load modes and source voltage/angle into canonical physical injections.",
+  "next_action": "Solve a powered radial network using backward complex-power aggregation and forward voltages.",
   "integration": {
     "required": false,
     "reason": ""

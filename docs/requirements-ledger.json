@@ -2909,14 +2909,14 @@
         "POWER-014",
         "POWER-015"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Canonical signed PQ loads and source phasors",
       "security": "Validate power factor, numerical range, and voltage selection",
       "a11y": "Bilingual input modes, labeled sign and computed Q before apply",
       "observability": "Accepted P, Q, source line voltage and angle",
       "action": "Enter the same signed reactive power in both modes and change the feeding phasor in the live network.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/injections.ts",
         "src/components/PowerLoadParameters.tsx",
@@ -2931,6 +2931,24 @@
       "e2e": [
         "tests/e2e/power-system-injections.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-016",
+        "POWER-017"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Iterative radial branch flow and live bilingual results",
+      "security": "Bound iteration and reject missing or nonphysical models",
+      "a11y": "Readable bus and branch tables, keyboard-accessible narrow scrolling",
+      "observability": "Branch losses, convergence iterations, voltage and independently calculated power balance",
+      "action": "Configure two lines and transformer, solve the live network, and update one load to observe the voltage change.",
+      "gap": "Stage 23 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

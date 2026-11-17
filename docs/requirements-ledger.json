@@ -2994,18 +2994,28 @@
         "POWER-020",
         "POWER-021"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Loss-aware two-path ring iteration and live refinement",
       "security": "Bound numerical work and validate closure and power balance",
       "a11y": "Bilingual path and voltage tables with bounded scroll",
       "observability": "Calculated split, terminal flows, actual losses, voltage mismatch and balance",
       "action": "Solve the ring, change the calculation split, and confirm that physical branch connectivity and voltages remain consistent.",
-      "gap": "Stage 25 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/ring-refinement.ts",
+        "src/components/RingFlowPanel.tsx",
+        "src/components/RingLossPanel.tsx"
+      ],
+      "unit": [
+        "src/power-system/ring-refinement.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ring-refinement.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-ring-loss.spec.ts"
+      ]
     }
   ]
 }

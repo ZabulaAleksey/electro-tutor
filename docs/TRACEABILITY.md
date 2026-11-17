@@ -170,3 +170,5 @@ POWER-014–015 → power-system SPEC → power-system/injections.ts + PowerLoad
 POWER-016–017 → power-system SPEC → power-system/radial-flow.ts + RadialFlowPanel + PowerSystemLab → radial-flow.test.ts + power-system-radial.spec.ts.
 
 POWER-018–019 → power-system SPEC → power-system/ring-preliminary.ts + ring-example.ts + RingFlowPanel → ring-preliminary.test.ts + power-system-ring.spec.ts.
+
+POWER-020–021 → power-system SPEC → power-system/ring-refinement.ts + RingFlowPanel + RingLossPanel → ring-refinement.test.ts + power-system-ring-loss.spec.ts.

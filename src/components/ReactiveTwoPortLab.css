@@ -28,3 +28,10 @@
 .lc-graph-editor .circuit-editor{margin:0;padding:0}
 .lc-graph-results{min-width:0;display:grid;gap:1rem}
 .lc-graph-page{max-width:1280px}
+.lc-foster{display:block;min-width:0}
+.lc-foster summary{cursor:pointer}
+.lc-foster > :not(summary){margin-top:.7rem}
+.lc-foster-schematic{max-width:100%;min-width:0;overflow-x:auto;background:var(--surface-plot);border-radius:8px}
+.lc-foster-schematic .lc-schematic{max-width:none}
+.lc-foster table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.lc-foster th,.lc-foster td{padding:.2rem .35rem;text-align:start;border-bottom:1px solid var(--line)}

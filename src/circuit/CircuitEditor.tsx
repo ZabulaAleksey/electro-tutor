@@ -69,7 +69,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   mode?: CircuitEditorMode;
   initial?: string;
   activeDocument?: string;
-  onCalculate?: (document: string) => void;
+  onCalculate?: (document: string) => void | false;
   readings?: ReadonlyMap<string, CircuitReading>;
   extension?: CircuitBoardExtension;
   onDocumentChange?: (document: string) => boolean;
@@ -690,7 +690,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       {onCalculate && <button type="button" onClick={() => {
         try {
           const document = serialized();
-          onCalculate(document);
+          if (onCalculate(document) === false) return;
           setCalculated({ topology: drawing.topology, document });
         } catch {
           setConflict("fileError");

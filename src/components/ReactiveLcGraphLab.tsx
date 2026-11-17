@@ -3,6 +3,7 @@ import CircuitEditor from "../circuit/CircuitEditor";
 import { reactiveLcMode } from "../circuit/reactive-lc-mode";
 import type { Language } from "../types";
 import { ReactiveImpedanceResults } from "./ReactiveImpedanceResults";
+import { FosterIResults } from "./FosterIResults";
 import "./ReactiveTwoPortLab.css";
 
 const initialDocument = reactiveLcMode.createDefaultDocument();
@@ -46,7 +47,7 @@ export default function ReactiveLcGraphLab({ language }: { language: Language })
     } catch (failure) {
       const reason = failure instanceof Error ? failure.message : "";
       setError(reason === "invalid-lc-value" ? copy.value : reason === "lc-graph-limit" ? copy.range : copy.error);
-      throw failure;
+      return false as const;
     }
   }
 
@@ -70,6 +71,7 @@ export default function ReactiveLcGraphLab({ language }: { language: Language })
             <p>{copy.nodeCount} {result.nodeCount}. Yₗ = 1/(sL), Y꜀ = sC.</p>
             <p>Y(s)U(s) = I(s), Z(s) = U₁ / I₁.</p>
           </details>}
+          <FosterIResults result={result} cursor={cursor} language={language} />
         </div>
       </div>
     </div>

@@ -8,22 +8,25 @@ import { copy, errors } from "./ru";
 import { formatMeshReading, makeDraft, meshLatex, parameterKeys, parameters, parseValue, unitFor } from "./presentation";
 import "./mesh-lab.css";
 const base = "/topics/dc/mesh-current-method/";
-export default function MeshLab({persistContext=false,showMaterialLinks=true}: {persistContext?:boolean;showMaterialLinks?:boolean}) {
+function meshLabOwnsPath(pathname: string, ownerPath: string) { return pathname === ownerPath; }
+export default function MeshLab({persistContext=false,showMaterialLinks=true,ownerPath=localePath("ru", `${base}lab/`)}: {persistContext?:boolean;showMaterialLinks?:boolean;ownerPath?:string}) {
   const [example, setExample] = useState<MeshExample>(1), [draft, setDraft] = useState(makeDraft(meshPreset(1))), [active, setActive] = useState("R1"), [loop, setLoop] = useState(1), [ready, setReady] = useState(false), [unknown, setUnknown] = useState(false);
   useEffect(() => {
-    const values = new URL(location.href).searchParams.getAll("example"), valid = values.length === 1 && /^[1-4]$/.test(values[0]);
+    const current = new URL(location.href);
+    if (!meshLabOwnsPath(current.pathname, ownerPath)) { setUnknown(false); setReady(true); return; }
+    const values = current.searchParams.getAll("example"), valid = values.length === 1 && /^[1-4]$/.test(values[0]);
     const initial = valid ? Number(values[0]) as MeshExample : 1;
 
     let saved=null;
     if(persistContext && !new URL(location.href).searchParams.has('reset'))try{saved=parseLabContext(sessionStorage.getItem(LAB_CONTEXT_KEY));}catch{/* Storage is optional. */}
     if(saved&&(values.length===0||(valid&&saved.example===initial))){setExample(saved.example);setDraft(saved.draft);setActive(saved.active);setLoop(saved.loop);}
     else {setExample(initial);setDraft(makeDraft(meshPreset(initial)));}
-    if(persistContext){const url=new URL(location.href);url.searchParams.delete('reset');url.searchParams.set('example',String(saved&&(values.length===0||(valid&&saved.example===initial))?saved.example:initial));history.replaceState(history.state,'',url);}
+    if(persistContext && meshLabOwnsPath(location.pathname, ownerPath)){const url=new URL(location.href);url.searchParams.delete('reset');url.searchParams.set('example',String(saved&&(values.length===0||(valid&&saved.example===initial))?saved.example:initial));history.replaceState(history.state,'',url);}
     setUnknown(values.length > 0 && !valid); setReady(true);
-  }, [persistContext]);
-  useEffect(()=>{if(!persistContext||!ready)return;try{sessionStorage.setItem(LAB_CONTEXT_KEY,JSON.stringify({version:1,example,draft,active,loop}));}catch{/* Recalculation remains available. */}},[persistContext,ready,example,draft,active,loop]);
+  }, [persistContext, ownerPath]);
+  useEffect(()=>{if(!persistContext||!ready||!meshLabOwnsPath(location.pathname, ownerPath))return;try{sessionStorage.setItem(LAB_CONTEXT_KEY,JSON.stringify({version:1,example,draft,active,loop}));}catch{/* Recalculation remains available. */}},[persistContext,ownerPath,ready,example,draft,active,loop]);
   const p = parameters(example, draft), result = solveMesh(p), ok = result.status === "ok" ? result : null, keys = parameterKeys(p), math = ok ? meshLatex(ok) : null;
-  const choose = (id: MeshExample) => { setExample(id); setDraft(makeDraft(meshPreset(id))); setActive("R1"); setLoop(1); setUnknown(false); const url = new URL(location.href); url.searchParams.set("example", String(id)); history.replaceState(history.state, "", url); };
+  const choose = (id: MeshExample) => { setExample(id); setDraft(makeDraft(meshPreset(id))); setActive("R1"); setLoop(1); setUnknown(false); const url = new URL(location.href); if (meshLabOwnsPath(url.pathname, ownerPath)) { url.searchParams.set("example", String(id)); history.replaceState(history.state, "", url); } };
   const reset = () => { setDraft(makeDraft(meshPreset(example))); setActive("R1"); setLoop(1); };
   const reading = (v: number | undefined, unit: string) => v === undefined ? "—" : `${formatMeshReading(v)} ${unit}`;
   return <div className="mesh-lab" data-ready={ready}>

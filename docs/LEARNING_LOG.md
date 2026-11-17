@@ -1,5 +1,11 @@
 # Учебный журнал
 
+## Поздняя hydration island и владение side effects
+
+- Симптом: native Forward возвращал `/ru/topics/?example=4` вместо `/ru/topics/`. Trace показал правильный navigation request; последующий MeshLab effect изменял уже чужой location.
+- Исправление: immutable owner pathname из SSR либо base-aware static route проверяется перед URL/history и sessionStorage mutations. Одной проверки URL недостаточно: inactive island с ready=true иначе перезаписывает сохранённый draft default состоянием.
+- Evidence: новый delayed-hydration browser test удерживает реальный MeshLab module, меняет destination до release и проверяет URL вместе с точными saved bytes. Exact old implementation RED; fixed GREEN на MVP build. Обычный accepted native-history scenario сохраняется; итог полного pipeline — в ET-DEP-20261117.
+
 ## Pages retained HTML survives a correct restricted deployment (2026-11-05)
 
 - Problem/symptom: primary /uk/ and /ru/interactive/ retained old HTML200/HIT/oldETag304 despite missing files, current headers/90served hashes and unique alias404. HEAD/UA/PoP responses varied; a single passing test or alias was insufficient.

@@ -22,6 +22,7 @@ export const parts = {
   diode: { prefix: "D", parameters: { saturationA: 1e-12, ideality: 1.5, reversed: false } },
   bridge: { prefix: "B", parameters: {} },
   open: { prefix: "O", parameters: {} },
+  port: { prefix: "P", parameters: {} },
 };
 export type PartKind = keyof typeof parts;
 export const optionalPartParameters = new Set(["onS", "offS", "atS", "closes", "resistanceOhm", "resistanceOhmM", "changeAtS", "nextOhm", "initial", "saturationA", "ideality", "reversed", "contactOhm", "closed"]);

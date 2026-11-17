@@ -2618,18 +2618,31 @@
         "LC-006",
         "LC-007"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "reactive-one-port",
       "runtime": "Arbitrary two-terminal LC graph and exact driving-point impedance",
       "security": "Bounded graph and documented component values",
       "a11y": "RU/UK editor and keyboard-readable resonance results",
       "observability": "Exact rational form, reactance, poles and zeros",
-      "gap": "Stage 12 browser evidence pending.",
+      "gap": "Hosted browser evidence is pending.",
       "action": "Compare an asymmetric bridge against independent nodal values.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "code": [
+        "src/circuit/reactive-lc-mode.ts",
+        "src/models/reactive-lc-graph.ts",
+        "src/models/lc-polynomial.ts",
+        "src/components/ReactiveLcGraphLab.tsx",
+        "src/components/ReactiveImpedanceResults.tsx",
+        "src/pages/[lang]/interactive/reactive-two-port-graph.astro"
+      ],
+      "unit": [
+        "src/models/reactive-lc-graph.test.ts"
+      ],
+      "integration": [
+        "src/models/reactive-lc-graph.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/reactive-lc-graph.spec.ts"
+      ]
     }
   ]
 }

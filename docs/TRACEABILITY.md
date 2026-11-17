@@ -144,3 +144,5 @@ LINE-AC-001–003 → transmission-line-steady SPEC → steady-line/line.ts → 
 LINE-AC-004–005 → transmission-line-steady SPEC → steady-line/cascade.ts → steady-line/cascade.test.ts.
 
 LINE-AC-006–007 → transmission-line-steady SPEC → steady-line/phasors.ts + steady-line/circuit-mode.ts + SteadyLineLab → phasors.test.ts + transmission-line-steady.spec.ts.
+
+LC-005–007 → reactive-two-port SPEC → reactive-lc-mode.ts + reactive-lc-graph.ts + ReactiveLcGraphLab → reactive-lc-graph.test.ts + reactive-lc-graph.spec.ts.

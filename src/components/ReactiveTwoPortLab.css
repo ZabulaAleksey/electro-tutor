@@ -25,3 +25,6 @@
 .lc-steps{padding-inline-start:1.4rem}
 .lc-steps svg{max-width:330px}
 @media(max-width:820px){.lc-workspace{grid-template-columns:minmax(0,1fr)}}
+.lc-graph-editor .circuit-editor{margin:0;padding:0}
+.lc-graph-results{min-width:0;display:grid;gap:1rem}
+.lc-graph-page{max-width:1280px}

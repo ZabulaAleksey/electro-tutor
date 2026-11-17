@@ -4,7 +4,7 @@ import { netlist } from "./topology";
 type Box = { left: number; right: number; top: number; bottom: number };
 type Port = { pin: Point; escape: Point; owner?: string };
 export type Routing = { paths: Record<string, Point[]>; unrouted: string[] };
-const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, current: 22, switch: 24, line: 29, bridge: 24, open: 24 };
+const terminalOffsets: Record<string, number> = { r: 29, l: 27, c: 27, diode: 11.5, voltage: 22, current: 22, switch: 24, line: 29, bridge: 24, open: 24, port: 24 };
 function drawingBounds(drawing: Drawing): Box {
   const board = drawing.board ?? defaultBoard;
   return { left: 1, right: board.width - 1, top: 1, bottom: board.height - 1 };

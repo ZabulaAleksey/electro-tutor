@@ -24,6 +24,7 @@ function Glyph({ kind, span = 58, closed, reversed, ground }: { kind: PartKind; 
     case "diode": return <g transform={reversed ? "scale(-1 1)" : undefined}><DiodeGlyph x={-11.5} y={0} /></g>;
     case "voltage":
     case "current": return <g transform="rotate(-90)"><SourceGlyph x={0} y={0} current={kind === "current"} /></g>;
+    case "port":
     case "open": return <g stroke="var(--ink)" strokeWidth="1.7"><path d="M-24 0H-8M8 0H24" />
       <circle cx="-8" cy="0" r="2" fill="var(--white)" /><circle cx="8" cy="0" r="2" fill="var(--white)" /></g>;
     case "bridge": return <g stroke="var(--ink)" strokeWidth="1.7" fill="none"><path d="M-24 0H24" />
@@ -575,6 +576,10 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       </button>)}
       <button type="button" aria-pressed={tool === "wire"} onClick={() => chooseTool("wire")}>{copy.wire}</button>
       <button type="button" aria-pressed={tool === "junction"} onClick={() => chooseTool("junction")}>{copy.junction}</button>
+      {mode.example ? <button type="button" onClick={() => {
+        const demo = parseCircuit(mode.createDefaultDocument());
+        if (commit(demo.drawing, demo.routing)) chooseTool(null);
+      }}>{mode.example[language]}</button> : <>
       <button type="button" onClick={() => {
         const demo = demoDrawing();
         if (commit(demo, routeDrawing(demo))) chooseTool(null);
@@ -582,7 +587,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       <button type="button" onClick={() => {
         const demo = lineDemoDrawing();
         if (commit(demo, routeDrawing(demo))) chooseTool(null);
-      }}>{copy.lineDemo}</button>
+      }}>{copy.lineDemo}</button></>}
       <button type="button" disabled={optimizing || !drawing.topology.wires.length}
         onClick={() => optimize(false)}>{copy.optimize}</button>
       <button type="button" disabled={optimizing || !drawing.topology.wires.length}

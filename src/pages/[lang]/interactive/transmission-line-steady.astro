@@ -14,7 +14,7 @@ const description = ru ? "Прямые и отражённые фазоры на
 <BaseLayout title={title + " — " + getLocale(language).brand.display} description={description}
  language={language} active="interactive" alternatePath="/interactive/transmission-line-steady/">
   <section class="steady-line-page">
-    <a href={localePath(language, "/interactive/transmission-line/")}>← {ru ? "Переходные процессы" : "Перехідні процеси"}</a>
+    <a data-astro-reload href={localePath(language, "/interactive/transmission-line/")}>← {ru ? "Переходные процессы" : "Перехідні процеси"}</a>
     <h1>{title}</h1>
     <SteadyLineLab client:load language={language} />
   </section>

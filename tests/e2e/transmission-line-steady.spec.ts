@@ -4,7 +4,9 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   const errors: Error[] = [];
   page.on("pageerror", error => errors.push(error));
   await page.goto("/ru/interactive/transmission-line/");
+  await page.evaluate(() => { Object.defineProperty(window, "transientDocumentProbe", { value: true }); });
   await page.getByRole("link", { name: "Синусоидальный режим", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => Reflect.has(window, "transientDocumentProbe"))).toBe(false);
   const lab = page.locator("[data-steady-line]");
   await expect(lab).toHaveAttribute("data-ready", "true");
   const voltage = lab.getByRole("img", { name: "U(x)", exact: true });

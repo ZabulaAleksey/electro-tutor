@@ -16,7 +16,7 @@ const copy = lineCopy(language);
   <section class="line-page">
     <div class="line-page-intro"><a href={localePath(language, "/interactive/")}>← {copy.back}</a>
       <h1>{copy.title}</h1>
-      <a href={localePath(language, "/interactive/transmission-line-steady/")}>{language === "ru" ? "Синусоидальный режим" : "Синусоїдний режим"}</a></div>
+      <a data-astro-reload href={localePath(language, "/interactive/transmission-line-steady/")}>{language === "ru" ? "Синусоидальный режим" : "Синусоїдний режим"}</a></div>
     <TransmissionNetworkLab client:load language={language} />
   </section>
 </BaseLayout>

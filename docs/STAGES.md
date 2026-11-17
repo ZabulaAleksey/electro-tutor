@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-000
+- Stage ID: ET-UNIVERSAL-001
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -22,6 +22,20 @@
 - Цель: составить карту CircuitEditor → topology/drawing/document → адаптеры → Worker/solver → results. Сопоставить её с отдельным LC-деревом, перечислить допущения адаптера длинной линии и определить минимальный путь переиспользования редактора для остальных режимов.
 - Риски: произвольный граф шире области расчёта существующих солверов. При переносе нужно сохранить стабильные ID, события, измерения и действующие форматы line-v2..v5 и LC JSON.
 - Обязательные evals: проследить размещение RLC до netlist и JSON, архив линии до адаптера, Worker и показаний, изменение LC до Z(s) и частоты резонанса. Приложить входы, выходы, границы валидации и результаты существующих сценариев. Для PASS карта и план должны показать доказанные возможности, пробелы и первую обратимо проверяемую интеграцию без потери поддерживаемых документов.
+
+## ET-UNIVERSAL-001 — Stage 1. Inventory editor architecture
+
+- Status: partial
+- Entry: ET-UNIVERSAL-000 completed на 1273ea3, базовая runtime-ревизия 5379383. Мастер-промпт v2 § 24, Stage 1. Рабочий маршрут: существующие локальные сборка и Chromium. Класс задачи CHEAP / Medium.
+- Scope: архитектурная карта CircuitEditor, длинной линии и LC-дерева, границы импорта и расчёта, минимальный план переиспользования. Контракты CE-001…008, LC-001…004 и действующая SPEC переходной линии. Реализация и изменение контрактов относятся к последующим этапам.
+- Result: [карта потоков, ограничения и план](ARCHITECTURE.md#инвентаризация-stage-1--универсальные-лаборатории). Первый обратимый кандидат — отдельная проекция LC-дерева с двумя явными внешними выводами и сохранением пути/ID, прежнего JSON и Z(s).
+- Evals: RLC → netlist → JSON round-trip и атомарный отказ. Архив линии v2–v5 → редактирование секции → Worker → показания → reload и прежняя физическая модель при экспорте. Изменение LC → Z(s) → частота резонанса, обмен JSON и отказ от неверного импорта. Подробности в TESTING.
+- Evidence: карта и план готовы. Read-only review, 23/23 целевых Chromium, 590 Vitest, типы, lint, учебная сборка, 2/2 production smoke и HIGH audit PASS. Полный Windows Chromium: 365 PASS, 6 SKIP, 1 FAIL. Изолированный повтор: 5 PASS, 1 FAIL. Входы, результаты и ограничения в [TESTING](TESTING.md#et-universal-001--проверки-архитектурной-карты).
+- Blockers: ET-UNIVERSAL-TOUCH-GATE. Диагностировать непостоянный пропуск исходного штриха в transmission-handwriting.spec.ts:208 на Windows до начала жеста «Вставить». Сверить координаты и доставку исходных pointer/CDP-событий в обоих вариантах. Для закрытия пройти оба сценария с сохранением действующих утверждений и получить успешный полный verify.
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, ROADMAP. Сверены README, действующие SPEC, DECISIONS, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES, TRACEABILITY и project-context. Runtime соответствует 5379383. Документальный коммит не требует новой выкладки.
+- User actions: none
+- NEXT: ET-UNIVERSAL-TOUCH-GATE
+- Next action: закрыть gate полного verify. Затем по отдельному запуску Stage 2 (ET-UNIVERSAL-002) уточнить контракт topology/geometry. Критерий: идентичность связности и ID после round-trip существующих схем. Рекомендуемый режим для Stage 2: FRONTIER / High.
 
 ## final-qualification
 

@@ -4,6 +4,22 @@
 
 См. [результаты и ограничения прогонов](STAGES.md#et-universal-000--stage-0-baseline-snapshot) и [Chromium, трассировку и SHA-256 контрольных кадров](evidence/universal-labs-stage-0.json). Замеры трассировки основаны на 17 схемах. Браузерные метрики навигации — одно наблюдение на маршрут и viewport. Сенсорный профиль Chromium имеет ширину 390 px.
 
+## ET-UNIVERSAL-001 — проверки архитектурной карты
+
+| Сценарий | Вход | Проверяемый результат |
+|---|---|---|
+| CE-001, CE-003, CE-006 | Пример RLC, вращение и явные соединения, локальное сохранение, экспорт circuit.json и импорт повреждённого файла | Netlist сохраняется при независимых геометрических правках, перезагрузке и round-trip. Неудачный импорт оставляет прежнюю схему. Playwright: circuit-editor.spec.ts. |
+| CE-007, LINE-UX-018 | v2–v5 с секцией TL1 длиной 1 000 000 м. Варианты включают резистивную ветвь, диод и распределённые потери. Меняем длину на 750 000 м | Меняется ревизия расчёта, появляется фактическое показание TL1. Перезагрузка сохраняет длину, экспорт результатов возвращает исходный Network с изменённой длиной. Playwright: transmission-archive-migration.spec.ts. Unit: circuit-adapter.test.ts, circuit-archive.test.ts. |
+| LC-001…004 | Последовательные 20 mH и 50 µF, изменение C до 200 µF. Параллельный LC и невалидный импорт | Z(s) исходного примера проверяется как (20q² + 20)/q, q = s/(1000 rad/s). Нуль реактивности переходит с 1000 до 500 rad/s. Проверяются pole, дерево, свёртка, JSON и мобильный RU/UK. Unit сравнивает каждый шаг с независимым рекурсивным расчётом X(ω). Playwright: reactive-two-port.spec.ts. |
+
+Дополнительные численные проверки линии в circuit-editor.spec.ts: при смене R₁ в 0,01 с показание составляет 12 В в 0,005 с и 16 В в 0,011 с. Для параллельных R и C переходный Worker выбирает characteristics-trapezoid и возвращает одинаковые ненулевые напряжения на обеих ветвях после прихода волны. Неприменённое электрическое редактирование скрывает показания предыдущей схемы.
+
+Границы покрытия, найденные при read-only review: существующие проверки v2–v5 покрывают согласованные документы. Отдельные будущие evals нужны для расхождения model/circuit при восстановлении v5 и для явного поведения пользовательских параметров diode, initial L/C и contactOhm при свободной конверсии.
+
+Windows, Node 22.23.1, pnpm 11.23.0, CI=true (один Chromium-воркер). Frozen install, Git hygiene, CI workflow contract, Astro check, ESLint, 590 Vitest (82 файла) и 13 независимых аналитических задач / 49 утверждений прошли. Отдельный прогон трёх файлов Stage 1 на свежем root-артефакте: 23/23 PASS. Учебная сборка под /electro-tutor/, production smoke 2/2, проверка 16 исходных ссылок и аудит с порогом HIGH прошли. Аудит: 5 LOW, 7 MODERATE.
+
+В полном pnpm verify:full root Chromium показал 365 PASS, 6 SKIP, 1 FAIL. В transmission-handwriting.spec.ts:208 вариант «after releasing outside» получил пустой «Распознанный элемент» вместо wire до начала жеста по «Вставить». Отдельный повтор двух вариантов с одним воркером и --repeat-each=3 дал 5 PASS и 1 FAIL на той же проверке, в варианте «after returning». Исходный код и принятые тесты совпадают с 5379383, для которого GitHub Pages run 44038295894 прошёл 366 Chromium. Текущий сбой Windows воспроизводится непостоянно. Причина пропуска штриха пока не установлена.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

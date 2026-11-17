@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-004
+- Stage ID: ET-UNIVERSAL-005
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -63,18 +63,28 @@
 
 ## ET-UNIVERSAL-004 — Stage 4. Shared mode adapter
 
-- Status: implemented
+- Status: verified
 - Entry: Stage 3 verified и опубликован. CE-001, CE-006 и CE-007 действуют.
 - Goal: общий редактор получает описание возможностей режима. Режим определяет разрешённые элементы, валидацию, исходный шаблон и преобразование в предметную модель.
 - Evals: свободный редактор и переходная лаборатория используют единый контракт и запускаются со своими исходными схемами. Действующий архивный маршрут сохраняет совместимость. Неподдерживаемое соединение остаётся редактируемым черновиком и получает диагностику при попытке расчёта.
 - User actions: none
-- Evidence: 2/2 targeted mode tests и браузерный smoke обоих режимов PASS. Windows verify:full PASS, 601 Vitest, 369 Chromium, 6 SKIP, 2 production smoke. Ожидается preview ветки.
-- NEXT: stage4-preview
+- Evidence: 2/2 targeted mode tests и браузерный smoke обоих режимов PASS. Windows verify:full PASS, 601 Vitest, 369 Chromium, 6 SKIP, 2 production smoke. SHA 1c68dee5de43a026ac3b508b1eb867007ad4809c подтверждён. [Preview e5cabdf8](https://e5cabdf8.electrotutor.pages.dev/) прошёл smoke обоих режимов.
+- NEXT: ET-UNIVERSAL-005
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, TRACEABILITY, SPEC и coverage ledger. Проверены README, ROADMAP, SECURITY, DECISIONS, DESIGN, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-005 — Stage 5. Transient default template and switching
+
+- Status: in_progress
+- Entry: Stage 4 verified на 1c68dee, существующий transient mode owner и архивы v2–v5.
+- Goal: новый опыт открывается со схемой источник ЭДС → замыкающий ключ → одна линия → нагрузка. Конец линии имеет явные варианты нагрузки, КЗ и обрыва.
+- Evals: проверить состояние до и после замыкания/размыкания в действующем Worker, три окончания, открытие прежнего архива и отсутствие щупа как компонента схемы.
+- User actions: none
+- NEXT: stage5-template
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 4,
+  "state_revision": 5,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -93,7 +103,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "74965923d8a23032f12ac0fed807b5e61446bdaf",
+      "checkpoint": "1c68dee5de43a026ac3b508b1eb867007ad4809c",
       "ownership": [
         "src",
         "specs",
@@ -108,8 +118,8 @@
     {"id":"ET-UNIVERSAL-001","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Inventory editor architecture","status":"verified","predecessors":["ET-UNIVERSAL-000"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1273ea397f5877ff07e6eb2f9552d57bc99756e9","checkpoint_after":"11fab0214ddf3002b083eb55f4304ea83c753b94","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-002","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Topology contract","status":"verified","predecessors":["ET-UNIVERSAL-001"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"11fab0214ddf3002b083eb55f4304ea83c753b94","checkpoint_after":"636154396b243b312ac49c581c0bfdd595430314","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-003","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Recursive branching","status":"verified","predecessors":["ET-UNIVERSAL-002"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"636154396b243b312ac49c581c0bfdd595430314","checkpoint_after":"74965923d8a23032f12ac0fed807b5e61446bdaf","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-004","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Shared mode adapter","status":"running","predecessors":["ET-UNIVERSAL-003"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"74965923d8a23032f12ac0fed807b5e61446bdaf","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-006","CE-007","CE-012"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-005","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient default template and switching","status":"queued","predecessors":["ET-UNIVERSAL-004"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-004","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Shared mode adapter","status":"verified","predecessors":["ET-UNIVERSAL-003"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"74965923d8a23032f12ac0fed807b5e61446bdaf","checkpoint_after":"1c68dee5de43a026ac3b508b1eb867007ad4809c","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-006","CE-007","CE-012"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-005","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient default template and switching","status":"running","predecessors":["ET-UNIVERSAL-004"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1c68dee5de43a026ac3b508b1eb867007ad4809c","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-transient.spec.md","src/transient/network.ts","src/transient/circuit-mode.ts","src/components/TransmissionNetworkLab.tsx"],"requirements":["CE-007","LINE-UX-001","LINE-UX-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-006","master_id":"ET-UNIVERSAL-MASTER-V2","title":"RLC reduction engine","status":"queued","predecessors":["ET-UNIVERSAL-005"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"queued","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"queued","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
@@ -147,7 +157,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Qualify a shared editor mode schema with allowed elements, validation and default templates.",
+  "next_action": "Prove the source-side switch and selectable ending on the existing transient path.",
   "integration": {
     "required": false,
     "reason": ""

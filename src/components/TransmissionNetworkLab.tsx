@@ -1,6 +1,7 @@
 import CircuitEditor, { type CircuitReading } from "../circuit/CircuitEditor";
 import { resistiveLoadReadings } from "../transient/circuit-adapter";
-import { decodeLineCircuit, isLineArchiveGraph, matchesLineCircuit, lineArchiveByteLimit, lineArchiveSize, readLineArchive, requiresV4, sameNetwork, serializeLineCircuit } from "../transient/line-archive-document";
+import { transientCircuitMode } from "../transient/circuit-mode";
+import { isLineArchiveGraph, matchesLineCircuit, lineArchiveByteLimit, lineArchiveSize, readLineArchive, requiresV4, sameNetwork, serializeLineCircuit } from "../transient/line-archive-document";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
 import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -22,7 +23,7 @@ import { experimentRows, experimentTimeLabel, parseExperimentDuration } from "..
 import type { Ink } from "../engineering/handwriting";
 import {linkMatches,sameInkTarget,type InkLink,type InkTarget} from "../transient/network-ink";
 import "./TransmissionNetworkLab.css";
-const initialCircuit = serializeLineCircuit(DEFAULT_NETWORK, {}, [], false);
+const initialCircuit = transientCircuitMode.createDefaultDocument();
 type Document = {model:Network; layout:Layout; detached:DetachedPart[]; ink?:Ink[]; inkLinks?:(InkLink|null)[]; empty?:boolean; circuit?:string};
 const draftKey = "electrotutor-line-draft-v5";
 function withoutSectionLayout(layout: Layout, id: string): Layout {
@@ -214,7 +215,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  },[mounted,documentValue,savedDocument,model]);
  function calculateCircuit(text: string) {
   try {
-   const converted = decodeLineCircuit(text);
+   const converted = transientCircuitMode.readModel(text);
    edit({ ...converted, durationS: Math.max(model.durationS, converted.durationS) }, false, layout, detached, false, ink, inkLinks, text, true);
    setSelection(null);
   } catch (error) {
@@ -224,7 +225,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  }
  function editCircuit(text: string): boolean {
   try {
-   const next = decodeLineCircuit(text);
+   const next = transientCircuitMode.readModel(text);
    if (!isLineArchiveGraph(text)) return false;
    const { drawing } = parseCircuit(text);
    const parts = detached.flatMap(part => {
@@ -378,7 +379,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const selectedPartId = useMemo(() => archivedPartId(parseCircuit(editorSeed).drawing, selected, model.load), [editorSeed, selected, model.load]);
  return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
   <section className="network-workbench" aria-label={ru?"Конструктор линий":"Конструктор ліній"}>
-   <CircuitEditor key={editorRevision} language={language} embedded initial={editorSeed} activeDocument={activeCircuit} initialSelection={selectedPartId}
+   <CircuitEditor key={editorRevision} language={language} embedded mode={transientCircuitMode} initial={editorSeed} activeDocument={activeCircuit} initialSelection={selectedPartId}
     onCalculate={calculateCircuit} readings={readings} extension={lineOperations}
     onDocumentChange={editCircuit} onClear={()=>{
      edit(structuredClone(DEFAULT_NETWORK),false,{},[],true,[],[]);

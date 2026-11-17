@@ -3,7 +3,8 @@ import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph, SourceGlyph }
 import { ZigzagResistors } from "../engineering/symbol-style";
 import type { Language } from "../types";
 import { circuitCopy } from "./copy";
-import { defaultCircuitSettings, maxCircuitFileBytes, parseCircuit, serializeCircuit, type CircuitSettings } from "./document";
+import { freeCircuitMode, type CircuitEditorMode } from "./editor-mode";
+import { maxCircuitFileBytes, parseCircuit, serializeCircuit, type CircuitSettings } from "./document";
 import { canPlace, defaultBoard, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, splitWireAt, validPartParameter, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
 import { clearGeometry, drawingPorts, optimizeDrawing, optimizeLayout, routeDrawing, type Routing } from "./routing";
 import { disconnect, netlist, removeComponent, type Parameter } from "./topology";
@@ -60,10 +61,11 @@ export type CircuitBoardExtension = {
   };
 };
 
-export default function CircuitEditor({ language, embedded = false, initial, activeDocument, onCalculate, readings,
+export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
   extension, onDocumentChange, onClear, history, initialSelection }: {
   language: Language;
   embedded?: boolean;
+  mode?: CircuitEditorMode;
   initial?: string;
   activeDocument?: string;
   onCalculate?: (document: string) => void;
@@ -75,11 +77,7 @@ export default function CircuitEditor({ language, embedded = false, initial, act
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
 }) {
   const copy = circuitCopy(language);
-  const [snapshot, setSnapshot] = useState<Snapshot>(() => {
-    if (initial) return parseCircuit(initial);
-    const drawing = emptyDrawing();
-    return { drawing, routing: routeDrawing(drawing), settings: defaultCircuitSettings, title: "" };
-  });
+  const [snapshot, setSnapshot] = useState<Snapshot>(() => parseCircuit(initial ?? mode.createDefaultDocument()));
   const { drawing, routing, settings, title } = snapshot;
   const { width: boardWidth, height: boardHeight } = drawing.board ?? defaultBoard;
   const { grid, showGrid, zigzag, snap: alignToGrid } = settings;
@@ -570,7 +568,7 @@ export default function CircuitEditor({ language, embedded = false, initial, act
   const mainTools = (
     <div className="circuit-toolbar circuit-main-tools" role="group" aria-label={copy.tools}>
       <button type="button" aria-pressed={tool === null} onClick={() => chooseTool(null)}>{copy.select}</button>
-      {(!embedded || !drawing.extension && !!drawing.topology.components.length) && (Object.keys(parts) as PartKind[]).map(kind => <button type="button" key={kind}
+      {mode.availableParts(drawing).map(kind => <button type="button" key={kind}
         aria-pressed={tool === kind} onClick={() => chooseTool(kind)}>
         {copy.kinds[kind]}
       </button>)}

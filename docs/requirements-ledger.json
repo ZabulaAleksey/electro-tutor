@@ -2371,6 +2371,23 @@
       ],
       "integration": [],
       "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "CE-012"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Shared editor mode schema",
+      "security": "Existing parse and mode validation",
+      "a11y": "Existing Russian and Ukrainian editor controls",
+      "observability": "Existing unsupported-graph diagnostics",
+      "gap": "Stage 4 acceptance pending",
+      "action": "Verify free/transient entry points and document compatibility.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

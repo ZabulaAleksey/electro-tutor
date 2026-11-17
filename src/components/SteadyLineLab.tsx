@@ -67,7 +67,7 @@ function Phasors({ values, title, unit, language, copy }: {
           stroke={"var(--" + colors[key] + ")"} strokeWidth={key === "total" ? 3.2 : 2.4}
           strokeDasharray={key === "backward" ? "3 3" : undefined}
           markerEnd={polar.magnitude > 0 ? "url(#" + id + key + ")" : undefined}>
-          <title>{copy[key]} · {formatEngineeringValue(polar.magnitude, unit, language)} · {phase(polar.phaseDeg)}</title>
+          <title>{`${copy[key]} · ${formatEngineeringValue(polar.magnitude, unit, language)} · ${phase(polar.phaseDeg)}`}</title>
         </line>;
       })}
     </svg>

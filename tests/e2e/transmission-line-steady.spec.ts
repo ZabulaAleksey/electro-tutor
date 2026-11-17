@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test("selects a real coordinate, updates both phasor diagrams, and recalculates the accepted editor graph", async ({ page }) => {
+  const errors: Error[] = [];
+  page.on("pageerror", error => errors.push(error));
   await page.goto("/ru/interactive/transmission-line/");
   await page.getByRole("link", { name: "Синусоидальный режим", exact: true }).click();
   const lab = page.locator("[data-steady-line]");
@@ -57,9 +59,12 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await editor.getByRole("button", { name: "Рассчитать эту схему", exact: true }).click();
   await expect(lab.getByRole("alert")).toContainText("Нужны источник ЭДС");
   expect(await magnitude("total")).toBeCloseTo(25, 8);
+  expect(errors).toEqual([]);
 });
 
 test("exposes the same laboratory in Ukrainian without horizontal overflow", async ({ page }) => {
+  const errors: Error[] = [];
+  page.on("pageerror", error => errors.push(error));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/uk/interactive/transmission-line-steady/");
   const lab = page.locator("[data-steady-line]");
@@ -70,4 +75,5 @@ test("exposes the same laboratory in Ukrainian without horizontal overflow", asy
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await lab.getByRole("img", { name: "I(x)", exact: true }).press("End");
   await expect(lab).toHaveAttribute("data-coordinate", "500000");
+  expect(errors).toEqual([]);
 });

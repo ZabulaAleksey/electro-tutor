@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-009
+- Stage ID: ET-UNIVERSAL-010
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -119,18 +119,30 @@
 
 ## ET-UNIVERSAL-009 — Stage 9. Steady-state long-line core
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 8 verified на 1a664a3. Входные условия задаёт отдельная SPEC частотной модели.
 - Goal: один однородный участок RLGC рассчитывается в установившемся синусоидальном режиме. Ядро даёт γ, Zc, ABCD и входное сопротивление для граничного условия нагрузки.
 - Evals: независимые формулы для линии без потерь, линии без искажений с потерями, комплексного Z, согласования, КЗ и обрыва. Проверяются численные границы, нулевая длина и четверть волны.
 - Scope: покрытый тестами численный API одной секции. Каскад и редактор имеют отдельные этапы.
 - User actions: none
-- NEXT: stage9-line-core
+- Evidence: 15 целевых, 653 полных Vitest PASS, check, lint и production build PASS. Независимый Python cmath эталон подтвердил 54,587 − j8,194 Ω для линии с потерями и комплексной нагрузки. Проверены γ, Zc, взаимность, малый аргумент и различие физического полюса и соседнего конечного сопротивления. GitHub SHA 60aa04d87aec6240c954a18050538ee2c98e7b13.
+- NEXT: ET-UNIVERSAL-010
+- Completion sync: обновлены STAGES, ROADMAP, ARCHITECTURE, TESTING, TRACEABILITY, частотная SPEC и coverage ledger. Проверены README, DECISIONS, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-010 — Stage 10. ABCD network composition
+
+- Status: in_progress
+- Entry: однородная секция Stage 9 verified. Матрица передаёт [U, I] от нагрузки к входу.
+- Goal: собрать последовательность участков линии, продольных сопротивлений и поперечных проводимостей в одном частотном расчёте.
+- Evals: каскадное произведение в физическом порядке, независимый эталон входного сопротивления, перестановка некоммутирующих звеньев, согласование, КЗ, обрыв и неподдерживаемый ввод.
+- Scope: численная модель каскада. Фазоры по координате проверяются в Stage 11.
+- User actions: none
+- NEXT: stage10-cascade
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 9,
+  "state_revision": 10,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -149,7 +161,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "1a664a3346208241c5e504f2da753c858fcb59c6",
+      "checkpoint": "60aa04d87aec6240c954a18050538ee2c98e7b13",
       "ownership": [
         "src",
         "specs",
@@ -169,8 +181,8 @@
     {"id":"ET-UNIVERSAL-006","master_id":"ET-UNIVERSAL-MASTER-V2","title":"RLC reduction engine","status":"verified","predecessors":["ET-UNIVERSAL-005"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f43490cdbd5f1d149e8afb00893d3c87ec92585e","checkpoint_after":"2542bba40213fb9f9b487223056f5e1a39f042b8","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit/topology.ts","src/circuit/rlc-reduction.ts","src/circuit/rlc-reduction.test.ts"],"requirements":["CE-013","CE-014","CE-015"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"verified","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2542bba40213fb9f9b487223056f5e1a39f042b8","checkpoint_after":"4e88a5d0a350e8bebd3e39c73b9833b2449a437d","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/transient/circuit-adapter.ts","src/transient/line-archive-document.ts","src/components/TransmissionNetworkLab.tsx"],"requirements":["CE-007","LINE-UX-036"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"verified","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4e88a5d0a350e8bebd3e39c73b9833b2449a437d","checkpoint_after":"1a664a3346208241c5e504f2da753c858fcb59c6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/components/TransmissionNetworkLab.tsx","src/components/TransmissionNetworkLab.css","src/engineering/EngineeringPlot.tsx"],"requirements":["LINE-UX-024","LINE-UX-037"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"running","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1a664a3346208241c5e504f2da753c858fcb59c6","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/line.test.ts","src/models/circular-diagram.ts"],"requirements":["LINE-AC-001","LINE-AC-002","LINE-AC-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"queued","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"verified","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1a664a3346208241c5e504f2da753c858fcb59c6","checkpoint_after":"60aa04d87aec6240c954a18050538ee2c98e7b13","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/line.test.ts","src/models/circular-diagram.ts"],"requirements":["LINE-AC-001","LINE-AC-002","LINE-AC-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"running","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"60aa04d87aec6240c954a18050538ee2c98e7b13","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/cascade.ts"],"requirements":["LINE-AC-004","LINE-AC-005"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"queued","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"queued","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"queued","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -203,7 +215,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Qualify the single steady-state RLGC section with independent lossless, lossy and loaded-line oracles.",
+  "next_action": "Verify the source-to-load ABCD cascade of line sections, series impedances and shunt admittances.",
   "integration": {
     "required": false,
     "reason": ""

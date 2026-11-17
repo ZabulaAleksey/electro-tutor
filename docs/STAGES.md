@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-028
+- Stage ID: ET-UNIVERSAL-029
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -346,18 +346,30 @@
 
 ## ET-UNIVERSAL-028 — Stage 28. Power-flow overlay
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 27 verified. Решатели согласуются по независимому эталону, общий режим выдаёт параметры всех выводов.
 - Goal: рисовать принятый сетевой режим в CircuitEditor отдельными слоями. Дать пользователю сборку своей физической сети через тот же документ и редактор.
 - Evals: знак и направление стрелок P/Q, отдельные переключатели, загрузка параллельного оборудования, напряжение и предупреждения, выбор вывода, сборка собственной схемы и реальный расчёт. Использовать типовой ток линии и мощность трансформатора при наличии.
 - Deferred: физическая коммутация, мобильная настройка и итоговая проверка всех режимов.
 - User actions: none
-- NEXT: stage28-flow-overlay
+- Evidence: 735 Vitest, 49 локальных и 29 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. На схеме L2 стрелки P и Q направлены в разные стороны. Проверены слои, загрузка параллельных цепей, предупреждение напряжения и создание своего физического документа с реальным источником. SHA 0e74f380c378754ac0e805e34cf2ecf640edb041. Preview https://b5aca753.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-029
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-029 — Stage 29. Physical switching and normally-open ring
+
+- Status: in_progress
+- Entry: Stage 28 verified. Наложение отражает текущий физический режим и принятые параметры объектов.
+- Goal: открывать и закрывать аппарат в физическом документе. Показывать состояние символа и автоматически пересчитывать режим. Разрезы P и Q отображать отдельно как признаки расчёта.
+- Evals: нормально-разомкнутое кольцо даёт радиальную связность и результаты двух решателей. Закрытие аппарата образует цикл и даёт отдельный ток аппарата. При повторном открытии цикл исчезает. В отдельном учебном кольце условный разрез оставляет три ветви и не создаёт аппарат.
+- Deferred: телефонный вид и итоговый кросс-режимный прогон.
+- User actions: none
+- NEXT: stage29-physical-switching
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 28,
+  "state_revision": 29,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -376,7 +388,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "28888dd9c8cb7452dd832ffef631a8dbf8d04753",
+      "checkpoint": "0e74f380c378754ac0e805e34cf2ecf640edb041",
       "ownership": [
         "src",
         "specs",
@@ -415,8 +427,8 @@
     {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"verified","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2074109a8bee19531debd9369f57f763df04846b","checkpoint_after":"600c9e966e3a8f59432013c4afa43aa2e2fc4c41","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-refinement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-020","POWER-021"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"verified","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"600c9e966e3a8f59432013c4afa43aa2e2fc4c41","checkpoint_after":"f49752f3ff56a972122adfeedc0464d488ef8a9e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ac-power-flow.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-022","POWER-023"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"verified","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f49752f3ff56a972122adfeedc0464d488ef8a9e","checkpoint_after":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-agreement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-024","POWER-025"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"running","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/power-system/flow-overlay.ts"],"requirements":["POWER-026","POWER-027"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"queued","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"verified","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","checkpoint_after":"0e74f380c378754ac0e805e34cf2ecf640edb041","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/power-system/flow-overlay.ts"],"requirements":["POWER-026","POWER-027"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"running","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"0e74f380c378754ac0e805e34cf2ecf640edb041","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/normally-open.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-028","POWER-029"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"queued","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"queued","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"queued","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
@@ -430,7 +442,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Overlay the accepted AC solution and construct physical power objects through the common diagram.",
+  "next_action": "Implement actual device switching and separate it from mathematical calculation cuts on the same schematic.",
   "integration": {
     "required": false,
     "reason": ""

@@ -3080,14 +3080,14 @@
         "POWER-026",
         "POWER-027"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Selectable bus and branch overlays, typed physical network authoring",
       "security": "Validate additions and preserve referenced buses on refused deletion",
       "a11y": "Bilingual layer controls and textual terminal details",
       "observability": "Signed power arrows, voltage limits, rating-based loading and accepted diagram",
       "action": "Calculate the ring and exercise overlay layers, then build and solve a new physical study.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/flow-overlay.ts",
         "src/power-system/author.ts",
@@ -3104,6 +3104,24 @@
       "e2e": [
         "tests/e2e/power-system-overlay.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-028",
+        "POWER-029"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Physical operation and separate mathematical cut markers",
+      "security": "Validate switch identity and preserve complete typed topology",
+      "a11y": "Visible bilingual controls and physical switch state",
+      "observability": "Radial or meshed topology, active switch current and independent cut marker",
+      "action": "Close and reopen the normally open ring, verify recomputation, and place an independent mathematical cut.",
+      "gap": "Stage 29 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

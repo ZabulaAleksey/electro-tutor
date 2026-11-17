@@ -1,6 +1,12 @@
+## ET-CE-PARALLEL-001 — участки и обратимая модель
+
+CE-016..022: `parallel-regions`, `parallel-attachment` и `parallel-contract` проверяют четыре RLC случая, закрытость внутренних отводов, неоднозначность/union, 40-элементную цепь, stale fingerprint, boundary taps, ID collisions, ориентацию, pinned и расширение платы. `equivalent-circuit` и прежний `rlc-reduction` проверяют независимые L, обратную сумму C, состояния, взаимную связь, provenance и read-only round-trip.
+
+Новые Chromium: `circuit-parallel.spec.ts` (7) и `circuit-parallel-preview.spec.ts` (2), все PASS. Визуально проверены desktop и UK phone, точные PNG/SHA — [evidence](evidence/circuit-parallel.json). Общий полный прогон и ограничения завершения отражаются в STAGES. Принятые goldens/сценарии и audit threshold не менялись.
+
 ## ET-DEP-20261117 — квалификация зависимостей
 
-Текущий lockfile проходит полный pnpm audit и production pnpm audit. Полный pnpm verify:full проверяет frozen restore, CI contract, типы, lint, Vitest, все Chromium-сценарии, обе сборочные базы и production smoke под Node 22.23.4. Принятые тесты, goldens и пороги audit сохраняют свой контракт. Python-зависимости API проверяются штатным pip-audit из uv.lock и существующим backend CI. Точные результаты и выпущенная ревизия находятся в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance).
+Первый аудит обновлённого lockfile не находил уязвимостей; последующее обновление advisory выявило HIGH picomatch без исправленной версии (DEP-PICOMATCH-001). Текущий security gate не пройден. Полный pnpm verify:full проверяет frozen restore, CI contract, типы, lint, Vitest, все Chromium-сценарии, обе сборочные базы и production smoke под Node 22.23.4. Принятые тесты, goldens и пороги audit сохраняют свой контракт. Python-зависимости API проверяются штатным pip-audit из uv.lock и существующим backend CI. Точные результаты и выпущенная ревизия находятся в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance).
 
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 

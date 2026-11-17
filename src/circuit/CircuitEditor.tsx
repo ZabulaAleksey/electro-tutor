@@ -9,6 +9,9 @@ import { canPlace, defaultBoard, demoDrawing, emptyDrawing, insertInWire, juncti
 import { clearGeometry, drawingPorts, optimizeDrawing, optimizeLayout, routeDrawing, type Routing } from "./routing";
 import { disconnect, netlist, removeComponent, type Parameter } from "./topology";
 import type { OptimizationRequest, OptimizationResult } from "./routing.worker";
+import { regionForComponent, resolveParallelRegions, type ParallelRegion } from "./parallel-regions";
+import { planParallelAttachment } from "./parallel-attachment";
+import EquivalentCircuit from "./EquivalentCircuit";
 import "./circuit-editor.css";
 
 const storageKey = "electrotutor.circuit.v1";
@@ -114,6 +117,64 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   const previewRoutes = useMemo(() => previewDrawing && clearGeometry(previewDrawing)
     ? routeDrawing(previewDrawing, previewDrawing.topology.wires, routing) : null, [previewDrawing, routing]);
   const nets = useMemo(() => netlist(drawing.topology), [drawing.topology]);
+  const [parallelEnabled, setParallelEnabled] = useState(false);
+  const [parallelHoverEnabled, setParallelHoverEnabled] = useState(true);
+  const [parallelStart, setParallelStart] = useState("");
+  const [parallelEnd, setParallelEnd] = useState("");
+  const [parallelRegions, setParallelRegions] = useState<ParallelRegion[]>([]);
+  const [parallelRegion, setParallelRegion] = useState<ParallelRegion | null>(null);
+  const [parallelSource, setParallelSource] = useState(drawing.topology);
+  const pendingKind = tool && tool !== "wire" && tool !== "junction" ? tool : null;
+  const parallelActive = parallelEnabled && !!pendingKind && !inspectOnly;
+  const regionIsCurrent = parallelSource === drawing.topology;
+  const parallelPlan = useMemo(() => parallelActive && regionIsCurrent && parallelRegion && pendingKind
+    ? planParallelAttachment(drawing, routing, parallelRegion, pendingKind) : null,
+  [parallelActive, regionIsCurrent, parallelRegion, pendingKind, drawing, routing]);
+  const plannedDrawing = parallelPlan?.ok ? parallelPlan.drawing : null;
+  const targetIds = useMemo(() => new Set(parallelActive ? drawing.topology.components
+    .filter(part => regionForComponent(drawing.topology, part.id)).map(part => part.id) : []), [parallelActive, drawing.topology]);
+  function resetParallel() {
+    setParallelSource(drawing.topology);
+    setParallelHoverEnabled(true);
+    setParallelEnabled(false); setParallelStart(""); setParallelEnd("");
+    setParallelRegions([]); setParallelRegion(null);
+  }
+  function selectParallelPart(id: string, lock = true) {
+    if (lock) setParallelHoverEnabled(false);
+    const region = regionForComponent(drawing.topology, id);
+    setParallelSource(drawing.topology);
+    setParallelRegions(region ? [region] : []); setParallelRegion(region ?? null);
+    setParallelStart(region?.boundaries[0] ?? ""); setParallelEnd(region?.boundaries[1] ?? "");
+  }
+  function selectParallelBoundaries(a: string, b: string) {
+    setParallelHoverEnabled(false);
+    setParallelStart(a); setParallelEnd(b); setParallelSource(drawing.topology);
+    const regions = a && b ? resolveParallelRegions(drawing.topology, a, b) : [];
+    setParallelRegions(regions); setParallelRegion(regions.length === 1 ? regions[0] : null);
+  }
+  function parallelEndpoint(id: string) {
+    if (!parallelStart || parallelEnd) selectParallelBoundaries(id, "");
+    else selectParallelBoundaries(parallelStart, id);
+  }
+  function parallelHit(target: Element, lock = false) {
+    if (lock) setParallelHoverEnabled(false);
+    const part = target.closest("[data-component-id]")?.getAttribute("data-component-id");
+    if (part && parallelRegion?.componentIds.length === 1 && parallelRegion.componentIds[0] === part) return;
+    if (part) selectParallelPart(part, lock);
+    else { setParallelRegions([]); setParallelRegion(null); setParallelStart(""); setParallelEnd(""); }
+  }
+  function applyParallel() {
+    if (!parallelPlan?.ok) return;
+    if (commit(parallelPlan.drawing, parallelPlan.routing)) {
+      select(parallelPlan.componentId); setTool(null); resetParallel();
+    }
+  }
+  function parallelPointer(event: PointerEvent<SVGSVGElement>) {
+    const hit = event.target as Element;
+    const endpoint = hit.closest("[data-circuit-terminal]")?.getAttribute("data-circuit-terminal");
+    if (endpoint) parallelEndpoint(endpoint);
+    else parallelHit(hit, true);
+  }
   function commit(next: Drawing, supplied?: Routing) {
     if (!clearGeometry(next)) {
       setConflict("collision");
@@ -183,6 +244,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     gesture.current = null;
     setPreview(null);
     setTool(next);
+    resetParallel();
     setLineStart(null);
     select(null);
     setSelectionWire(null);
@@ -599,9 +661,16 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     <div className="circuit-toolbar circuit-main-tools" role="group" aria-label={copy.tools}>
       <button type="button" aria-pressed={tool === null} onClick={() => chooseTool(null)}>{copy.select}</button>
       {mode.availableParts(drawing).map(kind => <button type="button" key={kind} data-circuit-tool={kind}
-        aria-pressed={tool === kind} onClick={() => chooseTool(kind)}>
+        aria-pressed={tool === kind} onClick={() => chooseTool(kind)} draggable
+        onDragStart={event => {
+          chooseTool(kind); setParallelEnabled(true);
+          event.dataTransfer.setData("application/x-electrotutor-part", kind);
+          event.dataTransfer.effectAllowed = "copy";
+        }}>
         {copy.kinds[kind]}
       </button>)}
+      {pendingKind && <button type="button" data-parallel-toggle aria-pressed={parallelActive}
+        onClick={() => { resetParallel(); setParallelEnabled(!parallelActive); }}>{copy.parallel}</button>}
       <button type="button" aria-pressed={tool === "wire"} onClick={() => chooseTool("wire")}>{copy.wire}</button>
       <button type="button" aria-pressed={tool === "junction"} onClick={() => chooseTool("junction")}>{copy.junction}</button>
       {mode.example ? <button type="button" onClick={() => {
@@ -662,20 +731,38 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     {!inspectOnly && !embedded && mainTools}
     <div ref={viewportRef} className="circuit-viewport" data-circuit-nets={JSON.stringify(nets)}>
       <svg data-circuit-board data-network-canvas={embedded || undefined} data-zoom={zoom} data-placing={tool !== null || extension?.placing || undefined} aria-label={copy.board}
-        viewBox={`0 0 ${boardWidth} ${boardHeight}`} preserveAspectRatio="xMinYMin meet" style={{ width: `${zoom * 100}%` }}
-        onPointerDown={extension?.onStroke?.start ?? start} onPointerMove={extension?.onStroke?.move ?? drag}
-        onPointerLeave={event => extension?.onHover?.(event, null)}
-        onPointerUp={extension?.onStroke?.finish ?? finish} onPointerCancel={extension?.onStroke?.cancel ?? cancel}
-        onLostPointerCapture={extension?.onStroke?.cancel ?? cancel}>
+        viewBox={`0 0 ${plannedDrawing?.board?.width ?? boardWidth} ${plannedDrawing?.board?.height ?? boardHeight}`} preserveAspectRatio="xMinYMin meet" style={{ width: `${zoom * 100}%` }}
+        onPointerDown={parallelActive ? event => event.preventDefault() : extension?.onStroke?.start ?? start}
+        onPointerMove={parallelActive ? event => {
+          if (parallelHoverEnabled && event.pointerType === "mouse") parallelHit(event.target as Element);
+        } : extension?.onStroke?.move ?? drag}
+        onPointerLeave={event => {
+          extension?.onHover?.(event, null);
+          if (parallelActive && parallelHoverEnabled) {
+            setParallelRegions([]); setParallelRegion(null); setParallelStart(""); setParallelEnd("");
+          }
+        }}
+        onPointerUp={parallelActive ? parallelPointer : extension?.onStroke?.finish ?? finish}
+        onPointerCancel={extension?.onStroke?.cancel ?? cancel}
+        onLostPointerCapture={extension?.onStroke?.cancel ?? cancel}
+        onDragOver={event => {
+          if (!parallelActive) return;
+          event.preventDefault(); event.dataTransfer.dropEffect = "copy"; parallelHit(event.target as Element);
+        }}
+        onDrop={event => {
+          if (!parallelActive) return;
+          event.preventDefault(); parallelHit(event.target as Element, true);
+        }}>
         <defs><pattern id="circuit-grid" width={grid} height={grid} patternUnits="userSpaceOnUse">
           <circle cx="1" cy="1" r=".7" fill="#a6b4c4" />
         </pattern></defs>
         <g ref={drawingLayer} className={embedded ? "network-schematic-drawing" : undefined}>
           {lineStart && <circle cx={lineStart.x} cy={lineStart.y} r="5" fill="#117bb1" />}
-          {showGrid && <rect width={boardWidth} height={boardHeight} fill="url(#circuit-grid)" />}
+          {showGrid && <rect width={plannedDrawing?.board?.width ?? boardWidth} height={plannedDrawing?.board?.height ?? boardHeight} fill="url(#circuit-grid)" />}
           {drawing.topology.wires.map(({ id, from, to }) => {
-            const points = previewRoutes?.paths[id] ?? routing.paths[id];
+            const points = parallelPlan?.ok ? parallelPlan.routing.paths[id] : previewRoutes?.paths[id] ?? routing.paths[id];
             return points && <polyline key={id} data-circuit-wire={id}
+              data-parallel-region={parallelActive && regionIsCurrent && parallelRegion?.wireIds.includes(id) || undefined}
               data-wire-endpoint={[from, to].find(value => value.includes(":"))} data-wire-selected={selectionWire === id}
               {...extension?.describeWire?.(id, drawing)} points={points.map(p => p.x + "," + p.y).join(" ")} />;
           })}
@@ -683,13 +770,17 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
             {drawing.topology.components.map(item => {
               const { rotation, span, ...stored } = drawing.positions[item.id];
               const reading = calculated?.topology === drawing.topology && calculated.document === activeDocument ? readings?.get(item.id) : undefined;
-              const { x, y } = preview?.id === item.id ? preview : stored;
+              const { x, y } = plannedDrawing?.positions[item.id] ?? (preview?.id === item.id ? preview : stored);
               const closed = extension?.partClosed?.(item.id, drawing) ?? (item.kind === "switch" ? item.parameters.closed === true : undefined);
-              return <g key={item.id} data-component-id={item.id} data-rotation={rotation} data-closed={closed}
+              return <g key={item.id} data-component-id={item.id}
+                data-parallel-target={targetIds.has(item.id) || undefined}
+                data-parallel-region={parallelActive && regionIsCurrent && parallelRegion?.componentIds.includes(item.id) || undefined} data-rotation={rotation} data-closed={closed}
                 data-line-section={item.kind === "line" ? item.id : undefined}
                 role="button" tabIndex={0} aria-label={item.kind === "line" ? item.id + (language === "ru" ? " · линия" : " · лінія") : item.id}
                 onKeyDown={event => {
-                  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(item.id); }
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault(); if (parallelActive) selectParallelPart(item.id); else select(item.id);
+                  }
                 }}
                 {...extension?.describePart?.(item.id, drawing)}
                 transform={`translate(${x} ${y})`} className={selected === item.id ? "circuit-selected" : undefined}>
@@ -702,9 +793,28 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
               </g>;
             })}
           </ZigzagResistors.Provider>
+          {parallelPlan?.ok && <g data-parallel-preview pointerEvents="none">
+            {parallelPlan.drawing.topology.wires.filter(wire => !drawing.topology.wires.some(source => source.id === wire.id))
+              .map(wire => <polyline key={wire.id} points={parallelPlan.routing.paths[wire.id]?.map(p => `${p.x},${p.y}`).join(" ")} />)}
+            {(() => {
+              const part = parallelPlan.drawing.topology.components.find(part => part.id === parallelPlan.componentId)!;
+              const position = parallelPlan.drawing.positions[part.id];
+              return <g transform={`translate(${position.x} ${position.y})`}>
+                <g transform={`rotate(${position.rotation})`}><Glyph kind={part.kind as PartKind} /></g>
+                <text y="-25" textAnchor="middle">{part.id}</text>
+              </g>;
+            })()}
+          </g>}
           {extension?.overlay?.(drawing)}
-          {[...ports].filter(([, port]) => tool === "wire" || !port.owner && !extension?.boardTool).map(([id, { pin, owner }]) =>
-            <g key={id} data-circuit-terminal={id} className="circuit-pin">
+          {[...ports].filter(([, port]) => parallelActive || tool === "wire" || !port.owner && !extension?.boardTool).map(([id, { pin, owner }]) =>
+            <g key={id} data-circuit-terminal={id} className="circuit-pin"
+              role={parallelActive ? "button" : undefined} tabIndex={parallelActive ? 0 : undefined}
+              aria-label={parallelActive ? id : undefined}
+              onKeyDown={event => {
+                if (parallelActive && (event.key === "Enter" || event.key === " ")) {
+                  event.preventDefault(); event.stopPropagation(); parallelEndpoint(id);
+                }
+              }}>
               <circle cx={pin.x} cy={pin.y} r="12" fill="transparent" />
               <circle cx={pin.x} cy={pin.y} r={owner ? 4 : 5} fill={id === wireStart ? "#117bb1" : owner ? "#fff" : "#172d42"}
                 stroke="#172d42" strokeWidth="1.5" />
@@ -712,6 +822,31 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
         </g>
       </svg>
     </div>
+    {parallelActive && <div className="circuit-parallel-controls" data-parallel-controls>
+      <p>{copy.parallelHelp}</p>
+      <div className="circuit-toolbar">
+        <label>{copy.boundaryA}<select aria-label={copy.boundaryA} value={parallelStart}
+          onChange={event => selectParallelBoundaries(event.target.value, parallelEnd)}>
+          <option value="">—</option>{nets.map(net => <option value={net[0]} key={net[0]}>{net.join(" = ")}</option>)}
+          {parallelStart && !nets.some(net => net[0] === parallelStart) && <option value={parallelStart}>{parallelStart}</option>}
+        </select></label>
+        <label>{copy.boundaryB}<select aria-label={copy.boundaryB} value={parallelEnd}
+          onChange={event => selectParallelBoundaries(parallelStart, event.target.value)}>
+          <option value="">—</option>{nets.map(net => <option value={net[0]} key={net[0]}>{net.join(" = ")}</option>)}
+          {parallelEnd && !nets.some(net => net[0] === parallelEnd) && <option value={parallelEnd}>{parallelEnd}</option>}
+        </select></label>
+      </div>
+      {regionIsCurrent && parallelRegions.length > 1 && <fieldset><legend>{copy.parallelChoice}</legend>
+        {parallelRegions.map(region => <label key={region.id}><input type="radio" name="parallel-region"
+          checked={parallelRegion?.id === region.id} onChange={() => setParallelRegion(region)} />
+          {region.componentIds.join(" · ")}</label>)}
+      </fieldset>}
+      <p role="status">{!regionIsCurrent ? copy.parallelStale : parallelRegion ? parallelPlan?.ok
+        ? copy.parallelPreview + " " + parallelRegion.componentIds.join(" · ") : copy.routeError
+        : parallelStart && parallelEnd && !parallelRegions.length ? copy.parallelInvalid : copy.parallelChoose}</p>
+      <button type="button" data-parallel-apply disabled={!parallelPlan?.ok} onClick={applyParallel}>{copy.parallelApply}</button>
+      <button type="button" onClick={resetParallel}>{copy.parallelCancel}</button>
+    </div>}
     {afterBoard}
     {!inspectOnly && embedded && mainTools}
     {extension?.inspector?.(drawing, selected)}
@@ -778,6 +913,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
         }}>{copy.pin}</button>
         <button type="button" onClick={remove}>{copy.remove}</button></>}
     </div>}
+    {!inspectOnly && mode.id !== "power-system" && <EquivalentCircuit drawing={drawing} language={language} modeId={mode.id}
+      renderCircuit={document => <CircuitEditor language={language} embedded inspectOnly activeDocument={document} />} />}
     {tool === "wire" && <select aria-label={wireStart ? copy.selectEnd : copy.selectStart} value=""
       onChange={event => { if (event.target.value) choose(event.target.value); }}>
       <option value="">{wireStart ? copy.selectEnd : copy.selectStart}</option>

@@ -184,3 +184,9 @@ POWER-028–029 → power-system SPEC → normally-open.ts + network.ts + PowerS
 POWER-030–031 → power-system SPEC → CircuitEditor + PowerMobileReadout + PowerSystemLab → power-system-mobile.spec.ts.
 
 POWER-032–033 → power-system SPEC → CircuitEditorMode + четыре адаптера → editor-mode.test.ts + power-system-cross-mode.spec.ts.
+
+## CE-016–022
+
+CE-016–020 → circuit-engine SPEC → parallel-regions.ts + parallel-attachment.ts + CircuitEditor.tsx → parallel-contract.test.ts + parallel-regions.test.ts + parallel-attachment.test.ts + circuit-parallel.spec.ts.
+
+CE-021–022 → circuit-engine SPEC → equivalent-circuit.ts + EquivalentCircuit.tsx + rlc-reduction.ts → equivalent-circuit.test.ts + rlc-reduction.test.ts + circuit-parallel.spec.ts.

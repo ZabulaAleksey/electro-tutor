@@ -1,0 +1,42 @@
+{
+  "stage": "ET-CE-PARALLEL-001",
+  "scope": "local feature qualification, production release pending",
+  "runtime": "Node 22.23.4 / pnpm 11.23.0 / Windows Chromium 151",
+  "requirements": [
+    "CE-016",
+    "CE-017",
+    "CE-018",
+    "CE-019",
+    "CE-020",
+    "CE-021",
+    "CE-022"
+  ],
+  "new_browser_tests": {
+    "passed": 9,
+    "files": [
+      "tests/e2e/circuit-parallel.spec.ts",
+      "tests/e2e/circuit-parallel-preview.spec.ts"
+    ]
+  },
+  "full_unit_tests": {
+    "passed": 761,
+    "files": 116
+  },
+  "visual_review": {
+    "status": "PASS",
+    "artifacts": [
+      {
+        "file": "parallel-preview-desktop.png",
+        "sha256": "c126eac939a9028d13634fcf41da611f8d6187c1e6c00aad8cbe2328e9a8caba",
+        "bytes": 28714
+      },
+      {
+        "file": "parallel-preview-phone.png",
+        "sha256": "bf71a8263faa1a7803dcac98a8c4ae760d899271a34dac1c27326cf3db01ca6f",
+        "bytes": 10399
+      }
+    ]
+  },
+  "release_blocker": "DEP-PICOMATCH-001: GHSA-fc5q-39xc-vjpf, no patched published picomatch version",
+  "full_verify": "RUNNING; one beam Ctrl-wheel failure under diagnosis"
+}

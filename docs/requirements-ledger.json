@@ -3226,6 +3226,43 @@
         "tests/e2e/power-system-cross-mode.spec.ts",
         "tests/e2e/education-release.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "CE-016",
+        "CE-017",
+        "CE-018",
+        "CE-019",
+        "CE-020",
+        "CE-021",
+        "CE-022"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "circuit-engine",
+      "runtime": "Topology-derived parallel regions, atomic attachment preview and reversible model-scoped RLC view",
+      "security": "Source revision guard, finite graph/layout budgets and existing document validation",
+      "a11y": "RU/UK boundary selectors, radio ambiguity choice, touch and keyboard",
+      "observability": "Original IDs, precise selected region, preview routes and reduction provenance",
+      "gap": "Nine live browser scenarios passed; full regression is running. Production security gate DEP-PICOMATCH-001 remains blocked.",
+      "action": "Validate the four explicit RLC connections, state preservation, undo and model constraints.",
+      "code": [
+        "src/circuit/parallel-regions.ts",
+        "src/circuit/parallel-attachment.ts",
+        "src/circuit/CircuitEditor.tsx",
+        "src/circuit/equivalent-circuit.ts",
+        "src/circuit/EquivalentCircuit.tsx"
+      ],
+      "unit": [
+        "src/circuit/parallel-contract.test.ts",
+        "src/circuit/equivalent-circuit.test.ts"
+      ],
+      "integration": [
+        "src/circuit/parallel-attachment.test.ts",
+        "src/circuit/rlc-reduction.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/circuit-parallel.spec.ts"
+      ]
     }
   ]
 }

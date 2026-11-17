@@ -73,3 +73,22 @@
 .circuit-target:focus-visible circle:last-child { fill: #156a99; }
 .circuit-ink { pointer-events: none; }
 .circuit-viewport .circuit-ink polyline { stroke: #156a99; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.circuit-parallel-controls { border: 1px solid #317f99; border-radius: .6rem; padding: .75rem; margin-block: .75rem; }
+.circuit-parallel-controls select { max-width: min(100%, 24rem); }
+.circuit-parallel-controls label { min-width: 0; }
+.circuit-parallel-controls fieldset { display: flex; flex-wrap: wrap; gap: .75rem; }
+.circuit-parallel-controls button { margin: .25rem; }
+.circuit-editor [data-parallel-target] .circuit-component-hit { stroke: #317f99; stroke-dasharray: 3 3; }
+.circuit-editor [data-parallel-region] .circuit-component-hit { fill: #d9f4ff; stroke: #087a9b; stroke-width: 2; }
+.circuit-editor polyline[data-parallel-region] { stroke: #087a9b; stroke-width: 4; }
+.circuit-editor [data-parallel-preview] polyline { fill: none; stroke: #0b9066; stroke-width: 2.5; stroke-dasharray: 7 4; }
+.circuit-editor [data-parallel-preview] { color: #087a57; opacity: .85; }
+.circuit-equivalent { margin-block: 1rem; padding: .75rem; border: 1px solid var(--border, #a6b4c4); border-radius: .6rem; }
+.circuit-equivalent summary { cursor: pointer; }
+
+.circuit-parallel-controls .circuit-toolbar { min-width: 0; }
+.circuit-parallel-controls .circuit-toolbar label { display: flex; flex-direction: column; max-width: 100%; }
+.circuit-equivalent-panel { min-width: 0; }
+.circuit-equivalent table { display: block; max-width: 100%; overflow-x: auto; overflow-wrap: anywhere; }
+.circuit-equivalent select { max-width: 100%; }

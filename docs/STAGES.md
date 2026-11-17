@@ -1,6 +1,28 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-DEP-20261117
+- Stage ID: ET-CE-PARALLEL-001
+
+## ET-CE-PARALLEL-001 — Универсальное параллельное подключение
+
+- Status: partial
+- Goal: один выбор двухполюсного участка для элемента, соседней группы и всей ветви; preview, атомарная установка и обратимое математическое представление.
+- Scope: topology-derived regions, placement/routing, CircuitEditor, RU/UK copy, explicit equivalent view; документ v2 сохраняется.
+- Requirements: CE-016..022 в circuit-engine.spec.md по прямому запросу владельца.
+- Dependencies: ET-UNIVERSAL-002/003/006/031 verified; завершённый граф/редактор/редукция доступны. ET-DEP-20261117 delivery не является prerequisite локальной реализации; upstream security blocker запрещает production release.
+- Entry: исходная явная топология и стабильные endpoint ID; React CircuitEditor, orthogonal router и reduceRlc. Изменений Xt/Zt нет.
+- Architecture: выбор ephemeral по boundary endpoint IDs, derived grouping не заменяет topology. Ограниченные graph components вместо перечисления путей. Планирование возвращает полный Drawing/Routing либо диагностику. commit/record — единственная атомарная граница Undo.
+- Plan: core region/geometry и узкие evals → общий UI выбора/preview/drag/touch/keyboard → явный equivalent view/model constraints → браузерная регрессия → reviewer → документация/commit.
+- Ownership: touch_fix — новые parallel-regions/parallel-attachment и их tests; root — CircuitEditor/copy/CSS/math view/E2E/docs; stage1_review — read-only architecture/review. Контракты APIs согласованы до кода.
+- Evals: четыре Series(R,L,C) примера пользователя, taps/ambiguity/reversed/same-net/disconnected/stale/cancel, geometry/routes/board bounds; редукция L/C и состояния; desktop drag + boundaries + Undo/Redo/JSON + UK touch/keyboard; типы/lint/unit/build/full existing Chromium.
+- Concrete E2E: импорт Series(R,L,C), drag X на R и preview; единым выбором граничных узлов R–L и всей ветви подключить X, подтвердить netlist, отменить/повторить, JSON round-trip; открыть equivalent view и продолжить редактирование исходных элементов на RU desktop и UK phone.
+- Recovery: один Undo либо исходный JSON; feature commit обратим, старые тесты и форматы не меняются.
+- Deferred: взаимно связанные катушки и новые решатели; нелинейная/частотно зависимая редукция; существующие предметные solver limits сохраняются.
+- Blockers: production delivery DEP-PICOMATCH-001; локальная feature не заблокирована.
+- User actions: none
+- Evidence: 761 Vitest и типы/lint PASS; 9 новых Chromium PASS (четыре подключения, drag/hover/cancel, ambiguity, Undo/Redo/JSON, UK phone/touch/keyboard, reversible equivalent). Desktop/phone PNG визуально сверены, SHA в docs/evidence/circuit-parallel.json. Reviewer: два цикла, P1 устранены, финальный empty-drop P2 исправлен и проверен.
+- Verification recovery: полный Chromium идёт; в неизменённом beam Ctrl-wheel один раз получено вертикальное смещение 3,3198 px при пороге <3. Trace сохранён, выполняется bounded диагностика. Допуски и принятые тесты не меняются.
+- Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES и STAGES. Проверены DECISIONS, SECURITY, API, DATA_MODEL, project-context, LEARNING_LOG и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
+- NEXT: full-regression-and-DEP-PICOMATCH-001
 
 ## ET-DEP-20261117 — Security dependency maintenance
 

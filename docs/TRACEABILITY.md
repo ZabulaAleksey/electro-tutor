@@ -142,3 +142,5 @@ LINE-UX-024, LINE-UX-037 → transmission-line-transient SPEC → CircuitEditor,
 LINE-AC-001–003 → transmission-line-steady SPEC → steady-line/line.ts → steady-line/line.test.ts с независимым эталоном для комплексной нагрузки.
 
 LINE-AC-004–005 → transmission-line-steady SPEC → steady-line/cascade.ts → steady-line/cascade.test.ts.
+
+LINE-AC-006–007 → transmission-line-steady SPEC → steady-line/phasors.ts + steady-line/circuit-mode.ts + SteadyLineLab → phasors.test.ts + transmission-line-steady.spec.ts.

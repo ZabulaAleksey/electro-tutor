@@ -2588,18 +2588,29 @@
         "LINE-AC-006",
         "LINE-AC-007"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "transmission-line",
       "runtime": "Loaded signed phasors and local coordinate inspection",
       "security": "Bounded validated editor document",
       "a11y": "RU/UK plot, keyboard controls and numeric readings",
       "observability": "Shared coordinate and component phasors",
-      "gap": "Stage 11 real browser evidence pending.",
+      "gap": "Full verify and hosted browser evidence are pending.",
       "action": "Verify physical phasors and edit→calculation→inspection.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "code": [
+        "src/steady-line/phasors.ts",
+        "src/steady-line/circuit-mode.ts",
+        "src/components/SteadyLineLab.tsx",
+        "src/pages/[lang]/interactive/transmission-line-steady.astro"
+      ],
+      "unit": [
+        "src/steady-line/phasors.test.ts"
+      ],
+      "integration": [
+        "src/steady-line/phasors.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/transmission-line-steady.spec.ts"
+      ]
     }
   ]
 }

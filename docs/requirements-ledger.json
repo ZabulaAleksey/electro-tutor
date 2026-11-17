@@ -3022,14 +3022,14 @@
         "POWER-022",
         "POWER-023"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Independent general AC mesh solver and physical network import",
       "security": "Bound document size and numerical effort, validate before replacing the live study",
       "a11y": "Bilingual import, diagnostics and scrollable result tables",
       "observability": "Reference phasor, terminal flows, series losses, mismatch and unpowered buses",
       "action": "Import a two-loop network and solve it, then reject invalid data and preserve the operating result.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/ac-power-flow.ts",
         "src/power-system/ac-linear-system.ts",
@@ -3046,6 +3046,24 @@
       "e2e": [
         "tests/e2e/power-system-ac.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-024",
+        "POWER-025"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Independent ring-to-AC comparison in the live study",
+      "security": "Detect missing outputs, incompatible endpoints and invalid numeric differences",
+      "a11y": "Bilingual comparison, error state and keyboard-readable tolerances",
+      "observability": "Maximum U/angle/P/Q deviations and failing physical IDs",
+      "action": "Compare both solvers, select an alternative cut, and validate direction and unit mismatch diagnostics.",
+      "gap": "Stage 27 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

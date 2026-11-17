@@ -341,10 +341,11 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
 
   function start(event: PointerEvent<SVGSVGElement>) {
     if (inspectOnly) {
-      if (event.button === 0) {
-        const part = (event.target as Element).closest("[data-component-id]")?.getAttribute("data-component-id");
-        if (part) select(part);
-      }
+      gesture.current = null;
+      if (event.button !== 0) return;
+      const part = (event.target as Element).closest("[data-component-id]")?.getAttribute("data-component-id");
+      const start = point(event);
+      if (part && start) gesture.current = { pointer: event.pointerId, component: part, terminal: null, wire: null, start, origin: start };
       return;
     }
     if (event.pointerType === "touch") {
@@ -375,6 +376,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   }
 
   function drag(event: PointerEvent<SVGSVGElement>) {
+    if (inspectOnly) return;
     if (touches.current.has(event.pointerId)) {
       touches.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (pinch.current && touches.current.size >= 2) {
@@ -453,6 +455,14 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   }
 
   function finish(event: PointerEvent<SVGSVGElement>) {
+    if (inspectOnly) {
+      const held = gesture.current;
+      const at = point(event);
+      if (held?.pointer === event.pointerId) gesture.current = null;
+      if (held?.pointer === event.pointerId && at && held.component &&
+          Math.hypot(at.x - held.start.x, at.y - held.start.y) < 6) select(held.component);
+      return;
+    }
     const wasPinching = pinch.current !== null;
     releaseTouch(event.pointerId);
     if (wasPinching) return;

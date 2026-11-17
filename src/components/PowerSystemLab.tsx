@@ -22,6 +22,7 @@ import { LineEquivalentPanel } from "./LineEquivalentPanel";
 import { PowerLoadParameters } from "./PowerLoadParameters";
 import { ACPowerFlowPanel } from "./ACPowerFlowPanel";
 import { PowerSwitchPanel } from "./PowerSwitchPanel";
+import { PowerMobileReadout } from "./PowerMobileReadout";
 import { PowerFlowOverlay } from "./PowerFlowOverlay";
 import { PowerNetworkAuthor } from "./PowerNetworkAuthor";
 import { PowerOverlayControls } from "./PowerOverlayControls";
@@ -251,6 +252,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
             </>;
           },
         }} />
+      <PowerMobileReadout language={language} readings={overlayReadings} selectedId={equipmentId} />
       <div className="power-inspectors">
         <section className="power-panel">
           <h2>{words.device}</h2>

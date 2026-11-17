@@ -180,3 +180,5 @@ POWER-024–025 → power-system SPEC → power-system/ring-agreement.ts + RingA
 POWER-026–027 → power-system SPEC → flow-overlay.ts + author.ts + PowerFlowOverlay + PowerNetworkAuthor + PowerSystemLab → flow-overlay.test.ts + power-system-overlay.spec.ts.
 
 POWER-028–029 → power-system SPEC → normally-open.ts + network.ts + PowerSwitchPanel + PowerSystemLab → normally-open.test.ts + power-system-switching.spec.ts.
+
+POWER-030–031 → power-system SPEC → CircuitEditor + PowerMobileReadout + PowerSystemLab → power-system-mobile.spec.ts.

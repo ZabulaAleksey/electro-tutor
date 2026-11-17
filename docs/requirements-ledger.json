@@ -3110,18 +3110,29 @@
         "POWER-028",
         "POWER-029"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Physical operation and separate mathematical cut markers",
       "security": "Validate switch identity and preserve complete typed topology",
       "a11y": "Visible bilingual controls and physical switch state",
       "observability": "Radial or meshed topology, active switch current and independent cut marker",
       "action": "Close and reopen the normally open ring, verify recomputation, and place an independent mathematical cut.",
-      "gap": "Stage 29 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/normally-open.ts",
+        "src/power-system/network.ts",
+        "src/components/PowerSwitchPanel.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/normally-open.test.ts"
+      ],
+      "integration": [
+        "src/power-system/normally-open.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-switching.spec.ts"
+      ]
     }
   ]
 }

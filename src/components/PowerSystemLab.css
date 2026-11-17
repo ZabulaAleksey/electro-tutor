@@ -42,3 +42,8 @@
 .power-overlay-details{display:grid;gap:.4rem}
 .power-author form{display:grid;gap:.65rem;margin:.65rem 0}
 .power-author summary{cursor:pointer}
+.power-switches label{display:flex;align-items:center;gap:.55rem;min-height:44px}
+.power-switches input{width:1.1rem;min-height:0}
+.power-calculation-cut{color:var(--blue)}
+.power-calculation-cut path{stroke:currentColor;stroke-dasharray:4 3}
+.power-calculation-cut text{fill:currentColor;font-weight:700;font-size:12px}

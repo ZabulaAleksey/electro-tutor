@@ -178,3 +178,5 @@ POWER-022–023 → power-system SPEC → power-system/ac-power-flow.ts + ac-lin
 POWER-024–025 → power-system SPEC → power-system/ring-agreement.ts + RingAgreementPanel → ring-agreement.test.ts + power-system-agreement.spec.ts.
 
 POWER-026–027 → power-system SPEC → flow-overlay.ts + author.ts + PowerFlowOverlay + PowerNetworkAuthor + PowerSystemLab → flow-overlay.test.ts + power-system-overlay.spec.ts.
+
+POWER-028–029 → power-system SPEC → normally-open.ts + network.ts + PowerSwitchPanel + PowerSystemLab → normally-open.test.ts + power-system-switching.spec.ts.

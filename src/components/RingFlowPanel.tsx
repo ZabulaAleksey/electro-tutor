@@ -7,9 +7,11 @@ import type { Language } from "../types";
 import { RingAgreementPanel } from "./RingAgreementPanel";
 import { RingLossPanel } from "./RingLossPanel";
 
-export function RingFlowPanel({ configuration, language }: { configuration: PowerConfiguration; language: Language }) {
+export function RingFlowPanel({ configuration, language, cuts, onCutsChange }: {
+  configuration: PowerConfiguration; language: Language; cuts: readonly PowerCalculationCut[];
+  onCutsChange: (next: readonly PowerCalculationCut[]) => void;
+}) {
   const [method, setMethod] = useState<RingMethod>("lengths");
-  const [cuts, setCuts] = useState<readonly PowerCalculationCut[]>([]);
   const calculation = useMemo(() => {
     try { return { result: solvePreliminaryRing(configuration, method, cuts) }; }
     catch (error) { return { error: error instanceof Error ? error.message : "" }; }
@@ -43,7 +45,7 @@ export function RingFlowPanel({ configuration, language }: { configuration: Powe
           return <label key={quantity}>{title}<select value={cuts.find(item => item.quantity === quantity)?.busId ?? ""} aria-label={title}
             onChange={event => {
               const busId = event.target.value;
-              setCuts(previous => [...previous.filter(item => item.quantity !== quantity), ...(busId ? [{ busId, quantity }] : [])]);
+              onCutsChange([...cuts.filter(item => item.quantity !== quantity), ...(busId ? [{ busId, quantity }] : [])]);
             }}>
             <option value="">—</option>{result.branches.filter(line => line.toBusId !== result.referenceBusId)
               .map(line => <option value={line.toBusId} key={line.toBusId}>{line.toBusId}</option>)}

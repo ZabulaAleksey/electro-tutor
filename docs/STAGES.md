@@ -4,7 +4,7 @@
 
 ## ET-DEP-20261117 — Security dependency maintenance
 
-- Status: implemented_unverified
+- Status: blocked
 - Goal: устранить все текущие LOW/MODERATE находки pnpm, сохранить совместимость лабораторий, выполнить полный verify и штатный production deploy.
 - Entry: чистый main b614cda, предыдущий runtime eff12b6. pnpm 11.23.0. Исходный аудит даёт 5 LOW и 7 MODERATE.
 - Scope: package.json, pnpm-workspace.yaml, pnpm-lock.yaml, Node 22.23.4 в .node-version и существующем CI, dependency/security/evidence документы.
@@ -12,11 +12,14 @@
 - Dependencies: предыдущий мастер ET-UNIVERSAL-MASTER-V2 completed, production GitHub Pages и Cloudflare подтверждены.
 - Evals: frozen restore PASS, полный и production audit без находок, Python runtime audit, полный pnpm verify:full, существующий backend gate в GitHub CI, smoke четырёх лабораторий на обоих production hosts.
 - Recovery: предыдущий main b614cda и runtime eff12b6 сохраняются в Git и точной production-выкладке.
-- Evidence: Node 22.23.4 и pnpm 11.23.0. Полный pnpm verify:full PASS — 738 Vitest, 405 Chromium, 6 предусмотренных пропусков, 2 production smoke. Полный и production pnpm audit — 0 находок всех уровней. Python runtime pip-audit PASS. Dependency review PASS.
+- Evidence: первый полный verify до обновления advisory PASS (738 Vitest, 405 Chromium, 6 предусмотренных SKIP, 2 production smoke, audit 0). Повторный полный прогон через штатный pnpm runtime прошёл те же functional/build gates, но финальный HIGH audit FAIL: новый GHSA-fc5q-39xc-vjpf для picomatch <=4.0.7. Registry latest 4.0.7 и GitHub Advisory подтверждают отсутствие patched versions на 2026-11-17. Python runtime audit PASS. Первый GitHub run 44128969611 PASS для ae22dcd.
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
 - User actions: none
-- Blockers: none
-- NEXT: dependency-production-verification
+- Blockers: DEP-PICOMATCH-001 — upstream не выпустил исправленную версию picomatch. Audit gate сохранён, выпуск не подтверждён. Условие снятия: опубликованная исправленная версия, frozen restore, audit 0, полный verify PASS и точные CI/hosted receipts.
+- Runtime follow-up: Cloudflare 7161e382 для ae22dcd завершился ошибкой системного Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4, обычный pnpm exec node --version подтверждён. Исправление сохранено в рабочей ветке; production merge/deploy follow-up ждёт security gate.
+- Verification recovery: единственный browser.newContext crash до открытия страницы сохранён с trace. Свежий полный прогон прошёл 405 Chromium; тесты и пороги не менялись.
+- Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
+- NEXT: DEP-PICOMATCH-001; после upstream patch повторить audit/full verify/production delivery.
 
 - Completion sync: обновлены README, DEPENDENCIES, SECURITY, TESTING, project-context и STAGES. Проверены ROADMAP, pre-deploy SPEC, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL и TRACEABILITY.
 

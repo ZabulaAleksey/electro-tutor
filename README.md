@@ -50,7 +50,8 @@ service worker ранее посещённые материалы доступн
 
 Для фронтенда нужны Node.js `>=22.23.4` и pnpm `11.23.0` из
 [package.json](package.json). На Windows при блокировке PowerShell-обёртки
-используйте `pnpm.cmd` либо `corepack pnpm` с закреплённой версией.
+используйте `pnpm.cmd` либо `corepack pnpm` с закреплённой версией. pnpm автоматически загружает
+закреплённый в проекте Node 22.23.4 для запуска скриптов.
 
 ```bash
 pnpm install --frozen-lockfile

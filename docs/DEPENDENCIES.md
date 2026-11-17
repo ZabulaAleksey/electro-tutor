@@ -5,7 +5,7 @@
 - Менеджер и lockfile — pnpm 11.23.0, package.json, pnpm-workspace.yaml и pnpm-lock.yaml.
 - Исправленные прямые зависимости — Astro 7.4.7, KaTeX 0.18.2 и Vitest 4.1.12 и Vite 8.3.8.
 - Транзитивные закрепления — fast-uri 3.1.9, smol-toml 1.9.1 и minimatch 11.0.1 только для запросов >=7 <11.0.1. Прежние потребители minimatch 3 сохраняют свою ветвь API. devalue закреплён отдельно в major 5 (5.9.3 для @astrojs/react) и major 6 (6.0.3 для Astro). Zod 4.6.7 и smol-toml 1.9.1 удовлетворяют диапазонам Astro. Все достижимые запросы Vite 8 разрешаются в 8.3.8, включая React plugin и Vitest.
-- Astro 7.4.7 требует Node >=22.23.4. CI и .node-version закрепляют 22.23.4. Локальная проверка использует официальный Node с проверенной SHA-256 из SHASUMS256.txt.
+- Astro 7.4.7 требует Node >=22.23.4. CI и .node-version закрепляют 22.23.4. Полный локальный прогон прошёл на официальном Node с проверенной SHA-256 из SHASUMS256.txt. Поле devEngines.runtime закрепляет Node 22.23.4 для обычных pnpm run и pnpm exec, pnpm сохраняет разрешение и контрольные суммы в lockfile. [Runtime contract](https://pnpm.io/package_json#devenginesruntime)
 - pnpm audit после обновления — 0 LOW, 0 MODERATE, 0 HIGH, 0 CRITICAL. Полная квалификация и production evidence находятся в выбранном record STAGES.
 - Clean restore и CI restore — pnpm install --frozen-lockfile. Изменения lockfile производит pnpm. Корневой node_modules восстанавливается из штатного shared store, временный проверочный Node хранится в рабочем каталоге задачи.
 - При удалении override требуется доказать по lockfile, что родители разрешают исправленные версии штатно. Изменение основной версии minimatch проверяется существующими статическими и полными browser gates.

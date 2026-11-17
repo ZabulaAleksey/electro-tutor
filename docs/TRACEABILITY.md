@@ -4,6 +4,8 @@ CE-001, CE-003, CE-006 → канонический контракт топол�
 
 CE-007 → circuit-engine SPEC → circuit-archive, line-archive-document, CircuitEditor и расчётный Worker → circuit-archive.test.ts и transmission-archive-migration.spec.ts.
 
+CE-009…011 → Circuit Engine SPEC → drawing, CircuitEditor, document → recursive-branching.test.ts и circuit-branching.spec.ts.
+
 CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.
 
 ## ET-LAB-022

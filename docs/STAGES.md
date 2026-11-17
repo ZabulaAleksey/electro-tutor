@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-002
+- Stage ID: ET-UNIVERSAL-003
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -39,16 +39,110 @@
 
 ## ET-UNIVERSAL-002 — Stage 2. Topology contract
 
-- Status: partial
+- Status: verified
 - Entry: ET-UNIVERSAL-001 verified и запушен в docs/universal-labs-stage-0 на 11fab02. Утверждённые требования CE-001, CE-003, CE-006, CE-007 и действующий ADR об ID выводов.
 - Scope: канонические компоненты, выводы, junctions, провода, производные сети и граница геометрии. Уточнение SPEC и сквозные проверки действующих кодеков. Пользовательский интерфейс, форматы на диске и решатели сохраняют действующие контракты.
 - Runnable slice: пользователь открывает существующую схему, меняет её геометрию, экспортирует и открывает JSON. Соединения, ID, параметры и одиночные выводы остаются теми же. Архивы v2–v5 проходят через прежний архивный адаптер. Неподдерживаемый файл отклоняется до замены схемы.
 - Acceptance: сравнить полную топологию и netlist после каждого round-trip, проверить входы v1/v2 и перенос архивов линии, выполнить действующие Chromium-сценарии редактора и линии.
 - Evidence: контракт уточнён в circuit-engine.spec.md. Локально PASS: 594 Vitest (83 файла), 13 аналитических задач / 49 утверждений, 21 Chromium редактора и архивов, Astro check и ESLint. Четыре дополнительных evals проверяют импорт v1/v2, экспорт v2, сохранение ID и netlist, одиночные концы и ретрассировку при перемещении. Chromium использовал проверенный артефакт Stage 1 с той же runtime-ревизией.
 - Completion sync: обновлены SPEC, STAGES, ROADMAP, TESTING и TRACEABILITY. Сверены README, ARCHITECTURE, ADR-060, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context. Изменения подключения и рекурсивные ветви относятся к Stage 3.
-- User actions: ET-UNIVERSAL-002-PUSH | PENDING | Для публикации Stage 2 дать команду на push подготовленного коммита в текущую ветку. Ожидаемое evidence: совпадение локального и удалённого SHA. Разблокирует завершение Stage 2 по мастер-промпту.
-- NEXT: publish-stage2
-- Next action: после подтверждённого push закрыть Stage 2. Кандидат следующего запуска ET-UNIVERSAL-003: рекурсивные ветвления и контрольные T/П, лестница, параллельные RLC, мост и масштаб. Рекомендуемый режим FRONTIER / High.
+- User actions: none
+- Published: Stage 2 checkpoint 636154396b243b312ac49c581c0bfdd595430314 подтверждён на GitHub.
+- NEXT: ET-UNIVERSAL-003
+
+## ET-UNIVERSAL-003 — Stage 3. Recursive branching
+
+- Status: implemented
+- Entry: опубликованный Stage 2 `6361543` и верифицированный контракт CE-001, CE-003, CE-005, CE-006. Master Prompt v2, § 4 и § 24.
+- Goal: последовательные вставки и дополнительные ветви используют явные узлы и выводы. Схема со 100 элементами остаётся редактируемой и проходит экспорт/импорт с тем же netlist.
+- Eval-first: T, П, лестница, две параллельные RLC-ветви, мост, соединённая схема на 100 компонентов. Проверить реальный жест в CircuitEditor, round-trip JSON и откат одной операцией. Отдельные правила решателей вступают в силу в своих адаптерах.
+- User actions: none
+- Evidence: пять топологических evals, 23 целевых Chromium и полный verify:full PASS. 599 Vitest, 369 root Chromium, 6 SKIP, 2 production smoke. Ожидается preview ветки.
+- NEXT: stage3-preview
+
+```master-execution
+{
+  "schema_version": 2,
+  "state_revision": 2,
+  "master": {
+    "id": "ET-UNIVERSAL-MASTER-V2",
+    "status": "running",
+    "source": {
+      "backend": "google_drive",
+      "queue_id": "none",
+      "item_id": "ElectroTutor-Master-Prompt-v2",
+      "revision": "2026-11-16T16:28:20.617Z",
+      "prompt_type": "master_prompt",
+      "retention": "Original Google Doc and selected project SPECs"
+    }
+  },
+  "tracks": [
+    {
+      "id": "universal-labs-v2",
+      "repository": "C:/Users/aleks/projects/electro-tutor",
+      "worktree": "C:/Users/aleks/projects/electro-tutor",
+      "branch": "docs/universal-labs-stage-0",
+      "checkpoint": "636154396b243b312ac49c581c0bfdd595430314",
+      "ownership": [
+        "src",
+        "specs",
+        "tests",
+        "docs"
+      ],
+      "status": "active"
+    }
+  ],
+  "slices": [
+    {"id":"ET-UNIVERSAL-000","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Baseline snapshot","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"1273ea397f5877ff07e6eb2f9552d57bc99756e9","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"LOW","reasoning_effort":"low","stop_after":false},
+    {"id":"ET-UNIVERSAL-001","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Inventory editor architecture","status":"verified","predecessors":["ET-UNIVERSAL-000"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1273ea397f5877ff07e6eb2f9552d57bc99756e9","checkpoint_after":"11fab0214ddf3002b083eb55f4304ea83c753b94","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-002","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Topology contract","status":"verified","predecessors":["ET-UNIVERSAL-001"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"11fab0214ddf3002b083eb55f4304ea83c753b94","checkpoint_after":"636154396b243b312ac49c581c0bfdd595430314","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-003","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Recursive branching","status":"running","predecessors":["ET-UNIVERSAL-002"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"636154396b243b312ac49c581c0bfdd595430314","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":["CE-001","CE-003","CE-006"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-004","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Shared mode adapter","status":"queued","predecessors":["ET-UNIVERSAL-003"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/circuit-engine.spec.md","src/circuit","tests/e2e/circuit-editor.spec.ts"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-005","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient default template and switching","status":"queued","predecessors":["ET-UNIVERSAL-004"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-006","master_id":"ET-UNIVERSAL-MASTER-V2","title":"RLC reduction engine","status":"queued","predecessors":["ET-UNIVERSAL-005"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"queued","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"queued","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"queued","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"queued","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"queued","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"queued","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"queued","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"queued","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"queued","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"queued","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"queued","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"queued","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"queued","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"queued","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"queued","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"queued","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"queued","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"queued","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"queued","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"queued","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"queued","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"queued","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"queued","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"queued","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
+  ],
+  "blockers": [],
+  "decisions": [],
+  "context_budget": {
+    "max_chars": 55000,
+    "max_items": 8,
+    "max_contours": 3,
+    "max_decisions": 2,
+    "max_evidence_threads": 4
+  },
+  "next_action": "Qualify recursive branching and reopen a connected 100-component document before starting the mode adapter.",
+  "integration": {
+    "required": false,
+    "reason": ""
+  }
+}
+```
 
 ## final-qualification
 

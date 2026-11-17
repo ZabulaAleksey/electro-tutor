@@ -2304,6 +2304,73 @@
       "e2e": [
         "tests/e2e/circuit-editor.spec.ts"
       ]
+    },
+      {
+      "requirement_ids": [
+        "CE-009"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "circuit-engine",
+      "runtime": "Explicit topology operations",
+      "security": "Bounded route and document validation",
+      "a11y": "Existing RU/UK editor controls",
+      "observability": "Editor topology and routing diagnostics",
+      "gap": "Hosted branch preview pending",
+      "action": "Verify the same commit through the preview and record it in STAGES.",
+      "code": [
+        "src/circuit/drawing.ts"
+      ],
+      "unit": [
+        "src/circuit/recursive-branching.test.ts"
+      ],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/circuit-branching.spec.ts"
+      ]
+    },
+      {
+      "requirement_ids": [
+        "CE-010"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "circuit-engine",
+      "runtime": "Pointer wire and shunt editing",
+      "security": "Bounded route and document validation",
+      "a11y": "Existing RU/UK editor controls",
+      "observability": "Editor topology and routing diagnostics",
+      "gap": "Hosted branch preview pending",
+      "action": "Verify the same commit through the preview and record it in STAGES.",
+      "code": [
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [
+        "src/circuit/recursive-branching.test.ts"
+      ],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/circuit-branching.spec.ts"
+      ]
+    },
+      {
+      "requirement_ids": [
+        "CE-011"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "circuit-engine",
+      "runtime": "Connected 100-component JSON",
+      "security": "Bounded route and document validation",
+      "a11y": "Existing RU/UK editor controls",
+      "observability": "Editor topology and routing diagnostics",
+      "gap": "Hosted branch preview pending",
+      "action": "Verify the same commit through the preview and record it in STAGES.",
+      "code": [
+        "src/circuit/document.ts"
+      ],
+      "unit": [
+        "src/circuit/recursive-branching.test.ts"
+      ],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

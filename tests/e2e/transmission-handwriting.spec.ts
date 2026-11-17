@@ -345,8 +345,10 @@ test("one marked endpoint can extend the existing line at its last node", async 
   const node = (await canvas.locator(".network-junction").nth(1).boundingBox())!;
   const x = node.x+node.width/2-area.x, y = node.y+node.height/2-area.y;
   await stroke(page,[[x,y]]);
-  await stroke(page,[[x+125,y-85]]);
-  await stroke(page,[[x,y],[x+125,y-85]]);
+  // Keep the second mark inside the SVG even when its border rounds to a device pixel.
+  const destination: [number, number] = [x+125, y-60];
+  await stroke(page,[destination]);
+  await stroke(page,[[x,y],destination]);
   await expect(kind(page)).toHaveValue("line");
   await insert(page).click();
   await expect(canvas.locator("[data-line-section=TL2]")).toBeVisible();

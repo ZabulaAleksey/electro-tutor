@@ -36,6 +36,12 @@ topology-contract.test.ts загружает примеры RLC и длинно�
 
 PASS: 594 Vitest в 83 файлах, 13 аналитических задач / 49 утверждений, 21 Chromium на проверенном артефакте Stage 1, включая четыре версии архивов. Astro check: 0 ошибок, 0 предупреждений, 3 подсказки. ESLint и context route прошли. Полный verify из Stage 1 относится к той же версии runtime.
 
+## ET-UNIVERSAL-003 — рекурсивные ветви и 100 компонентов
+
+RED: на прежней версии соединённый документ со 100 компонентами останавливался на лимите 64. В отдельном Chromium-тесте перетаскивание от J1 оставляло один узел. Поперечная вставка между двумя узлами сохраняла исходные две сети без компонента.
+
+GREEN: пять Vitest проверяют T, П, лестницу, параллельные RLC, четыре сети моста Уитстона, а также полную идентичность топологии и netlist после round-trip 100 компонентов и 99 проводов. 23 целевых Chromium прошли на свежей сборке. Новые сценарии проверяют повторное ветвление, поперечную вставку и атомарный Undo. Первый широкий прогон выявил, что в отдельном тесте рукописного ввода вторая отметка попадала на верхнюю границу SVG: в трассе есть первая отметка и соединительный штрих, но нет второй отметки. Точка перенесена внутрь SVG при прежних утверждениях. Восемь целевых повторов прошли. Штатный Windows verify:full с одним Chromium-воркером прошёл: 599 Vitest, 369 root Chromium, 6 штатных пропусков, 2 production smoke, типы, lint, сборка и HIGH audit.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

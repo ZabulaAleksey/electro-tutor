@@ -382,6 +382,58 @@ export default function CircuitEditor({ language, embedded = false, initial, act
     setConflict(clearGeometry(candidate) ? null : "collision");
   }
 
+  function finishWireDrag(event: PointerEvent<SVGSVGElement>, from: string, at: Point) {
+    const hit = document.elementFromPoint(event.clientX, event.clientY);
+    if (!hit || !event.currentTarget.contains(hit)) return;
+    const endpoint = hit.closest("[data-circuit-terminal]")?.getAttribute("data-circuit-terminal");
+    if (endpoint === from) return;
+    if (!endpoint && hit.closest("[data-component-id], [data-circuit-wire]")) {
+      setConflict("routeError");
+      return;
+    }
+
+    const destination = snap(at);
+    if (!endpoint && [...ports.values()].some(({ pin }) => pin.x === destination.x && pin.y === destination.y)) {
+      setConflict("collision");
+      return;
+    }
+    try {
+      const next = endpoint ? drawing : junctionAt(drawing, destination);
+      const to = endpoint ?? next.topology.junctions.at(-1)!;
+      if (commit(wireDrawing(next, from, to))) setWireStart(null);
+    } catch {
+      setConflict("routeError");
+    }
+  }
+
+  function finishShuntDrag(event: PointerEvent<SVGSVGElement>, kind: PartKind, from: string) {
+    const hit = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-circuit-terminal]");
+    if (!hit || !event.currentTarget.contains(hit)) return;
+    const to = hit.getAttribute("data-circuit-terminal");
+    const a = ports.get(from)?.pin, b = to && ports.get(to)?.pin;
+    if (!to || from === to || !a || !b) return;
+
+    const center = snap({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    if (!canPlace(drawing, center)) {
+      setConflict("collision");
+      return;
+    }
+    const rotation = Math.abs(b.y - a.y) > Math.abs(b.x - a.x)
+      ? (a.y < b.y ? 90 : 270)
+      : (a.x < b.x ? 0 : 180);
+    try {
+      const placed = placeComponent(drawing, kind, center);
+      const part = placed.topology.components.at(-1)!;
+      const oriented = {
+        ...placed, positions: { ...placed.positions, [part.id]: { ...placed.positions[part.id], rotation } },
+      };
+      const [input, output] = part.terminals;
+      if (commit(wireDrawing(wireDrawing(oriented, from, input), output, to))) select(part.id);
+    } catch {
+      setConflict("routeError");
+    }
+  }
+
   function finish(event: PointerEvent<SVGSVGElement>) {
     const wasPinching = pinch.current !== null;
     releaseTouch(event.pointerId);
@@ -399,7 +451,14 @@ export default function CircuitEditor({ language, embedded = false, initial, act
       if (held.component) select(held.component);
     }
     if (tool === "wire") {
-      if (!moved && held.terminal) choose(held.terminal);
+      if (held.terminal) {
+        if (moved) finishWireDrag(event, held.terminal, at);
+        else choose(held.terminal);
+      }
+      return;
+    }
+    if (moved && held.terminal && tool && tool !== "junction" && tool !== "line") {
+      finishShuntDrag(event, tool, held.terminal);
       return;
     }
     if (held.component && moved && !drawing.positions[held.component].pinned) {

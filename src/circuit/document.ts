@@ -55,7 +55,7 @@ export function parseCircuit(text: string): { drawing: Drawing; settings: Circui
       !/^[a-z][a-z0-9-]{0,39}$/.test(extension.adapter) || !Object.hasOwn(extension, "data"))) {
     throw Error("invalid-extension");
   }
-  if (graph.components.length > 64 || graph.junctions.length > 80 || graph.wires.length > 128 ||
+  if (graph.components.length > 100 || graph.junctions.length > 80 || graph.wires.length > 128 ||
     Object.keys(geometry.positions).length !== graph.components.length ||
     Object.keys(geometry.junctionPositions).length !== graph.junctions.length) throw Error("invalid-document");
   const grid = settings.grid;

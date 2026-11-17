@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-018
+- Stage ID: ET-UNIVERSAL-019
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -226,18 +226,30 @@
 
 ## ET-UNIVERSAL-018 — Stage 18. Equipment catalog schema
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 17 verified. Физические устройства хранят идентификатор каталожного типа отдельно от электрической связности.
 - Goal: версионируемые типы линий и двухобмоточных трансформаторов с происхождением, проверкой параметров и пользовательскими записями.
 - Evals: указание точной версии, сохранение ссылки старого документа, выбор пользовательского типа, отклонение дубликатов, неполного происхождения и недопустимых паспортных данных.
 - Deferred: интерфейс каталога и вычисление схем замещения.
 - User actions: none
-- NEXT: stage18-equipment-catalogue
+- Evidence: 10 целевых и 698 общих Vitest, check/lint/build PASS. Проверены точные и старые каталожные ссылки, сохранение параметров физических устройств, происхождение, оба представления шунта, отпаек и активной составляющей. Исходный каталог не содержит неподтверждённых паспортных значений. GitHub SHA d6eca951ca91938713903a64dc36c1bbe34234ae.
+- NEXT: ET-UNIVERSAL-019
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, TRACEABILITY, SPEC электрических сетей и coverage ledger. Проверены README, ROADMAP, DESIGN, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-019 — Stage 19. Catalog UI and hidden advanced parameters
+
+- Status: in_progress
+- Entry: Stage 18 verified. Каталог читает собственные и документированные типы, поддерживает ревизии и закрепляет тип на физическом устройстве.
+- Goal: RU/UK лаборатория даёт простые параметры линии и трансформатора, выбор типа, скрытые дополнительные поля, локальное переопределение и возврат к типу. Напряжение выбирается из учебного набора или вводится вручную.
+- Evals: открыть физическую схему, загрузить пользовательские типы, закрепить ревизии, изменить параметры в дополнительных настройках и вернуть исходные. Другие экземпляры и записи каталога сохраняются. Проверить узкий экран и стандартное/пользовательское напряжение.
+- Deferred: вычисление эквивалентов и потоков.
+- User actions: none
+- NEXT: stage19-catalogue-ui
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 18,
+  "state_revision": 19,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -256,7 +268,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "c54ed7f94ed95641fbcfcea37b67f4cce846abb6",
+      "checkpoint": "d6eca951ca91938713903a64dc36c1bbe34234ae",
       "ownership": [
         "src",
         "specs",
@@ -285,8 +297,8 @@
     {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"verified","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f551934d20c52263876dc4fc5e4caa637226a647","checkpoint_after":"3e786989c158806f146defbba3711d82f242b0c5","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/lc-polynomial.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-012","LC-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"verified","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"3e786989c158806f146defbba3711d82f242b0c5","checkpoint_after":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-cauer-i.ts","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-014","LC-015","LC-016"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"verified","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","checkpoint_after":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/topology.ts","src/power-system"],"requirements":["POWER-001","POWER-002","POWER-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"running","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/network.ts","src/power-system/topology.ts"],"requirements":["POWER-004","POWER-005","POWER-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"queued","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"verified","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","checkpoint_after":"d6eca951ca91938713903a64dc36c1bbe34234ae","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/network.ts","src/power-system/topology.ts"],"requirements":["POWER-004","POWER-005","POWER-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"running","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d6eca951ca91938713903a64dc36c1bbe34234ae","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/catalogue.ts","src/power-system/network.ts","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-007","POWER-008","POWER-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"queued","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
@@ -310,7 +322,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Define and validate revisioned line and transformer types with documented provenance and custom records.",
+  "next_action": "Expose equipment selection, advanced overrides and voltage choices in the bilingual power-system laboratory.",
   "integration": {
     "required": false,
     "reason": ""

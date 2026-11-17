@@ -2815,6 +2815,25 @@
         "src/power-system/catalogue.test.ts"
       ],
       "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "POWER-007",
+        "POWER-008",
+        "POWER-009"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Bilingual equipment catalogue selection, isolated overrides and nominal voltage input",
+      "security": "Validate imported and edited catalogue data before changing state",
+      "a11y": "RU/UK labelled basic and expandable advanced controls",
+      "observability": "Pinned type revision, provenance, effective override and reset",
+      "action": "Configure two actual physical devices, change a single instance without changing its type, and verify voltage options on both locales.",
+      "gap": "Stage 19 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

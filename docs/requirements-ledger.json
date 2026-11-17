@@ -2822,14 +2822,14 @@
         "POWER-008",
         "POWER-009"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Bilingual equipment catalogue selection, isolated overrides and nominal voltage input",
       "security": "Validate imported and edited catalogue data before changing state",
       "a11y": "RU/UK labelled basic and expandable advanced controls",
       "observability": "Pinned type revision, provenance, effective override and reset",
       "action": "Configure two actual physical devices, change a single instance without changing its type, and verify voltage options on both locales.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/configuration.ts",
         "src/power-system/diagram.ts",
@@ -2847,6 +2847,24 @@
       "e2e": [
         "tests/e2e/power-system-config.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-010",
+        "POWER-011"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Per-phase nominal π line model and physical device inspector",
+      "security": "Validate numerical parameter bounds before producing an equivalent",
+      "a11y": "Bilingual, keyboard-expandable line equivalent and textual values",
+      "observability": "Series impedance, shunt at each end and effective nominal voltage",
+      "action": "Configure a line type, length and circuits, compare the displayed equivalent, then override and reset R.",
+      "gap": "Stage 20 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

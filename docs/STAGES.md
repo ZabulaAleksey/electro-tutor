@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-019
+- Stage ID: ET-UNIVERSAL-020
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -238,18 +238,30 @@
 
 ## ET-UNIVERSAL-019 — Stage 19. Catalog UI and hidden advanced parameters
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 18 verified. Каталог читает собственные и документированные типы, поддерживает ревизии и закрепляет тип на физическом устройстве.
 - Goal: RU/UK лаборатория даёт простые параметры линии и трансформатора, выбор типа, скрытые дополнительные поля, локальное переопределение и возврат к типу. Напряжение выбирается из учебного набора или вводится вручную.
 - Evals: открыть физическую схему, загрузить пользовательские типы, закрепить ревизии, изменить параметры в дополнительных настройках и вернуть исходные. Другие экземпляры и записи каталога сохраняются. Проверить узкий экран и стандартное/пользовательское напряжение.
 - Deferred: вычисление эквивалентов и потоков.
 - User actions: none
-- NEXT: stage19-catalogue-ui
+- Evidence: 702 Vitest, 39 локальных и 19 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Подтверждены выбор закреплённой ревизии, изоляция переопределений, сброс, отпайки и отдельные напряжения шины и источника. SHA 5a078c12d7676e07cb06911a1ac35a28948d4b6e. Preview https://b0cc8740.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-020
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY и coverage ledger. Проверены README, ROADMAP, SPEC электрических сетей, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-020 — Stage 20. Line equivalent generator
+
+- Status: in_progress
+- Entry: Stage 19 verified. Параметры фактической линии редактируются и связываются с каталожной ревизией.
+- Goal: вычислить пофазную номинальную П-схему линии из действующих параметров, длины и числа цепей. Показать эквивалент в RU/UK лаборатории рядом с физической линией.
+- Evals: независимое численное сравнение сопротивлений и проводимостей, C′ и B′, длина, параллельные цепи, изменённый тип и сброс override. End-to-end пользователь меняет фактическую линию и сверяет формулы, вывод и восстановление результата.
+- Deferred: трансформатор, режим сети, расчёт напряжений и потерь.
+- User actions: none
+- NEXT: stage20-line-equivalent
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 19,
+  "state_revision": 20,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -268,7 +280,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "d6eca951ca91938713903a64dc36c1bbe34234ae",
+      "checkpoint": "5a078c12d7676e07cb06911a1ac35a28948d4b6e",
       "ownership": [
         "src",
         "specs",
@@ -298,8 +310,8 @@
     {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"verified","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"3e786989c158806f146defbba3711d82f242b0c5","checkpoint_after":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-cauer-i.ts","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-014","LC-015","LC-016"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"verified","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","checkpoint_after":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/topology.ts","src/power-system"],"requirements":["POWER-001","POWER-002","POWER-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"verified","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","checkpoint_after":"d6eca951ca91938713903a64dc36c1bbe34234ae","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/network.ts","src/power-system/topology.ts"],"requirements":["POWER-004","POWER-005","POWER-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"running","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d6eca951ca91938713903a64dc36c1bbe34234ae","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/catalogue.ts","src/power-system/network.ts","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-007","POWER-008","POWER-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"verified","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d6eca951ca91938713903a64dc36c1bbe34234ae","checkpoint_after":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/catalogue.ts","src/power-system/network.ts","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-007","POWER-008","POWER-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"running","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/line-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-010","POWER-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"queued","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"queued","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -322,7 +334,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Expose equipment selection, advanced overrides and voltage choices in the bilingual power-system laboratory.",
+  "next_action": "Generate the balanced nominal-pi equivalent from the selected line type and expose it in the bilingual lab.",
   "integration": {
     "required": false,
     "reason": ""

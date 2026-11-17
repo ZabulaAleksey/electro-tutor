@@ -174,3 +174,5 @@ POWER-018–019 → power-system SPEC → power-system/ring-preliminary.ts + rin
 POWER-020–021 → power-system SPEC → power-system/ring-refinement.ts + RingFlowPanel + RingLossPanel → ring-refinement.test.ts + power-system-ring-loss.spec.ts.
 
 POWER-022–023 → power-system SPEC → power-system/ac-power-flow.ts + ac-linear-system.ts + layout.ts + ACPowerFlowPanel → ac-power-flow.test.ts + power-system-ac.spec.ts.
+
+POWER-024–025 → power-system SPEC → power-system/ring-agreement.ts + RingAgreementPanel → ring-agreement.test.ts + power-system-agreement.spec.ts.

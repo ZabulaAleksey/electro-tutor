@@ -3052,18 +3052,28 @@
         "POWER-024",
         "POWER-025"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Independent ring-to-AC comparison in the live study",
       "security": "Detect missing outputs, incompatible endpoints and invalid numeric differences",
       "a11y": "Bilingual comparison, error state and keyboard-readable tolerances",
       "observability": "Maximum U/angle/P/Q deviations and failing physical IDs",
       "action": "Compare both solvers, select an alternative cut, and validate direction and unit mismatch diagnostics.",
-      "gap": "Stage 27 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/ring-agreement.ts",
+        "src/components/RingAgreementPanel.tsx",
+        "src/components/RingFlowPanel.tsx"
+      ],
+      "unit": [
+        "src/power-system/ring-agreement.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ring-agreement.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-agreement.spec.ts"
+      ]
     }
   ]
 }

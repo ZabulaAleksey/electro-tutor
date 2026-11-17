@@ -4,6 +4,7 @@ import type { PowerConfiguration } from "../power-system/configuration";
 import type { PowerCalculationCut } from "../power-system/network";
 import { solvePreliminaryRing, type RingBranch, type RingMethod } from "../power-system/ring-preliminary";
 import type { Language } from "../types";
+import { RingAgreementPanel } from "./RingAgreementPanel";
 import { RingLossPanel } from "./RingLossPanel";
 
 export function RingFlowPanel({ configuration, language }: { configuration: PowerConfiguration; language: Language }) {
@@ -63,6 +64,7 @@ export function RingFlowPanel({ configuration, language }: { configuration: Powe
         </table>
       </div>
       <RingLossPanel configuration={configuration} method={method} cuts={cuts} language={language} />
+      <RingAgreementPanel configuration={configuration} method={method} cuts={cuts} language={language} />
     </>}
   </section>;
 }

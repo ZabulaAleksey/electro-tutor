@@ -2937,14 +2937,14 @@
         "POWER-016",
         "POWER-017"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Iterative radial branch flow and live bilingual results",
       "security": "Bound iteration and reject missing or nonphysical models",
       "a11y": "Readable bus and branch tables, keyboard-accessible narrow scrolling",
       "observability": "Branch losses, convergence iterations, voltage and independently calculated power balance",
       "action": "Configure two lines and transformer, solve the live network, and update one load to observe the voltage change.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/radial-flow.ts",
         "src/components/RadialFlowPanel.tsx",
@@ -2959,6 +2959,24 @@
       "e2e": [
         "tests/e2e/power-system-radial.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-018",
+        "POWER-019"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Lossless ring power by length or complex impedance",
+      "security": "Validate simple topology, matched voltage bases and effective branch types",
+      "a11y": "Bilingual results and independent keyboard cut selectors",
+      "observability": "Directional signed P/Q, two splitting points and unchanged closed ring",
+      "action": "Compare a live homogeneous ring by both methods and assign distinct P/Q study cuts.",
+      "gap": "Stage 24 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

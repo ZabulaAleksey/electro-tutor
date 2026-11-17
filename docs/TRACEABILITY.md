@@ -136,3 +136,5 @@ LINE-UX-034–035 → transmission-line-transient SPEC → режим, выбо�
 CE-013–015 → circuit-engine SPEC → `src/circuit/rlc-reduction.ts` → `src/circuit/rlc-reduction.test.ts`, включая расчёт через transmissionCircuitAdapter и simulateNetwork.
 
 LINE-UX-036 → transmission-line-transient SPEC → circuit-adapter, line-archive-document, TransmissionNetworkLab, line-readings → circuit-adapter-stage7.test.ts, line-readings.test.ts, transient-reduction.spec.ts и transmission-archive-migration.spec.ts.
+
+LINE-UX-024, LINE-UX-037 → transmission-line-transient SPEC → CircuitEditor, TransmissionNetworkLab, EngineeringPlot и SVG export → transient-spatial-layout.spec.ts и transmission-editor-duration.spec.ts.

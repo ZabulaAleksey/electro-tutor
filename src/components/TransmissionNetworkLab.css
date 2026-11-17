@@ -44,3 +44,37 @@
 .network-schematic-drawing .network-transmission-stroke{stroke-width:3;stroke-linecap:round}
 @media(max-width:390px){.network-speed-choice{gap:2px;font-size:.65rem}.network-lab .network-speed-choice select{padding-inline:2px}.network-lab .network-toolbar button{font-size:.76rem}}
 @media(max-height:480px){.network-timing>div{max-height:40dvh;overflow:auto}}
+
+.network-lab { display:grid; align-items:start; gap:12px; }
+.network-lab .network-workbench, .network-measurements { min-width:0; }
+.network-lab .network-measurements { padding:0; }
+.network-measurements-title { margin:0 0 6px; font-size:1.15rem; }
+.network-result-details, .network-spatial-plots, .network-time-plots { display:grid; gap:8px; min-width:0; }
+.network-spatial-plots { --red:var(--error); }
+.network-spatial-plots .engineering-plot { max-height:clamp(144px,23svh,218px); }
+.network-spatial-plots [stroke="var(--blue)"][data-plot-curve] { stroke-width:3.3; }
+.network-legend { display:flex; align-items:center; flex-wrap:wrap; gap:4px 16px; font-size:.78rem; }
+.network-legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.network-legend i { width:1.1rem; border-top:2px solid; }
+.network-observation { display:grid; gap:6px; padding-block:4px; }
+.network-metrics { display:flex; flex-wrap:wrap; gap:3px 14px; }
+.network-time-slider { display:grid; gap:2px; }
+.network-time-slider input { width:100%; min-width:0; }
+
+@media (min-width:1100px) {
+  .network-workbench .circuit-editor:has(.network-spatial-plots) {
+    grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+    column-gap:clamp(16px,2.2vw,32px);
+    max-width:100%;
+  }
+  .network-workbench .circuit-editor > :not(.circuit-viewport,.network-spatial-plots) { grid-column:1/-1; }
+  .network-time-plots { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .network-workbench .circuit-viewport { height:clamp(280px,46svh,420px); }
+}
+@media (max-width:650px) {
+  .network-workbench .circuit-editor { gap:6px; }
+  .network-workbench .circuit-editor > h3 { margin:4px 0; }
+  .network-workbench .circuit-viewport { height:clamp(230px,36svh,310px); }
+  .network-workbench .circuit-viewport > svg { min-height:min(36svh,310px); }
+  .network-spatial-plots .engineering-plot { max-height:145px; }
+}

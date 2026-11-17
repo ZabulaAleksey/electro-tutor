@@ -62,7 +62,7 @@ export type CircuitBoardExtension = {
 };
 
 export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
-  extension, onDocumentChange, onClear, history, initialSelection }: {
+  extension, onDocumentChange, onClear, history, initialSelection, afterBoard }: {
   language: Language;
   embedded?: boolean;
   mode?: CircuitEditorMode;
@@ -74,6 +74,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   onDocumentChange?: (document: string) => boolean;
   onClear?: () => void;
   initialSelection?: string;
+  afterBoard?: React.ReactNode;
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
 }) {
   const copy = circuitCopy(language);
@@ -676,6 +677,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
         </g>
       </svg>
     </div>
+    {afterBoard}
     {embedded && mainTools}
     {extension?.inspector?.(drawing, selected)}
     <div className="circuit-toolbar circuit-file-tools">

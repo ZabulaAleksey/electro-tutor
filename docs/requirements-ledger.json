@@ -2512,18 +2512,26 @@
       "requirement_ids": [
         "LINE-UX-037"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "transmission-line",
       "runtime": "Responsive spatial plots and wave layering",
       "security": "Existing local SVG export",
       "a11y": "Shared scales and responsive controls",
       "observability": "Rendered plot positions and SVG stroke order",
-      "gap": "Stage 8 desktop and mobile evidence pending.",
+      "gap": "Final browser and hosted evidence tracked in STAGES.",
       "action": "Verify coordinated scales, layering, mobile layout and SVG export.",
-      "code": [],
+      "code": [
+        "src/circuit/CircuitEditor.tsx",
+        "src/components/TransmissionNetworkLab.tsx",
+        "src/components/TransmissionNetworkLab.css"
+      ],
       "unit": [],
       "integration": [],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/transient-spatial-layout.spec.ts",
+        "tests/e2e/transmission-workbench.spec.ts",
+        "tests/e2e/transmission-handwriting.spec.ts"
+      ]
     }
   ]
 }

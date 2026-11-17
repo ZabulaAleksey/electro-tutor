@@ -321,7 +321,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  const plot=(axis:"x"|"t",q:"u"|"i")=>{const pts=axis==="x"?(q==="u"?spatialU:spatialI):(q==="u"?traceU:traceI),curves=[{label:axis==="x"?`${q.toUpperCase()}(x)`:`${q.toUpperCase()}(t)`,color:axis==="x"||q==="u"?"blue":"orange",points:pts}];if(waves&&axis==="x"){curves.push({label:ru?`Прямая ${q.toUpperCase()}⁺`:`Пряма ${q.toUpperCase()}⁺`,color:"red",points:spatial(run,time,q==="u"?"forward":"forwardI")});curves.push({label:ru?`Обратная ${q.toUpperCase()}⁻`:`Зворотна ${q.toUpperCase()}⁻`,color:"green",points:spatial(run,time,q==="u"?"backward":"backwardI")});}
-  return <EngineeringPlot plot={{xLabel:axis==="x"?"x, m":"t, s",yLabel:q==="u"?"U, V":"I, A",xMax:axis==="x"?L:timeEnd,xMin:axis==="t"?timeStart:0,yMin:domains[q][0],yMax:domains[q][1],curves:curves.map((c,j)=>({...c,dash:j>0}))}} language={language} domains={{x:axis==="x"?[0,L]:[timeStart,timeEnd],y:domains[q]}} selected={[axis==="x"?probe:time,reading[q]]} cursorTime={axis==="t"&&time>=timeStart&&time<=timeEnd?time:undefined} verticals={axis==="x"?boundary:undefined} onSelect={p=>axis==="x"?setProbe(Math.max(0,Math.min(L,p[0]))):seek(p[0])} label={`${q.toUpperCase()}(${axis})`} legendClass="network-legend"/>;
+  return <EngineeringPlot compact={axis==="x"} plot={{xLabel:axis==="x"?"x, m":"t, s",yLabel:q==="u"?"U, V":"I, A",xMax:axis==="x"?L:timeEnd,xMin:axis==="t"?timeStart:0,yMin:domains[q][0],yMax:domains[q][1],curves:curves.map((c,j)=>({...c,dash:j>0}))}} language={language} domains={{x:axis==="x"?[0,L]:[timeStart,timeEnd],y:domains[q]}} selected={[axis==="x"?probe:time,reading[q]]} cursorTime={axis==="t"&&time>=timeStart&&time<=timeEnd?time:undefined} verticals={axis==="x"?boundary:undefined} onSelect={p=>axis==="x"?setProbe(Math.max(0,Math.min(L,p[0]))):seek(p[0])} label={`${q.toUpperCase()}(${axis})`} legendClass="network-legend"/>;
  };
  const lineOperations = useLineOperations({
   model, layout, detached, empty, ink, links: inkLinks, language, selection: selected,
@@ -400,10 +400,14 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    live={mode==="live"} time={time} onMode={setMode} diodePoint={diodePoint} onDuration={durationS=>edit({...model,durationS})}/>,
  });
  const selectedPartId = useMemo(() => archivedPartId(parseCircuit(editorSeed).drawing, selected, model.load), [editorSeed, selected, model.load]);
- return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
+ return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab network-plot-grid" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
   <section className="network-workbench" aria-label={ru?"Конструктор линий":"Конструктор ліній"}>
    <CircuitEditor key={editorRevision} language={language} embedded mode={transientCircuitMode} initial={editorSeed} activeDocument={activeCircuit} initialSelection={selectedPartId}
     onCalculate={calculateCircuit} readings={readings} extension={lineOperations}
+    afterBoard={valid&&<div className="network-spatial-plots">
+     <div ref={voltagePlot}>{plot("x","u")}</div>
+     <div>{plot("x","i")}</div>
+    </div>}
     onDocumentChange={editCircuit} onClear={()=>{
      edit(structuredClone(DEFAULT_NETWORK),false,{},[],true,[],[]);
      setSelection(null);
@@ -503,16 +507,32 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
   </section>
   <section hidden={empty} id="network-results" aria-labelledby="network-measurements-title" className="network-measurements">
-   <h2 id="network-measurements-title">{ru?"Измерения":"Вимірювання"}</h2>
+   <h2 id="network-measurements-title" className="network-measurements-title">{ru?"Измерения":"Вимірювання"}</h2>
    {error&&<p role="alert" className="network-error">{error}</p>}
-   {!valid&&<p className="network-note">{ru?"Эпюры скрыты до успешного расчёта текущей схемы.":"Епюри приховано до успішного розрахунку поточної схеми."}</p>}<div hidden={!valid}><div className="network-metrics"><strong data-probe-value="U">U = {units(reading.u,"V")}</strong><strong data-probe-value="I">I = {units(reading.i,"A")}</strong><span>{ru?"Источник":"Джерело"}: {units(source.u,"V")}</span><span>{ru?"Нагрузка":"Навантаження"}: {units(loadPort.u,"V")}</span></div><label className="network-time-slider"><span>{ru?"Точка наблюдения":"Точка спостереження"} x = {units(probe,"m")}</span><input aria-label={ru?"Точка наблюдения x":"Точка спостереження x"} type="range" min="0" max={L} step={L/1000} value={probe} onChange={e=>setProbe(Number(e.target.value))}/></label>
-   <label><input type="checkbox" checked={waves} onChange={e=>setWaves(e.target.checked)}/>
-    {ru?"Прямая / обратная / сумма":"Пряма / зворотна / сума"}
-   </label>
-   <div className="network-plot-grid">
-    <div ref={voltagePlot}>{plot("x","u")}</div><div>{plot("x","i")}</div>
-    <div>{plot("t","u")}</div><div>{plot("t","i")}</div>
-   </div>
+   {!valid&&<p className="network-note">{ru?"Эпюры скрыты до успешного расчёта текущей схемы.":"Епюри приховано до успішного розрахунку поточної схеми."}</p>}
+   <div hidden={!valid}>
+    <div className="network-result-details">
+     <div className="network-observation">
+      <div className="network-metrics">
+       <strong data-probe-value="U">U = {units(reading.u,"V")}</strong>
+       <strong data-probe-value="I">I = {units(reading.i,"A")}</strong>
+       <span>{ru?"Источник":"Джерело"}: {units(source.u,"V")}</span>
+       <span>{ru?"Нагрузка":"Навантаження"}: {units(loadPort.u,"V")}</span>
+      </div>
+      <label className="network-time-slider">
+       <span>{ru?"Точка наблюдения":"Точка спостереження"} x = {units(probe,"m")}</span>
+       <input aria-label={ru?"Точка наблюдения x":"Точка спостереження x"} type="range" min="0" max={L} step={L/1000} value={probe} onChange={e=>setProbe(Number(e.target.value))}/>
+      </label>
+      <label>
+       <input type="checkbox" checked={waves} onChange={e=>setWaves(e.target.checked)}/>
+       {ru?"Прямая / обратная / сумма":"Пряма / зворотна / сума"}
+      </label>
+     </div>
+     <div className="network-time-plots">
+      <div>{plot("t","u")}</div>
+      <div>{plot("t","i")}</div>
+     </div>
+    </div>
    <details className="network-export"><summary>{ru?"Экспорт результатов":"Експорт результатів"}</summary>
     <div className="network-buttons"><button type="button" onClick={()=>exportTrace("json")}>JSON</button>
      <button type="button" onClick={()=>exportTrace("csv")}>CSV</button>

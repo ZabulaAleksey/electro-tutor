@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-010
+- Stage ID: ET-UNIVERSAL-011
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -131,18 +131,29 @@
 
 ## ET-UNIVERSAL-010 — Stage 10. ABCD network composition
 
-- Status: in_progress
+- Status: verified
 - Entry: однородная секция Stage 9 verified. Матрица передаёт [U, I] от нагрузки к входу.
 - Goal: собрать последовательность участков линии, продольных сопротивлений и поперечных проводимостей в одном частотном расчёте.
 - Evals: каскадное произведение в физическом порядке, независимый эталон входного сопротивления, перестановка некоммутирующих звеньев, согласование, КЗ, обрыв и неподдерживаемый ввод.
 - Scope: численная модель каскада. Фазоры по координате проверяются в Stage 11.
 - User actions: none
-- NEXT: stage10-cascade
+- Evidence: 24 целевых и 662 полных Vitest PASS, check, lint и production build PASS. Два четвертьволновых участка, R и шунт дали 93,75 Ω против независимого пересчёта от нагрузки. Проверены порядок некоммутирующих матриц, согласование, обрыв, КЗ и совпадение двух секций с цельной линией с потерями. GitHub SHA ac0175e97abe345ced7379aa24fcc3fbd06ca064.
+- NEXT: ET-UNIVERSAL-011
+- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, TRACEABILITY, частотная SPEC и coverage ledger. Проверены README, ROADMAP, DESIGN, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-011 — Stage 11. Phasor inspection by coordinate
+
+- Status: in_progress
+- Entry: Stage 10 verified. Рассчитаны ABCD, локальные секции и граничное условие.
+- Goal: на живой RU/UK странице выбор x синхронизирует эпюры и векторы прямой, обратной и суммарной волн напряжения и тока.
+- Evals: независимые численные эталоны фазоров, случай с постоянными модулями двух волн и меняющейся суммой, соответствие координаты эпюр и векторов в браузере, работа применённой схемы из общего редактора.
+- User actions: none
+- NEXT: stage11-phasors
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 10,
+  "state_revision": 11,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -161,7 +172,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "60aa04d87aec6240c954a18050538ee2c98e7b13",
+      "checkpoint": "ac0175e97abe345ced7379aa24fcc3fbd06ca064",
       "ownership": [
         "src",
         "specs",
@@ -182,8 +193,8 @@
     {"id":"ET-UNIVERSAL-007","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient solver integration","status":"verified","predecessors":["ET-UNIVERSAL-006"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2542bba40213fb9f9b487223056f5e1a39f042b8","checkpoint_after":"4e88a5d0a350e8bebd3e39c73b9833b2449a437d","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/transient/circuit-adapter.ts","src/transient/line-archive-document.ts","src/components/TransmissionNetworkLab.tsx"],"requirements":["CE-007","LINE-UX-036"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-008","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transient responsive visualization","status":"verified","predecessors":["ET-UNIVERSAL-007"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4e88a5d0a350e8bebd3e39c73b9833b2449a437d","checkpoint_after":"1a664a3346208241c5e504f2da753c858fcb59c6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-transient.spec.md","src/components/TransmissionNetworkLab.tsx","src/components/TransmissionNetworkLab.css","src/engineering/EngineeringPlot.tsx"],"requirements":["LINE-UX-024","LINE-UX-037"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-009","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Steady-state long-line core","status":"verified","predecessors":["ET-UNIVERSAL-008"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"1a664a3346208241c5e504f2da753c858fcb59c6","checkpoint_after":"60aa04d87aec6240c954a18050538ee2c98e7b13","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/line.test.ts","src/models/circular-diagram.ts"],"requirements":["LINE-AC-001","LINE-AC-002","LINE-AC-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"running","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"60aa04d87aec6240c954a18050538ee2c98e7b13","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/cascade.ts"],"requirements":["LINE-AC-004","LINE-AC-005"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"queued","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"verified","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"60aa04d87aec6240c954a18050538ee2c98e7b13","checkpoint_after":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/cascade.ts"],"requirements":["LINE-AC-004","LINE-AC-005"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"running","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line","src/circuit/CircuitEditor.tsx"],"requirements":["LINE-AC-006","LINE-AC-007"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"queued","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"queued","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"queued","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -215,7 +226,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Verify the source-to-load ABCD cascade of line sections, series impedances and shunt admittances.",
+  "next_action": "Expose loaded forward, reflected and total voltage/current phasors at a shared spatial coordinate.",
   "integration": {
     "required": false,
     "reason": ""

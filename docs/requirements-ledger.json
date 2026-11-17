@@ -2582,6 +2582,24 @@
         "src/steady-line/cascade.test.ts"
       ],
       "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "LINE-AC-006",
+        "LINE-AC-007"
+      ],
+      "status": "PLANNED",
+      "domain": "transmission-line",
+      "runtime": "Loaded signed phasors and local coordinate inspection",
+      "security": "Bounded validated editor document",
+      "a11y": "RU/UK plot, keyboard controls and numeric readings",
+      "observability": "Shared coordinate and component phasors",
+      "gap": "Stage 11 real browser evidence pending.",
+      "action": "Verify physical phasors and edit→calculation→inspection.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

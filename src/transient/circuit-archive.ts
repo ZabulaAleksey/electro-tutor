@@ -469,5 +469,6 @@ export function archivedPartId(drawing: Drawing, selection: Selection | null, lo
   const binding = visibleBinding(drawing);
   if (selection.kind === "source") return binding?.source;
   if (selection.kind === "shunt") return binding?.shunts.find(id => binding.pins[id]?.[0] === binding.nodes[selection.node]);
-  return selection.kind === "load" ? selection.id ?? load.id : selection.id;
+  const id = selection.kind === "load" ? selection.id ?? load.id : selection.id;
+  return drawing.topology.components.some(part => part.id === id) ? id : undefined;
 }

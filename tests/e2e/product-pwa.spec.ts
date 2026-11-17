@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { useOpenLineDraft } from "./helpers/open-line-draft";
 test("RC1 manifest has installable raster icons and controlled public shell",async({page,context})=>{
  await page.goto("/ru/");
  await page.evaluate(async()=>{await navigator.serviceWorker.ready; if(!navigator.serviceWorker.controller) await new Promise<void>(resolve=>navigator.serviceWorker.addEventListener("controllerchange",()=>resolve(),{once:true}));});
@@ -14,6 +15,7 @@ test("RC1 manifest has installable raster icons and controlled public shell",asy
 });
 test("RC1 visited lesson and primary line Worker run offline without private API caching",async({page,context})=>{
  test.setTimeout(90_000);
+ await useOpenLineDraft(page);
  await page.goto("/ru/interactive/transmission-line/");await expect(page.locator("[data-network-lab]")).toHaveAttribute("data-calculation-ready","true");
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});await page.reload();await expect(page.locator("[data-network-lab]")).toHaveAttribute("data-calculation-ready","true");
  await page.goto("/ru/topics/dc/mesh-current-method/");await expect(page.locator("main h1")).toBeVisible();

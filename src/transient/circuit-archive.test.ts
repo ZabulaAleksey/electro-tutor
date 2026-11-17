@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "../circuit/document";
-import { circuitToArchivedNetwork, networkToCircuit } from "./circuit-archive";
+import { archivedPartId, circuitToArchivedNetwork, networkToCircuit } from "./circuit-archive";
 import { readLineArchive } from "./line-archive-document";
 import { DEFAULT_DIODE } from "./line-diode";
 import { DEFAULT_NETWORK, STARTER_NETWORK, validateNetwork, type Network } from "./network";
@@ -51,6 +51,15 @@ describe("archive graph migration", () => {
     }
     const archived = readLineArchive(JSON.stringify({ schema: "electrotutor-line-v5", model, circuit }));
     expect(circuitToArchivedNetwork(parseCircuit(archived.circuit).drawing)).toEqual(model);
+  });
+
+  it("only restores selection IDs for actual symbols in a compound load", () => {
+    const model: Network = { ...STARTER_NETWORK, load: { id: "compound", kind: "series", children: [
+      { id: "R1", kind: "r", value: 20 }, { id: "R2", kind: "r", value: 30 },
+    ] } };
+    const drawing = networkToCircuit(model);
+    expect(archivedPartId(drawing, { kind: "load" }, model.load)).toBeUndefined();
+    expect(archivedPartId(drawing, { kind: "load", id: "R1" }, model.load)).toBe("R1");
   });
 
   it("reads an edited parameter and refuses to reuse connectivity from disconnected pins", () => {

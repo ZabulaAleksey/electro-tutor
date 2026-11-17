@@ -51,3 +51,20 @@ test("a new transient experiment switches the source independently of the line e
   await expect(key).toHaveCount(1);
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
 });
+
+test("adds a resistor to the matched load without selecting a nonexistent group symbol", async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", error => pageErrors.push(error.message));
+  await page.goto("/ru/interactive/transmission-line/");
+  const lab = page.locator("[data-network-lab]");
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  const revision = await lab.getAttribute("data-model-revision");
+  await lab.getByRole("button", { name: "Нагрузка", exact: true }).press("Enter");
+  await lab.locator(".network-inspector").getByRole("button", { name: "+ R", exact: true }).click();
+  await expect(lab).not.toHaveAttribute("data-model-revision", revision!);
+  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await expect.poll(() => page.evaluate(() => JSON.parse(
+    localStorage.getItem("electrotutor-line-draft-v5") ?? "{}",
+  ).model?.load?.children?.map((item: { value: number }) => item.value))).toEqual([50, 50]);
+  expect(pageErrors).toEqual([]);
+});

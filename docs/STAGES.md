@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-027
+- Stage ID: ET-UNIVERSAL-028
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -334,18 +334,30 @@
 
 ## ET-UNIVERSAL-027 — Stage 27. Ring educational vs general-solver equivalence
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 26 verified. Независимые учебный и узловой solvers получают одну типизированную сеть.
 - Goal: сверять напряжение и фазу шин, знаковые P/Q на обоих выводах, потери и опорный источник. Публиковать максимальные расхождения, допуски и расхождения по ID.
 - Evals: однородное кольцо двумя стартовыми методами, разные разрезы, разворот физической ориентации и намеренно неверные знак Q и масштаб U. В браузере пересчитать сравнение после изменения условного разреза.
 - Deferred: слои потоков, загрузки и предупреждений.
 - User actions: none
-- NEXT: stage27-ring-agreement
+- Evidence: 733 Vitest, 47 локальных и 27 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Учебное и узловое решения совпали в пределах 0,001 kV, 0,001°, 0,001 MW и 0,001 MVAr. Сравнение сохранилось после смены расчётной шины и выявило искусственные ошибки знака Q и масштаба U. SHA 28888dd9c8cb7452dd832ffef631a8dbf8d04753. Preview https://71b9892f.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-028
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-028 — Stage 28. Power-flow overlay
+
+- Status: in_progress
+- Entry: Stage 27 verified. Решатели согласуются по независимому эталону, общий режим выдаёт параметры всех выводов.
+- Goal: рисовать принятый сетевой режим в CircuitEditor отдельными слоями. Дать пользователю сборку своей физической сети через тот же документ и редактор.
+- Evals: знак и направление стрелок P/Q, отдельные переключатели, загрузка параллельного оборудования, напряжение и предупреждения, выбор вывода, сборка собственной схемы и реальный расчёт. Использовать типовой ток линии и мощность трансформатора при наличии.
+- Deferred: физическая коммутация, мобильная настройка и итоговая проверка всех режимов.
+- User actions: none
+- NEXT: stage28-flow-overlay
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 27,
+  "state_revision": 28,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -364,7 +376,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "f49752f3ff56a972122adfeedc0464d488ef8a9e",
+      "checkpoint": "28888dd9c8cb7452dd832ffef631a8dbf8d04753",
       "ownership": [
         "src",
         "specs",
@@ -402,8 +414,8 @@
     {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"verified","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"4503884fcef12921ba7f18de9c15324e9e23c93c","checkpoint_after":"2074109a8bee19531debd9369f57f763df04846b","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-preliminary.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-018","POWER-019"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-025","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring loss refinement","status":"verified","predecessors":["ET-UNIVERSAL-024"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"2074109a8bee19531debd9369f57f763df04846b","checkpoint_after":"600c9e966e3a8f59432013c4afa43aa2e2fc4c41","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-refinement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-020","POWER-021"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"verified","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"600c9e966e3a8f59432013c4afa43aa2e2fc4c41","checkpoint_after":"f49752f3ff56a972122adfeedc0464d488ef8a9e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ac-power-flow.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-022","POWER-023"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"running","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f49752f3ff56a972122adfeedc0464d488ef8a9e","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-agreement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-024","POWER-025"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"queued","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"verified","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f49752f3ff56a972122adfeedc0464d488ef8a9e","checkpoint_after":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-agreement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-024","POWER-025"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"running","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/power-system/flow-overlay.ts"],"requirements":["POWER-026","POWER-027"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"queued","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"queued","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"queued","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
@@ -418,7 +430,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Compare the independent two-path and nodal solver outputs using signed physical endpoints and controlled tolerances.",
+  "next_action": "Overlay the accepted AC solution and construct physical power objects through the common diagram.",
   "integration": {
     "required": false,
     "reason": ""

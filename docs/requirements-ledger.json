@@ -3052,14 +3052,14 @@
         "POWER-024",
         "POWER-025"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Independent ring-to-AC comparison in the live study",
       "security": "Detect missing outputs, incompatible endpoints and invalid numeric differences",
       "a11y": "Bilingual comparison, error state and keyboard-readable tolerances",
       "observability": "Maximum U/angle/P/Q deviations and failing physical IDs",
       "action": "Compare both solvers, select an alternative cut, and validate direction and unit mismatch diagnostics.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/ring-agreement.ts",
         "src/components/RingAgreementPanel.tsx",
@@ -3074,6 +3074,24 @@
       "e2e": [
         "tests/e2e/power-system-agreement.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-026",
+        "POWER-027"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Selectable bus and branch overlays, typed physical network authoring",
+      "security": "Validate additions and preserve referenced buses on refused deletion",
+      "a11y": "Bilingual layer controls and textual terminal details",
+      "observability": "Signed power arrows, voltage limits, rating-based loading and accepted diagram",
+      "action": "Calculate the ring and exercise overlay layers, then build and solve a new physical study.",
+      "gap": "Stage 28 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

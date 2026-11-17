@@ -1,5 +1,9 @@
 # Dependency contract
 
+## Интеграция локальных веток · 2026-11-17
+
+Ветка проверки зависимостей сведена с актуальным GitHub main. Текущий Node lock и runtime Python lock сохранены. Из ветки перенесён оставшийся переход тестового окружения на pytest 9, закреплённый uv как 9.2.0. Исторический аудит хранится в [evidence](evidence/night-20261001-audit.json).
+
 ## Cache404 delivery follow-up
 
 Existing Wrangler4.157.0 compile/preview/deploy and official runtime bindings verified; no install/manifest/lock change. Tiny Pages handler is a provider delivery exception for two retired trees only, not a computational backend. No paid plan activated; Free documented100000/day shared Functions quota, owner explicitly approved fail-closed availability behavior. Public7routes/assets bypass compute. Actual subscription read403, not certified; prior4LOW/6MODERATE audit unchanged/unpatched. Earlier not-tested/no-handler statements below describe prior checkpoints.

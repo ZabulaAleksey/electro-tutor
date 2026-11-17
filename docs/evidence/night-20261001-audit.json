@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "kind": "night-controller-audit-summary",
+  "captured_at_utc": "2026-09-30T23:18:58.230183+00:00",
+  "project_root": "E:\\DEV\\projects\\electro-tutor",
+  "source_head": "d0bbd7bf00c3f0d5cc80169083fcaf6f1ed9a4f8",
+  "track_source_head": "d8891537d102559f2730fde1df83da717962c50f",
+  "track_documentation_head": "850713cfe4a831527d0d6ff2022a1532a49b221d",
+  "baseline_main": "8b076bdde878f1f785c09935fd0def4c8acc8207",
+  "locally_recorded_origin_main": "b25284428c38ea5b7a0e056836a0140b0496bce2",
+  "remote_fetch_performed": false,
+  "merge_base": "97627973fb4f588ac9b5841c846adf9916d42d1b",
+  "sweeps": [
+    {
+      "number": 1,
+      "scope": "root stage, Git, manifests, CI, existing product gates"
+    },
+    {
+      "number": 2,
+      "scope": "unique reminder branch, accepted contract, divergent ancestry"
+    },
+    {
+      "number": 3,
+      "scope": "worktree preserve classification, canonical stale claims, locked rechecks"
+    }
+  ],
+  "fresh_checks": [
+    {
+      "command": "pnpm check:context",
+      "result": "PASS",
+      "observed": "ET-14.2 blocked; execution denied"
+    },
+    {
+      "command": "pnpm check:ci-workflow",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm check:hygiene",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm test",
+      "result": "PASS",
+      "tests": 171,
+      "files": 21
+    },
+    {
+      "command": "pnpm backend:test:fast",
+      "result": "PASS",
+      "pytest_pass": 199,
+      "deselected": 84,
+      "ruff_formatted_files": 84,
+      "mypy_source_files": 48
+    },
+    {
+      "command": "uv lock --project services/api --check --offline",
+      "result": "PASS",
+      "resolved_packages": 73
+    },
+    {
+      "command": "pnpm install --frozen-lockfile --offline",
+      "result": "PASS",
+      "observed": "Already up to date; pnpm11.23.0",
+      "limit": "existing materialization locked recheck, not clean-room restore"
+    },
+    {
+      "command": "pnpm audit --audit-level high --json",
+      "result": "PASS",
+      "exit_code": 0,
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0
+      },
+      "total_dependencies": 793
+    },
+    {
+      "command": "pnpm lint",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm check",
+      "result": "PASS",
+      "files": 124,
+      "errors": 0,
+      "warnings": 0,
+      "generated_hints": 2
+    },
+    {
+      "command": "pnpm build",
+      "result": "PASS",
+      "pages": 25,
+      "localized_routes": 24,
+      "audited_files": 115
+    },
+    {
+      "command": "pnpm test:e2e:built",
+      "result": "FAIL",
+      "pass": 107,
+      "skip": 5,
+      "fail": 1,
+      "cause": "browser context teardown exceeded unchanged 30000ms timeout; no assertion failure recorded",
+      "workers": 6
+    },
+    {
+      "command": "$env:CI='1'; pnpm.cmd test:e2e:built",
+      "result": "PASS",
+      "pass": 108,
+      "skip": 5,
+      "fail": 0,
+      "workers": 1,
+      "limit": "existing CI profile; same tests/assertions/timeouts, static suite includes mock API components and excludes secret-bearing live phases"
+    },
+    {
+      "command": "uv lock --project services/api --upgrade-package pyjwt==2.15.0",
+      "result": "PASS",
+      "changed": "only PyJWT lock entry and its distribution hashes"
+    },
+    {
+      "command": "pnpm backend:test:fast after PyJWT2.15.0",
+      "result": "PASS",
+      "pytest_pass": 199,
+      "deselected": 84,
+      "ruff_formatted_files": 84,
+      "mypy_source_files": 48
+    },
+    {
+      "command": "uv run --project services/api --locked pip-audit -r docs/evidence/night-20261001-runtime-patched-requirements.txt --format json --output docs/evidence/night-20261001-python-audit-after.json",
+      "result": "PASS",
+      "audited_packages": 33,
+      "known_vulnerabilities": 0
+    }
+  ],
+  "worktree_audit": {
+    "command": "python tools/worktree_policy.py audit --project E:\\DEV\\projects\\electro-tutor --projects-root E:\\DEV\\projects --source-root E:\\DEV\\context\\global\\codex-dev",
+    "temporary_count": 3,
+    "count_status": "OK",
+    "location_violations": [],
+    "preserved": [
+      "electro-tutor-active-stages: UNKNOWN",
+      "line-transient-mvp: UNIQUE COMMITS",
+      "live-tutoring-design: merged cleanup candidate; no deletion authorized"
+    ]
+  },
+  "limits": [
+    "ET-14.2 historical local verification belongs to isolated feature track; not freshly replayed here",
+    "root code does not contain reminders; no root VERIFIED promotion",
+    "ET-10.3 manual screen reader remains pending",
+    "ET-14.3 privacy/test bot remains pending on feature track",
+    "no DB/provider/authenticated E2E/reset/merge/push/deploy/delete performed"
+  ],
+  "canonical_changes": [
+    "services/api/uv.lock",
+    "docs/STAGES.md",
+    "docs/ROADMAP.md",
+    "docs/DEPENDENCIES.md",
+    "docs/TESTING.md",
+    "docs/SECURITY.md",
+    "isolated track docs/STAGES.md"
+  ],
+  "before_python_advisory": {
+    "package": "PyJWT",
+    "version": "2.14.0",
+    "advisory": "GHSA-42vr-xj54-vc7v",
+    "cve": "CVE-2026-101918",
+    "fix": "2.15.0",
+    "audit_exit": 1
+  },
+  "first_browser_failure_artifacts": {
+    "directory": "C:\\Users\\aleks\\Documents\\Codex\\2026-10-01\\dev-night-mega-prompt-v3-autonomous\\work\\electro-tutor-e2e-first-failure-20261001",
+    "files": [
+      "error-context.md",
+      "test-failed-1.png",
+      "trace.zip"
+    ],
+    "trace_sha256": "52283ffed241fc9c9b5e460fe0fe25fd665ddefc361b53736e67c2365fc81559"
+  },
+  "documentation_checkpoint": "1260367a6f0ea19892f8737b7c470f9195c93309",
+  "official_sources": [
+    "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-42vr-xj54-vc7v"
+  ],
+  "offline_vendor_probe": {
+    "pyjwt_version": "2.15.0",
+    "scope": "offline vendor payload parser; no live authentication request",
+    "nested_depth": 20000,
+    "nested_payload_exception": "DecodeError",
+    "normal_payload_control": true
+  },
+  "artifact_sha256": {
+    "night-20261001-python-audit-after.json": "3f9832df6bcd2749720f14d5f909c9a1084aa90d53be37a17f9f20ea31309419",
+    "night-20261001-runtime-requirements.txt": "ea657d3f056b21861be05defc9032a0f0ea8e68717d70789fbe2e67d70504de2",
+    "night-20261001-runtime-patched-requirements.txt": "abfb68936d1e4920743e04fa7267ed874eacacc3c3b1bdd567f357c182aa6920",
+    "night-20261001-pyjwt-probe.json": "badad387027b58aea743ab23f4bad39309b62e9d1444387532c9694a8a63d388"
+  }
+}

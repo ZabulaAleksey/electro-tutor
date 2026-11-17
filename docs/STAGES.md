@@ -394,20 +394,25 @@
 
 ## ET-UNIVERSAL-032 — Stage 32. Production readiness
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 31 verified. Четыре режима проверены совместно, включая переключение длинной линии, LC и физические сети.
 - Goal: квалифицировать точный выпуск на Windows, довести штатный CI и развёртывания GitHub Pages и Cloudflare Pages, подтвердить фактический runtime, записать предыдущую точку и доказательство обратимости.
 - Evals: полный `pnpm verify:full`, основной GitHub workflow с backend, два независимых production hosts и smoke RU/UK, совпадение SHA, HTTP previous immutable и проверка обратного Git patch. Канонический статус синхронизируется после проверки эксплуатации.
 - User actions: none
-- NEXT: stage32-production-verification
+- NEXT: master-completed
+- Evidence: Windows `pnpm verify:full` PASS. 738 Vitest, 405 Chromium, 6 предусмотренных пропусков, 2 production smoke, audit HIGH PASS. Доставленный runtime SHA eff12b6373dd08094edd8fed0136821517018b33.
+- Production CI: GitHub Actions verify и deploy PASS, включая backend API и PostgreSQL. Два браузерных сценария прошли на GitHub Pages. [Run](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44118159240) [GitHub Pages](https://zabulaaleksey.github.io/electro-tutor/)
+- Cloudflare: deployment 5cd42ef5-f6f4-433a-b198-111394dc482f, источник eff12b6. По два браузерных smoke прошли на точном развёртывании и основном домене. [Выкладка](https://5cd42ef5.electrotutor.pages.dev) [Основной домен](https://electrotutor.org/)
+- Rollback evidence: предыдущий SHA 53793834d6e803b594bc210edcd339413aaa8e83, обратный Git patch принят `git apply --check`, предыдущий точный Cloudflare-артефакт ответил HTTP 200. [Предыдущая выкладка](https://22cc6eb6.electrotutor.pages.dev) [Предыдущий GitHub CI](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44038295894)
+- Completion sync: обновлены README, ROADMAP, STAGES, TESTING, SPEC электрических сетей и coverage ledger. Проверены ARCHITECTURE, DESIGN, TRACEABILITY, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 32,
+  "state_revision": 33,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
-    "status": "running",
+    "status": "completed",
     "source": {
       "backend": "google_drive",
       "queue_id": "none",
@@ -422,15 +427,15 @@
       "id": "universal-labs-v2",
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
-      "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "6ff79d26dff7a57822557c7a7b320e33108feff0",
+      "branch": "main",
+      "checkpoint": "eff12b6373dd08094edd8fed0136821517018b33",
       "ownership": [
         "src",
         "specs",
         "tests",
         "docs"
       ],
-      "status": "active"
+      "status": "integrated"
     }
   ],
   "slices": [
@@ -466,7 +471,7 @@
     {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"verified","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"0e74f380c378754ac0e805e34cf2ecf640edb041","checkpoint_after":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/normally-open.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-028","POWER-029"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"verified","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","checkpoint_after":"7c02894a627ff43f95c2a9d216c84c9ad4afd070","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-030","POWER-031"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"verified","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"7c02894a627ff43f95c2a9d216c84c9ad4afd070","checkpoint_after":"6ff79d26dff7a57822557c7a7b320e33108feff0","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/editor-mode.ts","src/circuit/CircuitEditor.tsx","tests/e2e/power-system-cross-mode.spec.ts"],"requirements":["POWER-032","POWER-033"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"running","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"6ff79d26dff7a57822557c7a7b320e33108feff0","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","README.md","docs/ROADMAP.md","scripts/full-verify.mjs",".github/workflows/pages.yml"],"requirements":["POWER-034","POWER-035"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
+    {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"verified","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"6ff79d26dff7a57822557c7a7b320e33108feff0","checkpoint_after":"eff12b6373dd08094edd8fed0136821517018b33","required_evidence":["L1","L2"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/power-system.spec.md","README.md","docs/ROADMAP.md","scripts/full-verify.mjs",".github/workflows/pages.yml"],"requirements":["POWER-034","POWER-035"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
   ],
   "blockers": [],
   "decisions": [],
@@ -477,10 +482,10 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Qualify the exact release, advance main, verify both production deployments and persist rollback evidence.",
+  "next_action": "Master complete",
   "integration": {
     "required": false,
-    "reason": ""
+    "reason": "Production source integrated into main and verified on both hosts."
   }
 }
 ```

@@ -2769,14 +2769,14 @@
         "POWER-002",
         "POWER-003"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Versioned power equipment network, operating islands and separate study cuts",
       "security": "Bounded numeric values, unique identifiers and validated references",
       "a11y": "Pure domain API, browser consumer scheduled separately",
       "observability": "Bus-island membership, energized status, physical switches and independent calculation cuts",
       "action": "Exercise one imported physical ring before and after opening a switch and adding mathematical cuts.",
-      "gap": "The public editor and browser evidence are scheduled for later stages.",
+      "gap": "None.",
       "code": [
         "src/power-system/network.ts",
         "src/power-system/topology.ts"
@@ -2787,7 +2787,10 @@
       "integration": [
         "src/power-system/topology.test.ts"
       ],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/power-system-switching.spec.ts",
+        "tests/e2e/power-system-ac.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
@@ -2795,14 +2798,14 @@
         "POWER-005",
         "POWER-006"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Revisioned equipment catalogue and power equipment references",
       "security": "Validated equipment parameters, catalogue revision identity and provenance",
       "a11y": "Pure catalogue model, configuration UI scheduled in Stage 19",
       "observability": "Documented origin and stable old and new revision lookup",
       "action": "Resolve specific line and transformer revisions and validate provenance, parameters and user-defined entries.",
-      "gap": "Catalog configuration and browser evidence are scheduled in Stage 19.",
+      "gap": "None.",
       "code": [
         "src/power-system/catalogue.ts",
         "src/power-system/network.ts",
@@ -2814,7 +2817,9 @@
       "integration": [
         "src/power-system/catalogue.test.ts"
       ],
-      "e2e": []
+      "e2e": [
+        "tests/e2e/power-system-config.spec.ts"
+      ]
     },
     {
       "requirement_ids": [
@@ -3199,14 +3204,14 @@
         "POWER-034",
         "POWER-035"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Production build, CI, hosted smoke and audited rollback point",
       "security": "Exact Git revision, high-severity dependency audit and existing publication gates",
       "a11y": "Public RU/UK labs with functional browser smoke on both hosting bases",
       "observability": "Exact release head, CI run, hosted deployment and rollback evidence",
       "action": "Qualify the precise release, deploy using existing infrastructure and retest the actual hosted artifacts.",
-      "gap": "Production CI, hosted validation, and rollback evidence are pending.",
+      "gap": "None.",
       "code": [
         "scripts/full-verify.mjs",
         ".github/workflows/pages.yml"

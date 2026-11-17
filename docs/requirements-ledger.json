@@ -2425,13 +2425,13 @@
       "requirement_ids": [
         "LINE-UX-035"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "transmission-line",
       "runtime": "Transient starter and ideal input switch",
       "security": "Existing Network validation",
       "a11y": "Localized existing switch fields",
       "observability": "Model revision and calculation readiness",
-      "gap": "Full stage qualification tracked in STAGES.",
+      "gap": "None in the Stage 5 starter scope.",
       "action": "Verify the real Worker, archive replay and fresh template.",
       "code": [
         "src/transient/circuit-mode.ts",
@@ -2451,6 +2451,25 @@
         "tests/e2e/transient-starter.spec.ts",
         "tests/e2e/transmission-archive-migration.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "CE-013",
+        "CE-014",
+        "CE-015"
+      ],
+      "status": "PLANNED",
+      "domain": "circuit-engine",
+      "runtime": "Passive reduction on explicit netlist",
+      "security": "Existing topology validation and finite parameters",
+      "a11y": "Domain engine with no UI surface",
+      "observability": "Original component IDs and reduction diagnostics",
+      "gap": "Stage 6 implementation evidence pending.",
+      "action": "Verify all six modes, protected topology, and compatible state.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

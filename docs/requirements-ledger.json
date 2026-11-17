@@ -2677,14 +2677,14 @@
         "LC-010",
         "LC-011"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "reactive-one-port",
       "runtime": "Foster II parallel realization",
       "security": "Finite positive synthesized component values",
       "a11y": "RU/UK admittance decomposition and accessible topology",
       "observability": "Comparison against original impedance using the synthesized branches",
       "action": "Verify admittance residues and rebuild the original reactance.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/models/reactive-foster-ii.ts",
         "src/components/FosterResults.tsx",
@@ -2699,6 +2699,24 @@
       "e2e": [
         "tests/e2e/reactive-foster-ii.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "LC-012",
+        "LC-013"
+      ],
+      "status": "PLANNED",
+      "domain": "reactive-one-port",
+      "runtime": "Cauer I exact high-frequency ladder synthesis",
+      "security": "Bounded exact expansion and positive finite component values",
+      "a11y": "RU/UK continued fraction and accessible ladder",
+      "observability": "Exact rational reconstruction and independent numeric check",
+      "action": "Compare the reconstructed ladder against the original rational impedance and frequency samples.",
+      "gap": "Stage 15 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

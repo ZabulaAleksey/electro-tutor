@@ -4,26 +4,28 @@
 
 ## ET-CE-PARALLEL-001 — Универсальное параллельное подключение
 
-- Status: partial
+- Status: implemented_unverified
 - Goal: один выбор двухполюсного участка для элемента, соседней группы и всей ветви; preview, атомарная установка и обратимое математическое представление.
 - Scope: topology-derived regions, placement/routing, CircuitEditor, RU/UK copy, explicit equivalent view; документ v2 сохраняется.
 - Requirements: CE-016..022 в circuit-engine.spec.md по прямому запросу владельца.
 - Dependencies: ET-UNIVERSAL-002/003/006/031 verified; завершённый граф/редактор/редукция доступны. ET-DEP-20261117 delivery не является prerequisite локальной реализации; upstream security blocker запрещает production release.
-- Entry: исходная явная топология и стабильные endpoint ID; React CircuitEditor, orthogonal router и reduceRlc. Изменений Xt/Zt нет.
+- Entry: исходная явная топология и стабильные endpoint ID; React CircuitEditor, orthogonal router и reduceRlc.
 - Architecture: выбор ephemeral по boundary endpoint IDs, derived grouping не заменяет topology. Ограниченные graph components вместо перечисления путей. Планирование возвращает полный Drawing/Routing либо диагностику. commit/record — единственная атомарная граница Undo.
 - Plan: core region/geometry и узкие evals → общий UI выбора/preview/drag/touch/keyboard → явный equivalent view/model constraints → браузерная регрессия → reviewer → документация/commit.
-- Ownership: touch_fix — новые parallel-regions/parallel-attachment и их tests; root — CircuitEditor/copy/CSS/math view/E2E/docs; stage1_review — read-only architecture/review. Контракты APIs согласованы до кода.
+- Ownership: root — финальные regions/attachment, CircuitEditor/copy/CSS/E2E/docs; stage1_review — equivalent view и tests; touch_fix — исходный core; parallel_review — read-only review. Контракты APIs согласованы до кода.
 - Evals: четыре Series(R,L,C) примера пользователя, taps/ambiguity/reversed/same-net/disconnected/stale/cancel, geometry/routes/board bounds; редукция L/C и состояния; desktop drag + boundaries + Undo/Redo/JSON + UK touch/keyboard; типы/lint/unit/build/full existing Chromium.
 - Concrete E2E: импорт Series(R,L,C), drag X на R и preview; единым выбором граничных узлов R–L и всей ветви подключить X, подтвердить netlist, отменить/повторить, JSON round-trip; открыть equivalent view и продолжить редактирование исходных элементов на RU desktop и UK phone.
 - Recovery: один Undo либо исходный JSON; feature commit обратим, старые тесты и форматы не меняются.
 - Deferred: взаимно связанные катушки и новые решатели; нелинейная/частотно зависимая редукция; существующие предметные solver limits сохраняются.
 - Blockers: production delivery DEP-PICOMATCH-001; локальная feature не заблокирована.
 - User actions: none
-- Evidence: 761 Vitest и типы/lint PASS; 9 новых Chromium PASS (четыре подключения, drag/hover/cancel, ambiguity, Undo/Redo/JSON, UK phone/touch/keyboard, reversible equivalent). Desktop/phone PNG визуально сверены, SHA в docs/evidence/circuit-parallel.json. Reviewer: два цикла, P1 устранены, финальный empty-drop P2 исправлен и проверен.
-- Verification recovery ET-QG-FONT-001: прежний полный прогон дал 413 Chromium PASS / 6 SKIP / 1 beam Ctrl-wheel FAIL; отдельно 4/5 PASS. Контролируемая поздняя загрузка DM Sans воспроизводит +3 px сдвига из-за normal line-height. Явные line boxes только над SVG устранили сдвиг. Новый font regression и все 13 прежних beam сценариев PASS (14), Ctrl-wheel дополнительно 5/5 PASS. Zoom, solver, допуски и goldens не менялись. Новый полный verify выполняется.
-- Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES и STAGES. Проверены DECISIONS, SECURITY, API, DATA_MODEL, project-context, LEARNING_LOG и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
-- Hosted feature: Cloudflare preview 7873a07f для 01d0ea8 — build success, HTTP 200, все 9 новых Chromium PASS на точном host. Это preview, production gate не закрыт.
-- NEXT: final-full-verification-and-DEP-PICOMATCH-001
+- Evidence: локальная функциональная квалификация PASS для e8e3ba1: frozen restore, CI contract, Astro check (0 errors/warnings, 3 прежние hints), ESLint, 761 Vitest / 116 файлов, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke. Полный pnpm verify:full завершился FAIL только на обязательном HIGH audit picomatch; исправленной версии нет. Полный и production pnpm audit дают одну HIGH-находку picomatch; Python runtime pip-audit повторно PASS. Новые 9 сценариев конструктора PASS локально и на preview. PNG desktop/phone сверены, SHA в docs/evidence/circuit-parallel.json.
+- Verification recovery ET-QG-FONT-001: прежний полный прогон дал 413 Chromium PASS / 6 SKIP / 1 beam Ctrl-wheel FAIL; отдельно 4/5 PASS. Контролируемая поздняя загрузка web-fonts воспроизводит +3 px сдвига из-за normal line-height. Явные line boxes только над SVG устранили сдвиг. Новый font regression и все 13 прежних beam сценариев PASS (14), Ctrl-wheel дополнительно 5/5 PASS. Zoom, solver, допуски и goldens не менялись. Окончательный полный прогон прошёл все 415 Chromium, включая этот regression; прежний отказ устранён.
+- Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES, LEARNING_LOG и STAGES. Проверены без изменений DECISIONS, SECURITY, API, DATA_MODEL, project-context и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
+- Hosted feature: [Cloudflare preview](https://a5758efe.electrotutor.pages.dev/ru/interactive/circuit-editor/), deployment a5758efe-74de-4368-abb9-fca26fd03381 для e8e3ba1 — build success, HTTP 200, 10 Chromium PASS (9 feature + прежний Ctrl-wheel). Root-only delayed-font probe не применим к education-сборке: BaseLayout отключает внешние web-fonts, fonts.status уже loaded; его исходный отказ сохранён, тест не менялся. Это проверенный preview; main и production не обновлялись этой веткой.
+- NEXT: DEP-PICOMATCH-001
+- Next action: после опубликованного upstream исправления обновить lockfile, получить audit/full verify PASS, затем выполнить штатную интеграцию, CI, production deploy и проверенную очистку ветвей. До этого сохраняются fix/dependency-vulnerabilities и feature/universal-parallel-attachment.
+- Stop condition: текущая реализация и preview проверены; обязательный security gate не пройден из-за отсутствующего upstream patch. Независимых незавершённых slices текущего scope нет.
 
 ## ET-DEP-20261117 — Security dependency maintenance
 
@@ -39,10 +41,11 @@
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
 - User actions: none
 - Blockers: DEP-PICOMATCH-001 — upstream не выпустил исправленную версию picomatch. Audit gate сохранён, выпуск не подтверждён. Условие снятия: опубликованная исправленная версия, frozen restore, audit 0, полный verify PASS и точные CI/hosted receipts.
-- Runtime follow-up: Cloudflare 7161e382 для ae22dcd завершился ошибкой системного Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4, обычный pnpm exec node --version подтверждён. Исправление запушено, Cloudflare preview 01d0ea8 успешно собран. Production merge/deploy follow-up ждёт security gate.
-- Verification recovery: единственный browser.newContext crash до открытия страницы сохранён с trace. Свежий полный прогон прошёл 405 Chromium; тесты и пороги не менялись.
+- Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
+- Verification recovery: прежний browser.newContext crash сохранён с trace и не повторился в свежих полных запусках. Найденный beam font-swap дефект исправлен отдельно (ET-QG-FONT-001). Окончательный прогон: 761 Vitest, 415 Chromium / 6 SKIP, 2 production smoke PASS; HIGH audit FAIL только picomatch.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: DEP-PICOMATCH-001; после upstream patch повторить audit/full verify/production delivery.
+- NEXT: DEP-PICOMATCH-001
+- Next action: после upstream patch повторить audit/full verify/production delivery.
 
 - Completion sync: обновлены README, DEPENDENCIES, SECURITY, TESTING, project-context и STAGES. Проверены ROADMAP, pre-deploy SPEC, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL и TRACEABILITY.
 

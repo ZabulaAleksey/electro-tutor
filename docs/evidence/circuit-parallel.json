@@ -38,13 +38,30 @@
     ]
   },
   "release_blocker": "DEP-PICOMATCH-001: GHSA-fc5q-39xc-vjpf, no patched published picomatch version",
-  "full_verify": "RUNNING after font recovery",
+  "full_verify": {
+    "status": "FAIL",
+    "terminal_failure": "pnpm audit --audit-level high",
+    "functional_gates": "PASS",
+    "vitest_passed": 761,
+    "vitest_files": 116,
+    "chromium_passed": 415,
+    "chromium_skipped": 6,
+    "production_smoke_passed": 2,
+    "audit_modules": [
+      "picomatch"
+    ],
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "patched_versions": null
+  },
   "feature_commit": "01d0ea870647c123dc2aa6e18bbc39023f748059",
   "hosted_preview": {
-    "url": "https://7873a07f.electrotutor.pages.dev",
-    "deployment": "7873a07f-636c-4a6e-890d-710f7174118a",
+    "url": "https://a5758efe.electrotutor.pages.dev",
+    "deployment": "a5758efe-74de-4368-abb9-fca26fd03381",
+    "commit": "e8e3ba11efcb58d6e62b8eef6f42b78348e78406",
     "build": "success",
-    "chromium_passed": 9
+    "http_status": 200,
+    "chromium_passed": 10,
+    "scenarios": "9 CircuitEditor scenarios + unchanged beam Ctrl-wheel"
   },
   "previous_full_chromium": {
     "passed": 413,
@@ -58,5 +75,15 @@
     "green_beam_tests": 14,
     "unchanged_ctrl_wheel_repeats": 5,
     "accepted_tests_and_goldens": "unchanged"
+  },
+  "current_runtime_commit": "e8e3ba11efcb58d6e62b8eef6f42b78348e78406",
+  "production_release": "BLOCKED; feature not merged to main",
+  "python_runtime_audit": "PASS: No known vulnerabilities found",
+  "hosted_font_probe": {
+    "status": "NOT_APPLICABLE_TO_EDUCATION_PROFILE",
+    "observed": "fonts.status loaded; no external web-font request",
+    "owner": "src/layouts/BaseLayout.astro excludes external web-fonts in education mode",
+    "root_regression": "PASS in final full Chromium suite",
+    "failed_probe_preserved": true
   }
 }

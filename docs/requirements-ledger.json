@@ -3243,7 +3243,7 @@
       "security": "Source revision guard, finite graph/layout budgets and existing document validation",
       "a11y": "RU/UK boundary selectors, radio ambiguity choice, touch and keyboard",
       "observability": "Original IDs, precise selected region, preview routes and reduction provenance",
-      "gap": "Nine live browser scenarios passed; full regression is running. Production security gate DEP-PICOMATCH-001 remains blocked.",
+      "gap": "Local functional gates passed: 761 unit, 415 Chromium and 2 production smoke; 10 hosted preview scenarios passed. Full verify and production remain blocked by DEP-PICOMATCH-001.",
       "action": "Validate the four explicit RLC connections, state preservation, undo and model constraints.",
       "code": [
         "src/circuit/parallel-regions.ts",

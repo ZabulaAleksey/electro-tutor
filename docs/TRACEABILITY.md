@@ -134,3 +134,5 @@ ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded S
 LINE-UX-034–035 → transmission-line-transient SPEC → режим, выбор окончания, Network, Worker и архив v5 → network-stage5.test.ts, network-edit.test.ts, circuit-archive.test.ts, transient-starter.spec.ts, transient-ending.spec.ts и transmission-archive-migration.spec.ts.
 
 CE-013–015 → circuit-engine SPEC → `src/circuit/rlc-reduction.ts` → `src/circuit/rlc-reduction.test.ts`, включая расчёт через transmissionCircuitAdapter и simulateNetwork.
+
+LINE-UX-036 → transmission-line-transient SPEC → circuit-adapter, line-archive-document, TransmissionNetworkLab, line-readings → circuit-adapter-stage7.test.ts, line-readings.test.ts, transient-reduction.spec.ts и transmission-archive-migration.spec.ts.

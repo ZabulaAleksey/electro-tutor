@@ -1,3 +1,4 @@
+import { reduceRlc, type RlcEquivalent } from "../circuit/rlc-reduction";
 import { emptyDrawing } from "../circuit/drawing";
 import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "../circuit/document";
 import { circuitToArchivedNetwork, isArchivedCircuit, networkToCircuit, preserveArchivedPositions } from "./circuit-archive";
@@ -42,14 +43,70 @@ export function isLineArchiveGraph(text: string): boolean {
   return isArchivedCircuit(parseCircuit(text).drawing);
 }
 
-export function decodeLineCircuit(text: string): Network {
+type LineCircuitAnalysis = {
+  model: Network;
+  equivalents: ReadonlyMap<string, RlcEquivalent>;
+  resultPolarity: ReadonlyMap<string, 1 | -1>;
+};
+
+export function analyzeLineCircuit(text: string, acceptedModel?: Network): LineCircuitAnalysis {
   const { drawing } = parseCircuit(text);
-  return isArchivedCircuit(drawing) ? circuitToArchivedNetwork(drawing) : transmissionCircuitAdapter.convert(drawing.topology).model;
+  if (isArchivedCircuit(drawing)) {
+    return { model: circuitToArchivedNetwork(drawing), equivalents: new Map(), resultPolarity: new Map() };
+  }
+  const matches = (model: Network) => acceptedModel && sameNetwork({ ...model, durationS: acceptedModel.durationS }, acceptedModel);
+  const reduce = (): LineCircuitAnalysis => {
+    const { topology } = drawing;
+    const reduced = reduceRlc(topology);
+    if (!reduced.ok) throw Error("inconsistent-initial-state:" + reduced.conflict.components.join(","));
+    try {
+      const { model, resultPolarity } = transmissionCircuitAdapter.convert(reduced.topology);
+      return { model, resultPolarity, equivalents: reduced.equivalents };
+    } catch (error) {
+      // An equivalent can exceed the solver limits even when its members fit.
+      if (!reduced.equivalents.size || !/component-out-of-range|invalid-component/.test(String(error))) throw error;
+      const { model, resultPolarity } = transmissionCircuitAdapter.convert(topology);
+      return { model, resultPolarity, equivalents: new Map() };
+    }
+  };
+  if (!acceptedModel) return reduce();
+
+  let current: LineCircuitAnalysis | undefined;
+  let diagnostic: unknown;
+  try {
+    current = reduce();
+    if (matches(current.model)) return current;
+  } catch (error) {
+    diagnostic = error;
+  }
+  // Retain a saved result from versions that had neither physical RLC
+  // reduction nor L/C initial conditions in the free-graph adapter.
+  const { topology } = drawing;
+  try {
+    const legacy = transmissionCircuitAdapter.convert({
+      ...topology,
+      components: topology.components.map(component => {
+        if (component.kind !== "l" && component.kind !== "c" || !Object.hasOwn(component.parameters, "initial")) return component;
+        const parameters = { ...component.parameters };
+        delete parameters.initial;
+        return { ...component, parameters };
+      }),
+    });
+    if (matches(legacy.model)) return { model: legacy.model, resultPolarity: new Map(), equivalents: new Map() };
+  } catch {
+    // Only a graph that exactly reproduces the saved result is accepted.
+  }
+  if (current) return current;
+  throw diagnostic;
+}
+
+export function decodeLineCircuit(text: string): Network {
+  return analyzeLineCircuit(text).model;
 }
 
 export function matchesLineCircuit(text: string, model: Network): boolean {
   try {
-    return sameNetwork({ ...decodeLineCircuit(text), durationS: model.durationS }, model);
+    return sameNetwork({ ...analyzeLineCircuit(text, model).model, durationS: model.durationS }, model);
   } catch {
     return false;
   }

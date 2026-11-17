@@ -2481,18 +2481,32 @@
       "requirement_ids": [
         "LINE-UX-036"
       ],
-      "status": "PLANNED",
+      "status": "VERIFIED",
       "domain": "transmission-line",
       "runtime": "Reduced free topology through the line Worker",
       "security": "Explicit topology validation",
       "a11y": "Localized calculation diagnostics",
       "observability": "Original component results and worker readiness",
-      "gap": "Live Stage 7 evidence pending.",
+      "gap": "None in the Stage 7 supported topology scope.",
       "action": "Verify reduction, readings, restoring the graph and archived experiments.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-archive-document.ts",
+        "src/transient/line-readings.ts",
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-stage7.test.ts",
+        "src/transient/line-readings.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-readings.test.ts",
+        "src/circuit/rlc-reduction.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/transient-reduction.spec.ts",
+        "tests/e2e/transmission-archive-migration.spec.ts"
+      ]
     }
   ]
 }

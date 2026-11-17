@@ -1,7 +1,7 @@
 import CircuitEditor, { type CircuitReading } from "../circuit/CircuitEditor";
 import { resistiveLoadReadings } from "../transient/circuit-adapter";
 import { transientCircuitMode } from "../transient/circuit-mode";
-import { isLineArchiveGraph, matchesLineCircuit, lineArchiveByteLimit, lineArchiveSize, readLineArchive, requiresV4, sameNetwork, serializeLineCircuit } from "../transient/line-archive-document";
+import { analyzeLineCircuit, isLineArchiveGraph, lineArchiveByteLimit, lineArchiveSize, readLineArchive, requiresV4, sameNetwork, serializeLineCircuit } from "../transient/line-archive-document";
 import {useUnsavedChanges} from "../engineering/useUnsavedChanges";
 import { LoaderCircle, Pause, Play, Square } from "lucide-react";
 import {useEffect,useMemo,useRef,useState} from "react";
@@ -14,6 +14,7 @@ import {at,branchVoltage,contactClosed,contactsOf,estimateNetwork,hasLineLoss,hi
 import {NumberEdit,type Layout} from "../transient/NetworkEditor";
 import { parseCircuit } from "../circuit/document";
 import { archivedPartId, detachedTemplate } from "../transient/circuit-archive";
+import { liftLineReadings, type LineReading } from "../transient/line-readings";
 import { useLineOperations } from "../transient/useLineOperations";
 import NetworkInspector from "../transient/NetworkInspector";
 import {networkError} from "../transient/network-copy";
@@ -212,8 +213,12 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  const source=nodePort(run,run.config.source.node,time),loadPort=nodePort(run,run.config.sections.length,time),boundary=sectionBoundaries(run.config);
  const numericErrors=empty?[]:validateNetwork(model),valid=!empty&&mounted&&!numericErrors.length&&!busy&&!error&&JSON.stringify(run.config)===JSON.stringify(model);
  const documentValue=JSON.stringify({model,layout,detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{}),...(circuit?{circuit}:{})});
- const activeArchiveEquivalent = useMemo(() => matchesLineCircuit(circuit, model), [circuit, model]);
- const version5=!!inputContact(model)||!activeArchiveEquivalent||model.source.currentA!==undefined||ink.length>0||empty||detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||key.startsWith("@rot-")||value<50||value>110)||
+ const circuitAnalysis = useMemo(() => {
+  try { return analyzeLineCircuit(circuit, model); } catch { return null; }
+ }, [circuit, model]);
+ const activeArchiveEquivalent = circuitAnalysis !== null &&
+  sameNetwork({ ...circuitAnalysis.model, durationS: model.durationS }, model);
+ const version5=!!circuitAnalysis?.equivalents.size||!!inputContact(model)||!activeArchiveEquivalent||model.source.currentA!==undefined||ink.length>0||empty||detached.length>0||Object.entries(layout).some(([key,value])=>key.startsWith("@x-")||key.startsWith("@rot-")||value<50||value>110)||
   (contactsOf(model).some(link=>link.component)||hasLineLoss(model));
  const inspectedDiode=selected?.kind==="contact"?contactsOf(model).find(link=>link.id===selected.id):undefined;
  const diodePoint=!valid?undefined:inspectedDiode?.component?.kind==="diode"?
@@ -257,32 +262,39 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
  }
  const activeCircuit = activeArchiveEquivalent ? circuit : undefined;
  const readings = useMemo(() => {
-  const values = new Map<string, CircuitReading>();
-  if (!valid || !circuit) return values;
+  const values = new Map<string, LineReading>();
+  if (!valid || !circuit) return new Map<string, CircuitReading>();
   let offset = 0;
   for (const section of run.config.sections) {
    const sample = at(run, offset + section.lengthM / 2, time);
    offset += section.lengthM;
-   values.set(section.id, { voltage: formatEngineeringValue(sample.u,"V",language), current: formatEngineeringValue(sample.i,"A",language) });
+   values.set(section.id, { voltage: sample.u, current: sample.i });
   }
   for (const branch of contactsOf(run.config)) {
-   values.set(branch.id, { voltage: formatEngineeringValue(branchVoltage(run,branch,time),"V",language) });
+   const voltage = branchVoltage(run,branch,time);
+   const equivalent = circuitAnalysis?.equivalents.has(branch.id);
+   values.set(branch.id, { voltage, ...(equivalent && branch.resistanceOhm ? { current: voltage / branch.resistanceOhm } : {}) });
   }
   const loadVoltage = nodePort(run,run.config.sections.length,time).u;
   if (!run.config.load.children?.length && run.config.load.kind !== "open") {
-   values.set(run.config.load.id, { voltage: formatEngineeringValue(loadVoltage,"V",language) });
+   values.set(run.config.load.id, { voltage: loadVoltage });
   }
   for (const [id, reading] of resistiveLoadReadings(run.config.load, loadVoltage, run.config.events, time)) {
-   values.set(id, { voltage: formatEngineeringValue(reading.voltage,"V",language), current: formatEngineeringValue(reading.current,"A",language) });
+   values.set(id, reading);
   }
   for (const [id, trace] of Object.entries(run.deviceTraces ?? {})) {
    values.set(id, {
-    voltage: formatEngineeringValue(historyValue(trace.voltage,time,true),"V",language),
-    current: formatEngineeringValue(historyValue(trace.current,time,true),"A",language),
+    voltage: historyValue(trace.voltage,time,true),
+    current: historyValue(trace.current,time,true),
    });
   }
-  return values;
- }, [valid, circuit, run, time, language]);
+  const resolved = activeArchiveEquivalent && circuitAnalysis && (circuitAnalysis.equivalents.size || circuitAnalysis.resultPolarity.size)
+   ? liftLineReadings(values, circuitAnalysis.equivalents, circuitAnalysis.resultPolarity) : values;
+  return new Map<string, CircuitReading>([...resolved].map(([id, sample]) => [id, {
+   voltage: formatEngineeringValue(sample.voltage,"V",language),
+   ...(sample.current === undefined ? {} : { current: formatEngineeringValue(sample.current,"A",language) }),
+  }]));
+ }, [valid, circuit, run, time, language, activeArchiveEquivalent, circuitAnalysis]);
  const navigationDialog=useUnsavedChanges({dirty:documentValue!==savedDocument,onSave:saveLocal,language});
  const exportModel=()=>{if(!saveLocal()){setActionError(ru?"Не удалось сохранить схему локально":"Не вдалося зберегти схему локально");return;}const data=JSON.stringify({schema:version5?"electrotutor-line-v5":requiresV4(model)?"electrotutor-line-v4":model.series?.length||model.branches?.length?"electrotutor-line-v3":"electrotutor-line-v2",model,layout,...(circuit?{circuit}:{}),...(version5?{detached,...(ink.length?{ink}:{}),...(inkLinks.some(Boolean)?{inkLinks}:{}),...(empty?{empty:true}:{})}:{})}),url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download="electrotutor-line.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  const start=()=>{if(time>=run.config.durationS)seek(0);setRunning(true);};

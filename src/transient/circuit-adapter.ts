@@ -1,5 +1,5 @@
 import type { LaboratoryAdapter } from "../circuit/adapter";
-import { netlist, type CircuitComponent } from "../circuit/topology";
+import { netlist, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
 import { DEFAULT_DIODE } from "./line-diode";
 import { DEFAULT_NETWORK, MAX_SECTIONS, validateNetwork, type Contact, type Load, type ModelEvent, type Network, type Section } from "./network";
 
@@ -16,6 +16,18 @@ function isPassive(kind: string): kind is keyof typeof property {
   return Object.hasOwn(property, kind);
 }
 
+function reverseLoad(load: Load, polarity: Map<string, 1 | -1>): Load {
+  const direction = polarity.get(load.id);
+  if (direction !== undefined) polarity.set(load.id, direction === 1 ? -1 : 1);
+  if (load.kind === "l" || load.kind === "c") return { ...load, ...(load.initial === undefined ? {} : { initial: -load.initial }) };
+  if (load.kind === "diode") return { ...load, diode: { ...load.diode!, reversed: !load.diode!.reversed } };
+  if (load.children) return { ...load, children: load.children.map(child => reverseLoad(child, polarity)) };
+  return load;
+}
+function orientedLoad(edge: LoadEdge, from: number, to: number, polarity: Map<string, 1 | -1>): Load {
+  return edge.from === from && edge.to === to ? edge.load : reverseLoad(edge.load, polarity);
+}
+
 function contactFor(part: CircuitComponent, from: number, to: Contact["to"], reversed = false): Contact {
   const terminal = { id: part.id, from, to };
   switch (part.kind) {
@@ -28,13 +40,13 @@ function contactFor(part: CircuitComponent, from: number, to: Contact["to"], rev
       } };
     }
     case "r": return { ...terminal, resistanceOhm: numeric(part, "ohm") };
-    case "l": return { ...terminal, component: { kind: "l", value: numeric(part, "henry") } };
-    case "c": return { ...terminal, component: { kind: "c", value: numeric(part, "farad") } };
+    case "l": return { ...terminal, component: { kind: "l", value: numeric(part, "henry"), ...(typeof part.parameters.initial === "number" && part.parameters.initial !== 0 ? { initial: (reversed ? -1 : 1) * part.parameters.initial } : {}) } };
+    case "c": return { ...terminal, component: { kind: "c", value: numeric(part, "farad"), ...(typeof part.parameters.initial === "number" && part.parameters.initial !== 0 ? { initial: (reversed ? -1 : 1) * part.parameters.initial } : {}) } };
     default: throw Error("unsupported-line-circuit");
   }
 }
 
-function terminalLoad(edges: LoadEdge[], output: number, reference: number, allocateId: () => string): Load {
+function terminalLoad(edges: LoadEdge[], output: number, reference: number, allocateId: () => string, polarity: Map<string, 1 | -1>): Load {
   if (!edges.length) return { id: allocateId(), kind: "open" };
   const edgesByNode = (node: number) => edges.filter(edge => edge.from === node || edge.to === node);
   // Keep the leaf and its stable ID for all series/parallel reductions.
@@ -45,7 +57,7 @@ function terminalLoad(edges: LoadEdge[], output: number, reference: number, allo
       const group = edges.filter(edge => edge.from === parallel.from && edge.to === parallel.to ||
         edge.from === parallel.to && edge.to === parallel.from);
       edges = edges.filter(edge => !group.includes(edge));
-      edges.push({ ...parallel, load: { id: allocateId(), kind: "parallel", children: group.map(edge => edge.load) } });
+      edges.push({ ...parallel, load: { id: allocateId(), kind: "parallel", children: group.map(edge => orientedLoad(edge, parallel.from, parallel.to, polarity)) } });
       continue;
     }
     const interior = [...new Set(edges.flatMap(edge => [edge.from, edge.to]))]
@@ -55,15 +67,18 @@ function terminalLoad(edges: LoadEdge[], output: number, reference: number, allo
     const ends = group.map(edge => edge.from === interior ? edge.to : edge.from);
     if (ends[0] === ends[1]) throw Error("unsupported-line-load");
     edges = edges.filter(edge => !group.includes(edge));
-    edges.push({ from: ends[0], to: ends[1], load: { id: allocateId(), kind: "series", children: group.map(edge => edge.load) } });
+    edges.push({ from: ends[0], to: ends[1], load: { id: allocateId(), kind: "series", children: group.map(edge => {
+      const first = edge.from === ends[0] || edge.to === ends[0];
+      return orientedLoad(edge, first ? ends[0] : interior, first ? interior : ends[1], polarity);
+    }) } });
   }
   const { from, to, load } = edges[0];
   if (!(from === output && to === reference || from === reference && to === output)) throw Error("unsupported-line-load");
-  return load;
+  return from === output && to === reference ? load : reverseLoad(load, polarity);
 }
 
-export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
-  convert(topology) {
+export const transmissionCircuitAdapter = {
+  convert(topology: CircuitTopology) {
     const nets = netlist(topology);
     const membership = new Map(nets.flatMap((net, index) => net.map(id => [id, index] as const)));
     const sources = topology.components.filter(item => item.kind === "voltage" || item.kind === "current");
@@ -82,11 +97,12 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
     const inline: (Contact & { to: number })[] = [];
     const inlineIds = new Set<string>();
     const extraNets = new Set<number>();
+    const resultPolarity = new Map<string, 1 | -1>();
     let current = input;
     const remaining = new Set(lines);
     while (remaining.size) {
       let choices = [...remaining].filter(item => terminals(item).includes(current));
-      if (!choices.length && sections.length) {
+      if (!choices.length) {
         const links = devices.filter(item => !inlineIds.has(item.id) && terminals(item).includes(current))
           .flatMap(item => {
             const [a, b] = terminals(item);
@@ -96,9 +112,14 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
           });
         if (links.length !== 1) throw Error("unsupported-line-chain");
         const { item, next, reversed } = links[0];
-        const station = sections.length, extraNode = lines.length + station;
+        const station = sections.length;
+        if (station === 0 && (item.kind !== "switch" || Number(item.parameters.contactOhm ?? 0) !== 0)) {
+          throw Error("unsupported-line-input-contact");
+        }
+        const extraNode = station === 0 ? 2 * lines.length : lines.length + station;
         inline.push({ ...contactFor(item, station, extraNode, reversed), to: extraNode });
         inlineIds.add(item.id);
+        resultPolarity.set(item.id, reversed ? -1 : 1);
         extraNets.add(next);
         current = next;
         choices = [...remaining].filter(line => terminals(line).includes(current));
@@ -116,6 +137,7 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
         velocityMS: numeric(part, "velocityMS"),
         ...(Number(part.parameters.resistanceOhmM) > 0 ? { resistanceOhmM: numeric(part, "resistanceOhmM") } : {}),
       });
+      resultPolarity.set(part.id, a === current ? 1 : -1);
       nodeByNet.set(next, sections.length);
       current = next;
     }
@@ -139,13 +161,14 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
         if (changeAt > 0) throw Error("unsupported-line-resistance-event");
         continue;
       }
+      resultPolarity.set(part.id, 1);
       const [a, b] = terminals(part);
       if (extraNets.has(a) || extraNets.has(b)) throw Error("unsupported-series-node");
       if (a === b) throw Error("shorted-line-device");
       const kind = part.kind;
       const load: Load = kind === "switch" ? { id: part.id, kind: "switch", closed: part.parameters.closed === true } : isPassive(kind)
-        ? { id: part.id, kind, value: numeric(part, property[kind]) }
-        : { id: part.id, kind: "diode", diode: { ...DEFAULT_DIODE, reversed: a === reference } };
+        ? { id: part.id, kind, value: numeric(part, property[kind]), ...(typeof part.parameters.initial === "number" && part.parameters.initial !== 0 ? { initial: part.parameters.initial } : {}) }
+        : { id: part.id, kind: "diode", diode: { ...DEFAULT_DIODE, reversed: false } };
       const isEndLoad = (a === current && b === reference) || (b === current && a === reference);
       const from = nodeByNet.get(a), to = nodeByNet.get(b);
       if (!isEndLoad && (from !== undefined && (to !== undefined || b === reference) ||
@@ -155,6 +178,7 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
         const right = flipped || b === reference ? "reference" : to!;
         if (load.kind === "switch" && right === "reference") throw Error("unsupported-line-switch");
         if (changeAt > 0) throw Error("unsupported-line-resistance-event");
+        resultPolarity.set(part.id, flipped ? -1 : 1);
         branches.push(contactFor(part, left, right, flipped));
       } else {
         if (load.kind === "switch") throw Error("unsupported-line-switch");
@@ -171,7 +195,7 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
     const offS = Number(source.parameters.offS ?? 0);
     const latestEvent = Math.max(onS, offS, ...events.map(event => event.atS), ...[...inline, ...branches].map(link => link.switch?.atS ?? 0));
     const model: Network = {
-      ...DEFAULT_NETWORK, durationS: Math.max(DEFAULT_NETWORK.durationS, latestEvent), sections, load: terminalLoad(loadEdges, current, reference, allocateId), events, shunts: [],
+      ...DEFAULT_NETWORK, durationS: Math.max(DEFAULT_NETWORK.durationS, latestEvent), sections, load: terminalLoad(loadEdges, current, reference, allocateId, resultPolarity), events, shunts: [],
       source: {
         voltageV: source.kind === "current" ? 0 : numeric(source, "voltageV"),
         ...(source.kind === "current" ? { currentA: numeric(source, "currentA") } : {}),
@@ -183,9 +207,9 @@ export const transmissionCircuitAdapter: LaboratoryAdapter<Network> = {
     };
     const errors = validateNetwork(model);
     if (errors.length) throw Error(errors.join("; "));
-    return { model, resultIds };
+    return { model, resultIds, resultPolarity };
   },
-};
+} satisfies LaboratoryAdapter<Network>;
 
 /** The Worker exposes terminal voltage. For a purely resistive equivalent the
  * internal voltages follow directly; mixed reactances need solver state. */

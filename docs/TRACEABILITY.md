@@ -158,3 +158,5 @@ LC-014–016 → reactive-two-port SPEC → reactive-cauer-ii.ts + CauerResults 
 POWER-001–003 → power-system SPEC → power-system/network.ts + topology.ts → power-system/topology.test.ts. Браузерные потребители подключаются отдельным этапом.
 
 POWER-004–006 → power-system SPEC → power-system/catalogue.ts + network.ts + validation.ts → power-system/catalogue.test.ts.
+
+POWER-007–009 → power-system SPEC → PowerSystemLab + PowerEquipmentParameters + power-system/configuration.ts + diagram.ts → configuration.test.ts + power-system-config.spec.ts.

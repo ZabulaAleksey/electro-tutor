@@ -1,0 +1,27 @@
+.power-workspace,.power-inspectors,.power-panel,.power-fields{display:grid;gap:.8rem;min-width:0}
+.power-workspace{margin-block:1rem 2rem}
+.power-workspace .circuit-editor{margin:0;padding:0;max-width:none}
+.power-workspace .circuit-editor h2{margin:0}
+.power-workspace .circuit-component-hit{cursor:pointer}
+.power-workspace [data-power-bus] text{font-size:13px}
+.power-inspectors{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
+.power-panel{background:var(--surface-elevated);padding:clamp(12px,2vw,22px);border:1px solid var(--line);border-radius:12px}
+.power-panel :is(p,h2){margin:0;overflow-wrap:anywhere}
+.power-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.power-workspace label{display:grid;gap:.25rem;min-width:0}
+.power-panel :is(input,select,button){min-height:44px;max-width:100%;font:inherit;color:var(--ink);background:var(--surface-elevated);border:1px solid var(--line);border-radius:7px;padding:.35rem .6rem}
+.power-panel :is(input,select){width:100%;min-width:0}
+.power-panel button{width:fit-content;cursor:pointer}
+.power-panel button:disabled{opacity:.5;cursor:default}
+.power-advanced{border-top:1px solid var(--line);padding-top:.65rem}
+.power-advanced summary{cursor:pointer}
+.power-advanced :is(form,p){margin-top:.65rem}
+.power-advanced form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;align-items:end}
+.power-advanced form > :is(div,fieldset){grid-column:1/-1}
+.power-voltage output{font-weight:600}
+@media(max-width:730px){.power-inspectors{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){.power-advanced form,.power-fields{grid-template-columns:minmax(0,1fr)}}
+
+.power-equipment-parameters fieldset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;min-width:0;margin:0;border:1px solid var(--line);border-radius:7px}
+.power-equipment-parameters-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.5rem}
+@media(max-width:420px){.power-equipment-parameters fieldset{grid-template-columns:minmax(0,1fr)}}

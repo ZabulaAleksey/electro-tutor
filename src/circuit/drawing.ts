@@ -23,6 +23,10 @@ export const parts = {
   bridge: { prefix: "B", parameters: {} },
   open: { prefix: "O", parameters: {} },
   port: { prefix: "P", parameters: {} },
+  "power-source": { prefix: "S", parameters: {} },
+  "power-line": { prefix: "L", parameters: {} },
+  "power-transformer": { prefix: "T", parameters: {} },
+  "power-load": { prefix: "D", parameters: {} },
 };
 export type PartKind = keyof typeof parts;
 export const optionalPartParameters = new Set(["onS", "offS", "atS", "closes", "resistanceOhm", "resistanceOhmM", "changeAtS", "nextOhm", "initial", "saturationA", "ideality", "reversed", "contactOhm", "closed"]);

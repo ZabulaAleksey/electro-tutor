@@ -2822,18 +2822,31 @@
         "POWER-008",
         "POWER-009"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Bilingual equipment catalogue selection, isolated overrides and nominal voltage input",
       "security": "Validate imported and edited catalogue data before changing state",
       "a11y": "RU/UK labelled basic and expandable advanced controls",
       "observability": "Pinned type revision, provenance, effective override and reset",
       "action": "Configure two actual physical devices, change a single instance without changing its type, and verify voltage options on both locales.",
-      "gap": "Stage 19 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/configuration.ts",
+        "src/power-system/diagram.ts",
+        "src/components/PowerSystemLab.tsx",
+        "src/components/PowerEquipmentParameters.tsx",
+        "src/pages/[lang]/interactive/power-system.astro",
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [
+        "src/power-system/configuration.test.ts"
+      ],
+      "integration": [
+        "src/power-system/configuration.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-config.spec.ts"
+      ]
     }
   ]
 }

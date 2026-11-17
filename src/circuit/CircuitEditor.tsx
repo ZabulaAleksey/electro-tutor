@@ -22,6 +22,12 @@ function Glyph({ kind, span = 58, closed, reversed, ground }: { kind: PartKind; 
     case "l": return <InductorGlyph x={-27} y={0} />;
     case "c": return <CapacitorGlyph x={0} y={0} terminalSpan={54} orientation="horizontal" />;
     case "diode": return <g transform={reversed ? "scale(-1 1)" : undefined}><DiodeGlyph x={-11.5} y={0} /></g>;
+    case "power-line": return <path d="M-29 0H29" stroke="var(--ink)" strokeWidth="2.6"/>;
+    case "power-transformer": return <g stroke="var(--ink)" fill="none" strokeWidth="1.7">
+      <path d="M-29 0H-18M18 0H29"/><circle cx="-8" r="10"/><circle cx="8" r="10"/>
+    </g>;
+    case "power-load": return <path d="M-24 0H14M4 -6L14 0L4 6" stroke="var(--ink)" strokeWidth="1.8" fill="none"/>;
+    case "power-source":
     case "voltage":
     case "current": return <g transform="rotate(-90)"><SourceGlyph x={0} y={0} current={kind === "current"} /></g>;
     case "port":
@@ -63,7 +69,7 @@ export type CircuitBoardExtension = {
 };
 
 export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
-  extension, onDocumentChange, onClear, history, initialSelection, afterBoard }: {
+  extension, onDocumentChange, onClear, history, initialSelection, afterBoard, inspectOnly = false, selectedComponentId }: {
   language: Language;
   embedded?: boolean;
   mode?: CircuitEditorMode;
@@ -75,6 +81,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   onDocumentChange?: (document: string) => boolean;
   onClear?: () => void;
   initialSelection?: string;
+  inspectOnly?: boolean;
+  selectedComponentId?: string | null;
   afterBoard?: React.ReactNode;
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
 }) {
@@ -87,7 +95,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   const undo = useRef<typeof snapshot[]>([]);
   const redo = useRef<typeof snapshot[]>([]);
   const [tool, setTool] = useState<PartKind | "wire" | "junction" | null>(null);
-  const [selected, setSelected] = useState<string | null>(initialSelection ?? null);
+  const [selection, setSelected] = useState<string | null>(initialSelection ?? null);
+  const selected = selectedComponentId === undefined ? selection : selectedComponentId;
   const [selectionWire, setSelectionWire] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [ready, setReady] = useState(embedded);
@@ -329,6 +338,13 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   }
 
   function start(event: PointerEvent<SVGSVGElement>) {
+    if (inspectOnly) {
+      if (event.button === 0) {
+        const part = (event.target as Element).closest("[data-component-id]")?.getAttribute("data-component-id");
+        if (part) select(part);
+      }
+      return;
+    }
     if (event.pointerType === "touch") {
       touches.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (touches.current.size >= 2) {
@@ -611,7 +627,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     </div>
   );
 
-  return <section className="circuit-editor" data-circuit-editor data-embedded={embedded || undefined} data-ready={ready} onKeyDown={event => {
+  return <section className="circuit-editor" data-circuit-editor data-embedded={embedded || undefined} data-ready={ready} data-inspect-only={inspectOnly || undefined} onKeyDown={event => {
+    if (inspectOnly) return;
     if (event.key === "Escape") { chooseTool(null); extension?.onCancel?.(); }
     if ((event.ctrlKey || event.metaKey) && !(event.target as Element).closest("input, textarea, [contenteditable]")) {
       const focusedPart = (event.target as Element).closest("[data-component-id]")?.getAttribute("data-component-id");
@@ -627,9 +644,10 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       travel(!event.shiftKey);
     }
   }}>
-    {embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : <h1>{copy.title}</h1>}
+    {inspectOnly ? <h2>{language === "ru" ? "Схема сети" : "Схема мережі"}</h2>
+      : embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : <h1>{copy.title}</h1>}
     {extension?.controls?.(drawing)}
-    {!embedded && mainTools}
+    {!inspectOnly && !embedded && mainTools}
     <div ref={viewportRef} className="circuit-viewport" data-circuit-nets={JSON.stringify(nets)}>
       <svg data-circuit-board data-network-canvas={embedded || undefined} data-zoom={zoom} data-placing={tool !== null || extension?.placing || undefined} aria-label={copy.board}
         viewBox={`0 0 ${boardWidth} ${boardHeight}`} preserveAspectRatio="xMinYMin meet" style={{ width: `${zoom * 100}%` }}
@@ -683,9 +701,9 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       </svg>
     </div>
     {afterBoard}
-    {embedded && mainTools}
+    {!inspectOnly && embedded && mainTools}
     {extension?.inspector?.(drawing, selected)}
-    <div className="circuit-toolbar circuit-file-tools">
+    {!inspectOnly && <div className="circuit-toolbar circuit-file-tools">
       {!embedded && <button type="button" onClick={saveLocal}>{copy.save}</button>}
       {onCalculate && <button type="button" onClick={() => {
         try {
@@ -704,14 +722,14 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
           event.currentTarget.value = "";
           if (file) void importFile(file);
         }} />
-    </div>
+    </div>}
     <div className="circuit-toolbar circuit-view-controls">
       {embedded && <button type="button" onClick={() => {setZoom(1);viewportRef.current?.scrollTo(0,0);}}>
         {language === "ru" ? "Показать всю схему" : "Показати всю схему"}
       </button>}
       <button type="button" aria-label={copy.zoomOut} disabled={zoom <= 1} onClick={() => setZoom(zoom / 1.25)}>−</button>
       <button type="button" aria-label={copy.zoomIn} disabled={zoom >= 1.95} onClick={() => setZoom(zoom * 1.25)}>+</button>
-      <label>{copy.grid} <select value={grid} onChange={event => updateSettings("grid", Number(event.target.value))}>
+      {!inspectOnly && <><label>{copy.grid} <select value={grid} onChange={event => updateSettings("grid", Number(event.target.value))}>
         <option value={5}>5</option><option value={10}>10</option><option value={20}>20</option>
       </select></label>
       <label><input type="checkbox" checked={alignToGrid} onChange={event => updateSettings("snap", event.target.checked)} /> {copy.snap}</label>
@@ -719,9 +737,9 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       {embedded ? <label>{language === "ru" ? "УГО резисторов" : "УГП резисторів"} <select value={zigzag ? "ansi" : "iec"}
         onChange={event => updateSettings("zigzag", event.target.value === "ansi")}>
         <option value="iec">IEC</option><option value="ansi">ANSI</option>
-      </select></label> : <label><input type="checkbox" checked={zigzag} onChange={event => updateSettings("zigzag", event.target.checked)} /> {copy.zigzag}</label>}
+      </select></label> : <label><input type="checkbox" checked={zigzag} onChange={event => updateSettings("zigzag", event.target.checked)} /> {copy.zigzag}</label>}</>}
     </div>
-    <div className="circuit-toolbar circuit-selection">
+    {!inspectOnly && <div className="circuit-toolbar circuit-selection">
       <label>{copy.select} <select aria-label={copy.select} value={selected ?? ""} onChange={event => { setSelectionWire(null); select(event.target.value || null); }}>
         <option value="">—</option>
         {drawing.topology.components.map(item => <option value={item.id} key={item.id}>{item.id}</option>)}
@@ -747,7 +765,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
           commit({ ...drawing, positions: { ...drawing.positions, [selected]: { ...p, pinned: !p.pinned } } }, routing);
         }}>{copy.pin}</button>
         <button type="button" onClick={remove}>{copy.remove}</button></>}
-    </div>
+    </div>}
     {tool === "wire" && <select aria-label={wireStart ? copy.selectEnd : copy.selectStart} value=""
       onChange={event => { if (event.target.value) choose(event.target.value); }}>
       <option value="">{wireStart ? copy.selectEnd : copy.selectStart}</option>

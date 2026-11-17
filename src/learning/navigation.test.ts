@@ -32,7 +32,8 @@ describe('RUN6 derived learning index',()=>{
     expect(mesh.components.textbook.href).toBe('/uk/topics/dc/mesh-current-method/');
     expect(mesh.components.examples).toMatchObject({href:null,status:'not-translated'});
     expect(mesh.components.lab).toMatchObject({href:null,status:'not-translated'});
-    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(32);
+    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(33);
+    expect(entries.find(e=>e.id==='tool:advanced:power-system')?.components.lab.href).toBe('/uk/interactive/power-system/');
   });
   it('filters public before render/serialization and preserves exact three mesh components',()=>{
     const groups=buildLearningNavigation(published,'ru',true),entries=groups.flatMap(g=>g.entries);expect(entries).toHaveLength(1);

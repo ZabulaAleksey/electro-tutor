@@ -11,7 +11,7 @@ export type CircuitLaboratoryMode<Model> = CircuitEditorMode & {
   readModel: (document: string) => Model;
 };
 
-export const circuitPartKinds = (Object.keys(parts) as PartKind[]).filter(kind => kind !== "port");
+export const circuitPartKinds = (Object.keys(parts) as PartKind[]).filter(kind => kind !== "port" && !kind.startsWith("power-"));
 
 export const freeCircuitMode: CircuitEditorMode = {
   createDefaultDocument: () => serializeCircuit(emptyDrawing(), defaultCircuitSettings),

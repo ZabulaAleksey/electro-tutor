@@ -1,3 +1,7 @@
+## ET-DEP-20261117 — повторная проверка перед интеграцией
+
+По прямому запросу владельца полный `pnpm verify:full` повторён для `5f29b525d57546d53a030fd34de7ef1100d56e1f` без изменения manifest/lockfile/runtime: 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Последний HIGH audit FAIL: picomatch <=4.0.7, исправленная версия не опубликована. Сверены npm registry, официальный GitHub release и advisory. Merge, push main и production deploy заблокированы QG-003; разрешение владельца на эти действия получено. [Проверяемое evidence](evidence/dependency-picomatch-recheck.json). Предыдущая функциональная квалификация ниже сохраняет силу.
+
 ## Окончательная квалификация ET-CE-PARALLEL-001
 
 Ревизия `e8e3ba11efcb58d6e62b8eef6f42b78348e78406`: 761 Vitest / 116 файлов; 415 Chromium PASS / 6 прежних SKIP; production build и 2 production smoke PASS. Frozen restore, hygiene, CI contract, типы и ESLint PASS. Полный `pnpm verify:full` FAIL на последнем обязательном HIGH audit: picomatch <=4.0.7, GHSA-fc5q-39xc-vjpf, опубликованного исправления нет. Это не полный PASS и не production release.

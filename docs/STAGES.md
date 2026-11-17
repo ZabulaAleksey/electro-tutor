@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-CE-PARALLEL-001
+- Stage ID: ET-DEP-20261117
 
 ## ET-CE-PARALLEL-001 — Универсальное параллельное подключение
 
@@ -30,24 +30,25 @@
 ## ET-DEP-20261117 — Security dependency maintenance
 
 - Status: blocked
-- Goal: устранить все текущие LOW/MODERATE находки pnpm, сохранить совместимость лабораторий, выполнить полный verify и штатный production deploy.
+- Goal: устранить оставшийся HIGH picomatch, получить audit/full verify PASS, слить проверенную ветку в main, выполнить push и настроенный production deploy.
 - Entry: чистый main b614cda, предыдущий runtime eff12b6. pnpm 11.23.0. Исходный аудит даёт 5 LOW и 7 MODERATE.
 - Scope: package.json, pnpm-workspace.yaml, pnpm-lock.yaml, Node 22.23.4 в .node-version и существующем CI, dependency/security/evidence документы.
 - Requirements: QG-001..007, глобальные dependency-management и node-package-management.
 - Dependencies: предыдущий мастер ET-UNIVERSAL-MASTER-V2 completed, production GitHub Pages и Cloudflare подтверждены.
 - Evals: frozen restore PASS, полный и production audit без находок, Python runtime audit, полный pnpm verify:full, существующий backend gate в GitHub CI, smoke четырёх лабораторий на обоих production hosts.
 - Recovery: предыдущий main b614cda и runtime eff12b6 сохраняются в Git и точной production-выкладке.
-- Evidence: первый полный verify до обновления advisory PASS (738 Vitest, 405 Chromium, 6 предусмотренных SKIP, 2 production smoke, audit 0). Повторный полный прогон через штатный pnpm runtime прошёл те же functional/build gates, но финальный HIGH audit FAIL: новый GHSA-fc5q-39xc-vjpf для picomatch <=4.0.7. Registry latest 4.0.7 и GitHub Advisory подтверждают отсутствие patched versions на 2026-11-17. Python runtime audit PASS. Первый GitHub run 44128969611 PASS для ae22dcd.
+- Evidence: повторная квалификация по прямому запросу владельца для 5f29b52: frozen restore, static/type/lint, 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Полный pnpm verify:full FAIL только на последнем HIGH audit: picomatch <=4.0.7, patched versions None. npm latest и последний официальный release остаются 4.0.7. [Receipt](evidence/dependency-picomatch-recheck.json).
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
-- User actions: none
+- User actions: none. Явное разрешение merge/push/deploy получено; обязательный QG-003 блокирует выпуск до audit PASS.
 - Blockers: DEP-PICOMATCH-001 — upstream не выпустил исправленную версию picomatch. Audit gate сохранён, выпуск не подтверждён. Условие снятия: опубликованная исправленная версия, frozen restore, audit 0, полный verify PASS и точные CI/hosted receipts.
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
-- Verification recovery: прежний browser.newContext crash сохранён с trace и не повторился в свежих полных запусках. Найденный beam font-swap дефект исправлен отдельно (ET-QG-FONT-001). Окончательный прогон: 761 Vitest, 415 Chromium / 6 SKIP, 2 production smoke PASS; HIGH audit FAIL только picomatch.
+- Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
 - NEXT: DEP-PICOMATCH-001
-- Next action: после upstream patch повторить audit/full verify/production delivery.
+- Next action: после опубликованного исправления проверить официальный advisory и совместимость major, обновить lockfile через pnpm, повторить audit/full verify, затем интегрировать feature/universal-parallel-attachment в main и проверить CI/production. До этого manifest, lockfile, main и production сохраняются.
 
-- Completion sync: обновлены README, DEPENDENCIES, SECURITY, TESTING, project-context и STAGES. Проверены ROADMAP, pre-deploy SPEC, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL и TRACEABILITY.
+- Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
+- Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

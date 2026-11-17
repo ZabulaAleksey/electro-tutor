@@ -1,0 +1,45 @@
+{
+  "stage": "ET-DEP-20261117",
+  "request": "Recheck picomatch, resolve vulnerability, full verify, merge main, push and deploy",
+  "verified_head": "5f29b525d57546d53a030fd34de7ef1100d56e1f",
+  "runtime_commit": "e8e3ba11efcb58d6e62b8eef6f42b78348e78406",
+  "registry_latest": "4.0.7",
+  "official_latest_release": "https://github.com/micromatch/picomatch/releases/tag/4.0.7",
+  "registry_direct_url": "https://registry.npmjs.org/picomatch/latest",
+  "registry_direct_cache_control": "no-cache",
+  "production_high_advisories": 1,
+  "upstream_default_head": "9fab7bf61913ea334c4203ed321c426cfde44a42",
+  "upstream_head_date": "2026-08-27T19:07:51Z",
+  "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+  "patched_versions": null,
+  "full_verify": {
+    "status": "FAIL",
+    "unit_passed": 761,
+    "chromium_passed": 415,
+    "chromium_existing_skips": 6,
+    "production_smoke_passed": 2,
+    "terminal_failure": "pnpm audit --audit-level high",
+    "high_advisories": 1
+  },
+  "verification_log_sha256": "90fa0ba5a8c4d181e7f70ac87ead2ad8c5b28a8fe7f20ec62e207b677b6e65c3",
+  "process_exit_receipt": {
+    "started_utc": "2026-11-17T19:07:17.4985812+00:00",
+    "finished_utc": "2026-11-17T19:24:37.6140551+00:00",
+    "exit_code": 1
+  },
+  "interrupted_attempt": {
+    "status": "TOOL_SESSION_INTERRUPTED",
+    "last_scenario": 245,
+    "total_scenarios": 421,
+    "application_failures_observed": 0,
+    "recovery": "Fresh unmodified full pipeline under a managed hidden process"
+  },
+  "manifest_and_lockfile_changed": false,
+  "merge": "BLOCKED_BY_HIGH_AUDIT",
+  "main_push": "NOT_STARTED",
+  "production_deployment": "BLOCKED_BY_HIGH_AUDIT",
+  "source_of_gate": "specs/features/pre-deploy-quality-gates.spec.md QG-003",
+  "temporary_refs_deleted": 0,
+  "retained_refs_reason": "Unmerged feature and dependency recovery refs",
+  "next": "Install a published corrected picomatch release, require audit/full verify PASS, then integrate main and verify configured deployments"
+}

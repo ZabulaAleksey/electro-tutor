@@ -1,0 +1,68 @@
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+
+type Spec = { title: string; file: string; line: number; column: number; tests: { projectName: string }[] };
+type Suite = { title: string; specs?: Spec[]; suites?: Suite[] };
+type Case = { key: string; file: string; project: string };
+const root = fileURLToPath(new URL("../../", import.meta.url));
+const cli = fileURLToPath(new URL("../../node_modules/@playwright/test/cli.js", import.meta.url));
+
+function discover(config: string, remote: boolean, education: boolean): Case[] {
+  const env: NodeJS.ProcessEnv = { ...process.env, E2E_EDUCATION: String(education), FORCE_COLOR: "0" };
+  delete env.E2E_AUTH_PHASE;
+  delete env.E2E_SPEC;
+  delete env.PW_TEST_CONNECT_WS_ENDPOINT;
+  delete env.ELECTROTUTOR_REMOTE_WS_ENDPOINT;
+  delete env.ELECTROTUTOR_REMOTE_WS_HEADERS;
+  delete env.ELECTROTUTOR_REMOTE_WS_EXPOSE_NETWORK;
+  delete env.PW_TEST_CONNECT_HEADERS;
+  delete env.PW_TEST_CONNECT_EXPOSE_NETWORK;
+  if (remote) env.PW_TEST_CONNECT_WS_ENDPOINT = "ws://127.0.0.1:1/discovery-only";
+  const output = execFileSync(process.execPath, [cli, "test", `--config=${config}`, "--list", "--reporter=json"], {
+    cwd: root, env, encoding: "utf8", windowsHide: true, timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
+  });
+  const report = JSON.parse(output) as { suites: Suite[]; errors?: unknown[] };
+  expect(report.errors ?? []).toEqual([]);
+  const cases: Case[] = [];
+  const visit = (suite: Suite, parents: string[]) => {
+    const titles = [...parents, suite.title];
+    for (const spec of suite.specs ?? []) {
+      const file = spec.file.replaceAll("\\", "/");
+      for (const test of spec.tests) cases.push({
+        key: JSON.stringify([file, spec.line, spec.column, ...titles, spec.title]),
+        file, project: test.projectName,
+      });
+    }
+    for (const child of suite.suites ?? []) visit(child, titles);
+  };
+  for (const suite of report.suites) visit(suite, []);
+  return cases;
+}
+
+describe("actual Playwright discovery transport contract", () => {
+  for (const [label, config, education] of [
+    ["root", "playwright.config.ts", false],
+    ["education", "playwright.config.ts", true],
+    ["MVP", "playwright.mvp.config.ts", false],
+  ] as const) {
+    it(`${label}: preserves every logical case exactly once across transports`, () => {
+      const baseline = discover(config, false, education);
+      const remote = discover(config, true, education);
+      expect(baseline.length).toBeGreaterThan(0);
+      expect(new Set(baseline.map(test => test.key)).size).toBe(baseline.length);
+      expect(new Set(remote.map(test => test.key)).size).toBe(remote.length);
+      expect(remote.map(test => test.key).sort()).toEqual(baseline.map(test => test.key).sort());
+      expect(baseline.every(test => test.project === "chromium")).toBe(true);
+      if (label === "MVP") {
+        expect(remote.every(test => test.project === "chromium")).toBe(true);
+        expect(remote.every(test => /(?:^|\/)mvp-[^/]+\.spec\.ts$/.test(test.file))).toBe(true);
+      } else {
+        const downloads = remote.filter(test => /(?:^|\/)circuit-parallel\.spec\.ts$/.test(test.file));
+        expect(downloads).toHaveLength(7);
+        expect(downloads.every(test => test.project === "chromium-local-downloads")).toBe(true);
+        expect(remote.filter(test => !downloads.includes(test)).every(test => test.project === "chromium")).toBe(true);
+      }
+    }, 90_000);
+  }
+});

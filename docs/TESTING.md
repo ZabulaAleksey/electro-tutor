@@ -1,3 +1,9 @@
+## QG-013 — реальный remote Chromium и client-local downloads
+
+Новая конфигурация сохраняет все принятые E2E/fixtures/goldens. Remote endpoint передаётся явно project profile; globalSetup переносит ambient PW override в project-owned env перед worker reload. Root discovery422 =415 remote+7 client-local download cases; education424; MVP33, прежний один remote profile. Каждый logical case ровно один раз, новых skips нет. Прежние версии/образ/workflow/permissions не изменяются.
+
+Actual mixed invocation:9 прежних cases PASS (2 real WebSocket preview +7 local export/import). Новые7 contract/discovery tests PASS. Полный `pnpm verify:full` через настоящий Playwright WebSocket Chromium:772 Vitest/119 файлов,416 Chromium PASS/6 прежних SKIP,production smoke2,HIGH audit0 и все прочие gates PASS. Initial GitHub44177003756:backend/PostgreSQL и765unit PASS,412 Chromium PASS/6SKIP/4 Download.path remote API FAIL; Pages корректно skipped. Новая CI/Pages delivery пока pending; current truth/evidence — ET-DEP-20261117. Следующие записи относятся к указанным в них прежним ревизиям.
+
 ## ET-DEP-20261117 — security remediation picomatch
 
 Полный `pnpm verify:full` PASS под Node22.23.4: frozen restore, hygiene/CI contract, Astro check (0 errors/0 warnings/3 прежние hints), ESLint, 765 Vitest /117 файлов, 13 независимых аналитических cases/49 assertions, 416 Chromium PASS /6 прежних SKIP, production build, 2 production smoke и неизменённый HIGH audit без находок. Отдельный full/production audit:0. Новый mandatory security regression4/4 и42 дополнительных positive/boundary assertions PASS; source/SRI/patch/все9 actual consumers проверены, отключений safeguard нет. Independent review PASS.

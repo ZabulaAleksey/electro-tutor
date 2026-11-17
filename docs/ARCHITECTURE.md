@@ -887,3 +887,7 @@ Transient mode открывает источник ЭДС, нормально р
 ## Параллельный участок и математическое представление
 
 parallel-regions выводит временный двухполюсный участок из netlist и stable endpoint IDs. Компоненты внутренних сетей замыкают отводы, альтернативные ветви и их объединение предлагаются явно. Отпечаток topology защищает выбор от устаревания. parallel-attachment возвращает полный Drawing/Routing либо диагностику, добавляет только компонент и два провода; CircuitEditor применяет результат одним commit/record. EquivalentCircuit строит отдельный read-only граф через reduceRlc и рекурсивное происхождение. Исходный документ, adapter extension и undo остаются у редактора; эквивалент не передаётся предметному решателю автоматически.
+
+## Chromium transport для файловых сценариев
+
+Playwright composition root выбирает прежний локальный profile без WS. В remote CI все прежние cases/goldens остаются в pinned Noble Chromium, кроме одного файла circuit-parallel.spec.ts: его7 scenarios требуют client-local Download.path и используют уже установленный pinned host Chromium. GlobalSetup переносит ambient endpoint/headers в explicit project-owned env; project options затем не перекрываются общим PW override. MVP явно сохраняет один прежний remote profile. Реальный discovery guard защищает case parity и отсутствие omissions/duplicates; версии, Docker/core-only mount, ports/permissions и принятые test files не меняются.

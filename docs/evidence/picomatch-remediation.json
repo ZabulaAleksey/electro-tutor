@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "ET-DEP-20261117",
-  "status": "validated_locally_release_pending",
+  "status": "validated_locally_ci_transport_ready",
   "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
   "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
   "replacement": {
@@ -280,22 +280,24 @@
       "status": "PASS"
     },
     "full": {
-      "command": "pnpm verify:full",
       "status": "PASS",
-      "finished_utc": "2026-11-17T21:08:49.3509279+00:00",
-      "started_utc": "2026-11-17T20:52:55.1287341+00:00",
-      "pid": 69392,
+      "command": "pnpm verify:full",
+      "transport": "real Playwright WebSocket Chromium + local downloads partition",
+      "node": "v22.23.4",
+      "pid": 17016,
+      "started_utc": "2026-11-17T21:57:41.862Z",
+      "finished_utc": "2026-11-17T22:16:07.554Z",
       "exit_code": 0,
-      "node": "22.23.4",
-      "unit_files": 117,
-      "unit_tests": 765,
-      "independent_analytic_cases": 13,
-      "independent_analytic_assertions": 49,
+      "unit_tests": 772,
+      "unit_files": 119,
       "chromium_passed": 416,
       "pre_existing_chromium_skipped": 6,
+      "root_cases": 422,
+      "remote_cases": 415,
+      "local_download_cases": 7,
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
-      "log_sha256": "1b16d24fc782551123a404d8070dfddf3c89141cb2c60ebed8388e3b6a194f46"
+      "log_sha256": "0a542458b3fc36b2e9c7165658ec4ebefe4a286e74135ffb1c853e4874f952fc"
     },
     "independent_review": {
       "status": "PASS",
@@ -537,6 +539,47 @@
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
       "log_sha256": "cd1479413396c96536724fe6500ceea2eff0c873e5f9243c05a709241d7dc62f"
+    },
+    "ci_initial": {
+      "source_commit": "94493cbaca1729a34d1cc6f04a3142c9a1716a9d",
+      "run_id": 44177003756,
+      "status": "FAIL",
+      "backend_api_postgresql": "PASS",
+      "unit_tests": 765,
+      "chromium_passed": 412,
+      "pre_existing_skipped": 6,
+      "failed": 4,
+      "cause": "Download.path is unsupported over Playwright remote connection; new parallel tests require client-local filesystem",
+      "github_pages_deploy": "skipped by mandatory gate",
+      "log_sha256": "6956c4fa8a9b286de4d09e0321b01f3bef96b053156a1c99c82b7f498afc5bc6"
+    },
+    "cloudflare_initial": {
+      "status": "PASS",
+      "source_commit": "94493cbaca1729a34d1cc6f04a3142c9a1716a9d",
+      "deployment": "ab154aa4-32f5-4825-a13f-c250c6488ea0",
+      "exact_smoke": 3,
+      "primary_smoke": 3,
+      "exact_parallel": 10,
+      "primary_parallel": 10,
+      "asset_match": 6
+    },
+    "full_before_transport": {
+      "command": "pnpm verify:full",
+      "status": "PASS",
+      "finished_utc": "2026-11-17T21:08:49.3509279+00:00",
+      "started_utc": "2026-11-17T20:52:55.1287341+00:00",
+      "pid": 69392,
+      "exit_code": 0,
+      "node": "22.23.4",
+      "unit_files": 117,
+      "unit_tests": 765,
+      "independent_analytic_cases": 13,
+      "independent_analytic_assertions": 49,
+      "chromium_passed": 416,
+      "pre_existing_chromium_skipped": 6,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "1b16d24fc782551123a404d8070dfddf3c89141cb2c60ebed8388e3b6a194f46"
     }
   },
   "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
@@ -644,5 +687,38 @@
       ]
     },
     "final_full": "PASS; see verification.full"
+  },
+  "ci_transport_repair": {
+    "requirement": "QG-013",
+    "accepted_tests_and_goldens": "unchanged",
+    "workflow_image_versions_permissions": "unchanged",
+    "case_discovery": {
+      "root": 422,
+      "remote_root": 415,
+      "local_downloads": 7,
+      "education": 424,
+      "mvp": 33,
+      "omitted": 0,
+      "duplicated": 0,
+      "permanent_guard": "src/security/playwright-discovery.test.ts"
+    },
+    "contract_unit": {
+      "tests": 7,
+      "files": 2,
+      "status": "PASS"
+    },
+    "actual_mixed_transport": {
+      "status": "PASS",
+      "exit_code": 0,
+      "accepted_cases_passed": 9,
+      "remote_connection_succeeded": true,
+      "roles": {
+        "remote_preview": 2,
+        "local_filesystem": 7
+      }
+    },
+    "adapter": "globalSetup transfers ambient PW endpoint/headers/exposeNetwork into explicit project-owned configuration before worker fixtures; real remote connection and7local round-trips verified in the same invocation",
+    "full": "PASS: unchanged pnpm verify:full with actual Playwright WebSocket remote Chromium and local-download partition",
+    "review": "PASS; ambient override transfer, actual remote connection, partition/discovery and unchanged accepted tests verified"
   }
 }

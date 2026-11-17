@@ -194,3 +194,5 @@ CE-021–022 → circuit-engine SPEC → equivalent-circuit.ts + EquivalentCircu
 ## QG-008–012
 
 pre-deploy-quality-gates SPEC → pnpm-workspace.yaml + exact alias + tracked compatibility patch + frozen pnpm-lock.yaml → src/security/picomatch-remediation.test.ts → неизменённые full-verify/CI/audit и hosted production smoke. Источник, effective parser hash, RED/GREEN и release evidence: docs/evidence/picomatch-remediation.json; current truth: ET-DEP-20261117 в STAGES.
+
+QG-013 → playwright.config.ts + playwright.mvp.config.ts + scripts/playwright-transport.mjs → новые playwright-transport.test.ts и playwright-discovery.test.ts → actual mixed9 и whole-full real-WebSocket416PASS/6 прежних SKIP; accepted scenarios/goldens unchanged.

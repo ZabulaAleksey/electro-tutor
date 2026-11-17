@@ -3270,7 +3270,8 @@
         "QG-009",
         "QG-010",
         "QG-011",
-        "QG-012"
+        "QG-012",
+        "QG-013"
       ],
       "status": "IMPLEMENTED",
       "domain": "dependency-security",
@@ -3278,15 +3279,19 @@
       "security": "Reviewed parser correction, SRI and isolated adversarial regression; unchanged HIGH audit gate.",
       "a11y": "No direct UI changes; existing browser acceptance remains mandatory.",
       "observability": "Source file hashes, timed RED/GREEN child-process probes and full verification receipt.",
-      "gap": "Integration, exact CI and hosted delivery pending.",
+      "gap": "CI Download.path transport repair and exact CI/GitHub Pages hosted completion pending; accepted tests remain unchanged.",
       "action": "Integrate the qualified release and verify both configured production hosts.",
       "code": [
         "pnpm-workspace.yaml",
         "pnpm-lock.yaml",
-        "package.json"
+        "package.json",
+        "playwright.config.ts",
+        "scripts/playwright-transport.mjs"
       ],
       "unit": [
-        "src/security/picomatch-remediation.test.ts"
+        "src/security/picomatch-remediation.test.ts",
+        "src/security/playwright-transport.test.ts",
+        "src/security/playwright-discovery.test.ts"
       ],
       "integration": [
         "src/security/picomatch-remediation.test.ts"

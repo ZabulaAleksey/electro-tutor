@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { makeTransportProjects } from "./scripts/playwright-transport.mjs";
 
 const host = "127.0.0.1";
 const port = 4322;
@@ -12,14 +13,21 @@ const liveReminderPhase =
 const liveNotificationPhase =
   process.env.E2E_AUTH_PHASE === "notification" &&
   process.env.E2E_SPEC === "tests/e2e/auth-notifications.spec.ts";
+const testIgnore = liveLessonSessionPhase || liveNotificationPhase || liveReminderPhase
+  ? [] : ["**/mvp-*.spec.ts", "**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts", "**/auth-reminders.spec.ts", ...(process.env.E2E_EDUCATION === "true" ? [] : ["**/education-release.spec.ts"])];
+const remoteHeaders = process.env.PW_TEST_CONNECT_HEADERS || process.env.ELECTROTUTOR_REMOTE_WS_HEADERS;
+const remoteConnectOptions = {
+  exposeNetwork: process.env.PW_TEST_CONNECT_EXPOSE_NETWORK || process.env.ELECTROTUTOR_REMOTE_WS_EXPOSE_NETWORK || "<loopback>",
+  ...(remoteHeaders ? { headers: JSON.parse(remoteHeaders) } : {}),
+};
 
 export default defineConfig({
+  globalSetup: "./scripts/playwright-transport.mjs",
   testDir: "./tests/e2e",
   expect: { toHaveScreenshot: { pathTemplate: `{testDir}/{testFilePath}-snapshots/{arg}-{projectName}${process.platform === "win32" ? "" : "-{platform}"}{ext}` } },
   // Secret-bearing Session and notification scenarios require explicit live phases.
   // Ordinary static/root E2E excludes both.
-  testIgnore: liveLessonSessionPhase || liveNotificationPhase || liveReminderPhase
-    ? [] : ["**/mvp-*.spec.ts", "**/auth-lesson-session.spec.ts", "**/auth-notifications.spec.ts", "**/auth-reminders.spec.ts", ...(process.env.E2E_EDUCATION === "true" ? [] : ["**/education-release.spec.ts"])],
+  testIgnore,
   outputDir: "./test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
@@ -28,18 +36,10 @@ export default defineConfig({
   reporter: "line",
   use: {
     baseURL,
-    ...(process.env.PW_TEST_CONNECT_WS_ENDPOINT ? {
-      connectOptions: { wsEndpoint: process.env.PW_TEST_CONNECT_WS_ENDPOINT, exposeNetwork: "<loopback>" },
-    } : {}),
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
-  projects: [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-  ],
+  projects: makeTransportProjects(process.env.PW_TEST_CONNECT_WS_ENDPOINT || process.env.ELECTROTUTOR_REMOTE_WS_ENDPOINT, devices["Desktop Chrome"], testIgnore, remoteConnectOptions),
   webServer: process.env.E2E_EXTERNAL_SERVER
     ? undefined
     : {

@@ -44,12 +44,12 @@
 - Evidence: повторная квалификация по прямому запросу владельца для 5f29b52: frozen restore, static/type/lint, 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Полный pnpm verify:full FAIL только на последнем HIGH audit: picomatch <=4.0.7, patched versions None. npm latest и последний официальный release остаются 4.0.7. [Receipt](evidence/dependency-picomatch-recheck.json).
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
 - User actions: none. Явное разрешение merge/push/deploy получено; обязательный QG-003 блокирует выпуск до audit PASS.
-- Blockers: none. Локальные security/compatibility/full verify/audit и independent review PASS; production подтверждается только после интеграции, CI и hosted smoke.
+- Blockers: none для локальной квалификации; новая exact CI/GitHub Pages delivery подтверждается после integration/push.
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
 - Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: integrate-release
-- Next action: atomic commits → fast-forward merge main и push main → GitHub CI/Pages и Cloudflare production → hosted acceptance → receipt и проверенная очистка временных refs.
+- NEXT: integrate-ci-transport
+- Next action: commit проверенного transport fix → fast-forward main/push → exact CI/Pages и Cloudflare/hosted → final receipt/cleanup.
 
 - Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
 - Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
@@ -61,7 +61,9 @@
 - Packaging gate: staging выявил required single-space context rows в unified patch, отклонённые git whitespace checks. Штатный pnpm patch-commit с command-local diff.context=0 пересоздал zero-context patch без изменений любых10 installed package files. Новый patch SHA8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8 закреплён pnpm. Source/security regression4PASS и staged hygiene PASS. Прежний full PASS сохранён; окончательный full verify со staged zero-context patch также PASS. Gate/attributes не ослаблены.
 
 
-- Current qualification: полный pnpm verify:full PASS: frozen restore, hygiene/CI contract, Astro check 0 errors/0 warnings/3 прежние hints, lint, 765 Vitest /117 файлов, 13 независимых analytical cases/49 assertions, 416 Chromium PASS /6 прежних SKIP, production build и2 production smoke, HIGH audit0. Full/production audit0. Security regression4 и дополнительные42 positive/boundary assertions PASS;9 actual consumers не отключают safeguard. Independent review PASS. Первый remediation full остановился на type narrowing нового test; исправлен без смены assertions, затем весь pipeline выполнен заново. Receipt: evidence/picomatch-remediation.json.
+- Current qualification: окончательный full с REAL WebSocket Chromium + local-download partition PASS:772 Vitest/119 файлов,416 Chromium PASS/6 oldSKIP (415remote cases+7local cases),production smoke2/2,HIGH audit0,frozen/hygiene/static/lint/CI contract PASS. Все исходные E2E/goldens byte-identical, pipeline/Docker/deps/permissions unchanged. Новый transport review PASS; failed initial CI сохранён как history.
+
+- CI transport repair: backend/PostgreSQL and765unit PASS; root412PASS/6 oldSKIP/4 remote Download.path FAIL. Official Playwright API confirms path unavailable on remote connection. Accepted test files stay byte-identical; bounded local download profile uses already installed pinned Chromium, other tests/goldens stay Noble remote. No workflow/dependency/permission change. Source94493cb Cloudflare ab154aa4 primary/exact each13 hosted PASS,6 assets match. Final CI/Pages remains pending.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

@@ -150,3 +150,5 @@ LC-005–007 → reactive-two-port SPEC → reactive-lc-mode.ts + reactive-lc-gr
 LC-008–009 → reactive-two-port SPEC → reactive-foster-i.ts + FosterResults → reactive-foster-i.test.ts + reactive-foster-i.spec.ts.
 
 LC-010–011 → reactive-two-port SPEC → reactive-foster-ii.ts + FosterResults → reactive-foster-ii.test.ts + reactive-foster-ii.spec.ts.
+
+LC-012–013 → reactive-two-port SPEC → reactive-cauer-i.ts + CauerIResults → reactive-cauer-i.test.ts + reactive-cauer-i.spec.ts.

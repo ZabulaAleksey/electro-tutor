@@ -1,4 +1,4 @@
-import { abs, shift, type Fraction, type Polynomial } from "./lc-polynomial";
+import { bigintRatio, shift, type Fraction, type Polynomial } from "./lc-polynomial";
 import { reactance, resonances } from "./reactive-two-port";
 
 export type FosterITerm =
@@ -8,20 +8,10 @@ export type FosterITerm =
 
 export type FosterI = { terms: readonly FosterITerm[]; error: number };
 
-function ratio(numerator: bigint, denominator: bigint): number {
-  if (denominator === 0n) return NaN;
-  if (numerator === 0n) return 0;
-  const a = abs(numerator), b = abs(denominator);
-  const aShift = Math.max(0, a.toString(2).length - 53);
-  const bShift = Math.max(0, b.toString(2).length - 53);
-  const magnitude = Number(a >> BigInt(aShift)) / Number(b >> BigInt(bShift)) * 2 ** (aShift - bShift);
-  return (numerator < 0n) === (denominator < 0n) ? magnitude : -magnitude;
-}
-
 /** Evaluate both polynomials with the same power of the exact binary denominator. */
 function ratioAt(numerator: Polynomial, denominator: Polynomial, x: number): number {
   if (!Number.isFinite(x)) return NaN;
-  if (x === 0) return ratio(numerator[0], denominator[0]);
+  if (x === 0) return bigintRatio(numerator[0], denominator[0]);
   const bytes = new DataView(new ArrayBuffer(8));
   bytes.setFloat64(0, x);
   const bits = bytes.getBigUint64(0);
@@ -41,7 +31,7 @@ function ratioAt(numerator: Polynomial, denominator: Polynomial, x: number): num
     }
     return result;
   };
-  return ratio(evaluate(numerator), evaluate(denominator));
+  return bigintRatio(evaluate(numerator), evaluate(denominator));
 }
 
 function parity(p: Polynomial): number {
@@ -98,11 +88,11 @@ export function synthesizeFosterI(impedance: Fraction): FosterI {
 
   const terms: FosterITerm[] = [];
   if (dc) {
-    const strength = positive(ratio(p[0], d[1]));
+    const strength = positive(bigintRatio(p[0], d[1]));
     terms.push({ kind: "series-c", farad: positive(1 / (1000 * strength)), strength });
   }
   if (p.length === d.length) {
-    const strength = positive(ratio(p.at(-1)!, d.at(-1)!));
+    const strength = positive(bigintRatio(p.at(-1)!, d.at(-1)!));
     terms.push({ kind: "series-l", henry: positive(strength / 1000), strength });
   }
   const derivative = d.slice(1).map((coefficient, i) => coefficient * BigInt(i + 1));

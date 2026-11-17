@@ -53,3 +53,13 @@ export function reduce(n:Polynomial,d:Polynomial):Fraction{
  const k=gcd(content(numerator),content(denominator))*(denominator.at(-1)!<0n?-1n:1n);
  return {numerator:numerator.map(c=>c/k),denominator:denominator.map(c=>c/k)};
 }
+
+export function bigintRatio(numerator: bigint, denominator: bigint): number {
+  if (denominator === 0n) return NaN;
+  if (numerator === 0n) return 0;
+  const a = abs(numerator), b = abs(denominator);
+  const aShift = Math.max(0, a.toString(2).length - 53);
+  const bShift = Math.max(0, b.toString(2).length - 53);
+  const magnitude = Number(a >> BigInt(aShift)) / Number(b >> BigInt(bShift)) * 2 ** (aShift - bShift);
+  return (numerator < 0n) === (denominator < 0n) ? magnitude : -magnitude;
+}

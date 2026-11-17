@@ -2705,18 +2705,28 @@
         "LC-012",
         "LC-013"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "reactive-one-port",
       "runtime": "Cauer I exact high-frequency ladder synthesis",
       "security": "Bounded exact expansion and positive finite component values",
       "a11y": "RU/UK continued fraction and accessible ladder",
       "observability": "Exact rational reconstruction and independent numeric check",
       "action": "Compare the reconstructed ladder against the original rational impedance and frequency samples.",
-      "gap": "Stage 15 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/models/reactive-cauer-i.ts",
+        "src/components/CauerIResults.tsx",
+        "src/components/ReactiveCircuitSchematic.tsx"
+      ],
+      "unit": [
+        "src/models/reactive-cauer-i.test.ts"
+      ],
+      "integration": [
+        "src/models/reactive-cauer-i.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/reactive-cauer-i.spec.ts"
+      ]
     }
   ]
 }

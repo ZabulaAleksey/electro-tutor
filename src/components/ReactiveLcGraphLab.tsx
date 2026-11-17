@@ -3,6 +3,7 @@ import CircuitEditor from "../circuit/CircuitEditor";
 import { reactiveLcMode } from "../circuit/reactive-lc-mode";
 import type { Language } from "../types";
 import { ReactiveImpedanceResults } from "./ReactiveImpedanceResults";
+import { CauerIResults } from "./CauerIResults";
 import { FosterResults } from "./FosterResults";
 import "./ReactiveTwoPortLab.css";
 
@@ -73,6 +74,7 @@ export default function ReactiveLcGraphLab({ language }: { language: Language })
           </details>}
           <FosterResults result={result} cursor={cursor} language={language} form="i" />
           <FosterResults result={result} cursor={cursor} language={language} form="ii" />
+          <CauerIResults result={result} cursor={cursor} language={language} />
         </div>
       </div>
     </div>

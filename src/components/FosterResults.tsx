@@ -60,7 +60,7 @@ export function FosterResults({ result, cursor, language, form }: {
   const circuit = solution?.terms.map(asCircuit).reduce<Circuit | null>((left, right) =>
     left ? { kind: form === "i" ? "series" : "parallel", left, right } : right, null);
 
-  return <details ref={disclosure} suppressHydrationWarning className="lc-panel lc-foster" data-foster-i={form === "i" ? "" : undefined} data-foster-ii={form === "ii" ? "" : undefined} onToggle={event => setOpen(event.currentTarget.open)}>
+  return <details ref={disclosure} suppressHydrationWarning className="lc-panel lc-synthesis" data-foster-i={form === "i" ? "" : undefined} data-foster-ii={form === "ii" ? "" : undefined} onToggle={event => setOpen(event.currentTarget.open)}>
     <summary>{form === "i" ? t("Первая форма Фостера", "Перша форма Фостера") : t("Вторая форма Фостера", "Друга форма Фостера")}</summary>
     {result.kind !== "finite" && <p>{t("Для разомкнутого или закороченного порта синтез не требуется.",
       "Для розімкненого або закороченого порту синтез не потрібен.")}</p>}
@@ -74,7 +74,7 @@ export function FosterResults({ result, cursor, language, form }: {
         "Разложение Y(s) = 1/Z(s) даёт последовательные LC-контуры. Все ветви соединены параллельно.",
         "Розклад Y(s) = 1/Z(s) дає послідовні LC-контури. Усі гілки з'єднано паралельно.")}</p>
       <p data-foster-formula>{form === "i" ? "Z(s)" : "Y(s)"} ≈ {solution.terms.map(formatTerm).join(" + ")} {form === "i" ? "Ω" : "S"}, q = s / (1000 rad/s)</p>
-      <div className="lc-foster-schematic"><ReactiveCircuitSchematic circuit={circuit} language={language} engineeringUnits /></div>
+      <div className="lc-synthesis-schematic"><ReactiveCircuitSchematic circuit={circuit} language={language} engineeringUnits /></div>
       <table aria-label={t("Номиналы формы Фостера", "Номінали форми Фостера")}>
         <thead><tr><th scope="col">{t("Звено", "Ланка")}</th><th scope="col">L</th><th scope="col">C</th><th scope="col">ω₀, rad/s</th></tr></thead>
         <tbody>{solution.terms.map((term, i) =>

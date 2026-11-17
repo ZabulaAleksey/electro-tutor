@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-020
+- Stage ID: ET-UNIVERSAL-021
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -250,18 +250,30 @@
 
 ## ET-UNIVERSAL-020 — Stage 20. Line equivalent generator
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 19 verified. Параметры фактической линии редактируются и связываются с каталожной ревизией.
 - Goal: вычислить пофазную номинальную П-схему линии из действующих параметров, длины и числа цепей. Показать эквивалент в RU/UK лаборатории рядом с физической линией.
 - Evals: независимое численное сравнение сопротивлений и проводимостей, C′ и B′, длина, параллельные цепи, изменённый тип и сброс override. End-to-end пользователь меняет фактическую линию и сверяет формулы, вывод и восстановление результата.
 - Deferred: трансформатор, режим сети, расчёт напряжений и потерь.
 - User actions: none
-- NEXT: stage20-line-equivalent
+- Evidence: 706 Vitest, 40 локальных и 20 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. При ℓ = 40 km и n = 2 браузер сверил R = 4,6 Ω, X = 8,2 Ω и проводимость каждого плеча. Переопределение R обновило схему, сброс восстановил результат. SHA aab8c10123bc1c4a97d488b559d8f1917518c303. Preview https://25b12093.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-021
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-021 — Stage 21. Transformer equivalent generator
+
+- Status: in_progress
+- Entry: Stage 20 verified. Действующая каталожная запись и параметры физического экземпляра дают проверяемую схему замещения.
+- Goal: из данных двухобмоточного трансформатора получить пофазный эквивалент, коэффициент трансформации с отпайкой, раздельные мощность холостого хода и нагрузочные потери. Показать результат в RU/UK инспекторе.
+- Evals: численно сверить паспортный базис, параллельные экземпляры, активную и реактивную составляющие, нейтральную и смещённую отпайки. В браузере изменить n и отпайку фактического трансформатора и проверить номинальные потери.
+- Deferred: сетевой режим и рабочие потери при рассчитанных токах.
+- User actions: none
+- NEXT: stage21-transformer-equivalent
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 20,
+  "state_revision": 21,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -280,7 +292,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "5a078c12d7676e07cb06911a1ac35a28948d4b6e",
+      "checkpoint": "aab8c10123bc1c4a97d488b559d8f1917518c303",
       "ownership": [
         "src",
         "specs",
@@ -311,8 +323,8 @@
     {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"verified","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ba3b37b7665c096dc15c01448bf47a1dab41ec15","checkpoint_after":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/circuit/topology.ts","src/power-system"],"requirements":["POWER-001","POWER-002","POWER-003"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"verified","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"c54ed7f94ed95641fbcfcea37b67f4cce846abb6","checkpoint_after":"d6eca951ca91938713903a64dc36c1bbe34234ae","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/network.ts","src/power-system/topology.ts"],"requirements":["POWER-004","POWER-005","POWER-006"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"verified","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d6eca951ca91938713903a64dc36c1bbe34234ae","checkpoint_after":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/catalogue.ts","src/power-system/network.ts","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-007","POWER-008","POWER-009"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"running","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/line-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-010","POWER-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"queued","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-020","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Line equivalent generator","status":"verified","predecessors":["ET-UNIVERSAL-019"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"5a078c12d7676e07cb06911a1ac35a28948d4b6e","checkpoint_after":"aab8c10123bc1c4a97d488b559d8f1917518c303","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/line-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-010","POWER-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-021","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Transformer equivalent generator","status":"running","predecessors":["ET-UNIVERSAL-020"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"aab8c10123bc1c4a97d488b559d8f1917518c303","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/transformer-equivalent.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-012","POWER-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-022","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Load/source normalization","status":"queued","predecessors":["ET-UNIVERSAL-021"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-023","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Radial educational load flow","status":"queued","predecessors":["ET-UNIVERSAL-022"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-024","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Simple ring preliminary flow","status":"queued","predecessors":["ET-UNIVERSAL-023"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -334,7 +346,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Generate the balanced nominal-pi equivalent from the selected line type and expose it in the bilingual lab.",
+  "next_action": "Build the transformer equivalent and nominal losses from the effective nameplate type, tap and parallel transformers.",
   "integration": {
     "required": false,
     "reason": ""

@@ -48,8 +48,8 @@
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
 - Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: integrate-clean-discovery
-- Next action: commit isolated discovery fixture → normal main integration/push → mandatory full exact CI/Pages/hosted → final receipt/cleanup.
+- NEXT: qualify-parallel-drag-full
+- Next action: устранить причинный CI drag/preview сбой без изменения принятых tests; targeted RED/GREEN, полный verify, review и повторный exact CI/Pages.
 
 - Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
 - Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
@@ -66,6 +66,10 @@
 - CI transport repair: backend/PostgreSQL and765unit PASS; root412PASS/6 oldSKIP/4 remote Download.path FAIL. Official Playwright API confirms path unavailable on remote connection. Accepted test files stay byte-identical; bounded local download profile uses already installed pinned Chromium, other tests/goldens stay Noble remote. No workflow/dependency/permission change. Source94493cb Cloudflare ab154aa4 primary/exact each13 hosted PASS,6 assets match. Final CI/Pages remains pending.
 
 - Cold CI recovery: run44188507681 stopped before E2E on2new discovery unit imports (no dist in clean checkout),770other unit/backend gates PASS. Изолированный empty tmp dir передан только child --list; assertions неизменны, реальные E2E используют свежий настоящий build. Coldprobe3 и весь772unit/119files, Astrocheck/lint/frozen/audit0 PASS; independentreviewPASS. Runtime/config/deps/acceptedE2E byte-identical5ec, прежний realWSfull учитывается толькокакruntimequalification. НовыйcommitfullCI ещёpending.
+
+- CI recovery44191637707: source224f6ff — backend/PostgreSQL,772 unit и415 Chromium PASS,6 прежних SKIP; один palette-drag preview FAIL, Pages skipped. Cloudflare того же source и hosted13+13 PASS подтверждают отдельную выкладку, а не полный release gate. Ref fix/parallel-drag-preview; принятые assertions сохраняются.
+
+- Drag repair: CE-017..019 release hit определяется по координатам и ограничен current SVG; stale root target больше не сбрасывает preview. Causal old-HEAD RED/fixed GREEN, новый native drag, прежний palette5/5 и empty-drop PASS;109-page build/tsc/lint и независимый review PASS. Два новых browser regression; full/exact CI ещё pending, принятые tests/goldens не менялись.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

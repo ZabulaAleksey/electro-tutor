@@ -751,7 +751,9 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
         }}
         onDrop={event => {
           if (!parallelActive) return;
-          event.preventDefault(); parallelHit(event.target as Element, true);
+          event.preventDefault();
+          const hit = document.elementFromPoint(event.clientX, event.clientY);
+          parallelHit(hit && event.currentTarget.contains(hit) ? hit : event.currentTarget, true);
         }}>
         <defs><pattern id="circuit-grid" width={grid} height={grid} patternUnits="userSpaceOnUse">
           <circle cx="1" cy="1" r=".7" fill="#a6b4c4" />

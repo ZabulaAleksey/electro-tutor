@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "ET-DEP-20261117",
-  "status": "clean_checkout_unit_fix_ready",
+  "status": "parallel_drag_fix_qualified_pending_full",
   "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
   "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
   "replacement": {
@@ -592,6 +592,21 @@
       "cause": "Clean checkout has no dist before unit gate; imported product-shell-audit reads build root at module load",
       "browser_and_production_gates": "not run because unit gate stopped; Pages skipped",
       "log_sha256": "9bf86bc7d8285cf456ac3e7136566ca58eb6e4209a83065ded4628b0fa4dfe23"
+    },
+    "ci_parallel_drag": {
+      "run_id": 44191637707,
+      "source_commit": "224f6ff007926c7ee61c9b0760ad43ad4c4ffdc5",
+      "status": "FAIL",
+      "backend_postgresql": "PASS",
+      "vitest_passed": 772,
+      "vitest_files": 119,
+      "chromium_passed": 415,
+      "chromium_skipped": 6,
+      "chromium_failed": 1,
+      "failure": "Accepted circuit-parallel.spec.ts:57/62; controls visible but parallel preview missing after palette drag onto R1",
+      "pages": "skipped",
+      "log_sha256": "d67536818b306bc67fea5fc94aa3bcccd3af90e47df5d22ac3ab06aa3cb50961",
+      "accepted_tests": "unchanged"
     }
   },
   "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
@@ -746,5 +761,26 @@
       "review": "PASS",
       "previous_full": "runtime qualification only; exact new commit full CI pending"
     }
+  },
+  "parallel_drag_repair": {
+    "requirement": "CE-017..019",
+    "cause": "Native SVG drop can target the SVG root instead of the component currently under release coordinates; target-based parallelHit cleared the preview.",
+    "change": "Resolve document.elementFromPoint(clientX,clientY), bounded to event.currentTarget SVG containment; null/outside hit resolves to board and clears selection.",
+    "files": [
+      "src/circuit/CircuitEditor.tsx",
+      "tests/e2e/circuit-parallel-drag-preview.spec.ts"
+    ],
+    "causal_red": "Old HEAD SVG-root drop at R1 coordinates: preview missing, FAIL",
+    "causal_green": "Same browser contract PASS with coordinate re-hit",
+    "native_drag": "New native drag test + unchanged accepted palette test PASS; accepted test repeated5/5 PASS",
+    "empty_drop": "Unchanged accepted empty-drop semantics PASS",
+    "regressions_added": 2,
+    "build_full": "PASS:109 pages/271 files",
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "independent_review": "parallel_review PASS: bounded current-board hit, no stale event.target fallback, null/outside cancellation; hover contract unchanged",
+    "full": "pending",
+    "exact_ci": "pending",
+    "accepted_tests_fixtures_goldens": "unchanged"
   }
 }

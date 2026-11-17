@@ -2795,17 +2795,25 @@
         "POWER-005",
         "POWER-006"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Revisioned equipment catalogue and power equipment references",
       "security": "Validated equipment parameters, catalogue revision identity and provenance",
       "a11y": "Pure catalogue model, configuration UI scheduled in Stage 19",
       "observability": "Documented origin and stable old and new revision lookup",
       "action": "Resolve specific line and transformer revisions and validate provenance, parameters and user-defined entries.",
-      "gap": "Stage 18 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
+      "gap": "Catalog configuration and browser evidence are scheduled in Stage 19.",
+      "code": [
+        "src/power-system/catalogue.ts",
+        "src/power-system/network.ts",
+        "src/power-system/validation.ts"
+      ],
+      "unit": [
+        "src/power-system/catalogue.test.ts"
+      ],
+      "integration": [
+        "src/power-system/catalogue.test.ts"
+      ],
       "e2e": []
     }
   ]

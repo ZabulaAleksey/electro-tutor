@@ -156,3 +156,5 @@ LC-012–013 → reactive-two-port SPEC → reactive-cauer-i.ts + CauerResults �
 LC-014–016 → reactive-two-port SPEC → reactive-cauer-ii.ts + CauerResults + reactive-lc-simplification.ts + SimplifiedLcResults → reactive-cauer-ii.test.ts + reactive-lc-simplification.test.ts + соответствующие browser E2E.
 
 POWER-001–003 → power-system SPEC → power-system/network.ts + topology.ts → power-system/topology.test.ts. Браузерные потребители подключаются отдельным этапом.
+
+POWER-004–006 → power-system SPEC → power-system/catalogue.ts + network.ts + validation.ts → power-system/catalogue.test.ts.

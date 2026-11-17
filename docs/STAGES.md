@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-013
+- Stage ID: ET-UNIVERSAL-014
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -166,18 +166,30 @@
 
 ## ET-UNIVERSAL-013 — Stage 13. Foster I
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 12 verified. Доступны сокращённая функция входного импеданса и её конечные полюсы.
 - Goal: представить входной импеданс LC-графа последовательной цепью Фостера I. В интерфейсе видны разложение, значения компонентов и полученная топология.
 - Evals: одиночные L/C, два полюса моста, крайние члены, проверка равенства X(ω) по номиналам реализации в обход исходного решателя, браузерное обновление после пересчёта.
 - Deferred: формы Фостера II и Кауэра.
 - User actions: none
-- NEXT: stage13-foster-i
+- Evidence: 676 Vitest, 29 Chromium, check/lint/build и 2 production smoke PASS. Номиналы формы Фостера I воспроизвели независимые узловые значения X(ω) моста. Проверены пересчёт L3, один L/C, обрыв и ширина 390 px с открытой схемой. На [точном превью](https://bb521715.electrotutor.pages.dev/) 9 браузерных сценариев PASS. GitHub SHA d1f28815c4980ab0eb50b7d6e20ffc22863ae262.
+- NEXT: ET-UNIVERSAL-014
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-014 — Stage 14. Foster II
+
+- Status: in_progress
+- Entry: Stage 13 verified. Доступны точное Z(s), операции над рациональной функцией и отображение результата синтеза.
+- Goal: разложение входной проводимости даёт параллельную цепь Фостера II. Пользователь видит значения, соединения и эквивалентный X(ω).
+- Evals: одиночные L/C, крайние члены и конечные частоты, асимметричный мост, независимый пересчёт импеданса из параллельных ветвей, живое сравнение форм I и II.
+- Deferred: формы Кауэра.
+- User actions: none
+- NEXT: stage14-foster-ii
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 13,
+  "state_revision": 14,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -196,7 +208,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "fbf00480357b01bd259f3b47e0c08e050b0f59e0",
+      "checkpoint": "d1f28815c4980ab0eb50b7d6e20ffc22863ae262",
       "ownership": [
         "src",
         "specs",
@@ -220,8 +232,8 @@
     {"id":"ET-UNIVERSAL-010","master_id":"ET-UNIVERSAL-MASTER-V2","title":"ABCD network composition","status":"verified","predecessors":["ET-UNIVERSAL-009"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"60aa04d87aec6240c954a18050538ee2c98e7b13","checkpoint_after":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line/line.ts","src/steady-line/cascade.ts"],"requirements":["LINE-AC-004","LINE-AC-005"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-011","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Phasor inspection by coordinate","status":"verified","predecessors":["ET-UNIVERSAL-010"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"ac0175e97abe345ced7379aa24fcc3fbd06ca064","checkpoint_after":"e143e70cdd60500b6dc9644bd48a8d6ca0fc2992","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/transmission-line-steady.spec.md","src/steady-line","src/circuit/CircuitEditor.tsx"],"requirements":["LINE-AC-006","LINE-AC-007"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"verified","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"e143e70cdd60500b6dc9644bd48a8d6ca0fc2992","checkpoint_after":"fbf00480357b01bd259f3b47e0c08e050b0f59e0","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-two-port.ts","src/circuit/CircuitEditor.tsx"],"requirements":["LC-005","LC-006","LC-007"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"running","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"fbf00480357b01bd259f3b47e0c08e050b0f59e0","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-008","LC-009"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"queued","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"verified","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"fbf00480357b01bd259f3b47e0c08e050b0f59e0","checkpoint_after":"d1f28815c4980ab0eb50b7d6e20ffc22863ae262","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-008","LC-009"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"running","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d1f28815c4980ab0eb50b7d6e20ffc22863ae262","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-foster-i.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-010","LC-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"queued","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"queued","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"queued","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -250,7 +262,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Realize the accepted driving-point impedance as a Foster I series network and verify equivalence using component values.",
+  "next_action": "Expand the admittance, build the Foster II parallel network and verify input impedance from the component values.",
   "integration": {
     "required": false,
     "reason": ""

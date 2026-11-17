@@ -2376,18 +2376,29 @@
       "requirement_ids": [
         "CE-012"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "circuit-engine",
       "runtime": "Shared editor mode schema",
       "security": "Existing parse and mode validation",
       "a11y": "Existing Russian and Ukrainian editor controls",
       "observability": "Existing unsupported-graph diagnostics",
-      "gap": "Stage 4 acceptance pending",
-      "action": "Verify free/transient entry points and document compatibility.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted branch preview pending",
+      "action": "Verify exact branch preview and record it in STAGES.",
+      "code": [
+        "src/circuit/editor-mode.ts",
+        "src/transient/circuit-mode.ts",
+        "src/components/TransmissionNetworkLab.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-mode.test.ts"
+      ],
+      "integration": [
+        "src/transient/circuit-archive.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts",
+        "tests/e2e/transmission-archive-migration.spec.ts"
+      ]
     }
   ]
 }

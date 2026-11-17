@@ -42,6 +42,10 @@ RED: на прежней версии соединённый документ с
 
 GREEN: пять Vitest проверяют T, П, лестницу, параллельные RLC, четыре сети моста Уитстона, а также полную идентичность топологии и netlist после round-trip 100 компонентов и 99 проводов. 23 целевых Chromium прошли на свежей сборке. Новые сценарии проверяют повторное ветвление, поперечную вставку и атомарный Undo. Первый широкий прогон выявил, что в отдельном тесте рукописного ввода вторая отметка попадала на верхнюю границу SVG: в трассе есть первая отметка и соединительный штрих, но нет второй отметки. Точка перенесена внутрь SVG при прежних утверждениях. Восемь целевых повторов прошли. Штатный Windows verify:full с одним Chromium-воркером прошёл: 599 Vitest, 369 root Chromium, 6 штатных пропусков, 2 production smoke, типы, lint, сборка и HIGH audit.
 
+## ET-UNIVERSAL-004 — общий режим редактора
+
+Два Vitest проверяют пустой старт свободного редактора, архивный старт переходной лаборатории, прежние палитры и успешное преобразование допустимой линии. Неподдерживаемый RLC-граф отклонён для расчёта. В Chromium на root-артефакте проверены свободная палитра, скрытая общая палитра архивного режима, восстановление палитры свободного черновика и сохранение принятого Network после отказа. Штатный verify:full на Windows: 601 Vitest, 369 Chromium, 6 SKIP, 2 production smoke, типы, lint, сборка и HIGH audit PASS.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

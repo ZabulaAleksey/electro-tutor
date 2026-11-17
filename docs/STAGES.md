@@ -63,18 +63,18 @@
 
 ## ET-UNIVERSAL-004 — Stage 4. Shared mode adapter
 
-- Status: in_progress
+- Status: implemented
 - Entry: Stage 3 verified и опубликован. CE-001, CE-006 и CE-007 действуют.
 - Goal: общий редактор получает описание возможностей режима. Режим определяет разрешённые элементы, валидацию, исходный шаблон и преобразование в предметную модель.
 - Evals: свободный редактор и переходная лаборатория используют единый контракт и запускаются со своими исходными схемами. Действующий архивный маршрут сохраняет совместимость. Неподдерживаемое соединение остаётся редактируемым черновиком и получает диагностику при попытке расчёта.
 - User actions: none
-- Evidence: 2/2 целевых тестов шаблона и валидации, типы, ESLint и 601 Vitest прошли. Полный verify выполняется с CI=true. По его результату проверить оба браузерных UI режима, архив и preview той же ревизии.
-- NEXT: stage4-verification
+- Evidence: 2/2 targeted mode tests и браузерный smoke обоих режимов PASS. Windows verify:full PASS, 601 Vitest, 369 Chromium, 6 SKIP, 2 production smoke. Ожидается preview ветки.
+- NEXT: stage4-preview
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 3,
+  "state_revision": 4,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",

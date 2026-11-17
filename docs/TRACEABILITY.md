@@ -140,3 +140,5 @@ LINE-UX-036 → transmission-line-transient SPEC → circuit-adapter, line-archi
 LINE-UX-024, LINE-UX-037 → transmission-line-transient SPEC → CircuitEditor, TransmissionNetworkLab, EngineeringPlot и SVG export → transient-spatial-layout.spec.ts и transmission-editor-duration.spec.ts.
 
 LINE-AC-001–003 → transmission-line-steady SPEC → steady-line/line.ts → steady-line/line.test.ts с независимым эталоном для комплексной нагрузки.
+
+LINE-AC-004–005 → transmission-line-steady SPEC → steady-line/cascade.ts → steady-line/cascade.test.ts.

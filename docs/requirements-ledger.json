@@ -2564,17 +2564,23 @@
         "LINE-AC-004",
         "LINE-AC-005"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "transmission-line",
       "runtime": "Ordered ABCD line and passive network cascade",
       "security": "Validated finite section and lumped coefficients",
       "a11y": "Numerical API with no current UI surface",
       "observability": "Matrix and input impedance for explicit terminations",
-      "gap": "Stage 10 independent oracle pending.",
+      "gap": "Coordinate interaction is tracked in Stage 11.",
       "action": "Compare ABCD cascade and downstream impedance transformations.",
-      "code": [],
-      "unit": [],
-      "integration": [],
+      "code": [
+        "src/steady-line/cascade.ts"
+      ],
+      "unit": [
+        "src/steady-line/cascade.test.ts"
+      ],
+      "integration": [
+        "src/steady-line/cascade.test.ts"
+      ],
       "e2e": []
     }
   ]

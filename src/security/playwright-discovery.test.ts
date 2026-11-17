@@ -1,4 +1,7 @@
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmdirSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -10,6 +13,10 @@ const cli = fileURLToPath(new URL("../../node_modules/@playwright/test/cli.js", 
 
 function discover(config: string, remote: boolean, education: boolean): Case[] {
   const env: NodeJS.ProcessEnv = { ...process.env, E2E_EDUCATION: String(education), FORCE_COLOR: "0" };
+  // The catalog audit reads its build root at module scope. Discovery only needs
+  // an empty fixture directory; real E2E runs keep their actual build artifact.
+  const emptyBuildRoot = mkdtempSync(join(tmpdir(), "electrotutor-discovery-"));
+  env.BUILD_OUTPUT_DIR = emptyBuildRoot;
   delete env.E2E_AUTH_PHASE;
   delete env.E2E_SPEC;
   delete env.PW_TEST_CONNECT_WS_ENDPOINT;
@@ -19,9 +26,14 @@ function discover(config: string, remote: boolean, education: boolean): Case[] {
   delete env.PW_TEST_CONNECT_HEADERS;
   delete env.PW_TEST_CONNECT_EXPOSE_NETWORK;
   if (remote) env.PW_TEST_CONNECT_WS_ENDPOINT = "ws://127.0.0.1:1/discovery-only";
-  const output = execFileSync(process.execPath, [cli, "test", `--config=${config}`, "--list", "--reporter=json"], {
-    cwd: root, env, encoding: "utf8", windowsHide: true, timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
-  });
+  let output: string;
+  try {
+    output = execFileSync(process.execPath, [cli, "test", `--config=${config}`, "--list", "--reporter=json"], {
+      cwd: root, env, encoding: "utf8", windowsHide: true, timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
+    });
+  } finally {
+    rmdirSync(emptyBuildRoot);
+  }
   const report = JSON.parse(output) as { suites: Suite[]; errors?: unknown[] };
   expect(report.errors ?? []).toEqual([]);
   const cases: Case[] = [];

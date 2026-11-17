@@ -1,3 +1,7 @@
+## Discovery unit до первой сборки
++
++Clean CI44188507681 выявил implicit dist prerequisite при module-load существующего product-shell-audit. Новый UNIT guard теперь создаёт собственный пустой build-root только для child `--list` и удаляет его в finally; тела E2E не выполняются, реальные build/runtime env не меняются. Все parity assertions сохранены. При заведомо отсутствующем parent artifact3guards PASS; весь772unit/119files, canonical Astrocheck/lint/frozen/HIGH audit PASS. Previous real-WebSocket full остаётся runtime qualification неизменённых app/config; полный pipeline нового commit подтверждается exact CI перед Pages.
+
 ## QG-013 — реальный remote Chromium и client-local downloads
 
 Новая конфигурация сохраняет все принятые E2E/fixtures/goldens. Remote endpoint передаётся явно project profile; globalSetup переносит ambient PW override в project-owned env перед worker reload. Root discovery422 =415 remote+7 client-local download cases; education424; MVP33, прежний один remote profile. Каждый logical case ровно один раз, новых skips нет. Прежние версии/образ/workflow/permissions не изменяются.

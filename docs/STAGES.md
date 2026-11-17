@@ -48,8 +48,8 @@
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
 - Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: integrate-ci-transport
-- Next action: commit проверенного transport fix → fast-forward main/push → exact CI/Pages и Cloudflare/hosted → final receipt/cleanup.
+- NEXT: integrate-clean-discovery
+- Next action: commit isolated discovery fixture → normal main integration/push → mandatory full exact CI/Pages/hosted → final receipt/cleanup.
 
 - Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
 - Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
@@ -64,6 +64,8 @@
 - Current qualification: окончательный full с REAL WebSocket Chromium + local-download partition PASS:772 Vitest/119 файлов,416 Chromium PASS/6 oldSKIP (415remote cases+7local cases),production smoke2/2,HIGH audit0,frozen/hygiene/static/lint/CI contract PASS. Все исходные E2E/goldens byte-identical, pipeline/Docker/deps/permissions unchanged. Новый transport review PASS; failed initial CI сохранён как history.
 
 - CI transport repair: backend/PostgreSQL and765unit PASS; root412PASS/6 oldSKIP/4 remote Download.path FAIL. Official Playwright API confirms path unavailable on remote connection. Accepted test files stay byte-identical; bounded local download profile uses already installed pinned Chromium, other tests/goldens stay Noble remote. No workflow/dependency/permission change. Source94493cb Cloudflare ab154aa4 primary/exact each13 hosted PASS,6 assets match. Final CI/Pages remains pending.
+
+- Cold CI recovery: run44188507681 stopped before E2E on2new discovery unit imports (no dist in clean checkout),770other unit/backend gates PASS. Изолированный empty tmp dir передан только child --list; assertions неизменны, реальные E2E используют свежий настоящий build. Coldprobe3 и весь772unit/119files, Astrocheck/lint/frozen/audit0 PASS; independentreviewPASS. Runtime/config/deps/acceptedE2E byte-identical5ec, прежний realWSfull учитывается толькокакruntimequalification. НовыйcommitfullCI ещёpending.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

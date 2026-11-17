@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "ET-DEP-20261117",
-  "status": "validated_locally_ci_transport_ready",
+  "status": "clean_checkout_unit_fix_ready",
   "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
   "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
   "replacement": {
@@ -580,6 +580,18 @@
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
       "log_sha256": "1b16d24fc782551123a404d8070dfddf3c89141cb2c60ebed8388e3b6a194f46"
+    },
+    "ci_transport_second": {
+      "source_commit": "5ecbbec111143d4636e547ea23b0c5e80d0989dd",
+      "run_id": 44188507681,
+      "status": "FAIL",
+      "backend_api_postgresql": "PASS",
+      "unit_passed": 770,
+      "unit_failed": 2,
+      "failed_file": "src/security/playwright-discovery.test.ts",
+      "cause": "Clean checkout has no dist before unit gate; imported product-shell-audit reads build root at module load",
+      "browser_and_production_gates": "not run because unit gate stopped; Pages skipped",
+      "log_sha256": "9bf86bc7d8285cf456ac3e7136566ca58eb6e4209a83065ded4628b0fa4dfe23"
     }
   },
   "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
@@ -719,6 +731,20 @@
     },
     "adapter": "globalSetup transfers ambient PW endpoint/headers/exposeNetwork into explicit project-owned configuration before worker fixtures; real remote connection and7local round-trips verified in the same invocation",
     "full": "PASS: unchanged pnpm verify:full with actual Playwright WebSocket remote Chromium and local-download partition",
-    "review": "PASS; ambient override transfer, actual remote connection, partition/discovery and unchanged accepted tests verified"
+    "review": "PASS; ambient override transfer, actual remote connection, partition/discovery and unchanged accepted tests verified",
+    "cold_discovery_fix": {
+      "status": "PASS",
+      "scope": "only unit import prerequisite fixture, parity assertions unchanged",
+      "fixture": "owned empty mkdtemp passed only in child --list env; rmdir finally, real E2E env untouched",
+      "cold_probe": "3 PASS with parent BUILD_OUTPUT_DIR explicitly nonexistent",
+      "full_unit": {
+        "passed": 772,
+        "files": 119
+      },
+      "static_lint_frozen": "PASS",
+      "accepted_e2e_runtime_config_dependencies": "byte-identical to 5ecbbec",
+      "review": "PASS",
+      "previous_full": "runtime qualification only; exact new commit full CI pending"
+    }
   }
 }

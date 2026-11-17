@@ -2769,17 +2769,24 @@
         "POWER-002",
         "POWER-003"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Versioned power equipment network, operating islands and separate study cuts",
       "security": "Bounded numeric values, unique identifiers and validated references",
       "a11y": "Pure domain API, browser consumer scheduled separately",
       "observability": "Bus-island membership, energized status, physical switches and independent calculation cuts",
       "action": "Exercise one imported physical ring before and after opening a switch and adding mathematical cuts.",
-      "gap": "Stage 17 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
+      "gap": "The public editor and browser evidence are scheduled for later stages.",
+      "code": [
+        "src/power-system/network.ts",
+        "src/power-system/topology.ts"
+      ],
+      "unit": [
+        "src/power-system/topology.test.ts"
+      ],
+      "integration": [
+        "src/power-system/topology.test.ts"
+      ],
       "e2e": []
     }
   ]

@@ -154,3 +154,5 @@ LC-010–011 → reactive-two-port SPEC → reactive-foster-ii.ts + FosterResult
 LC-012–013 → reactive-two-port SPEC → reactive-cauer-i.ts + CauerResults → reactive-cauer-i.test.ts + reactive-cauer-i.spec.ts.
 
 LC-014–016 → reactive-two-port SPEC → reactive-cauer-ii.ts + CauerResults + reactive-lc-simplification.ts + SimplifiedLcResults → reactive-cauer-ii.test.ts + reactive-lc-simplification.test.ts + соответствующие browser E2E.
+
+POWER-001–003 → power-system SPEC → power-system/network.ts + topology.ts → power-system/topology.test.ts. Браузерные потребители подключаются отдельным этапом.

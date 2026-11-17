@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/power-system.spec.md",
       "specs/features/circuit-engine.spec.md",
       "specs/features/engineering-showcase.spec.md",
       "specs/features/productization-rc1.spec.md",
@@ -2734,14 +2735,14 @@
         "LC-015",
         "LC-016"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "reactive-one-port",
       "runtime": "Cauer II exact low-frequency ladder and equivalent LC graph view",
       "security": "Bounded reductions with exact equivalence and finite positive element values",
       "a11y": "RU/UK Cauer ladders and node-connectivity display",
       "observability": "Exact rational reconstruction, derived impedance and physical reactance",
       "action": "Verify Cauer II against exact and independent oracles and certify original and simplified graph impedance.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/models/reactive-cauer-ii.ts",
         "src/components/CauerResults.tsx",
@@ -2761,6 +2762,25 @@
         "tests/e2e/reactive-cauer-ii.spec.ts",
         "tests/e2e/reactive-lc-simplification.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-001",
+        "POWER-002",
+        "POWER-003"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Versioned power equipment network, operating islands and separate study cuts",
+      "security": "Bounded numeric values, unique identifiers and validated references",
+      "a11y": "Pure domain API, browser consumer scheduled separately",
+      "observability": "Bus-island membership, energized status, physical switches and independent calculation cuts",
+      "action": "Exercise one imported physical ring before and after opening a switch and adding mathematical cuts.",
+      "gap": "Stage 17 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

@@ -20,6 +20,7 @@ denominator, но только binding SPEC создаёт обязательс�
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
 | `features/reactive-two-port.spec.md` | Действует | Реактивный LC-двухполюсник, резонансы и шаги эквивалентного преобразования |
+| `features/power-system.spec.md` | Действует | Физическая сеть электроснабжения, эксплуатационная связность и расчётный разрез |
 | `features/star-neutral-phasors.spec.md` | Действует | Локальный трёхфазный интерактив: комплексные сопротивления, три режима нейтрали, векторные диаграммы и численная защита |
 | `features/transmission-line-transient.spec.md` | Действует | Расчёт переходных процессов, редактор, рукописный ввод и экспорт |
 | `features/transmission-line-steady.spec.md` | Действует | Установившийся режим длинной линии, параметры RLGC и ABCD |

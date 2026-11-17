@@ -1,5 +1,12 @@
 # Безопасность и границы доверия
 
+## Исправление аудита зависимостей · ET-DEP-20261117
+
+Актуальные версии закреплены в pnpm lockfile. Исправлены находки Astro (GHSA-mpr7-6m5w-76rw, GHSA-mh32-jxcr-mh9f, GHSA-r3h5-4585-7x3w), KaTeX (GHSA-238p-pmpm-9mq7), Vitest mocker (GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp), smol-toml (GHSA-r4xh-jqrq-34v2), fast-uri (GHSA-w74x-v6f9-j3xg, GHSA-xhq7-xmqj-769h, GHSA-wjr9-j795-jxcr, GHSA-333x-w4r6-6crp) и minimatch (GHSA-g3hv-75wg-m249).
+
+Повторный pnpm audit сообщает 0 находок на всех уровнях. Полный verify, Python runtime audit и подтверждение production фиксируются в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance). Исторические количества и оценки применимости ниже сохраняют свой исходный scope.
+
+
 ## Circuit Engine
 
 Импорт схем обрабатывается локально, ограничен 160 кБ и проверяет версию, ссылки, параметры и геометрию перед обновлением текущей схемы. Лаборатория принимает связанную универсальную схему из архива только при совпадении результата адаптера с проверенной моделью Worker. Браузерные черновики и экспорт не отправляются во внешние сервисы.

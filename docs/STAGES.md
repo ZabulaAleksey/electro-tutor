@@ -1,6 +1,24 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-032
+- Stage ID: ET-DEP-20261117
+
+## ET-DEP-20261117 — Security dependency maintenance
+
+- Status: implemented_unverified
+- Goal: устранить все текущие LOW/MODERATE находки pnpm, сохранить совместимость лабораторий, выполнить полный verify и штатный production deploy.
+- Entry: чистый main b614cda, предыдущий runtime eff12b6. pnpm 11.23.0. Исходный аудит даёт 5 LOW и 7 MODERATE.
+- Scope: package.json, pnpm-workspace.yaml, pnpm-lock.yaml, Node 22.23.4 в .node-version и существующем CI, dependency/security/evidence документы.
+- Requirements: QG-001..007, глобальные dependency-management и node-package-management.
+- Dependencies: предыдущий мастер ET-UNIVERSAL-MASTER-V2 completed, production GitHub Pages и Cloudflare подтверждены.
+- Evals: frozen restore PASS, полный и production audit без находок, Python runtime audit, полный pnpm verify:full, существующий backend gate в GitHub CI, smoke четырёх лабораторий на обоих production hosts.
+- Recovery: предыдущий main b614cda и runtime eff12b6 сохраняются в Git и точной production-выкладке.
+- Evidence: Node 22.23.4 и pnpm 11.23.0. Полный pnpm verify:full PASS — 738 Vitest, 405 Chromium, 6 предусмотренных пропусков, 2 production smoke. Полный и production pnpm audit — 0 находок всех уровней. Python runtime pip-audit PASS. Dependency review PASS.
+- Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
+- User actions: none
+- Blockers: none
+- NEXT: dependency-production-verification
+
+- Completion sync: обновлены README, DEPENDENCIES, SECURITY, TESTING, project-context и STAGES. Проверены ROADMAP, pre-deploy SPEC, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL и TRACEABILITY.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

@@ -1,3 +1,7 @@
+## ET-DEP-20261117 — квалификация зависимостей
+
+Текущий lockfile проходит полный pnpm audit и production pnpm audit. Полный pnpm verify:full проверяет frozen restore, CI contract, типы, lint, Vitest, все Chromium-сценарии, обе сборочные базы и production smoke под Node 22.23.4. Принятые тесты, goldens и пороги audit сохраняют свой контракт. Python-зависимости API проверяются штатным pip-audit из uv.lock и существующим backend CI. Точные результаты и выпущенная ревизия находятся в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance).
+
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 
 ## ET-UNIVERSAL-000 — исходная проверка

@@ -68,7 +68,7 @@ psql-only helper перекрывает image VOLUME временным16MiB tmp
 - Supported local environments: Windows 11 PowerShell и CI Linux; Docker engine
   обязателен для integration/full gates.
 - Canonical working directory: repository root `${PROJECTS_ROOT}/electro-tutor`.
-- Toolchain/runtime versions: Node `>=22.12.0` (validated `22.23.1`), Python
+- Toolchain/runtime versions: Node `>=22.23.4` (security maintenance baseline `22.23.4`), Python
   `3.12` (image `3.12.5`), uv `0.12.3`, Docker `29.7.2`, Compose `5.4.0`,
   PostgreSQL `17.6`.
 - Package manager and lockfile: root `pnpm@11.23.0` + `pnpm-lock.yaml`; backend

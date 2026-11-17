@@ -1,5 +1,19 @@
 # Dependency contract
 
+## ET-DEP-20261117 — исправление текущего аудита
+
+- Менеджер и lockfile — pnpm 11.23.0, package.json, pnpm-workspace.yaml и pnpm-lock.yaml.
+- Исправленные прямые зависимости — Astro 7.4.7, KaTeX 0.18.2 и Vitest 4.1.12 и Vite 8.3.8.
+- Транзитивные закрепления — fast-uri 3.1.9, smol-toml 1.9.1 и minimatch 11.0.1 только для запросов >=7 <11.0.1. Прежние потребители minimatch 3 сохраняют свою ветвь API. devalue закреплён отдельно в major 5 (5.9.3 для @astrojs/react) и major 6 (6.0.3 для Astro). Zod 4.6.7 и smol-toml 1.9.1 удовлетворяют диапазонам Astro. Все достижимые запросы Vite 8 разрешаются в 8.3.8, включая React plugin и Vitest.
+- Astro 7.4.7 требует Node >=22.23.4. CI и .node-version закрепляют 22.23.4. Локальная проверка использует официальный Node с проверенной SHA-256 из SHASUMS256.txt.
+- pnpm audit после обновления — 0 LOW, 0 MODERATE, 0 HIGH, 0 CRITICAL. Полная квалификация и production evidence находятся в выбранном record STAGES.
+- Clean restore и CI restore — pnpm install --frozen-lockfile. Изменения lockfile производит pnpm. Корневой node_modules восстанавливается из штатного shared store, временный проверочный Node хранится в рабочем каталоге задачи.
+- При удалении override требуется доказать по lockfile, что родители разрешают исправленные версии штатно. Изменение основной версии minimatch проверяется существующими статическими и полными browser gates.
+- Файл .node-version фиксирует build runtime Cloudflare Pages. [Build image contract](https://developers.cloudflare.com/pages/configuration/build-image/)
+
+Предыдущие записи аудита ниже относятся к указанным в них историческим ревизиям.
+
+
 ## Интеграция локальных веток · 2026-11-17
 
 Ветка проверки зависимостей сведена с актуальным GitHub main. Текущий Node lock и runtime Python lock сохранены. Из ветки перенесён оставшийся переход тестового окружения на pytest 9, закреплённый uv как 9.2.0. Исторический аудит хранится в [evidence](evidence/night-20261001-audit.json).
@@ -27,7 +41,7 @@ SQLAlchemy/asyncpg, Alembic, Uvicorn и PostgreSQL 17.6. Tooling: uv 0.12.3,
 Ruff, mypy, pytest и pip-audit. `backend:bootstrap` и CI используют frozen lock;
 `backend:check` отклоняет lock drift и известные уязвимости runtime export.
 
-Node security baseline фиксирует Astro `^7.3.2` (исправление AVIF RCE) и
+Исторический Node security baseline фиксировал Astro `^7.3.2` (исправление AVIF RCE) и
 временные exact transitive overrides `fast-uri@3.1.8`, `js-yaml@4.3.2`,
 `svgo@4.1.0`, пока их direct parents не поднимут безопасные диапазоны.
 `pnpm audit --audit-level high` обязан завершаться с exit `0`; overrides следует

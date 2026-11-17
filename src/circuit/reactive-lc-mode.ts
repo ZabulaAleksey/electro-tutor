@@ -47,6 +47,7 @@ export function splitReactivePort(topology: CircuitTopology): { topology: Circui
 }
 
 export const reactiveLcMode: CircuitLaboratoryMode<LcPortAnalysis> = {
+  id: "reactive-lc",
   createDefaultDocument: bridgeDocument,
   example: { ru: "Асимметричный LC-мост", uk: "Асиметричний LC-міст" },
   availableParts: drawing => drawing.topology.components.some(part => part.kind === "port")

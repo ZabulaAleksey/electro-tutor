@@ -598,7 +598,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   const mainTools = (
     <div className="circuit-toolbar circuit-main-tools" role="group" aria-label={copy.tools}>
       <button type="button" aria-pressed={tool === null} onClick={() => chooseTool(null)}>{copy.select}</button>
-      {mode.availableParts(drawing).map(kind => <button type="button" key={kind}
+      {mode.availableParts(drawing).map(kind => <button type="button" key={kind} data-circuit-tool={kind}
         aria-pressed={tool === kind} onClick={() => chooseTool(kind)}>
         {copy.kinds[kind]}
       </button>)}
@@ -639,7 +639,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     </div>
   );
 
-  return <section className="circuit-editor" data-circuit-editor data-embedded={embedded || undefined} data-ready={ready} data-inspect-only={inspectOnly || undefined} onKeyDown={event => {
+  return <section className="circuit-editor" data-circuit-editor data-circuit-mode={mode.id} data-embedded={embedded || undefined} data-ready={ready} data-inspect-only={inspectOnly || undefined} onKeyDown={event => {
     if (inspectOnly) return;
     if (event.key === "Escape") { chooseTool(null); extension?.onCancel?.(); }
     if ((event.ctrlKey || event.metaKey) && !(event.target as Element).closest("input, textarea, [contenteditable]")) {

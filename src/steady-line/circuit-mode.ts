@@ -13,6 +13,7 @@ const one: Complex = { re: 1, im: 0 };
 const isZero = (value: Complex) => value.re === 0 && value.im === 0;
 
 export const steadyCircuitMode: CircuitLaboratoryMode<Network> = {
+  id: "steady-line",
   createDefaultDocument() {
     const drawing = lineDemoDrawing();
     return serializeCircuit({ ...drawing, topology: { ...drawing.topology, components: drawing.topology.components.map(part => {

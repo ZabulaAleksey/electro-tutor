@@ -11,6 +11,7 @@ import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagra
 import { normalizeLoad, normalizePowerSource } from "../power-system/injections";
 import { readPowerNetwork, setPowerSwitch, type PowerCalculationCut, type PowerElement, type PowerSource } from "../power-system/network";
 import { normallyOpenConfiguration, normallyOpenDiagram } from "../power-system/normally-open";
+import { powerSystemEditorMode } from "../power-system/editor-mode";
 import { layoutPowerNetwork } from "../power-system/layout";
 import { maxAcBuses, maxAcElements, solveACPowerFlow } from "../power-system/ac-power-flow";
 import { exampleRingConfiguration, exampleRingDiagram } from "../power-system/ring-example";
@@ -208,7 +209,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
       {study === "custom" && <PowerNetworkAuthor network={network} language={language}
         onAppend={input => editCustom(network => appendPowerEquipment(network, input))}
         onRemove={id => editCustom(network => removePowerEquipment(network, id))} />}
-      <CircuitEditor language={language} embedded inspectOnly initial={examplePowerDiagram}
+      <CircuitEditor language={language} embedded inspectOnly mode={powerSystemEditorMode}
         activeDocument={study === "custom" ? customDiagram ?? examplePowerDiagram : study === "ring" ? exampleRingDiagram
           : study === "normally-open" ? normallyOpenDiagram : examplePowerDiagram}
         selectedComponentId={equipmentId}

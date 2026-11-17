@@ -182,3 +182,5 @@ POWER-026–027 → power-system SPEC → flow-overlay.ts + author.ts + PowerFlo
 POWER-028–029 → power-system SPEC → normally-open.ts + network.ts + PowerSwitchPanel + PowerSystemLab → normally-open.test.ts + power-system-switching.spec.ts.
 
 POWER-030–031 → power-system SPEC → CircuitEditor + PowerMobileReadout + PowerSystemLab → power-system-mobile.spec.ts.
+
+POWER-032–033 → power-system SPEC → CircuitEditorMode + четыре адаптера → editor-mode.test.ts + power-system-cross-mode.spec.ts.

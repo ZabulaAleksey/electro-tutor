@@ -3168,18 +3168,31 @@
         "POWER-032",
         "POWER-033"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Four isolated live adapters in one diagram editor",
       "security": "Reject mode-incompatible electrical inputs at their adapter boundaries",
       "a11y": "One usable editor and mode-owned controls on each route",
       "observability": "Explicit editor mode tag, palette and accepted calculation",
       "action": "Visit all four labs, observe their legitimate electrical outputs, and reject unrelated mode data.",
-      "gap": "Stage 31 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/circuit/CircuitEditor.tsx",
+        "src/circuit/editor-mode.ts",
+        "src/circuit/reactive-lc-mode.ts",
+        "src/transient/circuit-mode.ts",
+        "src/steady-line/circuit-mode.ts",
+        "src/power-system/editor-mode.ts"
+      ],
+      "unit": [
+        "src/power-system/editor-mode.test.ts"
+      ],
+      "integration": [
+        "src/power-system/editor-mode.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-cross-mode.spec.ts"
+      ]
     }
   ]
 }

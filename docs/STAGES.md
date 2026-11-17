@@ -20,9 +20,10 @@
 - Blockers: production delivery DEP-PICOMATCH-001; локальная feature не заблокирована.
 - User actions: none
 - Evidence: 761 Vitest и типы/lint PASS; 9 новых Chromium PASS (четыре подключения, drag/hover/cancel, ambiguity, Undo/Redo/JSON, UK phone/touch/keyboard, reversible equivalent). Desktop/phone PNG визуально сверены, SHA в docs/evidence/circuit-parallel.json. Reviewer: два цикла, P1 устранены, финальный empty-drop P2 исправлен и проверен.
-- Verification recovery: полный Chromium идёт; в неизменённом beam Ctrl-wheel один раз получено вертикальное смещение 3,3198 px при пороге <3. Trace сохранён, выполняется bounded диагностика. Допуски и принятые тесты не меняются.
+- Verification recovery ET-QG-FONT-001: прежний полный прогон дал 413 Chromium PASS / 6 SKIP / 1 beam Ctrl-wheel FAIL; отдельно 4/5 PASS. Контролируемая поздняя загрузка DM Sans воспроизводит +3 px сдвига из-за normal line-height. Явные line boxes только над SVG устранили сдвиг. Новый font regression и все 13 прежних beam сценариев PASS (14), Ctrl-wheel дополнительно 5/5 PASS. Zoom, solver, допуски и goldens не менялись. Новый полный verify выполняется.
 - Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES и STAGES. Проверены DECISIONS, SECURITY, API, DATA_MODEL, project-context, LEARNING_LOG и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
-- NEXT: full-regression-and-DEP-PICOMATCH-001
+- Hosted feature: Cloudflare preview 7873a07f для 01d0ea8 — build success, HTTP 200, все 9 новых Chromium PASS на точном host. Это preview, production gate не закрыт.
+- NEXT: final-full-verification-and-DEP-PICOMATCH-001
 
 ## ET-DEP-20261117 — Security dependency maintenance
 
@@ -38,7 +39,7 @@
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
 - User actions: none
 - Blockers: DEP-PICOMATCH-001 — upstream не выпустил исправленную версию picomatch. Audit gate сохранён, выпуск не подтверждён. Условие снятия: опубликованная исправленная версия, frozen restore, audit 0, полный verify PASS и точные CI/hosted receipts.
-- Runtime follow-up: Cloudflare 7161e382 для ae22dcd завершился ошибкой системного Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4, обычный pnpm exec node --version подтверждён. Исправление сохранено в рабочей ветке; production merge/deploy follow-up ждёт security gate.
+- Runtime follow-up: Cloudflare 7161e382 для ae22dcd завершился ошибкой системного Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4, обычный pnpm exec node --version подтверждён. Исправление запушено, Cloudflare preview 01d0ea8 успешно собран. Production merge/deploy follow-up ждёт security gate.
 - Verification recovery: единственный browser.newContext crash до открытия страницы сохранён с trace. Свежий полный прогон прошёл 405 Chromium; тесты и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
 - NEXT: DEP-PICOMATCH-001; после upstream patch повторить audit/full verify/production delivery.

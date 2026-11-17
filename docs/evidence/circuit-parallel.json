@@ -38,5 +38,25 @@
     ]
   },
   "release_blocker": "DEP-PICOMATCH-001: GHSA-fc5q-39xc-vjpf, no patched published picomatch version",
-  "full_verify": "RUNNING; one beam Ctrl-wheel failure under diagnosis"
+  "full_verify": "RUNNING after font recovery",
+  "feature_commit": "01d0ea870647c123dc2aa6e18bbc39023f748059",
+  "hosted_preview": {
+    "url": "https://7873a07f.electrotutor.pages.dev",
+    "deployment": "7873a07f-636c-4a6e-890d-710f7174118a",
+    "build": "success",
+    "chromium_passed": 9
+  },
+  "previous_full_chromium": {
+    "passed": 413,
+    "skipped": 6,
+    "failed": 1,
+    "failure": "beam Ctrl-wheel font metrics"
+  },
+  "font_recovery": {
+    "red_dy_px": 3.319803994082804,
+    "limit_px": 3,
+    "green_beam_tests": 14,
+    "unchanged_ctrl_wheel_repeats": 5,
+    "accepted_tests_and_goldens": "unchanged"
+  }
 }

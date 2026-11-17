@@ -1,3 +1,7 @@
+## ET-QG-FONT-001 — beam zoom и поздний web-font
+
+На Windows исходный полный прогон получил 413 Chromium PASS / 6 SKIP / 1 FAIL, повтор неизменённого Ctrl-wheel — 4/5 PASS. Измерения до/после document.fonts.ready подтвердили, что поздний DM Sans добавлял 3 px высоты строк над SVG. Отключение scroll anchoring не устраняло сдвиг; изменение zoom/scroll формул не требовалось. Новый `beam-font-layout.spec.ts` удерживает реальные font requests до завершения zoom: RED 3,32 px при прежнем пороге <3. Явные line boxes только для h1/вводного текста и toolbar labels стабилизируют начало SVG. GREEN: новый regression + прежние beam-сценарии 14/14, дополнительно прежний Ctrl-wheel 5/5. Принятые сценарии, snapshot template и PNG эталоны не менялись. Финальный full-verify evidence находится в STAGES.
+
 ## ET-CE-PARALLEL-001 — участки и обратимая модель
 
 CE-016..022: `parallel-regions`, `parallel-attachment` и `parallel-contract` проверяют четыре RLC случая, закрытость внутренних отводов, неоднозначность/union, 40-элементную цепь, stale fingerprint, boundary taps, ID collisions, ориентацию, pinned и расширение платы. `equivalent-circuit` и прежний `rlc-reduction` проверяют независимые L, обратную сумму C, состояния, взаимную связь, provenance и read-only round-trip.

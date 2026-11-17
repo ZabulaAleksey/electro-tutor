@@ -333,3 +333,9 @@ git diff --check
 5. Не возвращая сеть, открыть `/ru/not-cached-offline/`: появится экран
    «Нет подключения / Немає з’єднання».
 6. Вернуть Network → No throttling и остановить preview сочетанием `Ctrl+C`.
+
+## Late web-font metrics can move a correct SVG zoom anchor (2026-11-17)
+
+- Symptom: Windows beam Ctrl-wheel occasionally moved the logical point by 3,32 px with a <3 px contract, although zoom math produced a normal 0,32 px residual.
+- Evidence: document.fonts.ready added exactly 3 px after zoom; disabling scroll anchoring retained the error. A controlled delay of the real font reproduced it. Stable line boxes above the SVG fixed the layout shift; all 14 beam scenarios, unchanged visual golden and five repeated Ctrl-wheel checks passed.
+- Reuse: measure font readiness and element boxes before changing gesture/scroll formulas. Keep display-dependent geometry stable during late font completion. Source scene, solver and accepted tolerances remain independent.

@@ -18,3 +18,7 @@
 .beam-inline-row { padding-right:36px; }
 .beam-inline-row .beam-number { max-width:65px; }
 .beam-inline-row input { width:65px; }
+
+/* Stable line boxes keep late web-font metrics from moving the SVG origin. */
+.beam-page > h1, .beam-page > p { line-height: 1.375; }
+.beam-toolbar label { line-height: 18px; }

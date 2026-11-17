@@ -1,29 +1,21 @@
-import { useMemo, useState } from "react";
 import { formatEngineeringNumber } from "../engineering/format";
-import { solveACPowerFlow } from "../power-system/ac-power-flow";
-import type { PowerConfiguration } from "../power-system/configuration";
+import type { ACPowerFlow } from "../power-system/ac-power-flow";
 import type { Language } from "../types";
 
-export function ACPowerFlowPanel({ configuration, language }: { configuration: PowerConfiguration; language: Language }) {
-  const [enabled, setEnabled] = useState(false);
-  const calculation = useMemo(() => {
-    if (!enabled) return null;
-    try { return { result: solveACPowerFlow(configuration) }; }
-    catch (error) { return { error: error instanceof Error ? error.message : "" }; }
-  }, [configuration, enabled]);
+export function ACPowerFlowPanel({ result, issue, enabled, onCalculate, language }: {
+  result?: ACPowerFlow; issue?: string; enabled: boolean; onCalculate: () => void; language: Language;
+}) {
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
   const num = (value: number | null | undefined) => value == null ? "—" : formatEngineeringNumber(value, language, { maximumFractionDigits: 3 });
-  const issue = calculation?.error;
   const message = issue?.startsWith("power-flow-branch-parameters:")
     ? t("Укажите действующий тип ветви ", "Укажіть дійсний тип гілки ") + issue.split(":")[1] + "."
     : issue === "power-ac-reference-count" || issue === "power-ac-source-required"
       ? t("Для каждого питаемого участка задайте один опорный источник.", "Для кожної живленої ділянки задайте одне опорне джерело.")
       : t("Расчёт AC не сошёлся. Проверьте нагрузку, источники и параметры ветвей.",
         "Розрахунок AC не збігся. Перевірте навантаження, джерела й параметри гілок.");
-  const result = calculation?.result;
   return <section className="power-panel power-flow" data-power-ac>
     <h2>{t("Общий расчёт AC", "Загальний розрахунок AC")}</h2>
-    {!enabled && <button type="button" onClick={() => setEnabled(true)}>{t("Рассчитать по Ybus", "Розрахувати за Ybus")}</button>}
+    {!enabled && <button type="button" onClick={onCalculate}>{t("Рассчитать по Ybus", "Розрахувати за Ybus")}</button>}
     {issue && <p role="status">{message}</p>}
     {result && <div data-ac-result data-ac-mismatch={result.maxMismatchMva} data-ac-balance={result.powerBalanceErrorMva}>
       {result.sources.map(source => <p key={source.id}>

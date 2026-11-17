@@ -3080,18 +3080,30 @@
         "POWER-026",
         "POWER-027"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "power-system",
       "runtime": "Selectable bus and branch overlays, typed physical network authoring",
       "security": "Validate additions and preserve referenced buses on refused deletion",
       "a11y": "Bilingual layer controls and textual terminal details",
       "observability": "Signed power arrows, voltage limits, rating-based loading and accepted diagram",
       "action": "Calculate the ring and exercise overlay layers, then build and solve a new physical study.",
-      "gap": "Stage 28 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/power-system/flow-overlay.ts",
+        "src/power-system/author.ts",
+        "src/components/PowerFlowOverlay.tsx",
+        "src/components/PowerNetworkAuthor.tsx",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/flow-overlay.test.ts"
+      ],
+      "integration": [
+        "src/power-system/flow-overlay.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/power-system-overlay.spec.ts"
+      ]
     }
   ]
 }

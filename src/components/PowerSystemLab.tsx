@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CircuitEditor from "../circuit/CircuitEditor";
 import { maxCircuitFileBytes } from "../circuit/document";
 import { formatEngineeringNumber } from "../engineering/format";
@@ -11,13 +11,18 @@ import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagra
 import { normalizeLoad, normalizePowerSource } from "../power-system/injections";
 import { readPowerNetwork, type PowerElement, type PowerSource } from "../power-system/network";
 import { layoutPowerNetwork } from "../power-system/layout";
-import { maxAcBuses, maxAcElements } from "../power-system/ac-power-flow";
+import { maxAcBuses, maxAcElements, solveACPowerFlow } from "../power-system/ac-power-flow";
 import { exampleRingConfiguration, exampleRingDiagram } from "../power-system/ring-example";
+import { appendPowerEquipment, removePowerEquipment } from "../power-system/author";
+import { calculateOverlayReadings, defaultPowerOverlayLayers } from "../power-system/flow-overlay";
 import type { Language } from "../types";
 import { TransformerEquivalentPanel } from "./TransformerEquivalentPanel";
 import { LineEquivalentPanel } from "./LineEquivalentPanel";
 import { PowerLoadParameters } from "./PowerLoadParameters";
 import { ACPowerFlowPanel } from "./ACPowerFlowPanel";
+import { PowerFlowOverlay } from "./PowerFlowOverlay";
+import { PowerNetworkAuthor } from "./PowerNetworkAuthor";
+import { PowerOverlayControls } from "./PowerOverlayControls";
 import { RingFlowPanel } from "./RingFlowPanel";
 import { RadialFlowPanel } from "./RadialFlowPanel";
 import PowerEquipmentParameters from "./PowerEquipmentParameters";
@@ -27,7 +32,7 @@ const initial: PowerConfiguration = { network: examplePowerNetwork, catalogue: {
 type Study = "radial" | "ring" | "custom";
 const copy = {
   ru: {
-    study: "Учебная сеть", radial: "Радиальная сеть", ring: "Кольцевая сеть", customStudy: "Своя сеть", importNetwork: "Импорт сети JSON", networkError: "Проверьте документ сети.", device: "Оборудование", type: "Тип оборудования", unassigned: "Тип не выбран", import: "Импорт типов JSON",
+    study: "Учебная сеть", radial: "Радиальная сеть", ring: "Кольцевая сеть", customStudy: "Своя сеть", importNetwork: "Импорт сети JSON", createNetwork: "Создать свою сеть", openNetwork: "Открыть свою сеть", networkError: "Проверьте документ сети.", device: "Оборудование", type: "Тип оборудования", unassigned: "Тип не выбран", import: "Импорт типов JSON",
     advanced: "Дополнительно", length: "Длина, km", circuits: "Параллельные цепи", units: "Параллельные трансформаторы",
     tap: "Позиция отпайки", voltages: "Напряжение", target: "Узел или источник", preset: "Уровень напряжения",
     custom: "Своё значение", value: "Напряжение, kV", base: "Каталожные параметры", override: "Переопределено в этой схеме",
@@ -35,7 +40,7 @@ const copy = {
     angle: "Угол источника, °", source: "Питающий источник", transformer: "Трансформатор", line: "Линия", load: "Нагрузка", switch: "Коммутационный аппарат",
   },
   uk: {
-    study: "Навчальна мережа", radial: "Радіальна мережа", ring: "Кільцева мережа", customStudy: "Власна мережа", importNetwork: "Імпорт мережі JSON", networkError: "Перевірте документ мережі.", device: "Обладнання", type: "Тип обладнання", unassigned: "Тип не вибрано", import: "Імпорт типів JSON",
+    study: "Навчальна мережа", radial: "Радіальна мережа", ring: "Кільцева мережа", customStudy: "Власна мережа", importNetwork: "Імпорт мережі JSON", createNetwork: "Створити власну мережу", openNetwork: "Відкрити власну мережу", networkError: "Перевірте документ мережі.", device: "Обладнання", type: "Тип обладнання", unassigned: "Тип не вибрано", import: "Імпорт типів JSON",
     advanced: "Додатково", length: "Довжина, km", circuits: "Паралельні ланцюги", units: "Паралельні трансформатори",
     tap: "Позиція відгалуження", voltages: "Напруга", target: "Вузол або джерело", preset: "Рівень напруги",
     custom: "Власне значення", value: "Напруга, kV", base: "Каталожні параметри", override: "Перевизначено в цій схемі",
@@ -65,6 +70,15 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   const [study, setStudy] = useState<Study>("radial");
   const saved = useRef<Record<Study, PowerConfiguration>>({ radial: initial, ring: exampleRingConfiguration, custom: initial });
   const [customDiagram, setCustomDiagram] = useState<string | null>(null);
+  const [acRequested, setAcRequested] = useState(false);
+  const [layers, setLayers] = useState(() => new Set(defaultPowerOverlayLayers));
+  const acCalculation = useMemo(() => {
+    if (!acRequested) return null;
+    try { return { result: solveACPowerFlow(configuration) }; }
+    catch (error) { return { error: error instanceof Error ? error.message : "" }; }
+  }, [acRequested, configuration]);
+  const overlayReadings = useMemo(() => acCalculation?.result && calculateOverlayReadings(configuration, acCalculation.result),
+    [acCalculation, configuration]);
   const [ready, setReady] = useState(false);
   const [equipmentId, setEquipmentId] = useState("L1");
   const [voltageTarget, setVoltageTarget] = useState("bus:B1");
@@ -96,7 +110,33 @@ export default function PowerSystemLab({ language }: { language: Language }) {
     setVoltageTarget(firstBus ? "bus:" + firstBus.id : "");
     setCustomVoltage(false);
     setError("");
+    setAcRequested(false);
     setStudy(next);
+  }
+
+  function openCustom() {
+    if (customDiagram) {
+      openStudy("custom", saved.current.custom);
+      return;
+    }
+    const network = readPowerNetwork({ schemaVersion: 1, buses: [{ id: "B1", nominalKv: 110 }], elements: [] });
+    setCustomDiagram(layoutPowerNetwork(network));
+    openStudy("custom", { ...current.current, network, overrides: new Map() });
+  }
+
+  function editCustom(change: (network: PowerConfiguration["network"]) => PowerConfiguration["network"]) {
+    return update(previous => {
+      const network = change(previous.network);
+      const next = changePowerNetwork(previous, network);
+      setCustomDiagram(layoutPowerNetwork(network));
+      const firstEquipment = network.elements.find(item => item.kind === "line" || item.kind === "transformer");
+      if (firstEquipment && !network.elements.some(item => item.id === equipmentId)) setEquipmentId(firstEquipment.id);
+      if (!network.buses.some(bus => "bus:" + bus.id === voltageTarget) &&
+          !network.elements.some(item => item.kind === "source" && "source:" + item.id === voltageTarget)) {
+        setVoltageTarget(network.buses[0] ? "bus:" + network.buses[0].id : "");
+      }
+      return next;
+    }, words.networkError);
   }
 
   const network = configuration.network;
@@ -142,6 +182,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
           <option value="radial">{words.radial}</option><option value="ring">{words.ring}</option>
           {customDiagram && <option value="custom">{words.customStudy}</option>}
         </select></label>
+        {study !== "custom" && <button type="button" onClick={openCustom}>{customDiagram ? words.openNetwork : words.createNetwork}</button>}
         <button type="button" onClick={() => networkInput.current?.click()}>{words.importNetwork}</button>
         <input ref={networkInput} type="file" hidden aria-label={words.importNetwork} accept=".json,application/json"
           onChange={async event => {
@@ -159,6 +200,9 @@ export default function PowerSystemLab({ language }: { language: Language }) {
             } catch { setError(words.networkError); }
           }} />
       </section>
+      {study === "custom" && <PowerNetworkAuthor network={network} language={language}
+        onAppend={input => editCustom(network => appendPowerEquipment(network, input))}
+        onRemove={id => editCustom(network => removePowerEquipment(network, id))} />}
       <CircuitEditor language={language} embedded inspectOnly initial={examplePowerDiagram}
         activeDocument={study === "custom" ? customDiagram ?? examplePowerDiagram : study === "ring" ? exampleRingDiagram : examplePowerDiagram}
         selectedComponentId={equipmentId}
@@ -174,14 +218,18 @@ export default function PowerSystemLab({ language }: { language: Language }) {
             return element ? { "aria-label": words[element.kind] + " " + element.id } : {};
           },
           overlay(drawing) {
-            return network.buses.map(({ id, nominalKv }) => {
-              const point = drawing.junctionPositions[id];
-              if (!point) return null;
-              return <g key={id} data-power-bus={id} data-nominal-kv={nominalKv}>
-                <text x={point.x} y={point.y - 19} textAnchor="middle">{id}</text>
-                <text x={point.x} y={point.y + 23} textAnchor="middle">{formatEngineeringNumber(nominalKv, language) + " kV"}</text>
-              </g>;
-            });
+            return <>
+              {network.buses.map(({ id, nominalKv }) => {
+                const point = drawing.junctionPositions[id];
+                if (!point) return null;
+                const nominal = !overlayReadings || !layers.has("voltage") || overlayReadings.unpowered.has(id);
+                return <g key={id} data-power-bus={id} data-nominal-kv={nominalKv}>
+                  <text x={point.x} y={point.y - 19} textAnchor="middle">{id}</text>
+                  {nominal && <text x={point.x} y={point.y + 23} textAnchor="middle">{formatEngineeringNumber(nominalKv, language) + " kV"}</text>}
+                </g>;
+              })}
+              {overlayReadings && <PowerFlowOverlay drawing={drawing} readings={overlayReadings} layers={layers} language={language} />}
+            </>;
           },
         }} />
       <div className="power-inspectors">
@@ -275,7 +323,14 @@ export default function PowerSystemLab({ language }: { language: Language }) {
       </section>)}
       {study === "ring" && <RingFlowPanel configuration={configuration} language={language} />}
       {study === "radial" && <RadialFlowPanel configuration={configuration} language={language} />}
-      <ACPowerFlowPanel key={study} configuration={configuration} language={language} />
+      <ACPowerFlowPanel result={acCalculation?.result} issue={acCalculation?.error}
+        enabled={acRequested} onCalculate={() => setAcRequested(true)} language={language} />
+      {overlayReadings && <PowerOverlayControls language={language} readings={overlayReadings} layers={layers} selectedId={equipmentId}
+        onToggle={layer => setLayers(previous => {
+          const next = new Set(previous);
+          if (next.has(layer)) next.delete(layer); else next.add(layer);
+          return next;
+        })} />}
       {error && <p role="alert">{error}</p>}
     </div>
   </fieldset>;

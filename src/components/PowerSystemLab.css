@@ -32,3 +32,13 @@
 .power-flow-table table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 .power-flow-table caption,.power-flow-table :is(th,td){text-align:start;padding:.35rem .55rem;white-space:nowrap}
 .power-flow-table :is(th,td){border-bottom:1px solid var(--line)}
+.power-flow-overlay text{font-size:12px;font-weight:650;fill:currentColor;stroke:var(--surface-elevated);stroke-width:3px;paint-order:stroke fill}
+.power-flow-active{color:var(--red)}
+.power-flow-reactive{color:var(--blue)}
+.power-flow-warning{color:var(--red)}
+.power-overlay-layers{display:flex;flex-wrap:wrap;gap:.45rem .9rem}
+.power-overlay-layers label{display:flex;align-items:center;gap:.35rem;min-height:44px}
+.power-overlay-layers input{width:1rem;min-height:0}
+.power-overlay-details{display:grid;gap:.4rem}
+.power-author form{display:grid;gap:.65rem;margin:.65rem 0}
+.power-author summary{cursor:pointer}

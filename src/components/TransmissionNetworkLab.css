@@ -45,7 +45,7 @@
 @media(max-width:390px){.network-speed-choice{gap:2px;font-size:.65rem}.network-lab .network-speed-choice select{padding-inline:2px}.network-lab .network-toolbar button{font-size:.76rem}}
 @media(max-height:480px){.network-timing>div{max-height:40dvh;overflow:auto}}
 
-.network-lab { display:grid; align-items:start; gap:12px; }
+.network-lab > .network-plot-grid { display:grid; align-items:start; gap:12px; }
 .network-lab .network-workbench, .network-measurements { min-width:0; }
 .network-lab .network-measurements { padding:0; }
 .network-measurements-title { margin:0 0 6px; font-size:1.15rem; }

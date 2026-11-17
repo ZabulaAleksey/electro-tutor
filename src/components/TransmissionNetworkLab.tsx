@@ -400,7 +400,8 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    live={mode==="live"} time={time} onMode={setMode} diodePoint={diodePoint} onDuration={durationS=>edit({...model,durationS})}/>,
  });
  const selectedPartId = useMemo(() => archivedPartId(parseCircuit(editorSeed).drawing, selected, model.load), [editorSeed, selected, model.load]);
- return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab network-plot-grid" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
+ return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
+  <div className="network-plot-grid">
   <section className="network-workbench" aria-label={ru?"Конструктор линий":"Конструктор ліній"}>
    <CircuitEditor key={editorRevision} language={language} embedded mode={transientCircuitMode} initial={editorSeed} activeDocument={activeCircuit} initialSelection={selectedPartId}
     onCalculate={calculateCircuit} readings={readings} extension={lineOperations}
@@ -543,5 +544,6 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    </details>
    </div>
   </section>
+  </div>
  {navigationDialog}</div></fieldset>;
 }

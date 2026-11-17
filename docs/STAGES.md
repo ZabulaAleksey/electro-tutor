@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-029
+- Stage ID: ET-UNIVERSAL-030
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -358,18 +358,30 @@
 
 ## ET-UNIVERSAL-029 — Stage 29. Physical switching and normally-open ring
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 28 verified. Наложение отражает текущий физический режим и принятые параметры объектов.
 - Goal: открывать и закрывать аппарат в физическом документе. Показывать состояние символа и автоматически пересчитывать режим. Разрезы P и Q отображать отдельно как признаки расчёта.
 - Evals: нормально-разомкнутое кольцо даёт радиальную связность и результаты двух решателей. Закрытие аппарата образует цикл и даёт отдельный ток аппарата. При повторном открытии цикл исчезает. В отдельном учебном кольце условный разрез оставляет три ветви и не создаёт аппарат.
 - Deferred: телефонный вид и итоговый кросс-режимный прогон.
 - User actions: none
-- NEXT: stage29-physical-switching
+- Evidence: 736 Vitest, 50 локальных и 30 Cloudflare Chromium, 2 production smoke, check/lint/build PASS. Замыкание Q1 создало цикл, обновило символ, напряжение B4 и протекающий ток. Размыкание вернуло радиальную сеть. Независимый условный разрез Q сохранил физическое кольцо и отобразил пунктирный маркер. SHA 96d599a1422fde932d3e3048fc8a73ddadde5ef7. Preview https://175a6f0d.electrotutor.pages.dev.
+- NEXT: ET-UNIVERSAL-030
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-030 — Stage 30. Mobile power-system layout
+
+- Status: in_progress
+- Entry: Stage 29 verified. Схема показывает рабочие потоки, состояние аппаратов и условные разрезы.
+- Goal: сохранить читаемость схемы на телефоне, дать компактные напряжения и сведения о ветви по касанию. Различать касание и панорамирование.
+- Evals: сенсорный Chromium 390 × 844 px, украинская страница, локальная горизонтальная прокрутка, N шин, касание физической ветви и обновление показаний без горизонтального переполнения документа.
+- Deferred: полный межрежимный прогон и выпуск.
+- User actions: none
+- NEXT: stage30-mobile-power
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 29,
+  "state_revision": 30,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -388,7 +400,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "0e74f380c378754ac0e805e34cf2ecf640edb041",
+      "checkpoint": "96d599a1422fde932d3e3048fc8a73ddadde5ef7",
       "ownership": [
         "src",
         "specs",
@@ -428,8 +440,8 @@
     {"id":"ET-UNIVERSAL-026","master_id":"ET-UNIVERSAL-MASTER-V2","title":"General Ybus AC power flow","status":"verified","predecessors":["ET-UNIVERSAL-025"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"600c9e966e3a8f59432013c4afa43aa2e2fc4c41","checkpoint_after":"f49752f3ff56a972122adfeedc0464d488ef8a9e","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ac-power-flow.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-022","POWER-023"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-027","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Ring educational vs general-solver equivalence","status":"verified","predecessors":["ET-UNIVERSAL-026"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f49752f3ff56a972122adfeedc0464d488ef8a9e","checkpoint_after":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/ring-agreement.ts","src/components/RingFlowPanel.tsx"],"requirements":["POWER-024","POWER-025"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-028","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-flow overlay","status":"verified","predecessors":["ET-UNIVERSAL-027"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"28888dd9c8cb7452dd832ffef631a8dbf8d04753","checkpoint_after":"0e74f380c378754ac0e805e34cf2ecf640edb041","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/power-system/flow-overlay.ts"],"requirements":["POWER-026","POWER-027"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"running","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"0e74f380c378754ac0e805e34cf2ecf640edb041","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/power-system/normally-open.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-028","POWER-029"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"queued","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-UNIVERSAL-029","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Physical switching and normally-open ring","status":"verified","predecessors":["ET-UNIVERSAL-028"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"0e74f380c378754ac0e805e34cf2ecf640edb041","checkpoint_after":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/power-system.spec.md","src/power-system/normally-open.ts","src/components/PowerSystemLab.tsx"],"requirements":["POWER-028","POWER-029"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-030","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Mobile power-system layout","status":"running","predecessors":["ET-UNIVERSAL-029"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"96d599a1422fde932d3e3048fc8a73ddadde5ef7","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/power-system.spec.md","src/components/PowerSystemLab.tsx","src/circuit/CircuitEditor.tsx"],"requirements":["POWER-030","POWER-031"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-031","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cross-mode regression","status":"queued","predecessors":["ET-UNIVERSAL-030"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-032","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Production readiness","status":"queued","predecessors":["ET-UNIVERSAL-031"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false}
   ],
@@ -442,7 +454,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Implement actual device switching and separate it from mathematical calculation cuts on the same schematic.",
+  "next_action": "Keep the one-line power diagram readable on handsets and show the selected branch measurements on tap.",
   "integration": {
     "required": false,
     "reason": ""

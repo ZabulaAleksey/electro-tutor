@@ -3110,14 +3110,14 @@
         "POWER-028",
         "POWER-029"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Physical operation and separate mathematical cut markers",
       "security": "Validate switch identity and preserve complete typed topology",
       "a11y": "Visible bilingual controls and physical switch state",
       "observability": "Radial or meshed topology, active switch current and independent cut marker",
       "action": "Close and reopen the normally open ring, verify recomputation, and place an independent mathematical cut.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/normally-open.ts",
         "src/power-system/network.ts",
@@ -3133,6 +3133,24 @@
       "e2e": [
         "tests/e2e/power-system-switching.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-030",
+        "POWER-031"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Responsive one-line scroller and touch-selected readings",
+      "security": "Keep selection and accepted network state separate",
+      "a11y": "Scrollable drawing, tactile controls and live textual measurements",
+      "observability": "Compact bus voltage badges and the selected physical branch",
+      "action": "Use the Ukrainian mobile lab, solve the ring, scroll its drawing and tap a branch to read P and Q.",
+      "gap": "Stage 30 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

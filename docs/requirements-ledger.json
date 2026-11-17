@@ -2458,17 +2458,23 @@
         "CE-014",
         "CE-015"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "circuit-engine",
       "runtime": "Passive reduction on explicit netlist",
       "security": "Existing topology validation and finite parameters",
       "a11y": "Domain engine with no UI surface",
       "observability": "Original component IDs and reduction diagnostics",
-      "gap": "Stage 6 implementation evidence pending.",
+      "gap": "The live lab consumer is tracked in Stage 7.",
       "action": "Verify all six modes, protected topology, and compatible state.",
-      "code": [],
-      "unit": [],
-      "integration": [],
+      "code": [
+        "src/circuit/rlc-reduction.ts"
+      ],
+      "unit": [
+        "src/circuit/rlc-reduction.test.ts"
+      ],
+      "integration": [
+        "src/circuit/rlc-reduction.test.ts"
+      ],
       "e2e": []
     }
   ]

@@ -132,3 +132,5 @@ ET-14.2 reconciliation 2026-10-02: approved ADR-033 and `REM-001..005` bounded S
 | FR-373 | release-readiness-run5.spec.md / ADR-050 | generated mvp-edge-404 + guarded _routes |458unit/6new executable, preview24HTTP/90SHA/13browser; primary24HTTP+35historic+13browser+16math+PWA upgrade PASS | STAGES REL5-CACHE |
 
 LINE-UX-034–035 → transmission-line-transient SPEC → режим, выбор окончания, Network, Worker и архив v5 → network-stage5.test.ts, network-edit.test.ts, circuit-archive.test.ts, transient-starter.spec.ts, transient-ending.spec.ts и transmission-archive-migration.spec.ts.
+
+CE-013–015 → circuit-engine SPEC → `src/circuit/rlc-reduction.ts` → `src/circuit/rlc-reduction.test.ts`, включая расчёт через transmissionCircuitAdapter и simulateNetwork.

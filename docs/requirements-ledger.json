@@ -3139,14 +3139,14 @@
         "POWER-030",
         "POWER-031"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Responsive one-line scroller and touch-selected readings",
       "security": "Keep selection and accepted network state separate",
       "a11y": "Scrollable drawing, tactile controls and live textual measurements",
       "observability": "Compact bus voltage badges and the selected physical branch",
       "action": "Use the Ukrainian mobile lab, solve the ring, scroll its drawing and tap a branch to read P and Q.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/circuit/CircuitEditor.tsx",
         "src/components/PowerMobileReadout.tsx",
@@ -3162,6 +3162,24 @@
       "e2e": [
         "tests/e2e/power-system-mobile.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-032",
+        "POWER-033"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Four isolated live adapters in one diagram editor",
+      "security": "Reject mode-incompatible electrical inputs at their adapter boundaries",
+      "a11y": "One usable editor and mode-owned controls on each route",
+      "observability": "Explicit editor mode tag, palette and accepted calculation",
+      "action": "Visit all four labs, observe their legitimate electrical outputs, and reject unrelated mode data.",
+      "gap": "Stage 31 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

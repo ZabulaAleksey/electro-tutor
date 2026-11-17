@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-001
+- Stage ID: ET-UNIVERSAL-002
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -36,6 +36,19 @@
 - User actions: none
 - NEXT: ET-UNIVERSAL-002
 - Next action: Stage 2. Уточнить контракт topology/geometry. Критерий: идентичность связности и ID после round-trip существующих схем. Рекомендуемый режим FRONTIER / High.
+
+## ET-UNIVERSAL-002 — Stage 2. Topology contract
+
+- Status: partial
+- Entry: ET-UNIVERSAL-001 verified и запушен в docs/universal-labs-stage-0 на 11fab02. Утверждённые требования CE-001, CE-003, CE-006, CE-007 и действующий ADR об ID выводов.
+- Scope: канонические компоненты, выводы, junctions, провода, производные сети и граница геометрии. Уточнение SPEC и сквозные проверки действующих кодеков. Пользовательский интерфейс, форматы на диске и решатели сохраняют действующие контракты.
+- Runnable slice: пользователь открывает существующую схему, меняет её геометрию, экспортирует и открывает JSON. Соединения, ID, параметры и одиночные выводы остаются теми же. Архивы v2–v5 проходят через прежний архивный адаптер. Неподдерживаемый файл отклоняется до замены схемы.
+- Acceptance: сравнить полную топологию и netlist после каждого round-trip, проверить входы v1/v2 и перенос архивов линии, выполнить действующие Chromium-сценарии редактора и линии.
+- Evidence: контракт уточнён в circuit-engine.spec.md. Локально PASS: 594 Vitest (83 файла), 13 аналитических задач / 49 утверждений, 21 Chromium редактора и архивов, Astro check и ESLint. Четыре дополнительных evals проверяют импорт v1/v2, экспорт v2, сохранение ID и netlist, одиночные концы и ретрассировку при перемещении. Chromium использовал проверенный артефакт Stage 1 с той же runtime-ревизией.
+- Completion sync: обновлены SPEC, STAGES, ROADMAP, TESTING и TRACEABILITY. Сверены README, ARCHITECTURE, ADR-060, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context. Изменения подключения и рекурсивные ветви относятся к Stage 3.
+- User actions: ET-UNIVERSAL-002-PUSH | PENDING | Для публикации Stage 2 дать команду на push подготовленного коммита в текущую ветку. Ожидаемое evidence: совпадение локального и удалённого SHA. Разблокирует завершение Stage 2 по мастер-промпту.
+- NEXT: publish-stage2
+- Next action: после подтверждённого push закрыть Stage 2. Кандидат следующего запуска ET-UNIVERSAL-003: рекурсивные ветвления и контрольные T/П, лестница, параллельные RLC, мост и масштаб. Рекомендуемый режим FRONTIER / High.
 
 ## final-qualification
 

@@ -30,6 +30,12 @@ useLineInk фиксирует обратную матрицу SVG для при�
 - GREEN: 24/24 на новой Windows-сборке. По шесть прогонов новой регрессии, первого касания «Вставить» и каждого из двух вариантов ухода пальца с кнопки.
 - Полный verify: PASS на Windows с CI=true. Frozen install, типы, ESLint, 590 Vitest, 13 независимых аналитических задач (49 утверждений), 367 root Chromium / 6 SKIP, учебная сборка, 2 production smoke и HIGH audit.
 
+## ET-UNIVERSAL-002 — round-trip канонической топологии
+
+topology-contract.test.ts загружает примеры RLC и длинной линии в v1/v2, экспортирует их в v2 и открывает снова. Сравниваются компоненты, упорядоченные выводы, параметры, узлы, пары концов и ID проводов, netlist, а также snap после миграции. Одиночные выводы и явный несоединённый узел остаются разными сетями. Перемещение резистора меняет трассы при прежней электрической топологии.
+
+PASS: 594 Vitest в 83 файлах, 13 аналитических задач / 49 утверждений, 21 Chromium на проверенном артефакте Stage 1, включая четыре версии архивов. Astro check: 0 ошибок, 0 предупреждений, 3 подсказки. ESLint и context route прошли. Полный verify из Stage 1 относится к той же версии runtime.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

@@ -1,5 +1,7 @@
 # Traceability
 
+CE-001, CE-003, CE-006 → канонический контракт топологии Circuit Engine → topology, drawing, document → topology-contract.test.ts, topology.test.ts, document.test.ts и circuit-editor.spec.ts.
+
 CE-007 → circuit-engine SPEC → circuit-archive, line-archive-document, CircuitEditor и расчётный Worker → circuit-archive.test.ts и transmission-archive-migration.spec.ts.
 
 CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.

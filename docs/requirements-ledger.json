@@ -2507,6 +2507,23 @@
         "tests/e2e/transient-reduction.spec.ts",
         "tests/e2e/transmission-archive-migration.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-037"
+      ],
+      "status": "PLANNED",
+      "domain": "transmission-line",
+      "runtime": "Responsive spatial plots and wave layering",
+      "security": "Existing local SVG export",
+      "a11y": "Shared scales and responsive controls",
+      "observability": "Rendered plot positions and SVG stroke order",
+      "gap": "Stage 8 desktop and mobile evidence pending.",
+      "action": "Verify coordinated scales, layering, mobile layout and SVG export.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

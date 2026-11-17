@@ -58,6 +58,7 @@ export function useLineInk(props: Props): Pick<CircuitBoardExtension, "overlay" 
   const [kindOverride, setKindOverride] = useState<SketchKind | "">("");
   const [message, setMessage] = useState("");
   const canvas = useRef<SVGSVGElement>(null);
+  const strokeTransform = useRef<DOMMatrix | null>(null);
   const preview = useRef<SVGPolylineElement>(null);
   const touch = useRef<{ id: number; start: Point } | null>(null);
   const touchClick = useRef(false);
@@ -69,7 +70,12 @@ export function useLineInk(props: Props): Pick<CircuitBoardExtension, "overlay" 
   const kind = kindOverride || (guess && allowed.includes(guess.kind) ? guess.kind : "");
   const stroke = usePointerStroke({
     svgRef: canvas, previewRef: preview, enabled: drawingInk, pointLimit: 256,
-    toPoint: event => canvas.current ? svgPoint(canvas.current, event.clientX, event.clientY) : { x: 0, y: 0 },
+    toPoint: event => {
+      const { clientX, clientY } = event;
+      if (!canvas.current) return { x: 0, y: 0 };
+      const transform = strokeTransform.current;
+      return transform ? new DOMPoint(clientX, clientY).matrixTransform(transform) : svgPoint(canvas.current, clientX, clientY);
+    },
     onCommit: points => {
       if (ink.length >= 6) return;
       setInk([...ink, boundedStroke(points)]);
@@ -87,6 +93,10 @@ export function useLineInk(props: Props): Pick<CircuitBoardExtension, "overlay" 
   }
   function start(event: PointerEvent<SVGSVGElement>) {
     canvas.current = event.currentTarget;
+    if (event.isPrimary && event.button === 0 && !event.altKey) {
+      // Keep a single coordinate frame if layout moves the canvas during a stroke.
+      strokeTransform.current = canvas.current.getScreenCTM()?.inverse() ?? null;
+    }
     stroke.onPointerDown(event);
   }
   function reject() {

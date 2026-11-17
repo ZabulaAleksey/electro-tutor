@@ -25,17 +25,17 @@
 
 ## ET-UNIVERSAL-001 — Stage 1. Inventory editor architecture
 
-- Status: partial
+- Status: verified
 - Entry: ET-UNIVERSAL-000 completed на 1273ea3, базовая runtime-ревизия 5379383. Мастер-промпт v2 § 24, Stage 1. Рабочий маршрут: существующие локальные сборка и Chromium. Класс задачи CHEAP / Medium.
 - Scope: архитектурная карта CircuitEditor, длинной линии и LC-дерева, границы импорта и расчёта, минимальный план переиспользования. Контракты CE-001…008, LC-001…004 и действующая SPEC переходной линии. Реализация и изменение контрактов относятся к последующим этапам.
 - Result: [карта потоков, ограничения и план](ARCHITECTURE.md#инвентаризация-stage-1--универсальные-лаборатории). Первый обратимый кандидат — отдельная проекция LC-дерева с двумя явными внешними выводами и сохранением пути/ID, прежнего JSON и Z(s).
 - Evals: RLC → netlist → JSON round-trip и атомарный отказ. Архив линии v2–v5 → редактирование секции → Worker → показания → reload и прежняя физическая модель при экспорте. Изменение LC → Z(s) → частота резонанса, обмен JSON и отказ от неверного импорта. Подробности в TESTING.
-- Evidence: карта и план готовы. Read-only review, 23/23 целевых Chromium, 590 Vitest, типы, lint, учебная сборка, 2/2 production smoke и HIGH audit PASS. Полный Windows Chromium: 365 PASS, 6 SKIP, 1 FAIL. Изолированный повтор: 5 PASS, 1 FAIL. Входы, результаты и ограничения в [TESTING](TESTING.md#et-universal-001--проверки-архитектурной-карты).
-- Blockers: ET-UNIVERSAL-TOUCH-GATE. Диагностировать непостоянный пропуск исходного штриха в transmission-handwriting.spec.ts:208 на Windows до начала жеста «Вставить». Сверить координаты и доставку исходных pointer/CDP-событий в обоих вариантах. Для закрытия пройти оба сценария с сохранением действующих утверждений и получить успешный полный verify.
-- Completion sync: обновлены STAGES, ARCHITECTURE, TESTING, ROADMAP. Сверены README, действующие SPEC, DECISIONS, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES, TRACEABILITY и project-context. Runtime соответствует 5379383. Документальный коммит не требует новой выкладки.
+- Evidence: архитектурная карта и план, 23/23 целевых Chromium. Рукописный ввод: 3/3 RED, 24/24 GREEN. PASS на Windows с CI=true. Frozen install, типы, ESLint, 590 Vitest, 13 независимых аналитических задач (49 утверждений), 367 root Chromium / 6 SKIP, учебная сборка, 2 production smoke и HIGH audit. [Диагностика и результаты](TESTING.md#et-universal-touch-gate--стабильные-координаты-рукописного-штриха).
+- Blockers: none. ET-UNIVERSAL-TOUCH-GATE закрыт после фиксации координатной системы на время штриха.
+- Completion sync: обновлены STAGES, TESTING. Проверены README, ROADMAP, ARCHITECTURE, DECISIONS, DESIGN, SECURITY, API, DATA_MODEL, DEPENDENCIES, TRACEABILITY, project-context и действующие SPEC. Исправление и регрессия сохраняют LINE-UX-030/032.
 - User actions: none
-- NEXT: ET-UNIVERSAL-TOUCH-GATE
-- Next action: закрыть gate полного verify. Затем по отдельному запуску Stage 2 (ET-UNIVERSAL-002) уточнить контракт topology/geometry. Критерий: идентичность связности и ID после round-trip существующих схем. Рекомендуемый режим для Stage 2: FRONTIER / High.
+- NEXT: ET-UNIVERSAL-002
+- Next action: Stage 2. Уточнить контракт topology/geometry. Критерий: идентичность связности и ID после round-trip существующих схем. Рекомендуемый режим FRONTIER / High.
 
 ## final-qualification
 

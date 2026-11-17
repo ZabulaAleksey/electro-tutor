@@ -20,6 +20,16 @@ Windows, Node 22.23.1, pnpm 11.23.0, CI=true (один Chromium-воркер). F
 
 В полном pnpm verify:full root Chromium показал 365 PASS, 6 SKIP, 1 FAIL. В transmission-handwriting.spec.ts:208 вариант «after releasing outside» получил пустой «Распознанный элемент» вместо wire до начала жеста по «Вставить». Отдельный повтор двух вариантов с одним воркером и --repeat-each=3 дал 5 PASS и 1 FAIL на той же проверке, в варианте «after returning». Исходный код и принятые тесты совпадают с 5379383, для которого GitHub Pages run 44038295894 прошёл 366 Chromium. Текущий сбой Windows воспроизводится непостоянно. Причина пропуска штриха пока не установлена.
 
+### ET-UNIVERSAL-TOUCH-GATE — стабильные координаты рукописного штриха
+
+В исходных запусках Windows касания попадали на SVG. Инструментирование зафиксировало смещение экранной матрицы SVG на 4 CSS px между pointermove и pointerup. Последнее событие повторяло прежние экранные координаты, но с новой матрицей добавляло короткий обратный сегмент. Из-за него критерий прямолинейности отвергал штрих. Предыдущий полный прогон и изолированные повторы выше относятся к версии до исправления.
+
+useLineInk фиксирует обратную матрицу SVG для принятого начала первичного штриха и использует её до отпускания или отмены. Следующий штрих получает свою матрицу. Правила распознавания, сохранение схемы и жест по «Вставить» используют прежние контракты LINE-UX-030 и LINE-UX-032. Изменение проверяет реальное смещение SVG на 12 px до отпускания, после которого штрих должен распознаться как wire и сделать кнопку «Вставить» доступной.
+
+- RED: 3/3 ожидаемых падения нового теста на прежней сборке.
+- GREEN: 24/24 на новой Windows-сборке. По шесть прогонов новой регрессии, первого касания «Вставить» и каждого из двух вариантов ухода пальца с кнопки.
+- Полный verify: PASS на Windows с CI=true. Frozen install, типы, ESLint, 590 Vitest, 13 независимых аналитических задач (49 утверждений), 367 root Chromium / 6 SKIP, учебная сборка, 2 production smoke и HIGH audit.
+
 ## Circuit download compatibility in GitHub Pages CI
 
 Run 43599889619 failed seven root Chromium scenarios on Download.path() over the remote transport. The existing circuit reload test reproduced the error locally through a Playwright WebSocket server. Saving each export via Download.saveAs() to testInfo.outputPath() passed the same seven remote scenarios, including line-archive v2 through v5. Targeted ESLint and all 590 Vitest tests passed.

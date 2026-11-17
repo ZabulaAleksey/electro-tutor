@@ -190,6 +190,38 @@ test("the first touch on Insert commits the drawn wire between its terminals", a
   } finally { await context.close(); }
 });
 
+test("recognizes a straight touch stroke when the canvas shifts before release", async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  try {
+    const page = await context.newPage();
+    await page.goto(route);
+    await expect(lab(page)).toHaveAttribute("data-calculation-ready", "true");
+    await drawing(page).tap();
+    await page.evaluate(() => document.fonts.ready);
+    const canvas = page.locator("[data-network-canvas]");
+    await canvas.scrollIntoViewIfNeeded();
+    const rect = (await canvas.boundingBox())!;
+    const start = { x: rect.x + 90, y: rect.y + 205 };
+    const end = { x: rect.x + 160, y: rect.y + 275 };
+    const touch = await context.newCDPSession(page);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
+
+    const distance = await canvas.evaluate(svg => {
+      const board = svg as SVGSVGElement;
+      const before = board.getScreenCTM()!.f;
+      board.style.translate = "0 12px";
+      return board.getScreenCTM()!.f - before;
+    });
+    expect(distance).toBeCloseTo(12);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await expect(kind(page)).toHaveValue("wire");
+    await expect(insert(page)).toBeEnabled();
+  } finally {
+    await context.close();
+  }
+});
+
 for (const returnToButton of [false,true]) {
   test("sliding a finger off Insert leaves the stroke pending " + (returnToButton ? "after returning" : "after releasing outside"),async({browser})=>{
     const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});

@@ -1,4 +1,4 @@
-import { netlist, type CircuitTopology, type ElementId } from "../circuit/topology";
+import { netlist, type CircuitComponent, type CircuitTopology, type ElementId } from "../circuit/topology";
 import {
   add, exactQuotient, gcd, multiply, reduce, scale, shift,
   type Fraction, type Polynomial,
@@ -7,6 +7,15 @@ import { isNominal } from "./reactive-two-port";
 
 export const MAX_LC_GRAPH_COMPONENTS = 24;
 export const MAX_LC_GRAPH_NETS = 12;
+
+export type LcTicks = { numerator: bigint; denominator: bigint };
+
+export function lcNominalTicks({ kind, parameters }: CircuitComponent): LcTicks {
+  const value = kind === "l" ? parameters.henry : parameters.farad;
+  const nominal = typeof value === "number" ? value * (kind === "l" ? 1000 : 1_000_000) : undefined;
+  if (!isNominal(nominal)) throw Error("invalid-lc-value");
+  return { numerator: BigInt(Math.round(nominal * 1000)), denominator: 1n };
+}
 
 export type LcPortAnalysis =
   | { kind: "open" | "short" }
@@ -39,6 +48,7 @@ function determinant(matrix: readonly Polynomial[][]): Polynomial {
  */
 export function analyzeLcTopology(
   topology: CircuitTopology, port: readonly [ElementId, ElementId],
+  readTicks: (part: CircuitComponent) => LcTicks = lcNominalTicks,
 ): LcPortAnalysis {
   if (topology.components.length > MAX_LC_GRAPH_COMPONENTS) throw Error("lc-graph-limit");
   const nets = netlist(topology);
@@ -47,12 +57,16 @@ export function analyzeLcTopology(
   const reference = netOf.get(port[1]);
   if (source === undefined || reference === undefined || port[0] === port[1]) throw Error("invalid-lc-port");
 
-  const branches = topology.components.map(({ kind, terminals, parameters }) => {
+  const branches = topology.components.map(part => {
+    const { kind, terminals } = part;
     if ((kind !== "l" && kind !== "c") || terminals.length !== 2) throw Error("invalid-lc-component");
-    const value = kind === "l" ? parameters.henry : parameters.farad;
-    const nominal = typeof value === "number" ? value * (kind === "l" ? 1000 : 1_000_000) : undefined;
-    if (!isNominal(nominal)) throw Error("invalid-lc-value");
-    return { from: netOf.get(terminals[0])!, to: netOf.get(terminals[1])!, kind, ticks: BigInt(Math.round(nominal * 1000)) };
+    const ticks = readTicks(part);
+    if (ticks.numerator <= 0n || ticks.denominator <= 0n) throw Error("invalid-lc-value");
+    const n = kind === "l" ? 1000n * ticks.denominator : ticks.numerator;
+    const d = kind === "l" ? ticks.numerator : 1_000_000n * ticks.denominator;
+    const common = gcd(n, d);
+    return { from: netOf.get(terminals[0])!, to: netOf.get(terminals[1])!, kind,
+      numerator: n / common, denominator: d / common };
   }).filter(branch => branch.from !== branch.to);
   if (source === reference) return { kind: "short" };
   const connected = new Set([source]);
@@ -68,13 +82,14 @@ export function analyzeLcTopology(
   const nodes = [source, ...[...connected].filter(node => node !== source && node !== reference)];
   const rowOf = new Map(nodes.map((node, index) => [node, index]));
 
-  // qY_L = 1000/ticks; qY_C = t*ticks/1_000_000. Clear denominators
-  // with a single exact multiplier shared by every matrix entry.
-  const weight = active.reduce((common, branch) => branch.kind === "l"
-    ? common / gcd(common, branch.ticks) * branch.ticks : common, 1_000_000n);
+  // qY_L = 1000/ticks; qY_C = t*ticks/1_000_000. Clear the
+  // rational denominators, including derived nominal values between ticks.
+  const weight = active.reduce((common, branch) =>
+    common / gcd(common, branch.denominator) * branch.denominator, 1n);
   const matrix = nodes.map(() => nodes.map<Polynomial>(() => [0n]));
-  for (const { from, to, kind, ticks } of active) {
-    const branch = kind === "l" ? [1000n * (weight / ticks)] : [0n, ticks * (weight / 1_000_000n)];
+  for (const { from, to, kind, numerator, denominator } of active) {
+    const coefficient = numerator * (weight / denominator);
+    const branch = kind === "l" ? [coefficient] : [0n, coefficient];
     const a = rowOf.get(from);
     const b = rowOf.get(to);
     if (a !== undefined) matrix[a][a] = add(matrix[a][a], branch);

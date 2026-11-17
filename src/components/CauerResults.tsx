@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatEngineeringValue } from "../engineering/format";
 import { cauerReactance, synthesizeCauerI, type CauerElement } from "../models/reactive-cauer-i";
+import { synthesizeCauerII } from "../models/reactive-cauer-ii";
 import type { LcPortAnalysis } from "../models/reactive-lc-graph";
 import { reactance, resonances, type Circuit } from "../models/reactive-two-port";
 import type { Language } from "../types";
@@ -21,16 +22,17 @@ function strength(element: CauerElement): string {
   return denominator === 1n ? String(numerator) : "(" + numerator + "/" + denominator + ")";
 }
 
-function fraction(elements: readonly CauerElement[]): string {
-  const terms = elements.map(element => strength(element) + "q");
+function fraction(elements: readonly CauerElement[], form: "i" | "ii"): string {
+  const terms = elements.map(element => strength(element) + (form === "i" ? "q" : "/q"));
   const full = terms.reduceRight((tail, term) => tail ? term + " + 1/(" + tail + ")" : term, "");
   return elements[0].placement === "series" ? full : "1/(" + full + ")";
 }
 
-export function CauerIResults({ result, cursor, language }: {
+export function CauerResults({ result, cursor, language, form }: {
   result: LcPortAnalysis;
   cursor: number | null;
   language: Language;
+  form: "i" | "ii";
 }) {
   const [open, setOpen] = useState(false);
   const disclosure = useRef<HTMLDetailsElement>(null);
@@ -40,24 +42,27 @@ export function CauerIResults({ result, cursor, language }: {
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
   const solution = useMemo(() => {
     if (!open || result.kind !== "finite") return null;
-    try { return synthesizeCauerI(result.impedance); } catch { return null; }
-  }, [open, result]);
+    try { return form === "i" ? synthesizeCauerI(result.impedance) : synthesizeCauerII(result.impedance); } catch { return null; }
+  }, [form, open, result]);
   const poles = useMemo(() => open && result.kind === "finite"
     ? resonances(result.impedance).filter(point => point.kind === "pole").map(point => point.omega) : [], [open, result]);
   const circuit = solution && asCircuit(solution.elements);
   const cursorValues = cursor !== null && solution && result.kind === "finite" && !poles.some(omega => Math.abs(cursor / omega - 1) < 1e-8)
     ? [reactance(result.impedance, cursor), cauerReactance(solution.elements, cursor)] as const : null;
-  return <details ref={disclosure} suppressHydrationWarning data-cauer-i className="lc-panel lc-synthesis" onToggle={event => setOpen(event.currentTarget.open)}>
-    <summary>{t("Первая форма Кауэра", "Перша форма Кауера")}</summary>
+  return <details ref={disclosure} suppressHydrationWarning data-cauer-i={form === "i" ? "" : undefined} data-cauer-ii={form === "ii" ? "" : undefined} className="lc-panel lc-synthesis" onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary>{form === "i" ? t("Первая форма Кауэра", "Перша форма Кауера") : t("Вторая форма Кауэра", "Друга форма Кауера")}</summary>
     {result.kind !== "finite" && <p>{t("Для разомкнутого или закороченного порта синтез не требуется.",
       "Для розімкненого або закороченого порту синтез не потрібен.")}</p>}
     {open && result.kind === "finite" && !solution && <p role="status">{t(
       "Не удалось построить эквивалентную LC-лестницу с конечными положительными номиналами.",
       "Не вдалося побудувати еквівалентну LC-драбину зі скінченними додатними номіналами.")}</p>}
     {solution && circuit && <>
-      <p>{t("При извлечении старших степеней последовательно выделяются L и поперечно C.",
-        "Під час виділення старших степенів L стоять послідовно, а C під’єднуються поперечно.")}</p>
-      <p data-cauer-formula>Z(s) = {fraction(solution.elements)} Ω, q = s / (1000 rad/s)</p>
+      <p>{form === "i" ? t(
+        "При извлечении старших степеней последовательно выделяются L и поперечно C.",
+        "Під час виділення старших степенів L стоять послідовно, а C під’єднуються поперечно.") : t(
+        "При извлечении членов около нуля конденсаторы стоят последовательно, а катушки подключаются поперечно.",
+        "Під час виділення членів поблизу нуля конденсатори стоять послідовно, а котушки під’єднуються поперечно.")}</p>
+      <p data-cauer-formula>Z(s) = {fraction(solution.elements, form)} Ω, q = s / (1000 rad/s)</p>
       <div className="lc-synthesis-schematic"><ReactiveCircuitSchematic circuit={circuit} language={language} engineeringUnits /></div>
       <table aria-label={t("Номиналы формы Кауэра", "Номінали форми Кауера")}>
         <thead><tr><th scope="col">{t("Звено", "Ланка")}</th><th scope="col">{t("Соединение", "З’єднання")}</th>

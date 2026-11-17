@@ -2715,7 +2715,7 @@
       "gap": "None.",
       "code": [
         "src/models/reactive-cauer-i.ts",
-        "src/components/CauerIResults.tsx",
+        "src/components/CauerResults.tsx",
         "src/components/ReactiveCircuitSchematic.tsx"
       ],
       "unit": [
@@ -2734,18 +2734,33 @@
         "LC-015",
         "LC-016"
       ],
-      "status": "PLANNED",
+      "status": "IMPLEMENTED",
       "domain": "reactive-one-port",
       "runtime": "Cauer II exact low-frequency ladder and equivalent LC graph view",
       "security": "Bounded reductions with exact equivalence and finite positive element values",
       "a11y": "RU/UK Cauer ladders and node-connectivity display",
       "observability": "Exact rational reconstruction, derived impedance and physical reactance",
       "action": "Verify Cauer II against exact and independent oracles and certify original and simplified graph impedance.",
-      "gap": "Stage 16 implementation and browser evidence pending.",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": []
+      "gap": "Hosted browser evidence is pending.",
+      "code": [
+        "src/models/reactive-cauer-ii.ts",
+        "src/components/CauerResults.tsx",
+        "src/models/reactive-lc-graph.ts",
+        "src/circuit/reactive-lc-simplification.ts",
+        "src/components/SimplifiedLcResults.tsx"
+      ],
+      "unit": [
+        "src/models/reactive-cauer-ii.test.ts",
+        "src/circuit/reactive-lc-simplification.test.ts"
+      ],
+      "integration": [
+        "src/models/reactive-cauer-ii.test.ts",
+        "src/circuit/reactive-lc-simplification.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/reactive-cauer-ii.spec.ts",
+        "tests/e2e/reactive-lc-simplification.spec.ts"
+      ]
     }
   ]
 }

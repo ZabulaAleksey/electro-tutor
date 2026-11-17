@@ -151,4 +151,6 @@ LC-008–009 → reactive-two-port SPEC → reactive-foster-i.ts + FosterResults
 
 LC-010–011 → reactive-two-port SPEC → reactive-foster-ii.ts + FosterResults → reactive-foster-ii.test.ts + reactive-foster-ii.spec.ts.
 
-LC-012–013 → reactive-two-port SPEC → reactive-cauer-i.ts + CauerIResults → reactive-cauer-i.test.ts + reactive-cauer-i.spec.ts.
+LC-012–013 → reactive-two-port SPEC → reactive-cauer-i.ts + CauerResults → reactive-cauer-i.test.ts + reactive-cauer-i.spec.ts.
+
+LC-014–016 → reactive-two-port SPEC → reactive-cauer-ii.ts + CauerResults + reactive-lc-simplification.ts + SimplifiedLcResults → reactive-cauer-ii.test.ts + reactive-lc-simplification.test.ts + соответствующие browser E2E.

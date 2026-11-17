@@ -3,8 +3,9 @@ import CircuitEditor from "../circuit/CircuitEditor";
 import { reactiveLcMode } from "../circuit/reactive-lc-mode";
 import type { Language } from "../types";
 import { ReactiveImpedanceResults } from "./ReactiveImpedanceResults";
-import { CauerIResults } from "./CauerIResults";
+import { CauerResults } from "./CauerResults";
 import { FosterResults } from "./FosterResults";
+import { SimplifiedLcResults } from "./SimplifiedLcResults";
 import "./ReactiveTwoPortLab.css";
 
 const initialDocument = reactiveLcMode.createDefaultDocument();
@@ -35,14 +36,14 @@ const words = {
 export default function ReactiveLcGraphLab({ language }: { language: Language }) {
   const copy = words[language];
   const [ready, setReady] = useState(false);
-  const [result, setResult] = useState(() => reactiveLcMode.readModel(initialDocument));
+  const [{ document, result }, setAccepted] = useState(() => ({ document: initialDocument, result: reactiveLcMode.readModel(initialDocument) }));
   const [cursor, setCursor] = useState<number | null>(null);
   const [error, setError] = useState("");
   useEffect(() => setReady(true), []);
 
   function calculate(document: string) {
     try {
-      setResult(reactiveLcMode.readModel(document));
+      setAccepted({ document, result: reactiveLcMode.readModel(document) });
       setCursor(null);
       setError("");
     } catch (failure) {
@@ -72,9 +73,11 @@ export default function ReactiveLcGraphLab({ language }: { language: Language })
             <p>{copy.nodeCount} {result.nodeCount}. Yₗ = 1/(sL), Y꜀ = sC.</p>
             <p>Y(s)U(s) = I(s), Z(s) = U₁ / I₁.</p>
           </details>}
+          <SimplifiedLcResults document={document} language={language} />
           <FosterResults result={result} cursor={cursor} language={language} form="i" />
           <FosterResults result={result} cursor={cursor} language={language} form="ii" />
-          <CauerIResults result={result} cursor={cursor} language={language} />
+          <CauerResults result={result} cursor={cursor} language={language} form="i" />
+          <CauerResults result={result} cursor={cursor} language={language} form="ii" />
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { defaultCircuitSettings, parseCircuit, serializeCircuit } from "./document";
 import { emptyDrawing, junctionAt, placeComponent, wireDrawing, type PartKind } from "./drawing";
 import type { CircuitLaboratoryMode } from "./editor-mode";
+import type { CircuitTopology } from "./topology";
 import { analyzeLcTopology, type LcPortAnalysis } from "../models/reactive-lc-graph";
 
 function bridgeDocument(): string {
@@ -31,21 +32,28 @@ function bridgeDocument(): string {
   return serializeCircuit(drawing, defaultCircuitSettings);
 }
 
+export function splitReactivePort(topology: CircuitTopology): { topology: CircuitTopology; port: readonly [string, string] } {
+  const ports = topology.components.filter(part => part.kind === "port");
+  if (ports.length !== 1) throw Error("invalid-lc-port");
+  const [a, b] = ports[0].terminals;
+  return {
+    topology: {
+      ...topology,
+      components: topology.components.filter(part => part.kind !== "port"),
+      junctions: [...topology.junctions, a, b],
+    },
+    port: [a, b],
+  };
+}
+
 export const reactiveLcMode: CircuitLaboratoryMode<LcPortAnalysis> = {
   createDefaultDocument: bridgeDocument,
   example: { ru: "Асимметричный LC-мост", uk: "Асиметричний LC-міст" },
   availableParts: drawing => drawing.topology.components.some(part => part.kind === "port")
     ? ["l", "c"] : ["port", "l", "c"],
   readModel(document) {
-    const { drawing: { topology } } = parseCircuit(document);
-    const ports = topology.components.filter(part => part.kind === "port");
-    if (ports.length !== 1) throw Error("invalid-lc-port");
-    const [a, b] = ports[0].terminals;
-    // The port symbol defines excitation and reference endpoints without adding an element.
-    return analyzeLcTopology({
-      ...topology,
-      components: topology.components.filter(part => part.kind !== "port"),
-      junctions: [...topology.junctions, a, b],
-    }, [a, b]);
+    const { drawing } = parseCircuit(document);
+    const { topology, port } = splitReactivePort(drawing.topology);
+    return analyzeLcTopology(topology, port);
   },
 };

@@ -2994,14 +2994,14 @@
         "POWER-020",
         "POWER-021"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Loss-aware two-path ring iteration and live refinement",
       "security": "Bound numerical work and validate closure and power balance",
       "a11y": "Bilingual path and voltage tables with bounded scroll",
       "observability": "Calculated split, terminal flows, actual losses, voltage mismatch and balance",
       "action": "Solve the ring, change the calculation split, and confirm that physical branch connectivity and voltages remain consistent.",
-      "gap": "Hosted browser evidence is pending.",
+      "gap": "None.",
       "code": [
         "src/power-system/ring-refinement.ts",
         "src/components/RingFlowPanel.tsx",
@@ -3016,6 +3016,24 @@
       "e2e": [
         "tests/e2e/power-system-ring-loss.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "POWER-022",
+        "POWER-023"
+      ],
+      "status": "PLANNED",
+      "domain": "power-system",
+      "runtime": "Independent general AC mesh solver and physical network import",
+      "security": "Bound document size and numerical effort, validate before replacing the live study",
+      "a11y": "Bilingual import, diagnostics and scrollable result tables",
+      "observability": "Reference phasor, terminal flows, series losses, mismatch and unpowered buses",
+      "action": "Import a two-loop network and solve it, then reject invalid data and preserve the operating result.",
+      "gap": "Stage 26 implementation and browser evidence pending.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

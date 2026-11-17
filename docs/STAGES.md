@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-UNIVERSAL-015
+- Stage ID: ET-UNIVERSAL-016
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 
@@ -190,18 +190,30 @@
 
 ## ET-UNIVERSAL-015 — Stage 15. Cauer I
 
-- Status: in_progress
+- Status: verified
 - Entry: Stage 14 verified. Граф даёт точный входной импеданс с целыми полиномами.
 - Goal: разложение в непрерывную дробь по старшим степеням даёт LC-лестницу Кауэра I. На RU/UK видны номиналы, порядок и эквивалентность.
 - Evals: известная лестница, одиночные L/C, асимметричный мост, точная обратная сборка дроби, независимое сравнение X(ω) по номиналам и браузерный пересчёт.
 - Deferred: Кауэр II и остальные режимы.
 - User actions: none
-- NEXT: stage15-cauer-i
+- Evidence: 683 Vitest, 33 Chromium, check/lint/build и 2 production smoke PASS. Обратная сборка лестницы дала точные коэффициенты Z(s) моста, реактивность из номиналов совпала с узловыми эталонами. Проверены исходное начало со шунта, пересчёт принятого графа и экран 390 px. На [точном превью](https://72641dfd.electrotutor.pages.dev/) 13 браузерных сценариев PASS. GitHub SHA 3e786989c158806f146defbba3711d82f242b0c5.
+- NEXT: ET-UNIVERSAL-016
+- Completion sync: обновлены STAGES, ARCHITECTURE, DESIGN, TESTING, TRACEABILITY, LC SPEC и coverage ledger. Проверены README, ROADMAP, DECISIONS, SECURITY, API, DATA_MODEL, DEPENDENCIES и project-context.
+
+## ET-UNIVERSAL-016 — Stage 16. Cauer II
+
+- Status: in_progress
+- Entry: Stage 15 verified. Доступны точная сборка лестницы, общий редактор и рациональный решатель LC-графа.
+- Goal: разложение при q → 0 даёт лестницу Кауэра II. Закрыть общий набор представлений § 10 мастер-промпта отображением упрощённой связности рядом с исходным LC-графом.
+- Evals: известная лестница, одиночные L/C, точная обратная сборка и X(ω) из номиналов, совместный просмотр форм и физическая LC-свёртка с точным сохранением импеданса.
+- Deferred: режим электрических систем и сетей.
+- User actions: none
+- NEXT: stage16-cauer-ii
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 15,
+  "state_revision": 16,
   "master": {
     "id": "ET-UNIVERSAL-MASTER-V2",
     "status": "running",
@@ -220,7 +232,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/universal-labs-stage-0",
-      "checkpoint": "f551934d20c52263876dc4fc5e4caa637226a647",
+      "checkpoint": "3e786989c158806f146defbba3711d82f242b0c5",
       "ownership": [
         "src",
         "specs",
@@ -246,8 +258,8 @@
     {"id":"ET-UNIVERSAL-012","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Reactive one-port Z(s)","status":"verified","predecessors":["ET-UNIVERSAL-011"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"e143e70cdd60500b6dc9644bd48a8d6ca0fc2992","checkpoint_after":"fbf00480357b01bd259f3b47e0c08e050b0f59e0","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-two-port.ts","src/circuit/CircuitEditor.tsx"],"requirements":["LC-005","LC-006","LC-007"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-013","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster I","status":"verified","predecessors":["ET-UNIVERSAL-012"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"fbf00480357b01bd259f3b47e0c08e050b0f59e0","checkpoint_after":"d1f28815c4980ab0eb50b7d6e20ffc22863ae262","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-008","LC-009"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-014","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Foster II","status":"verified","predecessors":["ET-UNIVERSAL-013"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"d1f28815c4980ab0eb50b7d6e20ffc22863ae262","checkpoint_after":"f551934d20c52263876dc4fc5e4caa637226a647","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-foster-i.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-010","LC-011"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"running","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f551934d20c52263876dc4fc5e4caa637226a647","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/lc-polynomial.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-012","LC-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"queued","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-015","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer I","status":"verified","predecessors":["ET-UNIVERSAL-014"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"f551934d20c52263876dc4fc5e4caa637226a647","checkpoint_after":"3e786989c158806f146defbba3711d82f242b0c5","required_evidence":["L1","L2"],"evidence":["L1","L2"],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/lc-polynomial.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-012","LC-013"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-UNIVERSAL-016","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Cauer II","status":"running","predecessors":["ET-UNIVERSAL-015"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"3e786989c158806f146defbba3711d82f242b0c5","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["specs/features/reactive-two-port.spec.md","src/models/reactive-cauer-i.ts","src/models/reactive-lc-graph.ts","src/components/ReactiveLcGraphLab.tsx"],"requirements":["LC-014","LC-015","LC-016"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-017","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Power-system domain model","status":"queued","predecessors":["ET-UNIVERSAL-016"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-UNIVERSAL-018","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Equipment catalog schema","status":"queued","predecessors":["ET-UNIVERSAL-017"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-UNIVERSAL-019","master_id":"ET-UNIVERSAL-MASTER-V2","title":"Catalog UI and hidden advanced parameters","status":"queued","predecessors":["ET-UNIVERSAL-018"],"dependencies":[],"worktree_track":"universal-labs-v2","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2"],"evidence":[],"context_scope":["docs/ROADMAP.md","specs/README.md"],"requirements":[],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
@@ -274,7 +286,7 @@
     "max_decisions": 2,
     "max_evidence_threads": 4
   },
-  "next_action": "Build the exact high-frequency continued fraction ladder and verify its driving-point impedance.",
+  "next_action": "Build the low-frequency Cauer ladder and expose exact homogeneous LC topology reductions alongside the original graph.",
   "integration": {
     "required": false,
     "reason": ""

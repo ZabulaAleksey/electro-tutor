@@ -190,3 +190,7 @@ POWER-032–033 → power-system SPEC → CircuitEditorMode + четыре ад�
 CE-016–020 → circuit-engine SPEC → parallel-regions.ts + parallel-attachment.ts + CircuitEditor.tsx → parallel-contract.test.ts + parallel-regions.test.ts + parallel-attachment.test.ts + circuit-parallel.spec.ts.
 
 CE-021–022 → circuit-engine SPEC → equivalent-circuit.ts + EquivalentCircuit.tsx + rlc-reduction.ts → equivalent-circuit.test.ts + rlc-reduction.test.ts + circuit-parallel.spec.ts.
+
+## QG-008–012
+
+pre-deploy-quality-gates SPEC → pnpm-workspace.yaml + exact alias + tracked compatibility patch + frozen pnpm-lock.yaml → src/security/picomatch-remediation.test.ts → неизменённые full-verify/CI/audit и hosted production smoke. Источник, effective parser hash, RED/GREEN и release evidence: docs/evidence/picomatch-remediation.json; current truth: ET-DEP-20261117 в STAGES.

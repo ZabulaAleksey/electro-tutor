@@ -1,3 +1,9 @@
+## ET-DEP-20261117 — security remediation picomatch
+
+Полный `pnpm verify:full` PASS под Node22.23.4: frozen restore, hygiene/CI contract, Astro check (0 errors/0 warnings/3 прежние hints), ESLint, 765 Vitest /117 файлов, 13 независимых аналитических cases/49 assertions, 416 Chromium PASS /6 прежних SKIP, production build, 2 production smoke и неизменённый HIGH audit без находок. Отдельный full/production audit:0. Новый mandatory security regression4/4 и42 дополнительных positive/boundary assertions PASS; source/SRI/patch/все9 actual consumers проверены, отключений safeguard нет. Independent review PASS.
+
+Первый remediation full остановился на TypeScript narrowing нового test; guard исправлен без изменения assertions, затем весь pipeline повторён от frozen install. Принятые tests/goldens и пороги не менялись. Интеграция/CI/production ещё ожидают подтверждения; [полное evidence](evidence/picomatch-remediation.json). Следующие записи относятся к предыдущим ревизиям.
+
 ## ET-DEP-20261117 — повторная проверка перед интеграцией
 
 По прямому запросу владельца полный `pnpm verify:full` повторён для `5f29b525d57546d53a030fd34de7ef1100d56e1f` без изменения manifest/lockfile/runtime: 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Последний HIGH audit FAIL: picomatch <=4.0.7, исправленная версия не опубликована. Сверены npm registry, официальный GitHub release и advisory. Merge, push main и production deploy заблокированы QG-003; разрешение владельца на эти действия получено. [Проверяемое evidence](evidence/dependency-picomatch-recheck.json). Предыдущая функциональная квалификация ниже сохраняет силу.
@@ -20,7 +26,7 @@ CE-016..022: `parallel-regions`, `parallel-attachment` и `parallel-contract` п
 
 ## ET-DEP-20261117 — квалификация зависимостей
 
-Первый аудит обновлённого lockfile не находил уязвимостей; последующее обновление advisory выявило HIGH picomatch без исправленной версии (DEP-PICOMATCH-001). Текущий security gate не пройден. Полный pnpm verify:full проверяет frozen restore, CI contract, типы, lint, Vitest, все Chromium-сценарии, обе сборочные базы и production smoke под Node 22.23.4. Принятые тесты, goldens и пороги audit сохраняют свой контракт. Python-зависимости API проверяются штатным pip-audit из uv.lock и существующим backend CI. Точные результаты и выпущенная ревизия находятся в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance).
+Первый аудит обновлённого lockfile не находил уязвимостей; последующее обновление advisory выявило HIGH picomatch без исправленной версии (DEP-PICOMATCH-001). На той ревизии security gate не был пройден; текущая remediation и её gates описаны выше. Полный pnpm verify:full проверяет frozen restore, CI contract, типы, lint, Vitest, все Chromium-сценарии, обе сборочные базы и production smoke под Node 22.23.4. Принятые тесты, goldens и пороги audit сохраняют свой контракт. Python-зависимости API проверяются штатным pip-audit из uv.lock и существующим backend CI. Точные результаты и выпущенная ревизия находятся в [STAGES](STAGES.md#et-dep-20261117--security-dependency-maintenance).
 
 ## RUN6 — локальная навигация и доказанная RTC-диагностика
 

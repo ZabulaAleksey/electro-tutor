@@ -17,38 +17,51 @@
 - Concrete E2E: импорт Series(R,L,C), drag X на R и preview; единым выбором граничных узлов R–L и всей ветви подключить X, подтвердить netlist, отменить/повторить, JSON round-trip; открыть equivalent view и продолжить редактирование исходных элементов на RU desktop и UK phone.
 - Recovery: один Undo либо исходный JSON; feature commit обратим, старые тесты и форматы не меняются.
 - Deferred: взаимно связанные катушки и новые решатели; нелинейная/частотно зависимая редукция; существующие предметные solver limits сохраняются.
-- Blockers: production delivery DEP-PICOMATCH-001; локальная feature не заблокирована.
+- Blockers: none для реализации и локальной квалификации; release integration/CI/production завершается в ET-DEP-20261117.
 - User actions: none
 - Evidence: локальная функциональная квалификация PASS для e8e3ba1: frozen restore, CI contract, Astro check (0 errors/warnings, 3 прежние hints), ESLint, 761 Vitest / 116 файлов, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke. Полный pnpm verify:full завершился FAIL только на обязательном HIGH audit picomatch; исправленной версии нет. Полный и production pnpm audit дают одну HIGH-находку picomatch; Python runtime pip-audit повторно PASS. Новые 9 сценариев конструктора PASS локально и на preview. PNG desktop/phone сверены, SHA в docs/evidence/circuit-parallel.json.
 - Verification recovery ET-QG-FONT-001: прежний полный прогон дал 413 Chromium PASS / 6 SKIP / 1 beam Ctrl-wheel FAIL; отдельно 4/5 PASS. Контролируемая поздняя загрузка web-fonts воспроизводит +3 px сдвига из-за normal line-height. Явные line boxes только над SVG устранили сдвиг. Новый font regression и все 13 прежних beam сценариев PASS (14), Ctrl-wheel дополнительно 5/5 PASS. Zoom, solver, допуски и goldens не менялись. Окончательный полный прогон прошёл все 415 Chromium, включая этот regression; прежний отказ устранён.
 - Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES, LEARNING_LOG и STAGES. Проверены без изменений DECISIONS, SECURITY, API, DATA_MODEL, project-context и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
 - Hosted feature: [Cloudflare preview](https://a5758efe.electrotutor.pages.dev/ru/interactive/circuit-editor/), deployment a5758efe-74de-4368-abb9-fca26fd03381 для e8e3ba1 — build success, HTTP 200, 10 Chromium PASS (9 feature + прежний Ctrl-wheel). Root-only delayed-font probe не применим к education-сборке: BaseLayout отключает внешние web-fonts, fonts.status уже loaded; его исходный отказ сохранён, тест не менялся. Это проверенный preview; main и production не обновлялись этой веткой.
-- NEXT: DEP-PICOMATCH-001
-- Next action: после опубликованного upstream исправления обновить lockfile, получить audit/full verify PASS, затем выполнить штатную интеграцию, CI, production deploy и проверенную очистку ветвей. До этого сохраняются fix/dependency-vulnerabilities и feature/universal-parallel-attachment.
-- Stop condition: текущая реализация и preview проверены; обязательный security gate не пройден из-за отсутствующего upstream patch. Независимых незавершённых slices текущего scope нет.
+- NEXT: integrate-release
+- Next action: после квалификации безопасной picomatch remediation получить audit/full verify PASS, затем выполнить штатную интеграцию, CI, production deploy и проверенную очистку ветвей. До этого сохраняются fix/dependency-vulnerabilities и feature/universal-parallel-attachment.
+- Stop condition: feature и полный security/functional verify проверены; delivery входит в текущий ET-DEP-20261117 и продолжается автоматически после локального PASS.
+
+
+
+- Remediation qualification: полный security-only dependency verify PASS (765 Vitest,416 Chromium/6 прежних SKIP,2 production smoke,audit0); независимый review PASS. Прежний DEP-PICOMATCH-001 FAIL выше относится к e8e3ba1 и сохранён как историческое evidence. Production release ещё не заявлен.
 
 ## ET-DEP-20261117 — Security dependency maintenance
 
-- Status: blocked
+- Status: in_progress
 - Goal: устранить оставшийся HIGH picomatch, получить audit/full verify PASS, слить проверенную ветку в main, выполнить push и настроенный production deploy.
 - Entry: чистый main b614cda, предыдущий runtime eff12b6. pnpm 11.23.0. Исходный аудит даёт 5 LOW и 7 MODERATE.
-- Scope: package.json, pnpm-workspace.yaml, pnpm-lock.yaml, Node 22.23.4 в .node-version и существующем CI, dependency/security/evidence документы.
-- Requirements: QG-001..007, глобальные dependency-management и node-package-management.
+- Scope: проверенная exact-pinned замена всех активных picomatch resolution, обязательные security/compatibility evals, pnpm manifest/overrides/lockfile, evidence; интеграция текущей ветки и production release после gates.
+- Requirements: QG-001..012. Владелец явно разрешил безопасную локальную/совместимую remediation без ожидания upstream; gate не ослабляется.
 - Dependencies: предыдущий мастер ET-UNIVERSAL-MASTER-V2 completed, production GitHub Pages и Cloudflare подтверждены.
 - Evals: frozen restore PASS, полный и production audit без находок, Python runtime audit, полный pnpm verify:full, существующий backend gate в GitHub CI, smoke четырёх лабораторий на обоих production hosts.
 - Recovery: предыдущий main b614cda и runtime eff12b6 сохраняются в Git и точной production-выкладке.
 - Evidence: повторная квалификация по прямому запросу владельца для 5f29b52: frozen restore, static/type/lint, 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Полный pnpm verify:full FAIL только на последнем HIGH audit: picomatch <=4.0.7, patched versions None. npm latest и последний официальный release остаются 4.0.7. [Receipt](evidence/dependency-picomatch-recheck.json).
 - Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
 - User actions: none. Явное разрешение merge/push/deploy получено; обязательный QG-003 блокирует выпуск до audit PASS.
-- Blockers: DEP-PICOMATCH-001 — upstream не выпустил исправленную версию picomatch. Audit gate сохранён, выпуск не подтверждён. Условие снятия: опубликованная исправленная версия, frozen restore, audit 0, полный verify PASS и точные CI/hosted receipts.
+- Blockers: none. Локальные security/compatibility/full verify/audit и independent review PASS; production подтверждается только после интеграции, CI и hosted smoke.
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
 - Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: DEP-PICOMATCH-001
-- Next action: после опубликованного исправления проверить официальный advisory и совместимость major, обновить lockfile через pnpm, повторить audit/full verify, затем интегрировать feature/universal-parallel-attachment в main и проверить CI/production. До этого manifest, lockfile, main и production сохраняются.
+- NEXT: integrate-release
+- Next action: atomic commits → fast-forward merge main и push main → GitHub CI/Pages и Cloudflare production → hosted acceptance → receipt и проверенная очистка временных refs.
 
 - Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
 - Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
+- Plan and ownership: root — procurement, manifest/overrides/lockfile, SPEC/docs/release; regression worker — новый security regression и адресный MeshLab URL ownership fix по FR-384/new tests; reviewer — read-only security и navigation review. Существующие accepted tests и audit workflow не меняются.
+- Remediation: все 10 tarball files совпали с source 3ab5a762; SRI проверен. RED original matcher/makeRe/parseCompile timeout 3s × 6; fork GREEN 2–6ms. Independent review обнаружил два non-security semantic delta; штатный pnpm compatibility patch отменяет ВСЕ unrelated runtime changes. Effective diff к official4.0.7 — 81 security additions, parser hash 2d26afdd15b3b164d8bed0916f6c21a03322d7b36e3efe2b2cd47f5a45b90232. Qualification evidence: evidence/picomatch-remediation.json.
+- Risk/rollback: fork имеет нового maintainer; принимается только полный проверенный code diff и immutable SRI. Мажорные API потребителей 2/4 проверяются отдельно. Возврат к предыдущему Git lockfile восстанавливает состояние; HIGH-blocked состояние не публикуется.
+
+
+- Packaging gate: staging выявил required single-space context rows в unified patch, отклонённые git whitespace checks. Штатный pnpm patch-commit с command-local diff.context=0 пересоздал zero-context patch без изменений любых10 installed package files. Новый patch SHA8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8 закреплён pnpm. Source/security regression4PASS и staged hygiene PASS. Прежний full PASS сохранён; окончательный full verify со staged zero-context patch также PASS. Gate/attributes не ослаблены.
+
+
+- Current qualification: полный pnpm verify:full PASS: frozen restore, hygiene/CI contract, Astro check 0 errors/0 warnings/3 прежние hints, lint, 765 Vitest /117 файлов, 13 независимых analytical cases/49 assertions, 416 Chromium PASS /6 прежних SKIP, production build и2 production smoke, HIGH audit0. Full/production audit0. Security regression4 и дополнительные42 positive/boundary assertions PASS;9 actual consumers не отключают safeguard. Independent review PASS. Первый remediation full остановился на type narrowing нового test; исправлен без смены assertions, затем весь pipeline выполнен заново. Receipt: evidence/picomatch-remediation.json.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

@@ -55,3 +55,15 @@ Production deployment Electro Tutor допускается только для a
 
 Откатить единый commit `TUTOR-06`; production configuration и внешний Pages
 environment этим этапом не изменяются.
+
+## 6. Проверяемая замена уязвимой build-зависимости
+
+По прямому запросу владельца разрешена совместимая security-замена picomatch без ожидания официального upstream release. Это расширение не меняет QG-001..007, существующие сценарии, audit threshold или запрет failure suppression.
+
+- QG-008. Замена обязана устранять CVE-2026-112366 в исполняемом parser/matcher. Переименование пакета или версия без реального исправления недостаточны. Изолированные child-process evals воспроизводят исходный ReDoS и подтверждают ограниченное выполнение исправленного matcher, makeRe и compileRe/parse путей.
+- QG-009. Сохраняются штатные полный/production pnpm audit и HIGH gate. Не допускаются ignore advisory/CVE, уменьшение scanned graph, подмена audit endpoint, override severity, выключение safeguards или удаление обязательных проверок. Все активные runtime resolution picomatch должны вести на проверенную реализацию; старый уязвимый parser не остаётся достижимым.
+- QG-010. Артефакт замены закрепляется exact version и SRI в pnpm lockfile; локальный compatibility patch хранится в Git, применяется штатным pnpm и закрепляется patch hash. До установки проверяются registry origin, tarball integrity, полный список файлов, исходный diff, отсутствие новых runtime dependencies/lifecycle scripts и сохранение лицензии. Provenance и SHA файлов сохраняются в evidence. Дополнительный security regression входит в штатный Vitest, поэтому выполняется при каждом full verify и в CI.
+- QG-011. CommonJS/ESM, posix entry, используемые matcher/scan/parse/regex APIs, Windows/POSIX paths и реальные Astro/Vite/anymatch consumers сохраняют совместимость. Редкие небезопасные extglobs могут безопасно сворачиваться или трактоваться буквально с явным описанием ограничения. Перед main обязательны frozen restore, полная регрессия, build, production smoke, независимый review и audit PASS; после push подтверждаются CI и точная hosted ревизия.
+- QG-012. Dependency composition root остаётся pnpm-workspace.yaml; application/domain не получает fork-specific imports. В DEPENDENCIES фиксируются причина замены, pin/integrity, границы compatibility, риск нового maintainer и условие возврата на официальный patched release с теми же evals. Rollback возвращает текущий lockfile/overrides из Git; deployment не выполняется для непрошедшего gates rollback.
+
+Приёмка: исходные `+(*a)`/`*(*)` с неблагоприятным хвостом не должны удерживать event loop исправленного matcher; нормальные glob/brace/extglob/ignore/onResult/scan/parse consumers проходят corpus. Полный audit без находок сам по себе не является evidence исправления.

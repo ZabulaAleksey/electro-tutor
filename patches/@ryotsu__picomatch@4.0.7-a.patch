@@ -1,0 +1,32 @@
+diff --git a/lib/constants.js b/lib/constants.js
+index a13c4830e13242e00d71e71de7554f6c95d47f44..f0aeda7d48171c71603af40d23bd4c8de7522c0e 100644
+--- a/lib/constants.js
++++ b/lib/constants.js
+@@ -84 +84 @@ const POSIX_REGEX_SOURCE = {
+-  punct: '\\-!"#$%&\'()\\*+,./:;<=>?@[\\\\\\]^_`{|}~',
++  punct: '\\-!"#$%&\'()\\*+,./:;<=>?@[\\]^_`{|}~',
+diff --git a/lib/parse.js b/lib/parse.js
+index ad31028701bbaf5a4b31b11f70651bcee8aceec2..c0361b8087f2b90b1929cf8551bd2e2fead75069 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -471 +471 @@ const parse = (input, options) => {
+-    return `(${capture}(?:(?!${START_ANCHOR}${opts.dot ? DOTS_SLASH : DOT_LITERAL})[\\s\\S])*?)`;
++    return `(${capture}(?:(?!${START_ANCHOR}${opts.dot ? DOTS_SLASH : DOT_LITERAL}).)*?)`;
+@@ -832,6 +832,2 @@ const parse = (input, options) => {
+-      if (value === '!' && prev.value === '[' && opts.literalBrackets !== true) {
+-        const isLoneNegation = peek() === ']' && !remaining().slice(1).includes(']');
+-        if (!isLoneNegation) {
+-          // POSIX bracket negation: [!abc] is equivalent to [^abc]
+-          value = '^';
+-        }
++      if (opts.posix === true && value === '!' && prev.value === '[') {
++        value = '^';
+@@ -1459 +1455 @@ parse.fastpaths = (input, options) => {
+-    return `(${capture}(?:(?!${START_ANCHOR}${opts.dot ? DOTS_SLASH : DOT_LITERAL})[\\s\\S])*?)`;
++    return `(${capture}(?:(?!${START_ANCHOR}${opts.dot ? DOTS_SLASH : DOT_LITERAL}).)*?)`;
+@@ -1492,5 +1487,0 @@ parse.fastpaths = (input, options) => {
+-        // A bare `**` here is adjacent to a literal extension in the same path
+-        // segment (e.g. `**.js`), so it must act as a single star rather than a
+-        // globstar. Bail out of the fast path and let the full parser handle it.
+-        if (match[1] === '**') return;
+-

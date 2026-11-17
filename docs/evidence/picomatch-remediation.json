@@ -1,0 +1,648 @@
+{
+  "schema_version": 1,
+  "stage": "ET-DEP-20261117",
+  "status": "validated_locally_release_pending",
+  "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+  "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
+  "replacement": {
+    "alias": "picomatch",
+    "package": "@ryotsu/picomatch",
+    "version": "4.0.7-a",
+    "source_commit": "3ab5a7627d480259e3d9ca67fbc14c125d374f0e",
+    "tarball": {
+      "label": "fork",
+      "name": "@ryotsu/picomatch",
+      "version": "4.0.7-a",
+      "tarball": "https://registry.npmjs.org/@ryotsu/picomatch/-/picomatch-4.0.7-a.tgz",
+      "integrity": "sha512-JroBFEmaejC7szGSfqOhF1QZHLKvX2wTA1+fWyfkpy3BjzdQKNPLKa2FtgeKVUDy5/UPUNkXEeCHJ5ZRBMLTVA==",
+      "sha256": "7ec4864687a913bac593294c455c0b134e16d9db71fba9637342cd999b278a22"
+    }
+  },
+  "origin": {
+    "repository": "https://github.com/ryotsu-kankichi/secured-picomatch",
+    "commit": "3ab5a7627d480259e3d9ca67fbc14c125d374f0e",
+    "files": [
+      {
+        "path": "LICENSE",
+        "source_sha256": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9",
+        "matches_tarball": true
+      },
+      {
+        "path": "index.js",
+        "source_sha256": "02ae26406508e28f9ba0865be16cf77f0b33de6c4d4d49c212c4176df1d5625a",
+        "matches_tarball": true
+      },
+      {
+        "path": "posix.js",
+        "source_sha256": "5695ff5dfcd5a338a40630bd506056f2950bcb08fe1cc068519cbbfe60add480",
+        "matches_tarball": true
+      },
+      {
+        "path": "lib/constants.js",
+        "source_sha256": "cdcb0716c3c7137f34fbec4fe29613de0aaa0a7de01505601ef3a88a5ba05fb0",
+        "matches_tarball": true
+      },
+      {
+        "path": "lib/parse.js",
+        "source_sha256": "a59b25c67cce014f5226836f8391cb1f323dc76224dc82b85c6826d10b33922a",
+        "matches_tarball": true
+      },
+      {
+        "path": "lib/picomatch.js",
+        "source_sha256": "fdd249d7ffff853f3bb1c77eafc8baa1a437bea85a94c35877b83c6a40d9ca94",
+        "matches_tarball": true
+      },
+      {
+        "path": "lib/scan.js",
+        "source_sha256": "6457a1764e5c2e543cc3a0c00ce12ebb3764097628868198370b64d4e642aaae",
+        "matches_tarball": true
+      },
+      {
+        "path": "lib/utils.js",
+        "source_sha256": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+        "matches_tarball": true
+      },
+      {
+        "path": "package.json",
+        "source_sha256": "6a17af861b7ade307d1cc64a389823d3ce0307d78b80eb38f9e110bacac999fc",
+        "matches_tarball": true
+      },
+      {
+        "path": "README.md",
+        "source_sha256": "dbfcccb75df9360390f29d12c6ace93f9db3c6cd6b505158c11bdee572c1c4f2",
+        "matches_tarball": true
+      }
+    ]
+  },
+  "file_sha256": {
+    "upstream": {
+      "LICENSE": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9",
+      "lib/constants.js": "c28f952d2758261fe5428a121add485cc25b03e0193633f649de903dc0e5e222",
+      "index.js": "02ae26406508e28f9ba0865be16cf77f0b33de6c4d4d49c212c4176df1d5625a",
+      "lib/parse.js": "4e1e05447668aa1e94366c5516a2bcd8f5fff800cc92b1d0cd7d77703b8618c4",
+      "lib/picomatch.js": "fdd249d7ffff853f3bb1c77eafc8baa1a437bea85a94c35877b83c6a40d9ca94",
+      "posix.js": "5695ff5dfcd5a338a40630bd506056f2950bcb08fe1cc068519cbbfe60add480",
+      "lib/scan.js": "6457a1764e5c2e543cc3a0c00ce12ebb3764097628868198370b64d4e642aaae",
+      "lib/utils.js": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+      "package.json": "479b70b87aa7b44344d62c8a459ae7e53dd2bca6c61f1396bd55e63e9de73fc6",
+      "README.md": "a69b87120fe2b9cb8f9057eaef6b9f9887f803e02185ca2f431e8162f6312220"
+    },
+    "fork": {
+      "LICENSE": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9",
+      "lib/constants.js": "cdcb0716c3c7137f34fbec4fe29613de0aaa0a7de01505601ef3a88a5ba05fb0",
+      "index.js": "02ae26406508e28f9ba0865be16cf77f0b33de6c4d4d49c212c4176df1d5625a",
+      "lib/parse.js": "a59b25c67cce014f5226836f8391cb1f323dc76224dc82b85c6826d10b33922a",
+      "lib/picomatch.js": "fdd249d7ffff853f3bb1c77eafc8baa1a437bea85a94c35877b83c6a40d9ca94",
+      "posix.js": "5695ff5dfcd5a338a40630bd506056f2950bcb08fe1cc068519cbbfe60add480",
+      "lib/scan.js": "6457a1764e5c2e543cc3a0c00ce12ebb3764097628868198370b64d4e642aaae",
+      "lib/utils.js": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+      "package.json": "6a17af861b7ade307d1cc64a389823d3ce0307d78b80eb38f9e110bacac999fc",
+      "README.md": "dbfcccb75df9360390f29d12c6ace93f9db3c6cd6b505158c11bdee572c1c4f2"
+    }
+  },
+  "procurement": {
+    "files": 10,
+    "new_runtime_dependencies": 0,
+    "lifecycle_scripts": [],
+    "license": "MIT; byte-identical original LICENSE",
+    "signature_limit": "Registry metadata advertises signatures/attestation; their cryptographic trust and maintainer identity were not independently verified. Source-to-tarball byte comparison is reproducible, not authenticated provenance."
+  },
+  "compatibility_patch": {
+    "path": "patches/@ryotsu__picomatch@4.0.7-a.patch",
+    "sha256": "8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8",
+    "purpose": "Restore ALL unrelated runtime changes relative to official 4.0.7: POSIX bracket defaults/punctuation, globstar newline behavior and **.js fastpath. Effective runtime delta is exactly 81 security-only additions to lib/parse.js; all other runtime files match official 4.0.7.",
+    "effective_parser_sha256": "2d26afdd15b3b164d8bed0916f6c21a03322d7b36e3efe2b2cd47f5a45b90232",
+    "previous_context_patch_sha256": "c6f201242417b890b6d61106667e1b5594e7cf4f367069e9d36183c11bb9f8dc",
+    "format": "Zero-context unified diff generated by pnpm patch-commit with command-local GIT_CONFIG_COUNT=1, diff.context=0; no global config or gate changes.",
+    "byte_equivalence": [
+      {
+        "path": "LICENSE",
+        "sha256": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "lib/constants.js",
+        "sha256": "c28f952d2758261fe5428a121add485cc25b03e0193633f649de903dc0e5e222",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "index.js",
+        "sha256": "02ae26406508e28f9ba0865be16cf77f0b33de6c4d4d49c212c4176df1d5625a",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "lib/parse.js",
+        "sha256": "2d26afdd15b3b164d8bed0916f6c21a03322d7b36e3efe2b2cd47f5a45b90232",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "lib/picomatch.js",
+        "sha256": "fdd249d7ffff853f3bb1c77eafc8baa1a437bea85a94c35877b83c6a40d9ca94",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "posix.js",
+        "sha256": "5695ff5dfcd5a338a40630bd506056f2950bcb08fe1cc068519cbbfe60add480",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "lib/scan.js",
+        "sha256": "6457a1764e5c2e543cc3a0c00ce12ebb3764097628868198370b64d4e642aaae",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "lib/utils.js",
+        "sha256": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "package.json",
+        "sha256": "6a17af861b7ade307d1cc64a389823d3ce0307d78b80eb38f9e110bacac999fc",
+        "identical_to_previous_qualified_runtime": true
+      },
+      {
+        "path": "README.md",
+        "sha256": "dbfcccb75df9360390f29d12c6ace93f9db3c6cd6b505158c11bdee572c1c4f2",
+        "identical_to_previous_qualified_runtime": true
+      }
+    ]
+  },
+  "isolated_red_green": [
+    {
+      "implementation": "upstream",
+      "pattern": "+(*a)",
+      "api": "matcher",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3031
+    },
+    {
+      "implementation": "upstream",
+      "pattern": "+(*a)",
+      "api": "makeRe",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3031
+    },
+    {
+      "implementation": "upstream",
+      "pattern": "+(*a)",
+      "api": "parse-compileRe",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3031
+    },
+    {
+      "implementation": "upstream",
+      "pattern": "*(*)a",
+      "api": "matcher",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3016
+    },
+    {
+      "implementation": "upstream",
+      "pattern": "*(*)a",
+      "api": "makeRe",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3016
+    },
+    {
+      "implementation": "upstream",
+      "pattern": "*(*)a",
+      "api": "parse-compileRe",
+      "status": "timeout",
+      "deadline_ms": 3000,
+      "wall_ms": 3015
+    },
+    {
+      "implementation": "fork",
+      "pattern": "+(*a)",
+      "api": "matcher",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 2.3789000000000016,
+      "wall_ms": 78
+    },
+    {
+      "implementation": "fork",
+      "pattern": "+(*a)",
+      "api": "makeRe",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 4.2808999999999955,
+      "wall_ms": 94
+    },
+    {
+      "implementation": "fork",
+      "pattern": "+(*a)",
+      "api": "parse-compileRe",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 1.9187999999999974,
+      "wall_ms": 63
+    },
+    {
+      "implementation": "fork",
+      "pattern": "*(*)a",
+      "api": "matcher",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 5.488799999999998,
+      "wall_ms": 93
+    },
+    {
+      "implementation": "fork",
+      "pattern": "*(*)a",
+      "api": "makeRe",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 2.1494,
+      "wall_ms": 63
+    },
+    {
+      "implementation": "fork",
+      "pattern": "*(*)a",
+      "api": "parse-compileRe",
+      "status": "completed",
+      "result": false,
+      "duration_ms": 1.8815999999999988,
+      "wall_ms": 94
+    }
+  ],
+  "audit_policy": "Unchanged standard full/production pnpm audit; HIGH gate; no ignores, endpoint/severity changes or graph omissions.",
+  "verification": {
+    "regression": {
+      "command": "pnpm exec vitest run src/security/picomatch-remediation.test.ts",
+      "files": 1,
+      "tests": 4,
+      "status": "PASS"
+    },
+    "full": {
+      "command": "pnpm verify:full",
+      "status": "PASS",
+      "finished_utc": "2026-11-17T21:08:49.3509279+00:00",
+      "started_utc": "2026-11-17T20:52:55.1287341+00:00",
+      "pid": 69392,
+      "exit_code": 0,
+      "node": "22.23.4",
+      "unit_files": 117,
+      "unit_tests": 765,
+      "independent_analytic_cases": 13,
+      "independent_analytic_assertions": 49,
+      "chromium_passed": 416,
+      "pre_existing_chromium_skipped": 6,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "1b16d24fc782551123a404d8070dfddf3c89141cb2c60ebed8388e3b6a194f46"
+    },
+    "independent_review": {
+      "status": "PASS",
+      "reviewer": "parallel_review",
+      "scope": "Full source/tarball/SRI/security-only patch and active consumer review; P1 unrelated semantic changes reverted; P2 opt-out and positive corpus follow-ups closed by recorded evidence.",
+      "provenance_limit": "Reproducible source binding; cryptographic attestation and maintainer identity not independently authenticated."
+    },
+    "integration": "pending",
+    "production": "pending",
+    "audit_full": {
+      "command": "pnpm audit --audit-level high",
+      "exit_code": 0,
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0
+        },
+        "dependencies": 363,
+        "devDependencies": 320,
+        "optionalDependencies": 149,
+        "totalDependencies": 830
+      }
+    },
+    "audit_production": {
+      "command": "pnpm audit --prod --audit-level high",
+      "exit_code": 0,
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0
+        },
+        "dependencies": 361,
+        "devDependencies": 0,
+        "optionalDependencies": 149,
+        "totalDependencies": 510
+      }
+    },
+    "review_followups": {
+      "positive_corpus": {
+        "cases": [
+          [
+            "+(*a)",
+            "a",
+            true
+          ],
+          [
+            "+(*a)",
+            "aaaa",
+            true
+          ],
+          [
+            "*(*)a",
+            "alpha",
+            true
+          ],
+          [
+            "+(a*b)",
+            "axbayb",
+            true
+          ],
+          [
+            "+(ab)",
+            "abab",
+            true
+          ],
+          [
+            "*.{js,ts}",
+            "index.ts",
+            true
+          ],
+          [
+            "+(a|b)",
+            "abba",
+            true
+          ],
+          [
+            "+(a\\*b)",
+            "a*ba*b",
+            true
+          ],
+          [
+            "+(\"*a\")",
+            "*a*a",
+            true
+          ],
+          [
+            "+([*]a)",
+            "*a*a",
+            true
+          ],
+          [
+            "+(*a{b,c})",
+            "+(*a{b,c})",
+            true
+          ],
+          [
+            "+(*a{b,c})",
+            "aaab",
+            false
+          ],
+          [
+            "+(@(a|b)*)",
+            "+(@(a|b)*)",
+            true
+          ],
+          [
+            "+(@(a|b)*)",
+            "ababa",
+            false
+          ]
+        ],
+        "api_paths": [
+          "matcher",
+          "makeRe",
+          "parse-compileRe"
+        ],
+        "assertions": 42,
+        "status": "PASS"
+      },
+      "safeguard_opt_out": {
+        "active_consumer_scans": [
+          {
+            "consumer": "@astrojs/internal-helpers@0.10.1",
+            "installed_parser_matches": true,
+            "files_scanned": 25,
+            "bytes_scanned": 42580,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "@astrojs/internal-helpers@0.13.1",
+            "installed_parser_matches": true,
+            "files_scanned": 33,
+            "bytes_scanned": 68629,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "anymatch@3.1.3",
+            "installed_parser_matches": true,
+            "files_scanned": 3,
+            "bytes_scanned": 4847,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "astro@7.4.7(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0)",
+            "installed_parser_matches": true,
+            "files_scanned": 1396,
+            "bytes_scanned": 3469384,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "dependency-cruiser@18.1.0",
+            "installed_parser_matches": true,
+            "files_scanned": 212,
+            "bytes_scanned": 914876,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "fdir@6.5.0(@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8))",
+            "installed_parser_matches": true,
+            "files_scanned": 3,
+            "bytes_scanned": 38129,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "tinyglobby@0.2.17",
+            "installed_parser_matches": true,
+            "files_scanned": 3,
+            "bytes_scanned": 27905,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "vite@8.3.8(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0)",
+            "installed_parser_matches": true,
+            "files_scanned": 35,
+            "bytes_scanned": 2306047,
+            "safeguard_option_references": []
+          },
+          {
+            "consumer": "vitest@4.1.12(@types/node@24.13.3)(vite@8.3.8(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0))",
+            "installed_parser_matches": true,
+            "files_scanned": 111,
+            "bytes_scanned": 1871147,
+            "safeguard_option_references": []
+          }
+        ],
+        "project_sources": [
+          "src",
+          "scripts"
+        ],
+        "explicit_opt_outs": 0,
+        "status": "PASS"
+      }
+    },
+    "failed_full_before_navigation_fix": {
+      "command": "pnpm verify:full",
+      "exit_code": 1,
+      "unit_tests": 765,
+      "unit_files": 117,
+      "chromium_passed": 414,
+      "pre_existing_skipped": 6,
+      "chromium_failed": 1,
+      "failure": "FR-384 Back/Forward: late MeshLab hydration pollutes /ru/topics/ with ?example=4",
+      "full_log_sha256": "a62f716ad4a5d2f78316f6cd3b71129375d4ad49eb9bbf258cc1d095fd88702c",
+      "trace_sha256": "52ceff37312519bef650800851d6432ecec0fb7c4a423a9945ee11fe70ed8018",
+      "production_build_smoke_and_final_audit": "not run; pipeline stopped at mandatory Chromium gate",
+      "independent_manual_audits": "full/production audit0 with unchanged HIGH gate"
+    },
+    "frozen_restore": {
+      "command": "pnpm install --frozen-lockfile",
+      "status": "PASS",
+      "included_in_full": true,
+      "active_graph_readback": "All 9 actual installed consumers use the reviewed parser; inactive old store entries are outside the current graph and retained."
+    },
+    "verification_recovery": {
+      "first_remediation_full_exit": 1,
+      "reason": "TypeScript Error.code access in new regression required narrowing; fixed with an in-operator guard; assertions unchanged.",
+      "resolution": "Entire mandatory pipeline rerun from frozen restore; no skip/retry/failure suppression."
+    },
+    "full_before_zero_context": {
+      "command": "pnpm verify:full",
+      "status": "PASS",
+      "started_utc": "2026-11-17T20:30:46.5737534+00:00",
+      "finished_utc": "2026-11-17T20:47:49.8470712+00:00",
+      "pid": 40320,
+      "exit_code": 0,
+      "node": "22.23.4",
+      "unit_files": 117,
+      "unit_tests": 765,
+      "independent_analytic_cases": 13,
+      "independent_analytic_assertions": 49,
+      "chromium_passed": 416,
+      "pre_existing_chromium_skipped": 6,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "cd1479413396c96536724fe6500ceea2eff0c873e5f9243c05a709241d7dc62f"
+    }
+  },
+  "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
+  "active_graph": {
+    "picomatch_packages": [
+      "@ryotsu/picomatch@4.0.7-a"
+    ],
+    "consumers": [
+      {
+        "consumer": "@astrojs/internal-helpers@0.10.1",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "@astrojs/internal-helpers@0.13.1",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "anymatch@3.1.3",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "astro@7.4.7(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0)",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "dependency-cruiser@18.1.0",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "fdir@6.5.0(@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8))",
+        "field": "optionalDependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "tinyglobby@0.2.17",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "vite@8.3.8(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0)",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      },
+      {
+        "consumer": "vitest@4.1.12(@types/node@24.13.3)(vite@8.3.8(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.9.0))",
+        "field": "dependencies",
+        "resolution": "@ryotsu/picomatch@4.0.7-a(patch_hash=8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8)"
+      }
+    ],
+    "installed": {
+      "parse_sha256": "2d26afdd15b3b164d8bed0916f6c21a03322d7b36e3efe2b2cd47f5a45b90232",
+      "constants_sha256": "c28f952d2758261fe5428a121add485cc25b03e0193633f649de903dc0e5e222"
+    },
+    "lockfile_sha256": "107cab1aad721db165e1a57593415374db5b4f53097007d46157591a982d4e59"
+  },
+  "navigation_gate_repair": {
+    "id": "ET-QG-NAV-001",
+    "requirement": "FR-384",
+    "cause": "Late MeshLab hydration passive effect wrote example/reset canonicalization into a different Astro history destination. An inactive island also needed a storage ownership guard.",
+    "files": [
+      "src/mesh/MeshLab.tsx",
+      "src/pages/ru/topics/dc/mesh-current-method/lab/index.astro"
+    ],
+    "regression": "tests/e2e/mesh-navigation-ownership.spec.ts",
+    "red": {
+      "source": "Exact HEAD MeshLab implementation before ownership fix",
+      "commands": [
+        "pnpm build:mvp",
+        "pnpm exec playwright test tests/e2e/mesh-navigation-ownership.spec.ts"
+      ],
+      "status": "FAIL",
+      "expected": "/ru/topics/",
+      "actual": "/ru/topics/?example=4",
+      "witness": "stage1_review; corroborated by preserved full-run trace",
+      "separate_trace_retained": false
+    },
+    "green": {
+      "commands": [
+        "pnpm build:mvp",
+        "pnpm exec playwright test tests/e2e/mesh-navigation-ownership.spec.ts"
+      ],
+      "status": "PASS",
+      "chromium_passed": 1,
+      "seconds": 5.3,
+      "mvp_pages": 9,
+      "mvp_files": 95,
+      "checks": [
+        "URL unchanged outside owner route",
+        "sessionStorage saved bytes preserved"
+      ]
+    },
+    "independent_review": {
+      "status": "PASS",
+      "reviewer": "parallel_review",
+      "checks": [
+        "initial URL/reset canonicalization and choose guard",
+        "inactive storage write guard",
+        "base-aware full/MVP owner path",
+        "accepted native-history test unchanged"
+      ]
+    },
+    "final_full": "PASS; see verification.full"
+  }
+}

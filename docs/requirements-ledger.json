@@ -3263,6 +3263,38 @@
       "e2e": [
         "tests/e2e/circuit-parallel.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "QG-008",
+        "QG-009",
+        "QG-010",
+        "QG-011",
+        "QG-012"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "dependency-security",
+      "runtime": "Full local verification PASS; main CI and hosted production delivery pending.",
+      "security": "Reviewed parser correction, SRI and isolated adversarial regression; unchanged HIGH audit gate.",
+      "a11y": "No direct UI changes; existing browser acceptance remains mandatory.",
+      "observability": "Source file hashes, timed RED/GREEN child-process probes and full verification receipt.",
+      "gap": "Integration, exact CI and hosted delivery pending.",
+      "action": "Integrate the qualified release and verify both configured production hosts.",
+      "code": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package.json"
+      ],
+      "unit": [
+        "src/security/picomatch-remediation.test.ts"
+      ],
+      "integration": [
+        "src/security/picomatch-remediation.test.ts"
+      ],
+      "e2e": [
+        "scripts/full-verify.mjs",
+        "tests/e2e/education-release.spec.ts"
+      ]
     }
   ]
 }

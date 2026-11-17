@@ -2,6 +2,7 @@ allowBuilds:
   esbuild: true
   workerd: true
 overrides:
+  picomatch: npm:@ryotsu/picomatch@4.0.7-a
   fast-uri: 3.1.9
   js-yaml: 4.3.2
   svgo: 4.1.0
@@ -16,3 +17,5 @@ overrides:
   smol-toml: 1.9.1
   "minimatch@>=7 <11.0.1": 11.0.1
   "vite@8": 8.3.8
+patchedDependencies:
+  '@ryotsu/picomatch@4.0.7-a': patches/@ryotsu__picomatch@4.0.7-a.patch

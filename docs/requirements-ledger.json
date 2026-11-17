@@ -26,6 +26,7 @@
       "specs/features/rtc-provider-boundary.spec.md",
       "specs/features/star-neutral-phasors.spec.md",
       "specs/features/transmission-line-transient.spec.md",
+      "specs/features/transmission-line-steady.spec.md",
       "specs/features/fourier-laboratory.spec.md",
       "specs/features/student-workspaces.spec.md",
       "specs/features/beam-laboratory.spec.md",
@@ -2532,6 +2533,25 @@
         "tests/e2e/transmission-workbench.spec.ts",
         "tests/e2e/transmission-handwriting.spec.ts"
       ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-AC-001",
+        "LINE-AC-002",
+        "LINE-AC-003"
+      ],
+      "status": "PLANNED",
+      "domain": "transmission-line",
+      "runtime": "Steady-state RLGC section and load",
+      "security": "Validated finite physical inputs",
+      "a11y": "Numerical API with no current UI surface",
+      "observability": "Typed input impedance and finite checks",
+      "gap": "Stage 9 numerical evidence pending.",
+      "action": "Verify independently derived lossy and lossless oracles.",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": []
     }
   ]
 }

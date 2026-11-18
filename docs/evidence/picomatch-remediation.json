@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "ET-DEP-20261117",
-  "status": "case_partition_narrow_pass_pending_full",
+  "status": "completed",
   "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
   "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
   "replacement": {
@@ -280,25 +280,26 @@
       "status": "PASS"
     },
     "full": {
-      "source_commit": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
       "command": "pnpm verify:full",
       "transport": "real Playwright WebSocket Chromium + local downloads partition",
       "node": "v22.23.4",
-      "pid": 40320,
-      "started_utc": "2026-11-17T23:08:36.269Z",
-      "finished_utc": "2026-11-17T23:25:02.385Z",
+      "pid": 59944,
+      "started_utc": "2026-11-18T00:22:31.221Z",
+      "finished_utc": "2026-11-18T00:42:23.932Z",
       "exit_code": 0,
       "status": "PASS",
-      "unit_tests": 772,
+      "unit_tests": 773,
       "unit_files": 119,
       "chromium_passed": 418,
       "pre_existing_chromium_skipped": 6,
       "root_cases": 424,
-      "remote_cases": 417,
-      "local_download_cases": 7,
+      "remote_cases": 420,
+      "local_download_cases": 4,
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
-      "log_sha256": "496ad6389275906381c992ae8f68af1153029af958e83f801dfeb80e2e215022"
+      "log_sha256": "2f45e55e72f2fcd49a82e859f38560ad2070c0d8a600975a388a8bc5ccffc223",
+      "evidence_scope": "Exact current-source local full with case-level4local/420remote partition and native/SVG-root drag regressions; same source passed full GitHub CI below."
     },
     "independent_review": {
       "status": "PASS",
@@ -306,8 +307,144 @@
       "scope": "Full source/tarball/SRI/security-only patch and active consumer review; P1 unrelated semantic changes reverted; P2 opt-out and positive corpus follow-ups closed by recorded evidence.",
       "provenance_limit": "Reproducible source binding; cryptographic attestation and maintainer identity not independently authenticated."
     },
-    "integration": "pending",
-    "production": "pending",
+    "integration": {
+      "status": "PASS",
+      "method": "fast-forward",
+      "branch": "main",
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "remote_main_verified": true,
+      "post_merge_context_and_hygiene": "PASS"
+    },
+    "production": {
+      "status": "PASS",
+      "cloudflare": {
+        "deployment": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+        "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+        "check": "success",
+        "exact": "https://9a6a2dfd.electrotutor.pages.dev",
+        "primary": "https://electrotutor.org/",
+        "asset_comparison": {
+          "exact": "https://9a6a2dfd.electrotutor.pages.dev",
+          "primary": "https://electrotutor.org",
+          "route": "/ru/interactive/circuit-editor/",
+          "asset_comparison": "PASS",
+          "files": [
+            {
+              "path": "/_astro/BaseLayout.Dbgll1iD.css",
+              "bytes": 86734,
+              "sha256": "a597b745a02651ff8b6c0486d3cda8ddadb9fb506c9a668f9021a61c648327f3",
+              "identical": true
+            },
+            {
+              "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.BZ4EJ7gD.js",
+              "bytes": 1939,
+              "sha256": "36d065384bf8d6a34a6484b80b79e6efd71067ce7166cab176131a81141ada33",
+              "identical": true
+            },
+            {
+              "path": "/_astro/CircuitEditor.1826nPpX.css",
+              "bytes": 4369,
+              "sha256": "6f2eb05efbc520f4beb9a8c32e16f425cfe00d4ea1ee84e16a7d747e0522c237",
+              "identical": true
+            },
+            {
+              "path": "/_astro/CircuitEditor.X4MiT8nn.js",
+              "bytes": 54,
+              "sha256": "35e8b2be517aa65f6758f1e54f174a4257b00749e57701712dbe439f3b383cb8",
+              "identical": true
+            },
+            {
+              "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CARLn6B5.js",
+              "bytes": 4072,
+              "sha256": "fb3b024c8e7c10af4c7e612794ab7e7ec872649eaf207f0a40f28caf8153d73a",
+              "identical": true
+            },
+            {
+              "path": "/_astro/client.D9jxHZzM.js",
+              "bytes": 180594,
+              "sha256": "28a1b2a30427f0ce1156aacc7b889affbbb1e27b29ce90565e9caa9afcca95b2",
+              "identical": true
+            }
+          ]
+        }
+      },
+      "github_pages": {
+        "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+        "url": "https://zabulaaleksey.github.io/electro-tutor/",
+        "deployment": {
+          "sha": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "statuses_url": "https://api.github.com/repos/ZabulaAleksey/electro-tutor/deployments/7871034077/statuses",
+          "created_at": "2026-11-18T01:08:35Z",
+          "api_url": "https://api.github.com/repos/ZabulaAleksey/electro-tutor/deployments/7871034077",
+          "status": {
+            "state": "success",
+            "log_url": "https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44210175433/job/134497409744",
+            "description": "",
+            "created_at": "2026-11-18T01:08:50Z",
+            "environment_url": "https://zabulaaleksey.github.io/electro-tutor/"
+          },
+          "environment": "github-pages",
+          "id": 7871034077
+        }
+      },
+      "hosted_chromium": {
+        "cloudflare-exact": {
+          "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "target_url": "https://9a6a2dfd.electrotutor.pages.dev",
+          "deployment_id": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+          "exit_code": 0,
+          "passed": 3,
+          "log": "picomatch-cloudflare-exact-smoke.log",
+          "log_sha256": "306d4ddf08eb11c2e901fab93d18e47a341954ffe114df4150d3726b904c6d7b",
+          "log_completed_utc": "2026-11-18T00:45:13.582181+00:00",
+          "binding": "actual invocation; exact-source Cloudflare check and exact/primary asset comparison PASS"
+        },
+        "cloudflare-live": {
+          "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "target_url": "https://electrotutor.org",
+          "deployment_id": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+          "exit_code": 0,
+          "passed": 3,
+          "log": "picomatch-cloudflare-live-smoke.log",
+          "log_sha256": "303f10e144e24e38031419333c7a10737164417ac91e4528e3d38159e033e751",
+          "log_completed_utc": "2026-11-18T00:45:13.583179+00:00",
+          "binding": "actual invocation; exact-source Cloudflare check and exact/primary asset comparison PASS"
+        },
+        "github-pages": {
+          "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "target_url": "https://zabulaaleksey.github.io/electro-tutor/",
+          "deployment_id": "7871034077",
+          "exit_code": 0,
+          "passed": 3,
+          "log": "picomatch-github-pages-smoke.log",
+          "log_sha256": "87f4b7e9aeb97928a9aa4ca69fb98d4bd0e25396be9e4de36e628f121498d9e9",
+          "log_completed_utc": "2026-11-18T01:10:24.388608+00:00",
+          "binding": "actual Pages invocation after exact successful deployment7871034077; source/run/API environment URL confirmed"
+        },
+        "parallel-exact": {
+          "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "target_url": "https://9a6a2dfd.electrotutor.pages.dev",
+          "deployment_id": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+          "exit_code": 0,
+          "passed": 10,
+          "log": "picomatch-parallel-exact.log",
+          "log_sha256": "d8d83784cdc8c05b03a988361d2ebe4cc401fb45199508e640f70cbc65ff715b",
+          "log_completed_utc": "2026-11-18T00:46:31.974816+00:00",
+          "binding": "actual invocation; exact-source Cloudflare check and exact/primary asset comparison PASS"
+        },
+        "parallel-primary": {
+          "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+          "target_url": "https://electrotutor.org",
+          "deployment_id": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+          "exit_code": 0,
+          "passed": 10,
+          "log": "picomatch-parallel-primary.log",
+          "log_sha256": "233a27ae779220ec5e246bd0f19b4d2fbb6a285fde5e1f5308e4f8f0a7000e94",
+          "log_completed_utc": "2026-11-18T00:46:31.970815+00:00",
+          "binding": "actual invocation; exact-source Cloudflare check and exact/primary asset comparison PASS"
+        }
+      }
+    },
     "audit_full": {
       "command": "pnpm audit --audit-level high",
       "exit_code": 0,
@@ -323,7 +460,9 @@
         "devDependencies": 320,
         "optionalDependencies": 149,
         "totalDependencies": 830
-      }
+      },
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "log_sha256": "8394a5861c3e3c7e5e137a9639ea0212b3a5ac3f1a182bca093ad69cd8d3564c"
     },
     "audit_production": {
       "command": "pnpm audit --prod --audit-level high",
@@ -340,7 +479,9 @@
         "devDependencies": 0,
         "optionalDependencies": 149,
         "totalDependencies": 510
-      }
+      },
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "log_sha256": "fa4efce48e4a768e8ca266ba788159f0b89d3807225dd7e0dfd9e362eee16431"
     },
     "review_followups": {
       "positive_corpus": {
@@ -642,6 +783,167 @@
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
       "log_sha256": "0a542458b3fc36b2e9c7165658ec4ebefe4a286e74135ffb1c853e4874f952fc"
+    },
+    "full_before_case_partition": {
+      "source_commit": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
+      "command": "pnpm verify:full",
+      "transport": "real Playwright WebSocket Chromium + local downloads partition",
+      "node": "v22.23.4",
+      "pid": 40320,
+      "started_utc": "2026-11-17T23:08:36.269Z",
+      "finished_utc": "2026-11-17T23:25:02.385Z",
+      "exit_code": 0,
+      "status": "PASS",
+      "unit_tests": 772,
+      "unit_files": 119,
+      "chromium_passed": 418,
+      "pre_existing_chromium_skipped": 6,
+      "root_cases": 424,
+      "remote_cases": 417,
+      "local_download_cases": 7,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "496ad6389275906381c992ae8f68af1153029af958e83f801dfeb80e2e215022"
+    },
+    "ci_infrastructure_attempt1": {
+      "run_id": 44210175433,
+      "attempt": 1,
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "status": "infrastructure_failure",
+      "step": "Install Playwright Chromium",
+      "cause": "APT package download from us-east-2.ec2.archive.ubuntu.com exceeded existing5min install timeout; frontend tests did not run",
+      "backend": "PASS",
+      "frontend": "not_started",
+      "pages": "skipped",
+      "log_sha256": "55b3a2afce6afac5f7fd471d7caeff40b77febbf49c2c712f4753f7515bef630",
+      "recovery": "one bounded failed-job retry on unchanged source/workflow; no functional test retry or gate modification"
+    },
+    "ci": {
+      "attempt": 2,
+      "status": "PASS",
+      "run_id": 44210175433,
+      "url": "https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44210175433",
+      "head_sha": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "jobs": [
+        {
+          "name": "verify",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Checkout repository",
+              "conclusion": "success"
+            },
+            {
+              "name": "Setup pnpm and Node.js",
+              "conclusion": "success"
+            },
+            {
+              "name": "Setup uv",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run backend API and PostgreSQL gates",
+              "conclusion": "success"
+            },
+            {
+              "name": "Restore access to Ubuntu packages if mirror DNS fails",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install Playwright Chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start reproducible Chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run required quality gates",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop owned Chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Configure GitHub Pages",
+              "conclusion": "success"
+            },
+            {
+              "name": "Upload Pages artifact",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Setup uv",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Setup pnpm and Node.js",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Checkout repository",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "deploy",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Deploy to GitHub Pages",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+        "run_id": 44210175433,
+        "run_attempt": 2,
+        "status": "PASS",
+        "checks": {
+          "unit_773": true,
+          "unit_files_119": true,
+          "chromium_418": true,
+          "conditional_skips_6": true,
+          "prod_smoke_2": true,
+          "audit_zero": true,
+          "full_verify_terminal": true,
+          "root_remote_420": true,
+          "root_local_4": true
+        },
+        "vitest_passed": 773,
+        "vitest_files": 119,
+        "chromium_passed": 418,
+        "chromium_skipped": 6,
+        "production_smoke_passed": 2,
+        "root_cases": 424,
+        "remote_cases": 420,
+        "local_download_cases": 4,
+        "log_sha256": "46b7bd2581f7bb3ca8338ffff988dd8e0781366be9c5d9c14f51ec83c3d52e73"
+      }
     }
   },
   "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
@@ -771,7 +1073,7 @@
       "status": "PASS"
     },
     "actual_mixed_transport": {
-      "transport_helper_sha256": "34085fe2458597ee548fe0ff1ddc198348b8e1d23438b23b438db9b1056db5dc",
+      "transport_helper_sha256": "a611d6c46011549ed1f77e61b1702ff21d7d10fe648a98f0cc808f9414367130",
       "status": "PASS",
       "exit_code": 0,
       "cases_passed": 11,
@@ -782,11 +1084,14 @@
         "remote_preview": 2,
         "remote_hardening": 2,
         "local_filesystem": 4
-      }
+      },
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "log_sha256": "2d1fe09ee734170fd3b89f203a18676dbaede5fb73eba60c094c62a8736942f7",
+      "source_encoding": "canonical committed LF; prior probe CRLF bytes normalize exactly to same Git blob"
     },
-    "adapter": "globalSetup transfers ambient PW endpoint/headers/exposeNetwork into explicit project-owned configuration before worker fixtures; real remote connection and7local round-trips verified in the same invocation",
+    "adapter": "GlobalSetup transfers ambient endpoint/headers/exposeNetwork to explicit project-owned config; exact4 file+title Download.path cases use client-local filesystem, all non-file cases retain canonical pinned remote. Actual mixed11=7remote+4local.",
     "full": "PASS: unchanged pnpm verify:full with actual Playwright WebSocket remote Chromium and local-download partition",
-    "review": "PASS; ambient override transfer, actual remote connection, partition/discovery and unchanged accepted tests verified",
+    "review": "parallel_review implementation PASS; exact allowlist, full424/426/33 ID parity, unchanged accepted cases/goldens/workflow and actual mixed transport verified.",
     "cold_discovery_fix": {
       "status": "PASS",
       "scope": "only unit import prerequisite fixture, parity assertions unchanged",
@@ -799,7 +1104,10 @@
       "static_lint_frozen": "PASS",
       "accepted_e2e_runtime_config_dependencies": "byte-identical to 5ecbbec",
       "review": "PASS",
-      "previous_full": "runtime qualification only; exact new commit full CI pending"
+      "previous_full": "Historical5ec full qualified cold-fixture-only224 change; exact current case-level config separately passed local full and GitHub CI.",
+      "exact_ci": "PASS",
+      "exact_source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "applied_source_commit": "224f6ff007926c7ee61c9b0760ad43ad4c4ffdc5"
     },
     "case_discovery_initial": {
       "root": 422,
@@ -828,7 +1136,9 @@
         "remote_preview": 2,
         "local_filesystem": 7
       }
-    }
+    },
+    "exact_ci": "PASS",
+    "exact_source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a"
   },
   "parallel_drag_repair": {
     "requirement": "CE-017..019",
@@ -847,18 +1157,21 @@
     "typescript": "PASS",
     "eslint": "PASS",
     "independent_review": "parallel_review PASS: bounded current-board hit, no stale event.target fallback, null/outside cancellation; hover contract unchanged",
-    "full": "pending",
-    "exact_ci": "FAIL for Linux host-native palette; remote regressions PASS, not terminal release proof",
-    "accepted_tests_fixtures_goldens": "unchanged"
+    "full": "PASS",
+    "exact_ci": "PASS for canonical transport; host-native palette was not independently fixed",
+    "accepted_tests_fixtures_goldens": "unchanged",
+    "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+    "narrow_separate_logs_retained": false,
+    "narrow_evidence": "Commands/results reported by stage1_review and checked by parallel_review; durable exact local full and exact CI logs recorded below."
   },
   "case_partition_design": {
-    "status": "approved_before_implementation",
+    "status": "completed",
     "requirement": "QG-013",
     "reviewer": "parallel_review",
     "gap": "File-wide adapter unnecessarily moved3 non-filesystem native gesture/model cases away from their existing canonical immutable browser image.",
     "design": "Only exact4 file+full-title allowlisted Download.path roundtrip cases local; all other cases canonical remote. Same424root/426education/33MVP logical IDs,0 omissions/duplicates/new skips.",
     "ui_scope": "Coordinate hardening remains independently verified; no claim host-native palette was fixed.",
-    "implementation": "narrow PASS; full/exact CI pending",
+    "implementation": "PASS",
     "contract_tests": {
       "passed": 8,
       "files": 2,
@@ -872,6 +1185,27 @@
       "duplicate": 0
     },
     "actual_mixed": {
+      "transport_helper_sha256": "a611d6c46011549ed1f77e61b1702ff21d7d10fe648a98f0cc808f9414367130",
+      "status": "PASS",
+      "exit_code": 0,
+      "cases_passed": 11,
+      "remote_connection_succeeded": true,
+      "roles": {
+        "remote_total": 7,
+        "remote_native_model": 3,
+        "remote_preview": 2,
+        "remote_hardening": 2,
+        "local_filesystem": 4
+      },
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "log_sha256": "2d1fe09ee734170fd3b89f203a18676dbaede5fb73eba60c094c62a8736942f7",
+      "source_encoding": "canonical committed LF; prior probe CRLF bytes normalize exactly to same Git blob"
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "build_full": "PASS:109 pages/271 files",
+    "review": "parallel_review PASS",
+    "actual_mixed_precommit_crlf": {
       "transport_helper_sha256": "34085fe2458597ee548fe0ff1ddc198348b8e1d23438b23b438db9b1056db5dc",
       "status": "PASS",
       "exit_code": 0,
@@ -885,9 +1219,47 @@
         "local_filesystem": 4
       }
     },
-    "typescript": "PASS",
-    "eslint": "PASS",
-    "build_full": "PASS:109 pages/271 files",
-    "review": "parallel_review implementation PASS; current full/CI still required"
+    "full": "PASS",
+    "exact_ci": "PASS",
+    "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a"
+  },
+  "runtime_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+  "cleanup": {
+    "deleted_remote": [
+      "feature/universal-parallel-attachment",
+      "fix/dependency-vulnerabilities"
+    ],
+    "deleted_local": [
+      "feature/universal-parallel-attachment",
+      "fix/dependency-vulnerabilities",
+      "fix/ci-local-download-transport",
+      "fix/discovery-clean-checkout",
+      "fix/parallel-drag-preview",
+      "fix/download-case-partition"
+    ],
+    "status": "PASS",
+    "preflight": {
+      "clean_tracked_and_untracked": true,
+      "only_root_worktree": true,
+      "heads": {
+        "local/fix/parallel-drag-preview": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
+        "local/fix/ci-local-download-transport": "5ecbbec111143d4636e547ea23b0c5e80d0989dd",
+        "local/fix/dependency-vulnerabilities": "3c048d018d3423c05dc091e3834f6f071c12d1c9",
+        "remote/feature/universal-parallel-attachment": "369d29f08573c0825c0a7dc1f3a54c12c597acfd",
+        "local/feature/universal-parallel-attachment": "94493cbaca1729a34d1cc6f04a3142c9a1716a9d",
+        "local/fix/download-case-partition": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+        "remote/fix/dependency-vulnerabilities": "3c048d018d3423c05dc091e3834f6f071c12d1c9",
+        "local/fix/discovery-clean-checkout": "224f6ff007926c7ee61c9b0760ad43ad4c4ffdc5"
+      },
+      "all_target_heads_reachable_from_main": true
+    },
+    "remote_main": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+    "artifacts": "No worktree, untracked, ignored or runtime files deleted; only fully merged refs",
+    "remaining_remote": [
+      "b614cda6a484ed99c12363a22d543d83c4cdcfd4\trefs/heads/docs/universal-labs-stage-0",
+      "56f92620bf0b136170d99101978dcc2824dc8384\trefs/heads/feature/language-status-ui",
+      "f3123c3b7eaa5878ab0cc3783829314f875f505a\trefs/heads/main"
+    ],
+    "utc": "2026-11-18T01:11:59.2080911+00:00"
   }
 }

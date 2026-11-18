@@ -4,11 +4,11 @@
 
 ## ET-CE-PARALLEL-001 — Универсальное параллельное подключение
 
-- Status: implemented_unverified
+- Status: completed
 - Goal: один выбор двухполюсного участка для элемента, соседней группы и всей ветви; preview, атомарная установка и обратимое математическое представление.
 - Scope: topology-derived regions, placement/routing, CircuitEditor, RU/UK copy, explicit equivalent view; документ v2 сохраняется.
 - Requirements: CE-016..022 в circuit-engine.spec.md по прямому запросу владельца.
-- Dependencies: ET-UNIVERSAL-002/003/006/031 verified; завершённый граф/редактор/редукция доступны. ET-DEP-20261117 delivery не является prerequisite локальной реализации; upstream security blocker запрещает production release.
+- Dependencies: ET-UNIVERSAL-002/003/006/031 verified; завершённый граф/редактор/редукция доступны. ET-DEP-20261117 delivery не является prerequisite локальной реализации; dependency security gate закрыт ET-DEP-20261117; production release подтверждён.
 - Entry: исходная явная топология и стабильные endpoint ID; React CircuitEditor, orthogonal router и reduceRlc.
 - Architecture: выбор ephemeral по boundary endpoint IDs, derived grouping не заменяет topology. Ограниченные graph components вместо перечисления путей. Планирование возвращает полный Drawing/Routing либо диагностику. commit/record — единственная атомарная граница Undo.
 - Plan: core region/geometry и узкие evals → общий UI выбора/preview/drag/touch/keyboard → явный equivalent view/model constraints → браузерная регрессия → reviewer → документация/commit.
@@ -17,63 +17,54 @@
 - Concrete E2E: импорт Series(R,L,C), drag X на R и preview; единым выбором граничных узлов R–L и всей ветви подключить X, подтвердить netlist, отменить/повторить, JSON round-trip; открыть equivalent view и продолжить редактирование исходных элементов на RU desktop и UK phone.
 - Recovery: один Undo либо исходный JSON; feature commit обратим, старые тесты и форматы не меняются.
 - Deferred: взаимно связанные катушки и новые решатели; нелинейная/частотно зависимая редукция; существующие предметные solver limits сохраняются.
-- Blockers: none для реализации и локальной квалификации; release integration/CI/production завершается в ET-DEP-20261117.
+- Blockers: none
 - User actions: none
-- Evidence: локальная функциональная квалификация PASS для e8e3ba1: frozen restore, CI contract, Astro check (0 errors/warnings, 3 прежние hints), ESLint, 761 Vitest / 116 файлов, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke. Полный pnpm verify:full завершился FAIL только на обязательном HIGH audit picomatch; исправленной версии нет. Полный и production pnpm audit дают одну HIGH-находку picomatch; Python runtime pip-audit повторно PASS. Новые 9 сценариев конструктора PASS локально и на preview. PNG desktop/phone сверены, SHA в docs/evidence/circuit-parallel.json.
+- Evidence: current runtime f3123c3 —773 Vitest/119 файлов,418 Chromium PASS/6 прежних SKIP,production smoke2,audit0; exact CI44210175433 attempt2 verify/deploy SUCCESS. Cloudflare exact/primary по13 hosted PASS, GitHub Pages3 hosted PASS. Source, receipts и ограничения — evidence/picomatch-remediation.json / evidence/circuit-parallel.json.
+- Historical evidence (e8e3ba1): локальная функциональная квалификация PASS для e8e3ba1: frozen restore, CI contract, Astro check (0 errors/warnings, 3 прежние hints), ESLint, 761 Vitest / 116 файлов, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke. Полный pnpm verify:full завершился FAIL только на обязательном HIGH audit picomatch; исправленной версии нет. Полный и production pnpm audit дают одну HIGH-находку picomatch; Python runtime pip-audit повторно PASS. Новые 9 сценариев конструктора PASS локально и на preview. PNG desktop/phone сверены, SHA в docs/evidence/circuit-parallel.json.
 - Verification recovery ET-QG-FONT-001: прежний полный прогон дал 413 Chromium PASS / 6 SKIP / 1 beam Ctrl-wheel FAIL; отдельно 4/5 PASS. Контролируемая поздняя загрузка web-fonts воспроизводит +3 px сдвига из-за normal line-height. Явные line boxes только над SVG устранили сдвиг. Новый font regression и все 13 прежних beam сценариев PASS (14), Ctrl-wheel дополнительно 5/5 PASS. Zoom, solver, допуски и goldens не менялись. Окончательный полный прогон прошёл все 415 Chromium, включая этот regression; прежний отказ устранён.
 - Completion sync: обновлены README, SPEC, ARCHITECTURE, DESIGN, ROADMAP, TRACEABILITY, requirement ledger, TESTING, DEPENDENCIES, LEARNING_LOG и STAGES. Проверены без изменений DECISIONS, SECURITY, API, DATA_MODEL, project-context и pre-deploy SPEC; новые API/БД/dependency/solver контракты не вводятся.
-- Hosted feature: [Cloudflare preview](https://a5758efe.electrotutor.pages.dev/ru/interactive/circuit-editor/), deployment a5758efe-74de-4368-abb9-fca26fd03381 для e8e3ba1 — build success, HTTP 200, 10 Chromium PASS (9 feature + прежний Ctrl-wheel). Root-only delayed-font probe не применим к education-сборке: BaseLayout отключает внешние web-fonts, fonts.status уже loaded; его исходный отказ сохранён, тест не менялся. Это проверенный preview; main и production не обновлялись этой веткой.
-- NEXT: integrate-release
-- Next action: после квалификации безопасной picomatch remediation получить audit/full verify PASS, затем выполнить штатную интеграцию, CI, production deploy и проверенную очистку ветвей. До этого сохраняются fix/dependency-vulnerabilities и feature/universal-parallel-attachment.
-- Stop condition: feature и полный security/functional verify проверены; delivery входит в текущий ET-DEP-20261117 и продолжается автоматически после локального PASS.
+- Hosted feature: [Cloudflare preview](https://a5758efe.electrotutor.pages.dev/ru/interactive/circuit-editor/), deployment a5758efe-74de-4368-abb9-fca26fd03381 для e8e3ba1 — build success, HTTP 200, 10 Chromium PASS (9 feature + прежний Ctrl-wheel). Root-only delayed-font probe не применим к education-сборке: BaseLayout отключает внешние web-fonts, fonts.status уже loaded; его исходный отказ сохранён, тест не менялся. Исторический preview e8e3ba1; на тот момент main/production ещё не обновлялись. Текущий release указан ниже.
+- NEXT: complete
+- Next action: feature выпущена вместе с закрытым ET-DEP-20261117; новая задача требует отдельного запроса.
+- Stop condition: реализация, локальный full, CI, main и оба production hosts проверены.
 
 
 
-- Remediation qualification: полный security-only dependency verify PASS (765 Vitest,416 Chromium/6 прежних SKIP,2 production smoke,audit0); независимый review PASS. Прежний DEP-PICOMATCH-001 FAIL выше относится к e8e3ba1 и сохранён как историческое evidence. Production release ещё не заявлен.
+- Remediation qualification: full/audit/review PASS, main f3123c3b7eaa5878ab0cc3783829314f875f505a, CI44210175433 verify/deploy SUCCESS, Cloudflare 9a6a2dfd и GitHub Pages hosted PASS. Исторические FAIL/preview выше относятся к явно указанным прежним ревизиям; текущий production receipt — evidence/picomatch-remediation.json.
+
+- Released feature: source f3123c3b7eaa5878ab0cc3783829314f875f505a, Cloudflare exact/primary по9 feature cases + unchanged beam PASS; GitHub Pages base-aware lab/history smoke PASS. Code feature01d0ea8 и font recoverye8e3ba1 остаются в истории.
 
 ## ET-DEP-20261117 — Security dependency maintenance
 
-- Status: in_progress
-- Goal: устранить оставшийся HIGH picomatch, получить audit/full verify PASS, слить проверенную ветку в main, выполнить push и настроенный production deploy.
-- Entry: чистый main b614cda, предыдущий runtime eff12b6. pnpm 11.23.0. Исходный аудит даёт 5 LOW и 7 MODERATE.
-- Scope: проверенная exact-pinned замена всех активных picomatch resolution, обязательные security/compatibility evals, pnpm manifest/overrides/lockfile, evidence; интеграция текущей ветки и production release после gates.
-- Requirements: QG-001..012. Владелец явно разрешил безопасную локальную/совместимую remediation без ожидания upstream; gate не ослабляется.
-- Dependencies: предыдущий мастер ET-UNIVERSAL-MASTER-V2 completed, production GitHub Pages и Cloudflare подтверждены.
-- Evals: frozen restore PASS, полный и production audit без находок, Python runtime audit, полный pnpm verify:full, существующий backend gate в GitHub CI, smoke четырёх лабораторий на обоих production hosts.
-- Recovery: предыдущий main b614cda и runtime eff12b6 сохраняются в Git и точной production-выкладке.
-- Evidence: повторная квалификация по прямому запросу владельца для 5f29b52: frozen restore, static/type/lint, 761 Vitest, 415 Chromium / 6 прежних SKIP, production build и 2 production smoke PASS. Полный pnpm verify:full FAIL только на последнем HIGH audit: picomatch <=4.0.7, patched versions None. npm latest и последний официальный release остаются 4.0.7. [Receipt](evidence/dependency-picomatch-recheck.json).
-- Compatibility: разделены devalue 5/6, согласованы Zod и smol-toml, активный граф использует Vite 8.3.8. Для minimatch >=7 <11.0.1 применяется исправленный 11.0.1; используемые TypeScript ESLint API проверены, полный lint и регрессия PASS.
-- User actions: none. Явное разрешение merge/push/deploy получено; обязательный QG-003 блокирует выпуск до audit PASS.
-- Blockers: none для локальной квалификации; новая exact CI/GitHub Pages delivery подтверждается после integration/push.
-- Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
-- Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
-- Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: qualify-exact-case-partition-full
-- Next action: реализовать approved QG013 exact4 filesystem cases allowlist; guard424 root IDs/4local/420remote +426education/33MVP, actual mixed/full/exact CI/Pages.
-
-- Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
-- Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
-- Plan and ownership: root — procurement, manifest/overrides/lockfile, SPEC/docs/release; regression worker — новый security regression и адресный MeshLab URL ownership fix по FR-384/new tests; reviewer — read-only security и navigation review. Существующие accepted tests и audit workflow не меняются.
-- Remediation: все 10 tarball files совпали с source 3ab5a762; SRI проверен. RED original matcher/makeRe/parseCompile timeout 3s × 6; fork GREEN 2–6ms. Independent review обнаружил два non-security semantic delta; штатный pnpm compatibility patch отменяет ВСЕ unrelated runtime changes. Effective diff к official4.0.7 — 81 security additions, parser hash 2d26afdd15b3b164d8bed0916f6c21a03322d7b36e3efe2b2cd47f5a45b90232. Qualification evidence: evidence/picomatch-remediation.json.
-- Risk/rollback: fork имеет нового maintainer; принимается только полный проверенный code diff и immutable SRI. Мажорные API потребителей 2/4 проверяются отдельно. Возврат к предыдущему Git lockfile восстанавливает состояние; HIGH-blocked состояние не публикуется.
-
-
-- Packaging gate: staging выявил required single-space context rows в unified patch, отклонённые git whitespace checks. Штатный pnpm patch-commit с command-local diff.context=0 пересоздал zero-context patch без изменений любых10 installed package files. Новый patch SHA8657c5f6271d9d1ee9855cdd5365479ac3fcd30e13827e60d01e0971f7b976f8 закреплён pnpm. Source/security regression4PASS и staged hygiene PASS. Прежний full PASS сохранён; окончательный full verify со staged zero-context patch также PASS. Gate/attributes не ослаблены.
-
-
-- Current qualification: окончательный full с REAL WebSocket Chromium + local-download partition PASS:772 Vitest/119 файлов,416 Chromium PASS/6 oldSKIP (415remote cases+7local cases),production smoke2/2,HIGH audit0,frozen/hygiene/static/lint/CI contract PASS. Все исходные E2E/goldens byte-identical, pipeline/Docker/deps/permissions unchanged. Новый transport review PASS; failed initial CI сохранён как history.
-
-- CI transport repair: backend/PostgreSQL and765unit PASS; root412PASS/6 oldSKIP/4 remote Download.path FAIL. Official Playwright API confirms path unavailable on remote connection. Accepted test files stay byte-identical; bounded local download profile uses already installed pinned Chromium, other tests/goldens stay Noble remote. No workflow/dependency/permission change. Source94493cb Cloudflare ab154aa4 primary/exact each13 hosted PASS,6 assets match. Final CI/Pages remains pending.
-
-- Cold CI recovery: run44188507681 stopped before E2E on2new discovery unit imports (no dist in clean checkout),770other unit/backend gates PASS. Изолированный empty tmp dir передан только child --list; assertions неизменны, реальные E2E используют свежий настоящий build. Coldprobe3 и весь772unit/119files, Astrocheck/lint/frozen/audit0 PASS; independentreviewPASS. Runtime/config/deps/acceptedE2E byte-identical5ec, прежний realWSfull учитывается толькокакruntimequalification. НовыйcommitfullCI ещёpending.
-
-- CI recovery44191637707: source224f6ff — backend/PostgreSQL,772 unit и415 Chromium PASS,6 прежних SKIP; один palette-drag preview FAIL, Pages skipped. Cloudflare того же source и hosted13+13 PASS подтверждают отдельную выкладку, а не полный release gate. Ref fix/parallel-drag-preview; принятые assertions сохраняются.
-
-- Drag repair: CE-017..019 release hit определяется по координатам и ограничен current SVG; stale root target больше не сбрасывает preview. Causal old-HEAD RED/fixed GREEN, новый native drag, прежний palette5/5 и empty-drop PASS;109-page build/tsc/lint и независимый review PASS. Два новых browser regression; full/exact CI ещё pending, принятые tests/goldens не менялись.
-
-- CI44199486789/source423f3af: local full772/418+6skip/2smoke/audit0 PASS; CI772/417+6skip/1same palette FAIL, Pages skipped. Remote native/causal regressions PASS; coordinate hardening не закрывает host-native failure. Approved bounded design: исправить file-wide transport adapter — только4 Download.path cases local, остальные3 вернуть canonical immutable remote; original tests/assertions/goldens и gates не меняются. SPEC QG013 обновлена до реализации, независимый review PASS.
-
-- Case-level qualification: exact4 file+title allowlist,420remote/4local root424; education426/MVP33 и fullIDparity0omission/duplicate подтверждены8guards. Actual mixed11 PASS23.5s с настоящим WebSocket:7remote/4local, включая прежний native palette в canonical image. Build109/271,tsc/lint и независимый implementation review PASS; полный verify/exact CI/Pages pending.
+- Status: completed
+- Goal: устранить HIGH picomatch без ожидания upstream и без ослабления gates; получить полный PASS, merge/main push и production deploy.
+- Scope: exact alias всех9 активных consumers, security-only parser, штатный compatibility patch, обязательный regression; адресные FR-384 navigation и CE-017..019 drop repairs для полного gate; интеграция текущей ветки.
+- Requirements: QG-001..013; существующие FR-384 и CE-017..019. Previous master ET-UNIVERSAL-MASTER-V2 completed; Circuit Engine prerequisite verified.
+- Entry: GitHub main ae22dcd, continuation feature/universal-parallel-attachment; исходный HIGH GHSA-fc5q-39xc-vjpf; официальный patched release отсутствует.
+- Architecture: pnpm composition root → exact @ryotsu/picomatch4.0.7-a + SRI + tracked zero-context compatibility patch; эффективный diff к official4.0.7 —81 security additions. App imports не зависят от fork name.
+- Security evidence: 10 source/tarball files проверены; MIT сохранена, новых runtime deps/install hooks нет. Parser SHA2d26af…; patch SHA8657c5…; все9 actual consumers используют reviewed source и не отключают safeguard. RED исходного ReDoS; mandatory4 regression +42 positive/boundary assertions PASS. Независимый security/compatibility/packaging review PASS.
+- Verification recovery: TypeScript narrowing нового test исправлен; реальный late-hydration URL/storage race закрыт immutable owner path + новым causal RED/GREEN test. Staging обнаружил context-only patch whitespace; штатный pnpm diff.context=0 сохранил все10 installed files byte-identical. Gates, attributes, принятые tests/goldens не ослаблялись. Failed receipts сохранены.
+- Evals: локальный pnpm verify:full со staged zero-context patch и real WebSocket PASS (exact sourcef3123c3, включая cold-discovery и native/SVG-root drag regression; тот же source whole pipeline в CI): frozen restore, hygiene/CI contract, Astro check0 errors/0 warnings/3 прежние hints, ESLint,773 Vitest/119 файлов,13 независимых аналитических cases/49 assertions,418 Chromium PASS/6 прежних conditional SKIP, production build,2 production smoke и HIGH audit0. Отдельный full/production audit0.
+- Integration: обычный fast-forward в main и push f3123c3b7eaa5878ab0cc3783829314f875f505a; source включает nav7c74e6d, security94493cb и ранее проверенный parallel/editor/font slice. origin/main SHA подтверждён.
+- CI transport recovery: initial44177003756/source94493cb failed4 Download.path cases; accepted files/assertions/goldens остались byte-identical. QG-013 partition+ambient endpoint transfer сохраняет все cases; до двух новых drag regressions422 root logical cases/33 MVP;actual mixed9 и whole-full real-WebSocket PASS.
+- Clean-checkout recovery: CI44188507681/source5ecbbec выявил зависимость нового discovery unit от dist; owned empty BUILD_OUTPUT_DIR изолирован только внутри --list child. Assertions и реальные E2E не изменены; cold probe3, whole unit772, static/lint/frozen/audit0 PASS.
+- Drag recovery: CI44191637707/source224f6ff —772unit/415ChromiumPASS,6skip/1palette-previewFAIL; Pages skipped. Current-board coordinate hit вместо stale SVG target: causal RED/GREEN, native drag и прежний palette5/5/empty-drop PASS; independent review PASS. Принятые tests/goldens сохранены.
+- Case-scope recovery: CI44199486789/source423f3af повторил один host-native palette FAIL при417PASS/6skip. File-wide adapter был избыточен: только4 exact filesystem cases остаются local,3 non-file возвращены canonical pinned image. Full logical-set guards424/426/33, exact4allowlist и0omission/duplicates подтверждены, mixed11PASS (7remote/4local); accepted tests/assertions/goldens/retries/workflow неизменны. Host-native gesture bug не объявляется исправленным.
+- Infrastructure recovery: CI44210175433 attempt1 остановился до frontend на5min APT download timeout; backend PASS. Один bounded retry неизменного source/workflow, без retries функциональных tests или изменения gates; failed receipt сохранён.
+- CI: [44210175433](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44210175433) для точного runtime SHA — verify/deploy SUCCESS, backend API/PostgreSQL и полный frontend pipeline PASS.
+- Production: Cloudflare 9a6a2dfd-afcc-4137-b4e1-49a0225e42a7 для того же source; [точная выкладка](https://9a6a2dfd.electrotutor.pages.dev) и [primary](https://electrotutor.org/) — по3 lab/history smoke и10 feature/beam PASS;6 JS/CSS assets побайтно совпадают. [GitHub Pages](https://zabulaaleksey.github.io/electro-tutor/) — deploy SUCCESS,3 hosted smoke PASS с /electro-tutor/ base.
+- Evidence: [полный receipt](evidence/picomatch-remediation.json), [feature receipt](evidence/circuit-parallel.json). Local full и CI/source/deployment различаются явно.
+- Cleanup: feature/universal-parallel-attachment, fix/dependency-vulnerabilities, fix/ci-local-download-transport, fix/discovery-clean-checkout, fix/parallel-drag-preview и fix/download-case-partition удалены локально; первые две также на origin после clean/reachability/main-SHA/worktree preflight; unique/dirty/unknown work не удалялся. Docs-only receipt подготовлен в отдельной временной ветке; runtime и его конфигурация не пересобираются и не меняются.
+- Recovery: текущие source/manifests/patch/lock сохраняются в Git, прежняя production source eff12b6 и deployment5cd42ef5 доступны. Откат не публикуется при непрошедших исходных gates.
+- Limits: provenance воспроизводима, криптографическая attestation/личность нового maintainer независимо не аутентифицирована. Небезопасные сложные extglobs literalized, captures могут отличаться. Возврат к официальному patched release требует тех же evals; автоматического обновления нет.
+- Deferred host qualification: ET-CI-HOST-PALETTE-001 — deferred, non-blocking for canonical configured release. Условие: отдельное требование поддержать standalone Ubuntu host-native gesture profile. Действие: воспроизвести palette drag с event/geometry receipt в этой среде; ожидаемое evidence — native drop coordinates/target и causal RED/GREEN + unchanged accepted case. Это разблокирует только будущую host-native qualification; никаких пользовательских действий для текущего release нет.
+- Deferred: никакого нового product/backend/provider scope; прежние отдельные secret-bearing phases не переопределяются.
+- User actions: none
+- Blockers: none
+- Completion sync: обновлены README, STAGES, ROADMAP, ARCHITECTURE, DECISIONS, LEARNING_LOG, TESTING, SECURITY, DEPENDENCIES, TRACEABILITY, requirement ledger, pre-deploy SPEC и evidence. Проверены без изменений DESIGN, API, DATA_MODEL, project-context, circuit-engine и unified-navigation SPEC; их контракты сохраняются.
+- NEXT: complete
+- Next action: новая работа только по отдельному явному запросу; старый master/внешние очереди не возобновляются.
+- Stop condition: поставленная security/integration/deployment задача выполнена, обязательных незавершённых хвостов нет.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

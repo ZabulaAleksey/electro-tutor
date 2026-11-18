@@ -2,23 +2,25 @@
 
 Approved case-level adapter оставляет local только4 JSON round-trip titles с Download.path. Остальные3 случая circuit-parallel.spec.ts возвращены canonical pinned remote image; исходные files/assertions/goldens/retries/workflow не меняются. Root424=420remote+4local, education426=422remote+4local, MVP33 один прежний profile;8 contract/discovery guards, tsc/lint и build109/271 PASS. Actual mixed11 PASS:7 real-WebSocket remote +4 local filesystem; сохранены точный helper hash и log. SVG coordinate hardening имеет собственный causal RED/GREEN, но не объявляется исправлением Linux host-native palette failure.
 
-Case-scope narrow PASS; current full/exact CI/Pages pending. Предыдущий source423f3af local full772/418+6skip/2smoke/audit0 PASS, но CI44199486789 повторил один palette FAIL только в избыточном host-local profile; Pages skipped. Это сохранённое historical evidence, а не текущий release PASS. Current truth — ET-DEP-20261117.
+Case-scope exact sourcef3123c3: full773unit/418Chromium+6oldSKIP/2production smoke/audit0 PASS; CI verify/deploy SUCCESS, both configured production hosts verified. Предыдущий source423f3af local full772/418+6skip/2smoke/audit0 PASS, но CI44199486789 повторил один palette FAIL только в избыточном host-local profile; Pages skipped. Это сохранённое historical evidence, а не текущий release PASS. Current truth — ET-DEP-20261117.
 
-## Discovery unit до первой сборки
-+
-+Clean CI44188507681 выявил implicit dist prerequisite при module-load существующего product-shell-audit. Новый UNIT guard теперь создаёт собственный пустой build-root только для child `--list` и удаляет его в finally; тела E2E не выполняются, реальные build/runtime env не меняются. Все parity assertions сохранены. При заведомо отсутствующем parent artifact3guards PASS; весь772unit/119files, canonical Astrocheck/lint/frozen/HIGH audit PASS. Previous real-WebSocket full остаётся runtime qualification неизменённых app/config; полный pipeline нового commit подтверждается exact CI перед Pages.
+Ниже сохранены исторические checkpoints прежних ревизий. Текущий release — source `f3123c3`, полный/CI/production PASS и точные counts указаны выше и в [receipt](evidence/picomatch-remediation.json). Прежние FAIL и старые размеры suite не описывают текущее состояние.
 
-## QG-013 — реальный remote Chromium и client-local downloads
+## Историческое cold-discovery исправление (224f6ff)
 
-Новая конфигурация сохраняет все принятые E2E/fixtures/goldens. Remote endpoint передаётся явно project profile; globalSetup переносит ambient PW override в project-owned env перед worker reload. Root discovery422 =415 remote+7 client-local download cases; education424; MVP33, прежний один remote profile. Каждый logical case ровно один раз, новых skips нет. Прежние версии/образ/workflow/permissions не изменяются.
+Clean CI44188507681 выявил implicit dist prerequisite при module-load существующего product-shell-audit. Новый UNIT guard теперь создаёт собственный пустой build-root только для child `--list` и удаляет его в finally; тела E2E не выполняются, реальные build/runtime env не меняются. Все parity assertions сохранены. При заведомо отсутствующем parent artifact3guards PASS; весь772unit/119files, canonical Astrocheck/lint/frozen/HIGH audit PASS. Previous real-WebSocket full остаётся runtime qualification неизменённых app/config; полный pipeline sourcef3123c3 подтверждён exact CI44210175433 до Pages deploy.
 
-Actual mixed invocation:9 прежних cases PASS (2 real WebSocket preview +7 local export/import). Новые7 contract/discovery tests PASS. Полный `pnpm verify:full` через настоящий Playwright WebSocket Chromium:772 Vitest/119 файлов,416 Chromium PASS/6 прежних SKIP,production smoke2,HIGH audit0 и все прочие gates PASS. Initial GitHub44177003756:backend/PostgreSQL и765unit PASS,412 Chromium PASS/6SKIP/4 Download.path remote API FAIL; Pages корректно skipped. Новая CI/Pages delivery пока pending; current truth/evidence — ET-DEP-20261117. Следующие записи относятся к указанным в них прежним ревизиям.
+## Историческая file-level transport qualification (5ecbbec)
 
-## ET-DEP-20261117 — security remediation picomatch
+Исходная file-level конфигурация5ecbbec сохраняла все принятые E2E/fixtures/goldens. Remote endpoint передаётся явно project profile; globalSetup переносит ambient PW override в project-owned env перед worker reload. Root discovery422 =415 remote+7 client-local download cases; education424; MVP33, прежний один remote profile. Каждый logical case ровно один раз, новых skips нет. Прежние версии/образ/workflow/permissions не изменяются.
+
+Actual mixed invocation:9 прежних cases PASS (2 real WebSocket preview +7 local export/import). Новые7 contract/discovery tests PASS. Полный `pnpm verify:full` через настоящий Playwright WebSocket Chromium:772 Vitest/119 файлов,416 Chromium PASS/6 прежних SKIP,production smoke2,HIGH audit0 и все прочие gates PASS. Initial GitHub44177003756:backend/PostgreSQL и765unit PASS,412 Chromium PASS/6SKIP/4 Download.path remote API FAIL; Pages корректно skipped. Exact CI44210175433/sourcef3123c3b7eaa5878ab0cc3783829314f875f505a verify/deploy SUCCESS; Cloudflare и GitHub Pages hosted PASS; current truth/evidence — ET-DEP-20261117. Следующие записи относятся к указанным в них прежним ревизиям.
+
+## Историческая security-only qualification picomatch (94493cb)
 
 Полный `pnpm verify:full` PASS под Node22.23.4: frozen restore, hygiene/CI contract, Astro check (0 errors/0 warnings/3 прежние hints), ESLint, 765 Vitest /117 файлов, 13 независимых аналитических cases/49 assertions, 416 Chromium PASS /6 прежних SKIP, production build, 2 production smoke и неизменённый HIGH audit без находок. Отдельный full/production audit:0. Новый mandatory security regression4/4 и42 дополнительных positive/boundary assertions PASS; source/SRI/patch/все9 actual consumers проверены, отключений safeguard нет. Independent review PASS.
 
-Первый remediation full остановился на TypeScript narrowing нового test; guard исправлен без изменения assertions, затем весь pipeline повторён от frozen install. Принятые tests/goldens и пороги не менялись. Интеграция/CI/production ещё ожидают подтверждения; [полное evidence](evidence/picomatch-remediation.json). Следующие записи относятся к предыдущим ревизиям.
+Первый remediation full остановился на TypeScript narrowing нового test; guard исправлен без изменения assertions, затем весь pipeline повторён от frozen install. Принятые tests/goldens и пороги не менялись. Main f3123c3b7eaa5878ab0cc3783829314f875f505a интегрирован и запушен; CI44210175433 verify/deploy SUCCESS, backend/PostgreSQL и full frontend gates PASS. Cloudflare exact/primary по3 smoke +10 feature/beam PASS; GitHub Pages3 hosted smoke PASS;6 root assets побайтно совпали; [полное evidence](evidence/picomatch-remediation.json). Следующие записи относятся к предыдущим ревизиям.
 
 ## ET-DEP-20261117 — повторная проверка перед интеграцией
 

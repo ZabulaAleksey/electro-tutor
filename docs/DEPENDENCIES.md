@@ -9,7 +9,7 @@
 - После обновления advisory обнаружен HIGH picomatch <=4.0.7 (GHSA-fc5q-39xc-vjpf). По прямому поручению владельца выбран exact alias `picomatch: npm:@ryotsu/picomatch@4.0.7-a` для всех потребителей 2/4 и devDependency для обязательного regression. Квалификация и release gates — в STAGES; upstream-only wait больше не является стратегией remediation.
 - Clean restore и CI restore — pnpm install --frozen-lockfile. Изменения lockfile производит pnpm. Корневой node_modules восстанавливается из штатного shared store, временный проверочный Node хранится в рабочем каталоге задачи.
 - При удалении override требуется доказать по lockfile, что родители разрешают исправленные версии штатно. Изменение основной версии minimatch проверяется существующими статическими и полными browser gates.
-- .node-version задаёт запрошенную версию; существующий Cloudflare NODE_VERSION может её переопределить. Поэтому штатный pnpm devEngines.runtime дополнительно закрепляет эффективный Node приложения. Первая Cloudflare-выкладка ae22dcd до этого закрепления завершилась ошибкой версии Node; успешная новая доставка пока не подтверждена. [Build image contract](https://developers.cloudflare.com/pages/configuration/build-image/)
+- .node-version задаёт запрошенную версию; существующий Cloudflare NODE_VERSION может её переопределить. Поэтому штатный pnpm devEngines.runtime дополнительно закрепляет эффективный Node приложения. Первая Cloudflare-выкладка ae22dcd до этого закрепления завершилась ошибкой версии Node; новая production-доставка sourcef3123c3/Cloudflare 9a6a2dfd подтверждена CI и hosted acceptance. [Build image contract](https://developers.cloudflare.com/pages/configuration/build-image/)
 
 ### Проверяемая security-замена picomatch
 

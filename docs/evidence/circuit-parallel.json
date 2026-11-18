@@ -1,6 +1,6 @@
 {
   "stage": "ET-CE-PARALLEL-001",
-  "scope": "local feature qualification, production release pending",
+  "scope": "verified feature, merged main and both configured production hosts",
   "runtime": "Node 22.23.4 / pnpm 11.23.0 / Windows Chromium 151",
   "requirements": [
     "CE-016",
@@ -19,8 +19,8 @@
     ]
   },
   "full_unit_tests": {
-    "passed": 761,
-    "files": 116
+    "passed": 773,
+    "files": 119
   },
   "visual_review": {
     "status": "PASS",
@@ -37,21 +37,58 @@
       }
     ]
   },
-  "release_blocker": "DEP-PICOMATCH-001: GHSA-fc5q-39xc-vjpf, no patched published picomatch version",
+  "release_blocker": null,
   "full_verify": {
-    "status": "FAIL",
-    "terminal_failure": "pnpm audit --audit-level high",
-    "functional_gates": "PASS",
-    "vitest_passed": 761,
-    "vitest_files": 116,
-    "chromium_passed": 415,
-    "chromium_skipped": 6,
-    "production_smoke_passed": 2,
-    "audit_modules": [
-      "picomatch"
-    ],
-    "advisory": "GHSA-fc5q-39xc-vjpf",
-    "patched_versions": null
+    "status": "PASS",
+    "local_full": {
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "command": "pnpm verify:full",
+      "transport": "real Playwright WebSocket Chromium + local downloads partition",
+      "node": "v22.23.4",
+      "pid": 59944,
+      "started_utc": "2026-11-18T00:22:31.221Z",
+      "finished_utc": "2026-11-18T00:42:23.932Z",
+      "exit_code": 0,
+      "status": "PASS",
+      "unit_tests": 773,
+      "unit_files": 119,
+      "chromium_passed": 418,
+      "pre_existing_chromium_skipped": 6,
+      "root_cases": 424,
+      "remote_cases": 420,
+      "local_download_cases": 4,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "2f45e55e72f2fcd49a82e859f38560ad2070c0d8a600975a388a8bc5ccffc223",
+      "evidence_scope": "Exact current-source local full with case-level4local/420remote partition and native/SVG-root drag regressions; same source passed full GitHub CI below."
+    },
+    "exact_ci": {
+      "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+      "run_id": 44210175433,
+      "run_attempt": 2,
+      "status": "PASS",
+      "checks": {
+        "unit_773": true,
+        "unit_files_119": true,
+        "chromium_418": true,
+        "conditional_skips_6": true,
+        "prod_smoke_2": true,
+        "audit_zero": true,
+        "full_verify_terminal": true,
+        "root_remote_420": true,
+        "root_local_4": true
+      },
+      "vitest_passed": 773,
+      "vitest_files": 119,
+      "chromium_passed": 418,
+      "chromium_skipped": 6,
+      "production_smoke_passed": 2,
+      "root_cases": 424,
+      "remote_cases": 420,
+      "local_download_cases": 4,
+      "log_sha256": "46b7bd2581f7bb3ca8338ffff988dd8e0781366be9c5d9c14f51ec83c3d52e73"
+    },
+    "receipt": "picomatch-remediation.json"
   },
   "feature_commit": "01d0ea870647c123dc2aa6e18bbc39023f748059",
   "hosted_preview": {
@@ -76,8 +113,18 @@
     "unchanged_ctrl_wheel_repeats": 5,
     "accepted_tests_and_goldens": "unchanged"
   },
-  "current_runtime_commit": "e8e3ba11efcb58d6e62b8eef6f42b78348e78406",
-  "production_release": "BLOCKED; feature not merged to main",
+  "current_runtime_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+  "production_release": {
+    "status": "PASS",
+    "source_commit": "f3123c3b7eaa5878ab0cc3783829314f875f505a",
+    "ci": "https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44210175433",
+    "cloudflare_deployment": "9a6a2dfd-afcc-4137-b4e1-49a0225e42a7",
+    "cloudflare_primary": "https://electrotutor.org/",
+    "github_pages": "https://zabulaaleksey.github.io/electro-tutor/",
+    "hosted_feature_primary_passed": 9,
+    "hosted_feature_exact_passed": 9,
+    "accepted_beam_each_host_passed": 1
+  },
   "python_runtime_audit": "PASS: No known vulnerabilities found",
   "hosted_font_probe": {
     "status": "NOT_APPLICABLE_TO_EDUCATION_PROFILE",
@@ -85,5 +132,20 @@
     "owner": "src/layouts/BaseLayout.astro excludes external web-fonts in education mode",
     "root_regression": "PASS in final full Chromium suite",
     "failed_probe_preserved": true
+  },
+  "historical_full_verify_before_remediation": {
+    "status": "FAIL",
+    "terminal_failure": "pnpm audit --audit-level high",
+    "functional_gates": "PASS",
+    "vitest_passed": 761,
+    "vitest_files": 116,
+    "chromium_passed": 415,
+    "chromium_skipped": 6,
+    "production_smoke_passed": 2,
+    "audit_modules": [
+      "picomatch"
+    ],
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "patched_versions": null
   }
 }

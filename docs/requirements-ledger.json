@@ -1081,20 +1081,24 @@
         "scripts/ci-workflow-contract.mjs"
       ],
       "unit": [
-        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS"
+        "RC1 frontend189/backend208 PASS; lint/typecheck/Ruff/mypy PASS",
+        "773 Vitest /119 files PASS;13 independent analytical cases/49 assertions PASS"
       ],
       "integration": [
-        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS"
+        "Real PostgreSQL83 PASS/no skips; build25 pages/121 artifacts; context/CI/hygiene/overlay PASS",
+        "Exact CI backend API/PostgreSQL gates PASS; frozen/static/type/lint/context/hygiene PASS"
       ],
       "e2e": [
-        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS"
+        "Built Chromium128 PASS/6 expected separate live skips; real registration/return1 PASS; base-path4+1 PASS",
+        "Exact localf3123c3:418 Chromium PASS/6 unchanged conditional skips; production smoke2 PASS",
+        "Exactf3123c3 CI44210175433 verify/deploy SUCCESS; hosted lab/history3 each on Cloudflare exact/primary and GitHub Pages; feature/beam10 each on CF exact/primary PASS"
       ],
-      "runtime": "Validated locally; no production deploy/publication.",
-      "security": "Frozen locks, pnpm audit0/applicable runtime pip-audit0; trust boundaries retained.",
+      "runtime": "Main f3123c3b7eaa5878ab0cc3783829314f875f505a; verified CI artifact deployed to GitHub Pages; same source qualified on Cloudflare.",
+      "security": "Unchanged HIGH gate; full/production Node audit0; backend API/PostgreSQL gate PASS in exact CI.",
       "a11y": "UA-19 / Narrator / RU/UK voice manual Session acceptance PASS, owner-confirmed 2026-10-02; other authored-content scope is not inferred.",
       "observability": "CI/gate exit codes; no production backend telemetry.",
-      "gap": "Production hosting/HTTPS IAM and preserved original DB compatibility remain separate deployment scope; no current RC1/manual blocker.",
-      "action": "ET-18.2 bounded hosting/runtime plan after local RC1; preserve accepted manual PASS."
+      "gap": "None within mandatory static/frontend release gates; existing separate live phases retain their contract.",
+      "action": "Preserve mandatory gates and qualify future source revisions before release."
     },
     {
       "requirement_ids": [
@@ -1752,7 +1756,8 @@
         "src/learning/get-navigation.ts",
         "src/learning/browser-contents.ts",
         "src/components/LearningContents.astro",
-        "src/components/LearningMenu.astro"
+        "src/components/LearningMenu.astro",
+        "src/mesh/MeshLab.tsx"
       ],
       "unit": [
         "src/learning/navigation.test.ts",
@@ -1768,7 +1773,8 @@
         "tests/e2e/mvp-navigation.spec.ts",
         "tests/e2e/mvp-journey.spec.ts",
         "tests/e2e/mvp-pwa.spec.ts",
-        "tests/e2e/mvp-visual.spec.ts"
+        "tests/e2e/mvp-visual.spec.ts",
+        "tests/e2e/mesh-navigation-ownership.spec.ts"
       ]
     },
     {
@@ -3237,13 +3243,13 @@
         "CE-021",
         "CE-022"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "circuit-engine",
       "runtime": "Topology-derived parallel regions, atomic attachment preview and reversible model-scoped RLC view",
       "security": "Source revision guard, finite graph/layout budgets and existing document validation",
       "a11y": "RU/UK boundary selectors, radio ambiguity choice, touch and keyboard",
       "observability": "Original IDs, precise selected region, preview routes and reduction provenance",
-      "gap": "Local functional gates passed: 761 unit, 415 Chromium and 2 production smoke; 10 hosted preview scenarios passed. Full verify and production remain blocked by DEP-PICOMATCH-001.",
+      "gap": "None. Full verify, independent review, main CI and production delivery PASS; historical pre-remediation receipts remain recorded.",
       "action": "Validate the four explicit RLC connections, state preservation, undo and model constraints.",
       "code": [
         "src/circuit/parallel-regions.ts",
@@ -3273,14 +3279,14 @@
         "QG-012",
         "QG-013"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "dependency-security",
-      "runtime": "Full local verification PASS; main CI and hosted production delivery pending.",
+      "runtime": "Main f3123c3b7eaa5878ab0cc3783829314f875f505a; CI44210175433 and both configured production hosts verified.",
       "security": "Reviewed parser correction, SRI and isolated adversarial regression; unchanged HIGH audit gate.",
       "a11y": "No direct UI changes; existing browser acceptance remains mandatory.",
       "observability": "Source file hashes, timed RED/GREEN child-process probes and full verification receipt.",
-      "gap": "CI Download.path transport repair and exact CI/GitHub Pages hosted completion pending; accepted tests remain unchanged.",
-      "action": "Integrate the qualified release and verify both configured production hosts.",
+      "gap": "None within the qualified dependency/release scope.",
+      "action": "Maintain the exact pin/patch and rerun the same security/compatibility/full gates before replacement.",
       "code": [
         "pnpm-workspace.yaml",
         "pnpm-lock.yaml",

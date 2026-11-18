@@ -1,9 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { clearAutoConnectEnvironment, DOWNLOAD_SPEC, makeTransportProjects } from "../../scripts/playwright-transport.mjs";
+import {
+  clearAutoConnectEnvironment,
+  DOWNLOAD_CASE_GREP,
+  DOWNLOAD_CASE_TITLES,
+  DOWNLOAD_SPEC,
+  makeTransportProjects,
+} from "../../scripts/playwright-transport.mjs";
 
 const desktopUse = { browserName: "chromium" };
 
 describe("Playwright browser transport partition", () => {
+  it("pins the independent four-case allowlist and its file-qualified grep", () => {
+    expect(DOWNLOAD_CASE_TITLES).toEqual([
+      "parallel section R previews, commits atomically and survives JSON reload",
+      "parallel section L previews, commits atomically and survives JSON reload",
+      "parallel section R-L previews, commits atomically and survives JSON reload",
+      "parallel section whole R-L-C previews, commits atomically and survives JSON reload",
+    ]);
+    for (const title of DOWNLOAD_CASE_TITLES) {
+      expect(DOWNLOAD_CASE_GREP.test(`chromium circuit-parallel.spec.ts ${title}`)).toBe(true);
+      expect(DOWNLOAD_CASE_GREP.test(`chromium tests/e2e/other.spec.ts ${title}`)).toBe(false);
+      expect(DOWNLOAD_CASE_GREP.test(`chromium nested/circuit-parallel.spec.ts ${title}`)).toBe(false);
+      expect(DOWNLOAD_CASE_GREP.test(`chromium circuit-parallel.spec.ts unrelated ${title}`)).toBe(false);
+    }
+  });
+
   it("keeps the default no-endpoint contract as one local chromium project", () => {
     expect(makeTransportProjects(undefined, desktopUse)).toEqual([
       { name: "chromium", use: desktopUse },
@@ -15,21 +36,25 @@ describe("Playwright browser transport partition", () => {
     expect(projects).toHaveLength(2);
     expect(projects[0]).toMatchObject({
       name: "chromium",
-      testIgnore: [DOWNLOAD_SPEC],
+      testIgnore: [],
+      grepInvert: DOWNLOAD_CASE_GREP,
       use: { browserName: "chromium", connectOptions: { wsEndpoint: "ws://remote.invalid/playwright", exposeNetwork: "<loopback>" } },
     });
     expect(projects[1]).toEqual({
       name: "chromium-local-downloads",
       testMatch: [DOWNLOAD_SPEC],
+      grep: DOWNLOAD_CASE_GREP,
       use: { ...desktopUse, connectOptions: undefined },
     });
-    expect((projects[0] as { testIgnore: string[] }).testIgnore).toEqual((projects[1] as { testMatch: string[] }).testMatch);
+    expect(DOWNLOAD_CASE_TITLES).toHaveLength(4);
+    expect((projects[0] as { grepInvert: RegExp }).grepInvert).toEqual(DOWNLOAD_CASE_GREP);
+    expect((projects[1] as { grep: RegExp }).grep).toEqual(DOWNLOAD_CASE_GREP);
     expect(projects[1].use.connectOptions).toBeUndefined();
   });
 
   it("retains the shared ignore contract on the remote side", () => {
     const shared = ["**/mvp-*.spec.ts", "**/education-release.spec.ts"];
-    expect((makeTransportProjects("ws://remote.invalid/playwright", desktopUse, shared)[0] as { testIgnore: string[] }).testIgnore).toEqual([...shared, DOWNLOAD_SPEC]);
+    expect((makeTransportProjects("ws://remote.invalid/playwright", desktopUse, shared)[0] as { testIgnore: string[] }).testIgnore).toEqual(shared);
   });
 
   it("moves the ambient endpoint to an explicit project-owned value for worker reload", async () => {

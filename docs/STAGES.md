@@ -48,8 +48,8 @@
 - Runtime follow-up: первая production-выкладка 7161e382 для ae22dcd остановилась на системном Node 22.23.1. pnpm devEngines.runtime закрепляет Node 22.23.4. Обычный pnpm exec и Cloudflare preview e8e3ba1/a5758efe подтверждают исправление; production merge/deploy ждёт security gate.
 - Verification recovery: обновление подключения к инструментам прервало первый recheck на 245/421 без отказов приложения. Частичный лог сохранён. Полный pipeline выполнен заново в контролируемом процессе с итоговым exit receipt; проверки и пороги не менялись.
 - Follow-up ET-CE-PARALLEL-001: независимая feature продолжена от завершённого Circuit Engine; её локальные проверки не зависят от публикации picomatch. Delivery gate остаётся общим.
-- NEXT: qualify-parallel-drag-full
-- Next action: устранить причинный CI drag/preview сбой без изменения принятых tests; targeted RED/GREEN, полный verify, review и повторный exact CI/Pages.
+- NEXT: qualify-exact-case-partition-full
+- Next action: реализовать approved QG013 exact4 filesystem cases allowlist; guard424 root IDs/4local/420remote +426education/33MVP, actual mixed/full/exact CI/Pages.
 
 - Upstream provenance: официальный default HEAD 9fab7bf (2026-08-27), последний релиз 4.0.7 (2026-08-24). Опубликованного исправления GHSA-fc5q-39xc-vjpf нет.
 - Completion sync: обновлены STAGES, TESTING, SECURITY и dependency-picomatch-recheck.json. Проверены без изменений README, ROADMAP, pre-deploy SPEC, DEPENDENCIES, ARCHITECTURE, DESIGN, DECISIONS, API, DATA_MODEL, project-context, TRACEABILITY и LEARNING_LOG.
@@ -70,6 +70,10 @@
 - CI recovery44191637707: source224f6ff — backend/PostgreSQL,772 unit и415 Chromium PASS,6 прежних SKIP; один palette-drag preview FAIL, Pages skipped. Cloudflare того же source и hosted13+13 PASS подтверждают отдельную выкладку, а не полный release gate. Ref fix/parallel-drag-preview; принятые assertions сохраняются.
 
 - Drag repair: CE-017..019 release hit определяется по координатам и ограничен current SVG; stale root target больше не сбрасывает preview. Causal old-HEAD RED/fixed GREEN, новый native drag, прежний palette5/5 и empty-drop PASS;109-page build/tsc/lint и независимый review PASS. Два новых browser regression; full/exact CI ещё pending, принятые tests/goldens не менялись.
+
+- CI44199486789/source423f3af: local full772/418+6skip/2smoke/audit0 PASS; CI772/417+6skip/1same palette FAIL, Pages skipped. Remote native/causal regressions PASS; coordinate hardening не закрывает host-native failure. Approved bounded design: исправить file-wide transport adapter — только4 Download.path cases local, остальные3 вернуть canonical immutable remote; original tests/assertions/goldens и gates не меняются. SPEC QG013 обновлена до реализации, независимый review PASS.
+
+- Case-level qualification: exact4 file+title allowlist,420remote/4local root424; education426/MVP33 и fullIDparity0omission/duplicate подтверждены8guards. Actual mixed11 PASS23.5s с настоящим WebSocket:7remote/4local, включая прежний native palette в canonical image. Build109/271,tsc/lint и независимый implementation review PASS; полный verify/exact CI/Pages pending.
 
 ## ET-UNIVERSAL-000 — Stage 0. Baseline snapshot
 

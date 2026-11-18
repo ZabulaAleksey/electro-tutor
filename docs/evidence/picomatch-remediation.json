@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "ET-DEP-20261117",
-  "status": "parallel_drag_fix_qualified_pending_full",
+  "status": "case_partition_narrow_pass_pending_full",
   "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
   "root_cause": "Single-branch repeated extglobs containing unbounded wildcard stars bypassed the previous multi-branch/nested guards and generated nested unbounded regex quantifiers.",
   "replacement": {
@@ -280,24 +280,25 @@
       "status": "PASS"
     },
     "full": {
-      "status": "PASS",
+      "source_commit": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
       "command": "pnpm verify:full",
       "transport": "real Playwright WebSocket Chromium + local downloads partition",
       "node": "v22.23.4",
-      "pid": 17016,
-      "started_utc": "2026-11-17T21:57:41.862Z",
-      "finished_utc": "2026-11-17T22:16:07.554Z",
+      "pid": 40320,
+      "started_utc": "2026-11-17T23:08:36.269Z",
+      "finished_utc": "2026-11-17T23:25:02.385Z",
       "exit_code": 0,
+      "status": "PASS",
       "unit_tests": 772,
       "unit_files": 119,
-      "chromium_passed": 416,
+      "chromium_passed": 418,
       "pre_existing_chromium_skipped": 6,
-      "root_cases": 422,
-      "remote_cases": 415,
+      "root_cases": 424,
+      "remote_cases": 417,
       "local_download_cases": 7,
       "production_smoke_passed": 2,
       "audit_high_exit": 0,
-      "log_sha256": "0a542458b3fc36b2e9c7165658ec4ebefe4a286e74135ffb1c853e4874f952fc"
+      "log_sha256": "496ad6389275906381c992ae8f68af1153029af958e83f801dfeb80e2e215022"
     },
     "independent_review": {
       "status": "PASS",
@@ -607,6 +608,40 @@
       "pages": "skipped",
       "log_sha256": "d67536818b306bc67fea5fc94aa3bcccd3af90e47df5d22ac3ab06aa3cb50961",
       "accepted_tests": "unchanged"
+    },
+    "ci_case_partition": {
+      "run_id": 44199486789,
+      "source_commit": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
+      "status": "FAIL",
+      "backend_postgresql": "PASS",
+      "unit_passed": 772,
+      "unit_files": 119,
+      "chromium_passed": 417,
+      "chromium_skipped": 6,
+      "chromium_failed": 1,
+      "failure": "Same palette57/62 only in added Linux host-local profile; all canonical remote cases and all4 filesystem roundtrips PASS",
+      "pages": "skipped",
+      "log_sha256": "fd5db72eca06a7c8e71474d35294aa52842794930ee7d4e1f340a9c0501991a7"
+    },
+    "full_before_coordinate_hardening": {
+      "status": "PASS",
+      "command": "pnpm verify:full",
+      "transport": "real Playwright WebSocket Chromium + local downloads partition",
+      "node": "v22.23.4",
+      "pid": 17016,
+      "started_utc": "2026-11-17T21:57:41.862Z",
+      "finished_utc": "2026-11-17T22:16:07.554Z",
+      "exit_code": 0,
+      "unit_tests": 772,
+      "unit_files": 119,
+      "chromium_passed": 416,
+      "pre_existing_chromium_skipped": 6,
+      "root_cases": 422,
+      "remote_cases": 415,
+      "local_download_cases": 7,
+      "production_smoke_passed": 2,
+      "audit_high_exit": 0,
+      "log_sha256": "0a542458b3fc36b2e9c7165658ec4ebefe4a286e74135ffb1c853e4874f952fc"
     }
   },
   "rollback": "Revert the manifest/override/patch/lock change together through Git. Do not publish the vulnerable rollback unless all original gates pass.",
@@ -720,28 +755,33 @@
     "accepted_tests_and_goldens": "unchanged",
     "workflow_image_versions_permissions": "unchanged",
     "case_discovery": {
-      "root": 422,
-      "remote_root": 415,
-      "local_downloads": 7,
-      "education": 424,
+      "root": 424,
+      "remote_root": 420,
+      "local_downloads": 4,
+      "education": 426,
+      "remote_education": 422,
       "mvp": 33,
       "omitted": 0,
       "duplicated": 0,
       "permanent_guard": "src/security/playwright-discovery.test.ts"
     },
     "contract_unit": {
-      "tests": 7,
+      "tests": 8,
       "files": 2,
       "status": "PASS"
     },
     "actual_mixed_transport": {
+      "transport_helper_sha256": "34085fe2458597ee548fe0ff1ddc198348b8e1d23438b23b438db9b1056db5dc",
       "status": "PASS",
       "exit_code": 0,
-      "accepted_cases_passed": 9,
+      "cases_passed": 11,
       "remote_connection_succeeded": true,
       "roles": {
+        "remote_total": 7,
+        "remote_native_model": 3,
         "remote_preview": 2,
-        "local_filesystem": 7
+        "remote_hardening": 2,
+        "local_filesystem": 4
       }
     },
     "adapter": "globalSetup transfers ambient PW endpoint/headers/exposeNetwork into explicit project-owned configuration before worker fixtures; real remote connection and7local round-trips verified in the same invocation",
@@ -760,11 +800,39 @@
       "accepted_e2e_runtime_config_dependencies": "byte-identical to 5ecbbec",
       "review": "PASS",
       "previous_full": "runtime qualification only; exact new commit full CI pending"
+    },
+    "case_discovery_initial": {
+      "root": 422,
+      "remote_root": 415,
+      "local_downloads": 7,
+      "education": 424,
+      "mvp": 33,
+      "omitted": 0,
+      "duplicated": 0,
+      "permanent_guard": "src/security/playwright-discovery.test.ts"
+    },
+    "case_discovery_before_case_partition": {
+      "source_commit": "423f3af7ecae891ad57b43a2b49aaecfe4255ec5",
+      "root": 424,
+      "remote_root": 417,
+      "local_downloads": 7,
+      "education": 426,
+      "mvp": 33
+    },
+    "actual_mixed_before_case_partition": {
+      "status": "PASS",
+      "exit_code": 0,
+      "accepted_cases_passed": 9,
+      "remote_connection_succeeded": true,
+      "roles": {
+        "remote_preview": 2,
+        "local_filesystem": 7
+      }
     }
   },
   "parallel_drag_repair": {
     "requirement": "CE-017..019",
-    "cause": "Native SVG drop can target the SVG root instead of the component currently under release coordinates; target-based parallelHit cleared the preview.",
+    "cause": "Independently reproduced SVG-root target case; useful bounded coordinate hardening, but it did not resolve the separate Linux host-native palette CI failure.",
     "change": "Resolve document.elementFromPoint(clientX,clientY), bounded to event.currentTarget SVG containment; null/outside hit resolves to board and clears selection.",
     "files": [
       "src/circuit/CircuitEditor.tsx",
@@ -780,7 +848,46 @@
     "eslint": "PASS",
     "independent_review": "parallel_review PASS: bounded current-board hit, no stale event.target fallback, null/outside cancellation; hover contract unchanged",
     "full": "pending",
-    "exact_ci": "pending",
+    "exact_ci": "FAIL for Linux host-native palette; remote regressions PASS, not terminal release proof",
     "accepted_tests_fixtures_goldens": "unchanged"
+  },
+  "case_partition_design": {
+    "status": "approved_before_implementation",
+    "requirement": "QG-013",
+    "reviewer": "parallel_review",
+    "gap": "File-wide adapter unnecessarily moved3 non-filesystem native gesture/model cases away from their existing canonical immutable browser image.",
+    "design": "Only exact4 file+full-title allowlisted Download.path roundtrip cases local; all other cases canonical remote. Same424root/426education/33MVP logical IDs,0 omissions/duplicates/new skips.",
+    "ui_scope": "Coordinate hardening remains independently verified; no claim host-native palette was fixed.",
+    "implementation": "narrow PASS; full/exact CI pending",
+    "contract_tests": {
+      "passed": 8,
+      "files": 2,
+      "root": 424,
+      "remote_root": 420,
+      "local_downloads": 4,
+      "education": 426,
+      "remote_education": 422,
+      "mvp": 33,
+      "omission": 0,
+      "duplicate": 0
+    },
+    "actual_mixed": {
+      "transport_helper_sha256": "34085fe2458597ee548fe0ff1ddc198348b8e1d23438b23b438db9b1056db5dc",
+      "status": "PASS",
+      "exit_code": 0,
+      "cases_passed": 11,
+      "remote_connection_succeeded": true,
+      "roles": {
+        "remote_total": 7,
+        "remote_native_model": 3,
+        "remote_preview": 2,
+        "remote_hardening": 2,
+        "local_filesystem": 4
+      }
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "build_full": "PASS:109 pages/271 files",
+    "review": "parallel_review implementation PASS; current full/CI still required"
   }
 }

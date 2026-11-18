@@ -195,4 +195,4 @@ CE-021–022 → circuit-engine SPEC → equivalent-circuit.ts + EquivalentCircu
 
 pre-deploy-quality-gates SPEC → pnpm-workspace.yaml + exact alias + tracked compatibility patch + frozen pnpm-lock.yaml → src/security/picomatch-remediation.test.ts → неизменённые full-verify/CI/audit и hosted production smoke. Источник, effective parser hash, RED/GREEN и release evidence: docs/evidence/picomatch-remediation.json; current truth: ET-DEP-20261117 в STAGES.
 
-QG-013 → playwright.config.ts + playwright.mvp.config.ts + scripts/playwright-transport.mjs → новые playwright-transport.test.ts и playwright-discovery.test.ts → actual mixed9 и whole-full real-WebSocket416PASS/6 прежних SKIP; accepted scenarios/goldens unchanged.
+QG-013 → scripts/playwright-transport.mjs exact4 file+title allowlist → playwright-transport.test.ts + playwright-discovery.test.ts →8guards/424root/426education/33MVP,0omissions/duplicates, mixed11 (7remote/4local) PASS; полный current-source release gate — в STAGES. Initial file-level mixed9/416full receipt сохранён в evidence как исторический; accepted scenarios/goldens unchanged.

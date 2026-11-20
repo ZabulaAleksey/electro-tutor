@@ -1,17 +1,27 @@
 ---
 import DirectorySearch from "./DirectorySearch.astro";
 import TopicCover from "../catalogue/TopicCover";
-import { showcaseLaboratories } from "../catalogue/catalog";
+import { catalogueItems, showcaseLaboratories } from "../catalogue/catalog";
 import { localePath } from "../site-path";
 import type { Language } from "../types";
 
 interface Props { language: Language; home?: boolean }
 const { language, home = false } = Astro.props;
 const title = language === "ru" ? "Лаборатории" : "Лабораторії";
+const electricalLinks = [
+  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id === "steady") ?? []),
+  ...(catalogueItems.find(lab => lab.id === "advanced:reactive-two-port")?.variants?.filter(variant => variant.id === "graph") ?? []),
+  ...catalogueItems.filter(lab => lab.id === "advanced:power-system" && lab.available),
+];
 ---
 <section class="content-directory lab-directory" id="labs" aria-labelledby="lab-directory-title">
   {home ? <h2 id="lab-directory-title">{title}</h2> : <h1 id="lab-directory-title">{title}</h1>}
-  {!home && <DirectorySearch {language} />}
+  {!home && <>
+    <DirectorySearch {language} />
+    <nav class="lab-electrical-links" aria-label={language === "ru" ? "Электрические лаборатории" : "Електричні лабораторії"}>
+      {electricalLinks.map(lab => <a href={localePath(language, lab.href)}>{lab.title[language]}</a>)}
+    </nav>
+  </>}
   <ul class="directory-grid" data-directory-group>
     {showcaseLaboratories.map(lab => {
       const href = localePath(language, lab.href);
@@ -25,6 +35,8 @@ const title = language === "ru" ? "Лаборатории" : "Лаборатор
 </section>
 <style>
   .lab-directory .directory-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+  .lab-electrical-links { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-block: .5rem 1rem; }
+  .lab-electrical-links a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; }
   .lab-directory-card { padding: .8rem; }
   .lab-directory-card h3 { margin: .8rem 0 .25rem; font-size: 1.05rem; }
   .lab-directory-card h3 a { display: inline-block; padding-block: .35rem; }

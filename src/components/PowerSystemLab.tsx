@@ -34,6 +34,7 @@ import "./PowerSystemLab.css";
 
 const initial: PowerConfiguration = { network: examplePowerNetwork, catalogue: { schemaVersion: 1, types: [] }, overrides: new Map() };
 type Study = "radial" | "ring" | "normally-open" | "custom";
+type TeachingMethod = "" | "radial" | "ring";
 const copy = {
   ru: {
     study: "Учебная сеть", radial: "Радиальная сеть", ring: "Кольцевая сеть", normallyOpen: "Кольцо с нормально открытым аппаратом", customStudy: "Своя сеть", importNetwork: "Импорт сети JSON", createNetwork: "Создать свою сеть", openNetwork: "Открыть свою сеть", networkError: "Проверьте документ сети.", device: "Оборудование", type: "Тип оборудования", unassigned: "Тип не выбран", import: "Импорт типов JSON",
@@ -85,6 +86,11 @@ export default function PowerSystemLab({ language }: { language: Language }) {
     ? documentLimit : words.networkError;
   const [acRequested, setAcRequested] = useState(false);
   const [cuts, setCuts] = useState<readonly PowerCalculationCut[]>([]);
+  const [customCuts, setCustomCuts] = useState<readonly PowerCalculationCut[]>([]);
+  const [customMethod, setCustomMethod] = useState<TeachingMethod>("");
+  const showRing = study === "ring" || study === "custom" && customMethod === "ring";
+  const showRadial = study === "radial" || study === "custom" && customMethod === "radial";
+  const ringCuts = study === "custom" ? customCuts : cuts;
   const [layers, setLayers] = useState(() => new Set(defaultPowerOverlayLayers));
   const acCalculation = useMemo(() => {
     if (!acRequested) return null;
@@ -143,6 +149,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
       const network = change(previous.network);
       const next = changePowerNetwork(previous, network);
       setCustomDiagram(layoutPowerNetwork(network));
+      setCustomCuts(previousCuts => previousCuts.filter(cut => network.buses.some(bus => bus.id === cut.busId)));
       const firstEquipment = network.elements.find(item => item.kind === "line" || item.kind === "transformer");
       if (firstEquipment && !network.elements.some(item => item.id === equipmentId)) setEquipmentId(firstEquipment.id);
       if (!network.buses.some(bus => "bus:" + bus.id === voltageTarget) &&
@@ -210,6 +217,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
               const diagram = layoutPowerNetwork(physical);
               const imported = { ...current.current, network: physical, overrides: new Map() };
               setCustomDiagram(diagram);
+              setCustomCuts([]);
               openStudy("custom", imported);
             } catch (error) { setError(networkIssue(error)); }
           }} />
@@ -251,7 +259,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
                   {nominal && <text x={point.x} y={point.y + 23} textAnchor="middle">{formatEngineeringNumber(nominalKv, language) + " kV"}</text>}
                 </g>;
               })}
-              {study === "ring" && cuts.map(({ busId, quantity }) => {
+              {showRing && ringCuts.map(({ busId, quantity }) => {
                 const point = drawing.junctionPositions[busId];
                 if (!point) return null;
                 const y = point.y + (quantity === "p" ? -37 : -52);
@@ -355,10 +363,20 @@ export default function PowerSystemLab({ language }: { language: Language }) {
         <PowerLoadParameters load={load} language={language} onApply={input => changeElement(load.id,
           element => element.kind === "load" ? { ...element, ...normalizeLoad(input) } : element)} />
       </section>)}
-      {study === "ring" && <RingFlowPanel configuration={configuration} language={language} cuts={cuts} onCutsChange={setCuts} />}
+      {study === "custom" && <section className="power-panel">
+        <label>{language === "ru" ? "Учебный метод своей сети" : "Навчальний метод власної мережі"}
+          <select value={customMethod} onChange={event => setCustomMethod(event.currentTarget.value as TeachingMethod)}>
+            <option value="">{language === "ru" ? "Выбрать метод" : "Вибрати метод"}</option>
+            <option value="radial">{words.radial}</option>
+            <option value="ring">{words.ring}</option>
+          </select>
+        </label>
+      </section>}
+      {showRing && <RingFlowPanel key={study} configuration={configuration} language={language}
+        cuts={ringCuts} onCutsChange={study === "custom" ? setCustomCuts : setCuts} />}
       {network.elements.some(item => item.kind === "switch") && <PowerSwitchPanel network={network} language={language}
         onSwitch={(id, closed) => update(previous => changePowerNetwork(previous, setPowerSwitch(previous.network, id, closed)))} />}
-      {study === "radial" && <RadialFlowPanel configuration={configuration} language={language} />}
+      {showRadial && <RadialFlowPanel key={study} configuration={configuration} language={language} />}
       <ACPowerFlowPanel result={acCalculation?.result} issue={acCalculation?.error}
         enabled={acRequested} onCalculate={() => setAcRequested(true)} language={language}
         settings={<details className="power-advanced">

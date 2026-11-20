@@ -199,4 +199,6 @@ QG-013 → scripts/playwright-transport.mjs exact4 file+title allowlist → play
 
 FR-384 → immutable MeshLab ownerPath и guarded URL/sessionStorage effects → новый mesh-navigation-ownership.spec.ts + неизменённый learning-navigation.spec.ts → causal RED/GREEN, полный Chromium и base-aware hosted history на обоих production hosts PASS. Терминальное QG-008..013/CE-016..022 evidence — picomatch-remediation.json / circuit-parallel.json, runtimef3123c3.
 
-LINE-UX-038 → transmission-line-transient SPEC → CircuitEditor/Glyph → transmission-line-glyph.spec.ts, transmission-handwriting.spec.ts и power-system-cross-mode.spec.ts.
+LINE-UX-038 → transmission-line-transient SPEC → CircuitEditor/Glyph → lab-acceptance/transmission-line-glyph.e2e.ts, transmission-handwriting.spec.ts и power-system-cross-mode.spec.ts.
+
+LINE-UX-039 → transmission-line-transient SPEC → TransmissionNetworkLab и CSS → lab-acceptance/transient-playback-layout.e2e.ts, transient-spatial-layout.spec.ts и transmission-workbench.spec.ts.

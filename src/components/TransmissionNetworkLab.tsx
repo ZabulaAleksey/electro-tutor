@@ -400,6 +400,60 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
    live={mode==="live"} time={time} onMode={setMode} diodePoint={diodePoint} onDuration={durationS=>edit({...model,durationS})}/>,
  });
  const selectedPartId = useMemo(() => archivedPartId(parseCircuit(editorSeed).drawing, selected, model.load), [editorSeed, selected, model.load]);
+ const playback = (
+   <div className="network-dock">
+   <div className="network-toolbar" role="group" aria-label={ru?"Управление симуляцией":"Керування симуляцією"}>
+     <button type="button" className="network-play" disabled={!valid||running} aria-busy={busy&&!empty} onClick={start}>
+      {busy&&!empty ? <LoaderCircle size={16} className="network-play-spinner" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}
+      Пуск
+     </button>
+     <button type="button" disabled={!running} onClick={()=>setRunning(false)}><Pause size={16} aria-hidden="true"/>Пауза</button>
+     <button type="button" disabled={!running&&time===0} onClick={()=>seek(0)}><Square size={16} aria-hidden="true"/>Стоп</button>
+     <label className="network-speed-choice"><span>{ru?"Скорость":"Швидкість"}</span><select value={speed} onChange={event=>setSpeed(Number(event.target.value))}>
+      {speeds.map(value=><option key={value} value={value}>×{value<1?"1/"+1/value:value}</option>)}
+     </select></label>
+   </div>
+   </div>
+ );
+ const timing = (
+   <details className="network-timing">
+    <summary>{ru?"Время":"Час"} · {experimentTimeLabel(time,language)}</summary>
+    <div>
+     <div className="network-duration">
+      <label className="network-field">
+       <span>{ru?"Длительность расчёта":"Тривалість розрахунку"}</span>
+       <input type="text" placeholder="10 ms" value={durationDraft??experimentTimeLabel(model.durationS,language,true)}
+        aria-invalid={durationDraft!==null&&(parsedDuration===null||parsedDuration<earliest||parsedDuration>10)}
+        onChange={event=>setDurationDraft(event.target.value)}
+        onBlur={()=>{
+         if(durationDraft===null)return;
+         const seconds=parsedDuration;
+         if(seconds===null||seconds>10){
+          setActionError(ru?"Введите длительность до 10 s с единицей s, ms или µs.":"Введіть тривалість до 10 s з одиницею s, ms або µs.");
+          return;
+         }
+         duration(seconds);
+         if(seconds>=earliest)setDurationDraft(null);
+        }}
+        onKeyDown={event=>{if(event.key==="Enter")event.currentTarget.blur();if(event.key==="Escape")setDurationDraft(null);}}/>
+      </label>
+      <div className="network-buttons">{[.001,.01,.1,1,10].map(seconds=><button type="button" key={seconds} onClick={()=>{setDurationDraft(null);duration(seconds);}}>{experimentTimeLabel(seconds,language)}</button>)}</div>
+      {cost?.kind==="numeric"&&<small>{n(cost.steps,language)} {ru?"шагов":"кроків"} · {n(cost.bytes/1048576,language)} MiB {ru?"данных":"даних"}{cost.steps>cost.limit?(ru?" · превышен расчётный бюджет":" · перевищено розрахунковий бюджет"):""}</small>}
+     </div>
+     <NumberEdit label={ru?"Физическое время t, ms":"Фізичний час t, ms"} value={time*1000} min={0} max={run.config.durationS*1000} onChange={v=>seek(v/1000)}/>
+     <input type="range" aria-label={ru?"Курсор времени":"Курсор часу"} min="0" max={run.config.durationS} step={run.config.durationS/2000} value={time} onChange={e=>seek(Number(e.target.value))}/>
+     <div className="network-buttons">
+      <button type="button" onClick={()=>seek(previous??Math.max(0,time-run.config.durationS/100))}>← {ru?"Шаг":"Крок"}</button>
+      <button type="button" onClick={()=>seek(next??Math.min(run.config.durationS,time+run.config.durationS/100))}>{ru?"Шаг":"Крок"} →</button>
+      <button type="button" disabled={next===undefined||run.method!=="exact-fronts"} onClick={()=>next!==undefined&&seek(next)}>{ru?"Следующий фронт":"Наступний фронт"}</button>
+     </div>
+     <label>{ru?"Окно времени":"Вікно часу"} <select value={timeZoom} onChange={event=>{setWindowCenter(time);setTimeZoom(Number(event.target.value));}}>
+      {[1,2,5,10,50,100].map(factor=><option key={factor} value={factor}>×{factor}</option>)}
+     </select></label>
+     {timeZoom>1&&<label>{ru?"Центр окна":"Центр вікна"} <input type="range" min={0} max={run.config.durationS} step={run.config.durationS/2000} value={windowCenter} onChange={event=>setWindowCenter(Number(event.target.value))}/></label>}
+    </div>
+   </details>
+ );
  return <fieldset disabled={!mounted} aria-hidden={!mounted} className="lab-hydration-guard"><div className="network-lab" data-network-lab data-calculation-ready={valid?"true":"false"} data-method={run.method} data-model-revision={revision} data-current-time={time} data-current-speed={speed} data-probe-u={reading.u} data-probe-i={reading.i}>
   <div className="network-plot-grid">
   <section className="network-workbench" aria-label={ru?"Конструктор линий":"Конструктор ліній"}>
@@ -451,66 +505,21 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
     <p>{ru?"Напряжение U = U⁺ + U⁻, ток I = (U⁺ − U⁻) / Z₀. При согласованной нагрузке отражённая волна отсутствует."
      :"Напруга U = U⁺ + U⁻, струм I = (U⁺ − U⁻) / Z₀. За узгодженого навантаження відбита хвиля відсутня."}</p>
    </details>
-   <div className="network-dock">
-   <div className="network-toolbar" role="group" aria-label={ru?"Управление симуляцией":"Керування симуляцією"}>
-     <button type="button" className="network-play" disabled={!valid||running} aria-busy={busy&&!empty} onClick={start}>
-      {busy&&!empty ? <LoaderCircle size={16} className="network-play-spinner" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}
-      Пуск
-     </button>
-     <button type="button" disabled={!running} onClick={()=>setRunning(false)}><Pause size={16} aria-hidden="true"/>Пауза</button>
-     <button type="button" disabled={!running&&time===0} onClick={()=>seek(0)}><Square size={16} aria-hidden="true"/>Стоп</button>
-     <label className="network-speed-choice"><span>{ru?"Скорость":"Швидкість"}</span><select value={speed} onChange={event=>setSpeed(Number(event.target.value))}>
-      {speeds.map(value=><option key={value} value={value}>×{value<1?"1/"+1/value:value}</option>)}
-     </select></label>
-   </div>
-   <details className="network-timing">
-    <summary>{ru?"Время":"Час"} · {experimentTimeLabel(time,language)}</summary>
-    <div>
-     <div className="network-duration">
-      <label className="network-field">
-       <span>{ru?"Длительность расчёта":"Тривалість розрахунку"}</span>
-       <input type="text" placeholder="10 ms" value={durationDraft??experimentTimeLabel(model.durationS,language,true)}
-        aria-invalid={durationDraft!==null&&(parsedDuration===null||parsedDuration<earliest||parsedDuration>10)}
-        onChange={event=>setDurationDraft(event.target.value)}
-        onBlur={()=>{
-         if(durationDraft===null)return;
-         const seconds=parsedDuration;
-         if(seconds===null||seconds>10){
-          setActionError(ru?"Введите длительность до 10 s с единицей s, ms или µs.":"Введіть тривалість до 10 s з одиницею s, ms або µs.");
-          return;
-         }
-         duration(seconds);
-         if(seconds>=earliest)setDurationDraft(null);
-        }}
-        onKeyDown={event=>{if(event.key==="Enter")event.currentTarget.blur();if(event.key==="Escape")setDurationDraft(null);}}/>
-      </label>
-      <div className="network-buttons">{[.001,.01,.1,1,10].map(seconds=><button type="button" key={seconds} onClick={()=>{setDurationDraft(null);duration(seconds);}}>{experimentTimeLabel(seconds,language)}</button>)}</div>
-      {cost?.kind==="numeric"&&<small>{n(cost.steps,language)} {ru?"шагов":"кроків"} · {n(cost.bytes/1048576,language)} MiB {ru?"данных":"даних"}{cost.steps>cost.limit?(ru?" · превышен расчётный бюджет":" · перевищено розрахунковий бюджет"):""}</small>}
-     </div>
-     <NumberEdit label={ru?"Физическое время t, ms":"Фізичний час t, ms"} value={time*1000} min={0} max={run.config.durationS*1000} onChange={v=>seek(v/1000)}/>
-     <input type="range" aria-label={ru?"Курсор времени":"Курсор часу"} min="0" max={run.config.durationS} step={run.config.durationS/2000} value={time} onChange={e=>seek(Number(e.target.value))}/>
-     <div className="network-buttons">
-      <button type="button" onClick={()=>seek(previous??Math.max(0,time-run.config.durationS/100))}>← {ru?"Шаг":"Крок"}</button>
-      <button type="button" onClick={()=>seek(next??Math.min(run.config.durationS,time+run.config.durationS/100))}>{ru?"Шаг":"Крок"} →</button>
-      <button type="button" disabled={next===undefined||run.method!=="exact-fronts"} onClick={()=>next!==undefined&&seek(next)}>{ru?"Следующий фронт":"Наступний фронт"}</button>
-     </div>
-     <label>{ru?"Окно времени":"Вікно часу"} <select value={timeZoom} onChange={event=>{setWindowCenter(time);setTimeZoom(Number(event.target.value));}}>
-      {[1,2,5,10,50,100].map(factor=><option key={factor} value={factor}>×{factor}</option>)}
-     </select></label>
-     {timeZoom>1&&<label>{ru?"Центр окна":"Центр вікна"} <input type="range" min={0} max={run.config.durationS} step={run.config.durationS/2000} value={windowCenter} onChange={event=>setWindowCenter(Number(event.target.value))}/></label>}
-    </div>
-   </details>
-   </div>
    <div className="network-workbench-links"><small>{ru?"MCP — скоро":"MCP — незабаром"}</small>
     {empty&&<small>{ru?"Добавьте линию":"Додайте лінію"}</small>}
     {busy&&!empty&&<><progress max={1} value={progress} aria-label={ru?"Прогресс расчёта":"Хід розрахунку"}/><button type="button" onClick={cancelCalculation}>{ru?"Отменить расчёт":"Скасувати розрахунок"}</button></>}
     {!busy&&error&&!empty&&<button type="button" onClick={()=>setRetry(value=>value+1)}>{ru?"Повторить расчёт":"Повторити розрахунок"}</button>}</div>
    {actionError&&<p role="alert" className="network-error">{actionError}</p>}
   </section>
-  <section hidden={empty} id="network-results" aria-labelledby="network-measurements-title" className="network-measurements">
-   <h2 id="network-measurements-title" className="network-measurements-title">{ru?"Измерения":"Вимірювання"}</h2>
+  <section aria-labelledby={empty ? undefined : "network-measurements-title"}
+   aria-label={empty ? (ru ? "Управление опытом" : "Керування дослідом") : undefined} className="network-measurements">
+   <header id="network-results" className="network-results-heading">
+    {playback}
+    <h2 id="network-measurements-title" className="network-measurements-title" hidden={empty}>{ru?"Измерения":"Вимірювання"}</h2>
+   </header>
+   {timing}
    {error&&<p role="alert" className="network-error">{error}</p>}
-   {!valid&&<p className="network-note">{ru?"Эпюры скрыты до успешного расчёта текущей схемы.":"Епюри приховано до успішного розрахунку поточної схеми."}</p>}
+   {!empty&&!valid&&<p className="network-note">{ru?"Эпюры скрыты до успешного расчёта текущей схемы.":"Епюри приховано до успішного розрахунку поточної схеми."}</p>}
    <div hidden={!valid}>
     <div className="network-result-details">
      <div className="network-observation">

@@ -1,6 +1,6 @@
 .line-page{max-width:1500px;margin:auto;padding:28px clamp(14px,3vw,36px)}.line-page-intro h1{font-size:clamp(25px,3vw,40px);margin:14px 0}.line-page-intro p{color:var(--muted);margin-bottom:24px}
 @media(max-width:650px){.network-lab section{padding:12px}.network-plot-grid{grid-template-columns:1fr}.network-manual{grid-template-columns:1fr}.network-lab table{display:block;overflow:auto}.network-section-head>.network-buttons{width:100%}.network-lab input,.network-lab button{min-height:44px}}
-.line-page:has(.network-workbench){padding-block:clamp(8px,2vh,22px) calc(88px + env(safe-area-inset-bottom,0px))}
+.line-page:has(.network-workbench){padding-block:clamp(8px,2vh,22px)}
 .line-page:has(.network-workbench) .line-page-intro{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 16px;margin-bottom:10px}
 .line-page:has(.network-workbench) .line-page-intro h1{font-size:clamp(19px,3vw,32px);margin:0}
 .line-page:has(.network-workbench) .line-page-intro a{font-size:.85rem}
@@ -9,11 +9,9 @@
 .network-lab #network-results{scroll-margin-block-start:16px}
 .network-lab [data-line-inspector]{padding:12px;border:1px solid var(--line);border-radius:8px}
 .network-lab [data-line-inspector] .network-tray-close{margin:0 0 6px;float:none;position:static}
-.network-lab :is(details,input,button){scroll-margin-block-end:calc(92px + env(safe-area-inset-bottom,0px))}
-.network-lab button,.network-lab input,.network-lab select,.network-lab a{scroll-margin-block-end:calc(64px + env(safe-area-inset-bottom,0px))}
-.network-dock{position:fixed;bottom:0;z-index:25;left:0;right:0;padding-inline:max(2px,env(safe-area-inset-left,0px)) max(2px,env(safe-area-inset-right,0px));pointer-events:none}
-.network-toolbar{pointer-events:auto;margin-inline:auto;background:var(--surface-elevated);border:1px solid var(--line);box-shadow:0 -6px 26px rgb(26 45 70 / .12)}
-.network-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(70px,1.3fr);max-width:530px;padding:3px 0 calc(3px + env(safe-area-inset-bottom,0px));border-radius:12px 12px 0 0}
+.network-dock{min-width:0;width:min(100%,530px);justify-self:start}
+.network-toolbar{background:var(--surface-elevated);border:1px solid var(--line)}
+.network-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(70px,1.3fr);max-width:530px;padding:3px 0;border-radius:8px}
 .network-lab .network-toolbar button{display:grid;place-content:center;justify-items:center;gap:0;min-height:44px;min-width:0;padding:0;border:1px solid transparent;font-size:.66rem}
 .network-lab .network-toolbar button:is(:hover,[aria-expanded=true],[aria-pressed=true]){border-color:var(--selection);background:var(--surface-plot)}
 .network-toolbar button svg{pointer-events:none}
@@ -26,14 +24,13 @@
 .network-lab .network-toolbar button{font-size:.84rem}
 .network-speed-choice{display:flex;align-items:center;justify-content:center;gap:4px;font-size:.78rem}
 .network-lab .network-speed-choice select{min-height:44px;padding:4px}
-.network-timing{pointer-events:auto;max-width:530px;margin:0 auto!important;color:var(--ink);text-align:right}
+.network-timing{width:min(100%,530px);margin:0;color:var(--ink);text-align:right}
 .network-timing summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;padding:2px 10px;border-radius:8px 8px 0 0;background:var(--surface-elevated);cursor:pointer}
 .network-timing>div{display:grid;gap:6px;text-align:left;padding:8px;background:var(--surface-elevated);border:1px solid var(--line)}
 .network-clear-dialog{width:min(420px,calc(100% - 30px));padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface-elevated);color:var(--ink)}
 .network-clear-dialog::backdrop{background:#07152670}
 .network-clear-dialog p{margin:0 0 14px}
 .network-duration{display:grid;gap:6px}
-.network-measurements[hidden]{display:none}
 .network-timing summary:hover{background:var(--surface-plot)}
 .network-timing summary:focus-visible{outline:2px solid var(--selection);outline-offset:-2px}
 .network-timing[open] summary svg{transform:rotate(180deg)}
@@ -43,11 +40,12 @@
 .network-first-terminal{pointer-events:none}
 .network-schematic-drawing .network-transmission-stroke{stroke-width:3;stroke-linecap:round}
 @media(max-width:390px){.network-speed-choice{gap:2px;font-size:.65rem}.network-lab .network-speed-choice select{padding-inline:2px}.network-lab .network-toolbar button{font-size:.76rem}}
-@media(max-height:480px){.network-timing>div{max-height:40dvh;overflow:auto}}
+.network-workbench .circuit-viewport > svg[data-zoom="1"] { height:100%;min-height:0; }
 
 .network-lab > .network-plot-grid { display:grid; align-items:start; gap:12px; }
 .network-lab .network-workbench, .network-measurements { min-width:0; }
 .network-lab .network-measurements { padding:0; }
+.network-results-heading { display:grid;gap:8px; }
 .network-measurements-title { margin:0 0 6px; font-size:1.15rem; }
 .network-result-details, .network-spatial-plots, .network-time-plots { display:grid; gap:8px; min-width:0; }
 .network-spatial-plots { --red:var(--error); }

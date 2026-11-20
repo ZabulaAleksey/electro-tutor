@@ -2559,8 +2559,32 @@
       "unit": [],
       "integration": [],
       "e2e": [
-        "tests/e2e/transmission-line-glyph.spec.ts",
+        "tests/lab-acceptance/transmission-line-glyph.e2e.ts",
         "tests/e2e/transmission-handwriting.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-039"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Inline playback at measurements and fitted starter viewport",
+      "security": "Layout and existing local playback",
+      "a11y": "Unobstructed controls and 44 px touch controls",
+      "observability": "Viewport, playback state and scrolling",
+      "gap": "Hosted acceptance pending in ET-UNIVERSAL-V3-001.",
+      "action": "Run playback on five viewport widths and verify default and manual zoom behavior.",
+      "code": [
+        "src/components/TransmissionNetworkLab.tsx",
+        "src/components/TransmissionNetworkLab.css"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/lab-acceptance/transient-playback-layout.e2e.ts",
+        "tests/e2e/transient-spatial-layout.spec.ts",
+        "tests/e2e/transmission-workbench.spec.ts"
       ]
     },
     {

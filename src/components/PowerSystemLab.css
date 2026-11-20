@@ -5,7 +5,7 @@
 .power-workspace .circuit-component-hit{cursor:pointer}
 .power-workspace [data-power-bus] text{font-size:13px}
 .power-inspectors{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
-.power-panel{background:var(--surface-elevated);padding:clamp(12px,2vw,22px);border:1px solid var(--line);border-radius:12px}
+.power-panel{grid-template-columns:minmax(0,1fr);background:var(--surface-elevated);padding:clamp(12px,2vw,22px);border:1px solid var(--line);border-radius:12px}
 .power-panel :is(p,h2){margin:0;overflow-wrap:anywhere}
 .power-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
 .power-workspace label{display:grid;gap:.25rem;min-width:0}

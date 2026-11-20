@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("runs both teaching methods on a network assembled from the UI", async ({ page }) => {
+test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+test("runs both teaching methods on a phone without widening the page", async ({ page }) => {
   await page.goto("/ru/interactive/power-system/");
   const lab = page.locator("[data-power-ready=true]");
   await lab.getByLabel("Учебная сеть").selectOption("ring");
@@ -54,4 +56,7 @@ test("runs both teaching methods on a network assembled from the UI", async ({ p
   const ac = lab.locator("[data-ac-result]");
   await expect(ac.locator("[data-ac-branch]")).toHaveCount(3);
   expect(Number(await ac.getAttribute("data-ac-balance"))).toBeLessThan(1e-6);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  const table = ac.getByRole("region", { name: "Потоки AC" });
+  expect(await table.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
 });

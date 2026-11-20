@@ -2543,6 +2543,28 @@
     },
     {
       "requirement_ids": [
+        "LINE-UX-038"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Shared solid transmission line symbol",
+      "security": "Static SVG geometry",
+      "a11y": "Existing terminal and component labels",
+      "observability": "Rendered symbol on both routes",
+      "gap": "Hosted acceptance pending in ET-UNIVERSAL-V3-000.",
+      "action": "Verify the solid line in transient and steady routes at desktop and mobile widths.",
+      "code": [
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/transmission-line-glyph.spec.ts",
+        "tests/e2e/transmission-handwriting.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
         "LINE-AC-001",
         "LINE-AC-002",
         "LINE-AC-003"

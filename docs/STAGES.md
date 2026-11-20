@@ -1,6 +1,20 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-DEP-20261117
+- Stage ID: ET-UNIVERSAL-V3-000
+
+## ET-UNIVERSAL-V3-000 — Сверка production и пользовательских требований
+
+- Status: verified
+- Goal: установить причину расхождения двух опубликованных артефактов и квалифицировать вход для Phase 1 по Master Prompt V3 от 2026-11-18.
+- Scope: production Cloudflare и GitHub Pages, локальная education-сборка, старые Stage 0–32 и действующие SPEC. Отдельная правка по референсу владельца от 2026-11-20 — LINE-UX-038.
+- Entry and rollback: чистый `main` `a7a8095ee59692f5eda7a9cf11d8d7f1c63df15b`, рабочая ветка `fix/lab-production-acceptance-v3`. Манифесты и версия runtime совпадают с `f3123c3`. Неизменяемые Cloudflare 9a6a2dfd и 5cd42ef5 доступны. Подтверждённые пути восстановления и точные SHA в evidence.
+- Invariants: общий редактор и электрические модели сохраняются. Нужны отдельные доказательства пользовательского поведения на обоих хостах и инженерный релизный gate.
+- Evidence: [Phase 0 и матрица 33 обязанностей](evidence/universal-labs-v3-phase0.md). На обоих production aliases Cloudflare устаревший JS переходного опыта, три других маршрута 404. Точная выкладка Cloudflare и GitHub Pages отдают новые маршруты. Плавающий плеер воспроизводится и на новых сборках. Старые stage/release receipts фиксируют исторические проверки.
+- LINE-UX-038: в двух лабораториях общий SVG-символ отображается толстым прямым отрезком. 2/2 целевых сценария воспроизвели капсулу до правки. После правки 19/19 Chromium, включая обе ширины и 16 принятых сценариев рукописного редактора. Production build и целевой ESLint PASS. Снимки локального desktop/mobile просмотрены. Deploy и full release gate впереди.
+- Blockers: нет для диагностики и локального Phase 1. Перед production gate требуется актуальный provider receipt, Cloudflare Dashboard запрашивает вход.
+- User actions: ET-V3-SOURCE-001 | DONE | владелец подтвердил действующие SPEC и матрицу Stage 0–32 как основание сверки. ET-V3-CF-001 | PENDING | при отсутствии подключённого чтения Cloudflare Pages предоставить receipt активного production deployment проекта electrotutor с ID, source SHA, aliases и записью переключения, если она есть | сопоставление provider state с HTTP-артефактами.
+- Deferred: Phase 1 → редактор и viewport/плеер, Phase 2 → топология, затем переходный опыт, AC, LC, сети, итоговая приёмка.
+- NEXT: ET-UNIVERSAL-V3-001
 
 ## ET-CE-PARALLEL-001 — Универсальное параллельное подключение
 

@@ -198,3 +198,5 @@ pre-deploy-quality-gates SPEC → pnpm-workspace.yaml + exact alias + tracked co
 QG-013 → scripts/playwright-transport.mjs exact4 file+title allowlist → playwright-transport.test.ts + playwright-discovery.test.ts →8guards/424root/426education/33MVP,0omissions/duplicates, mixed11 (7remote/4local) PASS; полный current-source release gate — в STAGES. Initial file-level mixed9/416full receipt сохранён в evidence как исторический; accepted scenarios/goldens unchanged.
 
 FR-384 → immutable MeshLab ownerPath и guarded URL/sessionStorage effects → новый mesh-navigation-ownership.spec.ts + неизменённый learning-navigation.spec.ts → causal RED/GREEN, полный Chromium и base-aware hosted history на обоих production hosts PASS. Терминальное QG-008..013/CE-016..022 evidence — picomatch-remediation.json / circuit-parallel.json, runtimef3123c3.
+
+LINE-UX-038 → transmission-line-transient SPEC → CircuitEditor/Glyph → transmission-line-glyph.spec.ts, transmission-handwriting.spec.ts и power-system-cross-mode.spec.ts.

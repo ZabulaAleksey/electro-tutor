@@ -20,7 +20,10 @@ type Gesture = { pointer: number; component: string | null; terminal: string | n
 
 function Glyph({ kind, span = 58, closed, reversed, ground }: { kind: PartKind; span?: number; closed?: boolean; reversed?: boolean; ground?: boolean }) {
   switch (kind) {
-    case "line": return <g stroke="var(--ink)" fill="var(--white)" strokeWidth="1.7"><path d={`M${-span / 2} 0H${span / 2}`} /><rect className="network-transmission-stroke" x={-span / 2 + 8} y="-9" width={span - 16} height="18" rx="9" /><path d="M-12 0H12M7 -4L12 0L7 4" fill="none" /></g>;
+    case "line": return <g>
+      <path d={`M${-span / 2} 0H${span / 2}`} stroke="var(--ink)" strokeWidth="1.7" />
+      <rect className="network-transmission-stroke" x={-span / 2 + 8} y="-2.6" width={span - 16} height="5.2" fill="var(--ink)" />
+    </g>;
     case "r": return <ResistorGlyph x={-29} y={0} />;
     case "l": return <InductorGlyph x={-27} y={0} />;
     case "c": return <CapacitorGlyph x={0} y={0} terminalSpan={54} orientation="horizontal" />;

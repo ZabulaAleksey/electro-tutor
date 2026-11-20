@@ -1,3 +1,9 @@
+## ET-UNIVERSAL-V3-000 — Сверка production и символ длинной линии
+
+Свежий education build из `a7a8095` прошёл. Прямой HTTP и Chromium выявили несовпадение маршрутов и SHA-256 бандлов. Evidence и шаги в [отчёте Phase 0](evidence/universal-labs-v3-phase0.md).
+
+LINE-UX-038. `transmission-line-glyph.spec.ts` воспроизвёл капсулу на неизменённой сборке в обоих режимах. После изменения `E2E_SPEC='transmission-line-glyph|transmission-handwriting|power-system-cross-mode' pnpm test:e2e:built` дал 19 PASS. Снимки локальной сборки подтверждают символ на 1440 × 900 и 390 × 844. Полные CI, audit и hosted verification для этой правки не пройдены в рамках локальной квалификации.
+
 ## QG-013 — точный файловый allowlist
 
 Approved case-level adapter оставляет local только4 JSON round-trip titles с Download.path. Остальные3 случая circuit-parallel.spec.ts возвращены canonical pinned remote image; исходные files/assertions/goldens/retries/workflow не меняются. Root424=420remote+4local, education426=422remote+4local, MVP33 один прежний profile;8 contract/discovery guards, tsc/lint и build109/271 PASS. Actual mixed11 PASS:7 real-WebSocket remote +4 local filesystem; сохранены точный helper hash и log. SVG coordinate hardening имеет собственный causal RED/GREEN, но не объявляется исправлением Linux host-native palette failure.

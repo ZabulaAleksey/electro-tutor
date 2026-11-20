@@ -187,7 +187,7 @@ POWER-036–037 → power-system SPEC → network.ts + layout.ts + CircuitEditor
 
 POWER-038 → power-system SPEC → PowerSystemLab + RadialFlowPanel + RingFlowPanel → power-system-custom-study.e2e.ts.
 
-POWER-032–033 → power-system SPEC → CircuitEditorMode + четыре адаптера → editor-mode.test.ts + power-system-cross-mode.spec.ts.
+POWER-032–033 → power-system SPEC → CircuitEditorMode, четыре адаптера и LaboratoryDirectory → editor-mode.test.ts, power-system-cross-mode.spec.ts и lab-directory-routes.e2e.ts.
 
 ## CE-016–022
 

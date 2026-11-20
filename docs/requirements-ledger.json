@@ -3332,14 +3332,14 @@
         "POWER-036",
         "POWER-037"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Physical document and independent AC capacity with validated precision settings.",
       "security": "Separate bounded import and solver budgets with validation before state changes.",
       "a11y": "Named bilingual numeric settings and visible calculation diagnostics.",
       "observability": "Physical bus and equipment IDs, calculation limit and mismatch.",
       "action": "Import a network beyond the AC limit, edit it, request a calculation and validate both precision fields.",
-      "gap": "Published user acceptance pending.",
+      "gap": "Verified on both published hosts.",
       "code": [
         "src/power-system/network.ts",
         "src/power-system/layout.ts",
@@ -3351,20 +3351,22 @@
       "integration": [
         "src/power-system/ac-power-flow.test.ts"
       ],
-      "e2e": []
+      "e2e": [
+        "docs/evidence/universal-labs-v3-phase6-8.md"
+      ]
     },
     {
       "requirement_ids": [
         "POWER-038"
       ],
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "domain": "power-system",
       "runtime": "Radial and simple-ring teaching studies run on custom physical networks.",
       "security": "Existing equipment, topology and solver validation remains at method entry points.",
       "a11y": "Named bilingual teaching selector and the established result panels.",
       "observability": "Radial voltage, independent conditional cuts, ring balance and Ybus agreement.",
       "action": "Assemble a radial study, close its final edge, then compare the ring with Ybus.",
-      "gap": "Published user acceptance pending.",
+      "gap": "Verified on both published hosts.",
       "code": [
         "src/components/PowerSystemLab.tsx",
         "src/components/RadialFlowPanel.tsx",

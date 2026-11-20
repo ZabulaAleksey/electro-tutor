@@ -1,13 +1,17 @@
 import { formatEngineeringNumber } from "../engineering/format";
-import type { ACPowerFlow } from "../power-system/ac-power-flow";
+import type { ReactNode } from "react";
+import { maxAcBuses, maxAcElements, type ACPowerFlow } from "../power-system/ac-power-flow";
 import type { Language } from "../types";
 
-export function ACPowerFlowPanel({ result, issue, enabled, onCalculate, language }: {
+export function ACPowerFlowPanel({ result, issue, enabled, onCalculate, language, settings }: {
+  settings?: ReactNode;
   result?: ACPowerFlow; issue?: string; enabled: boolean; onCalculate: () => void; language: Language;
 }) {
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
   const num = (value: number | null | undefined) => value == null ? "—" : formatEngineeringNumber(value, language, { maximumFractionDigits: 3 });
-  const message = issue?.startsWith("power-flow-branch-parameters:")
+  const limitMessage = t("Для расчёта AC допустимо до ", "Для розрахунку AC дозволено до ") + maxAcBuses +
+    t(" шин и ", " шин і ") + maxAcElements + t(" устройств. Схема доступна для редактирования.", " пристроїв. Схема доступна для редагування.");
+  const message = issue === "power-ac-network-limit" ? limitMessage : issue?.startsWith("power-flow-branch-parameters:")
     ? t("Укажите действующий тип ветви ", "Укажіть дійсний тип гілки ") + issue.split(":")[1] + "."
     : issue === "power-ac-reference-count" || issue === "power-ac-source-required"
       ? t("Для каждого питаемого участка задайте один опорный источник.", "Для кожної живленої ділянки задайте одне опорне джерело.")
@@ -16,6 +20,7 @@ export function ACPowerFlowPanel({ result, issue, enabled, onCalculate, language
   return <section className="power-panel power-flow" data-power-ac>
     <h2>{t("Общий расчёт AC", "Загальний розрахунок AC")}</h2>
     {!enabled && <button type="button" onClick={onCalculate}>{t("Рассчитать по Ybus", "Розрахувати за Ybus")}</button>}
+    {settings}
     {issue && <p role="status">{message}</p>}
     {result && <div data-ac-result data-ac-mismatch={result.maxMismatchMva} data-ac-balance={result.powerBalanceErrorMva}>
       {result.sources.map(source => <p key={source.id}>

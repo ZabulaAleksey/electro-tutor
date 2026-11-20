@@ -9,11 +9,11 @@ import {
 } from "../power-system/configuration";
 import { examplePowerDiagram, examplePowerNetwork } from "../power-system/diagram";
 import { normalizeLoad, normalizePowerSource } from "../power-system/injections";
-import { readPowerNetwork, setPowerSwitch, type PowerCalculationCut, type PowerElement, type PowerSource } from "../power-system/network";
+import { maxPowerDocumentBuses, maxPowerDocumentElements, readPowerNetwork, setPowerSwitch, type PowerCalculationCut, type PowerElement, type PowerSource } from "../power-system/network";
 import { normallyOpenConfiguration, normallyOpenDiagram } from "../power-system/normally-open";
 import { powerSystemEditorMode } from "../power-system/editor-mode";
-import { layoutPowerNetwork } from "../power-system/layout";
-import { maxAcBuses, maxAcElements, solveACPowerFlow } from "../power-system/ac-power-flow";
+import { layoutPowerNetwork, type PowerDiagram } from "../power-system/layout";
+import { acPowerFlowOptions, solveACPowerFlow } from "../power-system/ac-power-flow";
 import { exampleRingConfiguration, exampleRingDiagram } from "../power-system/ring-example";
 import { appendPowerEquipment, removePowerEquipment } from "../power-system/author";
 import { calculateOverlayReadings, defaultPowerOverlayLayers } from "../power-system/flow-overlay";
@@ -53,8 +53,9 @@ const copy = {
   },
 };
 
-function NumberField({ label, value, step = "any", min, max, onCommit }: {
+function NumberField({ label, value, step = "any", min, max, onCommit, onInvalid }: {
   label: string; value: number; step?: "any" | number; min?: number; max?: number; onCommit: (value: number) => boolean;
+  onInvalid?: () => void;
 }) {
   return <label>{label}<input type="number" inputMode="decimal" key={value} defaultValue={value} step={step} min={min} max={max}
     onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); event.currentTarget.blur(); } }}
@@ -63,6 +64,7 @@ function NumberField({ label, value, step = "any", min, max, onCommit }: {
       if (field.valueAsNumber === value) return;
       if (!field.checkValidity() || !Number.isFinite(field.valueAsNumber) || !onCommit(field.valueAsNumber)) {
         field.value = String(value);
+        onInvalid?.();
       }
     }} /></label>;
 }
@@ -73,15 +75,22 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   const current = useRef(initial);
   const [study, setStudy] = useState<Study>("radial");
   const saved = useRef<Record<Study, PowerConfiguration>>({ radial: initial, ring: exampleRingConfiguration, "normally-open": normallyOpenConfiguration, custom: initial });
-  const [customDiagram, setCustomDiagram] = useState<string | null>(null);
+  const [customDiagram, setCustomDiagram] = useState<PowerDiagram | null>(null);
+  const [acIterations, setAcIterations] = useState<number>(acPowerFlowOptions.iterations.initial);
+  const [acTolerance, setAcTolerance] = useState<number>(acPowerFlowOptions.tolerance.initial);
+  const documentLimit = (language === "ru" ? "В документе допускается до " : "У документі допускається до ") +
+    maxPowerDocumentBuses + (language === "ru" ? " шин и " : " шин і ") + maxPowerDocumentElements +
+    (language === "ru" ? " устройств." : " пристроїв.");
+  const networkIssue = (error: unknown) => error instanceof Error && error.message === "power-document-limit"
+    ? documentLimit : words.networkError;
   const [acRequested, setAcRequested] = useState(false);
   const [cuts, setCuts] = useState<readonly PowerCalculationCut[]>([]);
   const [layers, setLayers] = useState(() => new Set(defaultPowerOverlayLayers));
   const acCalculation = useMemo(() => {
     if (!acRequested) return null;
-    try { return { result: solveACPowerFlow(configuration) }; }
+    try { return { result: solveACPowerFlow(configuration, { maxIterations: acIterations, toleranceMva: acTolerance }) }; }
     catch (error) { return { error: error instanceof Error ? error.message : "" }; }
-  }, [acRequested, configuration]);
+  }, [acRequested, configuration, acIterations, acTolerance]);
   const overlayReadings = useMemo(() => acCalculation?.result && calculateOverlayReadings(configuration, acCalculation.result),
     [acCalculation, configuration]);
   const [ready, setReady] = useState(false);
@@ -93,15 +102,15 @@ export default function PowerSystemLab({ language }: { language: Language }) {
   const networkInput = useRef<HTMLInputElement>(null);
   useEffect(() => setReady(true), []);
 
-  function update(change: (previous: PowerConfiguration) => PowerConfiguration, message = words.error): boolean {
+  function update(change: (previous: PowerConfiguration) => PowerConfiguration, message: string | ((error: unknown) => string) = words.error): boolean {
     try {
       const next = change(current.current);
       current.current = next;
       setConfiguration(next);
       setError("");
       return true;
-    } catch {
-      setError(message);
+    } catch (error) {
+      setError(typeof message === "function" ? message(error) : message);
       return false;
     }
   }
@@ -141,7 +150,7 @@ export default function PowerSystemLab({ language }: { language: Language }) {
         setVoltageTarget(network.buses[0] ? "bus:" + network.buses[0].id : "");
       }
       return next;
-    }, words.networkError);
+    }, networkIssue);
   }
 
   const network = configuration.network;
@@ -198,20 +207,23 @@ export default function PowerSystemLab({ language }: { language: Language }) {
             try {
               if (file.size > maxCircuitFileBytes) throw Error("file-limit");
               const physical = readPowerNetwork(JSON.parse(await file.text()));
-              if (physical.buses.length > maxAcBuses || physical.elements.length > maxAcElements) throw Error("power-ac-network-limit");
               const diagram = layoutPowerNetwork(physical);
               const imported = { ...current.current, network: physical, overrides: new Map() };
               setCustomDiagram(diagram);
               openStudy("custom", imported);
-            } catch { setError(words.networkError); }
+            } catch (error) { setError(networkIssue(error)); }
           }} />
       </section>
       {study === "custom" && <PowerNetworkAuthor network={network} language={language}
         onAppend={input => editCustom(network => appendPowerEquipment(network, input))}
         onRemove={id => editCustom(network => removePowerEquipment(network, id))} />}
+      {study === "custom" && customDiagram?.simplified && <p className="power-panel">
+        {language === "ru" ? "Для плотной схемы шины и оборудование расположены рядами. Соединения показаны между выводами."
+          : "Для щільної схеми шини й обладнання розміщені рядами. З’єднання показані між виводами."}
+      </p>}
       <CircuitEditor language={language} embedded inspectOnly mode={powerSystemEditorMode}
-        activeDocument={study === "custom" ? customDiagram ?? examplePowerDiagram : study === "ring" ? exampleRingDiagram
-          : study === "normally-open" ? normallyOpenDiagram : examplePowerDiagram}
+        inspection={study === "custom" ? customDiagram ?? undefined : undefined}
+        activeDocument={study === "ring" ? exampleRingDiagram : study === "normally-open" ? normallyOpenDiagram : examplePowerDiagram}
         selectedComponentId={equipmentId}
         extension={{
           onSelect(id) {
@@ -348,7 +360,18 @@ export default function PowerSystemLab({ language }: { language: Language }) {
         onSwitch={(id, closed) => update(previous => changePowerNetwork(previous, setPowerSwitch(previous.network, id, closed)))} />}
       {study === "radial" && <RadialFlowPanel configuration={configuration} language={language} />}
       <ACPowerFlowPanel result={acCalculation?.result} issue={acCalculation?.error}
-        enabled={acRequested} onCalculate={() => setAcRequested(true)} language={language} />
+        enabled={acRequested} onCalculate={() => setAcRequested(true)} language={language}
+        settings={<details className="power-advanced">
+          <summary>{language === "ru" ? "Настройки точности AC" : "Налаштування точності AC"}</summary>
+          <div className="power-fields">
+            <NumberField label="Допуск AC, MVA" value={acTolerance}
+              min={acPowerFlowOptions.tolerance.min} max={acPowerFlowOptions.tolerance.max}
+              onCommit={value => { setAcTolerance(value); setError(""); return true; }} onInvalid={() => setError(words.error)} />
+            <NumberField label={language === "ru" ? "Максимум итераций AC" : "Максимум ітерацій AC"} value={acIterations}
+              step={1} min={acPowerFlowOptions.iterations.min} max={acPowerFlowOptions.iterations.max}
+              onCommit={value => { setAcIterations(value); setError(""); return true; }} onInvalid={() => setError(words.error)} />
+          </div>
+        </details>} />
       {overlayReadings && <PowerOverlayControls language={language} readings={overlayReadings} layers={layers} selectedId={equipmentId}
         onToggle={layer => setLayers(previous => {
           const next = new Set(previous);

@@ -1,4 +1,3 @@
-import { maxAcBuses, maxAcElements } from "./ac-power-flow";
 import { powerBranchEndpoints, readPowerNetwork, type PowerElement, type PowerNetwork } from "./network";
 
 export type AppendPowerEquipment =
@@ -13,10 +12,8 @@ export function appendPowerEquipment(network: PowerNetwork, input: AppendPowerEq
   while (ids.has(prefixes[input.kind] + counter)) counter++;
   const id = prefixes[input.kind] + counter;
   if (input.kind === "bus") {
-    if (network.buses.length >= maxAcBuses) throw Error("power-ac-network-limit");
     return readPowerNetwork({ ...network, buses: [...network.buses, { id, nominalKv: input.nominalKv }] });
   }
-  if (network.elements.length >= maxAcElements) throw Error("power-ac-network-limit");
   const first = network.buses.find(bus => bus.id === input.firstBusId);
   const neutral = { id, inService: true } as const;
   if (!first) throw Error("power-author-first-bus");

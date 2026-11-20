@@ -31,6 +31,9 @@ export type PowerNetwork = Readonly<{
   elements: readonly PowerElement[];
 }>;
 
+export const maxPowerDocumentBuses = 128;
+export const maxPowerDocumentElements = 256;
+
 export type PowerCalculationCut = Readonly<{ busId: string; quantity: "p" | "q" }>;
 
 export type PowerIsland = Readonly<{
@@ -100,6 +103,9 @@ function readElement(raw: unknown, buses: ReadonlySet<string>): PowerElement {
 
 export function readPowerNetwork(raw: unknown): PowerNetwork {
   if (!record(raw) || raw.schemaVersion !== 1 || !Array.isArray(raw.buses) || !Array.isArray(raw.elements)) throw Error("power-invalid-document");
+  if (raw.buses.length > maxPowerDocumentBuses || raw.elements.length > maxPowerDocumentElements) {
+    throw Error("power-document-limit");
+  }
   const ids = new Set<string>();
   const register = (value: string) => {
     if (ids.has(value)) throw Error("power-duplicate-id:" + value);

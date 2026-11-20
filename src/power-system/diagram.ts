@@ -27,6 +27,13 @@ export function createPowerDiagram(
   network: PowerNetwork, positions: Record<string, Placement>, busPositions: Record<string, Point>,
   board: Drawing["board"] = { width: 780, height: 360 },
 ): string {
+  return serializeCircuit(createPowerDrawing(network, positions, busPositions, board), defaultCircuitSettings);
+}
+
+export function createPowerDrawing(
+  network: PowerNetwork, positions: Record<string, Placement>, busPositions: Record<string, Point>,
+  board: Drawing["board"],
+): Drawing {
   let drawing: Drawing = {
     board,
     positions,
@@ -49,7 +56,7 @@ export function createPowerDiagram(
       drawing = wireDrawing(wireDrawing(drawing, element.id + ":a", from), element.id + ":b", to);
     }
   }
-  return serializeCircuit(drawing, defaultCircuitSettings);
+  return drawing;
 }
 
 export const examplePowerDiagram = createPowerDiagram(examplePowerNetwork, {

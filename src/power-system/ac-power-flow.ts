@@ -19,6 +19,10 @@ const finite = (v: Complex) => Number.isFinite(complexMagnitude(v));
 
 export const maxAcBuses = 64;
 export const maxAcElements = 192;
+export const acPowerFlowOptions = {
+  iterations: { min: 1, max: 100, initial: 40 },
+  tolerance: { min: 1e-12, max: 1e-4, initial: 1e-9 },
+} as const;
 
 type ACBranchInput = Readonly<{ id: string; ideal: boolean; model: BranchModel }>;
 export type ACBus = Readonly<{ busId: string; voltageKv: number; angleDeg: number }>;
@@ -220,9 +224,10 @@ function solveIsland(configuration: PowerConfiguration, island: PowerIsland, max
 
 export function solveACPowerFlow(configuration: PowerConfiguration,
   options: { maxIterations?: number; toleranceMva?: number } = {}): ACPowerFlow {
-  const { maxIterations = 40, toleranceMva = 1e-9 } = options;
-  if (!Number.isSafeInteger(maxIterations) || maxIterations < 1 || maxIterations > 100 ||
-      !Number.isFinite(toleranceMva) || toleranceMva < 1e-12 || toleranceMva > 1e-4) throw Error("power-ac-options");
+  const { iterations, tolerance } = acPowerFlowOptions;
+  const { maxIterations = iterations.initial, toleranceMva = tolerance.initial } = options;
+  if (!Number.isSafeInteger(maxIterations) || maxIterations < iterations.min || maxIterations > iterations.max ||
+      !Number.isFinite(toleranceMva) || toleranceMva < tolerance.min || toleranceMva > tolerance.max) throw Error("power-ac-options");
   if (configuration.network.buses.length > maxAcBuses || configuration.network.elements.length > maxAcElements) throw Error("power-ac-network-limit");
   const study = createPowerStudy(configuration.network);
   const powered = study.islands.filter(island => island.energized);

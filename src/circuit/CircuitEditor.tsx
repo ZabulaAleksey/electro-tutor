@@ -79,7 +79,7 @@ export type CircuitBoardExtension = {
 };
 
 export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
-  extension, onDocumentChange, onClear, history, initialSelection, afterBoard, inspectOnly = false, selectedComponentId }: {
+  extension, onDocumentChange, onClear, history, initialSelection, afterBoard, inspectOnly = false, selectedComponentId, inspection }: {
   language: Language;
   embedded?: boolean;
   mode?: CircuitEditorMode;
@@ -92,6 +92,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   onClear?: () => void;
   initialSelection?: string;
   inspectOnly?: boolean;
+  inspection?: Snapshot;
   selectedComponentId?: string | null;
   afterBoard?: React.ReactNode;
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
@@ -99,7 +100,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   const copy = circuitCopy(language);
   const positionsLocked = mode.lockComponentPositions === true;
   const [editableSnapshot, setSnapshot] = useState<Snapshot>(() => parseCircuit(initial ?? mode.createDefaultDocument()));
-  const inspectionSnapshot = useMemo(() => inspectOnly && activeDocument ? parseCircuit(activeDocument) : null, [inspectOnly, activeDocument]);
+  const inspectionSnapshot = useMemo(() => inspectOnly
+    ? inspection ?? (activeDocument ? parseCircuit(activeDocument) : null) : null, [inspectOnly, activeDocument, inspection]);
   const snapshot = inspectionSnapshot ?? editableSnapshot;
   const { drawing, routing, settings, title } = snapshot;
   const { width: boardWidth, height: boardHeight } = drawing.board ?? defaultBoard;

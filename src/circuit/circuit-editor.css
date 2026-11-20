@@ -52,6 +52,7 @@
 .circuit-target circle:first-child { fill: transparent; }
 .network-workbench .circuit-viewport .circuit-target circle:first-child { fill: transparent; }
 .circuit-component-hit { fill: transparent; cursor: move; }
+.circuit-editor[data-positions-locked] .circuit-component-hit { cursor: pointer; }
 .circuit-selected .circuit-component-hit { fill: #e4f4fe; stroke: #1784bc; stroke-width: 1; }
 .circuit-viewport text { fill: var(--ink); font-size: 10px; pointer-events: none; }
 .circuit-message { min-height: 1.5em; }

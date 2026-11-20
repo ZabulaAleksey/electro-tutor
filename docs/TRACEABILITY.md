@@ -202,3 +202,7 @@ FR-384 → immutable MeshLab ownerPath и guarded URL/sessionStorage effects →
 LINE-UX-038 → transmission-line-transient SPEC → CircuitEditor/Glyph → lab-acceptance/transmission-line-glyph.e2e.ts, transmission-handwriting.spec.ts и power-system-cross-mode.spec.ts.
 
 LINE-UX-039 → transmission-line-transient SPEC → TransmissionNetworkLab и CSS → lab-acceptance/transient-playback-layout.e2e.ts, transient-spatial-layout.spec.ts и transmission-workbench.spec.ts.
+
+LINE-UX-040 → transmission-line-transient SPEC → transientCircuitMode/CircuitEditor → transient-playback-layout.e2e.ts и transmission-workbench.spec.ts.
+
+LINE-UX-041 → transmission-line-transient SPEC → transientCircuitMode/renderGlyph и TransientCircuitGlyph → transmission-line-glyph.e2e.ts, transmission-handwriting.spec.ts и transmission-workbench.spec.ts.

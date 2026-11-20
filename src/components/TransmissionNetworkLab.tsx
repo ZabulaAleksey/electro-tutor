@@ -382,7 +382,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
      else if(item.kind==="contact")edit({...model,series:model.series?.filter(link=>link.id!==item.id),branches:model.branches?.filter(link=>link.id!==item.id)});
      else if(item.kind==="shunt")edit({...model,shunts:model.shunts.filter(shunt=>shunt.node!==item.node)});
      else if(item.kind==="load")edit(loadReplacement(model,removeLoad(model.load,item.id??model.load.id)));
-     else {setActionError(ru?"Источник необходим для расчёта. Его можно переместить.":"Джерело потрібне для розрахунку. Його можна перемістити.");return;}
+     else {setActionError(ru?"Источник необходим для расчёта.":"Джерело потрібне для розрахунку.");return;}
      setSelection(null);
     },
   onDetached: next=>edit(model,true,layout,next),
@@ -513,7 +513,7 @@ export default function TransmissionNetworkLab({language}:{language:Language}){
   </section>
   <section aria-labelledby={empty ? undefined : "network-measurements-title"}
    aria-label={empty ? (ru ? "Управление опытом" : "Керування дослідом") : undefined} className="network-measurements">
-   <header id="network-results" className="network-results-heading">
+   <header id="network-results" className="network-results-heading" tabIndex={-1}>
     {playback}
     <h2 id="network-measurements-title" className="network-measurements-title" hidden={empty}>{ru?"Измерения":"Вимірювання"}</h2>
    </header>

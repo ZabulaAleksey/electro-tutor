@@ -38,7 +38,7 @@
 @keyframes network-play-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.network-play-spinner{animation:none}}
 .network-first-terminal{pointer-events:none}
-.network-schematic-drawing .network-transmission-stroke{stroke-width:3;stroke-linecap:round}
+.network-schematic-drawing .network-transmission-stroke{stroke-width:5;stroke-linecap:round}
 @media(max-width:390px){.network-speed-choice{gap:2px;font-size:.65rem}.network-lab .network-speed-choice select{padding-inline:2px}.network-lab .network-toolbar button{font-size:.76rem}}
 .network-workbench .circuit-viewport > svg[data-zoom="1"] { height:100%;min-height:0; }
 

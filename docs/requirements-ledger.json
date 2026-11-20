@@ -2589,6 +2589,54 @@
     },
     {
       "requirement_ids": [
+        "LINE-UX-040"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Fixed placed component coordinates and long straight starter line",
+      "security": "No data or privilege change",
+      "a11y": "Keyboard selection and property controls",
+      "observability": "Rendered coordinates and unchanged model revision",
+      "gap": "Hosted acceptance pending in ET-UNIVERSAL-V3-001.",
+      "action": "Verify that attempted drags preserve placed geometry and palette insertion still works.",
+      "code": [
+        "src/transient/circuit-mode.ts",
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/lab-acceptance/transient-playback-layout.e2e.ts",
+        "tests/e2e/transmission-workbench.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
+        "LINE-UX-041"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "transmission-line",
+      "runtime": "Pre-capsule transient glyph set and shared editor leads",
+      "security": "Static SVG rendering",
+      "a11y": "Existing selectable component names and terminals",
+      "observability": "Historical glyph paths, component orientation and connections",
+      "gap": "Hosted acceptance pending in ET-UNIVERSAL-V3-001.",
+      "action": "Verify historical glyphs and retain electrical terminal and placement behavior.",
+      "code": [
+        "src/transient/TransientCircuitGlyph.tsx",
+        "src/transient/circuit-mode.ts",
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/lab-acceptance/transmission-line-glyph.e2e.ts",
+        "tests/e2e/transmission-handwriting.spec.ts",
+        "tests/e2e/transmission-workbench.spec.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
         "LINE-AC-001",
         "LINE-AC-002",
         "LINE-AC-003"

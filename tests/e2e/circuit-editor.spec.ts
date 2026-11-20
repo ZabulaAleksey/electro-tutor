@@ -381,7 +381,7 @@ test("shows per-device measurements for a reactive parallel load from the Worker
   expect(await voltage("C1")).toBe(await voltage("R1"));
 });
 
-test("optimizes a larger diagram through the routing Worker and preserves its netlist", async ({ page }) => {
+test("optimizes larger transient wiring through the Worker without moving components or changing the netlist", async ({ page }) => {
   await page.goto("/ru/interactive/transmission-line/");
   const lab = page.locator("[data-network-lab]");
   await expect(lab).toHaveAttribute("data-calculation-ready", "true");
@@ -402,11 +402,14 @@ test("optimizes a larger diagram through the routing Worker and preserves its ne
   const netlist = circuit.locator("[data-circuit-nets]");
   const before = await netlist.getAttribute("data-circuit-nets");
   const revision = await lab.getAttribute("data-model-revision");
+  const positions = () => circuit.locator("[data-component-id]").evaluateAll(parts => parts.map(part => part.getAttribute("transform")));
+  const beforePositions = await positions();
   const worker = page.waitForEvent("worker", { predicate: item => /routing.worker/.test(item.url()) });
-  const optimize = circuit.getByRole("button", { name: "Оптимизировать схему", exact: true });
+  const optimize = circuit.getByRole("button", { name: "Оптимизировать провода", exact: true });
   await optimize.click();
   await worker;
   await expect(optimize).toBeEnabled();
   await expect(netlist).toHaveAttribute("data-circuit-nets", before!);
+  expect(await positions()).toEqual(beforePositions);
   await expect(lab).toHaveAttribute("data-model-revision", revision!);
 });

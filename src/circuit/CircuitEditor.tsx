@@ -3,7 +3,7 @@ import { CapacitorGlyph, DiodeGlyph, InductorGlyph, ResistorGlyph, SourceGlyph }
 import { ZigzagResistors } from "../engineering/symbol-style";
 import type { Language } from "../types";
 import { circuitCopy } from "./copy";
-import { freeCircuitMode, type CircuitEditorMode } from "./editor-mode";
+import { freeCircuitMode, type CircuitEditorMode, type CircuitGlyph } from "./editor-mode";
 import { maxCircuitFileBytes, parseCircuit, serializeCircuit, type CircuitSettings } from "./document";
 import { canPlace, defaultBoard, demoDrawing, emptyDrawing, insertInWire, junctionAt, lineDemoDrawing, parts, placeComponent, placeLine, splitWireAt, validPartParameter, wireDrawing, type Drawing, type PartKind, type Point } from "./drawing";
 import { clearGeometry, drawingPorts, optimizeDrawing, optimizeLayout, routeDrawing, type Routing } from "./routing";
@@ -18,7 +18,11 @@ const storageKey = "electrotutor.circuit.v1";
 type Snapshot = { drawing: Drawing; routing: Routing; settings: CircuitSettings; title: string };
 type Gesture = { pointer: number; component: string | null; terminal: string | null; wire: string | null; start: Point; origin: Point };
 
-function Glyph({ kind, span = 58, closed, reversed, ground }: { kind: PartKind; span?: number; closed?: boolean; reversed?: boolean; ground?: boolean }) {
+function Glyph({ kind, span = 58, closed, reversed, ground, renderGlyph, negativeSource = false }: {
+  kind: PartKind; span?: number; closed?: boolean; reversed?: boolean; ground?: boolean; renderGlyph?: CircuitGlyph; negativeSource?: boolean;
+}) {
+  const modeGlyph = renderGlyph?.({ kind, span, closed, reversed, ground, negativeSource });
+  if (modeGlyph) return modeGlyph;
   switch (kind) {
     case "line": return <g>
       <path d={`M${-span / 2} 0H${span / 2}`} stroke="var(--ink)" strokeWidth="1.7" />
@@ -93,6 +97,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
   history?: { back: () => void; forward: () => void; canUndo: boolean; canRedo: boolean };
 }) {
   const copy = circuitCopy(language);
+  const positionsLocked = mode.lockComponentPositions === true;
   const [editableSnapshot, setSnapshot] = useState<Snapshot>(() => parseCircuit(initial ?? mode.createDefaultDocument()));
   const inspectionSnapshot = useMemo(() => inspectOnly && activeDocument ? parseCircuit(activeDocument) : null, [inspectOnly, activeDocument]);
   const snapshot = inspectionSnapshot ?? editableSnapshot;
@@ -452,7 +457,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     const held = gesture.current;
     const at = point(event);
     if (!held) extension?.onHover?.(event, at);
-    if (tool === "wire" || !held?.component || drawing.positions[held.component].pinned || held.pointer !== event.pointerId || !at) return;
+    if (positionsLocked || tool === "wire" || !held?.component || drawing.positions[held.component].pinned || held.pointer !== event.pointerId || !at) return;
     if (Math.hypot(at.x - held.start.x, at.y - held.start.y) < 4) {
       setPreview(null);
       return;
@@ -554,7 +559,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       finishShuntDrag(event, tool, held.terminal);
       return;
     }
-    if (held.component && moved && !drawing.positions[held.component].pinned) {
+    if (!positionsLocked && held.component && moved && !drawing.positions[held.component].pinned) {
       const id = held.component;
       const destination = snap({ x: held.origin.x + at.x - held.start.x, y: held.origin.y + at.y - held.start.y });
       if (destination.x !== held.origin.x || destination.y !== held.origin.y) {
@@ -690,8 +695,8 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       }}>{copy.lineDemo}</button></>}
       <button type="button" disabled={optimizing || !drawing.topology.wires.length}
         onClick={() => optimize(false)}>{copy.optimize}</button>
-      <button type="button" disabled={optimizing || !drawing.topology.wires.length}
-        onClick={() => optimize(true)}>{copy.arrange}</button>
+      {!positionsLocked && <button type="button" disabled={optimizing || !drawing.topology.wires.length}
+        onClick={() => optimize(true)}>{copy.arrange}</button>}
       {optimizing && <button type="button" onClick={stopOptimization}>
         {language === "ru" ? "Отменить оптимизацию" : "Скасувати оптимізацію"}
       </button>}
@@ -711,7 +716,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     </div>
   );
 
-  return <section className="circuit-editor" data-circuit-editor data-circuit-mode={mode.id} data-embedded={embedded || undefined} data-ready={ready} data-inspect-only={inspectOnly || undefined} onKeyDown={event => {
+  return <section className="circuit-editor" data-circuit-editor data-circuit-mode={mode.id} data-embedded={embedded || undefined} data-ready={ready} data-inspect-only={inspectOnly || undefined} data-positions-locked={positionsLocked || undefined} onKeyDown={event => {
     if (inspectOnly) return;
     if (event.key === "Escape") { chooseTool(null); extension?.onCancel?.(); }
     if ((event.ctrlKey || event.metaKey) && !(event.target as Element).closest("input, textarea, [contenteditable]")) {
@@ -790,7 +795,9 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
                 {...extension?.describePart?.(item.id, drawing)}
                 transform={`translate(${x} ${y})`} className={selected === item.id ? "circuit-selected" : undefined}>
                 <rect x="-36" y="-29" width="72" height="58" rx="8" className="circuit-component-hit" />
-                <g transform={`rotate(${rotation})`} data-line-angle={item.kind === "line" ? rotation : undefined}><Glyph kind={item.kind as PartKind} span={span} ground={extension?.groundPart?.(item.id)} closed={closed} reversed={item.parameters.reversed === true} /></g>
+                <g transform={`rotate(${rotation})`} data-line-angle={item.kind === "line" ? rotation : undefined}><Glyph kind={item.kind as PartKind} span={span} ground={extension?.groundPart?.(item.id)} closed={closed}
+                  reversed={item.parameters.reversed === true} renderGlyph={mode.renderGlyph}
+                  negativeSource={Number(item.parameters.voltageV ?? item.parameters.currentA ?? 0) < 0} /></g>
                 <text x="0" y="-25" textAnchor="middle">{item.id}</text>
                 {reading && <text data-circuit-reading={item.id} x="0" y="31" textAnchor="middle">
                   {reading.current ? `${reading.voltage} · ${reading.current}` : reading.voltage}
@@ -805,7 +812,14 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
               const part = parallelPlan.drawing.topology.components.find(part => part.id === parallelPlan.componentId)!;
               const position = parallelPlan.drawing.positions[part.id];
               return <g transform={`translate(${position.x} ${position.y})`}>
-                <g transform={`rotate(${position.rotation})`}><Glyph kind={part.kind as PartKind} /></g>
+                <g transform={`rotate(${position.rotation})`}>
+                  <ZigzagResistors.Provider value={zigzag}>
+                    <Glyph kind={part.kind as PartKind} span={position.span} renderGlyph={mode.renderGlyph}
+                      closed={part.parameters.closed === true} reversed={part.parameters.reversed === true}
+                      ground={extension?.groundPart?.(part.id)}
+                      negativeSource={Number(part.parameters.voltageV ?? part.parameters.currentA ?? 0) < 0} />
+                  </ZigzagResistors.Provider>
+                </g>
                 <text y="-25" textAnchor="middle">{part.id}</text>
               </g>;
             })()}
@@ -912,10 +926,10 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
         if (commit({ ...drawing, topology: disconnect(drawing.topology, selectionWire) })) setSelectionWire(null);
       }}>{copy.remove} {selectionWire}</button>}
       {selected && <><button type="button" disabled={drawing.positions[selected].pinned} onClick={rotate}>{copy.rotate}</button>
-        <button type="button" aria-pressed={!!drawing.positions[selected].pinned} onClick={() => {
+        {!positionsLocked && <button type="button" aria-pressed={!!drawing.positions[selected].pinned} onClick={() => {
           const p = drawing.positions[selected];
           commit({ ...drawing, positions: { ...drawing.positions, [selected]: { ...p, pinned: !p.pinned } } }, routing);
-        }}>{copy.pin}</button>
+        }}>{copy.pin}</button>}
         <button type="button" onClick={remove}>{copy.remove}</button></>}
     </div>}
     {!inspectOnly && mode.id !== "power-system" && <EquivalentCircuit drawing={drawing} language={language} modeId={mode.id}

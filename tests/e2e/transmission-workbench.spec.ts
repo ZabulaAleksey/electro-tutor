@@ -287,7 +287,7 @@ test("selects both bridge ends, switches the branch and restores its v3 JSON",as
 });
 
 
-test("wheel scrolls normally, Ctrl anchors zoom and geometry does not change the solver",async({page})=>{
+test("wheel scrolls normally, Ctrl anchors zoom and an installed line stays fixed",async({page})=>{
  await page.goto(path);await ready(page);
  const field=canvas(page), lab=page.locator("[data-network-lab]");
  const initial=await field.getAttribute("data-zoom");
@@ -311,7 +311,7 @@ test("wheel scrolls normally, Ctrl anchors zoom and geometry does not change the
  const start=await position(page,145,105);
  await page.mouse.move(start.x,start.y);await page.mouse.down();
  await page.mouse.move(start.x,start.y+42,{steps:6});await page.mouse.up();
- await expect(section).not.toHaveAttribute("transform",before!);
+ await expect(section).toHaveAttribute("transform",before!);
  await expect(lab).toHaveAttribute("data-model-revision",rev!);
 });
 
@@ -371,7 +371,7 @@ test("ordinary R, L and C terminate the line and deleting the load opens the bra
  await expect(lab).toHaveAttribute("data-method","exact-fronts");
 });
 
-test("a detached capacitor moves freely, survives reload, then connects and rewires through the worker",async({page})=>{
+test("a detached capacitor holds its inserted position, survives reload, then connects and rewires through the worker",async({page})=>{
  await page.goto(path);
  await ready(page);
  const field=canvas(page),lab=page.locator("[data-network-lab]");
@@ -395,9 +395,9 @@ test("a detached capacitor moves freely, survives reload, then connects and rewi
  expect(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest("[data-component-id]")?.getAttribute("data-component-id"),start)).toBe("draft-1");
  await page.mouse.move(start.x,start.y);await page.mouse.down();
  await page.mouse.move(start.x+125,start.y+35,{steps:8});
- await expect(draft).not.toHaveAttribute("transform",original!);
+ await expect(draft).toHaveAttribute("transform",original!);
  await page.mouse.up();
- await expect(draft).not.toHaveAttribute("transform",original!);
+ await expect(draft).toHaveAttribute("transform",original!);
  await expect(lab).toHaveAttribute("data-model-revision",revision!);
  const moved=await draft.getAttribute("transform");
  await page.reload();await ready(page);
@@ -422,16 +422,19 @@ test("a detached capacitor moves freely, survives reload, then connects and rewi
 });
 
 
-test("reroutes both load leads when the load moves above the line", async ({ page }) => {
+test("keeps the load and both leads fixed during an attempted drag", async ({ page }) => {
   await page.goto(path);
   await ready(page);
   const field = canvas(page);
   const lab = page.locator("[data-network-lab]");
   const revision = await lab.getAttribute("data-model-revision");
-  const lead = field.locator("[data-load-lead='0']");
-  const previous = await lead.getAttribute("points");
-  expect(previous).toBeTruthy();
-  const load = field.getByRole("button",{name:"Нагрузка",exact:true}).locator("rect.circuit-component-hit");
+  const leads = field.locator("[data-load-lead]");
+  const points = () => leads.evaluateAll(paths => paths.map(path => path.getAttribute("points")));
+  const previous = await points();
+  expect(previous).toHaveLength(2);
+  const loadSymbol = field.getByRole("button",{name:"Нагрузка",exact:true});
+  const originalPosition = await loadSymbol.getAttribute("transform");
+  const load = loadSymbol.locator("rect.circuit-component-hit");
   await page.evaluate(() => window.scrollBy({ top: 180, behavior: "instant" }));
   await load.scrollIntoViewIfNeeded();
   await page.waitForFunction(() => {
@@ -445,21 +448,16 @@ test("reroutes both load leads when the load moves above the line", async ({ pag
   await page.mouse.move(start.x,start.y);
   await page.mouse.down();
   await page.mouse.move(destination.x,destination.y,{steps:12});
-  await expect(lead).not.toHaveAttribute("points",previous!);
+  expect(await points()).toEqual(previous);
   await page.mouse.up();
-  const moved = await lead.getAttribute("points");
-  expect(moved).not.toBe(previous);
+  expect(await points()).toEqual(previous);
+  await expect(loadSymbol).toHaveAttribute("transform",originalPosition!);
   await expect(lab).toHaveAttribute("data-model-revision",revision!);
   await ready(page);
-  await page.getByRole("button",{name:"Отменить изменение"}).click();
-  await expect(lead).toHaveAttribute("points",previous!);
-  await page.getByRole("button",{name:"Повторить изменение"}).click();
-  await expect(lead).toHaveAttribute("points",moved!);
-  await expect(lab).toHaveAttribute("data-model-revision",revision!);
 });
 
 
-test("compound load and bridge movement preserve the exported electrical model",async({page},testInfo)=>{
+test("fixed compound loads and bridge preserve their routes and the exported electrical model",async({page},testInfo)=>{
  const {readFile}=await import("node:fs/promises");
  const original={
   sections:[{id:"TL1",lengthM:1e6,impedanceOhm:50,velocityMS:2e8}],
@@ -496,12 +494,16 @@ test("compound load and bridge movement preserve the exported electrical model",
  await drag(handle,sibling.x-origin.x,sibling.y-origin.y);
  await expect(child).toHaveAttribute("points",before!);
  await drag(handle,24,0);
- await expect(child).not.toHaveAttribute("points",before!);
+ await expect(child).toHaveAttribute("points",before!);
  const bridge=field.locator('[data-contact="R3"]');
+ const bridgeLead=field.locator('[data-wire-endpoint="R3:a"]');
+ const bridgePosition=await bridge.getAttribute("transform");
+ const bridgePoints=await bridgeLead.getAttribute("points");
  await drag(bridge.locator("rect.circuit-component-hit"),25,20);
- await expect(field.locator('[data-wire-endpoint="R3:a"]')).toBeVisible();
+ await expect(bridge).toHaveAttribute("transform",bridgePosition!);
+ await expect(bridgeLead).toHaveAttribute("points",bridgePoints!);
+ await expect(lab).toHaveAttribute("data-model-revision",rev!);
  const check=async(name:string)=>{
-  await expect(lab).toHaveAttribute("data-model-revision",rev!);
   const download=page.waitForEvent("download");
   await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
   await page.getByRole("button",{name:"Сохранить схему"}).click();
@@ -510,9 +512,10 @@ test("compound load and bridge movement preserve the exported electrical model",
   expect(JSON.parse(await readFile(file,"utf8")).model).toEqual(original);
   await page.getByRole("button",{name:"Ещё инструменты и справка"}).click();
  };
- await check("moved");
+ await check("locked");
  await page.getByRole("button",{name:"Отменить изменение"}).click();
- await check("undo");
+ await expect(bridge).toHaveCount(0);
  await page.getByRole("button",{name:"Повторить изменение"}).click();
+ await expect(bridgeLead).toHaveAttribute("points",bridgePoints!);
  await check("redo");
 });

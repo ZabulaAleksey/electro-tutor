@@ -3329,6 +3329,59 @@
     },
     {
       "requirement_ids": [
+        "POWER-036",
+        "POWER-037"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "power-system",
+      "runtime": "Physical document and independent AC capacity with validated precision settings.",
+      "security": "Separate bounded import and solver budgets with validation before state changes.",
+      "a11y": "Named bilingual numeric settings and visible calculation diagnostics.",
+      "observability": "Physical bus and equipment IDs, calculation limit and mismatch.",
+      "action": "Import a network beyond the AC limit, edit it, request a calculation and validate both precision fields.",
+      "gap": "Published user acceptance pending.",
+      "code": [
+        "src/power-system/network.ts",
+        "src/power-system/layout.ts",
+        "src/components/PowerSystemLab.tsx"
+      ],
+      "unit": [
+        "src/power-system/power-document-limits.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ac-power-flow.test.ts"
+      ],
+      "e2e": []
+    },
+    {
+      "requirement_ids": [
+        "POWER-038"
+      ],
+      "status": "IMPLEMENTED",
+      "domain": "power-system",
+      "runtime": "Radial and simple-ring teaching studies run on custom physical networks.",
+      "security": "Existing equipment, topology and solver validation remains at method entry points.",
+      "a11y": "Named bilingual teaching selector and the established result panels.",
+      "observability": "Radial voltage, independent conditional cuts, ring balance and Ybus agreement.",
+      "action": "Assemble a radial study, close its final edge, then compare the ring with Ybus.",
+      "gap": "Published user acceptance pending.",
+      "code": [
+        "src/components/PowerSystemLab.tsx",
+        "src/components/RadialFlowPanel.tsx",
+        "src/components/RingFlowPanel.tsx"
+      ],
+      "unit": [
+        "src/power-system/radial-flow.test.ts"
+      ],
+      "integration": [
+        "src/power-system/ring-agreement.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/power-system-custom-study.e2e.ts"
+      ]
+    },
+    {
+      "requirement_ids": [
         "CE-016",
         "CE-017",
         "CE-018",

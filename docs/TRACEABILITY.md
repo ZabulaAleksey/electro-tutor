@@ -183,6 +183,10 @@ POWER-028–029 → power-system SPEC → normally-open.ts + network.ts + PowerS
 
 POWER-030–031 → power-system SPEC → CircuitEditor + PowerMobileReadout + PowerSystemLab → power-system-mobile.spec.ts.
 
+POWER-036–037 → power-system SPEC → network.ts + layout.ts + CircuitEditor + PowerSystemLab + ACPowerFlowPanel → power-document-limits.test.ts и hosted-приёмка V3.
+
+POWER-038 → power-system SPEC → PowerSystemLab + RadialFlowPanel + RingFlowPanel → power-system-custom-study.e2e.ts.
+
 POWER-032–033 → power-system SPEC → CircuitEditorMode + четыре адаптера → editor-mode.test.ts + power-system-cross-mode.spec.ts.
 
 ## CE-016–022

@@ -29,3 +29,7 @@ RED. Новая проверка воспроизвела `position: fixed`. П�
 Снимок `phase1-pre-capsule-desktop.png`, SHA-256 `909773bf40fe25a5a58cba0d451935a4745b01c9305d470bea0bca2863ef3fa6`.
 
 Снимок `phase1-pre-capsule-mobile.png`, SHA-256 `2f60aa4f2a4b36c73b7b0ff1160801d190508f2461535727292b5531f1887bcf`.
+
+## Финальная локальная проверка
+
+Локальный кандидат `2889637`: штатный `pnpm verify:full` PASS при одном Chromium-воркере. 773 unit, 418 Chromium PASS и 6 предусмотренных пропусков, production smoke 2/2, audit без известных уязвимостей. Отдельная приёмка 3/3, исходный `dist` восстановлен и проверен по SHA-256. Учебная сборка `TransmissionNetworkLab.CQ75up2_.js`, SHA-256 `853dfb576559212774c7f6296b2a43cddd76b13c6e176af356372c412d7d0435`.

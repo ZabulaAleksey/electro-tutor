@@ -4,6 +4,8 @@
 
 50/50 в целевом локальном Chromium-прогоне. `pnpm exec playwright test --config playwright.lab-acceptance.config.ts` проверяет 3 сценария LINE-UX-038/039 на заранее собранном education artifact. Конфиг отделён, чтобы сохранить принятые наборы и точное число сценариев основной регрессии. Команды, результаты и ограничения в [Phase 1](evidence/universal-labs-v3-phase1.md).
 
+Production `b72c537`: GitHub Actions verify/deploy SUCCESS, Cloudflare `8ed8a84d`. На обеих площадках по 5 экранов Chromium PASS, включая клавиатуру и touch. См. [точные артефакты и шаги](evidence/universal-labs-v3-phase1.md).
+
 ## ET-UNIVERSAL-V3-000 — Сверка production и символ длинной линии
 
 Свежий education build из `a7a8095` прошёл. Прямой HTTP и Chromium выявили несовпадение маршрутов и SHA-256 бандлов. Evidence и шаги в [отчёте Phase 0](evidence/universal-labs-v3-phase0.md).

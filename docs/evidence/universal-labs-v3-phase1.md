@@ -33,3 +33,20 @@ RED. Новая проверка воспроизвела `position: fixed`. П�
 ## Финальная локальная проверка
 
 Локальный кандидат `2889637`: штатный `pnpm verify:full` PASS при одном Chromium-воркере. 773 unit, 418 Chromium PASS и 6 предусмотренных пропусков, production smoke 2/2, audit без известных уязвимостей. Отдельная приёмка 3/3, исходный `dist` восстановлен и проверен по SHA-256. Учебная сборка `TransmissionNetworkLab.CQ75up2_.js`, SHA-256 `853dfb576559212774c7f6296b2a43cddd76b13c6e176af356372c412d7d0435`.
+
+## Опубликованная приёмка
+
+Исходный коммит `b72c53718e663f731cb908b625e3cb151a31e9e8` активен в production deployment Cloudflare `8ed8a84d`. `electrotutor.org`, `electrotutor.pages.dev` и `8ed8a84d.electrotutor.pages.dev` отдают один `TransmissionNetworkLab.DCfnE3D7.js`, SHA-256 `5dfe58ff6aaeca47ee19a57d0f1d97cf4fff681312cc810b198e400e6845c658`. [Точная выкладка Cloudflare](https://8ed8a84d.electrotutor.pages.dev/ru/interactive/transmission-line/)
+
+GitHub Actions verify/deploy SUCCESS, попытка 1. GitHub Pages с base `/electro-tutor/` отдаёт `TransmissionNetworkLab.MgLWNW1e.js`, SHA-256 `9a4b07c17ec02cb6eec398e6da27bad0febe6749cbcc457c81d0cd948b0e3bec`. [Запуск GitHub Actions](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/44811759154)
+
+Проверены [Cloudflare](https://electrotutor.org/ru/interactive/transmission-line/) и [GitHub Pages](https://zabulaaleksey.github.io/electro-tutor/ru/interactive/transmission-line/). На обоих хостах маршруты `transmission-line`, `transmission-line-steady`, `reactive-two-port-graph` и `power-system` вернули HTTP 200. Для переходного опыта 5/5 Chromium на каждом хосте при 1440 × 900, 1280 × 800, 768 × 1024, 390 × 844, 360 × 780. При первом открытии видны стартовые элементы, прямая TL1 и обе эпюры в доступной области. На desktop попытка перетащить TL1 сохранила transform `translate(395 100)` и ревизию. Переход к измерениям, ×1/2 и цикл Пуск → Пауза → Стоп проверены с клавиатуры и касанием. Проверена доступность кнопок через hit test, отображение синусоидального символа и переключение RU/UK.
+
+Снимки итоговых экранов сохранены в материалах приёмки. SHA-256 для сверки:
+
+- `phase1-hosted-cloudflare-desktop.png` · `909773bf40fe25a5a58cba0d451935a4745b01c9305d470bea0bca2863ef3fa6`
+- `phase1-hosted-cloudflare-mobile.png` · `d81d5d9d9ca19b3fe2964a6a87a6304e38d5e3b10dc563b57b578f5f75c0eedd`
+- `phase1-hosted-cloudflare-player.png` · `df714d6bbdda6e0b1835007883d08bf0c0e4e3c120b80fe7625c362186d308ea`
+- `phase1-hosted-github-desktop.png` · `909773bf40fe25a5a58cba0d451935a4745b01c9305d470bea0bca2863ef3fa6`
+- `phase1-hosted-github-mobile.png` · `d81d5d9d9ca19b3fe2964a6a87a6304e38d5e3b10dc563b57b578f5f75c0eedd`
+- `phase1-hosted-github-player.png` · `df714d6bbdda6e0b1835007883d08bf0c0e4e3c120b80fe7625c362186d308ea`

@@ -1,5 +1,5 @@
 import { useId, useMemo, useState } from "react";
-import { CapacitorGlyph, InductorGlyph, ReferenceEmfGlyph, ResistorGlyph, SourceGlyph } from "../engineering/symbols";
+import { CapacitorGlyph, InductorGlyph, ResistorGlyph, TextbookSourceGlyph } from "../engineering/symbols";
 import type { Language } from "../types";
 import { parts } from "./drawing";
 import { layoutTopology } from "./topology-layout";
@@ -123,16 +123,11 @@ function Glyph({ component }: { component: CircuitComponent }) {
     case "c": return <CapacitorGlyph x={0} y={0} orientation="horizontal" terminalSpan={104} />;
     case "l": return <><path className="topology-stroke" d="M-52 0H-27M27 0H52" /><InductorGlyph x={-27} y={0} /></>;
     case "voltage":
-      return <>
-        <path className="topology-stroke" d="M-52 0H-21.6M21.6 0H52" />
-        <g transform="scale(.72)"><ReferenceEmfGlyph x={0} y={0} /></g>
-        <path data-topology-emf-arrow className="topology-stroke" d="M11 5H-12M-7 1L-12 5L-7 9" />
-        <path data-topology-emf-polarity className="topology-stroke" d="M-12 -8H-6M-9 -11V-5M6 -8H12" />
-      </>;
     case "current":
-      return <><path className="topology-stroke" d="M-52 0H-22M22 0H52" /><g transform="rotate(-90)">
-        <SourceGlyph x={0} y={0} current />
-      </g></>;
+      return <>
+        <path className="topology-stroke" d="M-52 0H-22M22 0H52" />
+        <TextbookSourceGlyph x={0} y={0} kind={component.kind === "voltage" ? "emf" : "current"} />
+      </>;
     case "line":
       return <><path className="topology-stroke" d="M-52 0H52" /><path className="topology-long-line" d="M-37 0H37" /></>;
     case "switch": {

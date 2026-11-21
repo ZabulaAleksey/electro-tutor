@@ -10,6 +10,13 @@ CE-012 → Circuit Engine SPEC → editor-mode, CircuitEditor, transient/circuit
 
 CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.
 
+## Реконструкция лабораторий ET-LABR
+
+[FR-601–615](../specs/features/lab-reconstruction.spec.md#матрица-требований-и-исходного-покрытия)
+связаны с существующими модулями, целевыми этапами и [E1–E13](TESTING.md#план-проверок-e1e13).
+Отметки об исходном покрытии и прогоне относятся к baseline. Новый контракт остаётся в проекте
+до приёмки владельцем. [Точки запуска и evidence](evidence/lab-reconstruction-stage-0.md).
+
 ## ET-LAB-022
 
 LINE-UX-030..033 → transmission-line-transient SPEC → engineering/handwriting, CircuitEditor и useLineOperations, network-routing, network-ink, network.ts and document history → handwriting.test.ts, network-ink.test.ts, network-current-source.test.ts and transmission-handwriting.spec.ts.

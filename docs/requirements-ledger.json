@@ -48,6 +48,7 @@
       "specs/features/ai-native-tutoring-platform.spec.md"
     ],
     "backlog_spec_files": [
+      "specs/features/lab-reconstruction.spec.md",
       "specs/features/live-tutoring-session.spec.md"
     ],
     "architecture_baseline_requirement_ids": [
@@ -78,6 +79,21 @@
       "PLAT-002"
     ],
     "future_backlog_requirement_ids": [
+      "FR-601",
+      "FR-602",
+      "FR-603",
+      "FR-604",
+      "FR-605",
+      "FR-606",
+      "FR-607",
+      "FR-608",
+      "FR-609",
+      "FR-610",
+      "FR-611",
+      "FR-612",
+      "FR-613",
+      "FR-614",
+      "FR-615",
       "AI-001",
       "AI-002",
       "AI-003",
@@ -128,6 +144,151 @@
     "UNAVAILABLE"
   ],
   "rows": [
+    {
+      "requirement_ids": [
+        "FR-601",
+        "FR-602",
+        "FR-603",
+        "FR-604"
+      ],
+      "domain": "Топология и рабочее поле лабораторий",
+      "code": [
+        "src/circuit/topology.ts",
+        "src/circuit/parallel-regions.ts",
+        "src/circuit/rlc-reduction.ts",
+        "src/circuit/CircuitEditor.tsx"
+      ],
+      "unit": [
+        "src/circuit/topology-contract.test.ts",
+        "src/circuit/rlc-reduction.test.ts"
+      ],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts",
+        "tests/e2e/circuit-parallel.spec.ts"
+      ],
+      "runtime": "Действующий Circuit Editor служит исходной точкой.",
+      "security": "Атомарные команды, версия и проверка импортируемого графа.",
+      "a11y": "Клавиатура, touch и зоны слотов проверяются в новом режиме.",
+      "observability": "Диагностика отклонённых слотов и бюджет layout.",
+      "gap": "Новый topology-only режим и точные референсы 1–10/1–14 ожидаются.",
+      "status": "PLANNED",
+      "action": "ET-LABR-002/003, E1–E4/E11/E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-605",
+        "FR-606",
+        "FR-607",
+        "FR-608"
+      ],
+      "domain": "Переходная и синусоидальная линии",
+      "code": [
+        "src/components/TransmissionNetworkLab.tsx",
+        "src/steady-line/circuit-mode.ts",
+        "src/transient/network.worker.ts"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/transmission-line.spec.ts",
+        "tests/e2e/transmission-line-steady.spec.ts"
+      ],
+      "runtime": "Опубликованные A и B работают по прежним SPEC.",
+      "security": "Ограниченный архив и локальный расчёт.",
+      "a11y": "Проверка двух экранов A и координатного управления B.",
+      "observability": "Состояние Worker и разрывы графика у полюсов.",
+      "gap": "Новые старт, палитры, переход между представлениями, J и общий эпюрный контракт требуют реализации.",
+      "status": "PLANNED",
+      "action": "ET-LABR-004/005, E5/E6/E11/E12."
+    },
+    {
+      "requirement_ids": [
+        "FR-609",
+        "FR-610"
+      ],
+      "domain": "Экспериментальная линия и LC-граф",
+      "code": [
+        "src/transient/network.worker.ts",
+        "src/circuit/reactive-lc-mode.ts"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/reactive-lc-graph.spec.ts"
+      ],
+      "runtime": "Имеются ограниченный Worker A и действующая LC-лаборатория.",
+      "security": "Проверка профилей коэффициентов и лимитов вычислений.",
+      "a11y": "Отдельная маркировка C и проверяемые координаты LC.",
+      "observability": "Отказы устойчивости, полюса и нули.",
+      "gap": "Нет общей нестационарной постановки, слоты LC требуют интеграции.",
+      "status": "PLANNED",
+      "action": "ET-LABR-006/007A/007B, E2/E5/E7/E11/E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-611",
+        "FR-612"
+      ],
+      "domain": "Базисы и многоугольные движения",
+      "code": [
+        "src/components/FourierLab.tsx",
+        "src/fourier/bases.ts",
+        "src/fourier/custom-basis.ts"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/fourier-lab.spec.ts",
+        "tests/e2e/fourier-shapes.spec.ts"
+      ],
+      "runtime": "DFT и часть базисов работают в одном маршруте.",
+      "security": "Локальный ограниченный ввод функций и геометрии SVG.",
+      "a11y": "Раздельные формы коэффициентов и локализованные графики.",
+      "observability": "RMS/max, нормировка, seed и диагностические ошибки.",
+      "gap": "Дополнительные семейства и самостоятельная многоугольная аппроксимация ожидаются.",
+      "status": "PLANNED",
+      "action": "ET-LABR-008/009, E8/E9/E11–E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-613",
+        "FR-614"
+      ],
+      "domain": "Траектоид",
+      "code": [],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "Новая отдельная лаборатория.",
+      "security": "Ограничить ввод, кэш и экспорт валидированной геометрией.",
+      "a11y": "2D просмотр следа и диагностики при недоступности 3D.",
+      "observability": "Остаток скорости контакта, проникновение, ошибка следа, время расчёта.",
+      "gap": "Геометрический feasibility spike предшествует выбору 3D реализации.",
+      "status": "PLANNED",
+      "action": "ET-LABR-010A/010B, E10–E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-615"
+      ],
+      "domain": "Harness реконструкции",
+      "code": [
+        "scripts/full-verify.mjs",
+        "playwright.lab-acceptance.config.ts",
+        ".github/workflows/pages.yml"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [],
+      "runtime": "Базовые CI и тестовые профили существуют.",
+      "security": "Verify без автоматической выкладки экспериментальной ветки.",
+      "a11y": "Desktop/mobile и реальное устройство в приёмке.",
+      "observability": "Отчёты с версиями, seed, SHA, измерениями и статусами.",
+      "gap": "Нужны согласованные fixtures, eval runner и отдельные приёмки.",
+      "status": "PLANNED",
+      "action": "ET-LABR-001/011, E1–E13."
+    },
     {
       "requirement_ids": [
         "SHOW-008",

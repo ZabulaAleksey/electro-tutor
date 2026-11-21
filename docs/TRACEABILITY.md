@@ -14,8 +14,11 @@ CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → 
 
 [FR-601–615](../specs/features/lab-reconstruction.spec.md#матрица-требований-и-исходного-покрытия)
 связаны с существующими модулями, целевыми этапами и [E1–E13](TESTING.md#план-проверок-e1e13).
-Отметки об исходном покрытии и прогоне относятся к baseline. Новый контракт остаётся в проекте
-до приёмки владельцем. [Точки запуска и evidence](evidence/lab-reconstruction-stage-0.md).
+Исходное покрытие — в [отчёте этапа 0](evidence/lab-reconstruction-stage-0.md).
+FR-615, этап 1 → [скрипт запуска](../scripts/lab-eval.mjs) и [workflow](../.github/workflows/lab-eval.yml)
+→ [эталон E5](../tests/lab-eval/matched-line-reference.ts) → [Chromium eval](../tests/lab-eval/matched-line.e2e.ts)
+→ [проверки и ручная приёмка](TESTING.md#et-labr-001--браузерный-eval-длинной-линии).
+Остальные организационные и продуктовые требования реализуются по своим этапам.
 
 ## ET-LAB-022
 

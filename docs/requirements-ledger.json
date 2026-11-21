@@ -276,16 +276,21 @@
       "code": [
         "scripts/full-verify.mjs",
         "playwright.lab-acceptance.config.ts",
-        ".github/workflows/pages.yml"
+        ".github/workflows/pages.yml",
+        "scripts/lab-eval.mjs",
+        "playwright.lab-eval.config.ts",
+        ".github/workflows/lab-eval.yml"
       ],
       "unit": [],
       "integration": [],
-      "e2e": [],
-      "runtime": "Базовые CI и тестовые профили существуют.",
+      "e2e": [
+        "tests/lab-eval/matched-line.e2e.ts"
+      ],
+      "runtime": "Этап 1 запускает реальный Worker на education-сборке. Полный FR-615 покрывает последующие этапы.",
       "security": "Verify без автоматической выкладки экспериментальной ветки.",
       "a11y": "Desktop/mobile и реальное устройство в приёмке.",
-      "observability": "Отчёты с версиями, seed, SHA, измерениями и статусами.",
-      "gap": "Нужны согласованные fixtures, eval runner и отдельные приёмки.",
+      "observability": "Первый E5 сохраняет JSON, SHA, seed, время, результаты, снимки и traces.",
+      "gap": "Ручная приёмка этапа 1 и расширение покрытия на следующих этапах.",
       "status": "PLANNED",
       "action": "ET-LABR-001/011, E1–E13."
     },

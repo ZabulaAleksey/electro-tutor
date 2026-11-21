@@ -124,6 +124,10 @@ pnpm verify:full
 тестовой БД и текущий пробел визуальных эталонов Linux описаны в
 [TESTING](docs/TESTING.md).
 
+Для проверки лаборатории длинной линии запустите `pnpm eval:labs --check-rejection`.
+Команда соберёт education, откроет RU desktop и UK mobile в Chromium и сохранит
+JSON, снимки и traces. [Как воспроизвести и принять результат](docs/TESTING.md#et-labr-001--браузерный-eval-длинной-линии).
+
 ## Публикация
 
 Публичный учебный профиль публикуется из `main` через `pnpm build`.

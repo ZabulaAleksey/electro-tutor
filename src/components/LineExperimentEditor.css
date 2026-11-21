@@ -1,0 +1,184 @@
+.line-experiment-editor {
+  min-width: 0;
+  border: 1px solid var(--border, #cdd8e5);
+  border-radius: 14px;
+  background: var(--white, #fff);
+  color: var(--ink, #132242);
+  overflow: hidden;
+}
+
+.line-experiment-editor-bar,
+.line-experiment-selection,
+.line-experiment-palette,
+.line-experiment-modes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.line-experiment-editor-bar {
+  justify-content: space-between;
+}
+
+.line-experiment-editor-zoom {
+  display: flex;
+  gap: 5px;
+}
+
+.line-experiment-editor button {
+  min-height: 44px;
+  min-width: 44px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px 10px;
+  border: 1px solid var(--border, #a6b8cf);
+  border-radius: 9px;
+  background: var(--white, #fff);
+}
+
+.line-experiment-editor button:focus-visible,
+.line-experiment-viewport:focus-visible {
+  outline: 2px solid var(--focus, #166d93);
+  outline-offset: -2px;
+}
+
+.line-experiment-modes button[aria-pressed="true"],
+.line-experiment-palette button[aria-pressed="true"],
+.line-experiment-target[aria-pressed="true"] {
+  border-color: var(--accent, #177598);
+  background: var(--surface-soft, #e5f3fc);
+}
+
+.line-experiment-palette {
+  justify-content: center;
+  gap: 2px;
+  padding-inline: 4px;
+  border-top: 1px solid var(--border, #cdd8e5);
+}
+
+.line-experiment-palette button {
+  display: inline-grid;
+  place-items: center;
+  font-weight: 650;
+}
+
+.line-experiment-palette svg {
+  width: 28px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+}
+
+.line-experiment-viewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+  min-height: 235px;
+  max-height: min(57vh, 460px);
+  border-block: 1px solid var(--border, #cdd8e5);
+  background-image: radial-gradient(var(--border, #bbccdf) 0.8px, transparent 0.8px);
+  background-size: 16px 16px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.line-experiment-viewport[data-panning] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.line-experiment-field {
+  position: relative;
+  min-width: min(100%, 225px);
+}
+
+.line-experiment-schematic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke: var(--ink, #132242);
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+
+.line-experiment-schematic text {
+  fill: var(--ink, #132242);
+  stroke: none;
+  font-size: 15px;
+  font-weight: 650;
+  user-select: none;
+}
+
+.line-experiment-schematic .line-experiment-dot {
+  fill: var(--ink, #132242);
+}
+
+.line-experiment-conductor {
+  stroke-width: 5;
+  stroke: var(--accent, #12668d);
+}
+
+.line-experiment-electric-field {
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  stroke: var(--border, #7892a8);
+}
+
+.line-experiment-part-highlight {
+  fill: var(--surface-soft, #e5f3fc);
+  stroke: var(--accent, #177598);
+  opacity: .72;
+}
+
+.line-experiment-editor .line-experiment-target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding-inline: 5px;
+  white-space: nowrap;
+}
+
+.line-experiment-editor .line-experiment-object {
+  background: transparent;
+  border-color: transparent;
+  width: 44px;
+  height: 44px;
+}
+
+.line-experiment-editor .line-experiment-object:hover,
+.line-experiment-editor .line-experiment-object[aria-pressed="true"] {
+  border-color: var(--accent, #177598);
+  background: transparent;
+}
+
+.line-experiment-editor .line-experiment-minor {
+  padding: 0;
+  border-color: transparent;
+}
+
+.line-experiment-editor .line-experiment-target[data-line-cross-endpoint] {
+  border-radius: 50%;
+  line-height: 1;
+  font-size: 24px;
+}
+
+.line-experiment-editor-note {
+  margin: 0;
+  padding: 8px 12px;
+}
+
+.line-experiment-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.line-experiment-time input {
+  width: 8em;
+  min-height: 44px;
+  font: inherit;
+}

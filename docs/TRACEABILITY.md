@@ -26,6 +26,11 @@ FR-603 → [охраняемая редукция и перенос](../src/circ
 FR-604 → [SVG-компоновка](../src/circuit/topology-layout.ts), [площадка](../src/circuit/TopologyWorkbench.tsx)
 и [управление видом](../src/circuit/use-topology-viewport.ts) → topology-layout.test.ts
 и [браузерный E4](../tests/lab-acceptance/topology-workbench.e2e.ts).
+FR-604–606 → [редактор A](../src/components/LineExperimentEditor.tsx),
+[адаптация опыта](../src/transient/line-experiment.ts) и
+[эпюры выбранной секции](../src/components/LineExperimentResults.tsx) →
+[line-experiment.test.ts](../src/transient/line-experiment.test.ts) и
+[Chromium E11/E12](../tests/lab-acceptance/line-experiment.e2e.ts).
 
 ## ET-LAB-022
 

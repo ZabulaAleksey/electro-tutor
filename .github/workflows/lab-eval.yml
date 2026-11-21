@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify topology commands and JSON roundtrip
+        run: pnpm eval:topology
+
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 

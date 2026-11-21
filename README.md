@@ -127,6 +127,7 @@ pnpm verify:full
 Для проверки лаборатории длинной линии запустите `pnpm eval:labs --check-rejection`.
 Команда соберёт education, откроет RU desktop и UK mobile в Chromium и сохранит
 JSON, снимки и traces. [Как воспроизвести и принять результат](docs/TESTING.md#et-labr-001--браузерный-eval-длинной-линии).
+Команда `pnpm eval:topology` проверяет команды ядра по [JSON-фикстуре и электрическим инвариантам](docs/TESTING.md#et-labr-002--топологическое-ядро).
 
 ## Публикация
 

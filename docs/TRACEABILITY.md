@@ -18,7 +18,11 @@ CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → 
 FR-615, этап 1 → [скрипт запуска](../scripts/lab-eval.mjs) и [workflow](../.github/workflows/lab-eval.yml)
 → [эталон E5](../tests/lab-eval/matched-line-reference.ts) → [Chromium eval](../tests/lab-eval/matched-line.e2e.ts)
 → [проверки и ручная приёмка](TESTING.md#et-labr-001--браузерный-eval-длинной-линии).
-Остальные организационные и продуктовые требования реализуются по своим этапам.
+FR-601/602 → [поиск и применение слотов](../src/circuit/topology-slots.ts) и [команды/JSON](../src/circuit/topology-session.ts)
+→ topology-slots.test.ts и [проверка E1/E3/E11](../tests/topology-eval/topology-stage-2.test.ts).
+FR-603 → [охраняемая редукция и перенос](../src/circuit/topology-equivalence.ts)
+→ topology-equivalence.test.ts и прежние RLC-тесты.
+[Схема для сверки E3](../tests/topology-eval/stage-2-proposed.json) ожидает принятия.
 
 ## ET-LAB-022
 

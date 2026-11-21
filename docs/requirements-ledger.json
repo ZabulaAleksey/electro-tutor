@@ -156,24 +156,31 @@
         "src/circuit/topology.ts",
         "src/circuit/parallel-regions.ts",
         "src/circuit/rlc-reduction.ts",
-        "src/circuit/CircuitEditor.tsx"
+        "src/circuit/CircuitEditor.tsx",
+        "src/circuit/topology-session.ts",
+        "src/circuit/topology-slots.ts",
+        "src/circuit/topology-equivalence.ts"
       ],
       "unit": [
         "src/circuit/topology-contract.test.ts",
-        "src/circuit/rlc-reduction.test.ts"
+        "src/circuit/rlc-reduction.test.ts",
+        "src/circuit/topology-slots.test.ts",
+        "src/circuit/topology-equivalence.test.ts"
       ],
-      "integration": [],
+      "integration": [
+        "tests/topology-eval/topology-stage-2.test.ts"
+      ],
       "e2e": [
         "tests/e2e/circuit-editor.spec.ts",
         "tests/e2e/circuit-parallel.spec.ts"
       ],
-      "runtime": "Действующий Circuit Editor служит исходной точкой.",
+      "runtime": "Ядро нового режима работает через lab JSON v1 и Vitest consumer, SVG принадлежит этапу 3.",
       "security": "Атомарные команды, версия и проверка импортируемого графа.",
       "a11y": "Клавиатура, touch и зоны слотов проверяются в новом режиме.",
       "observability": "Диагностика отклонённых слотов и бюджет layout.",
-      "gap": "Новый topology-only режим и точные референсы 1–10/1–14 ожидаются.",
+      "gap": "Приёмка предлагаемой E3 фикстуры или сверка оригиналов, автокомпоновка и пользовательский интерфейс.",
       "status": "PLANNED",
-      "action": "ET-LABR-002/003, E1–E4/E11/E13."
+      "action": "ET-LABR-002 ожидает ручную приёмку. ET-LABR-003 реализует FR-604 после неё."
     },
     {
       "requirement_ids": [

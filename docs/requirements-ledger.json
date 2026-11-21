@@ -159,28 +159,33 @@
         "src/circuit/CircuitEditor.tsx",
         "src/circuit/topology-session.ts",
         "src/circuit/topology-slots.ts",
-        "src/circuit/topology-equivalence.ts"
+        "src/circuit/topology-equivalence.ts",
+        "src/circuit/topology-layout.ts",
+        "src/circuit/TopologyWorkbench.tsx",
+        "src/circuit/use-topology-viewport.ts"
       ],
       "unit": [
         "src/circuit/topology-contract.test.ts",
         "src/circuit/rlc-reduction.test.ts",
         "src/circuit/topology-slots.test.ts",
-        "src/circuit/topology-equivalence.test.ts"
+        "src/circuit/topology-equivalence.test.ts",
+        "src/circuit/topology-layout.test.ts"
       ],
       "integration": [
         "tests/topology-eval/topology-stage-2.test.ts"
       ],
       "e2e": [
         "tests/e2e/circuit-editor.spec.ts",
-        "tests/e2e/circuit-parallel.spec.ts"
+        "tests/e2e/circuit-parallel.spec.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
       ],
-      "runtime": "Ядро нового режима работает через lab JSON v1 и Vitest consumer, SVG принадлежит этапу 3.",
+      "runtime": "Ядро с принятым E3 доступно на отдельной RU/UK SVG-площадке свободного редактора.",
       "security": "Атомарные команды, версия и проверка импортируемого графа.",
       "a11y": "Клавиатура, touch и зоны слотов проверяются в новом режиме.",
       "observability": "Диагностика отклонённых слотов и бюджет layout.",
-      "gap": "Приёмка предлагаемой E3 фикстуры или сверка оригиналов, автокомпоновка и пользовательский интерфейс.",
+      "gap": "Физический смартфон и ручная приёмка FR-604. Подключение к лаборатории A относится к ET-LABR-004.",
       "status": "PLANNED",
-      "action": "ET-LABR-002 ожидает ручную приёмку. ET-LABR-003 реализует FR-604 после неё."
+      "action": "ET-LABR-003 ожидает ручную приёмку. ET-LABR-004 запускается после принятия."
     },
     {
       "requirement_ids": [

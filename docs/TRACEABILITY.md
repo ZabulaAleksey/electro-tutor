@@ -22,7 +22,10 @@ FR-601/602 → [поиск и применение слотов](../src/circuit/
 → topology-slots.test.ts и [проверка E1/E3/E11](../tests/topology-eval/topology-stage-2.test.ts).
 FR-603 → [охраняемая редукция и перенос](../src/circuit/topology-equivalence.ts)
 → topology-equivalence.test.ts и прежние RLC-тесты.
-[Схема для сверки E3](../tests/topology-eval/stage-2-proposed.json) ожидает принятия.
+[Карта 1–10 / 1–14](../tests/topology-eval/stage-2-proposed.json) утверждена как эталон E3.
+FR-604 → [SVG-компоновка](../src/circuit/topology-layout.ts), [площадка](../src/circuit/TopologyWorkbench.tsx)
+и [управление видом](../src/circuit/use-topology-viewport.ts) → topology-layout.test.ts
+и [браузерный E4](../tests/lab-acceptance/topology-workbench.e2e.ts).
 
 ## ET-LAB-022
 

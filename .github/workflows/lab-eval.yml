@@ -38,11 +38,21 @@ jobs:
       - name: Verify lab eval and deliberate rejection
         run: pnpm eval:labs --check-rejection
 
+      - name: Build and verify the SVG topology playground
+        env:
+          ASTRO_PREVIEW_BACKGROUND: "0"
+          PUBLIC_EDUCATION_MODE: "true"
+        run: |
+          pnpm build
+          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts
+
       - name: Upload browser evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: electro-tutor-lab-eval
-          path: playwright-report/lab-eval/
+          path: |
+            playwright-report/lab-eval/
+            test-results/topology-workbench*/
           if-no-files-found: warn
           retention-days: 7

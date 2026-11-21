@@ -183,9 +183,9 @@
       "security": "Атомарные команды, версия и проверка импортируемого графа.",
       "a11y": "Клавиатура, touch и зоны слотов проверяются в новом режиме.",
       "observability": "Диагностика отклонённых слотов и бюджет layout.",
-      "gap": "Площадка этапа 3 принята с уточнением УГО. Выбор места вставки на схеме проверен в A. Остальные лаборатории требуют интеграции.",
+      "gap": "Площадка этапа 3 и A приняты. Выбор места вставки на схеме проверен в B. Остальные лаборатории требуют интеграции.",
       "status": "PLANNED",
-      "action": "Ручная приёмка A в ET-LABR-004; топологические режимы остальных лабораторий на своих этапах."
+      "action": "Ручная приёмка B в ET-LABR-005; топологические режимы остальных лабораторий на своих этапах."
     },
     {
       "requirement_ids": [
@@ -198,20 +198,23 @@
       "code": [
         "src/components/TransmissionNetworkLab.tsx",
         "src/steady-line/circuit-mode.ts",
-        "src/transient/network.worker.ts"
+        "src/transient/network.worker.ts",
+        "src/steady-line/experiment-solver.ts",
+        "src/components/SteadyExperimentLab.tsx"
       ],
-      "unit": ["src/transient/line-experiment.test.ts"],
+      "unit": ["src/transient/line-experiment.test.ts", "src/steady-line/experiment-solver.test.ts"],
       "integration": [],
       "e2e": [
         "tests/e2e/transmission-line.spec.ts",
         "tests/e2e/transmission-line-steady.spec.ts",
-        "tests/lab-acceptance/line-experiment.e2e.ts"
+        "tests/lab-acceptance/line-experiment.e2e.ts",
+        "tests/lab-acceptance/steady-experiment.e2e.ts"
       ],
-      "runtime": "Новая A локально доступна из каталога и использует существующий Worker. Опубликованные маршруты остаются под прежними контрактами.",
+      "runtime": "Локальные отдельные A и B доступны из каталога. A использует существующий Worker, B — узловой расчёт комплексных волн.",
       "security": "Ограниченный архив и локальный расчёт.",
       "a11y": "Проверка двух экранов A и координатного управления B.",
       "observability": "Состояние Worker и разрывы графика у полюсов.",
-      "gap": "Ручная приёмка A и референс второго экрана. Новый сценарий B относится к ET-LABR-005.",
+      "gap": "Ручная приёмка B. Владелец принял A и отложил изменение зачёркнутого элемента.",
       "status": "PLANNED",
       "action": "ET-LABR-004/005, E5/E6/E11/E12."
     },

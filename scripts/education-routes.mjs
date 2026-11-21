@@ -2,7 +2,7 @@ import { publicPath } from "./public-mvp-contract.mjs";
 
 const learningPages = [
   "interactive", "interactive/beam", "interactive/circuit-editor", "interactive/circuit-editor/topology", "interactive/circular-diagram", "interactive/fourier", "interactive/reactive-two-port", "interactive/reactive-two-port-graph", "interactive/power-system",
-  "interactive/star-neutral", "interactive/transmission-line", "interactive/transmission-line/experiment", "interactive/transmission-line-reference", "interactive/transmission-line-steady",
+  "interactive/star-neutral", "interactive/transmission-line", "interactive/transmission-line/experiment", "interactive/transmission-line-reference", "interactive/transmission-line-steady", "interactive/transmission-line-steady/experiment",
   "interactive/experiments/[family]/[slug]", "board", "engineering-board", "micro-labs",
   "showcase", "solutions", "tools",
 ];

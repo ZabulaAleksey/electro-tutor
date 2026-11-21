@@ -117,6 +117,10 @@
   fill: var(--ink, #132242);
 }
 
+.line-experiment-reference {
+  stroke-width: 2;
+}
+
 .line-experiment-conductor {
   stroke-width: 5;
   stroke: var(--accent, #12668d);

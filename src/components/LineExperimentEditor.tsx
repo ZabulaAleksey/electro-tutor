@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Language } from "../types";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 import { parts, type PartKind } from "../circuit/drawing";
@@ -14,9 +14,12 @@ type Props = {
   language: Language;
   document: TopologyLabDocument;
   onChange: (next: TopologyLabDocument) => void;
-  onAppendSection: () => void;
+  onAppendSection: (endpoint?: string) => void;
   onRemove: (id: string) => void;
   onOpenSection: (id: string) => void;
+  variant?: "transient" | "steady";
+  referenceEndpoint?: string;
+  renderInspector?: (part: CircuitComponent) => ReactNode;
 };
 
 const palette = [
@@ -33,7 +36,7 @@ const copy = {
     names: ["Резистор", "Катушка", "Конденсатор", "Источник ЭДС", "Источник тока", "Замыкающий ключ", "Размыкающий ключ"],
     modes: { series: "Последовательно", parallel: "Параллельно", cross: "Между узлами" },
     search: { series: "Выберите участок провода.", parallel: "Выберите элемент или два крайних элемента группы.", cross: "Выберите два вывода или узла." },
-    add: "Вставить", open: "Открыть опыт для", select: "Выбрать",
+    add: "Вставить", open: "Открыть опыт для", select: "Выбрать", reference: "Полюс отсчёта общего обратного провода",
     left: "Вставить ветвь с левой стороны", right: "Вставить ветвь с правой стороны",
     alternate: "Следующий путь между элементами", time: "Время коммутации, с", closeTime: "Время замыкания, с",
     remove: "Удалить элемент", confirm: "Удалить", cancel: "Отмена", invalid: "Здесь вставка недоступна.",
@@ -44,7 +47,7 @@ const copy = {
     names: ["Резистор", "Котушка", "Конденсатор", "Джерело ЕРС", "Джерело струму", "Замикаючий ключ", "Розмикаючий ключ"],
     modes: { series: "Послідовно", parallel: "Паралельно", cross: "Між вузлами" },
     search: { series: "Виберіть ділянку проводу.", parallel: "Виберіть елемент або два крайні елементи групи.", cross: "Виберіть два виводи або вузли." },
-    add: "Вставити", open: "Відкрити дослід для", select: "Вибрати",
+    add: "Вставити", open: "Відкрити дослід для", select: "Вибрати", reference: "Полюс відліку спільного зворотного проводу",
     left: "Вставити гілку з лівого боку", right: "Вставити гілку з правого боку",
     alternate: "Наступний шлях між елементами", time: "Час комутації, с", closeTime: "Час замикання, с",
     remove: "Видалити елемент", confirm: "Видалити", cancel: "Скасувати", invalid: "Тут вставка недоступна.",
@@ -113,8 +116,11 @@ function componentBoundary(slot: ParallelSlot, id: string) {
   return slot.componentIds[0] === id || slot.componentIds.at(-1) === id;
 }
 
-export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection }: Props) {
+export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection,
+  variant = "transient", referenceEndpoint, renderInspector }: Props) {
   const t = copy[language];
+  const steady = variant === "steady";
+  const referenceDescription = useId();
   const [armed, setArmed] = useState<PaletteItem>();
   const [mode, setMode] = useState<SlotMode>("series");
   const [selected, setSelected] = useState("");
@@ -131,7 +137,14 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   const { topology } = document;
   const diagram = useMemo(() => layoutLineExperiment(document), [document]);
+  const reference = steady && referenceEndpoint ? diagram.endpoints.get(referenceEndpoint) : undefined;
+  const referenceY = reference && diagram.returnY !== undefined && reference.y > diagram.returnY - 30
+    ? diagram.returnY : reference?.y;
   const devices = useMemo(() => new Map(topology.components.map(part => [part.id, part])), [topology]);
+  const appendPart = steady && topology.components.find(part => part.terminals.includes(diagram.appendEndpoint ?? ""));
+  const appendPoint = steady && diagram.returnY === undefined && diagram.appendEndpoint
+    ? diagram.endpoints.get(diagram.appendEndpoint) : undefined;
+  const appendLabel = appendPart ? `${t.append} · ${appendPart.id}` : t.append;
   const slots = useMemo(() => listTopologySlots(topology, document.observedEndpoints), [topology, document.observedEndpoints]);
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
     slot.kind === "parallel" && slot.side === "left"), [slots]);
@@ -244,7 +257,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const groupControlsY = focusPoint ? Math.max(23 / fieldScale, focusPoint.y - 64) : 30;
   const groupControlsX = (x: number) => Math.min(diagram.width - 23 / fieldScale, Math.max(23 / fieldScale, x));
 
-  return <section className="line-experiment-editor" data-line-experiment-editor aria-label={t.board}>
+  return <section className="line-experiment-editor" data-line-experiment-editor data-line-editor-variant={variant} aria-label={t.board}>
     <div className="line-experiment-editor-bar">
       <strong>{t.board}</strong>
       <div className="line-experiment-editor-zoom">
@@ -257,13 +270,16 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       {(Object.keys(t.modes) as SlotMode[]).map(value => <button key={value} type="button"
         data-line-slot-mode={value} aria-pressed={mode === value} onClick={() => { setMode(value); resetSelection(); }}>{t.modes[value]}</button>)}
     </div>}
+    {reference && <span id={referenceDescription} hidden>{t.reference}: {referenceEndpoint}</span>}
     <div className="line-experiment-viewport" ref={viewportRef} data-line-experiment-viewport
-      role="group" aria-label={t.board} tabIndex={0} {...viewportEvents}>
+      role="group" aria-label={t.board} aria-describedby={reference ? referenceDescription : undefined} tabIndex={0} {...viewportEvents}>
       <div className="line-experiment-field" style={{ width: diagram.width * fieldScale, height: diagram.height * fieldScale }}>
         <svg viewBox={`0 0 ${diagram.width} ${diagram.height}`} className="line-experiment-schematic" aria-hidden="true">
           {diagram.wires.map(({ id, points }) => <polyline key={id} data-line-wire={id}
             points={points.map(point => `${point.x},${point.y}`).join(" ")} />)}
           {diagram.junctions.map(({ id, x, y }) => <circle key={id} cx={x} cy={y} r={3} className="line-experiment-dot" />)}
+          {reference && <path data-line-reference={referenceEndpoint} className="line-experiment-reference"
+            transform={`translate(${reference.x} ${referenceY})`} d="M0 0V9M-10 9H10M-6 13H6M-3 17H3" />}
           {diagram.components.map(({ id, x, y }) => {
             const part = devices.get(id)!;
             const rotation = diagram.rotations.get(id) ?? 0;
@@ -280,21 +296,26 @@ export default function LineExperimentEditor({ language, document, onChange, onA
         {!armed && <>
           {diagram.components.map(({ id, x, y }) => {
             const isSection = devices.get(id)?.kind === "line";
+            const action = isSection && !steady ? t.open : t.select;
             return <CanvasButton key={id} point={{ x, y }} fieldScale={fieldScale} data-line-component={id}
               data-line-section={isSection ? id : undefined} className="line-experiment-object"
-              aria-label={`${isSection ? t.open : t.select} ${id}`} title={`${isSection ? t.open : t.select} ${id}`}
-              aria-pressed={isSection ? undefined : selected === id} onClick={() => {
+              aria-label={`${action} ${id}`} title={`${action} ${id}`}
+              aria-pressed={isSection && !steady ? undefined : selected === id} onClick={() => {
                 if (isSection) onOpenSection(id);
-                else { setSelected(id); setConfirm(false); }
+                if (!isSection || steady) { setSelected(id); setConfirm(false); }
               }} />;
           })}
-          {diagram.components.filter(({ id }) => devices.get(id)?.kind === "line").map(({ id, x, y }) =>
+          {!steady && diagram.components.filter(({ id }) => devices.get(id)?.kind === "line").map(({ id, x, y }) =>
             <CanvasButton key={id} point={{ x, y: y + 46 }} fieldScale={fieldScale} data-line-inspect-section={id}
               className="line-experiment-minor" aria-label={`${t.select} ${id}`} onClick={() => {
                 setSelected(id); setConfirm(false);
               }}>⋯</CanvasButton>)}
-          <CanvasButton point={diagram.append} fieldScale={fieldScale} data-line-append
-            aria-label={t.append} title={t.append} onClick={onAppendSection}>+ TL</CanvasButton>
+          {(!steady || diagram.appendEndpoint) &&
+            <CanvasButton point={appendPoint ? { x: Math.min(diagram.width - 26, appendPoint.x), y: Math.max(28, appendPoint.y - 64) } : diagram.append}
+              fieldScale={fieldScale} data-line-append
+              data-line-append-endpoint={steady ? diagram.appendEndpoint : undefined}
+              aria-label={appendLabel} title={appendLabel}
+              onClick={() => onAppendSection(steady ? diagram.appendEndpoint : undefined)}>+ TL</CanvasButton>}
         </>}
         {armed && mode === "series" && diagram.wires.filter(({ id, points }) => serial.has(id) && points.length).map(({ id, points }) => {
           const slot = serial.get(id)!;
@@ -323,10 +344,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     </div>
     {armed && <p className="line-experiment-editor-note" role="status">{hasError ? t.invalid
       : mode === "series" && !serial.size || mode === "parallel" && !parallel.length ? t.empty : t.search[mode]}</p>}
-    {selectedPart && !armed && <div className="line-experiment-selection">
-      <strong>{selectedPart.id}</strong>
-      {selectedPart.kind === "switch" && <SwitchTime key={`${selectedPart.id}:${selectedPart.parameters.atS}`}
+    {selectedPart && !armed && <div className="line-experiment-selection" data-line-selected-part={selectedPart.id}>
+      {(!steady || !renderInspector) && <strong>{selectedPart.id}</strong>}
+      {!steady && selectedPart.kind === "switch" && <SwitchTime key={`${selectedPart.id}:${selectedPart.parameters.atS}`}
         part={selectedPart} label={selectedPart.parameters.closes === true ? t.closeTime : t.time} onSave={updateSwitchTime} />}
+      {renderInspector?.(selectedPart)}
       {confirm ? <>
         <button type="button" data-line-confirm-remove onClick={() => {
           onRemove(selected);
@@ -338,7 +360,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
         onClick={() => setConfirm(true)}>{t.remove}</button>}
     </div>}
     <div ref={paletteControls} className="line-experiment-palette" role="group" aria-label={t.palette}>
-      {palette.map((item, index) => <button key={item[0]} type="button" data-line-palette={item[0]}
+      {(steady ? palette.slice(0, 5) : palette).map((item, index) => <button key={item[0]} type="button" data-line-palette={item[0]}
         title={t.names[index]} aria-label={t.names[index]} aria-pressed={armed?.[0] === item[0]} onClick={() => arm(item)}>
         {item[1] === "switch" ? <svg viewBox="0 0 30 20" aria-hidden="true">
           <path d={item[0] === "switch-open" ? "M0 12H8L21 5M22 12H30" : "M0 12H30"} />

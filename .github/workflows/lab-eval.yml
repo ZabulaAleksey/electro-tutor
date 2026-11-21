@@ -38,13 +38,13 @@ jobs:
       - name: Verify lab eval and deliberate rejection
         run: pnpm eval:labs --check-rejection
 
-      - name: Build and verify topology and lab A
+      - name: Build and verify topology and line labs
         env:
           ASTRO_PREVIEW_BACKGROUND: "0"
           PUBLIC_EDUCATION_MODE: "true"
         run: |
           pnpm build
-          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts tests/lab-acceptance/line-experiment.e2e.ts
+          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts tests/lab-acceptance/line-experiment.e2e.ts tests/lab-acceptance/steady-experiment.e2e.ts
 
       - name: Upload browser evidence
         if: always()
@@ -55,5 +55,6 @@ jobs:
             playwright-report/lab-eval/
             test-results/topology-workbench*/
             test-results/line-experiment*/
+            test-results/steady-experiment*/
           if-no-files-found: warn
           retention-days: 7

@@ -31,6 +31,11 @@ FR-604–606 → [редактор A](../src/components/LineExperimentEditor.tsx
 [эпюры выбранной секции](../src/components/LineExperimentResults.tsx) →
 [line-experiment.test.ts](../src/transient/line-experiment.test.ts) и
 [Chromium E11/E12](../tests/lab-acceptance/line-experiment.e2e.ts).
+FR-604/607/608 → [синусоидальная лаборатория](../src/components/SteadyExperimentLab.tsx),
+[решатель B](../src/steady-line/experiment-solver.ts) и
+[эпюры и фазоры](../src/components/SteadyExperimentResults.tsx) →
+[аналитические эталоны E6](../src/steady-line/experiment-solver.test.ts)
+и [Chromium E6/E12](../tests/lab-acceptance/steady-experiment.e2e.ts).
 
 ## ET-LAB-022
 

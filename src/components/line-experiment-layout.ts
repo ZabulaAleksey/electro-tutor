@@ -7,6 +7,7 @@ type LineLayout = TopologyLayout & {
   rotations: ReadonlyMap<string, Rotation>;
   returnY?: number;
   append: Point;
+  appendEndpoint?: string;
 };
 
 const upper = 106;
@@ -79,7 +80,9 @@ function loopLayout({ topology }: TopologyLabDocument): LineLayout | undefined {
   });
   const anchors = new Map(placements.map(({ id, x, y }) =>
     [id, { left: { x, y: y - 60 }, right: { x, y: y + 60 } }] as const));
+  const end = upperPath.findLast(({ part }) => part.kind === "line");
   return { width: loadX + 69, height: 294, returnY: lower, append: { x: loadX, y: 42 },
+    appendEndpoint: end?.part.terminals[end.reversed ? 0 : 1],
     components: placements, junctions: [], wires, endpoints, anchors, rotations };
 }
 
@@ -87,8 +90,11 @@ export function layoutLineExperiment(document: TopologyLabDocument): LineLayout 
   const loop = loopLayout(document);
   if (loop) return loop;
   const layout = layoutTopology(document);
+  const kinds = new Map(document.topology.components.map(part => [part.id, part]));
+  const last = layout.components.findLast(({ id }) => kinds.get(id)?.kind === "line");
   return { ...layout, width: Math.max(layout.width, 330), rotations: new Map(),
-    append: { x: Math.max(layout.width, 330) - 40, y: 34 } };
+    append: { x: Math.max(layout.width, 330) - 40, y: 34 },
+    appendEndpoint: last && kinds.get(last.id)?.terminals[1] };
 }
 
 export function wireTarget(points: readonly Point[]): Point {

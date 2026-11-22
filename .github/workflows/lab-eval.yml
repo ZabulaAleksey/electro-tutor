@@ -49,7 +49,7 @@ jobs:
           PUBLIC_EDUCATION_MODE: "true"
         run: |
           pnpm build
-          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts tests/lab-acceptance/line-experiment.e2e.ts tests/lab-acceptance/steady-experiment.e2e.ts tests/lab-acceptance/lc-experiment.e2e.ts tests/lab-acceptance/variable-line-experiment.e2e.ts tests/lab-acceptance/basis-experiment.e2e.ts tests/lab-acceptance/polygon-motion.e2e.ts tests/lab-acceptance/rolling-lab.e2e.ts
+          pnpm exec playwright test --config playwright.lab-acceptance.config.ts
 
       - name: Upload browser evidence
         if: always()
@@ -58,6 +58,7 @@ jobs:
           name: electro-tutor-lab-eval
           path: |
             playwright-report/lab-eval/
+            test-results/lab-directory-routes*/
             test-results/topology-workbench*/
             test-results/line-experiment*/
             test-results/steady-experiment*/
@@ -66,5 +67,8 @@ jobs:
             test-results/basis-experiment*/
             test-results/polygon-motion*/
             test-results/rolling-lab*/
+            test-results/power-system-custom-study*/
+            test-results/transient-playback-layout*/
+            test-results/transmission-line-glyph*/
           if-no-files-found: warn
           retention-days: 7

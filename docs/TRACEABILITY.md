@@ -63,6 +63,10 @@ FR-614 → [контракт 10B](../specs/features/lab-reconstruction.spec.md#�
 [сетка](../src/rolling/rolling-mesh.ts), [WebGL](../src/rolling/webgl-view.ts)
 → [проверки входа](../src/rolling/lab-model.test.ts), [проверки сетки](../src/rolling/rolling-mesh.test.ts)
 и [Chromium E10–E13](../tests/lab-acceptance/rolling-lab.e2e.ts).
+FR-615, этап 11 → [контракт интеграции](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-11--fr-615)
+→ [проверка актуальных и прежних маршрутов](../tests/lab-acceptance/lab-directory-routes.e2e.ts),
+[полный lab-acceptance](../.github/workflows/lab-eval.yml) и [verify:full](../scripts/full-verify.mjs)
+→ [чек-лист кандидата](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
 
 ## ET-LAB-022
 

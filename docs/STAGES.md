@@ -226,23 +226,24 @@ checkpoint без публичного UI.
 ## ET-LABR-011 — Этап 11 · Интеграционная и релизная проверка
 
 - Status: partial
-- Lifecycle: implemented_unverified. Локальные проверки пройдены, ожидается ручная приёмка.
+- Lifecycle: implemented_unverified. Локальные проверки пройдены, владелец принял этап и разрешил публикацию на обеих площадках.
 - Candidate: `41e0782088f401dea4cac990d52e17d8093b7f70`.
 - Dependencies: ET-LABR-010B verified. Доступны приёмочные сценарии, численные эталоны, локальные production-сборки и verify:full.
 - Requirements: FR-615, E1–E13, QG-001–007.
 - Scope: исправление известного ожидания в тесте каталога, полная интеграция, проверка релизной сборки и ручной runbook.
 - Runnable E2E: локальная сборка → настоящий каталог RU/UK на двух базах → актуальные лаборатории и прямые совместимые адреса → живые расчёты, импорт/экспорт и скриншоты.
 - Gate: зелёный `verify:full` на чистом кандидате: 928 Vitest, 418 Chromium (6 условных сценариев live auth пропущены), 2 production smoke. `check:base-path`, E1–E3, E5 с проверкой отказа, независимые E7A и E10, lab-acceptance 39/39 на корне и 35/35 на project base, независимый review. Выпускная CSP в локальном preview, 14/14 ответов 404, RU/UK-клавиатура и пороги WebGL прошли. [Результаты и runbook](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
-- Deferred: внешняя интеграция, публикация и проверка размещённых артефактов.
-- Blockers: `LABR-UA-11`.
-- User action `LABR-UA-11` / PENDING: по [чек-листу кандидата](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка) открыть каталог RU/UK на ПК и опыт G на физическом телефоне. Ожидаемы живой TL1, работа старой закладки, управление 3D и повторное открытие JSON. Подтвердить приёмку этапа 11 либо описать расхождение и устройство. Принятие закрывает этап и позволяет отдельно решить вопрос публикации.
-- User action `LABR-PUB-11` / CONDITIONAL: после ручной приёмки отдельным сообщением разрешить выпуск в `main` для Cloudflare и GitHub Pages. Ожидаемо явное разрешение на публикацию проверенной ревизии. Только оно открывает релизный runbook, размещённые smoke и регистрацию артефактов отката.
+- Release in progress: пройти PR и CI на `main`, подтвердить опубликованную ревизию и выполнить браузерную проверку на Cloudflare и GitHub Pages.
+- Rollback: прежний runtime `ff267aa5033a7ef36a5cdff20b209a26b36ac51c`. Cloudflare deployment `163eb713-d167-4f97-b4c2-bc8c3ce7846c` доступен как неизменяемая выкладка. GitHub Pages deployment `7953916855`, run `44825590875`. Старый upload истёк, восстановление GitHub Pages требует сборки прежнего проверенного исходника.
+- Blockers: размещённая приёмка до завершения выкладки.
+- User action `LABR-UA-11` / DONE: владелец принял этап 11.
+- User action `LABR-PUB-11` / DONE: владелец явно разрешил публикацию ElectroTutor на Cloudflare и GitHub Pages и поручил проверить каталоги RU/UK, A и G на обеих площадках.
 - NEXT: none
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 27,
+  "state_revision": 28,
   "master": {
     "id": "ET-LABR-MASTER",
     "status": "partial",
@@ -425,14 +426,14 @@ checkpoint без публичного UI.
     {
       "id": "LABR-UA-11",
       "class": "product_evidence_required",
-      "status": "active",
+      "status": "resolved",
       "blocking": true,
       "owner": "project-owner",
-      "evidence": "Local Stage 11 checked. Owner confirmation from desktop and physical phone is pending."
+      "evidence": "Owner explicitly accepted Stage 11 and authorized publication on Cloudflare and GitHub Pages."
     }
   ],
   "decisions": [
-    "Stages through 10B accepted. Stage 11 passed local release qualification. Publication requires separate authorization.",
+    "Stage 11 passed local release qualification and owner acceptance. The owner authorized the two-host release.",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -442,10 +443,10 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Stop at LABR-UA-11 for manual owner acceptance before considering publication.",
+  "next_action": "Complete the authorized PR, Pages releases and public browser checks.",
   "integration": {
-    "required": false,
-    "reason": "Local stage checkpoints pending owner acceptance."
+    "required": true,
+    "reason": "Owner authorized main integration and both Pages releases."
   }
 }
 ```

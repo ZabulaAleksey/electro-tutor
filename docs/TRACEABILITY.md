@@ -58,6 +58,11 @@ FR-613 → [контракт 10A](../specs/features/lab-reconstruction.spec.md#�
 → [обратная геометрия](../src/rolling/feasibility.mjs) и [прямой проход](../src/rolling/replay.mjs)
 → [независимый E10](../scripts/rolling-e10.mjs), [unit](../src/rolling/feasibility.test.mjs)
 и [E2E CLI](../src/rolling/consumer.test.mjs) → [метрики и ручная приёмка](TESTING.md#et-labr-010a--численная-осуществимость-качения).
+FR-614 → [контракт 10B](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-10b--fr-614)
+→ [Worker](../src/rolling/rolling.worker.ts), [модель входа](../src/rolling/lab-model.ts),
+[сетка](../src/rolling/rolling-mesh.ts), [WebGL](../src/rolling/webgl-view.ts)
+→ [проверки входа](../src/rolling/lab-model.test.ts), [проверки сетки](../src/rolling/rolling-mesh.test.ts)
+и [Chromium E10–E13](../tests/lab-acceptance/rolling-lab.e2e.ts).
 
 ## ET-LAB-022
 

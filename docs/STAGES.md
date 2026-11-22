@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LABR-010A
+- Stage ID: ET-LABR-010B
 
 ## ET-LABR-000 — Этап 0 · Сверка и проект реконструкции лабораторий
 
@@ -195,22 +195,37 @@ checkpoint без публичного UI.
 
 ## ET-LABR-010A — Этап 10A · Численная осуществимость качения
 
-- Status: partial
-- Lifecycle: implemented_unverified. Численная осуществимость подтверждена для выбранного класса, ручная приёмка открыта.
+- Status: verified
+- Lifecycle: completed. Владелец принял численный этап 10A и открыл 10B.
+- Checkpoint: `151fd643b4841b5690c0530ab2f081a55f0b9e57`.
 - Dependencies: ET-LABR-009 verified. Доступны Node, E10 и аналитические следы в плоскости.
 - Requirements: FR-613, E10.
 - Scope: выпуклое тело и позы по конечной касательно гладкой цепочке отрезков и дуг. Проверка опорной плоскости в непрерывном движении и независимое восстановление точки контакта по геометрии и позам.
 - Runnable E2E: CLI → JSON-след → обратная модель и позы → контакт и прямая реконструкция → отчёт E10, включая найденные ограничения.
 - Gate: E10 PASS. Сфера на синусоидальном следе и обратный эталон с 23 внешними вершинами проверены на сетках 24/48/96. На обратном эталоне нормированные остаток скорости и ошибка следа равны `2,2310×10⁻⁵` и `3,9982×10⁻⁵`. Ошибки падают примерно вчетверо при каждом уменьшении шага вдвое, зазор вершин ≥ `0,02a` в непрерывном движении. Подтверждены детерминированность, отражение, отказы и устойчивость при большом смещении начала. Vitest 922/922, включая 15 E10, локальная сборка 118 страниц, review и повторная проверка.
-- Blockers: LABR-UA-10A.
+- Blockers: none.
 - Deferred: автономное движение под действием сил, произвольный рисованный ввод, 3D-интерфейс, Worker и экспорт mesh.
-- User action `LABR-UA-10A` / READY: выполнить [проверку E10](TESTING.md#et-labr-010a--численная-осуществимость-качения). Ожидаются `PASS`, у обратной дуги 23 вершины и 97 поз, ошибки в допуске с улучшением при уточнении, указанные диагностические отказы. Явная приёмка этого класса управляемого качения и поручение этапа 10B разблокируют ET-LABR-010B.
+- User action `LABR-UA-10A` / DONE: владелец явно принял этап 10A и поручил этап 10B.
 - NEXT: ET-LABR-010B
+
+## ET-LABR-010B — Этап 10B · Лаборатория G
+
+- Status: partial
+- Lifecycle: implemented_unverified. Лаборатория работает и локально проверена, физическая ручная приёмка открыта.
+- Dependencies: ET-LABR-010A verified. Доступны подтверждённые E10, ядро качения, Worker и сборка RU/UK.
+- Requirements: FR-614, E10–E13 с сохранением FR-613.
+- Scope: локальный маршрут, рисованный открытый след, подготовка C1, Worker с прогрессом и отменой, кэш поз, WebGL и 2D, сравнение следов, OBJ/JSON и профиль качества.
+- Runnable E2E: каталог → G → пример и открытый рисунок → Play в Worker → 3D и управление временем → изменение входа и новый расчёт → экспорт и восстановление JSON → мобильный 2D fallback.
+- Gate: E10 побайтово совпадает с 10A. Vitest 928/928. Chromium 31/31 для G/F/E/C/D/A/B и редактора, 4/4 G под `/electro-tutor/`, 12/12 выбранных прежних сценариев. Обе сборки по 120 страниц. Проверены Worker, отмена и устаревший ответ, кэш, WebGL и восстановление контекста, реальные touch-штрих и pinch в эмуляции, OBJ и повторный импорт JSON. Расширенный прогон дал 35/36 из-за прежнего ожидания адреса длинной линии. Оно воспроизведено на HTML принятого 10A и описано в TESTING.
+- Blockers: LABR-UA-10B.
+- Deferred: автономное качение, произвольная геометрия, проверка расхождения старого теста каталога и выпуск в этапе 11.
+- User action `LABR-UA-10B` / READY: выполнить [сценарий G](TESTING.md#et-labr-010b--лаборатория-g) на ПК и телефоне. Ожидаются 3D-качение и управление временем, штрих и жесты на смартфоне, 2D-режим при недоступном WebGL, выгрузка OBJ и восстановление входа из JSON. Явная приёмка и отдельное поручение этапа 11 открывают ET-LABR-011.
+- NEXT: ET-LABR-011
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 23,
+  "state_revision": 25,
   "master": {
     "id": "ET-LABR-MASTER",
     "status": "partial",
@@ -229,7 +244,7 @@ checkpoint без публичного UI.
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/lab-reconstruction-stage-0",
-      "checkpoint": "d270c0a2748ee5108d1ae89ca9affe54cbb37d11",
+      "checkpoint": "151fd643b4841b5690c0530ab2f081a55f0b9e57",
       "ownership": [
         "src/circuit",
         "src/pages",
@@ -265,8 +280,8 @@ checkpoint без публичного UI.
     {"id":"ET-LABR-007B","master_id":"ET-LABR-MASTER","title":"C — экспериментальная линия","status":"verified","predecessors":["ET-LABR-007A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"edc7fb9f0aaa4a5720faee2fe4ac1cc34749908c","checkpoint_after":"bc1d6091c97cd18f69d62389c966d3cb557d6a08","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/variable-line","src/components","tests/lab-acceptance/variable-line-experiment.e2e.ts"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-008","master_id":"ET-LABR-MASTER","title":"E — базисное разложение","status":"verified","predecessors":["ET-LABR-007B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"bc1d6091c97cd18f69d62389c966d3cb557d6a08","checkpoint_after":"8d74380458a586c127b9500a42363200d32868ed","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","specs/features/fourier-laboratory.spec.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/basis-experiment.e2e.ts"],"requirements":["FR-611"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"verified","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"8d74380458a586c127b9500a42363200d32868ed","checkpoint_after":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/polygon-motion.e2e.ts"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-010A","master_id":"ET-LABR-MASTER","title":"G — feasibility качения","status":"implemented_unverified","predecessors":["ET-LABR-009"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/rolling","scripts/rolling-feasibility.mjs"],"requirements":["FR-613"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-010B","master_id":"ET-LABR-MASTER","title":"G — 3D-лаборатория","status":"queued","predecessors":["ET-LABR-010A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-614"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
+    {"id":"ET-LABR-010A","master_id":"ET-LABR-MASTER","title":"G — feasibility качения","status":"verified","predecessors":["ET-LABR-009"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","checkpoint_after":"151fd643b4841b5690c0530ab2f081a55f0b9e57","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/rolling","scripts/rolling-feasibility.mjs"],"requirements":["FR-613"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
+    {"id":"ET-LABR-010B","master_id":"ET-LABR-MASTER","title":"G — 3D-лаборатория","status":"implemented_unverified","predecessors":["ET-LABR-010A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"151fd643b4841b5690c0530ab2f081a55f0b9e57","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","docs/DECISIONS.md","src/rolling","src/components","tests/lab-acceptance/rolling-lab.e2e.ts"],"requirements":["FR-614"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"queued","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
   ],
   "blockers": [
@@ -377,14 +392,22 @@ checkpoint без публичного UI.
     {
       "id": "LABR-UA-10A",
       "class": "product_evidence_required",
+      "status": "resolved",
+      "blocking": true,
+      "owner": "project-owner",
+      "evidence": "Owner explicitly accepted Stage 10A and directed Stage 10B only."
+    },
+    {
+      "id": "LABR-UA-10B",
+      "class": "product_evidence_required",
       "status": "active",
       "blocking": true,
       "owner": "project-owner",
-      "evidence": "E10 geometric feasibility passed for finite guided rolling. Await owner acceptance of the CLI scenario in docs/TESTING.md."
+      "evidence": "Stage 10B passed local Worker, 3D and 2D consumer checks. Await owner acceptance of the physical desktop and mobile scenario in docs/TESTING.md."
     }
   ],
   "decisions": [
-    "ADR-062–064 accepted; ADR-065 labs E and F accepted, G feasibility passed local E10 and awaits owner acceptance",
+    "Stages through 10A accepted. ADR-065 browser G passed local checks and awaits owner acceptance",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -394,7 +417,7 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Stop at LABR-UA-10A for Stage 10A owner acceptance before ET-LABR-010B.",
+  "next_action": "Stop at LABR-UA-10B for Stage 10B owner acceptance before ET-LABR-011.",
   "integration": {
     "required": false,
     "reason": "Local stage checkpoints pending owner acceptance."

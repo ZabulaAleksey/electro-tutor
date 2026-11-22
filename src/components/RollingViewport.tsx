@@ -177,7 +177,7 @@ export default function RollingViewport({ run, poseIndex, quality, language }: R
       <h2 id={titleId}>{copy.heading}</h2>
       <div className="rolling-view-frame">
         <canvas ref={canvas} className="rolling-view-canvas" data-rolling-canvas hidden={!showWebGL}
-          role="img" tabIndex={showWebGL ? 0 : -1} aria-label={copy.scene} aria-describedby={hintId}
+          role="img" tabIndex={showWebGL ? 0 : -1} aria-label={copy.scene} aria-describedby={showWebGL ? hintId : undefined}
           onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd}
           onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd} onKeyDown={keyDown} />
         {plane && contact && <svg className="rolling-view-plane" data-rolling-fallback viewBox="0 0 580 344"

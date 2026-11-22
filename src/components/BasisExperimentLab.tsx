@@ -323,7 +323,7 @@ export default function BasisExperimentLab({ language }: { language: Language })
             </select>
           </label>}
         </div>
-        <label className="basis-field basis-count"><span>{t.count}<output>{settings.count}</output></span>
+        <label className="basis-field basis-count"><span>{t.count}<span className="basis-count-value" aria-hidden="true">{settings.count}</span></span>
           <input data-basis-count type="range" min="1" max={basisTermLimit(settings.basis, settings.sampleCount)} value={settings.count}
             onChange={(event) => changeSettings({ count: event.currentTarget.valueAsNumber })} />
         </label>

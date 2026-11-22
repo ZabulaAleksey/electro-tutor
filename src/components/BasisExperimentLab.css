@@ -113,7 +113,7 @@
 }
 
 .basis-count > span { display: flex; justify-content: space-between; align-items: center; gap: .3rem; }
-.basis-count output { font-weight: 650; font-variant-numeric: tabular-nums; }
+.basis-count-value { font-weight: 650; font-variant-numeric: tabular-nums; }
 
 .basis-experiment input[type="range"] {
   width: 100%;

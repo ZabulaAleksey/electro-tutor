@@ -268,7 +268,7 @@ export default function RollingLab({ language }: { language: Language }) {
       <RollingDrawing label={t.draw} points={points} onStart={invalidateRun} onDraw={drawTrace} />
       <div className="rolling-fields">
         <label className="rolling-field">
-          <span>{t.radius} <output>{number(input.radius)}</output></span>
+          <span>{t.radius} <span className="rolling-field-value" aria-hidden="true">{number(input.radius)}</span></span>
           <input type="range" min=".25" max="2" step=".01" value={input.radius} data-rolling-radius
             onChange={event => update({ ...input, radius: Number(event.currentTarget.value) })} />
         </label>
@@ -315,7 +315,7 @@ export default function RollingLab({ language }: { language: Language }) {
             data-rolling-time onChange={event => { playback(false); move(Number(event.currentTarget.value)); }} />
         </label>
         <label className="rolling-field">
-          <span>{t.speed} <output>{number(speed)}</output></span>
+          <span>{t.speed} <span className="rolling-field-value" aria-hidden="true">{number(speed)}</span></span>
           <input type="range" min=".25" max="4" step=".05" value={speed}
             onChange={event => setSpeed(Number(event.currentTarget.value))} />
         </label>

@@ -253,7 +253,7 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
           {(options.family === "all" || options.family === "rectangle") && <NumericControl name="aspect" label={t.aspect} value={options.aspect}
             min={1.1} max={3} step="any" onChange={aspect => changeOptions({ aspect })} />}
         </div>
-        <label className="motion-field motion-budget"><span>{t.count} <output>{options.count}</output></span>
+        <label className="motion-field motion-budget"><span>{t.count} <span className="motion-budget-value" aria-hidden="true">{options.count}</span></span>
           <input type="range" data-motion-count min="1" max={motionMaxComponents} step="1" value={options.count}
             onChange={event => changeOptions({ count: event.currentTarget.valueAsNumber })} />
         </label>

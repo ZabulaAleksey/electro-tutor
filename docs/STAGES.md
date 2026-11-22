@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LABR-008
+- Stage ID: ET-LABR-009
 
 ## ET-LABR-000 — Этап 0 · Сверка и проект реконструкции лабораторий
 
@@ -165,22 +165,37 @@ checkpoint без публичного UI.
 
 ## ET-LABR-008 — Этап 8 · Лаборатория E
 
-- Status: partial
-- Lifecycle: implemented_unverified. Локальные проверки пройдены, ручная приёмка открыта.
+- Status: verified
+- Lifecycle: completed. Владелец принял этап 8 и открыл этап 9.
+- Checkpoint: `8d74380458a586c127b9500a42363200d32868ed`.
 - Dependencies: ET-LABR-007B verified; реализация и проверки FOUR-001–007 доступны.
 - Requirements: FR-611, E8/E11–E13.
 - Scope: отдельный RU/UK вход, функция и рисование контура, восемь базисов на одной сетке, коэффициенты, частичные суммы, вклад, JSON и подлинные эпициклы DFT.
 - Runnable E2E: каталог → E → задать функцию → сравнить ошибки при одном K → нарисовать и замкнуть контур → сменить базис и вклад → сохранить и открыть JSON. Прежний Fourier Sketch проверяется отдельно.
 - Gate: E8 подтверждает константу и окружность DFT, коэффициент Haar 2, ортогональность, обратный ход и энергию дискретных преобразований, точные T/P. Vitest 893/893, в том числе 34 новых теста E, Chromium 24/24 для E/C/D/A/B и E4, 12/12 выбранных регрессий, 6/6 под `/electro-tutor/` (три сценария дважды), education-сборки 116 страниц. Подтверждены реальные touch-штрихи, комплексная цепочка DFT, общий K, восстановление JSON, отсутствие обрезки и сохранение нового штриха при запоздалом импорте.
-- Blockers: LABR-UA-08.
+- Blockers: none.
 - Deferred: многоугольные движения и обратный траектоид.
-- User action `LABR-UA-08` / READY: открыть E из каталога, проверить функцию и выбранный вклад, на телефоне нарисовать и замкнуть контур, сравнить восемь методов и сохранить/открыть JSON по [сценарию](TESTING.md#et-labr-008--лаборатория-e). Явная приёмка и команда продолжить открывают ET-LABR-009.
+- User action `LABR-UA-08` / DONE: владелец явно принял этап 8 и поручил этап 9.
 - NEXT: ET-LABR-009
+
+## ET-LABR-009 — Этап 9 · Лаборатория F
+
+- Status: partial
+- Lifecycle: implemented_unverified. Реализация и локальные проверки выполнены, ручная приёмка открыта.
+- Dependencies: ET-LABR-008 verified; контуры, SVG и расчётная инфраструктура доступны.
+- Requirements: FR-612, E9/E11–E13.
+- Scope: численная проверка до UI, локальная аппроксимация закрытых контуров пятью типами движений, ручные коэффициенты, профильный SVG и архив, анимация вкладов.
+- Runnable E2E: каталог → F → точный квадрат и звезда → K и правка масштаба/фазы → анимация → касание/импорт SVG → JSON и повторное открытие.
+- Gate: 11 проверок E9 прошли до подключения интерфейса. Квадрат и окружность восстановлены одним движением с RMS ниже `1e−10`. Для звезды `0x32ef19a1` RMS снижается с `0,125166` при K=1 до `0,113080` при K=12. Vitest 907/907, включая 14 проверок F, Chromium 27/27 для F/E/C/D/A/B и E4, 12/12 выбранных регрессий и 3/3 для F под `/electro-tutor/`. Обе сборки содержат 118 страниц. Проверены касания в Chromium, редактирование и возврат K, повторный импорт JSON и диагностика SVG.
+- Blockers: LABR-UA-09.
+- Deferred: обратная задача качения и визуализация траектоида.
+- User action `LABR-UA-09` / READY: проверить [лабораторию F](TESTING.md#et-labr-009--лаборатория-f) на телефоне. Нарисованный штрих должен замкнуться, анимация должна менять положение с постоянной ошибкой, повторный импорт JSON должен восстановить ручные угол и фазу. На ПК проверить SVG и квадрат из одного движения. Явная приёмка этапа 9 и поручение этапа 10A разблокируют ET-LABR-010A.
+- NEXT: ET-LABR-010A
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 19,
+  "state_revision": 21,
   "master": {
     "id": "ET-LABR-MASTER",
     "status": "partial",
@@ -199,7 +214,7 @@ checkpoint без публичного UI.
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/lab-reconstruction-stage-0",
-      "checkpoint": "bc1d6091c97cd18f69d62389c966d3cb557d6a08",
+      "checkpoint": "8d74380458a586c127b9500a42363200d32868ed",
       "ownership": [
         "src/circuit",
         "src/pages",
@@ -229,8 +244,8 @@ checkpoint без публичного UI.
     {"id":"ET-LABR-006","master_id":"ET-LABR-MASTER","title":"D — LC-двухполюсник","status":"verified","predecessors":["ET-LABR-005"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"86a02eb6570c78148cb68bd4d9827f156d916886","checkpoint_after":"594077cf15f49a1fc8396ae55167728136eff39b","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","src/circuit","src/components","src/models/reactive-lc-graph.ts","tests/lab-acceptance/lc-experiment.e2e.ts"],"requirements":["FR-603","FR-604","FR-610"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":true},
     {"id":"ET-LABR-007A","master_id":"ET-LABR-MASTER","title":"C — архитектурная развилка","status":"verified","predecessors":["ET-LABR-006"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"594077cf15f49a1fc8396ae55167728136eff39b","checkpoint_after":"edc7fb9f0aaa4a5720faee2fe4ac1cc34749908c","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","scripts/eval-variable-line-architecture.py"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-007B","master_id":"ET-LABR-MASTER","title":"C — экспериментальная линия","status":"verified","predecessors":["ET-LABR-007A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"edc7fb9f0aaa4a5720faee2fe4ac1cc34749908c","checkpoint_after":"bc1d6091c97cd18f69d62389c966d3cb557d6a08","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/variable-line","src/components","tests/lab-acceptance/variable-line-experiment.e2e.ts"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-008","master_id":"ET-LABR-MASTER","title":"E — базисное разложение","status":"implemented_unverified","predecessors":["ET-LABR-007B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"bc1d6091c97cd18f69d62389c966d3cb557d6a08","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","specs/features/fourier-laboratory.spec.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/basis-experiment.e2e.ts"],"requirements":["FR-611"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"queued","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
+    {"id":"ET-LABR-008","master_id":"ET-LABR-MASTER","title":"E — базисное разложение","status":"verified","predecessors":["ET-LABR-007B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"bc1d6091c97cd18f69d62389c966d3cb557d6a08","checkpoint_after":"8d74380458a586c127b9500a42363200d32868ed","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","specs/features/fourier-laboratory.spec.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/basis-experiment.e2e.ts"],"requirements":["FR-611"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
+    {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"implemented_unverified","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"8d74380458a586c127b9500a42363200d32868ed","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/polygon-motion.e2e.ts"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010A","master_id":"ET-LABR-MASTER","title":"G — feasibility качения","status":"queued","predecessors":["ET-LABR-009"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-613"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010B","master_id":"ET-LABR-MASTER","title":"G — 3D-лаборатория","status":"queued","predecessors":["ET-LABR-010A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-614"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"queued","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
@@ -327,14 +342,22 @@ checkpoint без публичного UI.
     {
       "id": "LABR-UA-08",
       "class": "product_evidence_required",
+      "status": "resolved",
+      "blocking": true,
+      "owner": "project-owner",
+      "evidence": "Owner explicitly accepted Stage 8 and directed Stage 9 only."
+    },
+    {
+      "id": "LABR-UA-09",
+      "class": "product_evidence_required",
       "status": "active",
       "blocking": true,
       "owner": "project-owner",
-      "evidence": "Stage E passed local numerical and browser validation. Owner acceptance and physical touch check remain pending."
+      "evidence": "Stage 9 passed local E9 and Chromium checks. Await owner acceptance of the manual scenario in docs/TESTING.md."
     }
   ],
   "decisions": [
-    "ADR-062–064 accepted; ADR-065 lab E implemented and awaiting acceptance; F/G proposed",
+    "ADR-062–064 accepted; ADR-065 lab E accepted, F implemented pending acceptance, G proposed",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -344,7 +367,7 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Stop at LABR-UA-08 for manual E acceptance before ET-LABR-009.",
+  "next_action": "Stop at LABR-UA-09 for Stage 9 owner acceptance before ET-LABR-010A.",
   "integration": {
     "required": false,
     "reason": "Local documentation checkpoint; no integration requested."

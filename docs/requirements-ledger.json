@@ -271,9 +271,9 @@
       "security": "Ограниченная грамматика формул и проверенный JSON v1 с лимитом байтов и точек.",
       "a11y": "Подписанные настройки, фаза и таблицы, рисование мышью и касанием, управляемая анимация.",
       "observability": "Коэффициенты, вклад, RMS/max, число активных членов, нормировки и граничная конвенция.",
-      "gap": "Ручная приёмка E ожидается. Релизный контракт относится к интеграции реконструкции.",
+      "gap": "Этап E принят владельцем. Релизный контракт относится к интеграции реконструкции.",
       "status": "PLANNED",
-      "action": "Ручная приёмка ET-LABR-008, E8/E11–E13."
+      "action": "ET-LABR-008, E8/E11–E13."
     },
     {
       "requirement_ids": [
@@ -281,23 +281,23 @@
       ],
       "domain": "Многоугольная аппроксимация",
       "code": [
-        "src/components/FourierLab.tsx",
-        "src/fourier/bases.ts",
-        "src/fourier/custom-basis.ts"
+        "src/components/PolygonMotionLab.tsx",
+        "src/fourier/polygon-motion-math.ts",
+        "src/fourier/polygon-motion-input.ts",
+        "src/fourier/polygon-motion-svg.ts"
       ],
-      "unit": [],
-      "integration": [],
+      "unit": ["src/fourier/polygon-motion-math.test.ts"],
+      "integration": ["src/fourier/polygon-motion-input.test.ts"],
       "e2e": [
-        "tests/e2e/fourier-lab.spec.ts",
-        "tests/e2e/fourier-shapes.spec.ts"
+        "tests/lab-acceptance/polygon-motion.e2e.ts"
       ],
-      "runtime": "DFT и часть базисов работают в одном маршруте.",
-      "security": "Локальный ограниченный ввод функций и геометрии SVG.",
-      "a11y": "Раздельные формы коэффициентов и локализованные графики.",
-      "observability": "RMS/max, нормировка, seed и диагностические ошибки.",
-      "gap": "Самостоятельная многоугольная аппроксимация ожидается.",
+      "runtime": "Локальный RU/UK маршрут F подбирает и визуализирует движения на 128 отсчётах.",
+      "security": "Импорт одного профиля SVG и ограниченного JSON. Активная разметка и ссылки отклоняются.",
+      "a11y": "Подписанные органы редактирования, клавиши фазы, рисование касанием, reduced motion.",
+      "observability": "RMS/max, коэффициенты, фиксированный seed, вклад и диагностические ошибки.",
+      "gap": "Ручная приёмка F ожидается. Релизный контракт относится к интеграции реконструкции.",
       "status": "PLANNED",
-      "action": "ET-LABR-009, E9/E11–E13."
+      "action": "Ручная приёмка ET-LABR-009, E9/E11–E13."
     },
     {
       "requirement_ids": [

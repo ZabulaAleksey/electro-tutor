@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import PolygonMotionLab from "../../../../components/PolygonMotionLab";
+import { localePath } from "../../../../site-path";
+import type { Language } from "../../../../types";
+
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const title = ru ? "Аппроксимация контура многоугольными движениями" : "Апроксимація контуру багатокутними рухами";
+const description = ru
+  ? "Нарисуйте или откройте контур и приблизьте его суммой движений по многоугольникам и окружностям."
+  : "Намалюйте або відкрийте контур і наблизьте його сумою рухів уздовж багатокутників і кіл.";
+---
+<BaseLayout {title} {description} {language} active="interactive" alternatePath="/interactive/fourier/polygon-motion/">
+  <section class="polygon-motion-page">
+    <nav aria-label={ru ? "Лаборатории" : "Лабораторії"}>
+      <a href={localePath(language, "/interactive/")}>{ru ? "← Лаборатории" : "← Лабораторії"}</a>
+      <a href={localePath(language, "/interactive/fourier/bases/")}>{ru ? "Базисные разложения" : "Базисні розклади"}</a>
+    </nav>
+    <h1>{title}</h1>
+    <PolygonMotionLab client:load {language} />
+  </section>
+</BaseLayout>
+
+<style>
+  .polygon-motion-page { width: min(100% - 2rem, 82rem); margin: 1rem auto 3rem; }
+  .polygon-motion-page h1 { margin: .55rem 0 1.1rem; font-size: clamp(1.45rem, 4vw, 2.55rem); }
+  .polygon-motion-page nav { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+  .polygon-motion-page nav a { display: inline-flex; align-items: center; min-height: 44px; }
+</style>

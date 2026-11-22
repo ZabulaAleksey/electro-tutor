@@ -51,6 +51,9 @@ FR-609, 7B → [профили и сетка](../src/variable-line/profiles.ts),
 FR-611 → [реестр E](../src/fourier/basis-experiment-math.ts), [источники и архив](../src/fourier/basis-experiment.ts)
 → [E8](../src/fourier/basis-experiment-math.test.ts), [проверка архива](../src/fourier/basis-experiment.test.ts)
 и [Chromium E11–E13](../tests/lab-acceptance/basis-experiment.e2e.ts).
+FR-612 → [расчёт F](../src/fourier/polygon-motion-math.ts), [вход и архив](../src/fourier/polygon-motion-input.ts)
+и [SVG](../src/fourier/polygon-motion-svg.ts) → [численный E9](../src/fourier/polygon-motion-math.test.ts)
+и [Chromium E9/E11–E13](../tests/lab-acceptance/polygon-motion.e2e.ts).
 
 ## ET-LAB-022
 

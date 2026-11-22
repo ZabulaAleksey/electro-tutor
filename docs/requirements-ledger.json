@@ -223,17 +223,17 @@
         "FR-609"
       ],
       "domain": "Экспериментальная линия C",
-      "code": ["scripts/eval-variable-line-architecture.py"],
-      "unit": [],
-      "integration": ["scripts/eval-variable-line-architecture.py"],
-      "e2e": [],
-      "runtime": "На 7A оценены два метода для предписанных RLGC(x,t) на совместимых эталонах.",
-      "security": "Предложены пределы профилей, шага, памяти и размера результата.",
-      "a11y": "Потребительская поверхность относится к 7B.",
-      "observability": "JSON CLI содержит ошибки полей, энергию, сходимость и причины диагностических отказов.",
-      "gap": "Ручное утверждение ADR-064, потребительский Worker, эпюры и аппаратные измерения относятся к следующим гейтам.",
+      "code": ["src/variable-line/profiles.ts", "src/variable-line/circuit.ts", "src/variable-line/solver.ts", "src/variable-line/variable-line.worker.ts", "src/components/VariableLineLab.tsx"],
+      "unit": ["src/variable-line/profiles.test.ts", "src/variable-line/circuit.test.ts"],
+      "integration": ["scripts/eval-variable-line-architecture.py", "src/variable-line/solver.test.ts"],
+      "e2e": ["tests/lab-acceptance/variable-line-experiment.e2e.ts"],
+      "runtime": "Локальный RU/UK опыт C запускает неявный расчёт предписанных RLGC(x,t) по принятому ADR-064.",
+      "security": "Контракт Worker ограничивает профили, шаг, память и объём результата.",
+      "a11y": "Провода выбираются на схеме клавишей или касанием. Прогресс и причина отказа доступны текстом.",
+      "observability": "Эпюры, ведомость энергии, нормированный остаток, прогресс и диагностические коды.",
+      "gap": "Ручная приёмка 7B и аппаратные измерения ожидаются. Релизный контракт относится к интеграции реконструкции.",
       "status": "PLANNED",
-      "action": "Принять 7A, затем ET-LABR-007B, E5/E13."
+      "action": "Ручная приёмка ET-LABR-007B, E5/E13."
     },
     {
       "requirement_ids": [

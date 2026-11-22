@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import VariableLineLab from "../../../components/VariableLineLab";
+import { localePath } from "../../../site-path";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const title = ru ? "Длинная линия с переменными параметрами" : "Довга лінія зі змінними параметрами";
+const description = ru
+  ? "Проверьте, как потери и изменение геометрии влияют на импульс напряжения и баланс энергии в линии."
+  : "Перевірте, як втрати й зміна геометрії впливають на імпульс напруги та баланс енергії в лінії.";
+---
+<BaseLayout {title} {description} {language} active="interactive" alternatePath="/interactive/transmission-line-variable/">
+  <section class="variable-line-page">
+    <a href={localePath(language, "/interactive/")}>{ru ? "← Лаборатории" : "← Лабораторії"}</a>
+    <h1>{title}</h1>
+    <VariableLineLab client:load {language} />
+  </section>
+</BaseLayout>
+
+<style>
+  .variable-line-page { width: min(100% - 2rem, 82rem); margin: 1rem auto 3rem; }
+  .variable-line-page h1 { margin: .55rem 0 1.1rem; font-size: clamp(1.45rem, 4vw, 2.55rem); }
+  .variable-line-page > a { display: inline-flex; align-items: center; min-height: 44px; }
+</style>

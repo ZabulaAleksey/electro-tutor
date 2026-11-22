@@ -95,7 +95,8 @@
   min-width: min(100%, 225px);
 }
 
-[data-line-editor-variant="lc"] .line-experiment-field {
+[data-line-editor-variant="lc"] .line-experiment-field,
+[data-line-editor-variant="variable"] .line-experiment-field {
   min-width: 0;
 }
 
@@ -153,7 +154,7 @@
   white-space: nowrap;
 }
 
-.line-experiment-editor .line-experiment-target[data-lc-canvas-marker] {
+.line-experiment-editor .line-experiment-target:is([data-lc-canvas-marker], [data-line-spaced-marker]) {
   box-sizing: border-box;
   width: 44px;
   height: 44px;

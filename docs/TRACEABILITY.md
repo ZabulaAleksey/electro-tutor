@@ -45,6 +45,9 @@ FR-609 → [контракт 7A](../specs/features/lab-reconstruction.spec.md#п
 → [ADR-064](DECISIONS.md#adr-064--экспериментальная-переменная-линия-и-численные-проверки)
 → [CLI сравнительного эталона](../scripts/eval-variable-line-architecture.py)
 → [E5 и численная часть E13](TESTING.md#et-labr-007a--архитектурная-развилка-c).
+FR-609, 7B → [профили и сетка](../src/variable-line/profiles.ts), [слоты C](../src/variable-line/circuit.ts),
+[неявный решатель](../src/variable-line/solver.ts) и [Worker](../src/variable-line/variable-line.worker.ts)
+→ [аналитические тесты](../src/variable-line/solver.test.ts) и [Chromium E5/E13](../tests/lab-acceptance/variable-line-experiment.e2e.ts).
 
 ## ET-LAB-022
 

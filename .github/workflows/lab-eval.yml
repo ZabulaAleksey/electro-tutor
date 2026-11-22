@@ -44,7 +44,7 @@ jobs:
           PUBLIC_EDUCATION_MODE: "true"
         run: |
           pnpm build
-          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts tests/lab-acceptance/line-experiment.e2e.ts tests/lab-acceptance/steady-experiment.e2e.ts tests/lab-acceptance/lc-experiment.e2e.ts
+          pnpm exec playwright test --config playwright.lab-acceptance.config.ts tests/lab-acceptance/topology-workbench.e2e.ts tests/lab-acceptance/line-experiment.e2e.ts tests/lab-acceptance/steady-experiment.e2e.ts tests/lab-acceptance/lc-experiment.e2e.ts tests/lab-acceptance/variable-line-experiment.e2e.ts
 
       - name: Upload browser evidence
         if: always()
@@ -57,5 +57,6 @@ jobs:
             test-results/line-experiment*/
             test-results/steady-experiment*/
             test-results/lc-experiment*/
+            test-results/variable-line-experiment*/
           if-no-files-found: warn
           retention-days: 7

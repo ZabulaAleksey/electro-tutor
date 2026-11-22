@@ -17,7 +17,9 @@ type Props = {
   onAppendSection?: (endpoint?: string) => void;
   onRemove: (id: string) => void;
   onOpenSection?: (id: string) => void;
-  variant?: "transient" | "steady" | "lc";
+  variant?: "transient" | "steady" | "lc" | "variable";
+  seriesWireIds?: readonly string[];
+  canRemove?: (id: string) => boolean;
   referenceEndpoint?: string;
   renderInspector?: (part: CircuitComponent) => ReactNode;
   equivalentMove?: {
@@ -133,10 +135,13 @@ function componentBoundary(slot: ParallelSlot, id: string) {
 }
 
 export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection,
-  variant = "transient", referenceEndpoint, renderInspector, equivalentMove }: Props) {
+  variant = "transient", referenceEndpoint, renderInspector, equivalentMove, seriesWireIds, canRemove }: Props) {
   const t = copy[language];
   const lc = variant === "lc";
   const steady = variant === "steady";
+  const variable = variant === "variable";
+  const selectSection = steady || variable;
+  const spaceMarkers = lc || variable;
   const move = lc ? equivalentMove : undefined;
   const movingPartId = move?.componentId;
   const referenceDescription = useId();
@@ -211,8 +216,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   }, [viewportRef]);
 
   useEffect(() => {
-    if (armed) modeControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
-  }, [armed]);
+    if (!armed) return;
+    const target = variable ? viewportRef.current?.querySelector<HTMLElement>("[data-line-series-slot]")
+      : modeControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    target?.focus({ preventScroll: true });
+  }, [armed, variable, viewportRef]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -251,7 +259,9 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   function insert(slot: TopologySlot, session = new TopologySession(JSON.stringify(document))) {
     if (!armed) return;
     try {
-      session.apply({ type: "insert", slot, component: makePart(topology, armed) });
+      const component = makePart(topology, armed);
+      session.apply({ type: "insert", slot, component: variable
+        ? { ...component, parameters: { ...component.parameters, ohm: 25, nextOhm: 25 } } : component });
       onChange(session.document);
       paletteControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
       setArmed(undefined);
@@ -308,15 +318,15 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const groupControlsY = focusPoint ? Math.max(23 / fieldScale, focusPoint.y - 64) : 30;
   const groupControlsX = (x: number) => Math.min(diagram.width - 23 / fieldScale, Math.max(23 / fieldScale, x));
   const paletteStart = lc ? 1 : 0;
-  const paletteEnd = lc ? 3 : steady ? 5 : palette.length;
+  const paletteEnd = lc ? 3 : variable ? 1 : steady ? 5 : palette.length;
   const moveTargets = move ? diagram.wires.filter(({ id, points }) =>
     points.length && serial.has(id) && move.wireIds.includes(id)) : [];
   const seriesTargets = armed && !move && mode === "series"
-    ? diagram.wires.filter(({ id, points }) => serial.has(id) && points.length) : [];
+    ? diagram.wires.filter(({ id, points }) => serial.has(id) && points.length && (!seriesWireIds || seriesWireIds.includes(id))) : [];
   const crossTargets = armed && !move && mode === "cross" ? endpoints : [];
-  const lcTargets = !lc ? [] : move ? moveTargets : crossTargets.length
+  const spacedTargets = !spaceMarkers ? [] : move ? moveTargets : crossTargets.length
     ? crossTargets.map(([id, point]) => ({ id, points: [point] })) : seriesTargets;
-  const placement = placeLcCanvasTargets(lcTargets, diagram.width, diagram.height, fieldScale);
+  const placement = placeLcCanvasTargets(spacedTargets, diagram.width, diagram.height, fieldScale);
   const markerPoints = new Map(placement.markers.map(({ id, point }) => [id, point]));
 
   return <section className="line-experiment-editor" data-line-experiment-editor data-line-editor-variant={variant} aria-label={t.board}
@@ -324,6 +334,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       if (move && event.key === "Escape") {
         event.preventDefault();
         finishMove();
+      }
+      if (variable && armed && event.key === "Escape") {
+        event.preventDefault();
+        paletteControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
+        arm(armed);
       }
     }}>
     <div className="line-experiment-editor-bar">
@@ -334,7 +349,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
         <button type="button" aria-label={t.zoomIn} onClick={zoomIn}>+</button>
       </div>
     </div>
-    {armed && !move && <div ref={modeControls} className="line-experiment-modes">
+    {armed && !move && !variable && <div ref={modeControls} className="line-experiment-modes">
       {(Object.keys(t.modes) as SlotMode[]).map(value => <button key={value} type="button"
         data-line-slot-mode={value} aria-pressed={mode === value} onClick={() => { setMode(value); resetSelection(); }}>{t.modes[value]}</button>)}
     </div>}
@@ -378,16 +393,16 @@ export default function LineExperimentEditor({ language, document, onChange, onA
           {diagram.components.map(({ id, x, y }) => {
             if (id === port?.id) return null;
             const isSection = devices.get(id)?.kind === "line";
-            const action = isSection && !steady ? t.open : t.select;
+            const action = isSection && !selectSection ? t.open : t.select;
             return <CanvasButton key={id} point={{ x, y }} fieldScale={fieldScale} data-line-component={id}
               data-line-section={isSection ? id : undefined} className="line-experiment-object"
               aria-label={`${action} ${id}`} title={`${action} ${id}`}
-              aria-pressed={isSection && !steady ? undefined : selected === id} onClick={() => {
+              aria-pressed={isSection && !selectSection ? undefined : selected === id} onClick={() => {
                 if (isSection) onOpenSection?.(id);
-                if (!isSection || steady) { setSelected(id); setConfirm(false); }
+                if (!isSection || selectSection) { setSelected(id); setConfirm(false); }
               }} />;
           })}
-          {!steady && !lc && diagram.components.filter(({ id }) => devices.get(id)?.kind === "line").map(({ id, x, y }) =>
+          {!selectSection && !lc && diagram.components.filter(({ id }) => devices.get(id)?.kind === "line").map(({ id, x, y }) =>
             <CanvasButton key={id} point={{ x, y: y + 46 }} fieldScale={fieldScale} data-line-inspect-section={id}
               className="line-experiment-minor" aria-label={`${t.select} ${id}`} onClick={() => {
                 setSelected(id); setConfirm(false);
@@ -409,7 +424,8 @@ export default function LineExperimentEditor({ language, document, onChange, onA
           const slot = serial.get(id)!;
           return <CanvasButton key={id} point={markerPoints.get(id) ?? wireTarget(points)} fieldScale={fieldScale}
             data-line-series-slot={id} aria-label={`${t.add} ${armed[2]} · ${slot.boundaries.join(" / ")}`}
-            data-lc-canvas-marker={lc || undefined} onClick={() => insert(slot)}>+</CanvasButton>;
+            data-lc-canvas-marker={lc || undefined} data-line-spaced-marker={variable || undefined}
+            onClick={() => insert(slot)}>+</CanvasButton>;
         })}
         {armed && !move && mode === "parallel" && diagram.components.filter(({ id }) =>
           parallel.some(slot => componentBoundary(slot, id))).map(({ id, x, y }) =>
@@ -432,13 +448,13 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       </div>
     </div>
     {armed && !move && <p className="line-experiment-editor-note" role="status">{hasError ? t.invalid
-      : mode === "series" && !serial.size || mode === "parallel" && !parallel.length ? t.empty : t.search[mode]}</p>}
+      : mode === "series" && (variable ? !seriesTargets.length : !serial.size) || mode === "parallel" && !parallel.length ? t.empty : t.search[mode]}</p>}
     {selectedPart && !armed && !move && <div className="line-experiment-selection" data-line-selected-part={selectedPart.id}>
-      {(!steady && !lc || !renderInspector) && <strong>{selectedPart.id}</strong>}
+      {(!selectSection && !lc || !renderInspector) && <strong>{selectedPart.id}</strong>}
       {!steady && selectedPart.kind === "switch" && <SwitchTime key={`${selectedPart.id}:${selectedPart.parameters.atS}`}
         part={selectedPart} label={selectedPart.parameters.closes === true ? t.closeTime : t.time} onSave={updateSwitchTime} />}
       {renderInspector?.(selectedPart)}
-      {confirm ? <>
+      {(!canRemove || canRemove(selected)) && (confirm ? <>
         <button type="button" data-line-confirm-remove onClick={() => {
           onRemove(selected);
           setSelected("");
@@ -446,7 +462,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
         }}>{t.confirm} {selected}</button>
         <button type="button" onClick={() => setConfirm(false)}>{t.cancel}</button>
       </> : <button type="button" data-line-remove aria-label={`${t.remove} ${selected}`}
-        onClick={() => setConfirm(true)}>{t.remove}</button>}
+        onClick={() => setConfirm(true)}>{t.remove}</button>)}
     </div>}
     <div ref={paletteControls} className="line-experiment-palette" role="group" aria-label={t.palette}>
       {palette.slice(paletteStart, paletteEnd).map((item, index) => <button key={item[0]} type="button" data-line-palette={item[0]}

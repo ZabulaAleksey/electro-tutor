@@ -9,7 +9,7 @@ interface Props { language: Language; home?: boolean }
 const { language, home = false } = Astro.props;
 const title = language === "ru" ? "Лаборатории" : "Лабораторії";
 const electricalLinks = [
-  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id === "steady" || variant.id === "steady-legacy") ?? []),
+  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id !== "reference") ?? []),
   ...(catalogueItems.find(lab => lab.id === "advanced:reactive-two-port")?.variants ?? []),
   ...catalogueItems.filter(lab => lab.id === "advanced:power-system" && lab.available),
 ];

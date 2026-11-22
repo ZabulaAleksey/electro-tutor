@@ -1,0 +1,50 @@
+.lc-experiment {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.lc-experiment-value {
+  display: grid;
+  gap: .25rem;
+  min-width: 0;
+}
+
+.lc-experiment-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .55rem;
+}
+
+.lc-experiment-tools p {
+  margin: 0 auto 0 0;
+}
+
+.lc-experiment-tools button,
+.lc-experiment-value input {
+  min-height: 44px;
+  padding: .45rem .7rem;
+  border: 1px solid var(--c-border, #acbbce);
+  border-radius: .55rem;
+  background: var(--white, #fff);
+  color: var(--ink, #16243d);
+  font: inherit;
+}
+
+.lc-experiment-value input {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.lc-experiment [data-lc-notice] {
+  margin: 0;
+  padding: .65rem;
+  border: 1px solid var(--c-border, #acbbce);
+  border-radius: .55rem;
+}
+
+.lc-experiment [data-lc-notice="error"] {
+  border-color: var(--c-error, #bb3030);
+}

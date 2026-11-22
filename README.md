@@ -136,6 +136,9 @@ JSON, снимки и traces. [Как воспроизвести и принят
 Пункт «Длинная линия в синусоидальном режиме» открывает лабораторию B
 по маршруту `/{ru,uk}/interactive/transmission-line-steady/experiment/`.
 [Приёмка синусоидального опыта](docs/TESTING.md#et-labr-005--лаборатория-b).
+Пункт «LC-двухполюсник» открывает лабораторию D по маршруту
+`/{ru,uk}/interactive/reactive-two-port-graph/experiment/`.
+[Приёмка резонансов, переноса катушки и архива](docs/TESTING.md#et-labr-006--лаборатория-d).
 
 ## Публикация
 

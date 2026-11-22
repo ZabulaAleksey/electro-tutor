@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { simplifyReactiveDocument } from "../circuit/reactive-lc-simplification";
+import { simplifyReactiveDocument, simplifyReactiveTopology } from "../circuit/reactive-lc-simplification";
+import type { CircuitTopology } from "../circuit/topology";
 import { formatEngineeringValue } from "../engineering/format";
 import { fractionText } from "../models/reactive-two-port";
 import type { Language } from "../types";
 
-export function SimplifiedLcResults({ document, language }: { document: string; language: Language }) {
+type Props = { language: Language } & (
+  { document: string; topology?: never; observedEndpoints?: never } |
+  { document?: never; topology: CircuitTopology; observedEndpoints?: readonly string[] }
+);
+
+export function SimplifiedLcResults({ document, topology, observedEndpoints, language }: Props) {
   const [open, setOpen] = useState(false);
   const disclosure = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
@@ -13,8 +19,10 @@ export function SimplifiedLcResults({ document, language }: { document: string; 
   const t = (ru: string, uk: string) => language === "ru" ? ru : uk;
   const reduced = useMemo(() => {
     if (!open) return null;
-    try { return simplifyReactiveDocument(document); } catch { return null; }
-  }, [document, open]);
+    try {
+      return topology ? simplifyReactiveTopology(topology, observedEndpoints) : simplifyReactiveDocument(document);
+    } catch { return null; }
+  }, [document, topology, observedEndpoints, open]);
 
   const equivalents = new Map(reduced?.steps.map((step, index) =>
     [step.id, step.kind.toUpperCase() + t("экв", "екв") + (index + 1)] as const));

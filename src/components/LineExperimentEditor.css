@@ -95,6 +95,10 @@
   min-width: min(100%, 225px);
 }
 
+[data-line-editor-variant="lc"] .line-experiment-field {
+  min-width: 0;
+}
+
 .line-experiment-schematic {
   display: block;
   width: 100%;
@@ -115,6 +119,10 @@
 
 .line-experiment-schematic .line-experiment-dot {
   fill: var(--ink, #132242);
+}
+
+.line-experiment-schematic .line-experiment-port {
+  fill: var(--white, #fff);
 }
 
 .line-experiment-reference {
@@ -143,6 +151,24 @@
   transform: translate(-50%, -50%);
   padding-inline: 5px;
   white-space: nowrap;
+}
+
+.line-experiment-editor .line-experiment-target[data-lc-canvas-marker] {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+}
+
+.line-experiment-lc-leader {
+  stroke: var(--accent, #177598);
+}
+
+.line-experiment-lc-leader line {
+  stroke-dasharray: 3 3;
+}
+
+.line-experiment-lc-leader circle {
+  fill: var(--accent, #177598);
 }
 
 .line-experiment-editor .line-experiment-object {

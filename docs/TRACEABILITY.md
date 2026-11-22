@@ -36,6 +36,11 @@ FR-604/607/608 → [синусоидальная лаборатория](../src/
 [эпюры и фазоры](../src/components/SteadyExperimentResults.tsx) →
 [аналитические эталоны E6](../src/steady-line/experiment-solver.test.ts)
 и [Chromium E6/E12](../tests/lab-acceptance/steady-experiment.e2e.ts).
+FR-603/604/610 → [LC-адаптер и перенос](../src/circuit/lc-experiment.ts),
+[общий SVG](../src/components/LineExperimentEditor.tsx) и
+[лаборатория D](../src/components/LcExperimentLab.tsx) →
+[аналитический E7](../src/circuit/lc-experiment.test.ts) и
+[Chromium E7/E11](../tests/lab-acceptance/lc-experiment.e2e.ts).
 
 ## ET-LAB-022
 

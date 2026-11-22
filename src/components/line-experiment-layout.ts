@@ -111,3 +111,72 @@ export function wireTarget(points: readonly Point[]): Point {
   }
   return middle;
 }
+
+export type LcCanvasTarget = { id: string; points: readonly Point[] };
+type LcCanvasMarker = { id: string; point: Point; anchor?: Point };
+
+export function placeLcCanvasTargets(targets: readonly LcCanvasTarget[], width: number, height: number, scale: number) {
+  // The buttons live in CSS pixels, even while the schematic is scaled.
+  const pitch = 48 / scale;
+  const edge = 24 / scale;
+  const markers: LcCanvasMarker[] = [];
+  let fieldHeight = height;
+
+  function available({ x, y }: Point) {
+    return x >= edge && x <= width - edge && y >= edge && y <= fieldHeight - edge
+      && markers.every(({ point }) => Math.abs(x - point.x) >= pitch || Math.abs(y - point.y) >= pitch);
+  }
+
+  function onWire(points: readonly Point[]) {
+    const preferred = wireTarget(points);
+    if (available(preferred)) return preferred;
+    // Start at the middle of each segment, then try other positions on that wire.
+    for (const [index, start] of points.slice(0, -1).entries()) {
+      const end = points[index + 1];
+      const length = Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
+      const steps = Math.max(1, Math.ceil(length / (pitch / 2)));
+      for (let offset = 0; offset <= steps / 2; offset++) {
+        for (const direction of offset ? [-1, 1] : [0]) {
+          const fraction = .5 + direction * offset / steps;
+          const point = { x: start.x + (end.x - start.x) * fraction, y: start.y + (end.y - start.y) * fraction };
+          if (available(point)) return point;
+        }
+      }
+    }
+  }
+
+  const nearOffsets = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]] as const;
+  function nextPoint(anchor: Point): Point {
+    for (const radius of [pitch / 2, pitch, pitch * 1.5]) {
+      for (const [dx, dy] of nearOffsets) {
+        const point = { x: anchor.x + dx * radius, y: anchor.y + dy * radius };
+        if (available(point)) return point;
+      }
+    }
+    // Dense cases retain every slot. Reserve a new row within the scrollable
+    // canvas when its existing free space has no full-size marker cell left.
+    let nearest: Point | undefined;
+    for (let y = edge; y <= fieldHeight - edge; y += pitch) {
+      for (let x = edge; x <= width - edge; x += pitch) {
+        const point = { x, y };
+        if (available(point) && (!nearest ||
+            Math.hypot(x - anchor.x, y - anchor.y) < Math.hypot(nearest.x - anchor.x, nearest.y - anchor.y))) nearest = point;
+      }
+    }
+    if (nearest) return nearest;
+    const point = { x: edge, y: fieldHeight + edge };
+    fieldHeight += pitch;
+    return point;
+  }
+
+  for (const { id, points } of targets) {
+    const onPath = onWire(points);
+    if (onPath) {
+      markers.push({ id, point: onPath });
+    } else {
+      const anchor = wireTarget(points);
+      markers.push({ id, point: nextPoint(anchor), anchor });
+    }
+  }
+  return { height: fieldHeight, markers };
+}

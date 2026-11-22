@@ -1,5 +1,21 @@
 ## ET-LABR-011 — Интеграционная и релизная проверка
 
+Владелец принял этап 11 и разрешил публикацию. [PR #2](https://github.com/ZabulaAleksey/electro-tutor/pull/2)
+слит в `main` с ревизией `ed8a737fd3da30bed2c164692b722b5fbb11a8e0`. [Лабораторный CI PR](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45071357432)
+и [обязательный CI на main](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45071702732) прошли. На обеих площадках подтверждена эта ревизия.
+
+| Площадка | Выкладка | Браузерная приёмка |
+| --- | --- | --- |
+| [Cloudflare](https://electrotutor.org/ru/interactive/) | [`f23a8e89`](https://f23a8e89.electrotutor.pages.dev/), оба публичных домена | RU на ПК и UK в touch-профиле, Worker и графики A, WebGL и пауза G, A офлайн, 42 ответа 404 на каждом домене. |
+| [GitHub Pages](https://zabulaaleksey.github.io/electro-tutor/ru/interactive/) | `7985445677`, база `/electro-tutor/` | RU на ПК и UK в touch-профиле, Worker и графики A, WebGL и пауза G, A офлайн, 42 ответа 404. |
+
+На каждой площадке проверены действующие ссылки A–G и сети, а также
+прямая старая закладка A. Контрольные суммы JS, Worker, WASM и service worker
+совпали с квалифицированной сборкой своей базы. На GitHub Pages дополнительно
+сверен артефакт CI. На основном домене Cloudflare строгий CSP блокирует
+сторонний скрипт Cloudflare Web Analytics. Ошибок ресурсов лабораторий и
+клиентских исключений в сценариях не было.
+
 Кандидат `41e0782088f401dea4cac990d52e17d8093b7f70` прошёл локальные проверки на чистой ревизии.
 
 | Проверка | Результат |

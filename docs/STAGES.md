@@ -225,17 +225,18 @@ checkpoint без публичного UI.
 
 ## ET-LABR-011 — Этап 11 · Интеграционная и релизная проверка
 
-- Status: partial
-- Lifecycle: implemented_unverified. Локальные проверки пройдены, владелец принял этап и разрешил публикацию на обеих площадках.
+- Status: verified
+- Lifecycle: completed. Этап принят владельцем, релиз подтверждён на обеих площадках.
 - Candidate: `41e0782088f401dea4cac990d52e17d8093b7f70`.
 - Dependencies: ET-LABR-010B verified. Доступны приёмочные сценарии, численные эталоны, локальные production-сборки и verify:full.
+- Published: `main` `ed8a737fd3da30bed2c164692b722b5fbb11a8e0`, [PR #2](https://github.com/ZabulaAleksey/electro-tutor/pull/2). Cloudflare `f23a8e89-200b-4469-a6a6-dd542f66c95c`. GitHub Pages `7985445677`, [CI 45071702732](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45071702732).
 - Requirements: FR-615, E1–E13, QG-001–007.
 - Scope: исправление известного ожидания в тесте каталога, полная интеграция, проверка релизной сборки и ручной runbook.
 - Runnable E2E: локальная сборка → настоящий каталог RU/UK на двух базах → актуальные лаборатории и прямые совместимые адреса → живые расчёты, импорт/экспорт и скриншоты.
 - Gate: зелёный `verify:full` на чистом кандидате: 928 Vitest, 418 Chromium (6 условных сценариев live auth пропущены), 2 production smoke. `check:base-path`, E1–E3, E5 с проверкой отказа, независимые E7A и E10, lab-acceptance 39/39 на корне и 35/35 на project base, независимый review. Выпускная CSP в локальном preview, 14/14 ответов 404, RU/UK-клавиатура и пороги WebGL прошли. [Результаты и runbook](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
-- Release in progress: пройти PR и CI на `main`, подтвердить опубликованную ревизию и выполнить браузерную проверку на Cloudflare и GitHub Pages.
+- Hosted acceptance: каталоги RU/UK, Worker TL1 и 4 графика, старый адрес A, Worker/WebGL и пауза G, офлайн-перезагрузка A, 42 ответа 404 на каждом хосте и сверка ассетов. Cloudflare `electrotutor.org` и `electrotutor.pages.dev`, GitHub Pages `/electro-tutor/`. [Результаты](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
 - Rollback: прежний runtime `ff267aa5033a7ef36a5cdff20b209a26b36ac51c`. Cloudflare deployment `163eb713-d167-4f97-b4c2-bc8c3ce7846c` доступен как неизменяемая выкладка. GitHub Pages deployment `7953916855`, run `44825590875`. Старый upload истёк, восстановление GitHub Pages требует сборки прежнего проверенного исходника.
-- Blockers: размещённая приёмка до завершения выкладки.
+- Blockers: none.
 - User action `LABR-UA-11` / DONE: владелец принял этап 11.
 - User action `LABR-PUB-11` / DONE: владелец явно разрешил публикацию ElectroTutor на Cloudflare и GitHub Pages и поручил проверить каталоги RU/UK, A и G на обеих площадках.
 - NEXT: none
@@ -243,10 +244,10 @@ checkpoint без публичного UI.
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 28,
+  "state_revision": 29,
   "master": {
     "id": "ET-LABR-MASTER",
-    "status": "partial",
+    "status": "completed",
     "source": {
       "backend": "google_drive",
       "queue_id": "none",
@@ -262,7 +263,7 @@ checkpoint без публичного UI.
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/lab-reconstruction-stage-0",
-      "checkpoint": "4df51c52da96be26e3e421c8598971db30651546",
+      "checkpoint": "ed8a737fd3da30bed2c164692b722b5fbb11a8e0",
       "ownership": [
         "src/circuit",
         "src/pages",
@@ -283,7 +284,7 @@ checkpoint без публичного UI.
           "scripts/rolling-e10.mjs",
           "tests/fixtures/rolling-e10-circle.json"
       ],
-      "status": "active"
+      "status": "integrated"
     }
   ],
   "slices": [
@@ -300,7 +301,7 @@ checkpoint без публичного UI.
     {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"verified","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"8d74380458a586c127b9500a42363200d32868ed","checkpoint_after":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/polygon-motion.e2e.ts"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010A","master_id":"ET-LABR-MASTER","title":"G — feasibility качения","status":"verified","predecessors":["ET-LABR-009"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","checkpoint_after":"151fd643b4841b5690c0530ab2f081a55f0b9e57","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/rolling","scripts/rolling-feasibility.mjs"],"requirements":["FR-613"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010B","master_id":"ET-LABR-MASTER","title":"G — 3D-лаборатория","status":"verified","predecessors":["ET-LABR-010A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"151fd643b4841b5690c0530ab2f081a55f0b9e57","checkpoint_after":"4df51c52da96be26e3e421c8598971db30651546","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","docs/DECISIONS.md","src/rolling","src/components","tests/lab-acceptance/rolling-lab.e2e.ts"],"requirements":["FR-614"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"implemented_unverified","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"4df51c52da96be26e3e421c8598971db30651546","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","specs/features/pre-deploy-quality-gates.spec.md","tests/lab-acceptance/lab-directory-routes.e2e.ts",".github/workflows/lab-eval.yml"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
+    {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"verified","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"4df51c52da96be26e3e421c8598971db30651546","checkpoint_after":"ed8a737fd3da30bed2c164692b722b5fbb11a8e0","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","specs/features/pre-deploy-quality-gates.spec.md","tests/lab-acceptance/lab-directory-routes.e2e.ts",".github/workflows/lab-eval.yml"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
   ],
   "blockers": [
     {
@@ -433,7 +434,7 @@ checkpoint без публичного UI.
     }
   ],
   "decisions": [
-    "Stage 11 passed local release qualification and owner acceptance. The owner authorized the two-host release.",
+    "Stage 11 passed owner acceptance and the public browser checks. Both Pages providers deployed ed8a737fd3da30bed2c164692b722b5fbb11a8e0.",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -443,10 +444,10 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Complete the authorized PR, Pages releases and public browser checks.",
+  "next_action": "None. The lab reconstruction master was accepted, integrated, published, and verified.",
   "integration": {
-    "required": true,
-    "reason": "Owner authorized main integration and both Pages releases."
+    "required": false,
+    "reason": "Main integration and both hosted releases verified."
   }
 }
 ```

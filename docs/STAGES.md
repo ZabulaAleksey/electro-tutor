@@ -225,21 +225,24 @@ checkpoint без публичного UI.
 
 ## ET-LABR-011 — Этап 11 · Интеграционная и релизная проверка
 
-- Status: planned
-- Lifecycle: in_progress.
+- Status: partial
+- Lifecycle: implemented_unverified. Локальные проверки пройдены, ожидается ручная приёмка.
+- Candidate: `41e0782088f401dea4cac990d52e17d8093b7f70`.
 - Dependencies: ET-LABR-010B verified. Доступны приёмочные сценарии, численные эталоны, локальные production-сборки и verify:full.
 - Requirements: FR-615, E1–E13, QG-001–007.
 - Scope: исправление известного ожидания в тесте каталога, полная интеграция, проверка релизной сборки и ручной runbook.
 - Runnable E2E: локальная сборка → настоящий каталог RU/UK на двух базах → актуальные лаборатории и прямые совместимые адреса → живые расчёты, импорт/экспорт и скриншоты.
-- Gate: штатный verify:full, root/project-base приёмка, независимые E1–E13, безопасность/доступность/ресурсы, независимый review и решение владельца.
+- Gate: зелёный `verify:full` на чистом кандидате: 928 Vitest, 418 Chromium (6 условных сценариев live auth пропущены), 2 production smoke. `check:base-path`, E1–E3, E5 с проверкой отказа, независимые E7A и E10, lab-acceptance 39/39 на корне и 35/35 на project base, независимый review. Выпускная CSP в локальном preview, 14/14 ответов 404, RU/UK-клавиатура и пороги WebGL прошли. [Результаты и runbook](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
 - Deferred: внешняя интеграция, публикация и проверка размещённых артефактов.
-- User action `LABR-UA-11` / PENDING: проверить собранный кандидат и принять отдельное решение по публикации после локального отчёта.
+- Blockers: `LABR-UA-11`.
+- User action `LABR-UA-11` / PENDING: по [чек-листу кандидата](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка) открыть каталог RU/UK на ПК и опыт G на физическом телефоне. Ожидаемы живой TL1, работа старой закладки, управление 3D и повторное открытие JSON. Подтвердить приёмку этапа 11 либо описать расхождение и устройство. Принятие закрывает этап и позволяет отдельно решить вопрос публикации.
+- User action `LABR-PUB-11` / CONDITIONAL: после ручной приёмки отдельным сообщением разрешить выпуск в `main` для Cloudflare и GitHub Pages. Ожидаемо явное разрешение на публикацию проверенной ревизии. Только оно открывает релизный runbook, размещённые smoke и регистрацию артефактов отката.
 - NEXT: none
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 26,
+  "state_revision": 27,
   "master": {
     "id": "ET-LABR-MASTER",
     "status": "partial",
@@ -296,7 +299,7 @@ checkpoint без публичного UI.
     {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"verified","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"8d74380458a586c127b9500a42363200d32868ed","checkpoint_after":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/fourier","src/components","tests/lab-acceptance/polygon-motion.e2e.ts"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010A","master_id":"ET-LABR-MASTER","title":"G — feasibility качения","status":"verified","predecessors":["ET-LABR-009"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"d270c0a2748ee5108d1ae89ca9affe54cbb37d11","checkpoint_after":"151fd643b4841b5690c0530ab2f081a55f0b9e57","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","src/rolling","scripts/rolling-feasibility.mjs"],"requirements":["FR-613"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-010B","master_id":"ET-LABR-MASTER","title":"G — 3D-лаборатория","status":"verified","predecessors":["ET-LABR-010A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"151fd643b4841b5690c0530ab2f081a55f0b9e57","checkpoint_after":"4df51c52da96be26e3e421c8598971db30651546","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","docs/DECISIONS.md","src/rolling","src/components","tests/lab-acceptance/rolling-lab.e2e.ts"],"requirements":["FR-614"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"ready","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"4df51c52da96be26e3e421c8598971db30651546","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","specs/features/pre-deploy-quality-gates.spec.md","tests/lab-acceptance/lab-directory-routes.e2e.ts",".github/workflows/lab-eval.yml"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
+    {"id":"ET-LABR-011","master_id":"ET-LABR-MASTER","title":"Интеграционная и релизная проверка","status":"implemented_unverified","predecessors":["ET-LABR-010B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"4df51c52da96be26e3e421c8598971db30651546","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","specs/features/pre-deploy-quality-gates.spec.md","tests/lab-acceptance/lab-directory-routes.e2e.ts",".github/workflows/lab-eval.yml"],"requirements":["FR-615"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true}
   ],
   "blockers": [
     {
@@ -418,10 +421,18 @@ checkpoint без публичного UI.
       "blocking": true,
       "owner": "project-owner",
       "evidence": "Owner explicitly accepted Stage 10B and directed Stage 11 local verification only."
+    },
+    {
+      "id": "LABR-UA-11",
+      "class": "product_evidence_required",
+      "status": "active",
+      "blocking": true,
+      "owner": "project-owner",
+      "evidence": "Local Stage 11 checked. Owner confirmation from desktop and physical phone is pending."
     }
   ],
   "decisions": [
-    "Stages through 10B accepted. Stage 11 is a local release qualification.",
+    "Stages through 10B accepted. Stage 11 passed local release qualification. Publication requires separate authorization.",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -431,7 +442,7 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Execute Stage 11 and stop before publication for owner acceptance.",
+  "next_action": "Stop at LABR-UA-11 for manual owner acceptance before considering publication.",
   "integration": {
     "required": false,
     "reason": "Local stage checkpoints pending owner acceptance."

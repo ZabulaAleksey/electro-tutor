@@ -32,6 +32,11 @@ jobs:
       - name: Verify topology commands and JSON roundtrip
         run: pnpm eval:topology
 
+      - name: Verify rolling feasibility and independent references
+        run: |
+          node scripts/rolling-feasibility.mjs --eval
+          pnpm exec vitest run src/rolling
+
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 

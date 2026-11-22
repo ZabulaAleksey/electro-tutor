@@ -1,0 +1,9 @@
+{
+  "radius": 1,
+  "start": [0, 0],
+  "heading": 0,
+  "segments": [
+    { "length": 2.221441469079183, "sweep": 2.221441469079183 }
+  ],
+  "stepsPerSegment": 96
+}

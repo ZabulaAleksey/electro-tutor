@@ -54,6 +54,10 @@ FR-611 → [реестр E](../src/fourier/basis-experiment-math.ts), [исто�
 FR-612 → [расчёт F](../src/fourier/polygon-motion-math.ts), [вход и архив](../src/fourier/polygon-motion-input.ts)
 и [SVG](../src/fourier/polygon-motion-svg.ts) → [численный E9](../src/fourier/polygon-motion-math.test.ts)
 и [Chromium E9/E11–E13](../tests/lab-acceptance/polygon-motion.e2e.ts).
+FR-613 → [контракт 10A](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-10a--fr-613)
+→ [обратная геометрия](../src/rolling/feasibility.mjs) и [прямой проход](../src/rolling/replay.mjs)
+→ [независимый E10](../scripts/rolling-e10.mjs), [unit](../src/rolling/feasibility.test.mjs)
+и [E2E CLI](../src/rolling/consumer.test.mjs) → [метрики и ручная приёмка](TESTING.md#et-labr-010a--численная-осуществимость-качения).
 
 ## ET-LAB-022
 

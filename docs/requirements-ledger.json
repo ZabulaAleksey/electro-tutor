@@ -220,28 +220,43 @@
     },
     {
       "requirement_ids": [
-        "FR-609",
+        "FR-609"
+      ],
+      "domain": "Экспериментальная линия C",
+      "code": ["scripts/eval-variable-line-architecture.py"],
+      "unit": [],
+      "integration": ["scripts/eval-variable-line-architecture.py"],
+      "e2e": [],
+      "runtime": "На 7A оценены два метода для предписанных RLGC(x,t) на совместимых эталонах.",
+      "security": "Предложены пределы профилей, шага, памяти и размера результата.",
+      "a11y": "Потребительская поверхность относится к 7B.",
+      "observability": "JSON CLI содержит ошибки полей, энергию, сходимость и причины диагностических отказов.",
+      "gap": "Ручное утверждение ADR-064, потребительский Worker, эпюры и аппаратные измерения относятся к следующим гейтам.",
+      "status": "PLANNED",
+      "action": "Принять 7A, затем ET-LABR-007B, E5/E13."
+    },
+    {
+      "requirement_ids": [
         "FR-610"
       ],
-      "domain": "Экспериментальная линия и LC-граф",
+      "domain": "LC-двухполюсник D",
       "code": [
-        "src/transient/network.worker.ts",
         "src/circuit/reactive-lc-mode.ts",
         "src/circuit/lc-experiment.ts"
       ],
       "unit": ["src/circuit/lc-experiment.test.ts"],
-      "integration": [],
+      "integration": ["src/models/reactive-lc-graph.test.ts", "src/circuit/reactive-lc-simplification.test.ts"],
       "e2e": [
         "tests/e2e/reactive-lc-graph.spec.ts",
         "tests/lab-acceptance/lc-experiment.e2e.ts"
       ],
-      "runtime": "D локально доступна из каталога с общим SVG и точным переносом. Экспериментальная линия C запланирована.",
-      "security": "Проверка профилей коэффициентов и лимитов вычислений.",
-      "a11y": "Отдельная маркировка C и проверяемые координаты LC.",
-      "observability": "Отказы устойчивости, полюса и нули.",
-      "gap": "Ручная приёмка D. Общая нестационарная линия остаётся предметом 7A и 7B.",
+      "runtime": "D локально доступна из каталога с общим SVG и точным переносом.",
+      "security": "Ограничение и проверка локальных LC-архивов.",
+      "a11y": "Прямой выбор места на схеме, клавиатурный фокус и касания.",
+      "observability": "Нули, полюса, пределы и диагностика импорта.",
+      "gap": "Этап 6 принят владельцем в локальном треке. Статус релизного контракта FR-610 определяется при интеграции реконструкции.",
       "status": "PLANNED",
-      "action": "ET-LABR-006/007A/007B, E2/E5/E7/E11/E13."
+      "action": "ET-LABR-006, E2/E7/E11."
     },
     {
       "requirement_ids": [

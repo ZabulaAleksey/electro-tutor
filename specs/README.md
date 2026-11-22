@@ -15,7 +15,7 @@ denominator, но только binding SPEC создаёт обязательс�
 
 | SPEC | Статус | Назначение |
 |---|---|---|
-| [features/lab-reconstruction.spec.md](features/lab-reconstruction.spec.md) | Этапы 0–5 и эталон E3 приняты, лаборатория D (FR-603/604/610) на ручной приёмке | FR-601–615: конструктор, лаборатории A–G и E1–E13 |
+| [features/lab-reconstruction.spec.md](features/lab-reconstruction.spec.md) | Этапы 0–6 и эталон E3 приняты, решение 7A по лаборатории C (FR-609) на ручной приёмке | FR-601–615: конструктор, лаборатории A–G и E1–E13 |
 | `system.spec.md` | Действует | Границы и требования платформы «Потенциал» |
 | `features/context-automation.spec.md` | Действует | Project overlay и запуск следующего этапа одной командой |
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |

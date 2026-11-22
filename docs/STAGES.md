@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LABR-006
+- Stage ID: ET-LABR-007A
 
 ## ET-LABR-000 — Этап 0 · Сверка и проект реконструкции лабораторий
 
@@ -120,22 +120,37 @@ checkpoint без публичного UI.
 
 ## ET-LABR-006 — Этап 6 · Лаборатория D
 
-- Status: partial
-- Lifecycle: implemented_unverified. Локальные проверки пройдены, ручная приёмка открыта.
+- Status: verified
+- Lifecycle: completed. Владелец принял LC-двухполюсник и поручил этап 7A.
+- Checkpoint: `594077cf15f49a1fc8396ae55167728136eff39b`.
 - Dependencies: ET-LABR-005 verified. Общие SVG, команды слотов и точный рациональный LC-расчёт доступны.
 - Requirements: FR-603/604, FR-610, E2/E7/E11.
 - Scope: отдельный RU/UK маршрут, видимый фиксированный P1, нижняя палитра L/C, выбор цели на схеме, узловой Z(s), X(ω), пределы и разрывы, строгий перенос L, архив и синтез.
 - Runnable E2E: каталог → D → вставить C последовательно к L1 → проверить нуль → перенести L с сохранением Z → отменить → вставить C параллельно L1 → проверить полюс и разрыв → восстановить JSON.
 - Gate: E7 для 10 мГн и 100 мкФ даёт последовательный нуль и параллельный полюс при 159,155 Гц. Перенос L сохраняет точную Z(s) и выводы P1. Vitest 850/850, Chromium 18/18 для D/A/B/E4, 16/16 выбранных LC и education регрессий, 1/1 Chromium под префиксом `/electro-tutor/`, education-сборки 112 страниц.
-- Blockers: LABR-UA-06.
+- Blockers: none.
 - Deferred: C, переменные RLGC, последующие этапы.
-- User action `LABR-UA-06` / READY: открыть D из локального каталога и пройти [сценарий приёмки](TESTING.md#et-labr-006--лаборатория-d). На телефоне проверить вставку касанием, включая выбор близких проводов после импорта моста. Подтвердить нуль, полюс и сохранение Z(s) после переноса L. Явная приёмка и команда продолжить открывают ET-LABR-007A.
+- User action `LABR-UA-06` / DONE: владелец явно принял этап 6 и поручил выполнить только этап 7A.
 - NEXT: ET-LABR-007A
+
+## ET-LABR-007A — Этап 7A · Архитектурная развилка лаборатории C
+
+- Status: partial
+- Lifecycle: implemented_unverified. Численный эталон проверен; выбор ADR-064 ждёт владельца.
+- Dependencies: ET-LABR-006 verified. Однородный E5, ограничение прежнего Worker и ADR-059 известны.
+- Requirements: FR-609, E5, численный срез E13.
+- Scope: телеграфные уравнения с предписанными RLGC(x,t), два метода на общей сетке, энергия, устойчивость, границы допустимой постановки и бюджет для будущего Worker.
+- Runnable E2E: `python scripts/eval-variable-line-architecture.py` → аналитические и изготовленный эталоны, три сетки, диагностические отказы → конечный JSON и код завершения. Это вычислительный путь 7A.
+- Gate: 27/27 проверок CLI в побайтово одинаковых прогонах, 46/46 адресных Vitest, education-сборка 112 страниц. На 40/80/160 ячейках минимальный порядок 1,999, энергия неявного шага замыкается до 1,68×10⁻¹³ на шаг. Проверены нулевой C′, превышение допуска RK4 и чувствительность к пропуску производных L′/C′. Контроль с завышенным порогом порядка вернул exit 1. Замечания двух проходов review устранены.
+- Blockers: LABR-UA-07A.
+- Deferred: потребительский маршрут, Worker и UI лаборатории C (7B).
+- User action `LABR-UA-07A` / READY: сверить [ADR-064](DECISIONS.md#adr-064--экспериментальная-переменная-линия-и-численные-проверки) и [численный эталон](TESTING.md#et-labr-007a--архитектурная-развилка-c). Подтвердить вариант неявного шага и диапазон первого опыта либо указать необходимые правки. Явное утверждение и команда продолжить открывают ET-LABR-007B.
+- NEXT: ET-LABR-007B
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 13,
+  "state_revision": 15,
   "master": {
     "id": "ET-LABR-MASTER",
     "status": "partial",
@@ -154,7 +169,7 @@ checkpoint без публичного UI.
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "docs/lab-reconstruction-stage-0",
-      "checkpoint": "86a02eb6570c78148cb68bd4d9827f156d916886",
+      "checkpoint": "594077cf15f49a1fc8396ae55167728136eff39b",
       "ownership": [
         "src/circuit",
         "src/pages",
@@ -179,8 +194,8 @@ checkpoint без публичного UI.
     {"id":"ET-LABR-003","master_id":"ET-LABR-MASTER","title":"SVG и управление рабочим полем","status":"verified","predecessors":["ET-LABR-002"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"0689ad86d50c521a14af291089afa166466c1a0e","checkpoint_after":"25d90efc577e62d76ed72b888fe9a5a228149744","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","src/circuit","tests/lab-acceptance/topology-workbench.e2e.ts","docs/TESTING.md"],"requirements":["FR-604"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":true},
     {"id":"ET-LABR-004","master_id":"ET-LABR-MASTER","title":"A — переходная линия","status":"verified","predecessors":["ET-LABR-003"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"25d90efc577e62d76ed72b888fe9a5a228149744","checkpoint_after":"f7fd7b1c7741af0f0062cf1c446e00dc13f2f84c","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","src/components","src/transient","tests/lab-acceptance/line-experiment.e2e.ts"],"requirements":["FR-604","FR-605","FR-606"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":true},
     {"id":"ET-LABR-005","master_id":"ET-LABR-MASTER","title":"B — синусоидальная линия","status":"verified","predecessors":["ET-LABR-004"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"f7fd7b1c7741af0f0062cf1c446e00dc13f2f84c","checkpoint_after":"86a02eb6570c78148cb68bd4d9827f156d916886","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","src/steady-line","src/components","tests/lab-acceptance/steady-experiment.e2e.ts"],"requirements":["FR-604","FR-607","FR-608"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
-    {"id":"ET-LABR-006","master_id":"ET-LABR-MASTER","title":"D — LC-двухполюсник","status":"implemented_unverified","predecessors":["ET-LABR-005"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"86a02eb6570c78148cb68bd4d9827f156d916886","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","src/circuit","src/components","src/models/reactive-lc-graph.ts","tests/lab-acceptance/lc-experiment.e2e.ts"],"requirements":["FR-603","FR-604","FR-610"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":true},
-    {"id":"ET-LABR-007A","master_id":"ET-LABR-MASTER","title":"C — архитектурная развилка","status":"queued","predecessors":["ET-LABR-006"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
+    {"id":"ET-LABR-006","master_id":"ET-LABR-MASTER","title":"D — LC-двухполюсник","status":"verified","predecessors":["ET-LABR-005"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"86a02eb6570c78148cb68bd4d9827f156d916886","checkpoint_after":"594077cf15f49a1fc8396ae55167728136eff39b","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md","src/circuit","src/components","src/models/reactive-lc-graph.ts","tests/lab-acceptance/lc-experiment.e2e.ts"],"requirements":["FR-603","FR-604","FR-610"],"capabilities":[],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":true},
+    {"id":"ET-LABR-007A","master_id":"ET-LABR-MASTER","title":"C — архитектурная развилка","status":"implemented_unverified","predecessors":["ET-LABR-006"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"594077cf15f49a1fc8396ae55167728136eff39b","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/DECISIONS.md","docs/TESTING.md","scripts/eval-variable-line-architecture.py"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-007B","master_id":"ET-LABR-MASTER","title":"C — экспериментальная линия","status":"queued","predecessors":["ET-LABR-007A"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-609"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-008","master_id":"ET-LABR-MASTER","title":"E — базисное разложение","status":"queued","predecessors":["ET-LABR-007B"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-611"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
     {"id":"ET-LABR-009","master_id":"ET-LABR-MASTER","title":"F — многоугольные движения","status":"queued","predecessors":["ET-LABR-008"],"dependencies":[],"worktree_track":"lab-reconstruction","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3"],"evidence":[],"context_scope":["specs/features/lab-reconstruction.spec.md","docs/TESTING.md"],"requirements":["FR-612"],"capabilities":[],"model_class":"HIGH","reasoning_effort":"high","stop_after":true},
@@ -256,14 +271,22 @@ checkpoint без публичного UI.
     {
       "id": "LABR-UA-06",
       "class": "product_evidence_required",
+      "status": "resolved",
+      "blocking": true,
+      "owner": "project-owner",
+      "evidence": "Owner explicitly accepted Stage 6 and directed Stage 7A only."
+    },
+    {
+      "id": "LABR-UA-07A",
+      "class": "product_evidence_required",
       "status": "active",
       "blocking": true,
       "owner": "project-owner",
-      "evidence": "Automated LC and regression checks passed. Owner acceptance and physical touch verification are pending."
+      "evidence": "ADR-064 and deterministic numerical CLI complete locally; owner decision on the method and first C domain is pending."
     }
   ],
   "decisions": [
-    "ADR-062 and ADR-063 accepted; ADR-064–065 proposed",
+    "ADR-062 and ADR-063 accepted; ADR-064 awaits owner acceptance; ADR-065 proposed",
     "Mandatory owner checkpoint after each stage"
   ],
   "context_budget": {
@@ -273,7 +296,7 @@ checkpoint без публичного UI.
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Stop at LABR-UA-06 for manual LC acceptance before ET-LABR-007A.",
+  "next_action": "Stop at LABR-UA-07A for owner acceptance of ADR-064 before ET-LABR-007B.",
   "integration": {
     "required": false,
     "reason": "Local documentation checkpoint; no integration requested."

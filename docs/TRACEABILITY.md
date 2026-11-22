@@ -41,6 +41,10 @@ FR-603/604/610 → [LC-адаптер и перенос](../src/circuit/lc-exper
 [лаборатория D](../src/components/LcExperimentLab.tsx) →
 [аналитический E7](../src/circuit/lc-experiment.test.ts) и
 [Chromium E7/E11](../tests/lab-acceptance/lc-experiment.e2e.ts).
+FR-609 → [контракт 7A](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-7a--fr-609)
+→ [ADR-064](DECISIONS.md#adr-064--экспериментальная-переменная-линия-и-численные-проверки)
+→ [CLI сравнительного эталона](../scripts/eval-variable-line-architecture.py)
+→ [E5 и численная часть E13](TESTING.md#et-labr-007a--архитектурная-развилка-c).
 
 ## ET-LAB-022
 

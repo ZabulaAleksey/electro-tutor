@@ -260,10 +260,26 @@
     },
     {
       "requirement_ids": [
-        "FR-611",
+        "FR-611"
+      ],
+      "domain": "Базисные разложения сигнала и контура",
+      "code": ["src/fourier/basis-experiment.ts", "src/fourier/basis-experiment-math.ts", "src/components/BasisExperimentLab.tsx"],
+      "unit": ["src/fourier/basis-experiment-math.test.ts"],
+      "integration": ["src/fourier/basis-experiment.test.ts"],
+      "e2e": ["tests/lab-acceptance/basis-experiment.e2e.ts", "tests/e2e/fourier-lab.spec.ts"],
+      "runtime": "Локальная лаборатория E сравнивает восемь адаптеров на одной сетке. Fourier Sketch обслуживает старый маршрут.",
+      "security": "Ограниченная грамматика формул и проверенный JSON v1 с лимитом байтов и точек.",
+      "a11y": "Подписанные настройки, фаза и таблицы, рисование мышью и касанием, управляемая анимация.",
+      "observability": "Коэффициенты, вклад, RMS/max, число активных членов, нормировки и граничная конвенция.",
+      "gap": "Ручная приёмка E ожидается. Релизный контракт относится к интеграции реконструкции.",
+      "status": "PLANNED",
+      "action": "Ручная приёмка ET-LABR-008, E8/E11–E13."
+    },
+    {
+      "requirement_ids": [
         "FR-612"
       ],
-      "domain": "Базисы и многоугольные движения",
+      "domain": "Многоугольная аппроксимация",
       "code": [
         "src/components/FourierLab.tsx",
         "src/fourier/bases.ts",
@@ -279,9 +295,9 @@
       "security": "Локальный ограниченный ввод функций и геометрии SVG.",
       "a11y": "Раздельные формы коэффициентов и локализованные графики.",
       "observability": "RMS/max, нормировка, seed и диагностические ошибки.",
-      "gap": "Дополнительные семейства и самостоятельная многоугольная аппроксимация ожидаются.",
+      "gap": "Самостоятельная многоугольная аппроксимация ожидается.",
       "status": "PLANNED",
-      "action": "ET-LABR-008/009, E8/E9/E11–E13."
+      "action": "ET-LABR-009, E9/E11–E13."
     },
     {
       "requirement_ids": [

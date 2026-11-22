@@ -48,6 +48,9 @@ FR-609 → [контракт 7A](../specs/features/lab-reconstruction.spec.md#п
 FR-609, 7B → [профили и сетка](../src/variable-line/profiles.ts), [слоты C](../src/variable-line/circuit.ts),
 [неявный решатель](../src/variable-line/solver.ts) и [Worker](../src/variable-line/variable-line.worker.ts)
 → [аналитические тесты](../src/variable-line/solver.test.ts) и [Chromium E5/E13](../tests/lab-acceptance/variable-line-experiment.e2e.ts).
+FR-611 → [реестр E](../src/fourier/basis-experiment-math.ts), [источники и архив](../src/fourier/basis-experiment.ts)
+→ [E8](../src/fourier/basis-experiment-math.test.ts), [проверка архива](../src/fourier/basis-experiment.test.ts)
+и [Chromium E11–E13](../tests/lab-acceptance/basis-experiment.e2e.ts).
 
 ## ET-LAB-022
 

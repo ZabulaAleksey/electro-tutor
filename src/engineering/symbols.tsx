@@ -49,6 +49,24 @@ export function SourceGlyph({ x, y, scale = 1, mode = "full", label, ac = false,
     {label && <text x={x - 32 * scale} y={y + 64 * scale} stroke="none" fill="var(--ink)">{label}</text>}
   </g>;
 }
+
+/** Ideal sources in Bessonov, Electrical Circuits, §2.2, Fig. 2.3. */
+export function TextbookSourceGlyph({ x, y, scale = 1, mode = "full", label, kind, direction = "left" }: SymbolProps & { kind: "emf" | "current"; direction?: "left" | "right" }) {
+  const radius = 22 * scale;
+  return <g data-symbol={kind === "emf" ? "ideal-emf" : "ideal-current-source"} data-mode={mode}
+    data-terminals={`${x - radius},${y};${x + radius},${y}`} data-source-direction={direction}
+    transform={`translate(${x} ${y}) scale(${scale})`} stroke="var(--ink)" strokeWidth="1.7" fill="var(--white)">
+    <circle r="22" />
+    <g transform={direction === "right" ? "scale(-1 1)" : undefined} fill="none">
+      {kind === "emf" ? <path data-source-arrow d="M13 0H-13M-7 -4L-13 0L-7 4" /> : <>
+        <path data-source-arrow d="M-2 0H-14M-9 -3.5L-14 0L-9 3.5" />
+        <path data-source-arrow d="M14 0H2M7 -3.5L2 0L7 3.5" />
+      </>}
+    </g>
+    {label && <text y="-29" textAnchor="middle" stroke="none" fill="var(--ink)">{label}</text>}
+  </g>;
+}
+
 export function InductorGlyph({ x, y, scale = 1, mode = "full", label }: SymbolProps) {
   return <g data-symbol="inductor" data-terminals={`${x},${y};${x+54*scale},${y}`} data-mode={mode} stroke="var(--ink)" strokeWidth={1.7 * scale} fill="none"><path d={`M${x} ${y} a${9 * scale} ${13 * scale} 0 0 1 ${18 * scale} 0 a${9 * scale} ${13 * scale} 0 0 1 ${18 * scale} 0 a${9 * scale} ${13 * scale} 0 0 1 ${18 * scale} 0`} />{label && <text x={x + 27 * scale} y={y - 18 * scale} textAnchor="middle" stroke="none" fill="var(--ink)">{label}</text>}</g>;
 }

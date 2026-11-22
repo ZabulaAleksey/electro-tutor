@@ -3,6 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import CircuitEditor from "../../../circuit/CircuitEditor";
 import { circuitCopy } from "../../../circuit/copy";
 import { getLocale } from "../../../i18n";
+import { localePath } from "../../../site-path";
 import type { Language } from "../../../types";
 
 export function getStaticPaths() {
@@ -14,4 +15,24 @@ const copy = circuitCopy(language);
 <BaseLayout title={`${copy.title} · ${getLocale(language).brand.display}`} description={copy.description}
   language={language} active="interactive" alternatePath="/interactive/circuit-editor/">
   <CircuitEditor client:load language={language} />
+  <div class="topology-mode-entry">
+    <a data-topology-mode-link href={localePath(language, "/interactive/circuit-editor/topology/")}>
+      {language === "ru" ? "Топологический режим" : "Топологічний режим"}
+    </a>
+  </div>
 </BaseLayout>
+
+<style>
+  .topology-mode-entry {
+    max-inline-size: 86rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 3vw, 2.25rem);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .topology-mode-entry a {
+    min-block-size: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+</style>

@@ -48,6 +48,7 @@
       "specs/features/ai-native-tutoring-platform.spec.md"
     ],
     "backlog_spec_files": [
+      "specs/features/lab-reconstruction.spec.md",
       "specs/features/live-tutoring-session.spec.md"
     ],
     "architecture_baseline_requirement_ids": [
@@ -78,6 +79,21 @@
       "PLAT-002"
     ],
     "future_backlog_requirement_ids": [
+      "FR-601",
+      "FR-602",
+      "FR-603",
+      "FR-604",
+      "FR-605",
+      "FR-606",
+      "FR-607",
+      "FR-608",
+      "FR-609",
+      "FR-610",
+      "FR-611",
+      "FR-612",
+      "FR-613",
+      "FR-614",
+      "FR-615",
       "AI-001",
       "AI-002",
       "AI-003",
@@ -128,6 +144,222 @@
     "UNAVAILABLE"
   ],
   "rows": [
+    {
+      "requirement_ids": [
+        "FR-601",
+        "FR-602",
+        "FR-603",
+        "FR-604"
+      ],
+      "domain": "Топология и рабочее поле лабораторий",
+      "code": [
+        "src/circuit/topology.ts",
+        "src/circuit/parallel-regions.ts",
+        "src/circuit/rlc-reduction.ts",
+        "src/circuit/CircuitEditor.tsx",
+        "src/circuit/topology-session.ts",
+        "src/circuit/topology-slots.ts",
+        "src/circuit/topology-equivalence.ts",
+        "src/circuit/topology-layout.ts",
+        "src/circuit/TopologyWorkbench.tsx",
+        "src/circuit/use-topology-viewport.ts"
+      ],
+      "unit": [
+        "src/circuit/topology-contract.test.ts",
+        "src/circuit/rlc-reduction.test.ts",
+        "src/circuit/topology-slots.test.ts",
+        "src/circuit/topology-equivalence.test.ts",
+        "src/circuit/topology-layout.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/topology-stage-2.test.ts"
+      ],
+      "e2e": [
+        "tests/e2e/circuit-editor.spec.ts",
+        "tests/e2e/circuit-parallel.spec.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
+      ],
+      "runtime": "Ядро с принятым E3 доступно на отдельной RU/UK SVG-площадке свободного редактора.",
+      "security": "Атомарные команды, версия и проверка импортируемого графа.",
+      "a11y": "Клавиатура, touch и зоны слотов проверяются в новом режиме.",
+      "observability": "Диагностика отклонённых слотов и бюджет layout.",
+      "gap": "Площадка этапа 3, A и B приняты. Выбор места вставки на схеме проверен в D.",
+      "status": "PLANNED",
+      "action": "Ручная приёмка D в ET-LABR-006; следующие лаборатории на своих этапах."
+    },
+    {
+      "requirement_ids": [
+        "FR-605",
+        "FR-606",
+        "FR-607",
+        "FR-608"
+      ],
+      "domain": "Переходная и синусоидальная линии",
+      "code": [
+        "src/components/TransmissionNetworkLab.tsx",
+        "src/steady-line/circuit-mode.ts",
+        "src/transient/network.worker.ts",
+        "src/steady-line/experiment-solver.ts",
+        "src/components/SteadyExperimentLab.tsx"
+      ],
+      "unit": ["src/transient/line-experiment.test.ts", "src/steady-line/experiment-solver.test.ts"],
+      "integration": [],
+      "e2e": [
+        "tests/e2e/transmission-line.spec.ts",
+        "tests/e2e/transmission-line-steady.spec.ts",
+        "tests/lab-acceptance/line-experiment.e2e.ts",
+        "tests/lab-acceptance/steady-experiment.e2e.ts"
+      ],
+      "runtime": "Локальные отдельные A и B доступны из каталога. A использует существующий Worker, B — узловой расчёт комплексных волн.",
+      "security": "Ограниченный архив и локальный расчёт.",
+      "a11y": "Проверка двух экранов A и координатного управления B.",
+      "observability": "Состояние Worker и разрывы графика у полюсов.",
+      "gap": "A и B приняты владельцем. Изменение зачёркнутого элемента A отложено.",
+      "status": "PLANNED",
+      "action": "ET-LABR-004/005, E5/E6/E11/E12."
+    },
+    {
+      "requirement_ids": [
+        "FR-609"
+      ],
+      "domain": "Экспериментальная линия C",
+      "code": ["src/variable-line/profiles.ts", "src/variable-line/circuit.ts", "src/variable-line/solver.ts", "src/variable-line/variable-line.worker.ts", "src/components/VariableLineLab.tsx"],
+      "unit": ["src/variable-line/profiles.test.ts", "src/variable-line/circuit.test.ts"],
+      "integration": ["scripts/eval-variable-line-architecture.py", "src/variable-line/solver.test.ts"],
+      "e2e": ["tests/lab-acceptance/variable-line-experiment.e2e.ts"],
+      "runtime": "Локальный RU/UK опыт C запускает неявный расчёт предписанных RLGC(x,t) по принятому ADR-064.",
+      "security": "Контракт Worker ограничивает профили, шаг, память и объём результата.",
+      "a11y": "Провода выбираются на схеме клавишей или касанием. Прогресс и причина отказа доступны текстом.",
+      "observability": "Эпюры, ведомость энергии, нормированный остаток, прогресс и диагностические коды.",
+      "gap": "Ручная приёмка 7B и аппаратные измерения ожидаются. Релизный контракт относится к интеграции реконструкции.",
+      "status": "PLANNED",
+      "action": "Ручная приёмка ET-LABR-007B, E5/E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-610"
+      ],
+      "domain": "LC-двухполюсник D",
+      "code": [
+        "src/circuit/reactive-lc-mode.ts",
+        "src/circuit/lc-experiment.ts"
+      ],
+      "unit": ["src/circuit/lc-experiment.test.ts"],
+      "integration": ["src/models/reactive-lc-graph.test.ts", "src/circuit/reactive-lc-simplification.test.ts"],
+      "e2e": [
+        "tests/e2e/reactive-lc-graph.spec.ts",
+        "tests/lab-acceptance/lc-experiment.e2e.ts"
+      ],
+      "runtime": "D локально доступна из каталога с общим SVG и точным переносом.",
+      "security": "Ограничение и проверка локальных LC-архивов.",
+      "a11y": "Прямой выбор места на схеме, клавиатурный фокус и касания.",
+      "observability": "Нули, полюса, пределы и диагностика импорта.",
+      "gap": "Этап 6 принят владельцем в локальном треке. Статус релизного контракта FR-610 определяется при интеграции реконструкции.",
+      "status": "PLANNED",
+      "action": "ET-LABR-006, E2/E7/E11."
+    },
+    {
+      "requirement_ids": [
+        "FR-611"
+      ],
+      "domain": "Базисные разложения сигнала и контура",
+      "code": ["src/fourier/basis-experiment.ts", "src/fourier/basis-experiment-math.ts", "src/components/BasisExperimentLab.tsx"],
+      "unit": ["src/fourier/basis-experiment-math.test.ts"],
+      "integration": ["src/fourier/basis-experiment.test.ts"],
+      "e2e": ["tests/lab-acceptance/basis-experiment.e2e.ts", "tests/e2e/fourier-lab.spec.ts"],
+      "runtime": "Локальная лаборатория E сравнивает восемь адаптеров на одной сетке. Fourier Sketch обслуживает старый маршрут.",
+      "security": "Ограниченная грамматика формул и проверенный JSON v1 с лимитом байтов и точек.",
+      "a11y": "Подписанные настройки, фаза и таблицы, рисование мышью и касанием, управляемая анимация.",
+      "observability": "Коэффициенты, вклад, RMS/max, число активных членов, нормировки и граничная конвенция.",
+      "gap": "Этап E принят владельцем. Релизный контракт относится к интеграции реконструкции.",
+      "status": "PLANNED",
+      "action": "ET-LABR-008, E8/E11–E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-612"
+      ],
+      "domain": "Многоугольная аппроксимация",
+      "code": [
+        "src/components/PolygonMotionLab.tsx",
+        "src/fourier/polygon-motion-math.ts",
+        "src/fourier/polygon-motion-input.ts",
+        "src/fourier/polygon-motion-svg.ts"
+      ],
+      "unit": ["src/fourier/polygon-motion-math.test.ts"],
+      "integration": ["src/fourier/polygon-motion-input.test.ts"],
+      "e2e": [
+        "tests/lab-acceptance/polygon-motion.e2e.ts"
+      ],
+      "runtime": "Локальный RU/UK маршрут F подбирает и визуализирует движения на 128 отсчётах.",
+      "security": "Импорт одного профиля SVG и ограниченного JSON. Активная разметка и ссылки отклоняются.",
+      "a11y": "Подписанные органы редактирования, клавиши фазы, рисование касанием, reduced motion.",
+      "observability": "RMS/max, коэффициенты, фиксированный seed, вклад и диагностические ошибки.",
+      "gap": "Лаборатория F принята владельцем. Релизный контракт относится к интеграции реконструкции.",
+      "status": "PLANNED",
+      "action": "ET-LABR-009, E9/E11–E13."
+    },
+    {
+      "requirement_ids": [
+        "FR-613"
+      ],
+      "domain": "Численная осуществимость качения",
+      "code": ["src/rolling/feasibility.mjs", "src/rolling/geometry.mjs", "src/rolling/replay.mjs"],
+      "unit": ["src/rolling/feasibility.test.mjs"],
+      "integration": ["scripts/rolling-e10.mjs"],
+      "e2e": ["src/rolling/consumer.test.mjs"],
+      "runtime": "Локальный Node CLI принимает JSON-след и выдаёт геометрию, позы и проверку контакта.",
+      "security": "Обычный UTF-8 файл до 32 КиБ, валидация чисел и пределов работы до расчёта.",
+      "a11y": "Текстовый вывод JSON с кодами диагностики.",
+      "observability": "Нормированные ошибки скорости и следа, просвет, точный обратный эталон и сходимость.",
+      "gap": "Владелец принял осуществимость конечного управляемого качения для выбранного класса.",
+      "status": "PLANNED",
+      "action": "ET-LABR-010A, E10."
+    },
+    {
+      "requirement_ids": [
+        "FR-614"
+      ],
+      "domain": "Траектоид",
+      "code": ["src/components/RollingLab.tsx", "src/rolling/rolling.worker.ts", "src/rolling/lab-model.ts", "src/rolling/rolling-mesh.ts", "src/rolling/webgl-view.ts"],
+      "unit": ["src/rolling/lab-model.test.ts", "src/rolling/rolling-mesh.test.ts"],
+      "integration": ["src/rolling/consumer.test.mjs"],
+      "e2e": ["tests/lab-acceptance/rolling-lab.e2e.ts"],
+      "runtime": "RU/UK маршрут с фоновым расчётом и кэшированными позами, WebGL, 2D и OBJ/JSON.",
+      "security": "JSON v1 до 64 КиБ, ограниченный штрих, валидированные параметры и локальный Worker.",
+      "a11y": "Клавиатурные кнопки камеры и плеера, время в секундах, 2D и текстовые метрики.",
+      "observability": "Этапы прогресса, остаток скорости, просвет, ошибка следа и число граней.",
+      "gap": "Владелец принял G. Повторная проверка на физическом устройстве входит в приёмку всего выпуска.",
+      "status": "PLANNED",
+      "action": "ET-LABR-010B, E10–E13. Приёмка выпуска в ET-LABR-011."
+    },
+    {
+      "requirement_ids": [
+        "FR-615"
+      ],
+      "domain": "Harness реконструкции",
+      "code": [
+        "scripts/full-verify.mjs",
+        "playwright.lab-acceptance.config.ts",
+        ".github/workflows/pages.yml",
+        "scripts/lab-eval.mjs",
+        "playwright.lab-eval.config.ts",
+        ".github/workflows/lab-eval.yml"
+      ],
+      "unit": [],
+      "integration": [],
+      "e2e": [
+        "tests/lab-eval/matched-line.e2e.ts",
+        "tests/lab-acceptance/lab-directory-routes.e2e.ts"
+      ],
+      "runtime": "Live Worker в учебной сборке, актуальные и совместимые маршруты в RU/UK, полный выпускной контур.",
+      "security": "Локальная квалификация и обязательные gates перед отдельным решением о публикации.",
+      "a11y": "Desktop/mobile и реальное устройство в приёмке.",
+      "observability": "Первый E5 сохраняет JSON, SHA, seed, время, результаты, снимки и traces.",
+      "gap": "Ручная приёмка LABR-UA-11 и отдельное решение LABR-PUB-11. Размещённые smoke после разрешённого выпуска.",
+      "status": "PLANNED",
+      "action": "ET-LABR-001/011, E1–E13."
+    },
     {
       "requirement_ids": [
         "SHOW-008",

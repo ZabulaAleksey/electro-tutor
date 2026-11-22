@@ -30,13 +30,16 @@ test("laboratory catalogue keeps real tool links and honest services state", asy
 
 test("laboratory catalogue opens the actual selected electrical model", async ({ page }) => {
   await page.goto("/ru/");
-  const link = page.locator("#labs a[href$='/interactive/transmission-line/']");
+  const experiment = "/ru/interactive/transmission-line/experiment/";
+  const link = page.locator(`#labs a[data-registered-content][href="${experiment}"]`);
   await expect(link).toBeVisible();
   await link.click();
-  await expect(page).toHaveURL("/ru/interactive/transmission-line/");
-  const lab = page.locator("[data-network-lab]");
-  await expect(lab).toHaveAttribute("data-calculation-ready", "true");
+  await expect(page).toHaveURL(experiment);
+  await page.locator('astro-island:not([ssr]) [data-line-section="TL1"]').click();
+  await expect(page.locator("[data-line-a-results]")).toHaveAttribute("data-calculation-ready", "true");
 
+  await page.goto("/ru/interactive/transmission-line/");
+  await expect(page.locator("[data-network-lab]")).toHaveAttribute("data-calculation-ready", "true");
 });
 
 test("catalogue links fit on a phone and remain stable under either OS appearance", async ({ page }) => {

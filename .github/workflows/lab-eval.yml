@@ -1,0 +1,74 @@
+name: Verify ElectroTutor lab eval
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+        with:
+          runtime: node@22.23.4
+          cache: true
+          install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify topology commands and JSON roundtrip
+        run: pnpm eval:topology
+
+      - name: Verify rolling feasibility and independent references
+        run: |
+          node scripts/rolling-feasibility.mjs --eval
+          pnpm exec vitest run src/rolling
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Verify lab eval and deliberate rejection
+        run: pnpm eval:labs --check-rejection
+
+      - name: Build and verify topology and laboratory experiments
+        env:
+          ASTRO_PREVIEW_BACKGROUND: "0"
+          PUBLIC_EDUCATION_MODE: "true"
+        run: |
+          pnpm build
+          pnpm exec playwright test --config playwright.lab-acceptance.config.ts
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: electro-tutor-lab-eval
+          path: |
+            playwright-report/lab-eval/
+            test-results/lab-directory-routes*/
+            test-results/topology-workbench*/
+            test-results/line-experiment*/
+            test-results/steady-experiment*/
+            test-results/lc-experiment*/
+            test-results/variable-line-experiment*/
+            test-results/basis-experiment*/
+            test-results/polygon-motion*/
+            test-results/rolling-lab*/
+            test-results/power-system-custom-study*/
+            test-results/transient-playback-layout*/
+            test-results/transmission-line-glyph*/
+          if-no-files-found: warn
+          retention-days: 7

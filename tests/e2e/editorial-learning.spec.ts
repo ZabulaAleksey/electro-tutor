@@ -11,7 +11,7 @@ for (const language of ["ru", "uk"] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(home);
       await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-      const expected = ["star-neutral", "transmission-line", "beam", "fourier", "circular-diagram"]
+      const expected = ["star-neutral", "transmission-line/experiment", "beam", "fourier", "circular-diagram"]
         .map(slug => home + "interactive/" + slug + "/");
       const cards = page.locator("#labs [data-directory-entry]");
       await expect(cards).toHaveCount(5);

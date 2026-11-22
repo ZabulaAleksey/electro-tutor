@@ -9,8 +9,8 @@ interface Props { language: Language; home?: boolean }
 const { language, home = false } = Astro.props;
 const title = language === "ru" ? "Лаборатории" : "Лабораторії";
 const electricalLinks = [
-  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id === "steady") ?? []),
-  ...(catalogueItems.find(lab => lab.id === "advanced:reactive-two-port")?.variants?.filter(variant => variant.id === "graph") ?? []),
+  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id !== "reference") ?? []),
+  ...(catalogueItems.find(lab => lab.id === "advanced:reactive-two-port")?.variants ?? []),
   ...catalogueItems.filter(lab => lab.id === "advanced:power-system" && lab.available),
 ];
 ---
@@ -29,6 +29,8 @@ const electricalLinks = [
         <div aria-hidden="true"><TopicCover kind={lab.visual} /></div>
         <h3><a href={href} data-registered-content={href}>{lab.title[language]}</a></h3>
         {lab.description && <p>{lab.description[language]}</p>}
+        {!home && lab.id === "advanced:fourier" && lab.variants?.map(variant =>
+          <a class="lab-directory-variant" href={localePath(language, variant.href)}>{variant.title[language]}</a>)}
       </li>;
     })}
   </ul>
@@ -40,5 +42,6 @@ const electricalLinks = [
   .lab-directory-card { padding: .8rem; }
   .lab-directory-card h3 { margin: .8rem 0 .25rem; font-size: 1.05rem; }
   .lab-directory-card h3 a { display: inline-block; padding-block: .35rem; }
+  .lab-directory-variant { display: flex; width: fit-content; align-items: center; min-height: 44px; }
   .lab-directory-card :global(.topic-cover) { width: 100%; height: 6rem; }
 </style>

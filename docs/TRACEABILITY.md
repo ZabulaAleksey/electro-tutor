@@ -10,6 +10,64 @@ CE-012 → Circuit Engine SPEC → editor-mode, CircuitEditor, transient/circuit
 
 CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.
 
+## Реконструкция лабораторий ET-LABR
+
+[FR-601–615](../specs/features/lab-reconstruction.spec.md#матрица-требований-и-исходного-покрытия)
+связаны с существующими модулями, целевыми этапами и [E1–E13](TESTING.md#план-проверок-e1e13).
+Исходное покрытие — в [отчёте этапа 0](evidence/lab-reconstruction-stage-0.md).
+FR-615, этап 1 → [скрипт запуска](../scripts/lab-eval.mjs) и [workflow](../.github/workflows/lab-eval.yml)
+→ [эталон E5](../tests/lab-eval/matched-line-reference.ts) → [Chromium eval](../tests/lab-eval/matched-line.e2e.ts)
+→ [проверки и ручная приёмка](TESTING.md#et-labr-001--браузерный-eval-длинной-линии).
+FR-601/602 → [поиск и применение слотов](../src/circuit/topology-slots.ts) и [команды/JSON](../src/circuit/topology-session.ts)
+→ topology-slots.test.ts и [проверка E1/E3/E11](../tests/topology-eval/topology-stage-2.test.ts).
+FR-603 → [охраняемая редукция и перенос](../src/circuit/topology-equivalence.ts)
+→ topology-equivalence.test.ts и прежние RLC-тесты.
+[Карта 1–10 / 1–14](../tests/topology-eval/stage-2-proposed.json) утверждена как эталон E3.
+FR-604 → [SVG-компоновка](../src/circuit/topology-layout.ts), [площадка](../src/circuit/TopologyWorkbench.tsx)
+и [управление видом](../src/circuit/use-topology-viewport.ts) → topology-layout.test.ts
+и [браузерный E4](../tests/lab-acceptance/topology-workbench.e2e.ts).
+FR-604–606 → [редактор A](../src/components/LineExperimentEditor.tsx),
+[адаптация опыта](../src/transient/line-experiment.ts) и
+[эпюры выбранной секции](../src/components/LineExperimentResults.tsx) →
+[line-experiment.test.ts](../src/transient/line-experiment.test.ts) и
+[Chromium E11/E12](../tests/lab-acceptance/line-experiment.e2e.ts).
+FR-604/607/608 → [синусоидальная лаборатория](../src/components/SteadyExperimentLab.tsx),
+[решатель B](../src/steady-line/experiment-solver.ts) и
+[эпюры и фазоры](../src/components/SteadyExperimentResults.tsx) →
+[аналитические эталоны E6](../src/steady-line/experiment-solver.test.ts)
+и [Chromium E6/E12](../tests/lab-acceptance/steady-experiment.e2e.ts).
+FR-603/604/610 → [LC-адаптер и перенос](../src/circuit/lc-experiment.ts),
+[общий SVG](../src/components/LineExperimentEditor.tsx) и
+[лаборатория D](../src/components/LcExperimentLab.tsx) →
+[аналитический E7](../src/circuit/lc-experiment.test.ts) и
+[Chromium E7/E11](../tests/lab-acceptance/lc-experiment.e2e.ts).
+FR-609 → [контракт 7A](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-7a--fr-609)
+→ [ADR-064](DECISIONS.md#adr-064--экспериментальная-переменная-линия-и-численные-проверки)
+→ [CLI сравнительного эталона](../scripts/eval-variable-line-architecture.py)
+→ [E5 и численная часть E13](TESTING.md#et-labr-007a--архитектурная-развилка-c).
+FR-609, 7B → [профили и сетка](../src/variable-line/profiles.ts), [слоты C](../src/variable-line/circuit.ts),
+[неявный решатель](../src/variable-line/solver.ts) и [Worker](../src/variable-line/variable-line.worker.ts)
+→ [аналитические тесты](../src/variable-line/solver.test.ts) и [Chromium E5/E13](../tests/lab-acceptance/variable-line-experiment.e2e.ts).
+FR-611 → [реестр E](../src/fourier/basis-experiment-math.ts), [источники и архив](../src/fourier/basis-experiment.ts)
+→ [E8](../src/fourier/basis-experiment-math.test.ts), [проверка архива](../src/fourier/basis-experiment.test.ts)
+и [Chromium E11–E13](../tests/lab-acceptance/basis-experiment.e2e.ts).
+FR-612 → [расчёт F](../src/fourier/polygon-motion-math.ts), [вход и архив](../src/fourier/polygon-motion-input.ts)
+и [SVG](../src/fourier/polygon-motion-svg.ts) → [численный E9](../src/fourier/polygon-motion-math.test.ts)
+и [Chromium E9/E11–E13](../tests/lab-acceptance/polygon-motion.e2e.ts).
+FR-613 → [контракт 10A](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-10a--fr-613)
+→ [обратная геометрия](../src/rolling/feasibility.mjs) и [прямой проход](../src/rolling/replay.mjs)
+→ [независимый E10](../scripts/rolling-e10.mjs), [unit](../src/rolling/feasibility.test.mjs)
+и [E2E CLI](../src/rolling/consumer.test.mjs) → [метрики и ручная приёмка](TESTING.md#et-labr-010a--численная-осуществимость-качения).
+FR-614 → [контракт 10B](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-10b--fr-614)
+→ [Worker](../src/rolling/rolling.worker.ts), [модель входа](../src/rolling/lab-model.ts),
+[сетка](../src/rolling/rolling-mesh.ts), [WebGL](../src/rolling/webgl-view.ts)
+→ [проверки входа](../src/rolling/lab-model.test.ts), [проверки сетки](../src/rolling/rolling-mesh.test.ts)
+и [Chromium E10–E13](../tests/lab-acceptance/rolling-lab.e2e.ts).
+FR-615, этап 11 → [контракт интеграции](../specs/features/lab-reconstruction.spec.md#приёмочный-контракт-этапа-11--fr-615)
+→ [проверка актуальных и прежних маршрутов](../tests/lab-acceptance/lab-directory-routes.e2e.ts),
+[полный lab-acceptance](../.github/workflows/lab-eval.yml) и [verify:full](../scripts/full-verify.mjs)
+→ [чек-лист кандидата](TESTING.md#et-labr-011--интеграционная-и-релизная-проверка).
+
 ## ET-LAB-022
 
 LINE-UX-030..033 → transmission-line-transient SPEC → engineering/handwriting, CircuitEditor и useLineOperations, network-routing, network-ink, network.ts and document history → handwriting.test.ts, network-ink.test.ts, network-current-source.test.ts and transmission-handwriting.spec.ts.

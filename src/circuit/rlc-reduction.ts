@@ -19,6 +19,10 @@ export type RlcReduction =
 type Branch = { component: CircuitComponent; nodes: number[] };
 type Passive = Branch & { nodes: [number, number]; kind: Kind; value: number; initial: number; scheduled: boolean };
 type Pair = { a: Passive; b: Passive; shared?: number };
+type ReductionOptions = {
+  observedEndpoints: readonly string[];
+  eligible: (component: CircuitComponent) => boolean;
+};
 
 function passive(branch: Branch): Passive | undefined {
   const { component, nodes } = branch;
@@ -33,12 +37,17 @@ function passive(branch: Branch): Passive | undefined {
   return { ...branch, nodes: [nodes[0], nodes[1]], kind, value, initial, scheduled };
 }
 
-function* pairs(branches: Branch[]): Iterable<Pair> {
+function* pairs(
+  branches: Branch[],
+  protectedNodes: ReadonlySet<number>,
+  eligible?: ReductionOptions["eligible"],
+): Iterable<Pair> {
   const incidence = new Map<number, number>();
   for (const { nodes } of branches) {
     for (const node of nodes) incidence.set(node, (incidence.get(node) ?? 0) + 1);
   }
   const available = branches.flatMap(branch => {
+    if (branch.nodes.some(node => protectedNodes.has(node)) || eligible && !eligible(branch.component)) return [];
     const item = passive(branch);
     return item && !item.scheduled && item.nodes[0] !== item.nodes[1] ? [item] : [];
   });
@@ -99,9 +108,15 @@ function equivalent({ a, b, shared }: Pair): { nodes: number[]; initial: number;
 }
 
 /** Derive a smaller calculation topology while leaving the user's topology intact. */
-export function reduceRlc(topology: CircuitTopology): RlcReduction {
+export function reduceRlc(topology: CircuitTopology, options?: ReductionOptions): RlcReduction {
   const originalNets = netlist(topology);
   const membership = new Map(originalNets.flatMap((net, index) => net.map(id => [id, index] as const)));
+  const protectedNodes = new Set<number>();
+  for (const endpoint of options?.observedEndpoints ?? []) {
+    const node = membership.get(endpoint);
+    if (node === undefined) throw Error("unknown-observed-endpoint");
+    protectedNodes.add(node);
+  }
   let branches = topology.components.map(component => ({
     component, nodes: component.terminals.map(id => membership.get(id)!),
   }));
@@ -118,7 +133,7 @@ export function reduceRlc(topology: CircuitTopology): RlcReduction {
 
   for (;;) {
     let changed = false;
-    for (const pair of pairs(branches)) {
+    for (const pair of pairs(branches, protectedNodes, options?.eligible)) {
       const reduced = equivalent(pair);
       if (!reduced) continue;
       const aId = pair.a.component.id, bId = pair.b.component.id;
@@ -141,11 +156,15 @@ export function reduceRlc(topology: CircuitTopology): RlcReduction {
 
   if (!equivalents.size) return { ok: true, topology, equivalents };
   const deviceTerminals = new Set(topology.components.flatMap(component => component.terminals));
-  const junctions = originalNets.filter(net => net.every(id => !deviceTerminals.has(id))).map(net => net[0]);
+  const junctions = originalNets.flatMap((net, index) => {
+    if (protectedNodes.has(index)) return net.filter(id => !deviceTerminals.has(id));
+    return net.every(id => !deviceTerminals.has(id)) ? [net[0]] : [];
+  });
   const firstInNet = new Map<number, string>();
-  const wires: { id: string; from: string; to: string }[] = [];
+  const wires = topology.wires.filter(wire => protectedNodes.has(membership.get(wire.from)!));
   for (const { component, nodes } of branches) {
     for (const [i, terminal] of component.terminals.entries()) {
+      if (protectedNodes.has(nodes[i])) continue;
       const from = firstInNet.get(nodes[i]);
       if (from === undefined) firstInNet.set(nodes[i], terminal);
       else wires.push({ id: allocate("rlcConnection"), from, to: terminal });

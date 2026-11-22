@@ -1,0 +1,173 @@
+.steady-experiment-results {
+  --steady-forward: var(--error);
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.steady-experiment-readings,
+.steady-experiment-plot,
+.steady-experiment-phasors {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-elevated);
+  padding: .85rem;
+  min-width: 0;
+}
+
+.steady-experiment-readings-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .65rem 1rem;
+}
+
+.steady-experiment-readings h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+}
+
+.steady-experiment-readings form label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .75rem;
+  font-weight: 650;
+}
+
+.steady-experiment-readings input {
+  width: 8.5rem;
+  max-width: 100%;
+  min-height: 44px;
+  padding: .4rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+}
+
+.steady-experiment-readings dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.2rem), 1fr));
+  gap: .5rem .8rem;
+  margin: .9rem 0 0;
+}
+
+.steady-experiment-readings dl div {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: .6rem;
+  min-width: 0;
+}
+
+.steady-experiment-readings dt {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.steady-experiment-readings dd {
+  margin: .15rem 0 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.steady-experiment-readings p {
+  margin: .65rem 0 0;
+}
+
+.steady-experiment-density {
+  color: var(--muted);
+}
+
+.steady-experiment-results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.steady-experiment-epures,
+.steady-experiment-vectors {
+  display: grid;
+  gap: .75rem;
+  min-width: 0;
+}
+
+.steady-experiment-epures {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.steady-experiment-plot[data-steady-plot="power"] {
+  grid-column: 1 / -1;
+}
+
+.steady-experiment-plot h3 {
+  margin: 0 0 .25rem;
+  font-size: 1rem;
+}
+
+.steady-experiment-plot svg {
+  display: block;
+  width: 100%;
+  max-height: 215px;
+}
+
+.steady-experiment-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .65rem;
+  font-size: .8rem;
+}
+
+.steady-experiment-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.steady-experiment-legend i {
+  display: inline-block;
+  width: .95rem;
+  border-top: 2px solid;
+}
+
+.steady-experiment-phasors {
+  display: grid;
+  gap: .3rem;
+  margin: 0;
+}
+
+.steady-experiment-phasors figcaption {
+  font-weight: 700;
+}
+
+.steady-experiment-phasors svg {
+  width: 100%;
+  max-height: 180px;
+  fill: var(--ink);
+  font-size: 10px;
+}
+
+.steady-experiment-phasors table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: .87rem;
+}
+
+.steady-experiment-phasors :is(th, td) {
+  text-align: start;
+  padding: .22rem .32rem;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (width <= 900px) {
+  .steady-experiment-results-grid { grid-template-columns: minmax(0, 1fr); }
+  .steady-experiment-vectors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (width <= 580px) {
+  .steady-experiment-epures, .steady-experiment-vectors { grid-template-columns: minmax(0, 1fr); }
+}

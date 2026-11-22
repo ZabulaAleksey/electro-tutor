@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import TopologyWorkbench from "../../../../circuit/TopologyWorkbench";
+import { getLocale } from "../../../../i18n";
+import { localePath } from "../../../../site-path";
+import type { Language } from "../../../../types";
+import reference from "../../../../../tests/topology-eval/stage-2-proposed.json";
+
+export function getStaticPaths() {
+  return ["ru", "uk"].map(lang => ({ params: { lang } }));
+}
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const title = ru ? "Топологическая схема" : "Топологічна схема";
+const description = ru
+  ? "Лабораторный режим с автоматической компоновкой электрических схем."
+  : "Лабораторний режим з автоматичним компонуванням електричних схем.";
+const alternatePath = "/interactive/circuit-editor/topology/";
+---
+<BaseLayout title={`${title} · ${getLocale(language).brand.display}`} description={description}
+  language={language} active="interactive" alternatePath={alternatePath}>
+  <div class="topology-lab-page">
+    <a class="topology-back-link" href={localePath(language, "/interactive/circuit-editor/")}>
+      {ru ? "← Свободный редактор" : "← Вільний редактор"}
+    </a>
+    <TopologyWorkbench client:load language={language} referenceJson={JSON.stringify(reference.document)} />
+  </div>
+</BaseLayout>
+
+<style>
+  .topology-lab-page {
+    max-inline-size: 86rem;
+    margin-inline: auto;
+    padding: clamp(1rem, 3vw, 2.25rem);
+    min-inline-size: 0;
+  }
+  .topology-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    margin-block-end: .5rem;
+  }
+</style>

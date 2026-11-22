@@ -1,0 +1,331 @@
+{
+  "status": "proposed-replacement-fixture",
+  "source": "Illustrative circuit for Stage 2. The original numbered drawings are unavailable.",
+  "schemaVersion": 1,
+  "document": {
+    "kind": "electrotutor-topology-lab",
+    "schemaVersion": 1,
+    "topology": {
+      "components": [
+        {
+          "id": "J1",
+          "kind": "current",
+          "terminals": [
+            "J1:a",
+            "J1:b"
+          ],
+          "parameters": {
+            "currentA": 1
+          }
+        },
+        {
+          "id": "R1",
+          "kind": "r",
+          "terminals": [
+            "R1:a",
+            "R1:b"
+          ],
+          "parameters": {
+            "ohm": 25
+          }
+        },
+        {
+          "id": "L1",
+          "kind": "l",
+          "terminals": [
+            "L1:a",
+            "L1:b"
+          ],
+          "parameters": {
+            "henry": 0.01
+          }
+        },
+        {
+          "id": "TL1",
+          "kind": "line",
+          "terminals": [
+            "TL1:a",
+            "TL1:b"
+          ],
+          "parameters": {
+            "lengthM": 500000,
+            "impedanceOhm": 50,
+            "velocityMS": 200000000
+          }
+        },
+        {
+          "id": "TL2",
+          "kind": "line",
+          "terminals": [
+            "TL2:a",
+            "TL2:b"
+          ],
+          "parameters": {
+            "lengthM": 500000,
+            "impedanceOhm": 50,
+            "velocityMS": 200000000
+          }
+        },
+        {
+          "id": "C1",
+          "kind": "c",
+          "terminals": [
+            "C1:a",
+            "C1:b"
+          ],
+          "parameters": {
+            "farad": 0.0001
+          }
+        },
+        {
+          "id": "Rtap",
+          "kind": "r",
+          "terminals": [
+            "Rtap:a",
+            "Rtap:b"
+          ],
+          "parameters": {
+            "ohm": 100
+          }
+        }
+      ],
+      "junctions": [
+        "tap",
+        "return"
+      ],
+      "wires": [
+        {
+          "id": "w-source",
+          "from": "J1:b",
+          "to": "R1:a"
+        },
+        {
+          "id": "w-r-l",
+          "from": "R1:b",
+          "to": "L1:a"
+        },
+        {
+          "id": "w-before-line",
+          "from": "L1:b",
+          "to": "TL1:a"
+        },
+        {
+          "id": "w-before-tap",
+          "from": "TL1:b",
+          "to": "tap"
+        },
+        {
+          "id": "w-between-lines",
+          "from": "tap",
+          "to": "TL2:a"
+        },
+        {
+          "id": "w-branch",
+          "from": "tap",
+          "to": "Rtap:a"
+        },
+        {
+          "id": "w-after-lines",
+          "from": "TL2:b",
+          "to": "C1:a"
+        },
+        {
+          "id": "w-return-c",
+          "from": "C1:b",
+          "to": "return"
+        },
+        {
+          "id": "w-return-r",
+          "from": "Rtap:b",
+          "to": "return"
+        },
+        {
+          "id": "w-return-source",
+          "from": "J1:a",
+          "to": "return"
+        }
+      ]
+    },
+    "observedEndpoints": [
+      "J1:a"
+    ],
+    "attachmentSides": []
+  },
+  "reference10": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "reference14": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "slots": [
+    {
+      "number": 1,
+      "kind": "series",
+      "wireId": "w-source",
+      "ends": [
+        "J1:b",
+        "R1:a"
+      ]
+    },
+    {
+      "number": 2,
+      "kind": "series",
+      "wireId": "w-r-l",
+      "ends": [
+        "R1:b",
+        "L1:a"
+      ]
+    },
+    {
+      "number": 3,
+      "kind": "series",
+      "wireId": "w-before-line",
+      "ends": [
+        "L1:b",
+        "TL1:a"
+      ]
+    },
+    {
+      "number": 4,
+      "kind": "series",
+      "wireId": "w-between-lines",
+      "ends": [
+        "tap",
+        "TL2:a"
+      ]
+    },
+    {
+      "number": 5,
+      "kind": "series",
+      "wireId": "w-after-lines",
+      "ends": [
+        "TL2:b",
+        "C1:a"
+      ]
+    },
+    {
+      "number": 6,
+      "kind": "series",
+      "wireId": "w-branch",
+      "ends": [
+        "tap",
+        "Rtap:a"
+      ]
+    },
+    {
+      "number": 7,
+      "kind": "cross",
+      "ends": [
+        "J1:b",
+        "TL2:b"
+      ]
+    },
+    {
+      "number": 8,
+      "kind": "parallel",
+      "componentIds": [
+        "TL1"
+      ],
+      "side": "left",
+      "ends": [
+        "TL1:a",
+        "TL1:b"
+      ]
+    },
+    {
+      "number": 9,
+      "kind": "parallel",
+      "componentIds": [
+        "TL2"
+      ],
+      "side": "left",
+      "ends": [
+        "TL2:a",
+        "TL2:b"
+      ]
+    },
+    {
+      "number": 10,
+      "kind": "parallel",
+      "componentIds": [
+        "C1"
+      ],
+      "side": "left",
+      "ends": [
+        "C1:a",
+        "C1:b"
+      ]
+    },
+    {
+      "number": 11,
+      "kind": "parallel",
+      "componentIds": [
+        "TL2"
+      ],
+      "side": "right",
+      "ends": [
+        "TL2:a",
+        "TL2:b"
+      ]
+    },
+    {
+      "number": 12,
+      "kind": "parallel",
+      "componentIds": [
+        "TL1"
+      ],
+      "side": "right",
+      "ends": [
+        "TL1:a",
+        "TL1:b"
+      ]
+    },
+    {
+      "number": 13,
+      "kind": "parallel",
+      "componentIds": [
+        "C1"
+      ],
+      "side": "right",
+      "ends": [
+        "C1:a",
+        "C1:b"
+      ]
+    },
+    {
+      "number": 14,
+      "kind": "parallel",
+      "componentIds": [
+        "R1",
+        "L1"
+      ],
+      "side": "right",
+      "ends": [
+        "R1:a",
+        "L1:b"
+      ]
+    }
+  ]
+}

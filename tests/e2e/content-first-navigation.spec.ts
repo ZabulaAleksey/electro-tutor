@@ -36,7 +36,7 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page).toHaveURL(`${home}interactive/`);
     const search = page.locator("#labs input[type=search]");
     await search.fill("Фур");
-    await expect(page.locator("#labs a[href*='/interactive/fourier/']")).toBeVisible();
+    await expect(page.locator(`#labs a[data-registered-content][href="${home}interactive/fourier/"]`)).toBeVisible();
     await expect(page.locator("#labs a[href*='/interactive/beam/']")).toBeHidden();
     await search.clear();
     const labLinks = await page.locator("#labs a[data-registered-content]").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));

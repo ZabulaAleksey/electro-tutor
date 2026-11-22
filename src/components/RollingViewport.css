@@ -1,0 +1,61 @@
+.rolling-viewport {
+  --rolling-view-target: #2154ae;
+  --rolling-view-contact: #b74620;
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: .7rem;
+}
+
+.rolling-viewport h2 { margin: 0; font-size: 1.18rem; }
+.rolling-viewport [hidden] { display: none; }
+
+.rolling-view-frame {
+  display: grid;
+  min-width: 0;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: .65rem;
+  background: var(--surface-canvas);
+}
+
+.rolling-view-frame > * { grid-area: 1 / 1; min-height: 0; }
+.rolling-view-canvas,
+.rolling-view-plane { display: block; width: 100%; height: 100%; }
+.rolling-view-canvas { cursor: grab; touch-action: none; }
+.rolling-view-canvas:active { cursor: grabbing; }
+.rolling-view-canvas:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
+.rolling-view-empty { place-self: center; margin: .85rem; text-align: center; color: var(--muted); }
+
+.rolling-view-plane polyline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.rolling-view-target { stroke: var(--rolling-view-target); stroke-width: 2.5; }
+.rolling-view-recovered { stroke: var(--rolling-view-contact); stroke-width: 2.3; stroke-dasharray: 4 6; }
+.rolling-view-contact { fill: var(--rolling-view-contact); stroke: var(--surface-elevated); stroke-width: 1.6; }
+
+.rolling-view-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .8rem;
+  color: var(--muted);
+  font-size: .8rem;
+}
+.rolling-view-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.rolling-view-legend span::before { width: 1rem; border-top: 2px solid var(--rolling-view-target); content: ""; }
+.rolling-view-legend .rolling-view-key-recovered::before { border-color: var(--rolling-view-contact); border-top-style: dotted; }
+.rolling-view-legend .rolling-view-key-contact::before {
+  width: .5rem;
+  height: .5rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--rolling-view-contact);
+}
+
+.rolling-view-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.rolling-view-actions button { min-width: 44px; min-height: 44px; touch-action: manipulation; }
+.rolling-view-note { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.45; }

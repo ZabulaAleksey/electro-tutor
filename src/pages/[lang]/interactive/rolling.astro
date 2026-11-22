@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import RollingLab from "../../../components/RollingLab";
+import { localePath } from "../../../site-path";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const title = ru ? "Качение тела по заданному следу" : "Кочення тіла за заданим слідом";
+const description = ru
+  ? "Рассчитайте форму тела по следу точки контакта и проследите его качение на плоскости."
+  : "Розрахуйте форму тіла за слідом точки контакту й простежте його кочення на площині.";
+---
+<BaseLayout {title} {description} {language} active="interactive" alternatePath="/interactive/rolling/">
+  <section class="rolling-page">
+    <a class="rolling-back" href={localePath(language, "/interactive/")}>{ru ? "← Лаборатории" : "← Лабораторії"}</a>
+    <h1>{title}</h1>
+    <RollingLab client:load {language} />
+  </section>
+</BaseLayout>
+
+<style>
+  .rolling-page { width: min(100% - 2rem, 82rem); margin: .8rem auto 3rem; }
+  .rolling-page h1 { margin: .35rem 0 1rem; font-size: clamp(1.5rem, 4vw, 2.65rem); line-height: 1.12; }
+  .rolling-back { display: inline-flex; align-items: center; min-height: 44px; }
+</style>

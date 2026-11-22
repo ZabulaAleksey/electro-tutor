@@ -27,7 +27,7 @@ function combine(a: LcTicks, b: LcTicks, summed: boolean): LcTicks {
   return { numerator: numerator / common, denominator: denominator / common };
 }
 
-function samePort(a: LcPortAnalysis, b: LcPortAnalysis) {
+export function sameLcPortResponse(a: LcPortAnalysis, b: LcPortAnalysis) {
   if (a.kind === "finite" && b.kind === "finite") {
     return (["numerator", "denominator"] as const).every(key =>
       a.impedance[key].length === b.impedance[key].length &&
@@ -38,11 +38,18 @@ function samePort(a: LcPortAnalysis, b: LcPortAnalysis) {
 
 export function simplifyReactiveDocument(document: string): SimplifiedLcGraph {
   const { drawing: { topology } } = parseCircuit(document);
+  return simplifyReactiveTopology(topology);
+}
+
+export function simplifyReactiveTopology(topology: CircuitTopology, observedEndpoints: readonly string[] = []): SimplifiedLcGraph {
   const original = splitReactivePort(topology);
   const originalAnalysis = analyzeLcTopology(original.topology, original.port);
   const zeroState: CircuitTopology = { ...topology, components: topology.components.map(part =>
     part.kind === "port" ? part : { ...part, parameters: { ...part.parameters, initial: 0 } }) };
-  const reduction = reduceRlc(zeroState);
+  const reduction = reduceRlc(zeroState, {
+    observedEndpoints: observedEndpoints.filter(endpoint => !original.port.includes(endpoint)),
+    eligible: () => true,
+  });
   if (!reduction.ok) throw Error("lc-simplification-conflict");
   const reduced = splitReactivePort(reduction.topology);
 
@@ -55,7 +62,7 @@ export function simplifyReactiveDocument(document: string): SimplifiedLcGraph {
     steps.push({ id, kind: kind === "l" ? "l" : "c", members: [members[0].id, members[1].id], connection });
   }
   const result = analyzeLcTopology(reduced.topology, reduced.port, part => values.get(part.id)!);
-  if (!samePort(originalAnalysis, result)) throw Error("lc-simplification-equivalence");
+  if (!sameLcPortResponse(originalAnalysis, result)) throw Error("lc-simplification-equivalence");
 
   const nodes = new Map(netlist(reduced.topology).flatMap((net, index) => {
     const label = net.includes(reduced.port[0]) ? reduced.port[0] : net.includes(reduced.port[1]) ? reduced.port[1] : "N" + (index + 1);

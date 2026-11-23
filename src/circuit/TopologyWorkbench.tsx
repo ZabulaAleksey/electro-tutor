@@ -13,8 +13,7 @@ const productParts = ["r", "l", "c", "voltage", "current", "switch-open", "switc
 type ProductPart = typeof productParts[number];
 const presets = ["e3", "1", "10", "50", "200"] as const;
 type Preset = typeof presets[number];
-const modes = ["parallel", "series", "cross"] as const;
-type Mode = typeof modes[number];
+type Mode = TopologySlot["kind"];
 type PickedSlot = Exclude<TopologySlot, { kind: "cross" }>;
 const pageSize = 24;
 
@@ -190,7 +189,6 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
   const actualContext = devices.has(context) ? context : graph.components[0]?.id ?? "";
   const actualFrom = nodes.has(from) ? from : endpoints[0] ?? "";
   const ends = endpoints.filter((endpoint) => nodes.get(endpoint) !== nodes.get(actualFrom));
-  const actualTo = ends.includes(to) ? to : ends[0] ?? "";
   const choices = useMemo(() => slots.filter((slot): slot is PickedSlot =>
     mode === "series" && slot.kind === "series"
       || mode === "parallel" && slot.kind === "parallel" && slot.side === side && slot.componentIds.includes(actualContext)),
@@ -199,8 +197,8 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
   const actualPage = Math.min(page, pageCount - 1);
   const visibleChoices = choices.slice(actualPage * pageSize, (actualPage + 1) * pageSize);
   const targetId = (slot: PickedSlot) => slot.kind === "series" ? slot.wireId : slot.id;
-  const selected = mode === "cross" && actualFrom && actualTo
-    ? session.crossSlot(actualFrom, actualTo)
+  const selected = mode === "cross"
+    ? from && to && nodes.get(from) !== nodes.get(to) ? session.crossSlot(from, to) : undefined
     : visibleChoices.find((slot) => targetId(slot) === target) ?? visibleChoices[0];
   const boundary = new Set(selected?.boundaries);
   const highlighted = new Set(selected?.kind === "parallel" ? selected.componentIds : []);
@@ -217,9 +215,35 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
     setPage(0);
   }
 
+  function chooseWire(wireId: string) {
+    const serial = slots.filter(slot => slot.kind === "series");
+    setMode("series");
+    setPage(Math.max(0, Math.floor(serial.findIndex(slot => slot.wireId === wireId) / pageSize)));
+    setTarget(wireId);
+  }
+
+  function chooseTerminal(endpoint: string) {
+    if (mode !== "cross" || !from || to || nodes.get(endpoint) === nodes.get(from)) {
+      setFrom(endpoint);
+      setTo("");
+    } else {
+      setTo(endpoint);
+    }
+    setMode("cross");
+    resetChoice();
+  }
+
+  function drawingTarget(label: string, choose: () => void) {
+    return { role: "button", tabIndex: 0, "aria-label": label, onClick: choose,
+      onKeyDown: (event: React.KeyboardEvent<SVGElement>) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(); }
+      } };
+  }
+
   function changePreset(next: Preset) {
     if (!sessions.has(next)) sessions.set(next, new TopologySession(example(Number(next))));
     setPreset(next);
+    setMode("parallel");
     setContext("");
     setFrom("");
     setTo("");
@@ -250,7 +274,6 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
 
   return <section className="topology-workbench" data-topology-workbench data-topology-revision={revision}>
     <header className="topology-heading">
-      <div><h1>{t.title}</h1><p>{t.intro}</p></div>
       <label className="topology-field topology-preset">{t.example}
         <select data-topology-preset data-topology-hit value={preset} onChange={(event) => changePreset(event.target.value as Preset)}>
           {presets.map((value) => <option key={value} value={value}>{value === "e3" ? t.reference : t.elements + " " + value}</option>)}
@@ -273,19 +296,24 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
         <div className="topology-viewport" data-topology-viewport ref={viewportRef} tabIndex={0}
           aria-label={t.boardPan} aria-describedby={id + "-board-help"} {...viewportEvents}>
           <div className="topology-sheet" style={{ width: sheetWidth, height: sheetHeight }}>
-            <svg data-topology-svg role="img" aria-label={t.board}
+            <svg data-topology-svg role="group" aria-label={t.board}
               width={sheetWidth} height={sheetHeight} viewBox={`0 0 ${layout.width} ${layout.height}`}>
               {layout.wires.map(({ id, points }) => {
                 const wire = wires.get(id)!;
                 const active = selected?.kind === "series" ? selected.wireId === id : boundary.has(wire.from) || boundary.has(wire.to);
-                return <polyline key={id} className={active ? "topology-wire topology-wire-active" : "topology-wire"}
-                  data-topology-wire={id} points={points.map(({ x, y }) => `${x},${y}`).join(" ")} />;
+                return <g key={id}><polyline className={active ? "topology-wire topology-wire-active" : "topology-wire"}
+                  data-topology-wire={id} points={points.map(({ x, y }) => `${x},${y}`).join(" ")} />
+                  <polyline data-pick-wire={id} {...drawingTarget(t.wire + " " + id, () => chooseWire(id))}
+                    fill="none" stroke="transparent" strokeWidth={14} pointerEvents="stroke"
+                    points={points.map(({ x, y }) => `${x},${y}`).join(" ")} /></g>;
               })}
               {layout.components.map(({ id, x, y }) => {
                 const component = devices.get(id)!;
                 const kind = partKind(component);
                 const nominal = valueText(component, language);
-                return <g key={id} data-topology-component={id} data-topology-kind={kind}
+                return <g key={id} {...drawingTarget(t.context + " " + id, () => {
+                  setMode("parallel"); setContext(id); resetChoice();
+                })} data-topology-component={id} data-topology-kind={kind}
                   data-topology-highlighted={highlighted.has(id) || undefined} transform={`translate(${x} ${y})`}>
                   <title>{id + " · " + (t.labels[kind as ProductPart] ?? component.kind) + (nominal ? " · " + nominal : "")}</title>
                   {highlighted.has(id) && <rect className="topology-glyph-highlight" x={-58} y={-37} width={116} height={75} rx={9} />}
@@ -299,9 +327,12 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
                   <title>{id}</title>
                 </circle>
               )}
+              {Array.from(layout.endpoints, ([endpoint, point]) =>
+                <circle key={endpoint} cx={point.x} cy={point.y} r={6} fill="var(--white)" stroke="currentColor"
+                  data-pick-terminal={endpoint} {...drawingTarget(t.from + " " + endpoint, () => chooseTerminal(endpoint))} />)}
               {selected?.boundaries.map((endpoint) => {
                 const position = layout.endpoints.get(endpoint);
-                return position && <circle key={endpoint} data-topology-boundary={endpoint} className="topology-boundary"
+                return position && <circle key={endpoint} data-topology-boundary={endpoint} className="topology-boundary" pointerEvents="none"
                   cx={position.x} cy={position.y} r={7} />;
               })}
               {marker && <g data-topology-slot-marker={selected?.kind === "parallel" ? markerSide : selected?.kind} transform={`translate(${marker.x} ${marker.y})`}>
@@ -325,14 +356,6 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
         <label className="topology-field">{t.part}
           <select data-topology-part data-topology-hit value={part} onChange={(event) => setPart(event.target.value as ProductPart)}>
             {productParts.map((value) => <option key={value} value={value}>{t.labels[value]}</option>)}
-          </select>
-        </label>
-        <label className="topology-field">{t.method}
-          <select data-topology-mode data-topology-hit value={mode} onChange={(event) => {
-            setMode(event.target.value as Mode);
-            resetChoice();
-          }}>
-            {modes.map((value) => <option key={value} value={value}>{t.methods[value]}</option>)}
           </select>
         </label>
         {mode === "parallel" && <>
@@ -363,8 +386,8 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
             </select>
           </label>
           <label className="topology-field">{t.to}
-            <select data-topology-to data-topology-hit value={actualTo} disabled={!ends.length} onChange={(event) => setTo(event.target.value)}>
-              {!ends.length && <option value="">{t.empty}</option>}
+            <select data-topology-to data-topology-hit value={to || ""} disabled={!ends.length} onChange={(event) => setTo(event.target.value)}>
+              <option value="">{t.to}</option>
               {ends.map((endpoint) => <option key={endpoint}>{endpoint}</option>)}
             </select>
           </label>

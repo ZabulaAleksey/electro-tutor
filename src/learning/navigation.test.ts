@@ -7,9 +7,9 @@ describe('RUN6 derived learning index',()=>{
   it('derives the existing20topics and31tools with unique stable IDs, no duplicated catalogue',()=>{
     const groups=buildLearningNavigation(published,'ru'),entries=groups.flatMap(g=>g.entries);
     expect(entries.filter(e=>e.kind==='topic')).toHaveLength(curriculum.flatMap(s=>s.topics).length);
-    expect(entries.filter(e=>e.kind==='tool')).toHaveLength(catalogueItems.length);
+    expect(entries.filter(e=>e.kind==='tool')).toHaveLength(catalogueItems.filter(item=>item.navigation !== false).length);
     expect(new Set(entries.map(e=>e.id)).size).toBe(entries.length);
-    for(const item of catalogueItems)expect(entries.find(e=>e.id==='tool:'+item.id)?.title).toEqual(item.title);
+    for(const item of catalogueItems.filter(item=>item.navigation !== false))expect(entries.find(e=>e.id==='tool:'+item.id)?.title).toEqual(item.title);
   });
   it('uses actual publications and does not invent19textbook URLs',()=>{
     const topics=buildLearningNavigation(published,'ru').flatMap(g=>g.entries).filter(e=>e.kind==='topic');
@@ -25,14 +25,14 @@ describe('RUN6 derived learning index',()=>{
     expect(chooseLearningTarget(fourier,'examples')).toEqual({href:'/ru/interactive/fourier/',stage:'lab',fallback:true});
     expect(chooseLearningTarget(fourier,'lab')?.fallback).toBe(false);
     expect(chooseLearningTarget(entries.find(e=>e.id==='topic:magnetic/nonlinear-magnetic')!,'textbook')).toBeNull();
-    expect(entries.find(e=>e.id==='tool:advanced:transmission-line')?.variants[0].href).toBe('/ru/interactive/transmission-line-reference/');
+    expect(entries.find(e=>e.id==='tool:advanced:transmission-line-steady')?.components.lab.href).toBe('/ru/interactive/transmission-line-steady/experiment/');
   });
   it('keeps Ukrainian textbook and full tools without inventing untranslated mesh stages',()=>{
     const entries=buildLearningNavigation(published,'uk').flatMap(g=>g.entries),mesh=entries.find(e=>e.id==='topic:dc/mesh')!;
     expect(mesh.components.textbook.href).toBe('/uk/topics/dc/mesh-current-method/');
     expect(mesh.components.examples).toMatchObject({href:null,status:'not-translated'});
     expect(mesh.components.lab).toMatchObject({href:null,status:'not-translated'});
-    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(33);
+    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(38);
     expect(entries.find(e=>e.id==='tool:advanced:power-system')?.components.lab.href).toBe('/uk/interactive/power-system/');
   });
   it('filters public before render/serialization and preserves exact three mesh components',()=>{

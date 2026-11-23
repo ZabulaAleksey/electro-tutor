@@ -23,13 +23,12 @@ async function downloaded(page: Page, testInfo: TestInfo, name: string) {
   return { path, document: JSON.parse(await readFile(path, "utf8")) };
 }
 
-test("catalogue D: build series LC on the drawing, move L with the same impedance, undo and reopen", async ({ page }, testInfo) => {
+test("catalogue D: inspect starter LC, edit inductance, undo and reopen", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(`${prefix}/ru/interactive/`);
-  await expect(page.locator(`a[href="${prefix}/ru/interactive/reactive-two-port-graph/"]`)).toBeVisible();
   await page.getByRole("link", { name: "LC-двухполюсник", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(route("ru") + "$"));
   await expect(page.locator(lab)).toBeVisible();
@@ -42,10 +41,16 @@ test("catalogue D: build series LC on the drawing, move L with the same impedanc
   await expect(board.locator('[data-lc-port-terminal="P1:b"]')).toBeVisible();
   await expect(board.locator("[data-line-append], [data-line-component='P1']")).toHaveCount(0);
 
-  await board.locator('[data-line-palette="c"]').press("Enter");
-  await board.locator('[data-line-slot-mode="series"]').press("Enter");
-  await board.locator('[data-line-series-slot="W2"]').press("Enter");
-  await expect(board.locator('[data-line-glyph="C1"]')).toBeVisible();
+  const center = async (selector: string) => {
+    const box = await board.locator(selector).boundingBox();
+    if (!box) throw new Error(selector);
+    return box.x + box.width / 2;
+  };
+  const positions = await Promise.all(['[data-lc-port-terminal="P1:a"]', '[data-line-glyph="L1"]',
+    '[data-line-glyph="C1"]', '[data-lc-port-terminal="P1:b"]'].map(center));
+  expect(positions[0]).toBeLessThan(positions[1]);
+  expect(positions[1]).toBeLessThan(positions[2]);
+  expect(positions[2]).toBeLessThan(positions[3]);
   await expect(zero).toHaveCount(1);
   expect(Number(await zero.getAttribute("data-omega")) / (2 * Math.PI)).toBeCloseTo(159.154943, 5);
   await zero.click();
@@ -55,27 +60,50 @@ test("catalogue D: build series LC on the drawing, move L with the same impedanc
   const formula = await result.locator("[data-lc-formula]").textContent();
   await board.locator('[data-line-component="L1"]').press("Enter");
   await expect(board.locator("[data-lc-nominal]")).toHaveValue("10");
-  await board.locator("[data-lc-move-start]").press("Enter");
-  const targets = board.locator("[data-lc-move-target]");
-  await expect(targets).toHaveCount(1);
-  await expect(targets.first()).toBeFocused();
-  await targets.first().press("Enter");
-  await expect(page.locator('[data-lc-notice="success"]')).toContainText("Z(s) совпадает");
-  await expect(board.locator('[data-line-component="L1"]')).toBeFocused();
-  await expect(result.locator("[data-lc-formula]")).toHaveText(formula!);
-  await expect(result.locator("[data-lc-cursor]")).toContainText("X = 0 Ω");
-  const moved = await downloaded(page, testInfo, "lc-series-moved");
-  expect(before.document.topology.wires).not.toEqual(moved.document.topology.wires);
-  expect(before.document.topology.components).toEqual(moved.document.topology.components);
-  expect(before.document.observedEndpoints).toEqual(moved.document.observedEndpoints);
+  await expect(board.locator("[data-lc-move-start]")).toHaveCount(0);
+  await board.locator("[data-lc-nominal]").fill("20");
+  await board.locator("[data-lc-nominal]").press("Enter");
+  await expect(result.locator("[data-lc-formula]")).not.toHaveText(formula!);
+  const editedFormula = await result.locator("[data-lc-formula]").innerText();
+  const moved = await downloaded(page, testInfo, "lc-edited");
+  expect(moved.document.topology.wires).toEqual(before.document.topology.wires);
+  expect(moved.document.observedEndpoints).toEqual(before.document.observedEndpoints);
   await capture(page, testInfo, "lc-series-desktop");
   await page.locator("[data-lc-undo]").click();
   expect((await downloaded(page, testInfo, "lc-series-undo")).document).toEqual(before.document);
   await page.locator("[data-lc-import]").setInputFiles(moved.path);
-  await expect(result.locator("[data-lc-formula]")).toHaveText(formula!);
+  await expect(result.locator("[data-lc-formula]")).toHaveText(editedFormula);
   await expect(page.locator("[data-lc-redo]")).toBeDisabled();
   expect((await downloaded(page, testInfo, "lc-series-reopened")).document).toEqual(moved.document);
   expect(errors).toEqual([]);
+});
+
+test("folds two series inductors on screen while preserving the editable archive", async ({ page }, testInfo) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  await board.locator('[data-line-palette="l"]').click();
+  await board.locator('[data-line-series-slot="W1"]').click();
+  const equivalent = board.getByRole("button", { name: /Lэкв/ });
+  await expect(equivalent).toBeVisible();
+  await expect(board.locator('[data-line-kind="l"]')).toHaveCount(1);
+  const archive = await downloaded(page, testInfo, "series-originals");
+  expect(archive.document.topology.components.map((part: { id: string }) => part.id)).toEqual(expect.arrayContaining(["L1", "L2", "C1", "P1"]));
+  await equivalent.click();
+  await expect(board.locator('[data-line-kind="l"]')).toHaveCount(2);
+  await board.locator('[data-line-component="L2"]').click();
+  await board.locator("[data-line-remove]").click();
+  await board.locator("[data-line-confirm-remove]").click();
+  await expect(board.locator('[data-line-glyph="L2"]')).toHaveCount(0);
+  await page.locator("[data-lc-undo]").click();
+  expect((await downloaded(page, testInfo, "restored-series")).document).toEqual(archive.document);
+
+  await board.locator('[data-line-palette="c"]').click();
+  await board.locator('[data-line-series-slot="W1"]').click();
+  await expect(board.locator('[data-line-glyph="C2"]')).toBeVisible();
+  await page.locator("[data-lc-undo]").click();
+  await page.locator("[data-lc-undo]").click();
+  await expect(board.locator('[data-line-glyph="L1"]')).toBeVisible();
+  await expect(board.locator('[data-line-glyph="L2"]')).toHaveCount(0);
 });
 
 test.describe("Ukrainian touch layout", () => {
@@ -85,8 +113,12 @@ test.describe("Ukrainian touch layout", () => {
     await expect(page.locator(lab)).toBeVisible();
     const board = page.locator(editor);
     const result = page.locator("[data-lc-experiment-result]");
+    await page.locator("[data-lc-import]").setInputFiles({
+      name: "single-inductor.json", mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify({ schema: "electrotutor-reactive-two-port-v1", circuit: { kind: "l", value: 10 } })),
+    });
+    await expect(board.locator('[data-line-glyph="C1"]')).toHaveCount(0);
     await board.locator('[data-line-palette="c"]').tap();
-    await board.locator('[data-line-slot-mode="parallel"]').tap();
     await expect(board.locator('[data-line-parallel-part="P1"]')).toHaveCount(0);
     await board.locator('[data-line-parallel-part="L1"]').tap();
     await board.locator('[data-line-parallel-side="right"]').tap();
@@ -109,7 +141,6 @@ test.describe("Ukrainian touch layout", () => {
     await board.locator("[data-line-confirm-remove]").tap();
     await expect(result).toHaveAttribute("data-lc-experiment-result", "open");
     await board.locator('[data-line-palette="c"]').tap();
-    await board.locator('[data-line-slot-mode="cross"]').tap();
     await board.locator('[data-line-cross-endpoint="P1:a"]').tap();
     await board.locator('[data-line-cross-endpoint="P1:b"]').tap();
     await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
@@ -125,7 +156,6 @@ test.describe("Ukrainian touch layout", () => {
     const board = page.locator(editor);
     await expect(board.locator('[data-line-glyph="L3"]')).toBeVisible();
     await board.locator('[data-line-palette="c"]').tap();
-    await board.locator('[data-line-slot-mode="series"]').tap();
     const wires = board.locator("[data-line-series-slot]");
     await expect(wires).toHaveCount(12);
     const overlaps = await wires.evaluateAll(elements => {

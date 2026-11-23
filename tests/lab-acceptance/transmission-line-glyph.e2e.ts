@@ -5,16 +5,18 @@ for (const mode of ["transient", "steady"] as const) {
     const steady = mode === "steady";
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/ru/interactive/transmission-line${steady ? "-steady" : ""}/`);
-    if (steady) await page.getByText("Схема опыта", { exact: true }).click();
+    if (steady) await expect(page).toHaveURL(/transmission-line-steady\/experiment\/$/);
 
-    const segment = page.locator("[data-circuit-editor] .network-transmission-stroke").first();
+    const segment = page.locator(steady ? '[data-line-glyph="TL1"] .line-experiment-conductor' : "[data-circuit-editor] .network-transmission-stroke").first();
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 900 });
       await expect(segment).toBeVisible();
       if (steady) {
-        await expect(segment).toHaveAttribute("fill", "var(--ink)");
-        await expect(segment).not.toHaveAttribute("rx", /.+/);
-        await expect(segment.locator('xpath=../*[local-name()="path"]')).toHaveCount(1);
+        await expect(segment).toHaveAttribute("d", "M-48 0H48M-48 148H48");
+        const width = await segment.evaluate(element => parseFloat(getComputedStyle(element).strokeWidth));
+        expect(width).toBeGreaterThan(3.4);
+        expect(width).toBeLessThan(96 / 4);
+        continue;
       } else {
         const stroke = segment.locator("path");
         await expect(stroke).toHaveCount(1);

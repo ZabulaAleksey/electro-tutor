@@ -13,6 +13,7 @@ type ResultsProps = {
   language: Language;
   sectionId: string;
   model: Network;
+  showResults: boolean;
   onBack: () => void;
   durationS: number;
   onDurationChange: (seconds: number) => void;
@@ -28,13 +29,13 @@ const copy = {
   ru: {
     back: "Назад к схеме", title: "Переходные процессы", wait: "Расчёт волн", worker: "Не удалось запустить расчёт волн.",
     animation: "Распространение волн", position: "Координата x", time: "Время t", duration: "Длительность, с",
-    launch: "Пуск", pause: "Пауза", stop: "Стоп", apply: "Применить", section: "Локальная координата от начала секции",
+    launch: "Старт", pause: "Пауза", stop: "Стоп", apply: "Применить", section: "Локальная координата от начала секции",
     total: "Сумма", forward: "Падающая", backward: "Отражённая", plots: "Эпюры", noSection: "Секция отсутствует в схеме.",
   },
   uk: {
     back: "Назад до схеми", title: "Перехідні процеси", wait: "Розрахунок хвиль", worker: "Не вдалося запустити розрахунок хвиль.",
     animation: "Поширення хвиль", position: "Координата x", time: "Час t", duration: "Тривалість, с",
-    launch: "Пуск", pause: "Пауза", stop: "Стоп", apply: "Застосувати", section: "Локальна координата від початку секції",
+    launch: "Старт", pause: "Пауза", stop: "Стоп", apply: "Застосувати", section: "Локальна координата від початку секції",
     total: "Сума", forward: "Падаюча", backward: "Відбита", plots: "Епюри", noSection: "Секція відсутня у схемі.",
   },
 };
@@ -106,9 +107,13 @@ function WaveAnimation({ language, sectionId, samples, length, xM, scale }: {
   </svg>;
 }
 
-export default function LineExperimentResults({ language, sectionId, model, onBack, durationS, onDurationChange,
+export default function LineExperimentResults({ language, sectionId, model, showResults, onBack, durationS, onDurationChange,
   observation, onObservationChange }: ResultsProps) {
   const t = copy[language];
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const [requestedModel, requestModel] = useState<Network>();
+  const calculate = showResults || requestedModel === model;
   const [calculation, setCalculation] = useState<Calculation>();
   const [playback, setPlayback] = useState<{ model: Network; sectionId: string; startS: number }>();
   const [durationDraft, setDurationDraft] = useState<string>();
@@ -116,14 +121,15 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
   const liveObservation = useRef({ observation, publish: onObservationChange });
 
   useEffect(() => {
-    heading.current?.focus();
-  }, []);
+    if (showResults) heading.current?.focus();
+  }, [showResults]);
 
   useEffect(() => {
     liveObservation.current = { observation, publish: onObservationChange };
   }, [observation, onObservationChange]);
 
   useEffect(() => {
+    if (!calculate) return;
     const id = 1;
     let active = true;
     let worker: Worker;
@@ -147,7 +153,7 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
       active = false;
       worker.terminate();
     };
-  }, [model]);
+  }, [model, calculate]);
 
   const result = calculation?.model === model ? calculation : undefined;
   const run = result && "run" in result ? result.run : undefined;
@@ -179,14 +185,14 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
     return () => cancelAnimationFrame(frame);
   }, [activePlayback, sectionRun, durationS]);
 
-  const spatialData = useMemo(() => sectionRun && {
+  const spatialData = useMemo(() => showResults && sectionRun && {
     u: waveQuantities.u.map(quantity => spatial(sectionRun, timeS, quantity)),
     i: waveQuantities.i.map(quantity => spatial(sectionRun, timeS, quantity)),
-  }, [sectionRun, timeS]);
-  const temporalData = useMemo(() => sectionRun && {
+  }, [showResults, sectionRun, timeS]);
+  const temporalData = useMemo(() => showResults && sectionRun && {
     u: waveQuantities.u.map(quantity => timeTrace(sectionRun, xM, quantity)),
     i: waveQuantities.i.map(quantity => timeTrace(sectionRun, xM, quantity)),
-  }, [sectionRun, xM]);
+  }, [showResults, sectionRun, xM]);
   const reading = sectionRun && at(sectionRun, xM, timeS);
   const numericError = result && "error" in result ? result.error : undefined;
   const error = !modelSection ? t.noSection : numericError === "worker-launch" ? t.worker
@@ -201,6 +207,7 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
     onObservationChange({ xM: clamp(position, length), timeS });
   }
   function play() {
+    requestModel(model);
     const startS = timeS >= durationS ? 0 : timeS;
     if (startS !== timeS) onObservationChange({ xM, timeS: startS });
     setPlayback({ model, sectionId, startS });
@@ -217,16 +224,13 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
   return <section data-line-a-results data-section-id={sectionId} data-calculation-ready={String(ready)}
     data-solver-method={sectionRun?.method} data-time-s={timeS} data-position-m={xM} data-u={reading?.u} data-i={reading?.i}
     data-wave-forward={reading?.forward} data-wave-backward={reading?.backward} className="line-a-results">
-    <header className="line-a-results-heading">
+    <PlaybackBar language={language} timeS={timeS} running={!!activePlayback && !error}
+      disabled={!hydrated || !!error} onPlay={play} onPause={() => setPlayback(undefined)} onStop={() => seek(0)} />
+    {showResults && <><header className="line-a-results-heading">
       <button data-line-a-back type="button" onClick={onBack}>← {t.back}</button>
       <h2 ref={heading} tabIndex={-1}>{t.title} · {sectionId}</h2>
     </header>
     <div className="line-a-transport">
-      <div className="line-a-playback">
-        <button data-line-a-play type="button" onClick={play} disabled={!ready || !!activePlayback}>{t.launch}</button>
-        <button data-line-a-pause type="button" onClick={() => setPlayback(undefined)} disabled={!activePlayback}>{t.pause}</button>
-        <button data-line-a-stop type="button" onClick={() => seek(0)} disabled={!activePlayback && timeS === 0}>{t.stop}</button>
-      </div>
       <form className="line-a-duration" onSubmit={event => { event.preventDefault(); applyDuration(); }}>
         <label>{t.duration}
           <input data-line-a-duration type="number" min={1e-9} max={10} step="any" required
@@ -245,8 +249,9 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
           step={length / 1_000 || 1} value={xM} disabled={!ready} onChange={event => probe(Number(event.target.value))} />
       </label>
     </div>
+    </>}
     {error && <p role="alert" className="line-a-calculation-error">{error}</p>}
-    {!error && !ready && <p role="status" className="line-a-calculation-progress">
+    {calculate && !error && !ready && <p role="status" className="line-a-calculation-progress">
       <progress aria-label={t.wait} max={1} value={result && "progress" in result ? result.progress : undefined} /> {t.wait}
     </p>}
     {ready && reading && spatialData && temporalData && sectionRun &&
@@ -273,6 +278,24 @@ export default function LineExperimentResults({ language, sectionId, model, onBa
         </div>
       </>}
   </section>;
+}
+
+export function PlaybackBar({ language, timeS = 0, running = false, disabled = false, onPlay, onPause, onStop }: {
+  language: Language;
+  timeS?: number;
+  running?: boolean;
+  disabled?: boolean;
+  onPlay?: () => void;
+  onPause?: () => void;
+  onStop?: () => void;
+}) {
+  const t = copy[language];
+  return <div className="line-a-playback" role="group" aria-label={t.animation}>
+    <button data-line-a-play type="button" onClick={onPlay} disabled={disabled || running}>{t.launch}</button>
+    <button data-line-a-pause type="button" onClick={onPause} disabled={!running}>{t.pause}</button>
+    <button data-line-a-stop type="button" onClick={onStop} disabled={disabled || (!running && timeS === 0)}>{t.stop}</button>
+    <span data-line-a-clock>{t.time} = <b>{formatEngineeringValue(timeS, "s", language)}</b></span>
+  </div>;
 }
 
 function ResultPlot({ id, label, language, plot, selected, onSelect, sectionId }: {

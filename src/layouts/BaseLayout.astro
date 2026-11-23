@@ -80,6 +80,7 @@ const footerLinks = [
   <title>{title}</title>
   <ClientRouter />
   <ThemeBootstrap />
+  <slot name="head" />
 </head>
 <body data-home={active === "home" ? "true" : undefined}>
   <header class="header astro-header">

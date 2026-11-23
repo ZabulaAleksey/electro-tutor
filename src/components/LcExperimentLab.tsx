@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { maxCircuitFileBytes } from "../circuit/document";
 import {
-  analyzeLcExperiment, lcMoveTargets, moveLcExperiment, newLcExperiment, readLcExperiment, removeLcPart,
+  analyzeLcExperiment, newLcExperiment, readLcExperiment, removeLcPart,
 } from "../circuit/lc-experiment";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import type { CircuitComponent } from "../circuit/topology";
@@ -20,9 +20,7 @@ const copy = {
   ru: {
     port: "Два внешних вывода измерения",
     undo: "Отменить", redo: "Повторить", archive: "Архив схемы", save: "Сохранить JSON", openFile: "Открыть JSON",
-    inductance: "Индуктивность, мГн", capacitance: "Ёмкость, мкФ", move: "Перенести катушку",
-    moved: "Катушка перенесена. Точная функция Z(s) совпадает.",
-    moveError: "Нет допустимого провода для переноса с сохранением Z(s) и наблюдаемых выводов.",
+    inductance: "Индуктивность, мГн", capacitance: "Ёмкость, мкФ",
     nominalError: "Допустимый номинал от 0,001 до 100 000 с шагом 0,001.",
     range: "Расчёт поддерживает до 24 элементов L/C и 12 связанных узлов.",
     archiveError: "Файл LC не открыт. Проверьте формат, порт и номиналы.",
@@ -33,9 +31,7 @@ const copy = {
   uk: {
     port: "Два зовнішні виводи вимірювання",
     undo: "Скасувати", redo: "Повторити", archive: "Архів схеми", save: "Зберегти JSON", openFile: "Відкрити JSON",
-    inductance: "Індуктивність, мГн", capacitance: "Ємність, мкФ", move: "Перенести котушку",
-    moved: "Котушку перенесено. Точна функція Z(s) збігається.",
-    moveError: "Немає допустимого проводу для перенесення зі збереженням Z(s) і спостережуваних виводів.",
+    inductance: "Індуктивність, мГн", capacitance: "Ємність, мкФ",
     nominalError: "Допустимий номінал від 0,001 до 100 000 із кроком 0,001.",
     range: "Розрахунок підтримує до 24 елементів L/C і 12 зв’язаних вузлів.",
     archiveError: "Файл LC не відкрито. Перевірте формат, порт і номінали.",
@@ -47,7 +43,6 @@ const copy = {
 
 type Snapshot = { document: TopologyLabDocument; result: LcPortAnalysis };
 type History = { current: Snapshot; past: Snapshot[]; future: Snapshot[] };
-type Move = { componentId: string; wireIds: readonly string[] };
 
 function starter(): History {
   const document = newLcExperiment();
@@ -59,7 +54,6 @@ export default function LcExperimentLab({ language }: { language: Language }) {
   const [ready, setReady] = useState(false);
   const [{ current, past, future }, setHistory] = useState(starter);
   const [cursor, setCursor] = useState<number | null>(null);
-  const [move, setMove] = useState<Move>();
   const [notice, setNotice] = useState<{ type: "error" | "success"; text: string }>();
   const file = useRef<HTMLInputElement>(null);
   const importGeneration = useRef(0);
@@ -67,17 +61,16 @@ export default function LcExperimentLab({ language }: { language: Language }) {
   const port = experiment.topology.components.find(part => part.kind === "port");
   useEffect(() => setReady(true), []);
 
-  function commit(next: TopologyLabDocument, preserveCursor = false) {
+  function commit(next: TopologyLabDocument) {
     ++importGeneration.current;
-    setMove(undefined);
     if (next === experiment) return;
     try {
       const accepted = { document: next, result: analyzeLcExperiment(next) };
       setHistory(previous => ({
         current: accepted, past: [...previous.past, previous.current].slice(-64), future: [],
       }));
-      if (!preserveCursor) setCursor(null);
-      setNotice(preserveCursor ? { type: "success", text: t.moved } : undefined);
+      setCursor(null);
+      setNotice(undefined);
     } catch (error) {
       const reason = error instanceof Error ? error.message : "";
       setNotice({ type: "error", text: reason === "lc-graph-limit" ? t.range : reason === "invalid-lc-value" ? t.nominalError : t.invalid });
@@ -94,22 +87,8 @@ export default function LcExperimentLab({ language }: { language: Language }) {
       const later = previous.future[0];
       return later ? { current: later, past: [...previous.past, previous.current], future: previous.future.slice(1) } : previous;
     });
-    setMove(undefined);
     setNotice(undefined);
     setCursor(null);
-  }
-
-  function beginMove(componentId: string) {
-    const wireIds = lcMoveTargets(experiment, componentId);
-    if (wireIds.length === 0) { setNotice({ type: "error", text: t.moveError }); return; }
-    setNotice(undefined);
-    setMove({ componentId, wireIds });
-  }
-
-  function chooseMove(wireId: string) {
-    if (!move || !move.wireIds.includes(wireId)) return;
-    try { commit(moveLcExperiment(experiment, move.componentId, wireId), true); }
-    catch { setMove(undefined); setNotice({ type: "error", text: t.moveError }); }
   }
 
   function updateNominal(part: CircuitComponent, nominal: number) {
@@ -146,7 +125,6 @@ export default function LcExperimentLab({ language }: { language: Language }) {
             if (event.key === "Escape") { event.currentTarget.value = String(nominal); event.currentTarget.blur(); }
           }} />
       </label>
-      {inductive && <button type="button" data-lc-move-start onClick={() => beginMove(part.id)}>{t.move}</button>}
     </>;
   }
 
@@ -173,7 +151,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
     <div className="lc-experiment" data-lc-experiment data-ready={String(ready)}>
       <LineExperimentEditor language={language} variant="lc" document={experiment} onChange={commit}
         onRemove={id => commit(removeLcPart(experiment, id))}
-        renderInspector={inspector} equivalentMove={move && { ...move, onChoose: chooseMove, onCancel: () => setMove(undefined) }} />
+        renderInspector={inspector} />
       <div className="lc-experiment-tools" role="group" aria-label={t.archive}>
         <p>{t.port} · {port?.id}</p>
         <button type="button" data-lc-undo disabled={past.length === 0} onClick={() => history("undo")}>{t.undo}</button>

@@ -12,7 +12,7 @@ describe("published content catalogue", () => {
     const catalogue = buildContentCatalogue(buildLearningNavigation(published, "ru"), "ru", false);
     const ohm = catalogue.subjects.find(subject => subject.id === "dc")?.topics.find(topic => topic.id === "ohm");
     expect(ohm?.theory).toBeNull();
-    expect(ohm?.labs.map(lab => lab.href)).toContain("/ru/micro-labs/#micro=ohm-law");
+    expect(ohm?.labs.map(lab => lab.href)).toContain("/ru/interactive/experiments/micro/ohm-law/");
     expect(ohm?.tools.map(tool => tool.href)).toContain("/ru/engineering-board/");
     expect(new Set(catalogue.resources.map(resource => resource.href)).size).toBe(catalogue.resources.length);
   });
@@ -22,7 +22,7 @@ describe("published content catalogue", () => {
     const catalogue = buildContentCatalogue(buildLearningNavigation([...published, lesson], "uk"), "uk", false);
     const ohm = catalogue.subjects.find(subject => subject.id === "dc")?.topics.find(topic => topic.id === "ohm");
     expect(ohm?.theory).toBe("/uk/topics/dc/ohm/");
-    expect(ohm?.labs.map(lab => lab.href)).toContain("/uk/micro-labs/#micro=ohm-law");
+    expect(ohm?.labs.map(lab => lab.href)).toContain("/uk/interactive/experiments/micro/ohm-law/");
   });
 
   it("keeps the MVP catalogue inside the published RU routes", () => {

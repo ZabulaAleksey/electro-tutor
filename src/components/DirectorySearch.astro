@@ -26,7 +26,8 @@ const search = topics ? (language === "ru" ? "Поиск по темам" : "П�
           let groupMatch = false;
           const title = group.querySelector(":scope > summary, :scope > h2, :scope > h3")?.textContent?.toLocaleLowerCase() ?? "";
           for (const entry of group.querySelectorAll<HTMLElement>("[data-directory-entry]")) {
-            const matches = title.includes(query) || (entry.textContent ?? "").toLocaleLowerCase().includes(query);
+            const terms = [entry.textContent, entry.dataset.directoryAlias].join(" ").toLocaleLowerCase();
+            const matches = title.includes(query) || terms.includes(query);
             entry.hidden = !matches;
             groupMatch ||= matches;
           }

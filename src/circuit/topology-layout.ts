@@ -188,7 +188,7 @@ function tidy(points: readonly Point[]) {
 }
 
 /** Compute geometric projection only. Existing terminal and wire IDs remain the electrical source of truth. */
-export function layoutTopology(document: TopologyLabDocument): TopologyLayout {
+export function layoutTopology(document: TopologyLabDocument, boundaryPortId?: string): TopologyLayout {
   const { topology } = document;
   const nets = netlist(topology);
   const netByEndpoint = new Map(nets.flatMap((net, index) => net.map(endpoint => [endpoint, index] as const)));
@@ -197,6 +197,17 @@ export function layoutTopology(document: TopologyLabDocument): TopologyLayout {
   for (const { id, terminals } of topology.components) {
     if (terminals.length !== 2) throw Error("invalid-layout-part");
     const cell = cells.get(id)!;
+    if (id === boundaryPortId) {
+      // Represent external leads as individual points at the edges of the circuit.
+      occupants[cell.row] = occupants[cell.row].filter(item => item !== cell);
+      for (const [index, terminal] of terminals.entries()) {
+        const x = index === 0 ? 26 : firstX + columns * columnPitch;
+        const boundary = { id: terminal, row: cell.row, x };
+        occupants[cell.row].push(boundary);
+        ports.set(terminal, { cell: boundary, offset: 0 });
+      }
+      continue;
+    }
     ports.set(terminals[0], { cell, offset: -terminalOffset });
     ports.set(terminals[1], { cell, offset: terminalOffset });
   }
@@ -206,7 +217,7 @@ export function layoutTopology(document: TopologyLabDocument): TopologyLayout {
     .map(wire => sketchWire(wire, ports, netByEndpoint, occupants));
   const externalNets = [...new Set(traces.filter(({ from, to }) => from.cell.row !== to.cell.row)
     .map(({ net }) => net))].sort((a, b) => a - b);
-  const gridRight = firstX + (columns - 1) * columnPitch + portalOffset;
+  const gridRight = firstX + (boundaryPortId ? columns : columns - 1) * columnPitch + portalOffset;
   const trunkByNet = new Map(externalNets.map((net, index) => [net, gridRight + 30 + index * trackPitch]));
   const bands = occupants.map(() => new Map<number, Span>());
   for (const { direct, net, from, to, exitX, entranceX } of traces) {

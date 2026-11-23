@@ -8,7 +8,7 @@ import {
 } from "../transient/line-experiment";
 import type { Language } from "../types";
 import LineExperimentEditor from "./LineExperimentEditor";
-import LineExperimentResults from "./LineExperimentResults";
+import LineExperimentResults, { PlaybackBar } from "./LineExperimentResults";
 
 const copy = {
   ru: {
@@ -43,6 +43,8 @@ export default function LineExperimentLab({ language }: { language: Language }) 
     try { return { model: lineExperimentModel(circuit, durationS) }; }
     catch (error) { return { error: error instanceof Error ? error.message : String(error) }; }
   }, [circuit, durationS]);
+
+  const activeSection = selectedSection ?? projection.model?.sections[0]?.id;
 
   function report(error: unknown) {
     const code = error instanceof Error ? error.message : String(error);
@@ -105,10 +107,10 @@ export default function LineExperimentLab({ language }: { language: Language }) 
   }
 
   function updateObservation(value: LineObservation) {
-    if (!selectedSection) return;
+    if (!activeSection) return;
     updateExperiment(previous => ({
       ...previous,
-      observations: { ...previous.observations, [selectedSection]: value },
+      observations: { ...previous.observations, [activeSection]: value },
     }));
   }
 
@@ -147,12 +149,13 @@ export default function LineExperimentLab({ language }: { language: Language }) 
   }
 
   return <div data-line-a-lab data-line-a-view={view}>
-    {view === "results" && selectedSection && projection.model
-      ? <LineExperimentResults language={language} sectionId={selectedSection} model={projection.model}
+    {activeSection && projection.model
+      ? <LineExperimentResults language={language} sectionId={activeSection} model={projection.model} showResults={view === "results"}
           onBack={() => { setView("editor"); setActionError(""); }}
           durationS={durationS} onDurationChange={durationChanged}
-          observation={observationAt(experiment, selectedSection)} onObservationChange={updateObservation} />
-      : <>
+          observation={observationAt(experiment, activeSection)} onObservationChange={updateObservation} />
+      : <PlaybackBar language={language} disabled />}
+    {view === "editor" && <>
           <LineExperimentEditor language={language} document={circuit} onChange={edit} onOpenSection={openSection}
             onAppendSection={() => {
               try { edit(appendExperimentSection(circuit, durationS)); }

@@ -145,9 +145,8 @@ test("E3 from the free editor supports keyboard insertion, geometric side and JS
 test("explicit cross insertion survives preset switching and preserves prior wires", async ({ page }, testInfo) => {
   await page.goto(topologyRoute("ru"));
   const before = JSON.parse(await snapshotDocument(page, testInfo, "cross-before"));
-  await page.locator("[data-topology-mode]").selectOption("cross");
-  await page.locator("[data-topology-from]").selectOption("J1:b");
-  await page.locator("[data-topology-to]").selectOption("TL2:b");
+  await page.locator('[data-pick-terminal="J1:b"]').press("Enter");
+  await page.locator('[data-pick-terminal="TL2:b"]').press("Enter");
   await page.locator("[data-topology-part]").selectOption("c");
   await page.locator("[data-topology-insert]").click();
   await expect(page.locator(components)).toHaveCount(before.topology.components.length + 1);
@@ -222,7 +221,21 @@ test.describe("touch viewport", () => {
       await gesture.detach();
     }
     expect(await snapshotDocument(page, testInfo, "mobile-after-zoom")).toBe(before);
-    await page.locator("[data-topology-mode]").selectOption("series");
+    // A routed wire can have an empty bounding-box centre. Tap its actual stroke.
+    await page.locator("[data-pick-wire]").first().scrollIntoViewIfNeeded();
+    const wirePoint = await page.locator("[data-pick-wire]").evaluateAll(elements => {
+      for (const element of elements) {
+        const wire = element as SVGPolylineElement;
+        const transform = wire.getScreenCTM();
+        if (!transform) continue;
+        for (const fraction of [.5, .25, .75, .1, .9]) {
+          const point = wire.getPointAtLength(wire.getTotalLength() * fraction).matrixTransform(transform);
+          if (document.elementFromPoint(point.x, point.y) === wire) return { x: point.x, y: point.y };
+        }
+      }
+      throw Error("No visible wire stroke after pan");
+    });
+    await page.touchscreen.tap(wirePoint.x, wirePoint.y);
     await page.locator("[data-topology-slot-insert]").tap();
     await expect(page.locator(components)).toHaveCount(51);
     expect(await snapshotDocument(page, testInfo, "mobile-after-insert")).not.toBe(before);

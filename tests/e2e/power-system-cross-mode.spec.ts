@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { loadDefaultBridge } from "./helpers/lc-bridge";
+
 test("isolates the four live laboratory modes while reusing the common circuit topology editor", async ({ page }) => {
   const initial = "/ru/interactive/";
   await page.goto(initial + "transmission-line/");
@@ -10,20 +12,20 @@ test("isolates the four live laboratory modes while reusing the common circuit t
   await expect(editor.locator('[data-circuit-tool="power-transformer"]')).toHaveCount(0);
 
   await page.getByRole("link", { name: "Синусоидальный режим", exact: true }).click();
-  await expect(page.locator("[data-steady-line]")).toHaveAttribute("data-ready", "true");
-  await page.getByText("Схема опыта", { exact: true }).click();
-  editor = page.locator("[data-circuit-editor]");
+  await expect(page.locator("[data-steady-experiment]")).toHaveAttribute("data-ready", "true");
+  editor = page.locator("[data-line-experiment-editor]");
   await expect(editor).toHaveCount(1);
-  await expect(editor).toHaveAttribute("data-circuit-mode", "steady-line");
-  await expect(editor.locator('[data-circuit-tool="diode"]')).toHaveCount(0);
+  await expect(editor).toHaveAttribute("data-line-editor-variant", "steady");
+  await expect(editor.locator('[data-line-palette="diode"]')).toHaveCount(0);
   await expect(page.getByRole("img", { name: "U(x)" })).toBeVisible();
 
   await page.goto(initial + "reactive-two-port-graph/");
-  editor = page.locator("[data-circuit-editor]");
+  await loadDefaultBridge(page);
+  editor = page.locator("[data-line-experiment-editor]");
   await expect(editor).toHaveCount(1);
-  await expect(editor).toHaveAttribute("data-circuit-mode", "reactive-lc");
-  await expect(editor.locator('[data-circuit-tool="l"]')).toBeVisible();
-  await expect(editor.locator('[data-circuit-tool="r"]')).toHaveCount(0);
+  await expect(editor).toHaveAttribute("data-line-editor-variant", "lc");
+  await expect(editor.locator('[data-line-palette="l"]')).toBeVisible();
+  await expect(editor.locator('[data-line-palette="r"]')).toHaveCount(0);
   await expect(page.locator("[data-lc-formula]")).toContainText("60q^5");
 
   await page.goto(initial + "power-system/");

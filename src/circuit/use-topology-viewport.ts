@@ -91,7 +91,7 @@ export function useTopologyViewport() {
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     const pointers = contacts.current;
     if (event.button !== 0 || pointers.size === 2) return;
-    if (event.target instanceof Element && event.target.closest("button,input,select,a,textarea")) return;
+    if (event.target instanceof Element && event.target.closest("button,input,select,a,textarea,[role='button']")) return;
     const view = event.currentTarget;
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     view.setPointerCapture(event.pointerId);

@@ -39,7 +39,7 @@ test("all five featured laboratories resolve once and legacy routes still work",
   await page.goto("/ru/interactive/");
   links.push(...await page.locator("#labs [data-registered-content]").evaluateAll(elements =>
     elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
-  expect(links).toHaveLength(5);
+  expect(links).toHaveLength(39);
   expect(links).not.toContain("/ru/interactive/reactive-two-port/");
   expect(new Set(links).size).toBe(links.length);
   const paths = new Set<string>();

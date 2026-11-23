@@ -1,8 +1,5 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import SteadyLineLab from "../../../components/SteadyLineLab";
-import { getLocale } from "../../../i18n";
-import { localePath } from "../../../site-path";
+import CompatibilityRedirect from "../../../components/CompatibilityRedirect.astro";
 import type { Language } from "../../../types";
 
 export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
@@ -11,11 +8,4 @@ const ru = language === "ru";
 const title = ru ? "Длинная линия в синусоидальном режиме" : "Довга лінія в синусоїдному режимі";
 const description = ru ? "Прямые и отражённые фазоры напряжения и тока вдоль линии." : "Прямі та відбиті фазори напруги й струму вздовж лінії.";
 ---
-<BaseLayout title={title + " — " + getLocale(language).brand.display} description={description}
- language={language} active="interactive" alternatePath="/interactive/transmission-line-steady/">
-  <section class="steady-line-page">
-    <a data-astro-reload href={localePath(language, "/interactive/transmission-line/")}>← {ru ? "Переходные процессы" : "Перехідні процеси"}</a>
-    <h1>{title}</h1>
-    <SteadyLineLab client:load language={language} />
-  </section>
-</BaseLayout>
+<CompatibilityRedirect language={language} destinationPath="/interactive/transmission-line-steady/experiment/" alternatePath="/interactive/transmission-line-steady/" title={title} description={description} />

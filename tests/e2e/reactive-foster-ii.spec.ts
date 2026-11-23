@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
+import { gotoLcBridge } from "./helpers/lc-bridge";
 
-const route = "/ru/interactive/reactive-two-port-graph/";
 
 test("shows both Foster realizations for the same accepted bridge", async ({ page }) => {
   const errors: Error[] = [];
   page.on("pageerror", error => errors.push(error));
-  await page.goto(route);
-  const lab = page.locator("[data-lc-graph-ready=true]");
+  await gotoLcBridge(page);
+  const lab = page.locator("[data-lc-experiment][data-ready=true]");
   const i = lab.locator("[data-foster-i]");
   const ii = lab.locator("[data-foster-ii]");
   await i.getByText("Первая форма Фостера", { exact: true }).click();
@@ -23,11 +23,10 @@ test("shows both Foster realizations for the same accepted bridge", async ({ pag
   await expect(ii.locator("[data-foster-at-cursor]")).toBeVisible();
   expect(Number(await ii.locator("[data-foster-equivalence]").getAttribute("data-foster-equivalence"))).toBeLessThan(1e-9);
 
-  await lab.getByLabel("Выбрать", { exact: true }).selectOption("L3");
-  const nominal = lab.getByRole("spinbutton", { name: "Индуктивность, H", exact: true });
-  await nominal.fill("0.02");
+  await lab.locator('[data-line-component="L3"]').click();
+  const nominal = lab.locator("[data-lc-nominal]");
+  await nominal.fill("20");
   await nominal.press("Enter");
-  await lab.getByRole("button", { name: "Рассчитать эту схему", exact: true }).click();
   await expect.poll(async () => Number(await shunt.getAttribute("data-foster-henry"))).toBeCloseTo(.07, 10);
   expect(errors).toEqual([]);
 });
@@ -38,7 +37,7 @@ test("opens the Ukrainian admittance realization at 390 px without widening the 
     const observer = new MutationObserver(() => {
       const panel = document.querySelector<HTMLDetailsElement>("[data-foster-ii]");
       if (!panel) return;
-      if (panel.closest("[data-lc-graph-ready=false]")) {
+      if (panel.closest("[data-lc-experiment][data-ready=false]")) {
         document.documentElement.dataset.fosterOpenedEarly = "true";
         panel.open = true;
       }
@@ -46,7 +45,7 @@ test("opens the Ukrainian admittance realization at 390 px without widening the 
     });
     observer.observe(document, { childList: true, subtree: true });
   });
-  await page.goto(route.replace("/ru/", "/uk/"));
+  await gotoLcBridge(page, "uk");
   await expect(page.locator("html")).toHaveAttribute("data-foster-opened-early", "true");
   const panel = page.locator("[data-foster-ii]");
   await expect(panel.getByText("Друга форма Фостера", { exact: true })).toBeVisible();

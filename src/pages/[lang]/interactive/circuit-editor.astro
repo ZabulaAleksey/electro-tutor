@@ -1,4 +1,5 @@
 ---
+import LaboratoryPage from "../../../components/LaboratoryPage.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import CircuitEditor from "../../../circuit/CircuitEditor";
 import { circuitCopy } from "../../../circuit/copy";
@@ -14,25 +15,10 @@ const copy = circuitCopy(language);
 ---
 <BaseLayout title={`${copy.title} · ${getLocale(language).brand.display}`} description={copy.description}
   language={language} active="interactive" alternatePath="/interactive/circuit-editor/">
-  <CircuitEditor client:load language={language} />
-  <div class="topology-mode-entry">
+  <LaboratoryPage {language} title={copy.title} description={copy.description}>
+    <CircuitEditor client:load showTitle={false} language={language} />
     <a data-topology-mode-link href={localePath(language, "/interactive/circuit-editor/topology/")}>
       {language === "ru" ? "Топологический режим" : "Топологічний режим"}
     </a>
-  </div>
+  </LaboratoryPage>
 </BaseLayout>
-
-<style>
-  .topology-mode-entry {
-    max-inline-size: 86rem;
-    margin-inline: auto;
-    padding-inline: clamp(1rem, 3vw, 2.25rem);
-    display: flex;
-    justify-content: flex-end;
-  }
-  .topology-mode-entry a {
-    min-block-size: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
-</style>

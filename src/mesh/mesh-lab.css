@@ -33,3 +33,5 @@
 @media(max-width:700px){.mesh-lab{padding:14px 12px}.mesh-lab h1{font-size:26px}.mesh-lab-intro{font-size:13px}.mesh-workbench{padding:8px}.mesh-lab-controls{grid-template-columns:1fr;gap:6px}.mesh-workbench-body{grid-template-columns:1fr;gap:2px}.mesh-lab-scheme{max-width:340px}.mesh-live-status{margin:2px 0 4px}.mesh-reading-group{margin:4px 0}.mesh-direction-note{line-height:1.4}.mesh-reading-grid strong{font-size:13px}.mesh-parameter-row{grid-template-columns:minmax(0,1fr) 76px 15px 44px}}
 /* Keep the preset, editor and readings together below the two-row mobile header. */
 @media(max-width:700px) and (max-height:900px){.mesh-lab-scheme{max-width:310px}}
+
+.mesh-catalog-return { display: flex; width: fit-content; min-height: 44px; align-items: center; }

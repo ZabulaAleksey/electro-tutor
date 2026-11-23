@@ -78,10 +78,11 @@ export type CircuitBoardExtension = {
   };
 };
 
-export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
+export default function CircuitEditor({ language, embedded = false, showTitle = true, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
   extension, onDocumentChange, onClear, history, initialSelection, afterBoard, inspectOnly = false, selectedComponentId, inspection }: {
   language: Language;
   embedded?: boolean;
+  showTitle?: boolean;
   mode?: CircuitEditorMode;
   initial?: string;
   activeDocument?: string;
@@ -179,6 +180,29 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       select(parallelPlan.componentId); setTool(null); resetParallel();
     }
   }
+  function trackPalettePointer(event: PointerEvent<HTMLButtonElement>, kind: PartKind) {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    const editor = event.currentTarget.closest("[data-circuit-editor]");
+    const pointerId = event.pointerId;
+    const listeners = new AbortController();
+    const options = { signal: listeners.signal, capture: true };
+    // Scrolling a tall workbench during a press can cancel native HTML dragging.
+    // Preserve the palette choice until release over a part of this same board.
+    window.addEventListener("pointerup", end => {
+      if (end.pointerId !== pointerId) return;
+      listeners.abort();
+      const target = document.elementFromPoint(end.clientX, end.clientY);
+      const part = target?.closest("[data-component-id]");
+      if (!part || !editor?.contains(part)) return;
+      chooseTool(kind);
+      setParallelEnabled(true);
+      selectParallelPart(part.getAttribute("data-component-id")!);
+    }, options);
+    window.addEventListener("dragstart", () => listeners.abort(), options);
+    window.addEventListener("pointercancel", () => listeners.abort(), options);
+    window.addEventListener("blur", () => listeners.abort(), { signal: listeners.signal });
+  }
+
   function parallelPointer(event: PointerEvent<SVGSVGElement>) {
     const hit = event.target as Element;
     const endpoint = hit.closest("[data-circuit-terminal]")?.getAttribute("data-circuit-terminal");
@@ -672,6 +696,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
       <button type="button" aria-pressed={tool === null} onClick={() => chooseTool(null)}>{copy.select}</button>
       {mode.availableParts(drawing).map(kind => <button type="button" key={kind} data-circuit-tool={kind}
         aria-pressed={tool === kind} onClick={() => chooseTool(kind)} draggable
+          onPointerDown={event => trackPalettePointer(event, kind)}
         onDragStart={event => {
           chooseTool(kind); setParallelEnabled(true);
           event.dataTransfer.setData("application/x-electrotutor-part", kind);
@@ -736,7 +761,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     }
   }}>
     {inspectOnly ? <h2>{language === "ru" ? "Схема сети" : "Схема мережі"}</h2>
-      : embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : <h1>{copy.title}</h1>}
+      : embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : showTitle && <h1>{copy.title}</h1>}
     {extension?.controls?.(drawing)}
     {!inspectOnly && !embedded && mainTools}
     <div ref={viewportRef} className="circuit-viewport" data-circuit-nets={JSON.stringify(nets)}>

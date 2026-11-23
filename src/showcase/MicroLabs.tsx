@@ -21,16 +21,16 @@ export function LiveParameter({ spec, value, language, onChange }: { spec: LiveP
 export function TimeController({ time, max, language, onChange }: { time: number; max: number; language: Language; onChange: (value: number) => void }) {
   return <label className="micro-time"><span>{microCopy[language].time}<span className="micro-value" data-micro-time>{formatEngineeringNumber(time, language)}</span></span><input style={{"--fill":`${time/max*100}%`} as CSSProperties} aria-label={microCopy[language].time} type="range" min={0} max={max} step={max / 100} value={time} onChange={event => onChange(Number(event.target.value))} /></label>;
 }
-const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected, update }: { lab: MicroLab; state: CardState; language: Language; selected: boolean; update: (id: string, state: CardState) => void }) {
+const MicroLabCard = memo(function MicroLabCard({ lab, state, language, selected, update, standalone = false }: { standalone?: boolean; lab: MicroLab; state: CardState; language: Language; selected: boolean; update: (id: string, state: CardState) => void }) {
   const [expanded, setExpanded] = useState(false), [paper,setPaper] = useState(false);
   const copy = microCopy[language], view = useMemo(() => microModel(lab.model, state.a, state.b, state.time), [lab.model, state.a, state.b, state.time]);
   function parameter(key: "a" | "b", value: number) {
     const next = { ...state, [key]: value }, nextModel = microModel(lab.model, next.a, next.b, next.time);
     update(lab.id, { ...next, time: nextModel.timeMax === undefined ? next.time : nextModel.time });
   }
-  return <article className="micro-card tool-card" id={`micro-${lab.id}`} data-expanded={expanded ? "true" : "false"} data-micro={lab.id} data-micro-model={lab.model} data-selected={selected ? "true" : "false"} aria-labelledby={`micro-title-${lab.id}`}>
-    <header><span className="micro-badge">{String(microLabs.indexOf(lab) + 1).padStart(2,"0")}</span><span>{microGroups[lab.category][language]}</span><a href={`#micro=${lab.id}`} aria-label={`${copy.link}: ${lab.title[language]}`}>↗</a></header>
-    <h3 id={`micro-title-${lab.id}`}>{lab.title[language]}</h3>
+  return <article className="micro-card tool-card" id={`micro-${lab.id}`} data-expanded={expanded ? "true" : "false"} data-micro={lab.id} data-micro-model={lab.model} data-selected={selected ? "true" : "false"} aria-label={standalone ? lab.title[language] : undefined} aria-labelledby={standalone ? undefined : `micro-title-${lab.id}`}>
+    {!standalone && <><header><span className="micro-badge">{String(microLabs.indexOf(lab) + 1).padStart(2,"0")}</span><span>{microGroups[lab.category][language]}</span><a href={`#micro=${lab.id}`} aria-label={`${copy.link}: ${lab.title[language]}`}>↗</a></header>
+    <h3 id={`micro-title-${lab.id}`}>{lab.title[language]}</h3></>}
     <div className="micro-visual-pair"><CircuitView lab={lab} a={state.a} b={state.b} language={language} /><LivePlot view={view} language={language} paper={paper} /></div>
     <div className="micro-console"><div className="micro-parameters">{lab.parameters.map((spec, k) => <LiveParameter key={spec.symbol} spec={spec} value={k === 0 ? state.a : state.b} language={language} onChange={value => parameter(k === 0 ? "a" : "b", value)} />)}</div>
     <div className="micro-results" aria-live="off">{view.metrics.map(m => <span key={m.label} data-micro-result={m.label}><span>{m.label}</span><strong>{formatEngineeringNumber(m.value,language,{maximumFractionDigits:3})} <small>{m.unit}</small></strong></span>)}</div></div>
@@ -96,7 +96,7 @@ export default memo(function MicroLabs({ language, home = false, focusSelected=f
   }, [language, focusSelected, experiment]);
   const standalone = experiment && microLabs.find(lab => lab.id === experiment);
   if (standalone) return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard">
-    <MicroLabCard lab={standalone} state={states[standalone.id]} language={language} selected={true} update={update} />
+    <MicroLabCard standalone lab={standalone} state={states[standalone.id]} language={language} selected={true} update={update} />
   </fieldset>;
   if (home) {
     const selectedLabs = homeSelection.map(id => microLabs.find(lab => lab.id === id)).filter((lab): lab is MicroLab => Boolean(lab));

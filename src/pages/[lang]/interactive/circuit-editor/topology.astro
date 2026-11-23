@@ -1,8 +1,8 @@
 ---
+import LaboratoryPage from "../../../../components/LaboratoryPage.astro";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import TopologyWorkbench from "../../../../circuit/TopologyWorkbench";
 import { getLocale } from "../../../../i18n";
-import { localePath } from "../../../../site-path";
 import type { Language } from "../../../../types";
 import reference from "../../../../../tests/topology-eval/stage-2-proposed.json";
 
@@ -19,25 +19,7 @@ const alternatePath = "/interactive/circuit-editor/topology/";
 ---
 <BaseLayout title={`${title} · ${getLocale(language).brand.display}`} description={description}
   language={language} active="interactive" alternatePath={alternatePath}>
-  <div class="topology-lab-page">
-    <a class="topology-back-link" href={localePath(language, "/interactive/circuit-editor/")}>
-      {ru ? "← Свободный редактор" : "← Вільний редактор"}
-    </a>
+  <LaboratoryPage {language} title={title} description={description}>
     <TopologyWorkbench client:load language={language} referenceJson={JSON.stringify(reference.document)} />
-  </div>
+  </LaboratoryPage>
 </BaseLayout>
-
-<style>
-  .topology-lab-page {
-    max-inline-size: 86rem;
-    margin-inline: auto;
-    padding: clamp(1rem, 3vw, 2.25rem);
-    min-inline-size: 0;
-  }
-  .topology-back-link {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 44px;
-    margin-block-end: .5rem;
-  }
-</style>

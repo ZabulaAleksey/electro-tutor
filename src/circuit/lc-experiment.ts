@@ -52,8 +52,12 @@ function topologyFromTree(circuit: Circuit): CircuitTopology {
   return { components, junctions, wires };
 }
 
-export function newLcExperiment(): TopologyLabDocument {
-  return labDocument(topologyFromTree({ kind: "l", value: 10 }));
+export function newLcExperiment(circuit: Circuit = {
+  kind: "series",
+  left: { kind: "l", value: 10 },
+  right: { kind: "c", value: 100 },
+}): TopologyLabDocument {
+  return labDocument(topologyFromTree(circuit));
 }
 
 export function analyzeLcExperiment(document: TopologyLabDocument): LcPortAnalysis {

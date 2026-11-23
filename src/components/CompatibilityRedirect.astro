@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localePath } from "../site-path";
+import type { Language } from "../types";
+
+interface Props { language: Language; destinationPath: string; alternatePath: string; title: string; description: string; }
+const { language, destinationPath, alternatePath, title, description } = Astro.props;
+const destination = localePath(language, destinationPath);
+---
+<BaseLayout {title} {description} {language} active="interactive" {alternatePath}>
+  <noscript slot="head"><meta http-equiv="refresh" content={`0;url=${destination}`} /></noscript>
+  <p><a data-laboratory-redirect href={destination}>{language === "ru" ? "Открыть лабораторию" : "Відкрити лабораторію"}</a></p>
+  <script>
+    const link = document.querySelector<HTMLAnchorElement>("[data-laboratory-redirect]");
+    if (link) {
+      const target = new URL(link.href);
+      target.search = location.search;
+      target.hash = location.hash;
+      location.replace(target.href);
+    }
+  </script>
+</BaseLayout>

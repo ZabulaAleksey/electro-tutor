@@ -38,7 +38,7 @@ function fitScale(values: Complex[]) {
   return .84 / range;
 }
 type Gesture = {
-  key: ImpedanceKey; pointer: number; inverse: DOMMatrix; offset: Point; pixels: number; last: Complex;
+  key: ImpedanceKey; pointer: number; offset: Point; pixels: number; last: Complex;
 };
 
 export function ImpedancePlane({ phases, neutral, onChange, copy, language, toggle, children }: {
@@ -59,10 +59,9 @@ export function ImpedancePlane({ phases, neutral, onChange, copy, language, togg
     if (!svg.current || !transform) return;
     event.preventDefault();
     if (document.activeElement instanceof HTMLInputElement) document.activeElement.blur();
-    const inverse = transform.inverse();
-    const local = new DOMPoint(event.clientX, event.clientY).matrixTransform(inverse);
+    const local = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
     const p = point(key);
-    gesture.current = { key, inverse, pointer: event.pointerId, pixels,
+    gesture.current = { key, pointer: event.pointerId, pixels,
       offset: { x: local.x - p.x, y: local.y - p.y }, last: values[key] };
     svg.current.setPointerCapture(event.pointerId);
     setLockedScale(pixels);
@@ -70,7 +69,10 @@ export function ImpedancePlane({ phases, neutral, onChange, copy, language, togg
   const move = (event: PointerEvent<SVGSVGElement>) => {
     const drag = gesture.current;
     if (!drag || drag.pointer !== event.pointerId) return;
-    const local = new DOMPoint(event.clientX, event.clientY).matrixTransform(drag.inverse);
+    // Freeze the electrical scale, but follow the SVG's live position in the viewport.
+    const transform = event.currentTarget.getScreenCTM();
+    if (!transform) return;
+    const local = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
     drag.last = {
       re: Math.min(MAX_INPUT, Math.max(0, Math.min(width, local.x - drag.offset.x - zOrigin.x)) / drag.pixels),
       im: Math.max(-MAX_INPUT, Math.min(MAX_INPUT, Math.max(-halfHeight, Math.min(halfHeight, zOrigin.y - local.y + drag.offset.y)) / drag.pixels)),

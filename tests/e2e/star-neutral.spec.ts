@@ -93,7 +93,9 @@ test("touch drag follows its pointer through the axis at zoom and releases on ca
     const field = page.getByRole("group", { name: "Нейтраль — ZN" });
     const r = field.getByRole("spinbutton", { name: "R, Ω", exact: true });
     const x = field.getByRole("spinbutton", { name: "X, Ω", exact: true });
-    await page.locator(".star-impedance svg").evaluate(svg => {
+    const plane = page.locator(".star-impedance svg");
+    await plane.evaluate(async svg => {
+      await document.fonts.ready;
       document.documentElement.style.zoom = "1.15";
       svg.scrollIntoView({ block: "center", behavior: "instant" });
     });
@@ -102,6 +104,9 @@ test("touch drag follows its pointer through the axis at zoom and releases on ca
     const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
     const scroll = await page.evaluate(() => window.scrollY);
     await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    // A late page layout adjustment changes the SVG screen origin during capture.
+    // The pointer stays in viewport coordinates while the graph retains its Ω/unit scale.
+    await plane.evaluate(svg => { svg.style.translate = "0 2px"; });
     for (const dx of [8, 16, 24]) {
       await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: start.x + dx, y: start.y + dx }] });
       await expect.poll(async () => {

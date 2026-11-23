@@ -24,7 +24,7 @@ test("home opens the topic catalogue, and pointer drag commits only at the highl
   await page.goto("/ru/");
   await page.getByRole("link", { name: "Выбрать лабораторию", exact: true }).click();
   await expect(page.locator(".site-footer").getByRole("link", { name: "Учебник", exact: true })).toHaveAttribute("href", "/ru/topics/");
-  await page.getByRole("link", { name: "Переходные процессы в длинных линиях", exact: true }).click();
+  await page.getByRole("link", { name: "Переходные процессы в длинной линии", exact: true }).click();
   await expect(page).toHaveURL("/ru/interactive/transmission-line/experiment/");
   await page.locator('astro-island:not([ssr]) [data-line-section="TL1"]').click();
   await expect(page.locator("[data-line-a-results]")).toHaveAttribute("data-calculation-ready", "true");

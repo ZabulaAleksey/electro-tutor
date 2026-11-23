@@ -67,12 +67,12 @@
   }
   .network-workbench .circuit-editor > :not(.circuit-viewport,.network-spatial-plots) { grid-column:1/-1; }
   .network-time-plots { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .network-workbench .circuit-viewport { height:clamp(280px,46svh,420px); }
+  .network-workbench .circuit-editor > .circuit-viewport { height:clamp(280px,46svh,420px); }
 }
 @media (max-width:650px) {
   .network-workbench .circuit-editor { gap:6px; }
   .network-workbench .circuit-editor > h3 { margin:4px 0; }
-  .network-workbench .circuit-viewport { height:clamp(230px,36svh,310px); }
+  .network-workbench .circuit-editor > .circuit-viewport { height:clamp(230px,36svh,310px); }
   .network-workbench .circuit-viewport > svg { min-height:min(36svh,310px); }
   .network-spatial-plots .engineering-plot { max-height:145px; }
 }

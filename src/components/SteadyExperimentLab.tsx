@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CircuitComponent } from "../circuit/topology";
 import { appendSteadyLine, newSteadyExperiment, removeSteadyPart, updateSteadyCircuit, updateSteadyPart, type SteadyExperiment } from "../steady-line/experiment-document";
 import { solveSteadyExperiment, type DistributedParameters } from "../steady-line/experiment-solver";
@@ -43,15 +43,15 @@ const copy = {
 } as const;
 
 type NumberFieldProps = {
-  field: string; label: string; value: number; min: number; max: number; invalid: string; onCommit: (value: number) => void;
+  field: string; label: string; value: number; min: number; max: number; invalid: string; disabled?: boolean; onCommit: (value: number) => void;
 };
 
-function NumberField({ field, label, value, min, max, invalid, onCommit }: NumberFieldProps) {
+function NumberField({ field, label, value, min, max, invalid, disabled, onCommit }: NumberFieldProps) {
   const [draft, setDraft] = useState<string>();
   const [error, setError] = useState(false);
   return <label className="steady-experiment-number">
     <span>{label}</span>
-    <input data-steady-field={field} type="number" value={draft ?? String(value)} min={min} max={max} step="any"
+    <input disabled={disabled} data-steady-field={field} type="number" value={draft ?? String(value)} min={min} max={max} step="any"
       aria-invalid={error || undefined}
       onChange={event => { setDraft(event.currentTarget.value); setError(false); }}
       onBlur={event => {
@@ -76,6 +76,8 @@ type Editing = { value: SteadyExperiment; past: SteadyExperiment[]; future: Stea
 
 export default function SteadyExperimentLab({ language }: { language: Language }) {
   const t = copy[language];
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const [{ value, past, future }, setEditing] = useState<Editing>(() => ({ value: newSteadyExperiment(), past: [], future: [] }));
   const [observation, observe] = useState({ id: "TL1", xM: 0 });
   const [editError, setEditError] = useState("");
@@ -153,9 +155,9 @@ export default function SteadyExperimentLab({ language }: { language: Language }
     </fieldset>;
   }
 
-  return <div className="steady-experiment-lab" data-steady-experiment data-ready={String(!!section)} data-frequency-hz={settings.frequencyHz}>
+  return <div className="steady-experiment-lab" data-steady-experiment data-ready={String(hydrated && !!section)} data-frequency-hz={settings.frequencyHz}>
     <div className="steady-experiment-settings">
-      <NumberField field="frequencyHz" label={t.frequency} value={settings.frequencyHz}
+      <NumberField disabled={!hydrated} field="frequencyHz" label={t.frequency} value={settings.frequencyHz}
         min={1e-3} max={1e9} invalid={t.invalid} onCommit={next => update(previous =>
           previous.settings.frequencyHz === next ? previous : { ...previous, settings: { ...previous.settings, frequencyHz: next } })} />
       <span>{t.rms}</span>

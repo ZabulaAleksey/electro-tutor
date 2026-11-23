@@ -4,7 +4,8 @@
 
 ## ET-LABR-013 — Конструктор схем, несимметричная звезда и математические лаборатории
 
-- Status: partial
+- Status: verified
+- Lifecycle: выпуск `1df69c50` после [PR №7](https://github.com/ZabulaAleksey/electro-tutor/pull/7). Проверены основной домен, неизменяемая версия Cloudflare и размещение с префиксом GitHub Pages.
 - Dependencies: ET-LABR-012 verified. База origin/main `7984997f`. Исходная проверка 139 файлов, 929 тестов Vitest прошли.
 - Scope: [контракт по 17 визуальным референсам](../specs/features/lab-reconstruction.spec.md#et-labr-013).
 - Runnable E2E: реальная страница RU/UK → действие в редакторе/ввод сопротивления/выбор метода → изменение соединений/результатов/спектра → проверка сохранения и координат.
@@ -12,7 +13,7 @@
 - Acceptance: SCHEM-001–022, STAR-001–019, MATH-001–020, пять размеров экрана, визуальная проверка №1–17, verify:full, review, подтверждение размещённых ассетов и взаимодействий на electrotutor.org.
 - Rollback: штатный возврат к предыдущей подтверждённой выкладке, с сохранением пользовательских данных.
 - Blockers: none
-- NEXT: ET-LABR-013
+- NEXT: none
 
 ## ET-LABR-012 — Каталог, макеты и редактирование опытов
 

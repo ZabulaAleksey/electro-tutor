@@ -86,10 +86,52 @@ function loopLayout({ topology }: TopologyLabDocument): LineLayout | undefined {
     components: placements, junctions: [], wires, endpoints, anchors, rotations };
 }
 
+/** Walk the electrical chain from a to b. Each real wire keeps its insertion target. */
+function seriesPortLayout({ topology }: TopologyLabDocument, port: CircuitComponent): LineLayout | undefined {
+  type Edge = { id: string; end: string; device: boolean };
+  const edges = new Map<string, Edge[]>();
+  function connect(id: string, a: string, b: string, device: boolean) {
+    edges.set(a, [...(edges.get(a) ?? []), { id, end: b, device }]);
+    edges.set(b, [...(edges.get(b) ?? []), { id, end: a, device }]);
+  }
+  for (const { id, from, to } of topology.wires) connect(id, from, to, false);
+  for (const part of topology.components) {
+    if (part !== port) connect(part.id, part.terminals[0], part.terminals[1], true);
+  }
+  const endpoints = new Map<string, Point>();
+  const wires = [];
+  const components = [];
+  const visited = new Set<string>();
+  let endpoint = port.terminals[0];
+  let x = 35;
+  const y = 92;
+  endpoints.set(endpoint, { x, y });
+  while (endpoint !== port.terminals[1]) {
+    const next = (edges.get(endpoint) ?? []).filter(edge => !visited.has(edge.id));
+    if (next.length !== 1) return;
+    const edge = next[0];
+    visited.add(edge.id);
+    const start = { x, y };
+    x += edge.device ? 2 * terminalOffset : 46;
+    if (edge.device) components.push({ id: edge.id, x: x - terminalOffset, y });
+    else wires.push({ id: edge.id, points: [start, { x, y }] });
+    endpoint = edge.end;
+    endpoints.set(endpoint, { x, y });
+  }
+  if (visited.size !== topology.wires.length + topology.components.length - 1) return;
+  const junctions = topology.junctions.map(id => ({ id, ...endpoints.get(id)! }));
+  components.push({ id: port.id, x: 35, y });
+  return { width: x + 35, height: 204, components, junctions, endpoints, wires,
+    anchors: new Map(), rotations: new Map(), append: { x, y: 32 } };
+}
+
 export function layoutLineExperiment(document: TopologyLabDocument): LineLayout {
   const loop = loopLayout(document);
   if (loop) return loop;
-  const layout = layoutTopology(document);
+  const port = document.topology.components.find(part => part.kind === "port");
+  const chain = port && seriesPortLayout(document, port);
+  if (chain) return chain;
+  const layout = layoutTopology(document, port?.id);
   const kinds = new Map(document.topology.components.map(part => [part.id, part]));
   const last = layout.components.findLast(({ id }) => kinds.get(id)?.kind === "line");
   return { ...layout, width: Math.max(layout.width, 330), rotations: new Map(),
@@ -115,7 +157,7 @@ export function wireTarget(points: readonly Point[]): Point {
 export type LcCanvasTarget = { id: string; points: readonly Point[] };
 type LcCanvasMarker = { id: string; point: Point; anchor?: Point };
 
-export function placeLcCanvasTargets(targets: readonly LcCanvasTarget[], width: number, height: number, scale: number) {
+export function placeLcCanvasTargets(targets: readonly LcCanvasTarget[], width: number, height: number, scale: number, reserved: readonly Point[] = []) {
   // The buttons live in CSS pixels, even while the schematic is scaled.
   const pitch = 48 / scale;
   const edge = 24 / scale;
@@ -124,6 +166,7 @@ export function placeLcCanvasTargets(targets: readonly LcCanvasTarget[], width: 
 
   function available({ x, y }: Point) {
     return x >= edge && x <= width - edge && y >= edge && y <= fieldHeight - edge
+      && reserved.every(point => Math.abs(x - point.x) >= pitch || Math.abs(y - point.y) >= pitch)
       && markers.every(({ point }) => Math.abs(x - point.x) >= pitch || Math.abs(y - point.y) >= pitch);
   }
 

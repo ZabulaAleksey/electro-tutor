@@ -42,6 +42,7 @@ export function buildLearningNavigation(published:readonly PublishedNavigationLe
     },relatedTools:mvp?[]:(binding?.relatedToolIds||[]).map(reference),variants:[]};
   })}));
   for(const item of catalogueItems) {
+    if(item.navigation === false) continue;
     const id=`tools:${item.category}`;let group=groups.find(group=>group.id===id);
     if(!group){group={id,title:catalogueCategoryLabels[item.category],entries:[]};groups.push(group);}
     group.entries.push({id:`tool:${item.id}`,kind:'tool',title:item.title,description:item.description||item.title,category:item.categoryLabel,

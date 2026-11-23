@@ -24,14 +24,14 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page).toHaveURL(`${home}topics/`);
     const ohm = page.locator("#topic-dc-ohm");
     await expect(ohm.getByRole("link", { name: textbook, exact: true })).toHaveCount(0);
-    const micro = ohm.locator("a[href*='#micro=ohm-law']");
+    const micro = ohm.locator("a[href$='/interactive/experiments/micro/ohm-law/']");
     await micro.click();
-    await expect(page).toHaveURL(`${home}micro-labs/#micro=ohm-law`);
+    await expect(page).toHaveURL(`${home}interactive/experiments/micro/ohm-law/`);
     await expect(page.locator("[data-micro='ohm-law']")).toBeVisible();
     await page.goBack();
     await expect(page).toHaveURL(`${home}topics/`);
     await page.goForward();
-    await expect(page).toHaveURL(`${home}micro-labs/#micro=ohm-law`);
+    await expect(page).toHaveURL(`${home}interactive/experiments/micro/ohm-law/`);
     await nav.getByRole("link", { name: labs, exact: true }).click();
     await expect(page).toHaveURL(`${home}interactive/`);
     const search = page.locator("#labs input[type=search]");
@@ -40,7 +40,7 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page.locator("#labs a[href*='/interactive/beam/']")).toBeHidden();
     await search.clear();
     const labLinks = await page.locator("#labs a[data-registered-content]").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
-    expect(labLinks).toHaveLength(5);
+    expect(labLinks).toHaveLength(language === "ru" ? 39 : 38);
     expect(new Set(labLinks).size).toBe(labLinks.length);
     for (const href of new Set(labLinks.map(link => link.split("#")[0]))) {
       expect((await request.get(href)).status(), href).toBe(200);

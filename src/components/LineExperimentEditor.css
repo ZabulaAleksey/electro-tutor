@@ -9,8 +9,7 @@
 
 .line-experiment-editor-bar,
 .line-experiment-selection,
-.line-experiment-palette,
-.line-experiment-modes {
+.line-experiment-palette {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -45,7 +44,6 @@
   outline-offset: -2px;
 }
 
-.line-experiment-modes button[aria-pressed="true"],
 .line-experiment-palette button[aria-pressed="true"],
 .line-experiment-target[aria-pressed="true"] {
   border-color: var(--accent, #177598);

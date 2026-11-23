@@ -1,7 +1,7 @@
 ---
+import LaboratoryPage from "../../../../components/LaboratoryPage.astro";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import LcExperimentLab from "../../../../components/LcExperimentLab";
-import { localePath } from "../../../../site-path";
 import type { Language } from "../../../../types";
 
 export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
@@ -14,15 +14,7 @@ const description = ru
 ---
 <BaseLayout {title} {description} {language}
   active="interactive" alternatePath="/interactive/reactive-two-port-graph/experiment/">
-  <section class="lc-experiment-page">
-    <a href={localePath(language, "/interactive/")}>{ru ? "← Лаборатории" : "← Лабораторії"}</a>
-    <h1>{title}</h1>
+  <LaboratoryPage {language} title={title} description={description}>
     <LcExperimentLab client:load {language} />
-  </section>
+  </LaboratoryPage>
 </BaseLayout>
-
-<style>
-  .lc-experiment-page { width: min(100% - 2rem, 82rem); margin: 1rem auto 3rem; }
-  .lc-experiment-page h1 { margin: .55rem 0 1.1rem; font-size: clamp(1.45rem, 4vw, 2.55rem); }
-  .lc-experiment-page > a { display: inline-flex; align-items: center; min-height: 44px; }
-</style>

@@ -83,7 +83,6 @@ test("the current source can drive the same line with an entered RMS phase", asy
   await page.goto(route("ru"));
   const board = page.locator(editor);
   await board.locator('[data-line-palette="current"]').click();
-  await board.locator('[data-line-slot-mode="parallel"]').click();
   await board.locator('[data-line-parallel-part="E1"]').click();
   await board.locator('[data-line-parallel-side="right"]').click();
   await expect(board.locator('[data-line-glyph="J1"] [data-source-arrow]')).toHaveCount(2);
@@ -123,7 +122,6 @@ test.describe("Ukrainian touch layout", () => {
     await expect(board.locator("select")).toHaveCount(0);
     expect(await page.locator("html").evaluate(node => node.scrollWidth)).toBe(390);
     await board.locator('[data-line-palette="r"]').tap();
-    await board.locator('[data-line-slot-mode="parallel"]').tap();
     await board.locator('[data-line-parallel-part="R1"]').tap();
     await board.locator('[data-line-parallel-side="right"]').tap();
     await expect(board.locator('[data-line-glyph="R2"]')).toBeVisible();

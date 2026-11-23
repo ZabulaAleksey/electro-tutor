@@ -23,7 +23,7 @@ export interface Resource extends ContentLink {
 
 export function buildContentCatalogue(groups: LearningGroup[], language: Language, mvp: boolean) {
   const availableInBuild = (path: string) => !mvp || isPublicPage(localePath(language, path).split(/[?#]/)[0], import.meta.env.BASE_URL);
-  const items = [...catalogueItems, ...engineeringTools].filter(item => item.available && availableInBuild(item.href));
+  const items = [...catalogueItems, ...engineeringTools].filter(item => item.available && (item.languages === undefined || item.languages.includes(language)) && availableInBuild(item.href));
   const resourcesById = new Map<string, Resource>(items.map(item => [item.id, {
     kind: item.kind === "tool" ? "tools" : "labs",
     category: item.subject ?? item.category,

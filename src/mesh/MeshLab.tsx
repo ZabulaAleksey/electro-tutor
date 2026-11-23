@@ -9,7 +9,7 @@ import { formatMeshReading, makeDraft, meshLatex, parameterKeys, parameters, par
 import "./mesh-lab.css";
 const base = "/topics/dc/mesh-current-method/";
 function meshLabOwnsPath(pathname: string, ownerPath: string) { return pathname === ownerPath; }
-export default function MeshLab({persistContext=false,showMaterialLinks=true,ownerPath=localePath("ru", `${base}lab/`)}: {persistContext?:boolean;showMaterialLinks?:boolean;ownerPath?:string}) {
+export default function MeshLab({showIntro=true,persistContext=false,showMaterialLinks=true,ownerPath=localePath("ru", `${base}lab/`)}: {showIntro?:boolean;persistContext?:boolean;showMaterialLinks?:boolean;ownerPath?:string}) {
   const [example, setExample] = useState<MeshExample>(1), [draft, setDraft] = useState(makeDraft(meshPreset(1))), [active, setActive] = useState("R1"), [loop, setLoop] = useState(1), [ready, setReady] = useState(false), [unknown, setUnknown] = useState(false);
   useEffect(() => {
     const current = new URL(location.href);
@@ -31,7 +31,7 @@ export default function MeshLab({persistContext=false,showMaterialLinks=true,own
   const reading = (v: number | undefined, unit: string) => v === undefined ? "—" : `${formatMeshReading(v)} ${unit}`;
   return <div className="mesh-lab" data-ready={ready}>
     {showMaterialLinks && <nav className="mesh-lab-links" aria-label={copy.navigation}><a href={localePath("ru", base)}>{copy.textbook}</a><a href={`${localePath("ru", `${base}examples/`)}#example-${example}`}>{copy.examples}</a></nav>}
-    <h1 tabIndex={persistContext ? -1 : undefined}>{copy.title}</h1><p className="mesh-lab-intro">{copy.staticHint}</p>
+    {showIntro && <><h1 tabIndex={persistContext ? -1 : undefined}>{copy.title}</h1><p className="mesh-lab-intro">{copy.staticHint}</p></>}
     {unknown && <p role="status">{copy.unknown}</p>}
     <section className="mesh-workbench" aria-label={copy.workbench} data-testid="workbench">
       <div className="mesh-lab-controls">

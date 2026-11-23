@@ -38,6 +38,17 @@ export function reduceTopologyRlc(topology: CircuitTopology, observedEndpoints: 
   });
 }
 
+/** Return a safe visual projection while leaving the editable source document untouched. */
+export function simplifyTopologyForView(topology: CircuitTopology, observedEndpoints: readonly string[] = []): CircuitTopology {
+  // A port is a real branch of the graph. Its two named terminals remain
+  // present after reduction, and its incidence prevents collapsing through it.
+  const measurementTerminals = new Set(topology.components.filter(part => part.kind === "port")
+    .flatMap(part => part.terminals));
+  const result = reduceTopologyRlc(topology, observedEndpoints.filter(id => !measurementTerminals.has(id)));
+  if (!result.ok) return topology;
+  return result.topology;
+}
+
 function otherEnd(wire: CircuitWire, endpoint: string): string {
   return wire.from === endpoint ? wire.to : wire.from;
 }

@@ -78,10 +78,11 @@ export type CircuitBoardExtension = {
   };
 };
 
-export default function CircuitEditor({ language, embedded = false, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
+export default function CircuitEditor({ language, embedded = false, showTitle = true, mode = freeCircuitMode, initial, activeDocument, onCalculate, readings,
   extension, onDocumentChange, onClear, history, initialSelection, afterBoard, inspectOnly = false, selectedComponentId, inspection }: {
   language: Language;
   embedded?: boolean;
+  showTitle?: boolean;
   mode?: CircuitEditorMode;
   initial?: string;
   activeDocument?: string;
@@ -736,7 +737,7 @@ export default function CircuitEditor({ language, embedded = false, mode = freeC
     }
   }}>
     {inspectOnly ? <h2>{language === "ru" ? "Схема сети" : "Схема мережі"}</h2>
-      : embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : <h1>{copy.title}</h1>}
+      : embedded ? <h3>{language === "ru" ? "Универсальный редактор схем" : "Універсальний редактор схем"}</h3> : showTitle && <h1>{copy.title}</h1>}
     {extension?.controls?.(drawing)}
     {!inspectOnly && !embedded && mainTools}
     <div ref={viewportRef} className="circuit-viewport" data-circuit-nets={JSON.stringify(nets)}>

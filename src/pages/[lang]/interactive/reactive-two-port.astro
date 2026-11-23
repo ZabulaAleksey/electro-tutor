@@ -1,20 +1,11 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import ReactiveTwoPortLab from "../../../components/ReactiveTwoPortLab";
-import {localePath} from "../../../site-path";
-import type {Language} from "../../../types";
+import CompatibilityRedirect from "../../../components/CompatibilityRedirect.astro";
+import type { Language } from "../../../types";
 
-export function getStaticPaths(){return [{params:{lang:"ru"}},{params:{lang:"uk"}}];}
-const language=Astro.params.lang as Language;
-const ru=language==="ru";
-const title=ru?"Реактивный двухполюсник":"Реактивний двополюсник";
-const description=ru?"Соберите цепь из катушек и конденсаторов и исследуйте её резонансы.":"Зберіть коло з котушок і конденсаторів та дослідіть його резонанси.";
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const ru = language === "ru";
+const title = ru ? "LC-двухполюсник" : "LC-двополюсник";
+const description = ru ? "Исследование входного импеданса LC-цепи." : "Дослідження вхідного імпедансу LC-кола.";
 ---
-<BaseLayout title={title} description={description} language={language} active="interactive" alternatePath="/interactive/reactive-two-port/">
- <section class="section">
-  <a href={localePath(language,"/interactive/")}>← {ru?"Все лаборатории":"Усі лабораторії"}</a>
-  <h1>{title}</h1>
-  <a href={localePath(language,"/interactive/reactive-two-port-graph/")}>{ru?"Открыть редактор LC-графа":"Відкрити редактор LC-графа"}</a>
-  <ReactiveTwoPortLab client:load language={language}/>
- </section>
-</BaseLayout>
+<CompatibilityRedirect language={language} destinationPath="/interactive/reactive-two-port-graph/experiment/" alternatePath="/interactive/reactive-two-port/" title={title} description={description} />

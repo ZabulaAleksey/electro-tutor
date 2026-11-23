@@ -1,21 +1,11 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import ReactiveLcGraphLab from "../../../components/ReactiveLcGraphLab";
-import { localePath } from "../../../site-path";
+import CompatibilityRedirect from "../../../components/CompatibilityRedirect.astro";
 import type { Language } from "../../../types";
 
 export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
 const language = Astro.params.lang as Language;
 const ru = language === "ru";
-const title = ru ? "Реактивный LC-граф" : "Реактивний LC-граф";
-const description = ru
-  ? "Входной импеданс и резонансы произвольной схемы из катушек и конденсаторов."
-  : "Вхідний імпеданс і резонанси довільного кола з котушок і конденсаторів.";
+const title = ru ? "LC-двухполюсник" : "LC-двополюсник";
+const description = ru ? "Исследование входного импеданса LC-цепи." : "Дослідження вхідного імпедансу LC-кола.";
 ---
-<BaseLayout title={title} description={description} language={language} active="interactive" alternatePath="/interactive/reactive-two-port-graph/">
-  <section class="section lc-graph-page">
-    <a href={localePath(language, "/interactive/reactive-two-port/")}>← {ru ? "Последовательно-параллельные LC-цепи" : "Послідовно-паралельні LC-кола"}</a>
-    <h1>{title}</h1>
-    <ReactiveLcGraphLab client:load language={language} />
-  </section>
-</BaseLayout>
+<CompatibilityRedirect language={language} destinationPath="/interactive/reactive-two-port-graph/experiment/" alternatePath="/interactive/reactive-two-port-graph/" title={title} description={description} />

@@ -12,7 +12,7 @@ import { TopologySession, type TopologyLabDocument } from "./topology-session";
 const capacitor: CircuitComponent = { id: "C1", kind: "c", terminals: ["C1:a", "C1:b"], parameters: { farad: .0001 } };
 
 function addCapacitor(kind: "series" | "parallel"): TopologyLabDocument {
-  const session = new TopologySession(JSON.stringify(newLcExperiment()));
+  const session = new TopologySession(JSON.stringify(newLcExperiment({ kind: "l", value: 10 })));
   const slot = session.listSlots().find(slot => slot.kind === kind && (
     slot.kind === "series" ? slot.wireId === "W2"
       : slot.componentIds.length === 1 && slot.componentIds[0] === "L1" && slot.side === "right"

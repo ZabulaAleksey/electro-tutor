@@ -1,0 +1,42 @@
+---
+import type { Language } from "../types";
+import { localePath } from "../site-path";
+
+interface Props {
+  language: Language;
+  title: string;
+  description: string;
+}
+const { language, title, description } = Astro.props;
+---
+<section class="laboratory-page">
+  <header class="laboratory-intro">
+    <a href={localePath(language, "/interactive/")}>{language === "ru" ? "← Лаборатории" : "← Лабораторії"}</a>
+    <h1>{title}</h1>
+    <p>{description}</p>
+  </header>
+  <slot />
+</section>
+
+<style>
+  .laboratory-page {
+    width: min(calc(100% - 2rem), 82rem);
+    min-width: 0;
+    margin: 1rem auto 3rem;
+    font-family: inherit;
+  }
+  .laboratory-intro { margin-bottom: 1.25rem; }
+  .laboratory-intro a { display: inline-flex; align-items: center; min-height: 44px; }
+  .laboratory-intro h1 {
+    margin: .4rem 0;
+    font: inherit;
+    font-size: clamp(1.55rem, 3.5vw, 2.55rem);
+    line-height: 1.15;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+  }
+  .laboratory-intro p { margin: .4rem 0 0; max-width: 78ch; color: var(--muted); line-height: 1.5; }
+  .laboratory-page :global(:is(button, input, select, textarea, label)) { font-family: inherit; }
+  .laboratory-page :global(h2) { font-family: inherit; font-size: clamp(1.2rem, 2vw, 1.5rem); }
+  .laboratory-page :global(h3) { font-family: inherit; font-size: 1.125rem; }
+</style>

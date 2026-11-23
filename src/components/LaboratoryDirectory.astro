@@ -8,40 +8,30 @@ import type { Language } from "../types";
 interface Props { language: Language; home?: boolean }
 const { language, home = false } = Astro.props;
 const title = language === "ru" ? "Лаборатории" : "Лабораторії";
-const electricalLinks = [
-  ...(catalogueItems.find(lab => lab.id === "advanced:transmission-line")?.variants?.filter(variant => variant.id !== "reference") ?? []),
-  ...(catalogueItems.find(lab => lab.id === "advanced:reactive-two-port")?.variants ?? []),
-  ...catalogueItems.filter(lab => lab.id === "advanced:power-system" && lab.available),
-];
+const directoryLaboratories = catalogueItems.filter((lab) => lab.available && (lab.languages === undefined || lab.languages.includes(language)));
 ---
 <section class="content-directory lab-directory" id="labs" aria-labelledby="lab-directory-title">
   {home ? <h2 id="lab-directory-title">{title}</h2> : <h1 id="lab-directory-title">{title}</h1>}
-  {!home && <>
-    <DirectorySearch {language} />
-    <nav class="lab-electrical-links" aria-label={language === "ru" ? "Электрические лаборатории" : "Електричні лабораторії"}>
-      {electricalLinks.map(lab => <a href={localePath(language, lab.href)}>{lab.title[language]}</a>)}
-    </nav>
-  </>}
+  {!home && <DirectorySearch {language} />}
   <ul class="directory-grid" data-directory-group>
-    {showcaseLaboratories.map(lab => {
+    {(home ? showcaseLaboratories : directoryLaboratories).map(lab => {
       const href = localePath(language, lab.href);
-      return <li class="directory-card lab-directory-card" data-directory-entry>
-        <div aria-hidden="true"><TopicCover kind={lab.visual} /></div>
-        <h3><a href={href} data-registered-content={href}>{lab.title[language]}</a></h3>
-        {lab.description && <p>{lab.description[language]}</p>}
-        {!home && lab.id === "advanced:fourier" && lab.variants?.map(variant =>
-          <a class="lab-directory-variant" href={localePath(language, variant.href)}>{variant.title[language]}</a>)}
+      const alias = showcaseLaboratories.find(featured => featured.id === lab.id)?.title[language];
+      return <li class="directory-card lab-directory-card" data-directory-entry data-directory-alias={alias}>
+        <a class="lab-directory-card-link" href={href} data-registered-content={href} aria-labelledby={`lab-${lab.id.replaceAll(":", "-")}-title`}>
+          <div aria-hidden="true"><TopicCover kind={lab.visual} /></div>
+          <h3 id={`lab-${lab.id.replaceAll(":", "-")}-title`}>{lab.title[language]}</h3>
+          {lab.description && <p id={`lab-${lab.id.replaceAll(":", "-")}-description`}>{lab.description[language]}</p>}
+        </a>
       </li>;
     })}
   </ul>
 </section>
 <style>
   .lab-directory .directory-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
-  .lab-electrical-links { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-block: .5rem 1rem; }
-  .lab-electrical-links a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; }
-  .lab-directory-card { padding: .8rem; }
-  .lab-directory-card h3 { margin: .8rem 0 .25rem; font-size: 1.05rem; }
-  .lab-directory-card h3 a { display: inline-block; padding-block: .35rem; }
-  .lab-directory-variant { display: flex; width: fit-content; align-items: center; min-height: 44px; }
+  .lab-directory-card { padding: 0; }
+  .lab-directory-card-link { display: block; height: 100%; padding: .8rem; color: inherit; text-decoration: none; border-radius: .65rem; }
+  .lab-directory-card-link:hover, .lab-directory-card-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .lab-directory-card h3 { margin: .8rem 0 .25rem; font-size: 1.05rem; color: var(--accent); text-decoration: underline; }
   .lab-directory-card :global(.topic-cover) { width: 100%; height: 6rem; }
 </style>

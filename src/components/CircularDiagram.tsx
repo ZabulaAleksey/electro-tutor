@@ -19,7 +19,7 @@ import { getLocale } from "../i18n";
 import { localePath } from "../site-path";
 import type { Language } from "../types";
 
-export default function CircularDiagram({ language, route = "/interactive/circular-diagram/" }: { language: Language; route?: string }) {
+export default function CircularDiagram({ language, showHeading = true, route = "/interactive/circular-diagram/" }: { language: Language; showHeading?: boolean; route?: string }) {
   const pathname = localePath(language, route);
   const copy = getLocale(language);
   const fmt = (value:number)=>formatEngineeringNumber(value,language);
@@ -118,11 +118,11 @@ export default function CircularDiagram({ language, route = "/interactive/circul
     commit: (value: number) => commitParameter(key, value, "push"),
   });
 
-  return <section className="circle-lab">
-    <div className="circle-lab-heading">
+  return <section className={showHeading ? "circle-lab" : "circle-lab circle-lab-standalone"}>
+    {showHeading && <div className="circle-lab-heading">
       <div><span className="section-kicker">{copy.diagram.kicker}</span><h2>{copy.diagram.title}</h2></div>
       <p>{copy.diagram.lead}</p>
-    </div>
+    </div>}
     {urlStatus === "recovered" && <p className="circle-state-notice" role="status">
       {copy.diagram.recovered}
     </p>}

@@ -1,4 +1,9 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
+
+async function enter(field: Locator, value: number) {
+  await field.fill(String(value));
+  await field.press("Enter");
+}
 
 test("selects a real coordinate, updates both phasor diagrams, and recalculates the accepted editor graph", async ({ page }) => {
   const errors: Error[] = [];
@@ -7,12 +12,25 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await page.evaluate(() => { Object.defineProperty(window, "transientDocumentProbe", { value: true }); });
   await page.getByRole("link", { name: "Синусоидальный режим", exact: true }).click();
   await expect.poll(() => page.evaluate(() => Reflect.has(window, "transientDocumentProbe"))).toBe(false);
-  const lab = page.locator("[data-steady-line]");
-  await expect(lab).toHaveAttribute("data-ready", "true");
+  const lab = page.locator("[data-steady-experiment-results]");
+  await expect(lab).toBeVisible();
+  // Recreate the original quarter-wave example with the new lab's circuit controls.
+  const editor = page.locator("[data-line-experiment-editor]");
+  const select = (id: string) => editor.locator(`[data-line-component="${id}"]`).click();
+  const parameter = (key: string) => editor.locator(`[data-steady-field="${key}"]`);
+  await enter(page.locator('[data-steady-field="frequencyHz"]'), 100);
+  await select("E1");
+  await enter(parameter("voltageV"), 100);
+  await editor.locator('[data-line-palette="r"]').click();
+  await editor.locator('[data-line-series-slot="W1"]').click();
+  await select("R2");
+  await enter(parameter("ohm"), 50);
+  await select("R1");
+  await enter(parameter("ohm"), 100);
   const voltage = lab.getByRole("img", { name: "U(x)", exact: true });
   const current = lab.getByRole("img", { name: "I(x)", exact: true });
-  const voltageVectors = lab.getByRole("img", { name: "Векторы напряжения", exact: true }).locator("..");
-  const currentVectors = lab.getByRole("img", { name: "Векторы тока", exact: true }).locator("..");
+  const voltageVectors = lab.locator('[data-steady-phasors="voltage"]');
+  const currentVectors = lab.locator('[data-steady-phasors="current"]');
   const magnitude = (label: "forward" | "backward" | "total") => voltageVectors
     .locator('[data-wave-reading="' + label + '"]').getAttribute("data-wave-magnitude").then(Number);
   const forward = await magnitude("forward"), backward = await magnitude("backward"), initial = await magnitude("total");
@@ -43,24 +61,16 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await voltage.press("End");
   await expect(lab).toHaveAttribute("data-coordinate", "500000");
   expect(await magnitude("total")).toBeCloseTo(200 / 3, 8);
-  await lab.getByRole("combobox", { name: "Окончание", exact: true }).selectOption("matched");
+  await enter(parameter("ohm"), 50);
   expect(await magnitude("backward")).toBeCloseTo(0, 8);
   await expect(voltageVectors.locator('[data-wave-reading="backward"]')).toHaveAttribute("data-wave-phase", "");
 
-  await lab.getByRole("combobox", { name: "Окончание", exact: true }).selectOption("circuit");
   await voltage.press("Home");
-  await lab.getByText("Схема опыта", { exact: true }).click();
-  const editor = lab.locator("[data-circuit-editor]");
-  await editor.getByLabel("Выбрать", { exact: true }).selectOption("R1");
-  const resistance = editor.getByRole("spinbutton", { name: "Номинал", exact: true });
-  await resistance.fill("150");
-  await resistance.press("Enter");
-  await editor.getByRole("button", { name: "Рассчитать эту схему", exact: true }).click();
+  await enter(parameter("ohm"), 150);
   await expect.poll(() => magnitude("total")).toBeCloseTo(25, 8);
 
-  await editor.getByRole("button", { name: "Пример RLC" }).click();
-  await editor.getByRole("button", { name: "Рассчитать эту схему", exact: true }).click();
-  await expect(lab.getByRole("alert")).toContainText("Нужны источник ЭДС");
+  await enter(parameter("ohm"), -1);
+  await expect(editor.getByRole("alert")).toBeVisible();
   expect(await magnitude("total")).toBeCloseTo(25, 8);
   expect(errors).toEqual([]);
 });
@@ -70,11 +80,11 @@ test("exposes the same laboratory in Ukrainian without horizontal overflow", asy
   page.on("pageerror", error => errors.push(error));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/uk/interactive/transmission-line-steady/");
-  const lab = page.locator("[data-steady-line]");
-  await expect(lab).toHaveAttribute("data-ready", "true");
+  const lab = page.locator("[data-steady-experiment-results]");
+  await expect(lab).toBeVisible();
   await expect(page.getByRole("heading", { name: "Довга лінія в синусоїдному режимі", exact: true })).toBeVisible();
-  await expect(lab.getByRole("img", { name: "Вектори напруги", exact: true })).toBeVisible();
-  await expect(lab.getByRole("img", { name: "Вектори струму", exact: true })).toBeVisible();
+  await expect(lab.locator('[data-steady-phasors="voltage"]')).toBeVisible();
+  await expect(lab.locator('[data-steady-phasors="current"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await lab.getByRole("img", { name: "I(x)", exact: true }).press("End");
   await expect(lab).toHaveAttribute("data-coordinate", "500000");

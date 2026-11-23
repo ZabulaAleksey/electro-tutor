@@ -1436,3 +1436,8 @@ geometry/provenance размещаются в существующем engineeri
 ## ADR-061 — Проверяемая security-замена picomatch
 
 По прямому поручению владельца не ждать upstream применяется exact npm alias на `@ryotsu/picomatch@4.0.7-a` с реальным parser fix и штатным tracked compatibility patch. Все unrelated runtime изменения форка возвращаются к official 4.0.7; итоговый diff — 81 security additions. Alias и patchedDependencies принадлежат pnpm composition root; domain imports не меняются. Новый mandatory behavioral/lock/source regression дополняет неизменённый HIGH audit, а не заменяет его. Pin/SRI, patch hash, полный source-to-tarball comparison и отсутствие install hooks ограничивают риск нового maintainer; криптографически проверенная attestation не заявляется. Требования QG-008..012 и evidence/picomatch-remediation.json задают qualification/rollback; выпуск разрешён только после всех прежних gates и independent review. Возврат на официальный patched release требует тех же evals. Небезопасные сложные extglobs могут быть literalized, captures свёрнутых повторений могут отличаться; обычная glob-семантика сохраняется compatibility patch.
+
+
+## ET-LABR-012 — каталог самостоятельных опытов
+
+Решение владельца от 23.11.2026. Каталог RU/UK открывает самостоятельные лаборатории отдельными карточками. Прежние страницы синусоидальной линии и реактивного двухполюсника служат совместимыми входами в действующие опыты. Эквивалентная схема служит представлением исходного графа. Редактирование, JSON и история используют исходные элементы и соединения. Контракт и приёмка находятся в lab-reconstruction.spec.md и STAGES.md.

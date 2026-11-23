@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { moveSeriesEquivalent, reduceTopologyRlc } from "./topology-equivalence";
+import { moveSeriesEquivalent, reduceTopologyRlc, simplifyTopologyForView } from "./topology-equivalence";
 import { netlist, validateCircuit, type CircuitTopology, type Parameter } from "./topology";
 
 type Part = [id: string, kind: string, from: string, to: string, parameters: Record<string, Parameter>];
@@ -189,6 +189,28 @@ describe("series R/L relocation", () => {
 });
 
 describe("protected RLC calculation reduction", () => {
+  it("projects adjacent inductors and keeps taps or incompatible states expanded", () => {
+    const chain = circuit([
+      ["P1", "port", "input", "output", {}],
+      ["L1", "l", "input", "a", { henry: .02, initial: 1 }],
+      ["L2", "l", "a", "output", { henry: .03, initial: 1 }],
+    ]);
+    const projected = simplifyTopologyForView(chain, ["P1:a", "P1:b"]);
+    expect(projected.components.filter(part => part.kind === "l")).toHaveLength(1);
+    expect(projected.components.find(part => part.kind === "l")?.parameters.henry).toBeCloseTo(.05);
+    expect(simplifyTopologyForView(chain, ["a"])).toEqual(chain);
+    const tapped = circuit([
+      ["L1", "l", "input", "a", { henry: .02 }],
+      ["L2", "l", "a", "output", { henry: .03 }],
+      ["R1", "r", "a", "ground", { ohm: 4 }],
+    ]);
+    expect(simplifyTopologyForView(tapped, ["input", "output"]).components.map(part => part.id)).toContain("L1");
+    const mismatched = circuit([
+      ["L1", "l", "input", "a", { henry: .02, initial: 1 }],
+      ["L2", "l", "a", "output", { henry: .03, initial: -1 }],
+    ]);
+    expect(simplifyTopologyForView(mismatched, ["input", "output"])).toEqual(mismatched);
+  });
   it("preserves an observed original net exactly while reducing a different unobserved group", () => {
     const before = circuit([
       ["R1", "r", "in1", "observation", { ohm: 2 }],

@@ -5,7 +5,7 @@ test("laboratory catalogue keeps real items, search, and direct links", async ({
   await page.goto("/ru/interactive/");
   const catalogue = page.locator("#labs");
   const entries = catalogue.locator("[data-directory-entry]");
-  await expect(entries).toHaveCount(5);
+  await expect(entries).toHaveCount(39);
   await catalogue.getByRole("searchbox").fill("Электроника");
   await expect(catalogue.locator("[data-directory-entry]:visible")).toHaveCount(0);
   await expect(catalogue.locator("[data-directory-no-results]")).toBeVisible();
@@ -22,7 +22,7 @@ test("the textbook fits narrow viewports and avoids empty topic links", async ({
   await page.goto("/ru/topics/");
   await expect(page.getByRole("heading", { level: 1, name: "Учебник" })).toBeVisible();
   const ohm = page.locator("#topic-dc-ohm");
-  await expect(ohm.locator("a[href$='#micro=ohm-law']")).toBeVisible();
+  await expect(ohm.locator("a[href$='/interactive/experiments/micro/ohm-law/']")).toBeVisible();
   await expect(ohm.getByRole("link", { name: "Учебник", exact: true })).toHaveCount(0);
   await expect(page.locator("#topic-dc-mesh").getByRole("link", { name: "Учебник", exact: true })).toBeVisible();
   await expect(page.locator("#topic-dc-thevenin")).toHaveCount(0);

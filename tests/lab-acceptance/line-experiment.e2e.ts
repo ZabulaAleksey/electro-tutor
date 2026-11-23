@@ -21,8 +21,8 @@ test("Lab A from catalogue: delayed current, cascade, selected section, playback
   const failures: string[] = [];
   page.on("pageerror", error => failures.push(error.message));
   await page.goto(`${prefix}/ru/interactive/`);
-  await expect(page.locator(`a[href="${prefix}/ru/interactive/transmission-line-steady/"]`).first()).toBeVisible();
-  await page.getByRole("link", { name: "Переходные процессы в длинных линиях", exact: true }).click();
+  await expect(page.locator(`a[href="${prefix}/ru/interactive/transmission-line-steady/experiment/"]`).first()).toBeVisible();
+  await page.getByRole("link", { name: "Переходные процессы в длинной линии", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(route("ru") + "$"));
   await expect(page.locator('a[href*="transmission-line-steady"]')).toHaveCount(0);
   const board = page.locator(editor);
@@ -100,7 +100,7 @@ test("an invalid series edit can be undone and a late closure remains calculable
   await page.goto(route("ru"));
   const board = page.locator(editor);
   await board.locator('[data-line-palette="r"]').click();
-  await board.locator('[data-line-slot-mode="series"]').click();
+  await expect(board.locator("[data-line-slot-mode]")).toHaveCount(0);
   await board.locator('[data-line-series-slot="W1"]').press("Enter");
   await expect(page.locator("[data-line-a-model-error]")).toBeVisible();
   await page.locator("[data-line-a-undo]").click();
@@ -133,7 +133,6 @@ test.describe("Ukrainian touch layout", () => {
     }).toBe(true);
     await page.screenshot({ path: testInfo.outputPath("line-a-editor-mobile.png"), fullPage: true });
     await board.locator('[data-line-palette="r"]').tap();
-    await board.locator('[data-line-slot-mode="parallel"]').tap();
     await board.locator('[data-line-parallel-part="C1"]').tap();
     await board.locator('[data-line-parallel-side="right"]').tap();
     await expect(board.locator('[data-line-glyph="R1"]')).toBeVisible();

@@ -5,7 +5,7 @@
 ## ET-LABR-012 — Каталог, макеты и редактирование опытов
 
 - Status: verified
-- Lifecycle: проверенный коммит `a2bfeb2` интегрирован в локальную `main` через fast-forward от `e9d0562`. Совпадение деревьев проверено.
+- Lifecycle: опубликован коммит `abcb6a8` после слияния [PR №4](https://github.com/ZabulaAleksey/electro-tutor/pull/4) и [PR №5](https://github.com/ZabulaAleksey/electro-tutor/pull/5). Проверены рабочий домен Cloudflare и GitHub Pages.
 - Dependencies: ET-LABR-011 verified.
 - Scope: семь согласованных исправлений RU/UK по [SPEC](../specs/features/lab-reconstruction.spec.md#et-labr-012--каталог-и-управление-опытами).
 - Runnable E2E: каталог → отдельная карточка → опыт → каталог; старые ссылки B/LC → актуальный опыт. На схеме вставить элемент и поперечную ветвь, проверить эквивалентный участок, запустить и остановить время с прокруткой.
@@ -13,7 +13,7 @@
 - Evidence: [Локальные сборки, расчётные и браузерные проверки](TESTING.md#et-labr-012--каталог-схемы-и-воспроизведение).
 - Blockers: none
 - NEXT: none
-- User action LABR-UA-12 / DONE: владелец разрешил слияние в main. Интеграция завершена локально.
+- User action LABR-UA-12 / DONE: владелец разрешил слияние и публикацию. Развёртывание и браузерная проверка завершены на обеих площадках.
 
 ## ET-LABR-000 — Этап 0 · Сверка и проект реконструкции лабораторий
 

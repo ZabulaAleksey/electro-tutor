@@ -39,7 +39,7 @@ test("all five featured laboratories resolve once and legacy routes still work",
   await page.goto("/ru/interactive/");
   links.push(...await page.locator("#labs [data-registered-content]").evaluateAll(elements =>
     elements.map(link => (link as HTMLAnchorElement).getAttribute("href")!)));
-  expect(links).toHaveLength(39);
+  expect(links).toHaveLength(38);
   expect(links).not.toContain("/ru/interactive/reactive-two-port/");
   expect(new Set(links).size).toBe(links.length);
   const paths = new Set<string>();
@@ -98,8 +98,8 @@ test("keyboard search works with storage denied, and native links work without J
   const topic = plain.locator(mesh);
   await expect(topic.getByRole("link", { name: "Підручник", exact: true })).toHaveAttribute("href", "/uk/topics/dc/mesh-current-method/");
   await expect(topic.locator("a[href$='/examples/'],a[href$='/lab/']")).toHaveCount(0);
-  await plain.locator('a[href$="/uk/interactive/fourier/"]').click();
-  await expect(plain).toHaveURL("/uk/interactive/fourier/");
+  await plain.locator('a[href$="/uk/interactive/fourier/polygon-motion/"]').click();
+  await expect(plain).toHaveURL("/uk/interactive/fourier/polygon-motion/");
   await nojs.close();
 });
 
@@ -161,16 +161,18 @@ test('desktop menu labels remain inside the header with independent stages',asyn
 
 test("catalogue navigation and history keep a direct experiment bookmark", async ({ page }) => {
   const bookmark = "/ru/interactive/fourier/?harmonics=4";
+  const destination = "/ru/interactive/fourier/polygon-motion/?harmonics=4&method=fourier";
   await page.goto(bookmark);
+  await expect(page).toHaveURL(destination);
   await page.locator(header).getByRole("link", { name: "Лаборатории", exact: true }).click();
   await expect(page).toHaveURL("/ru/interactive/");
-  await expect(page.locator("#labs a[href$='/interactive/fourier/']")).toBeVisible();
+  await expect(page.locator("#labs a[href$='/interactive/fourier/polygon-motion/']")).toBeVisible();
   await page.goBack();
-  await expect(page).toHaveURL(bookmark);
+  await expect(page).toHaveURL(destination);
   await page.goto("/ru/interactive/?i0m=2.75");
   await expect(page.locator(".circle-lab")).toBeVisible();
   await page.goBack();
-  await expect(page).toHaveURL(bookmark);
+  await expect(page).toHaveURL(destination);
   await page.reload();
-  await expect(page).toHaveURL(bookmark);
+  await expect(page).toHaveURL(destination);
 });

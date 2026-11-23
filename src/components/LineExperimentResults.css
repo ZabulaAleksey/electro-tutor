@@ -215,5 +215,5 @@
 .line-a-playback button:enabled, .line-a-archive button:enabled { cursor: pointer; }
 .line-a-playback button:disabled, .line-a-archive button:disabled { opacity: .55; }
 .line-a-archive { display: flex; flex-wrap: wrap; gap: .55rem; margin-block: 1rem; }
-[data-line-a-source-assumption] { max-width: 70ch; }
+
 [data-line-a-model-error], [data-line-a-action-error] { padding: .65rem; border: 1px solid currentColor; color: var(--c-error, #9b2226); }

@@ -1,5 +1,6 @@
+import { appendSectionGeometry } from "../circuit/schematic-geometry";
 import { parts } from "../circuit/drawing";
-import { netlist, removeComponent, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
+import { netlist, removeDevicePreservingNets, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import type { DistributedParameters, SteadyExperimentSettings } from "./experiment-solver";
 
@@ -96,9 +97,10 @@ export function appendSteadyLine(previous: SteadyExperiment, outlet: string): St
     to: wire.to === outlet ? terminals[1] : wire.to,
   }));
   wires.push({ id: nextWireId(used), from: outlet, to: terminals[0] });
-  const next = parseTopologyLabDocument(JSON.stringify({
-    ...circuit, topology: { ...topology, components: [...topology.components, part], wires },
-  }));
+  const graph = { ...topology, components: [...topology.components, part], wires };
+  const inlet = anchor.terminals.find(terminal => terminal !== outlet)!;
+  const geometry = appendSectionGeometry(circuit.geometry, inlet, outlet, terminals, graph);
+  const next = parseTopologyLabDocument(JSON.stringify({ ...circuit, topology: graph, geometry }));
   const updated = updateSteadyCircuit(previous, next);
   const distribution = previous.settings.lineParameters[anchor.id];
   return distribution ? { ...updated, settings: {
@@ -110,20 +112,9 @@ export function removeSteadyPart(previous: SteadyExperiment, id: string): Steady
   const { circuit } = previous;
   const removed = circuit.topology.components.find(part => part.id === id);
   if (!removed) return previous;
-  const topology = removeComponent(circuit.topology, id);
-  const survivingNets = new Map(netlist(topology).flatMap(net => net.map(endpoint => [endpoint, net[0]] as const)));
-  const used = identifiers(topology);
-  const wires = [...topology.wires];
-  for (const original of netlist(circuit.topology)) {
-    if (!removed.terminals.some(endpoint => original.includes(endpoint))) continue;
-    // Keep each conductor intact when one of its attachments disappears.
-    const remaining = [...new Set(original.flatMap(endpoint => survivingNets.get(endpoint) ?? []))];
-    for (const endpoint of remaining.slice(1)) {
-      wires.push({ id: nextWireId(used), from: remaining[0], to: endpoint });
-    }
-  }
+  const topology = removeDevicePreservingNets(circuit.topology, id);
   const next = parseTopologyLabDocument(JSON.stringify({
-    ...circuit, topology: { ...topology, wires },
+    ...circuit, topology,
     observedEndpoints: circuit.observedEndpoints.filter(key => !removed.terminals.includes(key)),
     attachmentSides: circuit.attachmentSides.filter(hint => hint.componentId !== id),
   }));

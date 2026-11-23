@@ -72,9 +72,9 @@ for (const language of ["ru", "uk"] as const) {
   test(`${language}: every published experiment has one full-card route`, async ({ page }) => {
     await page.goto(directory(language));
     const cards = page.locator("main #labs [data-directory-entry] > a.lab-directory-card-link");
-    await expect(cards).toHaveCount(language === "ru" ? 39 : 38);
+    await expect(cards).toHaveCount(language === "ru" ? 38 : 37);
     const hrefs = await cards.evaluateAll((elements) => elements.map((element) => element.getAttribute("href")));
-    expect(new Set(hrefs).size).toBe(language === "ru" ? 39 : 38);
+    expect(new Set(hrefs).size).toBe(language === "ru" ? 38 : 37);
     const first = cards.first();
     await first.hover({ position: { x: 5, y: 5 } });
     expect(await first.evaluate(link => link.matches(":hover"))).toBe(true);
@@ -90,6 +90,21 @@ for (const language of ["ru", "uk"] as const) {
       }, await response.text());
       expect(structure, href!).toEqual({ headings: 1, back: directory(language) });
     }
+  });
+
+  test(`${language}: the epicycle bookmark opens the canonical contour lab`, async ({ page }) => {
+    const legacy = directory(language) + "fourier/";
+    const destination = legacy + "polygon-motion/";
+    await page.goto(directory(language));
+    const directoryCards = page.locator("#labs");
+    await expect(directoryCards.locator(`a[href='${legacy}']`)).toHaveCount(0);
+    await expect(directoryCards.locator(`a[href='${destination}']`)).toHaveCount(1);
+    await page.goto(legacy + "?harmonics=4#saved");
+    await expect(page).toHaveURL(destination + "?harmonics=4&method=fourier#saved");
+    await expect(page.locator('link[rel=canonical]')).toHaveAttribute("href", new RegExp(destination + "$"));
+    await expect(page.locator("main h1")).toHaveText(language === "ru" ? "Аппроксимация контура" : "Апроксимація контуру");
+    await page.goto(legacy + "?method=fourier&harmonics=8#signal");
+    await expect(page).toHaveURL(destination + "?method=fourier&harmonics=8#signal");
   });
 
   test(`${language}: bookmarked electrical laboratory URLs still hydrate`, async ({ page }) => {

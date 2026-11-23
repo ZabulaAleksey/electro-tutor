@@ -12,7 +12,7 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await page.evaluate(() => { Object.defineProperty(window, "transientDocumentProbe", { value: true }); });
   await page.getByRole("link", { name: "Синусоидальный режим", exact: true }).click();
   await expect.poll(() => page.evaluate(() => Reflect.has(window, "transientDocumentProbe"))).toBe(false);
-  const lab = page.locator("[data-steady-experiment-results]");
+  const lab = page.locator('[data-steady-experiment][data-ready="true"] [data-steady-experiment-results]');
   await expect(lab).toBeVisible();
   // Recreate the original quarter-wave example with the new lab's circuit controls.
   const editor = page.locator("[data-line-experiment-editor]");
@@ -61,6 +61,8 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await voltage.press("End");
   await expect(lab).toHaveAttribute("data-coordinate", "500000");
   expect(await magnitude("total")).toBeCloseTo(200 / 3, 8);
+  // Selecting a plot dismisses the contextual component inspector.
+  await select("R1");
   await enter(parameter("ohm"), 50);
   expect(await magnitude("backward")).toBeCloseTo(0, 8);
   await expect(voltageVectors.locator('[data-wave-reading="backward"]')).toHaveAttribute("data-wave-phase", "");
@@ -80,7 +82,7 @@ test("exposes the same laboratory in Ukrainian without horizontal overflow", asy
   page.on("pageerror", error => errors.push(error));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/uk/interactive/transmission-line-steady/");
-  const lab = page.locator("[data-steady-experiment-results]");
+  const lab = page.locator('[data-steady-experiment][data-ready="true"] [data-steady-experiment-results]');
   await expect(lab).toBeVisible();
   await expect(page.getByRole("heading", { name: "Довга лінія в синусоїдному режимі", exact: true })).toBeVisible();
   await expect(lab.locator('[data-steady-phasors="voltage"]')).toBeVisible();

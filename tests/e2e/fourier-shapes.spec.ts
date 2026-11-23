@@ -1,17 +1,16 @@
 import {expect,test} from "@playwright/test";
 test("a polygon survives basis changes, comparison, smoothing and save",async({page})=>{
  await page.goto("/ru/interactive/fourier/");
- await page.getByLabel("Исходная фигура").selectOption("polygon");
+ await page.locator("[data-contour-preset]").selectOption("polygon");
  await page.getByLabel("Число вершин").selectOption("7");
- await page.getByRole("button",{name:"Построить фигуру"}).click();
  const canvas=page.locator(".fourier-canvas");
  await expect(canvas).toHaveAttribute("data-committed-points","7");
- await page.getByLabel("Базис",{exact:true}).selectOption("haar");
- await expect(canvas.locator(".fourier-circle")).toHaveCount(0);
- await page.getByText("Сравнение базисов",{exact:true}).click();
- await expect(page.locator(".fourier-comparison tbody tr")).toHaveCount(4);
- await page.getByLabel("Исходная фигура").selectOption("rectangle");
- await page.getByRole("button",{name:"Построить фигуру"}).click();
+ await page.locator("[data-motion-family]").selectOption("triangle");
+ await expect(page.locator("[data-motion-source-drawing] svg")).toHaveAttribute("data-point-count","7");
+ await expect(page.locator(".fourier-circle")).toHaveCount(0);
+ await page.locator("[data-motion-family]").selectOption("circle");
+ await expect(canvas).toHaveAttribute("data-committed-points","7");
+ await page.locator("[data-contour-preset]").selectOption("rectangle");
  const original=canvas.locator(".fourier-original");
  const before=await original.getAttribute("points");
  await page.getByRole("button",{name:"Сгладить контур"}).click();
@@ -31,6 +30,9 @@ test("a polygon survives basis changes, comparison, smoothing and save",async({p
  await page.reload();
  await page.getByRole("button",{name:"Загрузить",exact:true}).click();
  await expect(canvas).toHaveAttribute("data-committed-points","7");
+ await page.goto("/ru/interactive/fourier/bases/");
+ await page.locator("[data-basis-selector]").selectOption("haar");
+ await expect(page.locator("[data-basis-comparison-row]")).toHaveCount(9);
  await page.getByText("Пользовательский базис",{exact:true}).click();
  await expect(page.locator("[data-custom-basis]")).toContainText("κ∞(R)");
  await page.getByLabel("Функции базиса").fill("x\n2*x");

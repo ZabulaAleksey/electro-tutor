@@ -212,3 +212,10 @@
   .basis-experiment th,
   .basis-experiment td { padding-inline: .25rem; }
 }
+
+.basis-board-axes { stroke: var(--muted); stroke-width: 1.5; }
+.basis-axis-labels { fill: var(--ink); font-size: 12px; }
+
+.basis-experiment [data-function-drawing] { aspect-ratio:400/210; max-height:18rem; }
+
+.basis-ready { display:grid; gap:1rem; min-width:0; margin:0; padding:0; border:0; }

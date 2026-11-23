@@ -4,8 +4,33 @@ import {
   appendExperimentSection, lineExperimentModel, newLineExperiment, observationAt, readLineExperiment, removeExperimentPart,
 } from "./line-experiment";
 
-test("the current source drives the line only after the normally open switch closes", () => {
+function legacyCurrentExperiment() {
   const experiment = newLineExperiment();
+  const text = JSON.stringify(experiment).replaceAll("E1", "J1");
+  const saved = JSON.parse(text);
+  const source = saved.circuit.topology.components.find((part: { id: string }) => part.id === "J1");
+  source.kind = "current";
+  source.parameters = { currentA: .1, onS: 0, offS: 0 };
+  return readLineExperiment(JSON.stringify(saved));
+}
+
+test("E1 launches a voltage step with the physical line impedance and a delayed reflection from C1", () => {
+  const { circuit, durationS } = newLineExperiment();
+  const model = lineExperimentModel(circuit, durationS);
+  expect(model.source.voltageV).toBe(12);
+  expect(model.source.currentA).toBeUndefined();
+  const run = simulateNetwork(model);
+  const x = model.sections[0].lengthM / 4;
+  expect(at(run, x, .001)).toMatchObject({ u: 0, i: 0 });
+  const front = at(run, x, .002);
+  expect(front.u).toBeCloseTo(12, 4);
+  expect(front.i).toBeCloseTo(12 / 50, 4);
+  expect(front.backward).toBeCloseTo(0, 5);
+  expect(Math.abs(at(run, x, .009).backward)).toBeGreaterThan(.1);
+});
+
+test("the current source drives the line only after the normally open switch closes", () => {
+  const experiment = legacyCurrentExperiment();
   const delayed = {
     ...experiment.circuit,
     topology: {
@@ -29,7 +54,7 @@ test("the current source drives the line only after the normally open switch clo
 });
 
 test("a permanently open input gives a specific diagnostic for ideal source current", () => {
-  const { circuit, durationS } = newLineExperiment();
+  const { circuit, durationS } = legacyCurrentExperiment();
   const topology = {
     ...circuit.topology,
     components: circuit.topology.components.map(part =>
@@ -56,6 +81,6 @@ test("cascade adds a real section before the load and the complete archive resto
 test("deleting the shunt load preserves the line and opens its termination", () => {
   const { circuit, durationS } = newLineExperiment();
   const edited = removeExperimentPart(circuit, "C1");
-  expect(edited.topology.components.map(({ id }) => id)).toEqual(["J1", "K1", "TL1"]);
+  expect(edited.topology.components.map(({ id }) => id)).toEqual(["E1", "K1", "TL1"]);
   expect(lineExperimentModel(edited, durationS).load.kind).toBe("open");
 });

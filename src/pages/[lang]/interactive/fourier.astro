@@ -1,16 +1,13 @@
 ---
-import LaboratoryPage from "../../../components/LaboratoryPage.astro";
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import FourierLab from "../../../components/FourierLab";
+import CompatibilityRedirect from "../../../components/CompatibilityRedirect.astro";
 import type { Language } from "../../../types";
-export function getStaticPaths(){return [{params:{lang:"ru"}},{params:{lang:"uk"}}];}
-const language=Astro.params.lang as Language;
-const ru=language==="ru";
-const title=ru?"Эпициклы Фурье":"Епіцикли Фур’є";
-const lead=ru?"Рисуйте контур и наблюдайте его разложение на гармоники и эпициклы.":"Малюйте контур і спостерігайте його розклад на гармоніки та епіцикли.";
+
+export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
+const language = Astro.params.lang as Language;
+const title = language === "ru" ? "Аппроксимация контура" : "Апроксимація контуру";
+const description = language === "ru"
+  ? "Откройте круговые движения Фурье в лаборатории аппроксимации контура."
+  : "Відкрийте колові рухи Фур’є в лабораторії апроксимації контуру.";
+const destination = "/interactive/fourier/polygon-motion/";
 ---
-<BaseLayout title={title} description={lead} language={language} active="interactive" alternatePath="/interactive/fourier/">
-  <LaboratoryPage {language} title={title} description={lead}>
-    <FourierLab client:load language={language}/>
-  </LaboratoryPage>
-</BaseLayout>
+<CompatibilityRedirect {language} {title} {description} destinationPath={destination + "?method=fourier"} alternatePath={destination} />

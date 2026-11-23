@@ -245,6 +245,9 @@ function SectionResults({ language, solution, section, xM, onPositionChange }: S
           <label>{words.position}
             <input data-steady-position type="number" step="any" min={0} max={section.lengthM}
               inputMode="decimal" value={draft ?? String(position)} onBlur={commitDraft}
+              onKeyDown={event => {
+                if (event.key === "Enter") { event.preventDefault(); choose(event.currentTarget.valueAsNumber); }
+              }}
               onChange={event => setDraft(event.target.value)} />
           </label>
         </form>

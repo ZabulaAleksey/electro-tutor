@@ -1,3 +1,4 @@
+import { Play, Pause, Square, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Complex } from "../fourier/math";
 import { motionSampleCount, type MotionOptions, type PolygonMotion, type PolygonMotionResult } from "../fourier/polygon-motion-contract";
@@ -156,9 +157,12 @@ export function PolygonMotionPlayback({ language, points, result, options, selec
       {selectionPath && <span className="motion-legend-selected">{t.selected}</span>}
     </div>
     <div className="motion-playback-controls">
-      {!reducedMotion && <button type="button" data-motion-play onClick={() => setPlaying(current => !current)}>
-        {playing ? t.pause : t.play}
+      {!reducedMotion && <button type="button" data-motion-play title={playing ? t.pause : t.play} aria-label={playing ? t.pause : t.play} onClick={() => setPlaying(current => !current)}>
+        {playing ? <Pause size={18}/> : <Play size={18}/>}
       </button>}
+      <button type="button" aria-label="Стоп" title="Стоп" onClick={() => {setPlaying(false); setPosition(0);}}><Square size={17}/></button>
+      <button type="button" title={language === "ru" ? "Сброс фазы" : "Скинути фазу"} aria-label={language === "ru" ? "Сброс фазы" : "Скинути фазу"}
+        onClick={() => setPosition(0)}><RotateCcw size={18}/></button>
       <label className="motion-field motion-phase"><span>{t.phase}</span>
         <input data-motion-phase type="range" min="0" max="1" step={1 / motionSampleCount} value={position}
           aria-valuetext={`${formatEngineeringNumber(position * 100, language)}%`}

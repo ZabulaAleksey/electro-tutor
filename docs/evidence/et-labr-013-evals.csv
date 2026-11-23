@@ -1,0 +1,62 @@
+ID,Требование,Опыт,Кадры,Локальный результат,Свидетельства
+SCHEM-001,начальный E1 является источником ЭДС.,Конструктор,1,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/transient/line-experiment.test.ts
+SCHEM-002,контекстное меню открывается возле элемента.,Конструктор,2,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-003,редактирование не скрывает схему.,Конструктор,2,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-004,вставка не выстраивает элементы в один ряд.,Конструктор,"3,7",PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-005,работает последовательное включение.,Конструктор,"6,9",PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-006,работает параллельное включение к одному элементу.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-007,к двум элементам.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-008,к трём элементам.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-009,к четырём элементам.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-010,к пяти элементам.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-011,к более длинному участку.,Конструктор,9,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/circuit/topology-slots.test.ts
+SCHEM-012,drag-and-drop и click-to-insert топологически эквивалентны.,Конструктор,6,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-013,ориентация автоматическая.,Конструктор,8,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-014,Delete работает.,Конструктор,7,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-015,корзина работает.,Конструктор,7,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-016,TL удаляется через общий механизм.,Конструктор,7,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | tests/lab-acceptance/line-experiment.e2e.ts
+SCHEM-017,`+ TL` закреплена слева сверху.,Конструктор,7,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-018,reload не приводит к незаметной потере схемы.,Конструктор,4,PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-019,нет неработающих маркеров.,Конструктор,"5,6,9",PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-020,после операций сохраняются электрические инварианты.,Конструктор,"6,9",PASS,src/circuit/topology-slots.test.ts | tests/lab-acceptance/circuit-reference-interactions.e2e.ts
+SCHEM-021,система подключения переиспользуется в нескольких лабораториях.,Конструктор,"6,9",PASS,tests/lab-acceptance/circuit-reference-interactions.e2e.ts | tests/lab-acceptance/steady-experiment.e2e.ts
+SCHEM-022,сложные схемы выдерживают стресс-тесты.,Конструктор,"3,9",PASS,src/circuit/topology-slots.test.ts | tests/lab-acceptance/circuit-reference-interactions.e2e.ts | src/components/line-slot-geometry.test.ts
+STAR-001,увеличенная читаемая топографическая диаграмма.,Несимметричная звезда,10,PASS,tests/e2e/star-neutral.spec.ts
+STAR-002,комплексная плоскость ограничена R ≥ 0.,Несимметричная звезда,10,PASS,tests/e2e/star-neutral.spec.ts
+STAR-003,работает X положительный и отрицательный.,Несимметричная звезда,"10,12",PASS,tests/e2e/star-neutral.spec.ts
+STAR-004,точки A/B/C корректны.,Несимметричная звезда,10,PASS,tests/e2e/star-neutral.spec.ts
+STAR-005,ввод меняет точки.,Несимметричная звезда,"10,12",PASS,tests/e2e/star-neutral.spec.ts
+STAR-006,перетаскивание меняет ввод.,Несимметричная звезда,"10,12",PASS,tests/e2e/star-neutral.spec.ts
+STAR-007,модель пересчитывается.,Несимметричная звезда,"10,12",PASS,tests/e2e/star-neutral.spec.ts | src/models/star-neutral.test.ts
+STAR-008,нейтраль управляется toggle.,Несимметричная звезда,"10,12",PASS,tests/e2e/three-phase-delta.spec.ts
+STAR-009,первое включение N в нуле.,Несимметричная звезда,10,PASS,tests/e2e/three-phase-delta.spec.ts
+STAR-010,конечное Z_N управляется двусторонне.,Несимметричная звезда,"10,12",PASS,tests/e2e/three-phase-delta.spec.ts
+STAR-011,обрыв нейтрали математически корректен.,Несимметричная звезда,10,PASS,src/models/star-neutral.test.ts | tests/e2e/three-phase-delta.spec.ts
+STAR-012,сенсорное перетаскивание плавное.,Несимметричная звезда,10,PASS,tests/e2e/star-neutral.spec.ts
+STAR-013,самостоятельное построение удалено.,Несимметричная звезда,11,PASS,tests/e2e/three-phase-delta.spec.ts
+STAR-014,напряжение источника сверху.,Несимметричная звезда,12,PASS,tests/e2e/star-neutral.spec.ts
+STAR-015,поля сопротивлений возле плоскости.,Несимметричная звезда,"10,12",PASS,tests/e2e/star-neutral.spec.ts
+STAR-016,треугольник удалён.,Несимметричная звезда,11,PASS,tests/e2e/three-phase-delta.spec.ts
+STAR-017,название изменено.,Несимметричная звезда,10,PASS,tests/e2e/star-neutral.spec.ts
+STAR-018,физические предельные случаи проходят.,Несимметричная звезда,"10,12",PASS,src/models/star-neutral.test.ts
+STAR-019,нет необработанных численных ошибок.,Несимметричная звезда,"10,12",PASS,src/models/star-neutral.test.ts
+MATH-001,отдельная лаборатория эпициклов отсутствует в навигации.,Математические лаборатории,"13,17",PASS,tests/lab-acceptance/lab-directory-routes.e2e.ts
+MATH-002,эпициклы доступны в аппроксимации.,Математические лаборатории,"13,17",PASS,tests/e2e/fourier-lab.spec.ts | tests/lab-acceptance/polygon-motion.e2e.ts
+MATH-003,круговой метод математически корректен.,Математические лаборатории,13,PASS,src/fourier/math.test.ts | tests/e2e/fourier-lab.spec.ts
+MATH-004,треугольные движения работают.,Математические лаборатории,17,PASS,tests/lab-acceptance/polygon-motion.e2e.ts | src/fourier/polygon-motion-math.test.ts
+MATH-005,квадратные движения работают.,Математические лаборатории,17,PASS,tests/lab-acceptance/polygon-motion.e2e.ts | src/fourier/polygon-motion-math.test.ts
+MATH-006,полезные существующие методы сохранены.,Математические лаборатории,"13,17",PASS,tests/lab-acceptance/polygon-motion.e2e.ts | tests/e2e/fourier-lab.spec.ts
+MATH-007,спектр сохранён.,Математические лаборатории,"13,15,17",PASS,tests/e2e/fourier-lab.spec.ts | tests/lab-acceptance/polygon-motion.e2e.ts
+MATH-008,пресеты доступны компактно.,Математические лаборатории,"14,15",PASS,tests/e2e/fourier-shapes.spec.ts | tests/e2e/fourier-lab.spec.ts
+MATH-009,кнопки управления имеют стандартные пиктограммы.,Математические лаборатории,13,PASS,tests/e2e/fourier-lab.spec.ts
+MATH-010,все значимые кнопки имеют подсказки.,Математические лаборатории,"13,17",PASS,tests/e2e/fourier-lab.spec.ts | tests/lab-acceptance/polygon-motion.e2e.ts
+MATH-011,импорт и экспорт находятся внизу.,Математические лаборатории,"13,15,17",PASS,tests/e2e/fourier-lab.spec.ts | tests/lab-acceptance/polygon-motion.e2e.ts
+MATH-012,Fourier присутствует в базисных разложениях.,Математические лаборатории,16,PASS,tests/lab-acceptance/basis-experiment.e2e.ts
+MATH-013,другие базисы распределены корректно.,Математические лаборатории,"14,16",PASS,src/fourier/basis-experiment-math.test.ts | tests/lab-acceptance/basis-experiment.e2e.ts
+MATH-014,функция остаётся однозначной.,Математические лаборатории,16,PASS,src/fourier/drawn-function.test.ts | tests/lab-acceptance/basis-experiment.e2e.ts
+MATH-015,замкнутые контуры параметрические.,Математические лаборатории,16,PASS,tests/lab-acceptance/basis-experiment.e2e.ts
+MATH-016,оси читаемые.,Математические лаборатории,16,PASS,tests/lab-acceptance/basis-experiment.e2e.ts
+MATH-017,расчётные алгоритмы проверены.,Математические лаборатории,"13,16,17",PASS,src/fourier/math.test.ts | src/fourier/basis-experiment-math.test.ts | src/fourier/polygon-motion-math.test.ts
+MATH-018,старые URL работают через корректные переходы.,Математические лаборатории,"13,17",PASS,tests/lab-acceptance/lab-directory-routes.e2e.ts
+MATH-019,навигация не дублирует лаборатории.,Математические лаборатории,"13,17",PASS,tests/lab-acceptance/lab-directory-routes.e2e.ts
+MATH-020,импорт/экспорт сохраняет данные корректно.,Математические лаборатории,"13,16,17",PASS,tests/e2e/fourier-lab.spec.ts | tests/lab-acceptance/basis-experiment.e2e.ts | tests/lab-acceptance/polygon-motion.e2e.ts

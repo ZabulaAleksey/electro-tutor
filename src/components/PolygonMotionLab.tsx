@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { formatEngineeringNumber } from "../engineering/format";
+import { Eraser, Undo2 } from "lucide-react";
+import EngineeringPlot from "../engineering/EngineeringPlot";
+import FourierLab, { type FourierHandle, type FourierSession } from "./FourierLab";
+import ContourPresets, { type SignalPreset } from "./ContourPresets";
+import { smoothContour } from "../fourier/contour";
 import type { Complex } from "../fourier/math";
 import { motionJsonMaxBytes, motionMaxComponents, motionMaxScale, motionSampleCount, motionShapes, motionSvgMaxBytes,
   type MotionFamily, type MotionOptions, type PolygonMotion, type PolygonMotionExperiment } from "../fourier/polygon-motion-contract";
-import { checkedMotionPoints, defaultPolygonExperiment, motionPresetPoints, readPolygonExperiment, writePolygonExperiment } from "../fourier/polygon-motion-input";
+import { checkedMotionPoints, defaultPolygonExperiment, readPolygonExperiment, writePolygonExperiment } from "../fourier/polygon-motion-input";
 import { evaluatePolygonMotion, fitPolygonMotion } from "../fourier/polygon-motion-math";
 import { readPolygonSvg } from "../fourier/polygon-motion-svg";
 import type { Language } from "../types";
@@ -64,7 +69,6 @@ const copy = {
 type MotionError = keyof typeof copy.ru.errors;
 type Workspace = { current: PolygonMotionExperiment; previous: PolygonMotionExperiment[] };
 type FieldName = "sides" | "aspect" | "scale" | "angle" | "shift";
-const presets = ["square", "circle", "star"] as const;
 const families = ["all", ...motionShapes] as const;
 
 function localizedError(error: unknown, fallback: MotionError): MotionError {
@@ -98,8 +102,21 @@ function NumericControl({ name, label, value, min, max, step, onChange }: {
   </label>;
 }
 
+function sameContour(left: Complex[], right: Complex[]) {
+  return left === right || (left.length === right.length && left.every((point, index) =>
+    point.re === right[index].re && point.im === right[index].im));
+}
+
 export default function PolygonMotionLab({ language }: { language: Language }) {
   const t = copy[language];
+  const ru = language === "ru";
+  const [fourier, setFourier] = useState(false);
+  const fourierHandle = useRef<FourierHandle>(null);
+  const savedFourier = useRef<FourierSession | undefined>(undefined);
+  const savedFamilies = useRef(new Map<MotionFamily, { experiment: PolygonMotionExperiment; selected: number }>());
+  const [initialSignal, setInitialSignal] = useState<SignalPreset>();
+  const [closed, setClosed] = useState(true);
+  const [vertex, setVertex] = useState(0);
   const [ready, setReady] = useState(false);
   const [workspace, setWorkspace] = useState<Workspace>(() => ({ current: defaultPolygonExperiment(), previous: [] }));
   const [selected, setSelected] = useState(0);
@@ -108,6 +125,7 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
   const jsonInput = useRef<HTMLInputElement>(null);
   const generation = useRef({ ticket: 0 });
   useEffect(() => {
+    setFourier(new URLSearchParams(window.location.search).get("method") === "fourier");
     setReady(true);
     const imports = generation.current;
     return () => { imports.ticket++; };
@@ -115,14 +133,19 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
 
   const { current, previous } = workspace;
   const { points, options, components } = current;
+  const sourceFromFourier = useCallback((next: Complex[], isClosed: boolean) => {
+    setClosed(isClosed);
+    setWorkspace(state => sameContour(state.current.points,next) ? state : { ...state,
+      current: { ...state.current, points: next, components: undefined } });
+  }, []);
   const calculation = useMemo(() => {
-    if (!ready || !points.length) return {};
+    if (fourier || !ready || !points.length) return {};
     try {
       return { result: components ? evaluatePolygonMotion(points, options, components.slice(0, options.count)) : fitPolygonMotion(points, options) };
     } catch (failure) {
       return { problem: localizedError(failure, "invalid-motion-options") };
     }
-  }, [ready, points, options, components]);
+  }, [fourier, ready, points, options, components]);
   const { result, problem } = calculation;
   const notice = error ?? problem;
   const active = Math.max(0, Math.min(selected, (result?.components.length ?? 0) - 1));
@@ -159,6 +182,27 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
       manual = next.count > components.length ? fitPolygonMotion(points, next, components).components : components;
     }
     setWorkspace(state => ({ ...state, current: { ...state.current, options: next, components: manual } }));
+  }
+
+  function chooseMethod(next: string, signal?: SignalPreset) {
+    markEdit();
+    if (fourier) savedFourier.current = fourierHandle.current?.snapshot();
+    else savedFamilies.current.set(options.family, { experiment: current, selected });
+    if (next === "circle") {
+      setInitialSignal(signal);
+      setFourier(true);
+      return;
+    }
+    const family = next === "legacy-circle" ? "circle" : next as MotionFamily;
+    const saved = savedFamilies.current.get(family);
+    if (saved && sameContour(points,saved.experiment.points)) {
+      setWorkspace(state => ({ ...state, current: saved.experiment }));
+      setSelected(saved.selected);
+    } else {
+      changeOptions({ family });
+      setSelected(0);
+    }
+    setFourier(false);
   }
 
   function editComponent(update: Partial<PolygonMotion>) {
@@ -210,28 +254,50 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  const remembered = savedFourier.current;
+  const matchingFourier = !initialSignal && remembered && remembered.config.closed === closed
+    && sameContour(remembered.config.points, points) ? remembered : undefined;
   return <div className="polygon-motion-lab" data-motion-lab data-ready={ready}>
+    <fieldset className="lab-ready-guard" disabled={!ready}>
+    <div className="motion-method">
+      <label className="motion-field"><span>{ru ? "Метод движения" : "Метод руху"}</span>
+        <select data-motion-family value={fourier ? "circle" : options.family === "circle" ? "legacy-circle" : options.family} onChange={event => chooseMethod(event.currentTarget.value)}>
+          <option value="circle">{ru ? "Окружности · эпициклы Фурье" : "Кола · епіцикли Фур’є"}</option>
+          {families.filter(family => family !== "circle").map(family => <option key={family} value={family}
+            disabled={fourier && (!closed || points.some(p => Math.abs(p.re) > 1 || Math.abs(p.im) > 1))}>{t.names[family]}</option>)}
+          {!fourier && options.family === "circle" && <option value="legacy-circle">{ru ? "Окружности · геометрический подбор" : "Кола · геометричний підбір"}</option>}
+        </select>
+      </label>
+      {fourier && (!closed || points.some(p => Math.abs(p.re) > 1 || Math.abs(p.im) > 1)) &&
+        <span className="motion-note">{ru ? "Для многоугольных движений выберите замкнутый контур в пределах [−1, 1]." : "Для багатокутних рухів виберіть замкнений контур у межах [−1, 1]."}</span>}
+    </div>
+    {fourier ? <FourierLab ref={fourierHandle} session={matchingFourier} language={language} initialPoints={points} initialClosed={closed} initialSignal={initialSignal}
+      onSourceChange={sourceFromFourier} /> : <>
     <div className="motion-workspace">
       <section className="motion-card" aria-label={t.title}>
         <h2>{t.title}</h2>
-        <div className="motion-actions" aria-label={t.preset} role="group">
-          {presets.map(preset => <button type="button" key={preset} data-motion-preset={preset}
-            onClick={() => setPoints(motionPresetPoints(preset))}>{preset === "star" ? t.star : t.names[preset]}</button>)}
-        </div>
+        <ContourPresets language={language} onContour={setPoints} onSignal={name => chooseMethod("circle",name)} />
         <p className="motion-note">{t.draw}</p>
         <div data-motion-source-drawing>
           <BasisContourCanvas language={language} points={points} closed reconstruction={result?.reconstruction}
             contribution={result?.contributions[active]} onDraftStart={markEdit} onDraw={draw} />
         </div>
         <div className="motion-actions">
-          <button type="button" data-motion-undo disabled={!previous.length} onClick={undo}>{t.undo}</button>
-          <button type="button" data-motion-clear disabled={!points.length} onClick={() => setPoints([])}>{t.clear}</button>
-          <button type="button" onClick={() => svgInput.current?.click()}>{t.openSvg}</button>
-          <button type="button" onClick={() => jsonInput.current?.click()}>{t.openJson}</button>
-          <button type="button" data-motion-export disabled={!result} onClick={exportArchive}>{t.save}</button>
+          <button type="button" data-motion-undo title={t.undo} aria-label={t.undo} disabled={!previous.length} onClick={undo}><Undo2 size={18}/></button>
+          <button type="button" data-motion-clear title={t.clear} aria-label={t.clear} disabled={!points.length} onClick={() => setPoints([])}><Eraser size={18}/></button>
+          <button type="button" disabled={points.length < 3} title={ru ? "Сгладить контур" : "Згладити контур"} onClick={() => setPoints(smoothContour(points, true))}>{ru ? "Сгладить контур" : "Згладити контур"}</button>
         </div>
-        <input type="file" hidden ref={svgInput} accept="image/svg+xml,.svg" data-motion-svg-import onChange={event => void importFile(event, "svg")} />
-        <input type="file" hidden ref={jsonInput} accept="application/json,.json" data-motion-json-import onChange={event => void importFile(event, "json")} />
+        {points.length > 0 && <details><summary>{ru ? "Редактировать точки контура" : "Редагувати точки контуру"}</summary>
+          <label>{ru ? "Номер точки" : "Номер точки"} <input type="number" min="1" max={points.length} value={Math.min(vertex+1,points.length)}
+            onChange={e => { if(e.currentTarget.validity.valid && e.currentTarget.value) setVertex(e.currentTarget.valueAsNumber-1); }}/></label>
+          {(["re","im"] as const).map((key,index) => <label key={key}>{index ? "y" : "x"} <input type="number" min="-1" max="1" step="any"
+            value={points[Math.min(vertex, points.length-1)][key]} onChange={e => {
+              const value=e.currentTarget.valueAsNumber;
+              if (Number.isFinite(value) && Math.abs(value)<=1) draw(points.map((p,i)=>i===Math.min(vertex,points.length-1)?{...p,[key]:value}:p));
+            }}/></label>)}
+          <button type="button" title={ru ? "Удалить точку" : "Видалити точку"} disabled={points.length<=3}
+            onClick={() => draw(points.filter((_,i)=>i!==Math.min(vertex,points.length-1)))}>{ru ? "Удалить точку" : "Видалити точку"}</button>
+        </details>}
         {notice && <p role="alert" className="motion-error" data-motion-error={notice}>{t.errors[notice]}</p>}
       </section>
 
@@ -242,11 +308,6 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
     <div className="motion-workspace">
       <section className="motion-card" aria-label={t.settings}>
         <h2>{t.settings}</h2>
-        <label className="motion-field"><span>{t.shape}</span>
-          <select data-motion-family value={options.family} onChange={event => changeOptions({ family: event.currentTarget.value as MotionFamily })}>
-            {families.map(family => <option key={family} value={family}>{t.names[family]}</option>)}
-          </select>
-        </label>
         <div className="motion-field-pair">
           {(options.family === "all" || options.family === "polygon") && <NumericControl name="sides" label={t.sides} value={options.sides}
             min={3} max={12} step={1} onChange={sides => changeOptions({ sides })} />}
@@ -288,10 +349,26 @@ export default function PolygonMotionLab({ language }: { language: Language }) {
         </div>
         <p className="motion-note">{t.phaseDegrees} {formatEngineeringNumber(component.phaseIndex * 360 / motionSampleCount, language)}°</p>
         {components && <div className="motion-actions">
-          <button type="button" data-motion-autofit onClick={autoFit}>{t.auto}</button>
+          <button type="button" title={t.auto} data-motion-autofit onClick={autoFit}>{t.auto}</button>
           <p className="motion-note">{t.manual}</p>
         </div>}
       </section>}
     </div>
+    {result && <section className="motion-card"><h2>{ru ? "Масштабы составляющих" : "Масштаби складових"}</h2>
+      <p className="motion-note">{ru ? "s — масштаб единичной траектории. Номер i задаёт порядок подбора." : "s — масштаб одиничної траєкторії. Номер i задає порядок підбору."}</p>
+      <EngineeringPlot language={language} compact kind="stem" showLegend={false} label="s(i)" plot={{
+        xLabel: "i, 1", yLabel: "s, 1", xMin: 0, yMin: 0, yMax: Math.max(.01, ...result.components.map(c => c.scale)), xMax: Math.max(2,result.components.length),
+        curves: [{ label: "s", color:"blue", points: result.components.map((c,i) => [i+1,c.scale]) }],
+      }} />
+    </section>}
+    <div className="motion-actions">
+      <button type="button" title={t.openSvg} onClick={() => svgInput.current?.click()}>{t.openSvg}</button>
+      <button type="button" title={t.openJson} onClick={() => jsonInput.current?.click()}>{t.openJson}</button>
+      <button type="button" title={t.save} data-motion-export disabled={!result} onClick={exportArchive}>{t.save}</button>
+    </div>
+    <input type="file" hidden ref={svgInput} accept="image/svg+xml,.svg" data-motion-svg-import onChange={e => void importFile(e, "svg")} />
+    <input type="file" hidden ref={jsonInput} accept="application/json,.json" data-motion-json-import onChange={e => void importFile(e, "json")} />
+    </>}
+    </fieldset>
   </div>;
 }

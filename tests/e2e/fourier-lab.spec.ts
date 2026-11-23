@@ -17,15 +17,15 @@ for (const language of ["ru", "uk"] as const) {
     const traceEnd = await lab.locator("[data-fourier-trace]").evaluate((node) => node.getAttribute("points")?.trim().split(/\s+/).at(-1));
     const endpoint = await lab.locator(".fourier-endpoint").evaluate((node) => `${node.getAttribute("cx")},${node.getAttribute("cy")}`);
     expect(traceEnd).toBe(endpoint);
-    await lab.locator("select").nth(1).selectOption("dct");
-    await expect(lab.locator(".fourier-table")).toHaveAttribute("data-basis","dct");
-    await expect(lab.locator(".fourier-table output").first()).toBeVisible();
-    await expect(lab.locator(".fourier-vector")).toHaveCount(0);
-    await expect(lab.locator(".fourier-note")).toHaveCount(0);
-    const reconstructedPoints = await lab.locator(".fourier-reconstructed").getAttribute("points");
-    expect(new Set((reconstructedPoints ?? "").split(/\s+/).map((point) => point.split(",")[1])).size).toBeGreaterThan(1);
     await lab.getByRole("button", { name: /Сброс фазы|Скинути фазу/ }).click();
     await expect(lab.locator('[data-fourier-phase]')).toHaveValue("0");
+    await page.goto(`/${language}/interactive/fourier/bases/`);
+    await page.locator("[data-basis-selector]").selectOption("dct");
+    await expect(page.locator("[data-basis-analysis]")).toHaveAttribute("data-basis", "dct");
+    await expect(page.locator("[data-basis-coefficient]").first()).toBeVisible();
+    await expect(page.locator("[data-basis-epicycles]")).toHaveCount(0);
+    const reconstructedPoints = await page.locator(".engineering-plot [data-plot-curve]").nth(1).getAttribute("points");
+    expect(new Set((reconstructedPoints ?? "").split(/\s+/).map(point => point.split(",")[1])).size).toBeGreaterThan(1);
   });
 }
 
@@ -49,8 +49,7 @@ test("signal presets apply signal edits immediately", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ru/interactive/fourier/");
   const lab = page.locator("[data-fourier-lab]");
-  await lab.locator("summary", { hasText: "Готовые сигналы" }).click();
-  await lab.getByRole("button", { name: "Сигнал" }).click();
+  await lab.locator("[data-contour-preset]").selectOption("signal-square");
   await expect(lab.locator("[data-fourier-playground]")).toBeVisible();
   const before = await lab.locator("[data-fourier-playground] [data-plot-curve]").first().getAttribute("points");
   await lab.locator(".playground-controls input[type=range]").first().fill("1.6");
@@ -78,8 +77,7 @@ test("disabling a selected harmonic removes its vector without substituting a hi
 
 test("playground configuration restores the actual signal after leaving its mode", async ({ page }) => {
  await page.emulateMedia({ reducedMotion: "reduce" }); await page.goto("/ru/interactive/fourier/");const lab=page.locator("[data-fourier-lab]");
- await lab.locator("summary",{hasText:"Готовые сигналы"}).click();await lab.getByRole("button",{name:"Сигнал",exact:true}).click();
- await lab.locator(".playground-controls select").selectOption("triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
+ await lab.locator("[data-contour-preset]").selectOption("signal-triangle");const curve=await lab.locator(".fourier-original").getAttribute("points");
  await lab.getByRole("button",{name:"Сохранить",exact:true}).click();const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("electrotutor-fourier-config")!));expect(validateFourierConfig(saved),JSON.stringify({...saved,points:saved?.points?.length})).toBe(true);await lab.getByRole("button",{name:"Демо-контур",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toHaveCount(0);
  await lab.getByRole("button",{name:"Загрузить",exact:true}).click();await expect(lab.locator("[data-fourier-playground]")).toBeVisible();await expect(lab.locator(".fourier-original")).toHaveAttribute("points",curve!);
 });
@@ -87,7 +85,7 @@ test("playground configuration restores the actual signal after leaving its mode
 test("Fourier rounds its labels and keeps full precision in the CSV and editable draft", async ({ page }, testInfo) => {
   await page.goto("/ru/interactive/fourier/");
   const lab = page.locator("[data-fourier-lab]");
-  await lab.locator("select").first().selectOption("interleaved");
+  await lab.getByLabel("Порядок").selectOption("interleaved");
   const dc = lab.getByLabel("amplitude 0", { exact: true });
   const harmonic = lab.getByLabel("amplitude 1", { exact: true });
   await expect(dc).toHaveValue("0");
@@ -106,4 +104,26 @@ test("Fourier rounds its labels and keeps full precision in the CSV and editable
   const rows = (await readFile(csv, "utf8")).trim().split("\n").map(row => row.split(","));
   expect(Number(rows.find(row => row[0] === "0")?.[3])).toBe(1.388e-16);
   expect(Number(rows.find(row => row[0] === "1")?.[3])).toBe(0.123456789);
+});
+
+test("a portable Fourier configuration restores the signed coefficient, contour and phase", async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion:"reduce" });
+  await page.goto("/ru/interactive/fourier/polygon-motion/?method=fourier");
+  await page.locator("[data-contour-preset]").selectOption("rectangle");
+  await page.locator("[data-fourier-phase]").fill("0.43");
+  await page.getByLabel("phase -1", { exact:true }).fill("-0.75");
+  const before = await page.locator("[data-fourier-lab]").getAttribute("data-fourier-rms");
+  const saving = page.waitForEvent("download");
+  await page.locator("[data-fourier-export]").click();
+  const path = testInfo.outputPath("roundtrip-fourier.json");
+  await (await saving).saveAs(path);
+  expect(validateFourierConfig(JSON.parse(await readFile(path,"utf8")))).toBe(true);
+  await page.getByRole("button",{name:"Демо-контур",exact:true}).click();
+  await page.locator("[data-fourier-import]").setInputFiles(path);
+  await expect(page.locator("[data-fourier-phase]")).toHaveValue("0.43");
+  await expect(page.getByLabel("phase -1",{exact:true})).toHaveValue("-0,75");
+  await expect(page.locator("[data-fourier-lab]")).toHaveAttribute("data-fourier-rms",before!);
+  await page.locator("[data-fourier-import]").setInputFiles({ name:"bad.json", mimeType:"application/json", buffer:Buffer.from("{}") });
+  await expect(page.locator(".fourier-config-error")).toBeVisible();
+  await expect(page.locator("[data-fourier-lab]")).toHaveAttribute("data-fourier-rms",before!);
 });

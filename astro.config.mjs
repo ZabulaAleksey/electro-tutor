@@ -49,7 +49,11 @@ export default defineConfig({
   trailingSlash: "always",
   outDir: env.BUILD_OUTPUT_DIR || "./dist",
   output: "static",
-  integrations: [react(), mdx(), sitemap({filter: page => !mvp || (new URL(page).pathname !== base && isPublicPage(new URL(page).pathname,base))}), ...(mvp ? [releaseHeadersIntegration(base),mvpWorkerIntegration(base)] : []), ...(education ? [educationRoutesIntegration, educationReleaseIntegration(base)] : [])],
+  integrations: [react(), mdx(), sitemap({ filter: page => {
+    const path = new URL(page).pathname;
+    if (/\/(?:ru|uk)\/interactive\/fourier\/$/.test(path)) return false;
+    return !mvp || (path !== base && isPublicPage(path, base));
+  } }), ...(mvp ? [releaseHeadersIntegration(base),mvpWorkerIntegration(base)] : []), ...(education ? [educationRoutesIntegration, educationReleaseIntegration(base)] : [])],
   build: {
     format: "directory",
   },

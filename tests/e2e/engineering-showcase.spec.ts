@@ -16,7 +16,7 @@ test('AC parameter changes update RMS results and RC has a pausable physical tim
 });
 
 test('catalog searches real tools and bookmarked software examples remain explicitly illustrative',async({page})=>{
- await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Фурье');await expect(page.locator('#labs [data-directory-entry]:visible')).toHaveCount(1);await page.locator('#labs [data-directory-entry]:visible a[data-registered-content][href="/ru/interactive/fourier/"]').click();await expect(page).toHaveURL(/interactive\/fourier\/$/);
+ await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Фурье');await expect(page.locator('#labs [data-directory-entry]:visible')).toHaveCount(1);await page.locator('#labs [data-directory-entry]:visible a[data-registered-content][href="/ru/interactive/fourier/polygon-motion/"]').click();await expect(page).toHaveURL(/interactive\/fourier\/polygon-motion\/$/);
  await page.goto('/ru/#story=python-rc');const scene=await selectStory(page,'python-rc');await expect(scene.locator('.lab-code code')).toContainText('exp');await expect(scene.locator('.lab-code small')).not.toBeEmpty();await expect(scene.getByRole('slider')).toHaveCount(0);
  await page.goto('/ru/interactive/');await page.getByRole('searchbox').fill('Python');await expect(page.locator('#labs [data-directory-entry]:visible')).toHaveCount(0);await expect(page.locator('#labs [data-directory-no-results]')).toBeVisible();
 });

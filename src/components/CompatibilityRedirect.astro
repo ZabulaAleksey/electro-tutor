@@ -14,7 +14,11 @@ const destination = localePath(language, destinationPath);
     const link = document.querySelector<HTMLAnchorElement>("[data-laboratory-redirect]");
     if (link) {
       const target = new URL(link.href);
+      const defaults = new URLSearchParams(target.search);
       target.search = location.search;
+      for (const [name, value] of defaults) {
+        if (!target.searchParams.has(name)) target.searchParams.append(name, value);
+      }
       target.hash = location.hash;
       location.replace(target.href);
     }

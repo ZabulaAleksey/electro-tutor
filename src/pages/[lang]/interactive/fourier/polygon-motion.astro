@@ -7,7 +7,7 @@ import type { Language } from "../../../../types";
 export function getStaticPaths() { return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }]; }
 const language = Astro.params.lang as Language;
 const ru = language === "ru";
-const title = ru ? "Аппроксимация контура многоугольными движениями" : "Апроксимація контуру багатокутними рухами";
+const title = ru ? "Аппроксимация контура" : "Апроксимація контуру";
 const description = ru
   ? "Нарисуйте или откройте контур и приблизьте его суммой движений по многоугольникам и окружностям."
   : "Намалюйте або відкрийте контур і наблизьте його сумою рухів уздовж багатокутників і кіл.";

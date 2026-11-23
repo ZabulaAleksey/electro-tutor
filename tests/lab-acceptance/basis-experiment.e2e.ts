@@ -42,7 +42,7 @@ test("catalogue E: constant DFT, true rotating term and exact polynomial on the 
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(`${prefix}/ru/interactive/`);
-  await expect(page.locator(`a[href="${prefix}/ru/interactive/fourier/"]`)).toBeVisible();
+  await expect(page.locator(`a[href="${prefix}/ru/interactive/fourier/polygon-motion/"]`)).toBeVisible();
   await page.getByRole("link", { name: "Базисные разложения сигнала и контура", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(route("ru") + "$"));
   await expect(page.locator(lab)).toBeVisible();
@@ -54,7 +54,7 @@ test("catalogue E: constant DFT, true rotating term and exact polynomial on the 
   await expect(dc).toHaveAttribute("data-active", "true");
   const constantRms = await numberAttr(page.locator(result), "data-rms");
   expect(constantRms).toBeLessThan(1e-12);
-  await expect(page.locator('[data-basis-comparison-row][data-count="1"]')).toHaveCount(8);
+  await expect(page.locator('[data-basis-comparison-row][data-count="1"]')).toHaveCount(9);
 
   await applyExpression(page, "sin(2*pi*x)");
   const epicycles = page.locator("[data-basis-epicycles]");
@@ -68,7 +68,7 @@ test("catalogue E: constant DFT, true rotating term and exact polynomial on the 
   await capture(page, testInfo, "basis-e-signal-desktop");
   await page.locator("[data-basis-count]").press("End");
   await expect(page.locator(result)).toHaveAttribute("data-count", "64");
-  await expect(page.locator('[data-basis-comparison-row][data-count="16"]')).toHaveCount(8);
+  await expect(page.locator('[data-basis-comparison-row][data-count="16"]')).toHaveCount(9);
 
   await page.locator("[data-basis-boundary]").selectOption("open");
   await applyExpression(page, "1-4*x+4*x^2");
@@ -116,7 +116,7 @@ test.describe("Ukrainian touch experiment", () => {
     expect(await numberAttr(board, "data-point-count")).toBeGreaterThanOrEqual(4);
     await page.locator("[data-basis-close]").check();
     await expect(page.locator(result)).toBeVisible();
-    const methods = ["fourier", "haar", "walsh", "daubechies", "symlets", "coiflets", "chebyshev", "legendre"];
+    const methods = ["fourier", "dct", "haar", "walsh", "daubechies", "symlets", "coiflets", "chebyshev", "legendre"];
     const metrics: Record<string, number> = {};
     for (const basis of methods) {
       await page.locator("[data-basis-selector]").selectOption(basis);
@@ -124,7 +124,7 @@ test.describe("Ukrainian touch experiment", () => {
       expect(Number.isFinite(metrics[basis])).toBe(true);
       await expect(page.locator("[data-basis-epicycles]")).toHaveCount(basis === "fourier" ? 1 : 0);
     }
-    await expect(page.locator('[data-basis-comparison-row][data-count="8"]')).toHaveCount(8);
+    await expect(page.locator('[data-basis-comparison-row][data-count="8"]')).toHaveCount(9);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 
     const downloadPromise = page.waitForEvent("download");

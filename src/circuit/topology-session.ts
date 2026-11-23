@@ -1,3 +1,4 @@
+import { readSchematicGeometry, type SchematicGeometry } from "./schematic-geometry";
 import { maxCircuitFileBytes } from "./document";
 import { optionalPartParameters, parts, validPartParameter, type PartKind } from "./drawing";
 import { moveSeriesEquivalent, reduceTopologyRlc } from "./topology-equivalence";
@@ -9,6 +10,7 @@ export type TopologyLabDocument = Readonly<{
   schemaVersion: 1;
   topology: CircuitTopology;
   observedEndpoints: readonly string[];
+  geometry?: SchematicGeometry;
   attachmentSides: readonly Readonly<{ componentId: string; side: TopologySide }>[];
 }>;
 
@@ -47,7 +49,7 @@ function validatedDocument(input: unknown): TopologyLabDocument {
     throw Error("unsupported-version");
   }
   const { topology, observedEndpoints, attachmentSides } = input;
-  if (Object.keys(input).length !== 5 || !Array.isArray(observedEndpoints) || !Array.isArray(attachmentSides)
+  if (Object.keys(input).length !== (Object.hasOwn(input, "geometry") ? 6 : 5) || !Array.isArray(observedEndpoints) || !Array.isArray(attachmentSides)
     || validateCircuit(topology).length) {
     throw Error("invalid-topology-document");
   }
@@ -89,6 +91,7 @@ function validatedDocument(input: unknown): TopologyLabDocument {
     schemaVersion: 1,
     topology: normalizedGraph,
     observedEndpoints: Object.freeze([...observedEndpoints].sort(compare)),
+    ...(input.geometry === undefined ? {} : { geometry: readSchematicGeometry(input.geometry, graph) }),
     attachmentSides: Object.freeze(hints.sort((a, b) => compare(a.componentId, b.componentId))),
   });
   checkBytes(JSON.stringify(document, null, 2));

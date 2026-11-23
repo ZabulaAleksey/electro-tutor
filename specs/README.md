@@ -15,14 +15,14 @@ denominator, но только binding SPEC создаёт обязательс�
 
 | SPEC | Статус | Назначение |
 |---|---|---|
-| [features/lab-reconstruction.spec.md](features/lab-reconstruction.spec.md) | Этапы 0–11, ADR-064 и E3 приняты, публикация подтверждена | FR-601–615: конструктор, лаборатории A–G и E1–E13 |
+| [features/lab-reconstruction.spec.md](features/lab-reconstruction.spec.md) | Этапы 0–11, ADR-064 и E3 приняты, публикация подтверждена | FR-601–615 и ET-LABR-013: конструктор, лаборатории A–G и приёмка по 17 референсам |
 | `system.spec.md` | Действует | Границы и требования платформы «Потенциал» |
 | `features/context-automation.spec.md` | Действует | Project overlay и запуск следующего этапа одной командой |
 | `features/lesson-publishing.spec.md` | Действует | Единый manifest уроков, derived availability, универсальный MDX route и optional island |
 | `features/circular-diagram-state.spec.md` | Действует | Версионированная схема URL/state, domain limits и browser history круговой диаграммы |
 | `features/reactive-two-port.spec.md` | Действует | Реактивный LC-двухполюсник, резонансы и шаги эквивалентного преобразования |
 | `features/power-system.spec.md` | Действует | Физическая сеть электроснабжения, эксплуатационная связность и расчётный разрез |
-| `features/star-neutral-phasors.spec.md` | Действует | Локальный трёхфазный интерактив: комплексные сопротивления, три режима нейтрали, векторные диаграммы и численная защита |
+| `features/star-neutral-phasors.spec.md` | Действует | Редактирование фазных сопротивлений и нейтрали на плоскости Z, векторные диаграммы, численные пределы и сенсорный ввод |
 | `features/transmission-line-transient.spec.md` | Действует | Расчёт переходных процессов, редактор, рукописный ввод и экспорт |
 | `features/transmission-line-steady.spec.md` | Действует | Установившийся режим длинной линии, параметры RLGC и ABCD |
 | `features/localization.spec.md` | Действует | Проверяемый production-контракт RU/UK для routes, UI, metadata и accessibility |

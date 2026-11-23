@@ -106,3 +106,16 @@ describe("star with neutral", () => {
     expect(calculateStar({ ...STAR_PRESETS.unbalanced, neutral: { re: 0, im: 0 } }).ok).toBe(true);
   });
 });
+it("remains finite for a nearly ideal neutral and represents the disconnected branch exactly", () => {
+  const tiny = calculateStar({ ...STAR_PRESETS.unbalanced, neutral: { re: 1e-220, im: -1e-220 } });
+  expect(tiny.ok).toBe(true);
+  if (!tiny.ok) return;
+  expect(complexMagnitude(tiny.result.displacement)).toBeLessThan(1e-210);
+  const open = calculateStar({ ...STAR_PRESETS.unbalanced, mode: "open" });
+  expect(open.ok).toBe(true);
+  if (!open.ok) return;
+  expect(open.result.neutralCurrent).toEqual({ re: 0, im: 0 });
+  const phases = Object.values(open.result.currents);
+  expectNear(phases.reduce((sum, i) => sum + i.re, 0), 0);
+  expectNear(phases.reduce((sum, i) => sum + i.im, 0), 0);
+});

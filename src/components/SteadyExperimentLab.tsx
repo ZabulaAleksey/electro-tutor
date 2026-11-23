@@ -155,7 +155,7 @@ export default function SteadyExperimentLab({ language }: { language: Language }
     </fieldset>;
   }
 
-  return <div className="steady-experiment-lab" data-steady-experiment data-ready={String(hydrated && !!section)} data-frequency-hz={settings.frequencyHz}>
+  return <div className="steady-experiment-lab" inert={!hydrated} data-steady-experiment data-ready={String(hydrated && !!section)} data-frequency-hz={settings.frequencyHz}>
     <div className="steady-experiment-settings">
       <NumberField disabled={!hydrated} field="frequencyHz" label={t.frequency} value={settings.frequencyHz}
         min={1e-3} max={1e9} invalid={t.invalid} onCommit={next => update(previous =>
@@ -174,7 +174,7 @@ export default function SteadyExperimentLab({ language }: { language: Language }
         if (lines.length >= 12 || circuit.topology.components.length >= 100) { setEditError(diagnostic("steady-limit")); return; }
         if (endpoint) update(previous => appendSteadyLine(previous, endpoint));
       }}
-      onRemove={id => update(previous => removeSteadyPart(previous, id))}
+      onRemove={(id, source) => update(previous => removeSteadyPart({ ...previous, circuit: source }, id))}
       onOpenSection={id => observe(previous => previous.id === id ? previous : { id, xM: 0 })} />
     {editError && <p role="alert" className="steady-experiment-error">{editError}</p>}
     {projected.error && <p role="alert" className="steady-experiment-error" data-steady-solver-error={projected.error}>{diagnostic(projected.error)}</p>}

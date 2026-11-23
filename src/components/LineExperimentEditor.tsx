@@ -1,8 +1,11 @@
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Trash2, X } from "lucide-react";
+import { geometryAfterInsertion } from "./line-slot-geometry";
+import { directTargets, type DirectTarget } from "./line-slot-targets";
 import type { Language } from "../types";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 import { simplifyTopologyForView } from "../circuit/topology-equivalence";
-import { parts, type PartKind } from "../circuit/drawing";
+import { parts, validPartParameter, type PartKind } from "../circuit/drawing";
 import type { Point } from "../circuit/topology-layout";
 import { listTopologySlots, type TopologySide, type TopologySlot } from "../circuit/topology-slots";
 import { parseTopologyLabDocument, TopologySession, type TopologyLabDocument } from "../circuit/topology-session";
@@ -17,12 +20,13 @@ type Props = {
   document: TopologyLabDocument;
   onChange: (next: TopologyLabDocument) => void;
   onAppendSection?: (endpoint?: string) => void;
-  onRemove: (id: string) => void;
+  onRemove: (id: string, source: TopologyLabDocument) => void;
   onOpenSection?: (id: string) => void;
   variant?: "transient" | "steady" | "lc" | "variable";
   seriesWireIds?: readonly string[];
   canRemove?: (id: string) => boolean;
   referenceEndpoint?: string;
+  validateParameters?: (next: TopologyLabDocument) => void;
   renderInspector?: (part: CircuitComponent) => ReactNode;
 };
 
@@ -69,7 +73,7 @@ function makePart(topology: TopologyLabDocument["topology"], [choice, kind, pref
   return { id, kind, parameters, terminals: [id + ":a", id + ":b"] };
 }
 
-function LineGlyph({ part, paired }: { part: CircuitComponent; paired: boolean }) {
+function LineGlyph({ part, railOffset }: { part: CircuitComponent; railOffset?: number }) {
   switch (part.kind) {
     case "r": return <ResistorGlyph x={-52} y={0} terminalSpan={104} />;
     case "l": return <><path d="M-52 0H-27M27 0H52" /><InductorGlyph x={-27} y={0} /></>;
@@ -85,8 +89,8 @@ function LineGlyph({ part, paired }: { part: CircuitComponent; paired: boolean }
     </>;
     case "line": return <>
       <path d="M-52 0H52" />
-      <path className="line-experiment-conductor" d={paired ? "M-48 0H48M-48 148H48" : "M-42 -8H42M-42 8H42"} />
-      {paired && <path className="line-experiment-electric-field" d="M-48 6V142M48 6V142" />}
+      <path className="line-experiment-conductor" d={railOffset !== undefined ? `M-48 0H48M-48 ${railOffset}H48` : "M-42 -8H42M-42 8H42"} />
+      {railOffset !== undefined && <path className="line-experiment-electric-field" d={`M-48 6V${railOffset - 6}M48 6V${railOffset - 6}`} />}
     </>;
     default: return <path d="M-52 0H-18M18 0H52M-18 -13H18V13H-18Z" />;
   }
@@ -107,6 +111,32 @@ function SwitchTime({ part, label, onSave }: { part: CircuitComponent; label: st
   </label>;
 }
 
+const parameterFields = {
+  r: [["ohm", "R, Ω", 1]], l: [["henry", "L, mH", 1e3]], c: [["farad", "C, µF", 1e6]],
+  voltage: [["voltageV", "E, V", 1], ["resistanceOhm", "R, Ω", 1]],
+  current: [["currentA", "J, A", 1]], line: [["lengthM", "ℓ, km", .001], ["impedanceOhm", "Z₀, Ω", 1],
+    ["velocityMS", "v, m/s", 1], ["resistanceOhmM", "R′, Ω/m", 1]],
+} as const;
+
+function TransientParameters({ part, onSave, language }: { part: CircuitComponent; onSave: (key: string, value: number) => void; language: Language }) {
+  const [invalid, setInvalid] = useState("");
+  const fields = parameterFields[part.kind as keyof typeof parameterFields] ?? [];
+  return <>{fields.map(([key, label, scale]) => <label key={part.id + key}>{label}
+    <input data-line-parameter={key} key={String(part.parameters[key])} type="number" step="any"
+      defaultValue={Number(part.parameters[key] ?? 0) * scale} onBlur={event => {
+        const value = event.currentTarget.valueAsNumber / scale;
+        if (!validPartParameter(key, value)) {
+          setInvalid(key); event.currentTarget.value = String(Number(part.parameters[key] ?? 0) * scale); return;
+        }
+        setInvalid("");
+        if (value !== part.parameters[key]) {
+          try { onSave(key, value); }
+          catch { setInvalid(key); event.currentTarget.value = String(Number(part.parameters[key] ?? 0) * scale); }
+        }
+      }} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur(); }} />
+  </label>)}{invalid && <small role="alert">{language === "ru" ? "Проверьте значение" : "Перевірте значення"}</small>}</>;
+}
+
 type CanvasButtonProps = React.ComponentPropsWithoutRef<"button"> & { point: Point; fieldScale: number; children?: ReactNode };
 
 function CanvasButton({ point, fieldScale, className, children, ...props }: CanvasButtonProps) {
@@ -120,7 +150,7 @@ function componentBoundary(slot: ParallelSlot, id: string) {
 }
 
 export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection,
-  variant = "transient", referenceEndpoint, renderInspector, seriesWireIds, canRemove }: Props) {
+  variant = "transient", referenceEndpoint, renderInspector, validateParameters, seriesWireIds, canRemove }: Props) {
   const t = copy[language];
   const lc = variant === "lc";
   const steady = variant === "steady";
@@ -133,9 +163,17 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const [last, setLast] = useState("");
   const [alternate, setAlternate] = useState(0);
   const [endpoint, setEndpoint] = useState("");
+  const [pairMode, setPairMode] = useState(false);
+  const [preview, setPreview] = useState<TopologySlot>();
+  const [menuPoint, setMenuPoint] = useState<Point>({ x: 10, y: 10 });
+  const menu = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [hasError, setError] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(0);
+  const dragTouch = useRef<{ id: number; start: Point; moved: boolean } | null>(null);
+  const suppressClick = useRef(false);
+  const field = useRef<HTMLDivElement>(null);
   const paletteControls = useRef<HTMLDivElement>(null);
   const { viewportRef, zoom, zoomIn, zoomOut, resetZoom, viewportEvents } = useTopologyViewport();
 
@@ -162,8 +200,6 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   }
   const port = lc ? displayDocument.topology.components.find(part => part.kind === "port") : undefined;
   const appendPart = steady && topology.components.find(part => part.terminals.includes(diagram.appendEndpoint ?? ""));
-  const appendPoint = steady && diagram.returnY === undefined && diagram.appendEndpoint
-    ? diagram.endpoints.get(diagram.appendEndpoint) : undefined;
   const appendLabel = appendPart ? `${t.append} · ${appendPart.id}` : t.append;
   const slots = useMemo(() => listTopologySlots(topology, document.observedEndpoints), [topology, document.observedEndpoints]);
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
@@ -177,7 +213,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     last ? componentBoundary(slot, first) && componentBoundary(slot, last)
       : slot.componentIds.length === 1 && slot.componentIds[0] === first) : [], [first, last, parallel]);
   const activeGroup = groupPaths.length ? groupPaths[alternate % groupPaths.length] : undefined;
-  const highlighted = new Set(activeGroup?.componentIds);
+  const highlighted = new Set(preview?.kind === "parallel" ? preview.componentIds : activeGroup?.componentIds);
   const groupEndParts = useMemo(() => new Set(parallel
     .filter(slot => componentBoundary(slot, first))
     .flatMap(slot => [slot.componentIds[0], slot.componentIds.at(-1)])), [first, parallel]);
@@ -210,7 +246,82 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     target?.focus({ preventScroll: true });
   }, [armed, variable, viewportRef]);
 
+  function removeSelected() {
+    let source = document;
+    if (!document.geometry && !variable) {
+      const pins = Object.fromEntries(diagram.endpoints);
+      const wires = new Map(topology.wires.map(w => [w.id, w]));
+      const bends = Object.fromEntries(diagram.wires.map(w => {
+        const a = pins[wires.get(w.id)!.from];
+        const first = w.points[0];
+        const path = first.x === a.x && first.y === a.y ? w.points : [...w.points].reverse();
+        return [w.id, path.slice(1, -1)];
+      }));
+      source = { ...document, geometry: { pins, bends, returnY: diagram.returnY } };
+    }
+    onRemove(selected, source);
+    setSelected("");
+    setConfirm(false);
+  }
+
+  function closeMenu() {
+    setSelected("");
+    setConfirm(false);
+    trigger.current?.focus({ preventScroll: true });
+  }
+
+  useEffect(() => {
+    if (!selected) return;
+    const anchor = trigger.current;
+    const panel = menu.current;
+    if (!anchor || !panel) return;
+    function position() {
+      const rect = anchor!.getBoundingClientRect();
+      const width = panel!.offsetWidth;
+      const height = panel!.offsetHeight;
+      const nearby = Array.from(anchor!.closest(".line-experiment-editor")!
+        .querySelectorAll<HTMLElement>("button:not([data-line-selected-part] button)"))
+        .map(node => node.getBoundingClientRect());
+      const rightEdge = Math.max(rect.right, ...nearby.filter(box => box.height && box.top >= rect.top - 190
+        && box.bottom <= rect.bottom + 190).map(box => box.right));
+      // Preserve the next selectable objects even when a wide inspector is open.
+      const candidates = [
+        { x: rect.left, y: rect.bottom + 6 }, { x: rect.left, y: rect.top - height - 6 },
+        { x: rect.right + 6, y: rect.top - height / 2 }, { x: rect.left - width - 6, y: rect.top - height / 2 },
+        { x: rightEdge + 8, y: rect.top },
+      ].map(candidate => {
+        const x = Math.max(8, Math.min(candidate.x, window.innerWidth - width - 8));
+        const y = Math.max(8, Math.min(candidate.y, window.innerHeight - height - 8));
+        const occluded = nearby.filter(box => x < box.right && x + width > box.left
+          && y < box.bottom && y + height > box.top).length;
+        const distance = Math.hypot(Math.max(0, rect.left - x - width, x - rect.right),
+          Math.max(0, rect.top - y - height, y - rect.bottom));
+        return { x, y, occluded, distance };
+      });
+      const [best] = candidates.sort((a,b) => a.occluded - b.occluded || a.distance - b.distance);
+      setMenuPoint({ x: best.x, y: best.y });
+    }
+    function outside(event: PointerEvent) {
+      if (!panel!.contains(event.target as Node) && !anchor!.contains(event.target as Node)) setSelected("");
+    }
+    const observer = new ResizeObserver(position);
+    observer.observe(panel);
+    position();
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position, true);
+    window.addEventListener("pointerdown", outside);
+    panel.focus({ preventScroll: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position, true);
+      window.removeEventListener("pointerdown", outside);
+    };
+  }, [selected]);
+
   function resetSelection() {
+    setPreview(undefined);
+    setPairMode(false);
     setFirst("");
     setLast("");
     setAlternate(0);
@@ -225,7 +336,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     resetSelection();
   }
 
-  function insert(slot: TopologySlot, session = new TopologySession(JSON.stringify(document))) {
+  function insert(slot: TopologySlot, session = new TopologySession(JSON.stringify(document)), target?: DirectTarget) {
     if (!armed) return;
     try {
       const component = makePart(topology, armed);
@@ -234,7 +345,10 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       // Keep the editable/archive document as the source of truth. The
       // renderer may derive a reduced visual projection, but insertion,
       // export, import and undo always retain the original components.
-      onChange(session.document);
+      const next = session.document;
+      const geometry = geometryAfterInsertion(diagram, topology, next.topology, slot, component, target && {
+        point: target.point, vertical: target.vertical, path: target.path });
+      onChange(parseTopologyLabDocument(JSON.stringify({ ...next, geometry })));
       paletteControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
       setArmed(undefined);
       resetSelection();
@@ -286,15 +400,58 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const paletteEnd = lc ? 3 : variable ? 1 : steady ? 5 : palette.length;
   const seriesTargets = armed && !first && !endpoint ? diagram.wires.filter(({ id, points }) =>
     serial.has(id) && points.length && (!seriesWireIds || seriesWireIds.includes(id))) : [];
-  const crossTargets = armed && !variable && !first ? endpoints : [];
+  const crossTargets = armed && (pairMode || !parallel.length) && !variable && !first ? endpoints : [];
+  const direct = armed && !pairMode && !variable && !first ? directTargets(document, diagram, parallel, first) : [];
   const partTargets = armed && !variable && !endpoint ? diagram.components.filter(({ id }) =>
     parallel.some(slot => componentBoundary(slot, id))) : [];
-  const targets = [...seriesTargets, ...crossTargets.map(([id, point]) => ({ id, points: [point] }))];
+  const targets = [...seriesTargets, ...direct.map(({ slot, point }) => ({ id: slot.id, points: [point] })), ...crossTargets.map(([id, point]) => ({ id, points: [point] }))];
   const placement = placeLcCanvasTargets(targets, diagram.width, diagram.height, fieldScale, partTargets);
   const markerPoints = new Map(placement.markers.map(({ id, point }) => [id, point]));
 
-  return <section className="line-experiment-editor" data-line-experiment-editor data-line-editor-variant={variant} aria-label={t.board}
+  const endpointsToShow = preview?.boundaries.map(id => diagram.endpoints.get(id)).filter((p): p is Point => !!p) ?? [];
+  const previewPath = direct.find(target => target.slot.id === preview?.id)?.path;
+  function targetAt(clientX: number, clientY: number): DirectTarget | undefined {
+    const rect = field.current?.getBoundingClientRect();
+    if (!rect || clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return;
+    const x = (clientX - rect.left) / fieldScale;
+    const y = (clientY - rect.top) / fieldScale;
+    const hit = window.document.elementFromPoint(clientX, clientY)?.closest<HTMLButtonElement>("[data-line-direct-slot],[data-line-series-slot]");
+    if (hit && field.current?.contains(hit)) {
+      const target = direct.find(t => t.slot.id === hit.dataset.lineDirectSlot);
+      if (target) return target;
+      const slot = serial.get(hit.dataset.lineSeriesSlot ?? "");
+      if (slot) return { slot, point: { x, y }, vertical: false };
+    }
+    const matches = direct.map(target => ({ target, distance: Math.hypot(x - target.point.x, y - target.point.y) }));
+    for (const wire of seriesTargets) {
+      let distance = Infinity;
+      for (let i = 1; i < wire.points.length; i++) {
+        const a = wire.points[i - 1], b = wire.points[i];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const u = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+        distance = Math.min(distance, Math.hypot(x - (a.x + u * dx), y - (a.y + u * dy)));
+      }
+      matches.push({ target: { slot: serial.get(wire.id)!, point: wireTarget(wire.points), vertical: false }, distance });
+    }
+    matches.sort((a, b) => a.distance - b.distance);
+    const best = matches[0];
+    if (best && best.distance * fieldScale <= 30 && (!matches[1] || (matches[1].distance - best.distance) * fieldScale > 3)) return best.target;
+  }
+  function insertionEvents(slot: TopologySlot, target?: DirectTarget) {
+    return {
+      onMouseEnter: () => setPreview(slot), onMouseLeave: () => setPreview(undefined),
+      onFocus: () => setPreview(slot), onBlur: () => setPreview(undefined),
+      onClick: () => insert(slot, undefined, target),
+    };
+  }
+
+  return <section className="line-experiment-editor" inert={!viewportWidth} data-line-experiment-editor data-line-editor-variant={variant} aria-label={t.board}
     onKeyDown={event => {
+      if (selected && event.key === "Escape") { event.preventDefault(); closeMenu(); return; }
+      if (selected && event.key === "Delete" && !(event.target instanceof HTMLInputElement)
+        && (!canRemove || canRemove(selected))) {
+        event.preventDefault(); removeSelected(); return;
+      }
       if (armed && event.key === "Escape") {
         event.preventDefault();
         paletteControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
@@ -302,7 +459,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       }
     }}>
     <div className="line-experiment-editor-bar">
-      <strong>{t.board}</strong>
+      <div className="line-experiment-editor-actions">
+        {onAppendSection && !lc && (!steady || diagram.appendEndpoint) &&
+          <button type="button" data-line-append data-line-append-endpoint={steady ? diagram.appendEndpoint : undefined}
+            aria-label={appendLabel} title={appendLabel} onClick={() => onAppendSection(steady ? diagram.appendEndpoint : undefined)}>+ TL</button>}
+        <strong>{t.board}</strong>
+      </div>
       {expandedDocument === document && <button type="button" onClick={() => {
         setExpandedDocument(undefined); setSelected(""); setArmed(undefined);
       }}>{language === "ru" ? "Свернуть схему" : "Згорнути схему"}</button>}
@@ -317,10 +479,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       : `${t.reference}: ${referenceEndpoint}`}</span>}
     <div className="line-experiment-viewport" ref={viewportRef} data-line-experiment-viewport
       role="group" aria-label={t.board} aria-describedby={reference || port ? referenceDescription : undefined} tabIndex={0} {...viewportEvents}>
-      <div className="line-experiment-field" style={{ width: diagram.width * fieldScale, height: placement.height * fieldScale }}>
+      <div ref={field} className="line-experiment-field" style={{ width: diagram.width * fieldScale, height: placement.height * fieldScale }}>
         <svg viewBox={`0 0 ${diagram.width} ${placement.height}`} className="line-experiment-schematic" aria-hidden="true">
           {diagram.wires.map(({ id, points }) => <polyline key={id} data-line-wire={id}
             points={points.map(point => `${point.x},${point.y}`).join(" ")} />)}
+          {previewPath && <polyline className="line-experiment-preview" points={previewPath.map(p => p.x + "," + p.y).join(" ")} />}
+          {(previewPath ?? endpointsToShow).map((p, index) => <circle key={index} className="line-experiment-boundary" cx={p.x} cy={p.y} r={7} />)}
           {diagram.junctions.map(({ id, x, y }) => <circle key={id} cx={x} cy={y} r={3} className="line-experiment-dot" />)}
           {reference && <path data-line-reference={referenceEndpoint} className="line-experiment-reference"
             transform={`translate(${reference.x} ${referenceY})`} d="M0 0V9M-10 9H10M-6 13H6M-3 17H3" />}
@@ -342,7 +506,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
               {highlighted.has(id) && <rect className="line-experiment-part-highlight"
                 x={vertical ? -29 : -47} y={vertical ? -44 : -25} width={vertical ? 58 : 94} height={vertical ? 88 : 50} rx={8} />}
               <g transform={`rotate(${part.kind === "line" && diagram.returnY !== undefined ? 0 : rotation})`}>
-                <LineGlyph part={part} paired={diagram.returnY !== undefined} />
+                <LineGlyph part={part} railOffset={diagram.returnY === undefined ? undefined : diagram.returnY - y} />
               </g>
               <text x={vertical ? 31 : 0} y={vertical ? 5 : -21} textAnchor={vertical ? "start" : "middle"}>{displayName(id)}</text>
             </g>;
@@ -357,34 +521,35 @@ export default function LineExperimentEditor({ language, document, onChange, onA
           {diagram.components.map(({ id, x, y }) => {
             if (id === port?.id) return null;
             const isSection = devices.get(id)?.kind === "line";
-            const action = isSection && !selectSection ? t.open : t.select;
+            const action = t.select;
             return <CanvasButton key={id} point={{ x, y }} fieldScale={fieldScale} data-line-component={id}
-              data-line-section={isSection ? id : undefined} className="line-experiment-object"
+              data-line-section={isSection && selectSection ? id : undefined} className="line-experiment-object"
               aria-label={`${action} ${displayName(id)}`} title={`${action} ${displayName(id)}`}
-              aria-pressed={isSection && !selectSection ? undefined : selected === id} onClick={() => {
+              aria-pressed={selected === id} onClick={event => {
+                trigger.current = event.currentTarget;
                 if (!sourceIds.has(id)) { setExpandedDocument(document); return; }
-                if (isSection) onOpenSection?.(id);
-                if (!isSection || selectSection) { setSelected(id); setConfirm(false); }
+                if (isSection && selectSection) onOpenSection?.(id);
+                setSelected(id); setConfirm(false);
               }} />;
           })}
           {!selectSection && !lc && diagram.components.filter(({ id }) => devices.get(id)?.kind === "line").map(({ id, x, y }) =>
-            <CanvasButton key={id} point={{ x, y: y + 46 }} fieldScale={fieldScale} data-line-inspect-section={id}
-              className="line-experiment-minor" aria-label={`${t.select} ${id}`} onClick={() => {
-                setSelected(id); setConfirm(false);
-              }}>⋯</CanvasButton>)}
-          {onAppendSection && !lc && (!steady || diagram.appendEndpoint) &&
-            <CanvasButton point={appendPoint ? { x: Math.min(diagram.width - 26, appendPoint.x), y: Math.max(28, appendPoint.y - 64) } : diagram.append}
-              fieldScale={fieldScale} data-line-append
-              data-line-append-endpoint={steady ? diagram.appendEndpoint : undefined}
-              aria-label={appendLabel} title={appendLabel}
-              onClick={() => onAppendSection(steady ? diagram.appendEndpoint : undefined)}>+ TL</CanvasButton>}
+            <CanvasButton key={id} point={{ x, y: y + 46 }} fieldScale={fieldScale} data-line-section={id}
+              className="line-experiment-minor" aria-label={`${t.open} ${id}`} title={`${t.open} ${id}`} onClick={() => onOpenSection?.(id)}>▸</CanvasButton>)}
         </>}
         {armed && seriesTargets.map(({ id, points }) => {
           const slot = serial.get(id)!;
           return <CanvasButton key={id} point={markerPoints.get(id) ?? wireTarget(points)} fieldScale={fieldScale}
             data-line-series-slot={id} aria-label={`${t.add} ${armed[2]} · ${slot.boundaries.join(" / ")}`}
             data-lc-canvas-marker={lc || undefined} data-line-spaced-marker={variable || undefined}
-            onClick={() => insert(slot)}>+</CanvasButton>;
+            {...insertionEvents(slot)}>+</CanvasButton>;
+        })}
+        {armed && direct.map(target => {
+          const { slot } = target;
+          const point = markerPoints.get(slot.id) ?? target.point;
+          const name = slot.kind === "parallel" ? slot.componentIds.join(" + ") : slot.boundaries.join(" / ");
+          const label = (language === "ru" ? "Подключить параллельно" : "Підключити паралельно") + " · " + name;
+          return <CanvasButton key={slot.id} point={point} fieldScale={fieldScale} data-line-direct-slot={slot.id}
+            aria-label={label} title={label} {...insertionEvents(slot, target)}>∥</CanvasButton>;
         })}
         {partTargets.map(({ id, x, y }) =>
           <CanvasButton key={id} point={{ x, y }} fieldScale={fieldScale} data-line-parallel-part={id}
@@ -405,27 +570,61 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             aria-label={`${t.select} ${id}`} aria-pressed={endpoint === id} onClick={() => selectEndpoint(id)}>·</CanvasButton>)}
       </div>
     </div>
+    {armed && !variable && !pairMode && diagram.returnY !== undefined && <span className="line-experiment-editor-note">
+      {language === "ru" ? "Для ответвления вокруг участка выберите его крайние элементы на схеме." : "Для відгалуження навколо ділянки виберіть її крайні елементи на схемі."}
+    </span>}
+    {armed && !variable && <button type="button" className="line-experiment-pair" aria-pressed={pairMode}
+      onClick={() => { resetSelection(); setPairMode(!pairMode); }}>{language === "ru" ? "Выбрать два узла" : "Вибрати два вузли"}</button>}
     {armed && <p className="line-experiment-editor-note" role="status">{hasError ? t.invalid
-      : variable ? (seriesTargets.length ? t.search.series : t.empty) : endpoint ? t.search.cross : first ? t.search.parallel : t.search.series + " " + t.search.cross}</p>}
-    {selectedPart && !armed && <div className="line-experiment-selection" data-line-selected-part={selectedPart.id}>
+      : variable ? (seriesTargets.length ? t.search.series : t.empty) : endpoint ? t.search.cross : first ? t.search.parallel : pairMode ? t.search.cross : (language === "ru" ? "+ — последовательно, ∥ — параллельно участку." : "+ — послідовно, ∥ — паралельно ділянці.")}</p>}
+    {selectedPart && !armed && <div className="line-experiment-selection" role="dialog" aria-label={selected} ref={menu}
+      tabIndex={-1} style={{ left: menuPoint.x, top: menuPoint.y }} data-line-selected-part={selectedPart.id}>
       {(!selectSection && !lc || !renderInspector) && <strong>{selectedPart.id}</strong>}
       {!steady && selectedPart.kind === "switch" && <SwitchTime key={`${selectedPart.id}:${selectedPart.parameters.atS}`}
         part={selectedPart} label={selectedPart.parameters.closes === true ? t.closeTime : t.time} onSave={updateSwitchTime} />}
+      {variant === "transient" && <TransientParameters language={language} part={selectedPart} onSave={(key, value) => {
+        const next = parseTopologyLabDocument(JSON.stringify({ ...document, topology: { ...topology,
+          components: topology.components.map(part => part.id === selectedPart.id
+            ? { ...part, parameters: { ...part.parameters, [key]: value } } : part) } }));
+        validateParameters?.(next);
+        onChange(next);
+      }} />}
       {renderInspector?.(selectedPart)}
+      <button type="button" aria-label={language === "ru" ? "Закрыть" : "Закрити"} onClick={closeMenu}><X size={16} /></button>
       {(!canRemove || canRemove(selected)) && (confirm ? <>
-        <button type="button" data-line-confirm-remove onClick={() => {
-          onRemove(selected);
-          setSelected("");
-          setConfirm(false);
-        }}>{t.confirm} {selected}</button>
+        <button type="button" data-line-confirm-remove onClick={removeSelected}>{t.confirm} {selected}</button>
         <button type="button" onClick={() => setConfirm(false)}>{t.cancel}</button>
       </> : <button type="button" data-line-remove aria-label={`${t.remove} ${selected}`}
-        onClick={() => setConfirm(true)}>{t.remove}</button>)}
+        onClick={() => setConfirm(true)} title={t.remove}><Trash2 size={16} /></button>)}
     </div>}
     <div ref={paletteControls} className="line-experiment-palette" role="group" aria-label={t.palette}>
       {palette.slice(paletteStart, paletteEnd).map((item, index) => <button key={item[0]} type="button" data-line-palette={item[0]}
         title={t.names[index + paletteStart]} aria-label={t.names[index + paletteStart]} aria-pressed={armed?.[0] === item[0]}
-        onClick={() => arm(item)}>
+        onPointerDown={e => {
+          if (!e.isPrimary || e.button !== 0) return;
+          dragTouch.current = { id: e.pointerId, start: { x: e.clientX, y: e.clientY }, moved: false };
+          e.currentTarget.setPointerCapture(e.pointerId);
+        }} onPointerMove={e => {
+          const drag = dragTouch.current;
+          if (!drag || e.pointerId !== drag.id) return;
+          if (!drag.moved && Math.hypot(e.clientX - drag.start.x, e.clientY - drag.start.y) > 8) {
+            drag.moved = true; setArmed(item); setSelected(""); resetSelection();
+          }
+          if (drag.moved) setPreview(targetAt(e.clientX, e.clientY)?.slot);
+        }} onPointerUp={e => {
+          const drag = dragTouch.current;
+          dragTouch.current = null;
+          if (!drag?.moved) return;
+          suppressClick.current = true;
+          window.setTimeout(() => { suppressClick.current = false; }, 0);
+          const target = targetAt(e.clientX, e.clientY);
+          if (target) insert(target.slot, undefined, target);
+          else { setArmed(undefined); setPreview(undefined); }
+        }} onPointerCancel={() => {
+          if (dragTouch.current?.moved) { setArmed(undefined); setPreview(undefined); }
+          dragTouch.current = null;
+        }}
+        onClick={() => { if (!suppressClick.current) arm(item); }}>
         {item[1] === "switch" ? <svg viewBox="0 0 30 20" aria-hidden="true">
           <path d={item[0] === "switch-open" ? "M0 12H8L21 5M22 12H30" : "M0 12H30"} />
           <circle cx="8" cy="12" r="1.5" /><circle cx="22" cy="12" r="1.5" />

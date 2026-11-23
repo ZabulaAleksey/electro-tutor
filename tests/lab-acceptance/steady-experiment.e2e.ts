@@ -18,9 +18,15 @@ async function reading(panel: Locator, name: string, expected: number, digits = 
 }
 
 async function screenshot(page: Page, testInfo: TestInfo, name: string) {
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await page.evaluate(() => document.fonts.ready);
   await page.waitForFunction(() => document.getAnimations().every(animation => animation.playState !== "running"));
+  // Mobile scroll anchoring may shift by one pixel as the last result renders.
+  // Position the screenshot after that layout and keep the exact top-edge check.
+  await expect.poll(() => page.evaluate(async () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await new Promise(requestAnimationFrame);
+    return window.scrollY;
+  })).toBe(0);
   await page.screenshot({ path: testInfo.outputPath(name + ".png"), fullPage: true, animations: "disabled" });
 }
 

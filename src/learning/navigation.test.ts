@@ -21,8 +21,8 @@ describe('RUN6 derived learning index',()=>{
     expect(topics.find(e=>e.id==='topic:magnetic/nonlinear-magnetic')?.components.lab.href).toBeNull();
   });
   it('allows a direct existing lab when no textbook/examples exist, explicitly reports fallback',()=>{
-    const entries=buildLearningNavigation(published,'ru').flatMap(g=>g.entries),fourier=entries.find(e=>e.id==='tool:advanced:fourier')!;
-    expect(chooseLearningTarget(fourier,'examples')).toEqual({href:'/ru/interactive/fourier/',stage:'lab',fallback:true});
+    const entries=buildLearningNavigation(published,'ru').flatMap(g=>g.entries),fourier=entries.find(e=>e.id==='tool:advanced:fourier-polygon-motion')!;
+    expect(chooseLearningTarget(fourier,'examples')).toEqual({href:'/ru/interactive/fourier/polygon-motion/',stage:'lab',fallback:true});
     expect(chooseLearningTarget(fourier,'lab')?.fallback).toBe(false);
     expect(chooseLearningTarget(entries.find(e=>e.id==='topic:magnetic/nonlinear-magnetic')!,'textbook')).toBeNull();
     expect(entries.find(e=>e.id==='tool:advanced:transmission-line-steady')?.components.lab.href).toBe('/ru/interactive/transmission-line-steady/experiment/');
@@ -32,7 +32,7 @@ describe('RUN6 derived learning index',()=>{
     expect(mesh.components.textbook.href).toBe('/uk/topics/dc/mesh-current-method/');
     expect(mesh.components.examples).toMatchObject({href:null,status:'not-translated'});
     expect(mesh.components.lab).toMatchObject({href:null,status:'not-translated'});
-    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(38);
+    expect(entries.filter(e=>e.kind==='tool'&&e.components.lab.href?.startsWith('/uk/'))).toHaveLength(37);
     expect(entries.find(e=>e.id==='tool:advanced:power-system')?.components.lab.href).toBe('/uk/interactive/power-system/');
   });
   it('filters public before render/serialization and preserves exact three mesh components',()=>{

@@ -36,11 +36,11 @@ for (const { language, textbook, labs, solutions } of destinations) {
     await expect(page).toHaveURL(`${home}interactive/`);
     const search = page.locator("#labs input[type=search]");
     await search.fill("Фур");
-    await expect(page.locator(`#labs a[data-registered-content][href="${home}interactive/fourier/"]`)).toBeVisible();
+    await expect(page.locator(`#labs a[data-registered-content][href="${home}interactive/fourier/polygon-motion/"]`)).toBeVisible();
     await expect(page.locator("#labs a[href*='/interactive/beam/']")).toBeHidden();
     await search.clear();
     const labLinks = await page.locator("#labs a[data-registered-content]").evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
-    expect(labLinks).toHaveLength(language === "ru" ? 39 : 38);
+    expect(labLinks).toHaveLength(language === "ru" ? 38 : 37);
     expect(new Set(labLinks).size).toBe(labLinks.length);
     for (const href of new Set(labLinks.map(link => link.split("#")[0]))) {
       expect((await request.get(href)).status(), href).toBe(200);

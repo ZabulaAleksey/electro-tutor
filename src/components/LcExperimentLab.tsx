@@ -150,7 +150,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
   return <fieldset className="lab-hydration-guard" disabled={!ready}>
     <div className="lc-experiment" data-lc-experiment data-ready={String(ready)}>
       <LineExperimentEditor language={language} variant="lc" document={experiment} onChange={commit}
-        onRemove={id => commit(removeLcPart(experiment, id))}
+        onRemove={(id, source) => commit(removeLcPart(source, id))}
         renderInspector={inspector} />
       <div className="lc-experiment-tools" role="group" aria-label={t.archive}>
         <p>{t.port} · {port?.id}</p>

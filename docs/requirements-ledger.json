@@ -1499,7 +1499,7 @@
     {
       "domain": "advanced-scientific-labs",
       "status": "VERIFIED",
-      "runtime": "Source64a6ba0caabe4a280aa746d8b9066ff5d659114e; Cloudflarebc8455b3-824a-4ff9-a29e-9055f1f2a090 SUCCESS72s;283unit and18primary-domain browser PASS2026-10-29.",
+      "runtime": "Fourier epicycles run in the contour approximation workspace. The original URL opens its circular method; saved links retain query and fragment.",
       "security": "Bounded local JSON validation; no backend, uploads or new dependencies. Read-only STUD and Fourier source.",
       "a11y": "RU/UK labels; keyboard controls; reduced-motion/hidden guards; shared semantic light/dark tokens.",
       "observability": "Pure model samples, exact fronts/residuals, DFT endpoint and error; bounded Worker failure displayed.",
@@ -1516,18 +1516,20 @@
       ],
       "code": [
         "src/fourier",
-        "src/components/FourierLab.tsx"
+        "src/components/FourierLab.tsx",
+        "src/components/PolygonMotionLab.tsx"
       ],
       "unit": [
         "src/fourier/math.test.ts",
-        "src/fourier/bases.test.ts",
+        "src/fourier/basis-experiment-math.test.ts",
         "src/fourier/config.test.ts"
       ],
       "integration": [
         "docs/TESTING.md"
       ],
       "e2e": [
-        "tests/e2e/fourier-lab.spec.ts"
+        "tests/e2e/fourier-lab.spec.ts",
+        "tests/lab-acceptance/polygon-motion.e2e.ts"
       ]
     },
     {
@@ -2171,12 +2173,12 @@
       "domain": "three-phase-y-delta",
       "status": "IMPLEMENTED",
       "requirement_ids": ["THREE-LAB-001", "THREE-LAB-002", "THREE-LAB-003", "THREE-LAB-004"],
-      "runtime": "Independent source phasors, Y/Δ and separate branch/line results.",
+      "runtime": "Star load with independent source phasors, editable phase/neutral impedances and voltage/current results.",
       "security": "Validated local versioned draft.",
-      "a11y": "Named source and topology inputs.",
-      "observability": "ET-LAB-017 in STAGES and TESTING.",
-      "gap": "Practice currently covers one line voltage or current per attempt.",
-      "action": "Check analytical delta currents and browser persistence.",
+      "a11y": "Named source and impedance inputs, neutral switch and touch targets.",
+      "observability": "ET-LABR-013 in STAGES and TESTING.",
+      "gap": "The shared delta solver remains available to other consumers.",
+      "action": "Check star limiting cases, neutral disconnection, bidirectional editing and persistence.",
       "code": ["src/models/star-neutral.ts", "src/components/StarNeutralLab.tsx"],
       "unit": ["src/models/star-neutral.test.ts"],
       "integration": [],

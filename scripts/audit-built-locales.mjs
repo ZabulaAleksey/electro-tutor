@@ -20,6 +20,7 @@ const routes = new Set(htmlFiles.map((file) => `/${relative(root, file).split(se
 const localizedRoutes = [...routes].filter((route) => /^\/(ru|uk)\//.test(route));
 // Owner-authorized RUN3C/3D: two mesh resources are RU-only; all other routes stay paired.
 const ruOnlyRoutes = new Set(["/ru/topics/dc/mesh-current-method/examples/", "/ru/topics/dc/mesh-current-method/lab/"]);
+const canonicalDestinations = new Map([["/interactive/fourier/", "/interactive/fourier/polygon-motion/"]]);
 const errors = [];
 for (const route of routes) {
   if (route !== "/" && !/^\/(ru|uk)\//.test(route)) errors.push(`unexpected locale route in artifact: ${route}`);
@@ -28,12 +29,13 @@ for (const route of routes) {
 for (const route of localizedRoutes) {
   const language = route.split("/")[1];
   const semanticPath = route.replace(/^\/(ru|uk)/, "");
+  const canonicalPath = canonicalDestinations.get(semanticPath) ?? semanticPath;
   const htmlPath = join(root, ...route.split("/").filter(Boolean), "index.html");
   const html = await readFile(htmlPath, "utf8");
   if (!new RegExp(`<html[^>]+lang=["']${language}["']`).test(html)) errors.push(`${route}: incorrect html lang`);
   if (ruOnlyRoutes.has(route) && /hreflang=["']uk["']|<a[^>]+data-language-link/.test(html)) errors.push(`${route}: advertises unavailable translation`);
   for (const targetLanguage of ruOnlyRoutes.has(route) ? ["ru"] : ["ru", "uk"]) {
-    const target = `/${targetLanguage}${semanticPath}`;
+    const target = `/${targetLanguage}${canonicalPath}`;
     const publicTarget = publicPath(target);
     if (!routes.has(target)) errors.push(`${route}: alternate target is absent: ${target}`);
     if (!new RegExp(`<link[^>]+rel=["']alternate["'][^>]+hreflang=["']${targetLanguage}["'][^>]+href=["'][^"']*${publicTarget.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(html)) {
@@ -42,9 +44,9 @@ for (const route of localizedRoutes) {
   }
   const canonicalMatches = [...html.matchAll(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/g)];
   if (canonicalMatches.length !== 1) errors.push(`${route}: expected one canonical, found ${canonicalMatches.length}`);
-  else if (new URL(canonicalMatches[0][1]).pathname !== publicPath(route)) errors.push(`${route}: canonical points to ${canonicalMatches[0][1]}`);
+  else if (new URL(canonicalMatches[0][1]).pathname !== publicPath(`/${language}${canonicalPath}`)) errors.push(`${route}: canonical points to ${canonicalMatches[0][1]}`);
   const xDefault = html.match(/<link[^>]+rel=["']alternate["'][^>]+hreflang=["']x-default["'][^>]+href=["']([^"']+)["']/);
-  const expectedDefault = publicPath(`/ru${semanticPath}`);
+  const expectedDefault = publicPath(`/ru${canonicalPath}`);
   if (!xDefault) errors.push(`${route}: missing x-default`);
   else if (new URL(xDefault[1]).pathname !== expectedDefault) errors.push(`${route}: x-default points to ${xDefault[1]}`);
 }

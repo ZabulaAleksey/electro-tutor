@@ -40,7 +40,7 @@ const ONE: Complex = { re: 1, im: 0 };
 
 export const STAR_PRESETS = {
   balanced: {
-    uPhase: 230, mode: "ideal", neutral: { re: 0.5, im: 0 },
+    uPhase: 230, mode: "ideal", neutral: { re: 0, im: 0 },
     phases: { A: { re: 46, im: 0 }, B: { re: 46, im: 0 }, C: { re: 46, im: 0 } },
   },
   unbalanced: {
@@ -48,7 +48,7 @@ export const STAR_PRESETS = {
     phases: { A: { re: 38, im: 12 }, B: { re: 72, im: -18 }, C: { re: 24, im: 32 } },
   },
   open: {
-    uPhase: 230, mode: "open", neutral: { re: 12, im: 4 },
+    uPhase: 230, mode: "open", neutral: { re: 0, im: 0 },
     phases: { A: { re: 38, im: 12 }, B: { re: 72, im: -18 }, C: { re: 24, im: 32 } },
   },
   rlc: {
@@ -112,12 +112,13 @@ export function calculateStar(parameters: StarParameters): StarCalculation {
     const numerator = PHASES.reduce((sum, phase, index) =>
       addComplex(sum, multiplyComplex(sources[phase], admittance[index])), ZERO);
     const phaseSum = admittance.reduce(addComplex, ZERO);
-    const denominator = mode === "open" ? phaseSum : addComplex(phaseSum, divideComplex(ONE, neutral));
-    // Cancellation can make an open star mathematically indeterminate.
-    if (complexMagnitude(denominator) <= 1e-12 * Math.max(1, ...admittance.map(complexMagnitude))) {
-      return { ok: false, reason: "singular" };
-    }
-    displacement = divideComplex(numerator, denominator);
+    // Multiplying the node equation by Z_N keeps the ideal-wire limit finite.
+    const finite = mode === "finite";
+    const denominator = finite ? addComplex(ONE, multiplyComplex(phaseSum, neutral)) : phaseSum;
+    const maxAdmittance = Math.max(...admittance.map(complexMagnitude));
+    const scale = finite ? 1 + maxAdmittance * complexMagnitude(neutral) : maxAdmittance;
+    if (complexMagnitude(denominator) <= 1e-12 * scale) return { ok: false, reason: "singular" };
+    displacement = divideComplex(finite ? multiplyComplex(numerator, neutral) : numerator, denominator);
   }
 
   // Keep the singular diagnostic for mathematically indeterminate legacy inputs;
@@ -132,7 +133,7 @@ export function calculateStar(parameters: StarParameters): StarCalculation {
     voltages[phase] = subtractComplex(sources[phase], displacement);
     currents[phase] = divideComplex(voltages[phase], phases[phase]);
   }
-  const neutralCurrent = PHASES.reduce((sum, phase) => addComplex(sum, currents[phase]), ZERO);
+  const neutralCurrent = mode === "open" ? ZERO : PHASES.reduce((sum, phase) => addComplex(sum, currents[phase]), ZERO);
   if (![displacement, neutralCurrent, ...Object.values(voltages), ...Object.values(currents)]
     .every(finiteComplex)) return { ok: false, reason: "range" };
   return { ok: true, result: { sources, displacement, voltages, currents, neutralCurrent } };

@@ -1,6 +1,6 @@
 import type { Complex } from "./math";
 
-export const experimentBasisIds = ["fourier", "haar", "walsh", "daubechies", "symlets", "coiflets", "chebyshev", "legendre"] as const;
+export const experimentBasisIds = ["fourier", "dct", "haar", "walsh", "daubechies", "symlets", "coiflets", "chebyshev", "legendre"] as const;
 export type ExperimentBasisId = typeof experimentBasisIds[number];
 export type ExperimentBoundary = "periodic" | "open";
 export const experimentSampleCounts = [16, 32, 64, 128, 256] as const;
@@ -40,6 +40,7 @@ export type BasisAnalysisOptions = {
 
 export type BasisExperimentSource =
   | { kind: "signal"; expression: string; boundary: ExperimentBoundary }
+  | { kind: "drawn"; values: number[]; boundary: ExperimentBoundary }
   | { kind: "contour"; points: Complex[]; closed: boolean };
 
 export type BasisExperiment = {

@@ -4,11 +4,11 @@ test("interactive menu opens the RU/UK star lab", async ({ page }) => {
   await page.goto("/ru/interactive/");
   await page.getByRole("link", { name: "Несимметричная звезда", exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/interactive\/star-neutral\//);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несимметричная звезда с нейтралью");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несимметричная звезда");
   await expect(page.locator(".star-results tbody tr")).toHaveCount(8);
   await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();
   await expect(page).toHaveURL(/\/uk\/interactive\/star-neutral\//);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несиметрична зірка з нейтраллю");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несиметрична зірка");
 });
 
 test("rectangular and polar fields share one impedance without stale calculations", async ({ page }) => {
@@ -22,7 +22,7 @@ test("rectangular and polar fields share one impedance without stale calculation
   await resistance.fill("30");
   await reactance.fill("40");
   await expect(magnitude).toHaveValue("50");
-  await expect(angle).toHaveValue(String(Math.atan2(40, 30) * 180 / Math.PI));
+  await expect.poll(async () => Number(await angle.inputValue())).toBeCloseTo(Math.atan2(40, 30) * 180 / Math.PI, 4);
   await magnitude.fill("80");
   await angle.fill("60");
   await resistance.blur();
@@ -50,14 +50,15 @@ test("drag, neutral mode and preset update the local model", async ({ page }) =>
   await page.mouse.move(box.x + box.width / 2 + 35, 50, { steps: 5 });
   await page.mouse.up();
   await expect.poll(async () => Number(await resistance.inputValue())).not.toBe(before);
-  await page.getByLabel("Режим нейтрали").selectOption("open");
+  await page.getByRole("switch").uncheck();
   await expect(page.locator(".star-results tbody tr").first()).not.toContainText("0 ∠ 0°");
   await page.getByRole("button", { name: "Симметричная нагрузка", exact: true }).click();
-  await expect(page.getByLabel("Режим нейтрали")).toHaveValue("ideal");
+  await expect(page.getByRole("switch")).toBeChecked();
   await expect(resistance).toHaveValue("46");
   await expect(page.locator(".star-results tbody tr").first()).toContainText("0 ∠ 0°");
-  expect(await page.locator(".star-impedance circle").evaluateAll(nodes =>
-    nodes.map(node => node.getAttribute("r")))).toEqual(["18", "12", "6"]);
+  const phases = page.locator(".star-point:not(.star-phase-n) circle");
+  expect(await phases.evaluateAll(nodes => new Set(nodes.map(n => n.getAttribute("cx"))).size)).toBe(1);
+  expect(await phases.evaluateAll(nodes => new Set(nodes.map(n => n.getAttribute("r"))).size)).toBe(3);
 });
 
 test("mobile star lab stays within viewport", async ({ page }) => {
@@ -79,5 +80,44 @@ test("impedance plane fits both sub-ohm and large finite data", async ({ page })
     await expect.poll(async () => Number(await page.locator(".star-phase-a circle").getAttribute("cx")))
       .toBeGreaterThan(350);
     await expect(page.locator(".star-results tbody tr")).toHaveCount(8);
+  }
+});
+
+test("touch drag follows its pointer through the axis at zoom and releases on cancellation", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2.75, isMobile: true, hasTouch: true });
+  try {
+    const page = await context.newPage();
+    await page.goto("/ru/interactive/star-neutral/");
+    await page.getByRole("switch").check();
+    const touch = await context.newCDPSession(page);
+    const field = page.getByRole("group", { name: "Нейтраль — ZN" });
+    const r = field.getByRole("spinbutton", { name: "R, Ω", exact: true });
+    const x = field.getByRole("spinbutton", { name: "X, Ω", exact: true });
+    await page.locator(".star-impedance svg").evaluate(svg => {
+      document.documentElement.style.zoom = "1.15";
+      svg.scrollIntoView({ block: "center", behavior: "instant" });
+    });
+    const point = page.locator(".star-phase-n circle");
+    const box = (await point.boundingBox())!;
+    const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const scroll = await page.evaluate(() => window.scrollY);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    for (const dx of [8, 16, 24]) {
+      await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: start.x + dx, y: start.y + dx }] });
+      await expect.poll(async () => {
+        const actual = (await point.boundingBox())!;
+        return Math.hypot(actual.x + actual.width / 2 - start.x - dx, actual.y + actual.height / 2 - start.y - dx);
+      }).toBeLessThan(0.5);
+    }
+    expect(Number(await x.inputValue())).toBeLessThan(0);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: start.x - 5, y: start.y - 12 }] });
+    await expect(r).toHaveValue("0");
+    expect(Number(await x.inputValue())).toBeGreaterThan(0);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] });
+    expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
+    await page.getByRole("switch").uncheck();
+    await expect(point).toHaveCount(0);
+  } finally {
+    await context.close();
   }
 });

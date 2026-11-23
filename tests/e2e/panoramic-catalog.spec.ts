@@ -5,7 +5,7 @@ test("laboratory catalogue keeps real items, search, and direct links", async ({
   await page.goto("/ru/interactive/");
   const catalogue = page.locator("#labs");
   const entries = catalogue.locator("[data-directory-entry]");
-  await expect(entries).toHaveCount(39);
+  await expect(entries).toHaveCount(38);
   await catalogue.getByRole("searchbox").fill("Электроника");
   await expect(catalogue.locator("[data-directory-entry]:visible")).toHaveCount(0);
   await expect(catalogue.locator("[data-directory-no-results]")).toBeVisible();

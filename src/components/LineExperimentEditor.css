@@ -211,3 +211,18 @@
   min-height: 44px;
   font: inherit;
 }
+
+.line-experiment-editor-actions { display: flex; align-items: center; gap: .65rem; }
+.line-experiment-selection {
+  position: fixed; z-index: 50; max-width: min(27rem, calc(100vw - 16px)); max-height: min(65vh, 26rem); overflow: auto;
+  box-sizing: border-box; border: 1px solid var(--border); border-radius: .65rem;
+  background: var(--white, white); box-shadow: 0 5px 20px #13224224;
+}
+.line-experiment-selection label { display: grid; gap: .15rem; font-size: .85em; }
+.line-experiment-selection input { min-width: 0; width: 8em; max-width: 100%; min-height: 40px; }
+.line-experiment-boundary { stroke: var(--accent, #177598); fill: var(--surface-soft, #e5f3fc); stroke-width: 3; }
+.line-experiment-preview { stroke: var(--accent, #177598); stroke-width: 3; stroke-dasharray: 6 4; }
+.line-experiment-editor [data-line-direct-slot] { border-style: dashed; color: var(--accent, #177598); font-weight: bold; }
+.line-experiment-editor .line-experiment-pair { margin: 6px 12px 0; }
+
+.line-experiment-palette button { touch-action: none; }

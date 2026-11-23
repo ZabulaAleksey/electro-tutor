@@ -1,6 +1,6 @@
 import { basisTermLimit, waveletBases, type BasisAnalysis, type BasisAnalysisOptions, type BasisTerm,
   type ExperimentBasisId, type ExperimentBoundary } from "./basis-experiment-contract";
-import { walsh } from "./bases";
+import { dctII, reconstructBasis, walsh } from "./bases";
 import { periodicWavelet } from "./experiment-wavelets";
 import { dft, orderCoefficients, reconstruct, type Complex } from "./math";
 
@@ -152,6 +152,10 @@ function polynomial(samples: Complex[], {boundary, count}: BasisAnalysisOptions,
 
 const adapters: Record<ExperimentBasisId, Adapter> = {
   fourier,
+  dct: (samples, {count}) => pairedTransform(samples, count, {
+    labels: samples.map((_, index) => `D${index}`), project: dctII,
+    synthesize: coefficients => reconstructBasis(coefficients, "dct"),
+  }),
   walsh: (samples, {count}) => pairedTransform(samples, count, {
     labels: samples.map((_, index) => `W${index}`), project: walsh, synthesize: walsh,
   }),

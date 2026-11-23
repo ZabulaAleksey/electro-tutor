@@ -2,11 +2,11 @@ import { expect, it } from "vitest";
 import { catalogueItems, filterCatalogue } from "./catalog";
 
 it("indexes each published laboratory once and preserves deep-link identities", () => {
-  expect(catalogueItems).toHaveLength(39);
-  expect(new Set(catalogueItems.map(item => item.id)).size).toBe(39);
+  expect(catalogueItems).toHaveLength(38);
+  expect(new Set(catalogueItems.map(item => item.id)).size).toBe(38);
   expect(catalogueItems.find(item => item.id === "advanced:power-system")?.href).toBe("/interactive/power-system/");
   expect(catalogueItems.find(item => item.id === "advanced:transmission-line")?.title.ru).toBe("Переходные процессы в длинной линии");
-  expect(catalogueItems.find(item => item.id === "advanced:fourier")?.title.ru).toBe("Эпициклы Фурье");
+  expect(catalogueItems.find(item => item.id === "advanced:fourier-polygon-motion")?.title.ru).toBe("Аппроксимация контура");
   expect(catalogueItems.filter(item => item.source === "advanced").every(item => !item.variants)).toBe(true);
   expect(catalogueItems.find(item => item.id === "advanced:transmission-line-steady")?.href).toBe("/interactive/transmission-line-steady/experiment/");
   expect(catalogueItems.find(item => item.id === "advanced:reactive-two-port")?.href).toBe("/interactive/reactive-two-port-graph/experiment/");

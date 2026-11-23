@@ -6,7 +6,7 @@ import { catalogueCategoryLabels, catalogueCategories, catalogueItems, catalogue
 import "./catalogue.css";
 export type CatalogueProps = { language: Language; limit?: number; showFilters?: boolean; compact?: boolean; className?: string; items?: readonly CatalogueItem[] };
 const copy = { ru: { all: "Все", search: "Поиск по каталогу", empty: "Ничего не найдено", open: "Открыть" }, uk: { all: "Усі", search: "Пошук у каталозі", empty: "Нічого не знайдено", open: "Відкрити" } } as const;
-const curatedIds = ["micro:ohm-law", "micro:rlc-resonance", "micro:three-phase-star", "micro:capacitor-charge", "advanced:beam", "advanced:star-neutral", "advanced:transmission-line", "advanced:fourier"];
+const curatedIds = ["micro:ohm-law", "micro:rlc-resonance", "micro:three-phase-star", "micro:capacitor-charge", "advanced:beam", "advanced:star-neutral", "advanced:transmission-line", "advanced:fourier-polygon-motion"];
 function CardVisual({ item }: { item: CatalogueItem }) {
   if (!item.panorama) return <ToolArt kind={item.visual} />;
   const base = `/panoramas/${item.panorama}`;

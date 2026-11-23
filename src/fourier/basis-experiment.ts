@@ -15,7 +15,7 @@ export function defaultBasisExperiment(): BasisExperiment {
 
 export function experimentBoundary(experiment: BasisExperiment): ExperimentBoundary {
   const source = experiment.source;
-  return source.kind === "signal" ? source.boundary : source.closed ? "periodic" : "open";
+  return source.kind !== "contour" ? source.boundary : source.closed ? "periodic" : "open";
 }
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -41,6 +41,20 @@ export function sampleBasisExperiment(experiment: BasisExperiment): Complex[] {
   const { source, sampleCount } = experiment;
   const periodic = experimentBoundary(experiment) === "periodic";
   if (!(experimentSampleCounts as readonly number[]).includes(sampleCount)) throw Error("invalid-grid");
+  if (source.kind === "drawn") {
+    const { values } = source;
+    if (values.length < 2 || values.length > basisContourMaxPoints || !values.every(value => finite(value, 1))) {
+      throw Error("invalid-grid");
+    }
+    const divisor = periodic ? sampleCount : sampleCount - 1;
+    return Array.from({ length: sampleCount }, (_, i) => {
+      const position = (values.length - 1) * i / divisor;
+      const left = Math.floor(position);
+      const right = Math.min(values.length - 1, left + 1);
+      const re = values[left] + (values[right] - values[left]) * (position - left);
+      return { re, im: 0 };
+    });
+  }
   if (source.kind === "signal") {
     const evaluate = parseSignal(source.expression);
     const divisor = periodic ? sampleCount : sampleCount - 1;
@@ -66,6 +80,10 @@ const integerIn = (value: unknown, low: number, high: number): value is number =
 
 function readSource(value: unknown): BasisExperimentSource {
   if (!record(value)) throw Error("invalid-archive");
+  if (value.kind === "drawn" && Array.isArray(value.values) && value.values.length >= 2 && value.values.length <= basisContourMaxPoints
+    && value.values.every(item => finite(item, 1)) && (value.boundary === "open" || value.boundary === "periodic")) {
+    return { kind: "drawn", boundary: value.boundary, values: value.values };
+  }
   if (value.kind === "signal" && typeof value.expression === "string" && (value.boundary === "open" || value.boundary === "periodic")) {
     return { kind: "signal", expression: value.expression, boundary: value.boundary };
   }

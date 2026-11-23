@@ -3,7 +3,7 @@ import type { TopologyLabDocument } from "../circuit/topology-session";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 
 type Rotation = 0 | 90 | -90 | 180;
-type LineLayout = TopologyLayout & {
+export type LineLayout = TopologyLayout & {
   rotations: ReadonlyMap<string, Rotation>;
   returnY?: number;
   append: Point;
@@ -104,7 +104,7 @@ function seriesPortLayout({ topology }: TopologyLabDocument, port: CircuitCompon
   const visited = new Set<string>();
   let endpoint = port.terminals[0];
   let x = 35;
-  const y = 92;
+  const y = 248;
   endpoints.set(endpoint, { x, y });
   while (endpoint !== port.terminals[1]) {
     const next = (edges.get(endpoint) ?? []).filter(edge => !visited.has(edge.id));
@@ -121,11 +121,35 @@ function seriesPortLayout({ topology }: TopologyLabDocument, port: CircuitCompon
   if (visited.size !== topology.wires.length + topology.components.length - 1) return;
   const junctions = topology.junctions.map(id => ({ id, ...endpoints.get(id)! }));
   components.push({ id: port.id, x: 35, y });
-  return { width: x + 35, height: 204, components, junctions, endpoints, wires,
+  return { width: x + 35, height: y + 74, components, junctions, endpoints, wires,
     anchors: new Map(), rotations: new Map(), append: { x, y: 32 } };
 }
 
 export function layoutLineExperiment(document: TopologyLabDocument): LineLayout {
+  const saved = document.geometry;
+  if (saved && document.topology.components.every(part => part.terminals.every(id => saved.pins[id]))
+    && document.topology.junctions.every(id => saved.pins[id])) {
+    const endpoints = new Map(Object.entries(saved.pins));
+    const rotations = new Map<string, Rotation>();
+    const components = document.topology.components.map(part => {
+      const [a, b] = part.terminals.map(id => endpoints.get(id)!);
+      rotations.set(part.id, a.y === b.y ? (a.x <= b.x ? 0 : 180) : (a.y < b.y ? 90 : -90));
+      return { id: part.id, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    });
+    const wires = document.topology.wires.map(({ id, from, to }) => {
+      const a = endpoints.get(from)!;
+      const b = endpoints.get(to)!;
+      const turns = saved.bends[id] ?? (a.x === b.x || a.y === b.y ? [] : [{ x: b.x, y: a.y }]);
+      return { id, points: [a, ...turns, b] };
+    });
+    const points = [...endpoints.values(), ...wires.flatMap(wire => wire.points)];
+    const last = document.topology.components.filter(part => part.kind === "line")
+      .sort((a, b) => endpoints.get(a.terminals[1])!.x - endpoints.get(b.terminals[1])!.x).at(-1);
+    return { components, junctions: document.topology.junctions.map(id => ({ id, ...endpoints.get(id)! })),
+      endpoints, wires, rotations, anchors: new Map(), append: { x: 30, y: 30 },
+      appendEndpoint: last?.terminals[1], returnY: saved.returnY,
+      width: Math.max(275, ...points.map(p => p.x + 66)), height: Math.max(235, ...points.map(p => p.y + 65)) };
+  }
   const loop = loopLayout(document);
   if (loop) return loop;
   const port = document.topology.components.find(part => part.kind === "port");

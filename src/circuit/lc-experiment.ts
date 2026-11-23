@@ -5,7 +5,7 @@ import { splitReactivePort } from "./reactive-lc-mode";
 import { sameLcPortResponse } from "./reactive-lc-simplification";
 import { parseTopologyLabDocument, TopologySession, type TopologyLabDocument } from "./topology-session";
 import type { TopologySlot } from "./topology-slots";
-import { netlist, removeComponent, type CircuitComponent, type CircuitTopology, type CircuitWire } from "./topology";
+import { removeDevicePreservingNets, type CircuitComponent, type CircuitTopology, type CircuitWire } from "./topology";
 
 const treeArchiveFormat = "electrotutor-reactive-two-port-v1";
 const treeArchiveByteLimit = 16_000;
@@ -135,24 +135,9 @@ export function lcMoveTargets(document: TopologyLabDocument, componentId: string
 export function removeLcPart(document: TopologyLabDocument, id: string): TopologyLabDocument {
   const removed = document.topology.components.find(part => part.id === id);
   if (!removed || removed.kind === "port") return document;
-  const cut = removeComponent(document.topology, id);
-  const junctions = [...cut.junctions, ...removed.terminals.filter(terminal => document.observedEndpoints.includes(terminal))];
-  const partNet = new Map(netlist({ ...cut, junctions }).flatMap(net => net.map(endpoint => [endpoint, net[0]] as const)));
-  const used = new Set([...partNet.keys(), ...cut.components.map(part => part.id), ...document.topology.wires.map(wire => wire.id)]);
-  const wires = [...cut.wires];
-  let index = 1;
-  for (const originalNet of netlist(document.topology)) {
-    if (!removed.terminals.some(endpoint => originalNet.includes(endpoint))) continue;
-    const parts = [...new Set(originalNet.flatMap(endpoint => partNet.get(endpoint) ?? []))];
-    for (const endpoint of parts.slice(1)) {
-      while (used.has("W" + index)) index++;
-      const wireId = "W" + index++;
-      used.add(wireId);
-      wires.push({ id: wireId, from: parts[0], to: endpoint });
-    }
-  }
+  const topology = removeDevicePreservingNets(document.topology, id, document.observedEndpoints);
   return parseTopologyLabDocument(JSON.stringify({
-    ...document, topology: { ...cut, junctions, wires },
+    ...document, topology,
     attachmentSides: document.attachmentSides.filter(hint => hint.componentId !== id),
   }));
 }

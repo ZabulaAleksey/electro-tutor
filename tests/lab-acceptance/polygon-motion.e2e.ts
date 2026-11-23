@@ -32,7 +32,7 @@ test("catalogue F: exact square and circle, actual contour phase and manually sc
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(`${prefix}/ru/interactive/`);
   await expect(page.locator(`a[href="${prefix}/ru/interactive/fourier/bases/"]`)).toBeVisible();
-  await page.getByRole("link", { name: "Аппроксимация контура многоугольными движениями", exact: true }).click();
+  await page.getByRole("link", { name: "Аппроксимация контура", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(route("ru") + "$"));
   await expect(page.locator(lab)).toBeVisible();
   await page.locator("[data-motion-family]").selectOption("square");
@@ -56,9 +56,11 @@ test("catalogue F: exact square and circle, actual contour phase and manually sc
   expect(editedRms).toBeGreaterThan(.1);
   await page.locator("[data-motion-autofit]").click();
   expect(await reading(page.locator(result), "data-rms")).toBeLessThan(1e-10);
-  await page.locator('[data-motion-preset="circle"]').click();
+  await page.locator("[data-contour-preset]").selectOption("circle");
   await page.locator("[data-motion-family]").selectOption("circle");
-  const circleRms = await reading(page.locator(result), "data-rms");
+  await expect(page.locator(".fourier-vector")).toHaveCount(16);
+  expect(await page.locator(".fourier-vector").first().evaluate(line => (line as SVGLineElement).getTotalLength())).toBeGreaterThan(100);
+  const circleRms = await reading(page.locator("[data-fourier-lab]"), "data-fourier-rms");
   expect(circleRms).toBeLessThan(1e-10);
   expect(errors).toEqual([]);
   await testInfo.attach("geometric-references", { contentType: "application/json", body: JSON.stringify({
@@ -73,7 +75,7 @@ test("seeded star and versioned archive preserve manual coefficients; safe local
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(route("ru"));
   await expect(page.locator(lab)).toBeVisible();
-  await page.locator('[data-motion-preset="star"]').click();
+  await page.locator("[data-contour-preset]").selectOption("star");
   const count = page.locator("[data-motion-count]");
   await count.press("Home");
   const single = await reading(page.locator(result), "data-rms");
@@ -145,7 +147,7 @@ test("seeded star and versioned archive preserve manual coefficients; safe local
   await setSvg(svgPath("M10 20 c0 -10 10 -10 10 0 s10 10 10 0 q0 10 -10 10 t-10 -10 z"));
   await expect.poll(() => reading(page.locator(result), "data-rms")).not.toBe(manyCurvesError);
   const smoothError = await reading(page.locator(result), "data-rms");
-  await page.locator('[data-motion-preset="square"]').click();
+  await page.locator("[data-contour-preset]").selectOption("square");
   await expect(page.locator(drawing)).toHaveAttribute("data-point-count", "4");
   await setSvg(svgPath("M10 20 C10 10 20 10 20 20 C20 30 30 30 30 20 Q30 30 20 30 Q10 30 10 20 Z"));
   await expect(page.locator(drawing)).toHaveAttribute("data-point-count", "1024");
@@ -174,7 +176,7 @@ test.describe("Ukrainian mobile experiment", () => {
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(route("uk"));
     await expect(page.locator(lab)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Апроксимація контуру багатокутними рухами" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Апроксимація контуру" })).toBeVisible();
     const board = page.locator(drawing);
     await board.scrollIntoViewIfNeeded();
     const area = (await board.boundingBox())!;
@@ -200,4 +202,37 @@ test.describe("Ukrainian mobile experiment", () => {
     expect(errors).toEqual([]);
     await capture(page, testInfo, "motion-f-drawn-mobile");
   });
+});
+
+test("returning to a method restores its fit and clock until the source changes", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(route("ru"));
+  const method = page.locator("[data-motion-family]");
+  await method.selectOption("square");
+  await enter(page.locator("[data-motion-scale]"), "0.31");
+  const polygonError = await reading(page.locator(result), "data-rms");
+  await method.selectOption("circle");
+  await page.locator("[data-fourier-harmonics]").fill("11");
+  await page.locator("[data-fourier-phase]").fill("0.37");
+  const harmonic = page.getByLabel("amplitude 1", { exact:true });
+  await enter(harmonic, "0.24");
+  await page.locator(".fourier-table input[type=checkbox]").last().uncheck();
+  const fourierError = await reading(page.locator("[data-fourier-lab]"), "data-fourier-rms");
+  await method.selectOption("square");
+  await expect(page.locator("[data-motion-scale]")).toHaveValue("0.31");
+  expect(await reading(page.locator(result), "data-rms")).toBe(polygonError);
+  await method.selectOption("circle");
+  await expect(page.locator("[data-fourier-harmonics]")).toHaveValue("11");
+  await expect(page.locator("[data-fourier-phase]")).toHaveValue("0.37");
+  await expect(harmonic).toHaveValue("0,24");
+  await expect(page.locator(".fourier-table input[type=checkbox]").last()).not.toBeChecked();
+  expect(await reading(page.locator("[data-fourier-lab]"), "data-fourier-rms")).toBe(fourierError);
+  await page.locator("[data-contour-preset]").selectOption("star");
+  await method.selectOption("square");
+  await expect(page.locator("[data-motion-source-drawing] svg")).toHaveAttribute("data-point-count","10");
+  await expect(page.locator("[data-motion-scale]")).not.toHaveValue("0.31");
+  await page.locator("[data-contour-preset]").selectOption("rectangle");
+  await method.selectOption("circle");
+  await expect(page.locator(".fourier-canvas")).toHaveAttribute("data-committed-points","4");
+  await expect(harmonic).not.toHaveValue("0,24");
 });

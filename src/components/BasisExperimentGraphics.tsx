@@ -111,6 +111,10 @@ export function BasisContourCanvas({ language, points, closed, reconstruction, c
         if (event.key === "Escape" && drawing) { cancel(); finishDrawing(); }
       }}>
       <path className="basis-board-axes" d="M26 200H374M200 26V374" />
+      <g className="basis-axis-labels" aria-hidden="true">
+        <text x="205" y="215">0</text><text x="380" y="197">x</text><text x="204" y="19">y</text>
+        <text x={boardCenter + scale - 4} y="216">1</text><text x="207" y={boardCenter - scale + 5}>1</text>
+      </g>
       <rect className="basis-board-guide" x={boardCenter - scale} y={boardCenter - scale} width={2 * scale} height={2 * scale} rx="2" />
       <g className={drawing ? "basis-drawing-background" : undefined}>
         <polyline className="basis-path-source" points={boardPoints(points, closed, scale)} />
@@ -189,7 +193,7 @@ export function BasisEpicycles({ language, analysis, boundary, sampleCount }: {
         setPlaying(false); setPosition(event.currentTarget.valueAsNumber);
       }} />
     </label>
-    {reduceMotion ? <p className="basis-note">{t.reduced}</p> : <button type="button" data-basis-play onClick={() => setPlaying(!playing)}>
+    {reduceMotion ? <p className="basis-note">{t.reduced}</p> : <button type="button" title={playing ? t.pause : t.play} data-basis-play onClick={() => setPlaying(!playing)}>
       {playing ? t.pause : t.play}
     </button>}
   </section>;

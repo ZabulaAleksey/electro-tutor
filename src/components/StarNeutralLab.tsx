@@ -1,9 +1,9 @@
 import { formatEngineeringNumber } from "../engineering/format";
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import {subtractComplex,type Complex} from "../models/circular-diagram";
 import {
-  calculateDelta, calculateStar, LINE_PAIRS, MAX_INPUT, PHASES, readThreePhaseDraft, polarToRectangular, rectangularToPolar,
-  STAR_PRESETS, type NeutralMode, type Phase, type StarParameters,
+  calculateStar, LINE_PAIRS, MAX_INPUT, PHASES, readThreePhaseDraft, polarToRectangular, rectangularToPolar,
+  STAR_PRESETS, type Phase, type StarParameters,
 } from "../models/star-neutral";
 import { getLocale } from "../i18n";
 import type { Language } from "../types";
@@ -13,16 +13,14 @@ import "./StarNeutralLab.css";
 type StarCopy = ReturnType<typeof getLocale>["star"];
 type ImpedancePart = "re" | "im" | "magnitude" | "angle";
 
+const displayInput = (value: number) => String(Number(value.toPrecision(6)));
+
 function NumberField({ label, value, min, max, onChange }: {
   label: string; value: number; min: number; max: number; onChange: (value: number) => void;
 }) {
-  const input = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState(() => String(value));
-  useEffect(() => {
-    if (document.activeElement !== input.current) setDraft(String(value));
-  }, [value]);
-  return <label className="star-field"><span>{label}</span><input ref={input} type="number" inputMode="decimal"
-    min={min} max={max} step="any" value={draft}
+  const [draft, setDraft] = useState<string | null>(null);
+  return <label className="star-field"><span>{label}</span><input type="number" inputMode="decimal"
+    min={min} max={max} step="any" value={draft ?? displayInput(value)}
     onChange={event => {
       const raw = event.target.value;
       if (!raw.trim()) { setDraft(raw); return; }
@@ -32,50 +30,7 @@ function NumberField({ label, value, min, max, onChange }: {
       setDraft(parsed === bounded ? raw : String(bounded));
       onChange(bounded);
     }}
-    onBlur={() => setDraft(String(value))} /></label>;
-}
-
-function PhasorPractice({voltage,current,language}:{voltage:Complex;current:Complex;language:Language}){
-  const ru=language==="ru",t=(r:string,u:string)=>ru?r:u;
-  const [quantity,setQuantity]=useState<"voltage"|"current">("voltage");
-  const [magnitude,setMagnitude]=useState(0),[angle,setAngle]=useState(0),[message,setMessage]=useState("");
-  const target=quantity==="voltage"?voltage:current;
-  const unit=quantity==="voltage"?"V":"A";
-  const scale=Math.max(1,rectangularToPolar(target).magnitude*1.5,magnitude);
-  const guess=polarToRectangular(magnitude,angle);
-  useEffect(()=>setMessage(""),[voltage.re,voltage.im,current.re,current.im,quantity]);
-  return <details className="star-card">
-    <summary>{t("Самостоятельное построение","Самостійна побудова")}</summary>
-    <div className="star-source-fields">
-      <label>{t("Постройте вектор","Побудуйте вектор")} <select value={quantity} onChange={e=>setQuantity(e.target.value as typeof quantity)}>
-        <option value="voltage">UAB</option><option value="current">IA</option>
-      </select></label>
-      <div className="star-field-row">
-        <NumberField label={t("Модуль","Модуль")+", "+unit} value={magnitude} min={0} max={1e13} onChange={n=>{setMagnitude(n);setMessage("");}}/>
-        <NumberField label={t("Угол, °","Кут, °")} value={angle} min={-180} max={180} onChange={n=>{setAngle(n);setMessage("");}}/>
-      </div>
-      <svg className="star-practice-plane" viewBox="0 0 240 180" role="img" aria-label={t("Поле построения фазора","Поле побудови фазора")}
-        onPointerDown={e=>{
-          const matrix=e.currentTarget.getScreenCTM();
-          if(!matrix)return;
-          const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse());
-          const picked=rectangularToPolar({re:(p.x-120)*scale/75,im:(90-p.y)*scale/75});
-          setMagnitude(picked.magnitude);setAngle(picked.angle);setMessage("");
-        }}>
-        <path d="M16 90H224 M120 8V172" stroke="var(--muted)" fill="none"/>
-        <text x="216" y="83" fill="var(--ink)" fontSize="12">Re</text><text x="125" y="16" fill="var(--ink)" fontSize="12">Im</text>
-        <line x1="120" y1="90" x2={120+75*guess.re/scale} y2={90-75*guess.im/scale} stroke="var(--blue)" strokeWidth="2"/>
-        <circle cx={120+75*guess.re/scale} cy={90-75*guess.im/scale} r="4" fill="var(--blue)"/>
-      </svg>
-      <button type="button" onClick={()=>{
-        const error=rectangularToPolar(subtractComplex(guess,target)).magnitude;
-        const threshold=.03*Math.max(1e-6,rectangularToPolar(target).magnitude);
-        setMessage(error<=threshold?t("Вектор построен верно.","Вектор побудовано правильно."):
-          t("Проверьте модуль и направление вектора.","Перевірте модуль і напрямок вектора."));
-      }}>{t("Проверить вектор","Перевірити вектор")}</button>
-      {message&&<output role="status">{message}</output>}
-    </div>
-  </details>;
+    onBlur={() => setDraft(null)} /></label>;
 }
 
 function ImpedanceFields({ label, value, onChange, copy, disabled = false }: {
@@ -116,68 +71,42 @@ function ComplexReadout({ label, value, unit, language }: { label: string; value
 export default function StarNeutralLab({ language }: { language: Language }) {
   const [ready,setReady] = useState(false);
   const ru=language==="ru",t=(r:string,u:string)=>ru?r:u;
-  const storageKey="electrotutor-three-phase-v1";
-  const [topology,setTopology]=useState<"star"|"delta">("star");
+  const initialParameters = useRef<StarParameters>(STAR_PRESETS.open);
   const copy = getLocale(language).star;
-  const [parameters, setParameters] = useState<StarParameters>(STAR_PRESETS.unbalanced);
-  const calculation = useMemo(() => topology==="delta"?calculateDelta(parameters):calculateStar(parameters), [parameters,topology]);
-  useEffect(()=>{
-    try{
-      const saved=readThreePhaseDraft(JSON.parse(localStorage.getItem(storageKey)??"null"));
-      if(saved){setParameters(saved.parameters);setTopology(saved.topology);}
-    }catch{/* A fresh experiment is still available. */}
+  const [parameters, setParameters] = useState<StarParameters>(STAR_PRESETS.open);
+  const calculation = useMemo(() => calculateStar(parameters), [parameters]);
+  useEffect(() => {
+    try {
+      const serialized = localStorage.getItem("electrotutor-star-v1") ?? localStorage.getItem("electrotutor-three-phase-v1");
+      const saved = serialized && readThreePhaseDraft(JSON.parse(serialized));
+      if (saved && saved.topology === "star") {
+        const restored = saved.parameters;
+        initialParameters.current = restored.mode === "ideal" ? { ...restored, neutral: { re: 0, im: 0 } } : restored;
+        setParameters(initialParameters.current);
+      }
+    } catch { /* The original draft remains available in its own storage slot. */ }
     setReady(true);
-  },[storageKey]);
-  useEffect(()=>{
-    if(ready&&calculation.ok)try{localStorage.setItem(storageKey,JSON.stringify({version:1,topology,parameters}));}
-    catch{/* Local storage is optional. */}
-  },[ready,calculation,topology,parameters,storageKey]);
+  }, []);
+  useEffect(() => {
+    if (!ready || !calculation.ok || parameters === initialParameters.current) return;
+    try {
+      localStorage.setItem("electrotutor-star-v1", JSON.stringify({ version: 1, topology: "star", parameters }));
+      initialParameters.current = parameters;
+    } catch { /* Local storage is optional. */ }
+  }, [ready, calculation, parameters]);
   const source=parameters.source;
   const updateSource=(phase:Phase,field:"magnitude"|"angle",value:number)=>{
     if(source)setParameters({...parameters,source:{...source,[phase]:{...source[phase],[field]:value}}});
   };
-  const delta=topology==="delta";
+  const connected = parameters.mode !== "open";
+  const changeNeutral = (neutral: Complex) => setParameters(current => ({
+    ...current, neutral, mode: neutral.re === 0 && neutral.im === 0 ? "ideal" : "finite",
+  }));
   const updatePhase = (phase: Phase, value: Complex) =>
     setParameters(current => ({ ...current, phases: { ...current.phases, [phase]: value } }));
   const selectPreset = (key: keyof typeof STAR_PRESETS) => setParameters(STAR_PRESETS[key]);
 
-  return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard"><div className="star-lab" data-three-phase={topology}>
-    <label className="star-mode star-topology"><span>{t("Соединение нагрузки","З’єднання навантаження")}</span>
-      <select value={topology} onChange={event=>setTopology(event.target.value as "star"|"delta")}>
-        <option value="star">{t("Звезда Y","Зірка Y")}</option><option value="delta">{t("Треугольник Δ","Трикутник Δ")}</option>
-      </select>
-    </label>
-    <div className="star-presets"><h2>{copy.presets}</h2><div>
-      <button type="button" onClick={() => selectPreset("balanced")}>{copy.balanced}</button>
-      <button type="button" onClick={() => selectPreset("unbalanced")}>{copy.unbalanced}</button>
-      <button type="button" onClick={() => selectPreset("open")}>{copy.openPreset}</button>
-      <button type="button" onClick={() => selectPreset("rlc")}>{copy.rlc}</button>
-    </div></div>
-    <div className="star-top-grid">
-      <ImpedancePlane language={language} phases={parameters.phases} onChange={updatePhase} copy={copy} />
-      {calculation.ok ? <StarVectorDiagram language={language} result={calculation.result} copy={copy} delta={delta}/> :
-        <section className="star-card star-phasors"><h2>{copy.combinedPlot}</h2>
-          <p role="alert" className="star-error">{copy[calculation.reason === "phase-short" ? "phaseShort" : calculation.reason]}</p>
-        </section>}
-    </div>
-    {calculation.ok && <section className="star-card star-results" aria-live="polite"><h2>{copy.results}</h2>
-      <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
-        <tbody>
-          {!delta&&<ComplexReadout language={language} label="UₙN" value={calculation.result.displacement} unit="V" />}
-          {PHASES.map(phase => <ComplexReadout language={language} key={`U${phase}`} label={delta?`UΔ,${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`U${phase.toLowerCase()}`} value={calculation.result.voltages[phase]} unit="V" />)}
-          {PHASES.map(phase => <ComplexReadout language={language} key={`I${phase}`} label={delta?`I${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`I${phase}`} value={calculation.result.currents[phase]} unit="A" />)}
-          {calculation.result.lineCurrents?PHASES.map(phase=><ComplexReadout language={language} key={phase} label={`I${phase}`}
-            value={calculation.result.lineCurrents![phase]} unit="A"/>):<ComplexReadout language={language} label="Iₙ" value={calculation.result.neutralCurrent} unit="A"/>}
-        </tbody></table></div>
-    </section>}
-    {calculation.ok&&<section className="star-card star-line-results"><h2>{t("Линейные напряжения","Лінійні напруги")}</h2>
-      <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
-        <tbody>{LINE_PAIRS.map(([name,from,to])=><ComplexReadout language={language} key={name} label={"U"+name}
-          value={subtractComplex(calculation.result.sources[from],calculation.result.sources[to])} unit="V"/>)}</tbody>
-      </table></div>
-    </section>}
-    {calculation.ok&&<PhasorPractice language={language} voltage={subtractComplex(calculation.result.sources.A,calculation.result.sources.B)}
-      current={(calculation.result.lineCurrents??calculation.result.currents).A}/>}
+  return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard"><div className="star-lab" data-three-phase="star">
     <section className="star-card star-controls">
       <h2>{copy.source}</h2>
       <label><input type="checkbox" checked={!!source} onChange={event=>setParameters({...parameters,source:event.target.checked?
@@ -188,17 +117,43 @@ export default function StarNeutralLab({ language }: { language: Language }) {
         <NumberField label={`φ${phase}, °`} value={source[phase].angle} min={-180} max={180} onChange={value=>updateSource(phase,"angle",value)}/>
       </div>)}</div>:<NumberField label={copy.phaseVoltage} value={parameters.uPhase} min={0} max={MAX_INPUT}
         onChange={uPhase => setParameters(current => ({ ...current, uPhase }))} />}
-      {!delta&&<label className="star-mode"><span>{copy.neutralMode}</span><select value={parameters.mode}
-        onChange={event => setParameters(current => ({ ...current, mode: event.target.value as NeutralMode }))}>
-        <option value="ideal">{copy.ideal}</option><option value="finite">{copy.finite}</option><option value="open">{copy.openMode}</option>
-      </select></label>}
-      <h2>{copy.impedances}</h2>
-      <p className="star-hint">{copy.reactanceHint}</p>
-      {PHASES.map(phase => <ImpedanceFields key={phase} label={delta?`Z${LINE_PAIRS[PHASES.indexOf(phase)][0]}`:`${copy.phase} ${phase} — Z${phase}`}
-        value={parameters.phases[phase]} onChange={value => updatePhase(phase, value)} copy={copy} />)}
-      {!delta&&<ImpedanceFields label={`${copy.neutral} — ZN`} value={parameters.neutral} copy={copy}
-        disabled={parameters.mode !== "finite"}
-        onChange={neutral => setParameters(current => ({ ...current, neutral }))} />}
     </section>
+    <div className="star-presets"><h2>{copy.presets}</h2><div>
+      <button type="button" onClick={() => selectPreset("balanced")}>{copy.balanced}</button>
+      <button type="button" onClick={() => selectPreset("unbalanced")}>{copy.unbalanced}</button>
+      <button type="button" onClick={() => selectPreset("open")}>{copy.openPreset}</button>
+      <button type="button" onClick={() => selectPreset("rlc")}>{copy.rlc}</button>
+    </div></div>
+    <div className="star-top-grid">
+      <ImpedancePlane language={language} phases={parameters.phases} neutral={connected ? parameters.neutral : null}
+        onChange={(point, value) => point === "N" ? changeNeutral(value) : updatePhase(point, value)} copy={copy}
+        toggle={<label className="star-neutral-toggle"><input type="checkbox" role="switch" checked={connected}
+          onChange={event => event.target.checked ? changeNeutral(parameters.neutral) :
+            setParameters(current => ({ ...current, mode: "open" }))} />{copy.neutral}</label>}>
+        <p className="star-hint">{copy.reactanceHint}</p>
+        {PHASES.map(phase => <ImpedanceFields key={phase} label={`${copy.phase} ${phase} — Z${phase}`}
+          value={parameters.phases[phase]} onChange={value => updatePhase(phase, value)} copy={copy} />)}
+        {connected && <ImpedanceFields label={`${copy.neutral} — ZN`} value={parameters.neutral} onChange={changeNeutral} copy={copy} />}
+      </ImpedancePlane>
+      {calculation.ok ? <StarVectorDiagram language={language} result={calculation.result} copy={copy}/> :
+        <section className="star-card star-phasors"><h2>{copy.combinedPlot}</h2>
+          <p role="alert" className="star-error">{copy[calculation.reason === "phase-short" ? "phaseShort" : calculation.reason]}</p>
+        </section>}
+    </div>
+    {calculation.ok && <section className="star-card star-results" aria-live="polite"><h2>{copy.results}</h2>
+      <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
+        <tbody>
+          <ComplexReadout language={language} label="UₙN" value={calculation.result.displacement} unit="V" />
+          {PHASES.map(phase => <ComplexReadout language={language} key={`U${phase}`} label={`U${phase.toLowerCase()}`} value={calculation.result.voltages[phase]} unit="V" />)}
+          {PHASES.map(phase => <ComplexReadout language={language} key={`I${phase}`} label={`I${phase}`} value={calculation.result.currents[phase]} unit="A" />)}
+          <ComplexReadout language={language} label="Iₙ" value={calculation.result.neutralCurrent} unit="A"/>
+        </tbody></table></div>
+    </section>}
+    {calculation.ok&&<section className="star-card star-line-results"><h2>{t("Линейные напряжения","Лінійні напруги")}</h2>
+      <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
+        <tbody>{LINE_PAIRS.map(([name,from,to])=><ComplexReadout language={language} key={name} label={"U"+name}
+          value={subtractComplex(calculation.result.sources[from],calculation.result.sources[to])} unit="V"/>)}</tbody>
+      </table></div>
+    </section>}
   </div></fieldset>;
 }

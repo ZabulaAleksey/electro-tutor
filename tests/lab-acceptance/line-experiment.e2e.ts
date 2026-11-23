@@ -15,7 +15,7 @@ async function rangeValue(element: Locator, value: number) {
   }, value);
 }
 
-test("Lab A from catalogue: delayed current, cascade, selected section, playback, SVG and archive", async ({ page }, testInfo) => {
+test("Lab A from catalogue: delayed EMF, cascade, selected section, playback, SVG and archive", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const failures: string[] = [];
@@ -28,9 +28,9 @@ test("Lab A from catalogue: delayed current, cascade, selected section, playback
   const board = page.locator(editor);
   await expect(board.locator("select")).toHaveCount(0);
   await expect(board.locator("[data-line-palette]")).toHaveCount(7);
-  const source = board.locator('[data-line-glyph="J1"]');
+  const source = board.locator('[data-line-glyph="E1"]');
   await expect(source).toHaveAttribute("data-line-rotation", "90");
-  await expect(source.locator("[data-source-arrow]")).toHaveCount(2);
+  await expect(source.locator("[data-source-arrow]")).toHaveCount(1);
   await expect(board.locator("[data-line-component]")).toHaveCount(4);
   await page.waitForFunction(() => document.getAnimations().every(animation => animation.playState !== "running"));
   await page.screenshot({ path: testInfo.outputPath("line-a-editor-desktop.png"), fullPage: true, animations: "disabled" });
@@ -52,8 +52,8 @@ test("Lab A from catalogue: delayed current, cascade, selected section, playback
   await expect(plot).toHaveAttribute("data-u", "0");
   await rangeValue(plot.locator("[data-line-a-time]"), .009);
   await expect(plot).toHaveAttribute("data-time-s", "0.009");
-  expect(Number(await plot.getAttribute("data-u"))).toBeCloseTo(5, 3);
-  expect(Number(await plot.getAttribute("data-i"))).toBeCloseTo(.1, 5);
+  expect(Number(await plot.getAttribute("data-u"))).toBeCloseTo(12, 3);
+  expect(Number(await plot.getAttribute("data-i"))).toBeCloseTo(.24, 5);
   expect(Number(await plot.getAttribute("data-wave-backward"))).toBeCloseTo(0, 5);
   await page.screenshot({ path: testInfo.outputPath("line-a-results-desktop.png"), fullPage: true });
 
@@ -87,7 +87,7 @@ test("Lab A from catalogue: delayed current, cascade, selected section, playback
   await plot.locator("[data-line-a-back]").click();
   await expect(board.locator('[data-line-section="TL2"]')).toBeVisible();
   await page.reload();
-  await expect(board.locator('[data-line-section="TL2"]')).toHaveCount(0);
+  await expect(board.locator('[data-line-section="TL2"]')).toBeVisible();
   await page.locator("[data-line-a-import]").setInputFiles(archive);
   await board.locator('[data-line-section="TL2"]').click();
   await expect(plot).toHaveAttribute("data-calculation-ready", "true");
@@ -116,7 +116,7 @@ test("an invalid series edit can be undone and a late closure remains calculable
   await rangeValue(plot.locator("[data-line-a-time]"), .02);
   await expect(plot).toHaveAttribute("data-u", "0");
   await rangeValue(plot.locator("[data-line-a-time]"), .033);
-  await expect.poll(async () => Number(await plot.getAttribute("data-u"))).toBeCloseTo(5, 3);
+  await expect.poll(async () => Number(await plot.getAttribute("data-u"))).toBeCloseTo(12, 3);
 });
 
 test.describe("Ukrainian touch layout", () => {

@@ -61,6 +61,8 @@ test("selects a real coordinate, updates both phasor diagrams, and recalculates 
   await voltage.press("End");
   await expect(lab).toHaveAttribute("data-coordinate", "500000");
   expect(await magnitude("total")).toBeCloseTo(200 / 3, 8);
+  // Selecting a plot dismisses the contextual component inspector.
+  await select("R1");
   await enter(parameter("ohm"), 50);
   expect(await magnitude("backward")).toBeCloseTo(0, 8);
   await expect(voltageVectors.locator('[data-wave-reading="backward"]')).toHaveAttribute("data-wave-phase", "");

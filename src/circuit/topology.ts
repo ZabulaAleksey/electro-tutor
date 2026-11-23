@@ -106,6 +106,28 @@ export function removeComponent(circuit: CircuitTopology, id: ElementId): Circui
   };
 }
 
+/** Remove a device without severing existing conductors at either terminal.
+ * The two former terminal nets remain independent. */
+export function removeDevicePreservingNets(circuit: CircuitTopology, id: string, observed: readonly string[] = []): CircuitTopology {
+  const part = circuit.components.find(candidate => candidate.id === id);
+  if (!part) return circuit;
+  const cut = removeComponent(circuit, id);
+  const junctions = [...cut.junctions, ...part.terminals.filter(terminal => observed.includes(terminal))];
+  const net = new Map(netlist({ ...cut, junctions }).flatMap(group => group.map(endpoint => [endpoint, group[0]] as const)));
+  const used = new Set([...net.keys(), ...cut.components.map(c => c.id), ...circuit.wires.map(w => w.id)]);
+  const wires = [...cut.wires];
+  let n = 1;
+  for (const original of netlist(circuit)) {
+    if (!part.terminals.some(endpoint => original.includes(endpoint))) continue;
+    const remnants = [...new Set(original.flatMap(endpoint => net.get(endpoint) ?? []))];
+    for (const endpoint of remnants.slice(1)) {
+      while (used.has("W" + n)) n++;
+      wires.push({ id: "W" + n++, from: remnants[0], to: endpoint });
+    }
+  }
+  return { ...cut, junctions, wires };
+}
+
 /** The first endpoint in each sorted net gives a deterministic order for the netlist. */
 export function netlist(circuit: CircuitTopology): ElementId[][] {
   checked(circuit);

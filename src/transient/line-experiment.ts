@@ -1,6 +1,7 @@
+import { appendSectionGeometry } from "../circuit/schematic-geometry";
 import { parts } from "../circuit/drawing";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
-import { netlist, removeComponent, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
+import { netlist, removeDevicePreservingNets, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
 import { transmissionCircuitAdapter } from "./circuit-adapter";
 import { lineArchiveByteLimit, lineArchiveSize } from "./line-archive-document";
 import { DEFAULT_NETWORK, MAX_SECTIONS, inputContact, validateNetwork, type Network } from "./network";
@@ -22,16 +23,16 @@ export function newLineExperiment(): LineExperiment {
   const topology: CircuitTopology = {
     junctions: [],
     components: [
-      { id: "J1", kind: "current", terminals: ["J1:a", "J1:b"], parameters: { ...parts.current.parameters } },
+      { id: "E1", kind: "voltage", terminals: ["E1:a", "E1:b"], parameters: { ...parts.voltage.parameters } },
       { id: "K1", kind: "switch", terminals: ["K1:a", "K1:b"], parameters: { ...parts.switch.parameters, closed: false, closes: true } },
       { id: "TL1", kind: "line", terminals: ["TL1:a", "TL1:b"], parameters: { ...parts.line.parameters, lengthM: 1e6 } },
       { id: "C1", kind: "c", terminals: ["C1:a", "C1:b"], parameters: { ...parts.c.parameters } },
     ],
     wires: [
-      { id: "W1", from: "J1:a", to: "K1:a" },
+      { id: "W1", from: "E1:a", to: "K1:a" },
       { id: "W2", from: "K1:b", to: "TL1:a" },
       { id: "W3", from: "TL1:b", to: "C1:a" },
-      { id: "W4", from: "C1:b", to: "J1:b" },
+      { id: "W4", from: "C1:b", to: "E1:b" },
     ],
   };
   return {
@@ -57,7 +58,11 @@ function projectExperiment(circuit: TopologyLabDocument, durationS: number) {
   // Before turn-on, a zero ideal current source is an open circuit as seen at
   // the line port. Closing its isolated contact in the solver projection and
   // delaying the current preserves that boundary without a reactive live event.
-  const projectClosedInput = closes && (closeS === 0 || source?.kind === "current");
+  // With initially unenergized storage and just one source, delaying an EMF
+  // step until the contact closes also gives an identically zero prehistory.
+  const coldVoltage = source?.kind === "voltage" && topology.components.every(part =>
+    !(part.kind === "l" || part.kind === "c") || !part.parameters.initial);
+  const projectClosedInput = closes && (closeS === 0 || source?.kind === "current" || coldVoltage);
   const projected = projectClosedInput ? {
     ...topology,
     components: topology.components.map(part => part === contact
@@ -66,7 +71,7 @@ function projectExperiment(circuit: TopologyLabDocument, durationS: number) {
   const converted = transmissionCircuitAdapter.convert(projected);
   const model = { ...converted.model, durationS, source: { ...converted.model.source } };
   const input = inputContact(model);
-  if (projectClosedInput && input?.id === contact?.id && model.source.currentA !== undefined) {
+  if (projectClosedInput && input?.id === contact?.id) {
     model.source.onS = Math.max(model.source.onS, closeS);
   } else if (input?.switch?.closed === false && input.switch.atS === undefined && model.source.currentA) {
     throw Error("inconsistent-ideal-current-source-and-open-switch");
@@ -105,7 +110,9 @@ export function appendExperimentSection(circuit: TopologyLabDocument, durationS 
   }));
   wires.push({ id: "W" + wireIndex, from: outlet, to: part.terminals[0] });
   const next = { ...topology, components: [...topology.components, part], wires };
-  return parseTopologyLabDocument(JSON.stringify({ ...circuit, topology: next }));
+  const inlet = lastPart.terminals.find(terminal => terminal !== outlet)!;
+  const geometry = appendSectionGeometry(circuit.geometry, inlet, outlet, part.terminals, next);
+  return parseTopologyLabDocument(JSON.stringify({ ...circuit, topology: next, geometry }));
 }
 
 export function removeExperimentPart(circuit: TopologyLabDocument, id: string): TopologyLabDocument {
@@ -113,7 +120,7 @@ export function removeExperimentPart(circuit: TopologyLabDocument, id: string): 
   if (!removed) return circuit;
   return parseTopologyLabDocument(JSON.stringify({
     ...circuit,
-    topology: removeComponent(circuit.topology, id),
+    topology: removeDevicePreservingNets(circuit.topology, id),
     observedEndpoints: circuit.observedEndpoints.filter(endpoint => !removed.terminals.includes(endpoint)),
     attachmentSides: circuit.attachmentSides.filter(hint => hint.componentId !== id),
   }));

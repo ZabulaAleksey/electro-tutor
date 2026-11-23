@@ -110,6 +110,8 @@ function WaveAnimation({ language, sectionId, samples, length, xM, scale }: {
 export default function LineExperimentResults({ language, sectionId, model, showResults, onBack, durationS, onDurationChange,
   observation, onObservationChange }: ResultsProps) {
   const t = copy[language];
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const [requestedModel, requestModel] = useState<Network>();
   const calculate = showResults || requestedModel === model;
   const [calculation, setCalculation] = useState<Calculation>();
@@ -223,7 +225,7 @@ export default function LineExperimentResults({ language, sectionId, model, show
     data-solver-method={sectionRun?.method} data-time-s={timeS} data-position-m={xM} data-u={reading?.u} data-i={reading?.i}
     data-wave-forward={reading?.forward} data-wave-backward={reading?.backward} className="line-a-results">
     <PlaybackBar language={language} timeS={timeS} running={!!activePlayback && !error}
-      disabled={!!error} onPlay={play} onPause={() => setPlayback(undefined)} onStop={() => seek(0)} />
+      disabled={!hydrated || !!error} onPlay={play} onPause={() => setPlayback(undefined)} onStop={() => seek(0)} />
     {showResults && <><header className="line-a-results-heading">
       <button data-line-a-back type="button" onClick={onBack}>← {t.back}</button>
       <h2 ref={heading} tabIndex={-1}>{t.title} · {sectionId}</h2>

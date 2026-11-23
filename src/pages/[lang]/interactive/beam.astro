@@ -9,7 +9,8 @@ const language = Astro.params.lang as Language;
 const copy = beamCopy[language];
 ---
 <BaseLayout title={copy.title} description={copy.lead} language={language} active="interactive" alternatePath="/interactive/beam/">
-  <LaboratoryPage {language} title={copy.title} description={copy.lead}>
+  <LaboratoryPage {language} title={copy.title} description={copy.lead} />
+  <div class="beam-page">
     <BeamLab client:load language={language} />
-  </LaboratoryPage>
+  </div>
 </BaseLayout>

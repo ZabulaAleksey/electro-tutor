@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-001
+- Stage ID: ET-2511-002
 
 ## ET-2511-000 — Разведка и исходные проверки
 
@@ -18,8 +18,9 @@
 
 ## ET-2511-001 — Каталог микролабораторий
 
-- Status: partial
-- Lifecycle: EVAL-01 и регрессии каталога подтверждены локально. Готовится checkpoint.
+- Status: verified
+- Checkpoint: 3faeb9dc58a8c45d056326854ef06d9a7cbec29d
+- Lifecycle: EVAL-01 и регрессии каталога подтверждены локально. Рабочая ветка содержит проверенную реализацию.
 - Dependencies: ET-2511-000 verified, `a46f4ab1`. Общий реестр, отдельные маршруты опытов и оба языка доступны в education build.
 - Scope: [требования каталога](../specs/features/electrotutor-20261125.spec.md#stage-1-каталог-микролабораторий-скрин-1). Единая статическая карточка, оригинальные иллюстрации, фильтрация, поиск, старая ссылка на выбранный опыт. Калькуляторы остаются в отдельных рабочих страницах.
 - Runnable E2E: пользователь открывает каталог RU или UK, фильтрует, табуляцией или кликом по изображению, пустой области или «Запустить» открывает опыт, изменяет вход и видит результат. Старый URL с `#micro=` или `#science=` открывает выбранный опыт и сохраняет языковой переход.
@@ -28,12 +29,26 @@
 - Evidence: [EVAL-01](TESTING.md#et-2511-001--иллюстрированный-каталог), 5 новых сценариев, 33 профильных Chromium, 26 прежних PNG, 937 Vitest, оба build-профиля, 5 browser проверок префикса.
 - Blockers: исходный референс №1 отсутствует. Применяется текстовый контракт и собственные иллюстрации.
 - User actions: ET-2511-REF-01 остаётся условным.
-- NEXT: ET-2511-001
+- NEXT: ET-2511-002
+
+## ET-2511-002 — Тематическая карусель главной
+
+- Status: partial
+- Lifecycle: EVAL-02 и профильные регрессии карусели проверены локально. Готовится checkpoint.
+- Dependencies: ET-2511-001 verified, `3faeb9dc`. Главные RU/UK, шрифты, публичные тематические маршруты и статическая сборка доступны.
+- Scope: [UI-03 и UI-04](../specs/features/electrotutor-20261125.spec.md#stage-2-тематическая-карусель-главной-скрин-2). Восемь демонстраций на главной, в каждой схема или техническая иллюстрация, расчёт с единицами и согласованный график. Первый слайд DC 24 В, 4 Ом, 8 Ом.
+- Runnable E2E: на локальной главной RU/UK открыть DC, сверить направления тока, 2 А, падения 8 В и 16 В и узловые потенциалы 24/16/0 В. Перелистать семь остальных тем и проверить графики, формулы и переполнение на разных ширинах.
+- Acceptance: численные проверки восьми демонстраций независимо от UI, удобная навигация мышью, клавиатурой и на сенсорном экране, отсутствие старых вкладок и регрессий ссылок. Визуальные кадры RU/UK, education и full.
+- Evidence: [EVAL-02](TESTING.md#et-2511-002--тематические-примеры-главной), 9 расчётных проверок, 23 Chromium full + 4 education, два просмотренных кадра и оба build-профиля.
+- Rollback: вернуть коммит демонстраций. Прежняя интерактивная витрина `/showcase/` продолжает использовать свой контракт.
+- Blockers: оригинал изображения №2 отсутствует. Для первого слайда используется оригинальная схема по описанной композиции и расчёту.
+- User actions: ET-2511-REF-01 остаётся условным.
+- NEXT: ET-2511-002
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 3,
+  "state_revision": 5,
   "master": {
     "id": "ET-2511-MASTER",
     "status": "running",
@@ -52,7 +67,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "feature/electrotutor-master-2026-11-25",
-      "checkpoint": "a46f4ab185ae5f8606521c7f20c4536c7035728c",
+      "checkpoint": "3faeb9dc58a8c45d056326854ef06d9a7cbec29d",
       "ownership": [
         "src",
         "public",
@@ -66,8 +81,8 @@
   ],
   "slices": [
     {"id":"ET-2511-000","master_id":"ET-2511-MASTER","title":"Разведка и исходные проверки","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"d54999787552a5ed4327cab629951de018b57a56","checkpoint_after":"a46f4ab185ae5f8606521c7f20c4536c7035728c","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/evidence/electrotutor-20261125-baseline.md","tests/fixtures/electrotutor-20261125-baseline.json"],"requirements":["EVAL-00"],"capabilities":["project.framework.governance"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-001","master_id":"ET-2511-MASTER","title":"Каталог микролабораторий","status":"running","predecessors":["ET-2511-000"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a46f4ab185ae5f8606521c7f20c4536c7035728c","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/catalogue","src/components/LaboratoryDirectory.astro","src/pages/[lang]/micro-labs.astro","tests/e2e"],"requirements":["UI-01","UI-02","EVAL-01"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-2511-002","master_id":"ET-2511-MASTER","title":"Тематическая карусель главной","status":"queued","predecessors":["ET-2511-001"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/components/EditorialHome.astro","src/showcase","tests/e2e"],"requirements":["UI-03","UI-04","EVAL-02"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-2511-001","master_id":"ET-2511-MASTER","title":"Каталог микролабораторий","status":"verified","predecessors":["ET-2511-000"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a46f4ab185ae5f8606521c7f20c4536c7035728c","checkpoint_after":"3faeb9dc58a8c45d056326854ef06d9a7cbec29d","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/catalogue","src/components/LaboratoryDirectory.astro","src/pages/[lang]/micro-labs.astro","tests/e2e"],"requirements":["UI-01","UI-02","EVAL-01"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-2511-002","master_id":"ET-2511-MASTER","title":"Тематическая карусель главной","status":"running","predecessors":["ET-2511-001"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"3faeb9dc58a8c45d056326854ef06d9a7cbec29d","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/components/EditorialHome.astro","src/showcase","tests/e2e"],"requirements":["UI-03","UI-04","EVAL-02"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-2511-003","master_id":"ET-2511-MASTER","title":"Общие операции топологии и компоновка","status":"queued","predecessors":["ET-2511-002"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components/LineExperimentEditor.tsx","tests/topology-eval","tests/lab-acceptance"],"requirements":["ENG-01","ENG-02","ENG-03","ENG-04","ENG-05","ENG-06","EVAL-03"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-004","master_id":"ET-2511-MASTER","title":"Переходная длинная линия","status":"queued","predecessors":["ET-2511-003"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/transient","src/components/LineExperimentLab.tsx","tests/lab-acceptance","tests/lab-eval"],"requirements":["TL-01","TL-02","EVAL-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-005","master_id":"ET-2511-MASTER","title":"Строгий синтез LC-двухполюсников","status":"queued","predecessors":["ET-2511-004"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/models","src/components/LcExperimentLab.tsx","tests/lab-acceptance"],"requirements":["LC-01","LC-02","LC-03","LC-04","LC-05","LC-06","LC-07","EVAL-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -96,7 +111,7 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Реализовать каталог по подтверждённому RED и повторить EVAL-01.",
+  "next_action": "Реализовать карусель и проверить расчёт, визуализацию и браузерные сценарии.",
   "integration": {
     "required": false,
     "reason": "Интеграция наступает после завершения продуктовых этапов и проверок."

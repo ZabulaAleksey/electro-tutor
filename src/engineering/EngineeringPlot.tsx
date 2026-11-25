@@ -6,12 +6,12 @@ import type { EngineeringLocale, EngineeringUnit } from "./format";
 
 export type PlotMarker = { point: PlotPoint; label: string };
 const screen = (v: number) => Number(v.toFixed(3));
-export default function EngineeringPlot({ plot, language, kind="line", compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering", selectAcrossCurves=false }: {
-  kind?:"line"|"stem"; plot: EngineeringPlotData; language: EngineeringLocale; compact?: boolean; svgClass?: string; legendClass?: string;
+export default function EngineeringPlot({ plot, language, kind="line", compact = false, svgClass = "", legendClass = "", selected, characteristic, cursorTime, domains, area, onSelect, verticals = [], label, showLegend = true, gridMode = "engineering", selectAcrossCurves=false, focusable=true, svgId }: {
+  kind?:"line"|"stem"; focusable?: boolean; svgId?: string; plot: EngineeringPlotData; language: EngineeringLocale; compact?: boolean; svgClass?: string; legendClass?: string;
   area?:{points:readonly PlotPoint[];baseline?:number;color?:string}; domains?: {x?:readonly[number,number];y?:readonly[number,number]}; onSelect?:(point:PlotPoint)=>void; verticals?:{x:number;label:string}[];
   selected?: PlotPoint; characteristic?: PlotMarker; cursorTime?: number; label: string; showLegend?: boolean; gridMode?: "engineering" | "millimeter"; selectAcrossCurves?:boolean;
 }) {
-  const id=useId().replace(/:/g,""), svg=useRef<SVGSVGElement>(null), units=useRef<{x?:EngineeringUnit;y?:EngineeringUnit}>({});
+  const generatedId=useId().replace(/:/g,""), id=svgId ?? generatedId, svg=useRef<SVGSVGElement>(null), units=useRef<{x?:EngineeringUnit;y?:EngineeringUnit}>({});
   const [hover,setHoverState]=useState<PlotPoint|null>(null);
   // Keep the last readout on blur so nearby buttons do not move during a click.
   const lastHover=useRef<PlotPoint|null>(null);
@@ -36,7 +36,7 @@ export default function EngineeringPlot({ plot, language, kind="line", compact =
   const current=hover??selected;
   function move(clientX:number) { const el=svg.current;if(!el)return; const matrix=el.getScreenCTM();if(!matrix)return;const local=new DOMPoint(clientX,0).matrixTransform(matrix.inverse());const point=nearestSample(selectable,axes!.x.invert(Math.max(0,Math.min(1,(local.x-62)/342))));if(point)setHover(point);return point; }
   return <div className="engineering-plot-wrap" data-engineering-plot data-x-scale={axes.x.logarithmic?"log":"linear"} data-grid-mode={gridMode} data-x-domain={axes.x.domain.join(",")} data-y-domain={axes.y.domain.join(",")} data-x-unit={choices.x.symbol} data-y-unit={choices.y.symbol}>
-    <svg ref={svg} className={`${svgClass} engineering-plot`} viewBox="0 0 440 245" role="img" aria-label={label} tabIndex={0}
+    <svg ref={svg} className={`${svgClass} engineering-plot`} viewBox="0 0 440 245" role="img" aria-label={label} tabIndex={focusable?0:undefined}
       onPointerDown={e=>{const point=move(e.clientX);if(point)onSelect?.(point);}} onPointerMove={e=>move(e.clientX)} onPointerLeave={()=>setHover(null)} onBlur={()=>setHover(null)} onKeyDown={e=>{if(e.key==="Escape"){setHover(null);return;}if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;e.preventDefault();const points=selectable;const index=current?Math.max(0,points.findIndex(p=>p[0]>=current[0])):0;const next=e.key==="Home"?0:e.key==="End"?points.length-1:Math.max(0,Math.min(points.length-1,index+(e.key==="ArrowRight"?1:-1)));if(points[next]){setHover(points[next]);onSelect?.(points[next]);}}}>
       <defs><clipPath id={`engineering-clip-${id}`}><rect x="60" y="37" width="347" height="155"/></clipPath></defs>
       <g className="engineering-minor-grid" stroke="var(--line)" strokeWidth=".6" opacity=".55">

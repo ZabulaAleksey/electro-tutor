@@ -62,8 +62,8 @@ describe("actual Playwright discovery transport contract", () => {
     it(`${label}: preserves every logical case exactly once across transports`, () => {
       const baseline = discover(config, false, education);
       const remote = discover(config, true, education);
-      // EVAL-01 adds five catalogue journeys to both full-site profiles.
-      expect(baseline.length).toBe(label === "root" ? 432 : label === "education" ? 434 : 33);
+      // EVAL-01 and EVAL-02 add seven journeys across both full-site profiles.
+      expect(baseline.length).toBe(label === "root" ? 434 : label === "education" ? 436 : 33);
       expect(new Set(baseline.map(test => test.key)).size).toBe(baseline.length);
       expect(new Set(remote.map(test => test.key)).size).toBe(remote.length);
       expect(remote.map(test => test.key).sort()).toEqual(baseline.map(test => test.key).sort());

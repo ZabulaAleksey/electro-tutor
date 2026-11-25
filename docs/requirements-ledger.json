@@ -179,51 +179,105 @@
         "UI-01"
       ],
       "domain": "Каталог",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-001.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-001 · Каталог микролабораторий"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
     },
     {
       "requirement_ids": [
         "UI-02"
       ],
       "domain": "Каталог",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-001.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-001 · Каталог микролабораторий"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
     },
     {
       "requirement_ids": [
         "EVAL-01"
       ],
       "domain": "Каталог",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-001.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-001 · Каталог микролабораторий"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
     },
     {
       "requirement_ids": [

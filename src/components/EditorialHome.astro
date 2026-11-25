@@ -1,5 +1,6 @@
 ---
 import LaboratoryDirectory from "./LaboratoryDirectory.astro";
+import HomeExamples from "./HomeExamples.astro";
 import { localePath, withBasePath } from "../site-path";
 import type { Language } from "../types";
 import "../editorial-home.css";
@@ -32,5 +33,6 @@ const srcset = (name: string) => [640, 1280, 1920].map(width => `${image(name, w
     <img class="editorial-hero-image" src={image("dc", 1280)} srcset={srcset("dc")}
       sizes="(max-width: 740px) 100vw, 58vw" width="1280" height="720" alt={text.heroAlt} fetchpriority="high" />
   </section>
+  <HomeExamples {language} />
   <LaboratoryDirectory {language} home />
 </div>

@@ -8,9 +8,23 @@ import type { LineLayout } from "./line-experiment-layout";
 type Axis = "x" | "y";
 type Placement = { point: Point; vertical?: boolean; path?: readonly Point[] };
 type OpenWireDrawing = { wire: CircuitWire; points: readonly Point[] };
+type Box = Parameters<typeof routeOrthogonalWire>[3];
 
 const midpoint = (a: Point, b: Point): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
+
+function bodyBounds(pins: Record<string, Point>, part: CircuitComponent): Box {
+  const [a, b] = part.terminals.map(id => pins[id]);
+  const along: Axis = a.y === b.y ? "x" : "y";
+  const across: Axis = along === "x" ? "y" : "x";
+  const ret = part.kind === "line" && part.terminals.length === 4 ? pins[part.terminals[2]][across] : undefined;
+  const range = {
+    [along]: [Math.min(a[along], b[along]) + 2, Math.max(a[along], b[along]) - 2],
+    [across]: ret === undefined ? [a[across] - 16, a[across] + 16]
+      : [Math.min(a[across], ret) - 2, Math.max(a[across], ret) + 2],
+  };
+  return { left: range.x[0], right: range.x[1], top: range.y[0], bottom: range.y[1] };
+}
 
 function routePhysicalLineConflicts(topology: CircuitTopology, pins: Record<string, Point>,
   bends: Record<string, Point[]>, oldWires: ReadonlyMap<string, CircuitWire>) {
@@ -21,20 +35,13 @@ function routePhysicalLineConflicts(topology: CircuitTopology, pins: Record<stri
   for (const part of topology.components) {
     const [a, b] = part.terminals.map(id => pins[id]);
     const along: Axis = a.y === b.y ? "x" : "y";
-    const across: Axis = along === "x" ? "y" : "x";
     const sign = Math.sign(b[along] - a[along]);
     part.terminals.forEach((id, index) => {
       const pin = pins[id];
       const escape = { ...pin, [along]: pin[along] + (index % 2 ? sign : -sign) * 6 };
       ports.set(id, { pin, escape, owner: part.id });
     });
-    const ret = part.kind === "line" && part.terminals.length === 4 ? pins[part.terminals[2]][across] : undefined;
-    const range = {
-      [along]: [Math.min(a[along], b[along]) + 2, Math.max(a[along], b[along]) - 2],
-      [across]: ret === undefined ? [a[across] - 16, a[across] + 16]
-        : [Math.min(a[across], ret) - 2, Math.max(a[across], ret) + 2],
-    };
-    boxes.push([part.id, { left: range.x[0], right: range.x[1], top: range.y[0], bottom: range.y[1] }]);
+    boxes.push([part.id, bodyBounds(pins, part)]);
   }
   const original = ({ id, from, to }: CircuitWire) => oldWires.get(id)?.from === from && oldWires.get(id)?.to === to;
   const paths: { net: number; path: Point[] }[] = [];
@@ -138,8 +145,13 @@ export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopolo
       ? Math.min(first[normal], last[normal]) - 86 : Math.max(first[normal], last[normal]) + 86;
     const center = proposed?.point ?? { ...midpoint(first, last), [normal]: offset };
     let at = { ...center, x: Math.max(vertical ? 35 : 65, center.x), y: Math.max(vertical ? 65 : 35, center.y) };
+    const physicalBodies = before.components.filter(part => part.kind === "line" && part.terminals.length === 4)
+      .map(part => bodyBounds(pins, part));
+    const radiusX = vertical ? 16 : 52, radiusY = vertical ? 52 : 16;
+    const crossesLine = () => physicalBodies.some(({ left, right, top, bottom }) =>
+      at.x - radiusX <= right && at.x + radiusX >= left && at.y - radiusY <= bottom && at.y + radiusY >= top);
     // Keep a new branch clear of existing symbols and their labels.
-    while (layout.components.some(existing => before.components.find(c => c.id === existing.id)?.kind !== "port" &&
+    while (crossesLine() || layout.components.some(existing => before.components.find(c => c.id === existing.id)?.kind !== "port" &&
       Math.abs(existing.x - at.x) < (vertical ? 53 : 105) && Math.abs(existing.y - at.y) < (vertical ? 80 : 42))) {
       at = { ...at, [normal]: at[normal] + 75 };
     }

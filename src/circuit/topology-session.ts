@@ -217,7 +217,8 @@ export class TopologySession {
       const survivingIds = new Set(next.components.map(({ id }) => id));
       sides = sides.filter(({ componentId }) => survivingIds.has(componentId));
       const previousBreaks = this.#document.brokenWires ?? [];
-      geometry = geometry && topology.components.some(part => part.kind === "line" && part.terminals.length === 4)
+      geometry = geometry && topology.components.some(part => part.kind === "port" ||
+        part.kind === "line" && part.terminals.length === 4)
         ? geometryAfterRemoval(geometry, topology.wires, previousBreaks, [...next.wires, ...opened],
           command.mode === "conductor" ? removed.terminals : undefined)
         : undefined;

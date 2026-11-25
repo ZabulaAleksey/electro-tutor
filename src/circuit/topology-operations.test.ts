@@ -36,6 +36,30 @@ function disconnectedInductorLead(topology: CircuitTopology) {
 }
 
 describe("guarded topology commands", () => {
+  it("keeps geometry out of net matching and rejects stale inserts without changing history", () => {
+    const initial = newLcExperiment();
+    const collapsed = { x: 0, y: 0 };
+    const alternate = { ...initial, geometry: {
+      pins: Object.fromEntries(initial.topology.components.flatMap(part => part.terminals.map(id => [id, collapsed]))),
+      bends: {},
+    } };
+    const plain = new TopologySession(JSON.stringify(initial));
+    const drawn = new TopologySession(JSON.stringify(alternate));
+    const slot = plain.crossSlot("P1:a", "P1:b");
+    expect(drawn.crossSlot("P1:a", "P1:b")).toEqual(slot);
+    const branch = { id: "C9", kind: "c", terminals: ["C9:a", "C9:b"], parameters: { farad: .0002 } };
+    for (const session of [plain, drawn]) session.apply({ type: "insert", slot, component: branch });
+    expect(plain.document.topology).toEqual(drawn.document.topology);
+    expect(analyzeLcExperiment(plain.document)).toEqual(analyzeLcExperiment(drawn.document));
+    const committed = drawn.export();
+    expect(() => drawn.apply({ type: "insert", slot, component: branch })).toThrow("stale-topology-slot");
+    expect(drawn.export()).toBe(committed);
+    drawn.undo();
+    expect(drawn.document).toEqual(alternate);
+    drawn.redo();
+    expect(drawn.export()).toBe(committed);
+  });
+
   it("bypasses the series inductor between K1 and TL1 while retaining the split wire identity", () => {
     const { initial, inserted } = insertLineInductor();
     const original = JSON.stringify(inserted);

@@ -125,6 +125,31 @@ test("the LC solver node limit still permits edits and archive round trips", asy
   await expect(board.locator('[data-line-glyph="L12"]')).toBeVisible();
 });
 
+test("LC branch removal preserves anchors and further edits after reopening", async ({ page }, testInfo) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  const ports = () => board.locator("[data-lc-port-terminal]")
+    .evaluateAll(nodes => nodes.map(node => [node.getAttribute("cx"), node.getAttribute("cy")]));
+  const initialPort = await ports();
+  await board.locator('[data-line-palette="c"]').click();
+  await board.locator("[data-lc-whole-parallel]").click();
+  await expect(board.locator('[data-line-glyph="C2"]')).toBeVisible();
+  const positions = (await downloaded(page, testInfo, "lc-before-removal")).document.geometry.pins;
+  await board.locator('[data-line-component="C2"]').click();
+  await board.getByRole("dialog").press("Delete");
+  await expect(board.locator('[data-line-glyph="C2"]')).toHaveCount(0);
+  expect(await ports()).toEqual(initialPort);
+  const saved = await downloaded(page, testInfo, "lc-after-removal");
+  for (const [id, point] of Object.entries(saved.document.geometry.pins)) {
+    expect(point).toEqual(positions[id]);
+  }
+  await page.locator("[data-lc-import]").setInputFiles(saved.path);
+  await board.locator('[data-line-palette="l"]').click();
+  await board.locator("[data-lc-whole-parallel]").click();
+  await expect(board.locator('[data-line-glyph="L2"]')).toBeVisible();
+  expect(await ports()).toEqual(initialPort);
+});
+
 test("catalogue D: inspect starter LC, edit inductance, undo and reopen", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ reducedMotion: "reduce" });

@@ -358,7 +358,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   function removeSelected(mode: "device" | "branch" | "conductor" = automaticBypass ? "conductor" : "device") {
     if (onRemove) onRemove(selected, document);
     else {
-      const source = physicalLine && !document.geometry
+      const source = (physicalLine || lc) && !document.geometry
         ? { ...document, geometry: captureLineGeometry(topology, diagram) } : document;
       if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
         preserveObservations: lc, allowPortShort: lc && !automaticBypass }, source)) return;

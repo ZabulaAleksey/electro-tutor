@@ -50,7 +50,7 @@ const categories = [...new Map(entries.map(({ filter, label }) => [filter, label
       const titleId = `lab-${labKey}-title`;
       const fragmentId = micro ? lab.id.replace(":", "=") : undefined;
       return <li class="directory-card lab-directory-card"
-        data-directory-entry data-directory-alias={alias} data-directory-category={filter}>
+        data-directory-entry data-directory-search-text={lab.title[language]} data-directory-alias={alias} data-directory-category={filter}>
         <a class="lab-directory-card-link" id={fragmentId} href={href} data-registered-content={href}
           data-lab-card={home ? undefined : lab.id} aria-labelledby={titleId}>
           {home ? <>

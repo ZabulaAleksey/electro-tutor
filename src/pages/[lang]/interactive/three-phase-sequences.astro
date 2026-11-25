@@ -1,0 +1,24 @@
+---
+import LaboratoryPage from "../../../components/LaboratoryPage.astro";
+import SequenceLab from "../../../components/SequenceLab";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getLocale } from "../../../i18n";
+import type { Language } from "../../../types";
+
+export function getStaticPaths() {
+  return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
+}
+const language = Astro.params.lang as Language;
+const title = language === "ru" ? "Продольная и поперечная несимметрия трёхфазных цепей"
+  : "Поздовжня та поперечна несиметрія трифазних кіл";
+const description = language === "ru"
+  ? "Изменяйте генератор, линию и нагрузку. Сравнивайте фазные токи и напряжения с их симметричными составляющими."
+  : "Змінюйте генератор, лінію та навантаження. Порівнюйте фазні струми й напруги з їхніми симетричними складовими.";
+---
+
+<BaseLayout title={`${title} — ${getLocale(language).brand.display}`} {description}
+  {language} active="interactive" alternatePath="/interactive/three-phase-sequences/">
+  <LaboratoryPage {language} {title} {description}>
+    <SequenceLab client:load {language} />
+  </LaboratoryPage>
+</BaseLayout>

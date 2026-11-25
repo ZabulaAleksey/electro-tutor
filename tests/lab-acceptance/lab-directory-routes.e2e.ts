@@ -72,9 +72,9 @@ for (const language of ["ru", "uk"] as const) {
   test(`${language}: every published experiment has one full-card route`, async ({ page }) => {
     await page.goto(directory(language));
     const cards = page.locator("main #labs [data-directory-entry] > a.lab-directory-card-link");
-    await expect(cards).toHaveCount(language === "ru" ? 38 : 37);
+    await expect(cards).toHaveCount(language === "ru" ? 39 : 38);
     const hrefs = await cards.evaluateAll((elements) => elements.map((element) => element.getAttribute("href")));
-    expect(new Set(hrefs).size).toBe(language === "ru" ? 38 : 37);
+    expect(new Set(hrefs).size).toBe(language === "ru" ? 39 : 38);
     const first = cards.first();
     await first.hover({ position: { x: 5, y: 5 } });
     expect(await first.evaluate(link => link.matches(":hover"))).toBe(true);

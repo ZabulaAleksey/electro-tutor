@@ -12,7 +12,7 @@ for (const { language, launch, ohm, drive, motor } of directories) {
     await page.setViewportSize({ width: language === "ru" ? 1440 : 390, height: 900 });
     await page.goto(`/${language}/interactive/`);
     const cards = page.locator("main [data-lab-card]");
-    await expect(cards).toHaveCount(language === "ru" ? 38 : 37);
+    await expect(cards).toHaveCount(language === "ru" ? 39 : 38);
     const records = await cards.evaluateAll((links) => links.map((link) => ({
       href: (link as HTMLAnchorElement).href,
       image: link.querySelector("img")?.src,

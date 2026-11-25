@@ -867,12 +867,23 @@
         "SEQ-01"
       ],
       "domain": "Трёхфазные цепи",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/contract.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
@@ -884,12 +895,23 @@
         "SEQ-02"
       ],
       "domain": "Трёхфазные цепи",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/document.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
@@ -901,12 +923,23 @@
         "SEQ-03"
       ],
       "domain": "Трёхфазные цепи",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/solve.ts",
+        "src/sequence/matrix.ts"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
@@ -918,12 +951,22 @@
         "SEQ-04"
       ],
       "domain": "Трёхфазные цепи",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/SequenceDiagrams.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
@@ -935,12 +978,23 @@
         "EVAL-06"
       ],
       "domain": "Трёхфазные цепи",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/solve.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",

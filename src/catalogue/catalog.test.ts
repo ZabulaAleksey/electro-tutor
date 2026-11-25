@@ -2,8 +2,9 @@ import { expect, it } from "vitest";
 import { catalogueItems, filterCatalogue } from "./catalog";
 
 it("indexes each published laboratory once and preserves deep-link identities", () => {
-  expect(catalogueItems).toHaveLength(38);
-  expect(new Set(catalogueItems.map(item => item.id)).size).toBe(38);
+  expect(catalogueItems).toHaveLength(39);
+  expect(new Set(catalogueItems.map(item => item.id)).size).toBe(39);
+  expect(catalogueItems.find(item => item.id === "advanced:three-phase-sequences")?.href).toBe("/interactive/three-phase-sequences/");
   expect(catalogueItems.find(item => item.id === "advanced:power-system")?.href).toBe("/interactive/power-system/");
   expect(catalogueItems.find(item => item.id === "advanced:transmission-line")?.title.ru).toBe("Переходные процессы в длинной линии");
   expect(catalogueItems.find(item => item.id === "advanced:fourier-polygon-motion")?.title.ru).toBe("Аппроксимация контура");

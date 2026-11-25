@@ -18,7 +18,7 @@ test("home uses the shared student shell and five direct laboratory links", asyn
 test("laboratory catalogue keeps real tool links and honest services state", async ({ page }) => {
   await page.goto("/ru/interactive/");
   await expect(page.getByRole("heading", { name: "Лаборатории", exact: true })).toBeVisible();
-  await expect(page.locator("#labs [data-directory-entry]")).toHaveCount(38);
+  await expect(page.locator("#labs [data-directory-entry]")).toHaveCount(39);
   expect(await page.locator("h1").evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeLessThanOrEqual(44);
   await expect(page.locator("#labs a[href$='/interactive/star-neutral/']")).toBeVisible();
   await expect(page.locator("#labs a[href$='/board/']")).toHaveCount(0);
@@ -49,7 +49,7 @@ test("catalogue links fit on a phone and remain stable under either OS appearanc
     await page.goto(`/${lang}/interactive/`);
     const links = page.locator("#labs a[data-registered-content]");
     const before = await links.evaluateAll(nodes => nodes.map(node => node.getAttribute("href")));
-    expect(before).toHaveLength(lang === "ru" ? 38 : 37);
+    expect(before).toHaveLength(lang === "ru" ? 39 : 38);
     expect(before).toContain(`/${lang}/interactive/circular-diagram/`);
     expect(new Set(before).size).toBe(before.length);
     await page.emulateMedia({ colorScheme: "dark" });

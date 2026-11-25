@@ -1128,7 +1128,7 @@
         "EVAL-08"
       ],
       "domain": "Релиз",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "code": [
         "scripts/full-verify.mjs",
         ".github/workflows/lab-eval.yml",
@@ -1146,11 +1146,11 @@
         "tests/e2e/education-release.spec.ts",
         "tests/lab-acceptance/topology-workbench.e2e.ts"
       ],
-      "runtime": "Локальные проверки пройдены. Отдельные корневой, education и артефакт под префиксом проверены.",
+      "runtime": "Локальная, CI и размещённая приёмка Cloudflare и GitHub Pages подтверждена на b23b613b.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, артефакты и release gate в docs/TESTING.md и docs/STAGES.md.",
-      "gap": "ET-2511-REL-02: push отклонён системной политикой. После появления ветки на origin требуются PR, CI и smoke новой опубликованной версии.",
+      "gap": "Точное сравнение с исходными изображениями №1–6 ждёт оригиналы. Сторонний Cloudflare Insights блокируется действующей CSP.",
       "action": "ET-2511-008 · Интеграционная и релизная проверка"
     },
     {

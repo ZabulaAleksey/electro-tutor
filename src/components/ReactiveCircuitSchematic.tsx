@@ -1,5 +1,5 @@
 import type { Language } from "../types";
-import { formatEngineeringNumber, formatEngineeringValue } from "../engineering/format";
+import { formatEngineeringNumber } from "../engineering/format";
 import { CapacitorGlyph, InductorGlyph } from "../engineering/symbols";
 import { isGroup, type Circuit, type Path } from "../models/reactive-two-port";
 
@@ -9,7 +9,7 @@ function size(circuit:Circuit):{w:number;h:number}{
  return circuit.kind==="series"?{w:a.w+b.w+24,h:Math.max(a.h,b.h)}:
   {w:Math.max(a.w,b.w)+44,h:a.h+b.h+12};
 }
-export function ReactiveCircuitSchematic({circuit,language,selected,onSelect,engineeringUnits}:{circuit:Circuit;language:Language;selected?:Path;onSelect?:(p:Path)=>void;engineeringUnits?:boolean}){
+export function ReactiveCircuitSchematic({circuit,language,selected,onSelect}:{circuit:Circuit;language:Language;selected?:Path;onSelect?:(p:Path)=>void}){
  const dimensions=size(circuit);
  function draw(node:Circuit,x:number,y:number,path:Path):React.ReactNode{
   const current=size(node);
@@ -26,9 +26,7 @@ export function ReactiveCircuitSchematic({circuit,language,selected,onSelect,eng
     {draw(node.left,from,upper,[...path,"left"])}{draw(node.right,from,lower,[...path,"right"])}</g>;
   }
   const center=x+current.w/2,type=node.kind.toUpperCase();
-  const nominal=engineeringUnits
-    ? formatEngineeringValue(node.value * (node.kind==="l" ? 1e-3 : 1e-6),node.kind==="l"?"H":"F",language)
-    : formatEngineeringNumber(node.value,language)+" "+(node.kind==="l"?"mH":"µF");
+  const nominal=formatEngineeringNumber(node.value,language)+" "+(node.kind==="l"?"mH":"µF");
   const label=type+" "+nominal;
   const active=selected?.join()===path.join();
   return <g role={onSelect?"button":undefined} tabIndex={onSelect?0:undefined} aria-label={onSelect?label:undefined}
@@ -43,7 +41,7 @@ export function ReactiveCircuitSchematic({circuit,language,selected,onSelect,eng
   </g>;
  }
  const y=dimensions.h/2+8;
- return <svg viewBox={`0 0 ${dimensions.w+28} ${dimensions.h+16}`} className="lc-schematic" role={engineeringUnits ? "img" : undefined} style={engineeringUnits ? {minWidth:dimensions.w+28} : undefined}
+ return <svg viewBox={`0 0 ${dimensions.w+28} ${dimensions.h+16}`} className="lc-schematic"
    aria-label={language==="ru"?"Схема двухполюсника":"Схема двополюсника"}>
   <path d={`M6 ${y}H14M${dimensions.w+14} ${y}h8`}/>
   <circle cx="5" cy={y} r="3"/><circle cx={dimensions.w+23} cy={y} r="3"/>

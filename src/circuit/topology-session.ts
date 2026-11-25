@@ -1,3 +1,4 @@
+import { readExactLcNominal } from "../models/lc-nominal";
 import { readSchematicGeometry, type SchematicGeometry } from "./schematic-geometry";
 import { maxCircuitFileBytes } from "./document";
 import { optionalPartParameters, parts, validPartParameter, type PartKind } from "./drawing";
@@ -44,7 +45,8 @@ function checkComponent(part: CircuitComponent) {
     throw Error("unsupported-component");
   }
   const defaults = parts[part.kind as PartKind].parameters as Record<string, unknown>;
-  const entries = Object.entries(part.parameters);
+  readExactLcNominal(part);
+  const entries = Object.entries(part.parameters).filter(([key]) => key !== "lcExact");
   if (Object.keys(defaults).some((key) => !optionalPartParameters.has(key) && !Object.hasOwn(part.parameters, key))
     || entries.some(([key, value]) => !Object.hasOwn(defaults, key) || typeof value !== typeof defaults[key]
       || (typeof value === "number" && !validPartParameter(key, value)))) {

@@ -3,14 +3,18 @@ import { maxCircuitFileBytes } from "../circuit/document";
 import {
   analyzeLcExperiment, newLcExperiment, readLcExperiment,
 } from "../circuit/lc-experiment";
+import { applyCauerTopology, applyExactLcTopology, fosterTopologyDraft, type FosterTerm, type LcForm } from "../circuit/lc-synthesis-document";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import type { CircuitComponent } from "../circuit/topology";
+import { verifyLcRationalIdentity, type FosterVerification } from "../models/lc-synthesis-equivalence";
+import type { CauerElement } from "../models/reactive-cauer-i";
 import type { LcPortAnalysis } from "../models/reactive-lc-graph";
 import { isNominal, MAX_VALUE, MIN_VALUE } from "../models/reactive-two-port";
 import type { Language } from "../types";
 import { CauerResults } from "./CauerResults";
 import { FosterResults } from "./FosterResults";
 import LineExperimentEditor from "./LineExperimentEditor";
+import { LcTransformationResults, type AppliedLcSynthesis } from "./LcTransformationResults";
 import { ReactiveImpedanceResults } from "./ReactiveImpedanceResults";
 import { SimplifiedLcResults } from "./SimplifiedLcResults";
 import "./ReactiveTwoPortLab.css";
@@ -25,6 +29,8 @@ const copy = {
     range: "Расчёт поддерживает до 24 элементов L/C и 12 связанных узлов.",
     archiveError: "Файл LC не открыт. Проверьте формат, порт и номиналы.",
     invalid: "Проверьте соединения, порт и параметры L/C.",
+    proofFailed: "Эквивалентность редактируемой схемы не подтверждена. Исходная схема сохранена.",
+    foster: "Форма Фостера", cauer: "Форма Кауэра",
     open: "Внешние выводы разомкнуты. Пути для тока нет.",
     short: "Внешние выводы соединены общим проводом.",
   },
@@ -36,6 +42,8 @@ const copy = {
     range: "Розрахунок підтримує до 24 елементів L/C і 12 зв’язаних вузлів.",
     archiveError: "Файл LC не відкрито. Перевірте формат, порт і номінали.",
     invalid: "Перевірте з’єднання, порт і параметри L/C.",
+    proofFailed: "Еквівалентність редагованої схеми не підтверджено. Початкове коло збережено.",
+    foster: "Форма Фостера", cauer: "Форма Кауера",
     open: "Зовнішні виводи розімкнені. Шляху для струму немає.",
     short: "Зовнішні виводи з'єднані спільним проводом.",
   },
@@ -54,6 +62,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
   const [ready, setReady] = useState(false);
   const [{ current, past, future }, setHistory] = useState(starter);
   const [cursor, setCursor] = useState<number | null>(null);
+  const [applied, setApplied] = useState<AppliedLcSynthesis>();
   const [notice, setNotice] = useState<{ type: "error" | "success"; text: string }>();
   const file = useRef<HTMLInputElement>(null);
   const importGeneration = useRef(0);
@@ -63,7 +72,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
 
   function commit(next: TopologyLabDocument) {
     ++importGeneration.current;
-    if (next === experiment) return;
+    if (next === experiment) return false;
     try {
       const accepted = { document: next, result: analyzeLcExperiment(next) };
       setHistory(previous => ({
@@ -71,10 +80,39 @@ export default function LcExperimentLab({ language }: { language: Language }) {
       }));
       setCursor(null);
       setNotice(undefined);
+      return true;
     } catch (error) {
       const reason = error instanceof Error ? error.message : "";
       setNotice({ type: "error", text: reason === "lc-graph-limit" ? t.range : reason === "invalid-lc-value" ? t.nominalError : t.invalid });
+      return false;
     }
+  }
+
+  function applyLocal(topology: TopologyLabDocument["topology"], values: Parameters<typeof applyExactLcTopology>[2]) {
+    try {
+      const next = applyExactLcTopology(experiment, topology, values);
+      return commit(next) ? next : undefined;
+    } catch { setNotice({ type: "error", text: t.proofFailed }); }
+  }
+
+  function applyForm(name: string, form: LcForm, prepare: () => TopologyLabDocument) {
+    if (result.kind !== "finite") return;
+    try {
+      const next = prepare();
+      const rebuilt = analyzeLcExperiment(next);
+      if (rebuilt.kind !== "finite") throw Error("lc-synthesis-equivalence");
+      const proof = verifyLcRationalIdentity(result.impedance, rebuilt.impedance);
+      if (commit(next)) setApplied({ name: `${name} ${form.toUpperCase()}`, before: experiment, after: next,
+        sourceImpedance: result.impedance, coefficientError: proof.coefficientError, coefficientTolerance: proof.coefficientTolerance });
+    } catch { setNotice({ type: "error", text: t.proofFailed }); }
+  }
+
+  function applyCauer(form: LcForm, elements: readonly CauerElement[]) {
+    applyForm(t.cauer, form, () => applyCauerTopology(experiment, form, elements));
+  }
+
+  function applyFoster(form: LcForm, terms: readonly FosterTerm[], proof: FosterVerification) {
+    applyForm(t.foster, form, () => fosterTopologyDraft(experiment, form, terms, proof.nominalWitnesses));
   }
 
   function history(direction: "undo" | "redo") {
@@ -95,9 +133,11 @@ export default function LcExperimentLab({ language }: { language: Language }) {
     const property = part.kind === "l" ? "henry" : "farad";
     const value = Number((nominal / (part.kind === "l" ? 1_000 : 1_000_000)).toPrecision(12));
     if (part.parameters[property] === value) return;
+    const parameters = { ...part.parameters, [property]: value };
+    delete parameters.lcExact;
     const next = parseTopologyLabDocument(JSON.stringify({
       ...experiment, topology: { ...experiment.topology, components: experiment.topology.components.map(component =>
-        component.id === part.id ? { ...component, parameters: { ...component.parameters, [property]: value } } : component) },
+        component.id === part.id ? { ...component, parameters } : component) },
     }));
     commit(next);
   }
@@ -106,7 +146,10 @@ export default function LcExperimentLab({ language }: { language: Language }) {
     if (part.kind !== "l" && part.kind !== "c") return null;
     const inductive = part.kind === "l";
     const label = inductive ? t.inductance : t.capacitance;
-    const nominal = Math.round(Number(part.parameters[inductive ? "henry" : "farad"]) * (inductive ? 1e6 : 1e9)) / 1_000;
+    const valueSI = Number(part.parameters[inductive ? "henry" : "farad"]);
+    const nominal = part.parameters.lcExact
+      ? Number((valueSI * (inductive ? 1e3 : 1e6)).toPrecision(10))
+      : Math.round(valueSI * (inductive ? 1e6 : 1e9)) / 1_000;
     return <>
       <label className="lc-experiment-value">
         <span>{label}</span>
@@ -114,6 +157,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
           data-lc-nominal defaultValue={nominal}
           onBlur={event => {
             const value = event.currentTarget.valueAsNumber;
+            if (value === nominal) return;
             if (isNominal(value)) updateNominal(part, value);
             else {
               event.currentTarget.value = String(nominal);
@@ -158,11 +202,11 @@ export default function LcExperimentLab({ language }: { language: Language }) {
         <button type="button" data-lc-redo disabled={future.length === 0} onClick={() => history("redo")}>{t.redo}</button>
         <button type="button" data-lc-export onClick={download}>{t.save}</button>
         <button type="button" onClick={() => file.current?.click()}>{t.openFile}</button>
-        <input type="file" data-lc-import ref={file} hidden accept=".json,application/json" onChange={event => {
+        {ready && <input type="file" data-lc-import ref={file} hidden accept=".json,application/json" onChange={event => {
           const value = event.currentTarget.files?.[0];
           event.currentTarget.value = "";
           if (value) void upload(value);
-        }} />
+        }} />}
       </div>
       {notice && <p role={notice.type === "error" ? "alert" : "status"} data-lc-notice={notice.type}>{notice.text}</p>}
       <div className="lc-graph-results" data-lc-experiment-result={result.kind}>
@@ -172,10 +216,12 @@ export default function LcExperimentLab({ language }: { language: Language }) {
               <p>{t[result.kind]}</p>
             </section>}
         <SimplifiedLcResults topology={experiment.topology} observedEndpoints={experiment.observedEndpoints} language={language} />
-        <FosterResults result={result} cursor={cursor} language={language} form="i" />
-        <FosterResults result={result} cursor={cursor} language={language} form="ii" />
-        <CauerResults result={result} cursor={cursor} language={language} form="i" />
-        <CauerResults result={result} cursor={cursor} language={language} form="ii" />
+        <FosterResults result={result} cursor={cursor} language={language} form="i" onApply={(terms, proof) => applyFoster("i", terms, proof)} />
+        <FosterResults result={result} cursor={cursor} language={language} form="ii" onApply={(terms, proof) => applyFoster("ii", terms, proof)} />
+        <CauerResults result={result} cursor={cursor} language={language} form="i" onApply={elements => applyCauer("i", elements)} />
+        <CauerResults result={result} cursor={cursor} language={language} form="ii" onApply={elements => applyCauer("ii", elements)} />
+        {result.kind === "finite" && <LcTransformationResults document={experiment} analysis={result} language={language}
+          onApply={plan => applyLocal(plan.topology, plan.values)} applied={applied?.after === experiment ? applied : undefined} />}
       </div>
     </div>
   </fieldset>;

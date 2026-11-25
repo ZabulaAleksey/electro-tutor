@@ -661,12 +661,20 @@
         "LC-01"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -678,12 +686,20 @@
         "LC-02"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -695,12 +711,20 @@
         "LC-03"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -712,12 +736,21 @@
         "LC-04"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -729,12 +762,21 @@
         "LC-05"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -746,12 +788,21 @@
         "LC-06"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LcTransformationResults.tsx",
+        "src/circuit/lc-synthesis-document.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -763,12 +814,22 @@
         "LC-07"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LcSynthesisSchematic.tsx",
+        "src/components/CauerResults.tsx",
+        "src/components/FosterResults.tsx"
+      ],
+      "unit": [
+        "src/components/LcSynthesisSchematic.test.tsx"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
@@ -780,12 +841,21 @@
         "EVAL-05"
       ],
       "domain": "LC-синтез",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",

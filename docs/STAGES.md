@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-007
+- Stage ID: ET-2511-008
 
 ## ET-2511-000 — Разведка и исходные проверки
 
@@ -108,7 +108,8 @@
 
 ## ET-2511-007 — Качение тела по заданному следу
 
-- Status: partial
+- Status: verified
+- Checkpoint: 844361fa
 - Lifecycle: EVAL-07 RED воспроизведён. Пройдена локальная численная и браузерная приёмка.
 - Dependencies: ET-2511-006 verified, `c22b09f9`. Доступен действующий Worker, обратная задача и сертификат контакта.
 - Scope: [GEO-01–03 и EVAL-07](../specs/features/electrotutor-20261125.spec.md#stage-7-качение-тела-по-заданному-следу-без-скриншота). Сглаживание и адаптивная дискретизация, независимая геометрия и воспроизведение.
@@ -117,15 +118,30 @@
 - Evidence: [39 проверок качения, 1068 Vitest, пять сценариев Chromium, обе сборки и численные метрики](TESTING.md#et-2511-007--сглаживание-следа-и-форма-тела).
 - Rollback: вернуть один checkpoint. Прежние архивы v1 остаются читаемыми.
 - Blockers: none.
-- NEXT: ET-2511-007
+- NEXT: ET-2511-008
+
+## ET-2511-008 — Интеграционная и релизная проверка
+
+- Status: blocked
+- Checkpoint: c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e
+- Lifecycle: локальная приёмка пройдена. BLOCKED: deploy.
+- Dependencies: ET-2511-000…007 проверены локально. Последний продуктовый checkpoint 844361fa.
+- Scope: [EVAL-08](../specs/features/electrotutor-20261125.spec.md#stage-8-интеграция-регрессионная-проверка-релиз). Общий регрессионный прогон, release evidence и проверка границы публикации.
+- Runnable E2E: собрать корневой и education-артефакт, пройти принятые маршруты и лаборатории в Chromium, затем применить проектный релизный gate.
+- Acceptance: корневой и лабораторный набор, аналитические эталоны и артефакты, неизменность существующих ссылок и архивов, требуемый CI и smoke размещённой версии.
+- Rollback: действующий Cloudflare receipt и GitHub Pages run предшественника ET-LABR-013. Публикация после проверок и проектного разрешения.
+- Evidence: [локальная приёмка EVAL-08](TESTING.md#et-2511-008--интеграционная-и-релизная-проверка). 1069 Vitest, 428 корневых Chromium и 6 штатных SKIP, 72 лабораторных Chromium, локальный smoke 2/2, префикс 5/5.
+- Blockers: ET-2511-REL-01. Требуется решение владельца о выпуске. Хостовый CI и smoke нового размещения ожидают запуска релизного процесса.
+- User actions: ET-2511-REL-01 · READY · условие: локальные проверки пройдены. Действие: ответить «Да, сливай», если одобрен штатный push, PR и слияние через CI с последующей публикацией. Evidence: явное сообщение пользователя. Разблокирует: PR и проверку CI, затем слияние при зелёных обязательных проверках и smoke нового размещения.
+- NEXT: ET-2511-008
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 16,
+  "state_revision": 19,
   "master": {
     "id": "ET-2511-MASTER",
-    "status": "running",
+    "status": "blocked",
     "source": {
       "backend": "google_drive",
       "queue_id": "none",
@@ -141,7 +157,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "feature/electrotutor-master-2026-11-25",
-      "checkpoint": "c22b09f97222c456c41b0639511ddc5a73846662",
+      "checkpoint": "c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e",
       "ownership": [
         "src",
         "public",
@@ -150,7 +166,7 @@
         "specs",
         "docs"
       ],
-      "status": "active"
+      "status": "integration_required"
     }
   ],
   "slices": [
@@ -161,8 +177,8 @@
     {"id":"ET-2511-004","master_id":"ET-2511-MASTER","title":"Переходная длинная линия","status":"verified","predecessors":["ET-2511-003"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"457c5023a3820fe8e90660961f6e8f0118692931","checkpoint_after":"0b9902c1aae4c11c46ae1e571ce7020a47872b38","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/transient","src/components/LineExperimentLab.tsx","tests/lab-acceptance","tests/lab-eval"],"requirements":["TL-01","TL-02","EVAL-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-005","master_id":"ET-2511-MASTER","title":"Строгий синтез LC-двухполюсников","status":"verified","predecessors":["ET-2511-004"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0b9902c1aae4c11c46ae1e571ce7020a47872b38","checkpoint_after":"a1a01710d80a929deee70e202a31a41779593fb3","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/models","src/components/LcExperimentLab.tsx","tests/lab-acceptance"],"requirements":["LC-01","LC-02","LC-03","LC-04","LC-05","LC-06","LC-07","EVAL-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-006","master_id":"ET-2511-MASTER","title":"Продольная и поперечная трёхфазная несимметрия","status":"verified","predecessors":["ET-2511-005"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a1a01710d80a929deee70e202a31a41779593fb3","checkpoint_after":"c22b09f97222c456c41b0639511ddc5a73846662","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components","src/pages","tests/lab-acceptance"],"requirements":["SEQ-01","SEQ-02","SEQ-03","SEQ-04","EVAL-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"running","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"c22b09f97222c456c41b0639511ddc5a73846662","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-008","master_id":"ET-2511-MASTER","title":"Интеграционная и релизная проверка","status":"queued","predecessors":["ET-2511-007"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/TESTING.md",".github/workflows","scripts/full-verify.mjs"],"requirements":["EVAL-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
+    {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"verified","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"c22b09f97222c456c41b0639511ddc5a73846662","checkpoint_after":"844361fa0cab897586fe9d29c3f3758605c0ee1e","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-2511-008","master_id":"ET-2511-MASTER","title":"Интеграционная и релизная проверка","status":"blocked","predecessors":["ET-2511-007"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"844361fa0cab897586fe9d29c3f3758605c0ee1e","checkpoint_after":"c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/TESTING.md",".github/workflows","scripts/full-verify.mjs"],"requirements":["EVAL-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
   ],
   "blockers": [
     {
@@ -172,6 +188,14 @@
       "blocking": false,
       "owner": "project-owner",
       "evidence": "Файлы №1–6 отсутствуют в этой сессии и в результатах поиска Google Drive. Текстовый контракт допускает продолжение с маркированными fixtures."
+    },
+    {
+      "id": "ET-2511-REL-01",
+      "class": "product_evidence_required",
+      "status": "active",
+      "blocking": true,
+      "owner": "project-owner",
+      "evidence": "Локальные проверки пройдены. Нужны решение владельца, PR, Linux CI и smoke новой опубликованной версии."
     }
   ],
   "decisions": [
@@ -185,13 +209,14 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Воспроизвести EVAL-07 RED. Проверить адаптивный след, контакт и геометрические различия.",
+  "next_action": "После решения владельца отправить ветку, открыть PR, подтвердить CI и выполнить штатный выпуск по проектному процессу.",
   "integration": {
-    "required": false,
-    "reason": "Интеграция наступает после завершения продуктовых этапов и проверок."
+    "required": true,
+    "reason": "ET-2511-REL-01: нужно подтверждение штатного push, PR, слияния и публикации."
   }
 }
 ```
+
 
 ## ET-LABR-013 — Конструктор схем, несимметричная звезда и математические лаборатории
 

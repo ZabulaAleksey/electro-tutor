@@ -400,7 +400,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -428,7 +428,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -457,7 +457,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -486,7 +486,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -514,7 +514,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -542,7 +542,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -552,7 +552,8 @@
       "domain": "Редактор схем",
       "status": "VERIFIED",
       "code": [
-        "src/circuit/topology-session.ts"
+        "src/circuit/topology-session.ts",
+        "src/circuit/TopologyWorkbench.tsx"
       ],
       "unit": [
         "tests/topology-eval/editor-history-20261125.test.ts"
@@ -563,13 +564,14 @@
       ],
       "e2e": [
         "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
-        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
       ],
-      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "runtime": "Локальная сборка education, последующие правки, восстановление намеренного разрыва и задержка загрузки обработчика.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
       "action": "ET-2511-003 · Общие операции топологии и компоновка"
     },
     {
@@ -597,7 +599,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
       "action": "ET-2511-004 · Переходная длинная линия"
     },
     {
@@ -625,7 +627,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
       "action": "ET-2511-004 · Переходная длинная линия"
     },
     {
@@ -653,7 +655,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
       "action": "ET-2511-004 · Переходная длинная линия"
     },
     {
@@ -678,7 +680,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -703,7 +705,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -728,7 +730,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -754,7 +756,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -780,7 +782,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -806,7 +808,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -833,7 +835,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -859,7 +861,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-005.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
       "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
     },
     {
@@ -887,7 +889,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "none",
       "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
     },
     {
@@ -915,7 +917,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "none",
       "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
     },
     {
@@ -943,7 +945,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "none",
       "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
     },
     {
@@ -970,7 +972,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "none",
       "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
     },
     {
@@ -998,7 +1000,7 @@
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-006.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "gap": "none",
       "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
     },
     {
@@ -1126,16 +1128,29 @@
         "EVAL-08"
       ],
       "domain": "Релиз",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "BLOCKED",
+      "code": [
+        "scripts/full-verify.mjs",
+        ".github/workflows/lab-eval.yml",
+        ".github/workflows/pages.yml"
+      ],
+      "unit": [
+        "src/security/playwright-discovery.test.ts",
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "scripts/lab-eval.mjs",
+        "scripts/check-base-path.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/education-release.spec.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
+      ],
+      "runtime": "Локальные проверки пройдены. Отдельные корневой, education и артефакт под префиксом проверены.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
-      "observability": "Команды, результаты и артефакты в ET-2511-008.",
-      "gap": "Приёмка по новому контракту ожидается.",
+      "observability": "Команды, артефакты и release gate в docs/TESTING.md и docs/STAGES.md.",
+      "gap": "ET-2511-REL-01: нужны подтверждение, PR, CI и smoke новой опубликованной версии.",
       "action": "ET-2511-008 · Интеграционная и релизная проверка"
     },
     {
@@ -1196,10 +1211,7 @@
         "src/steady-line/experiment-solver.ts",
         "src/components/SteadyExperimentLab.tsx"
       ],
-      "unit": [
-        "src/transient/line-experiment.test.ts",
-        "src/steady-line/experiment-solver.test.ts"
-      ],
+      "unit": ["src/transient/line-experiment.test.ts", "src/steady-line/experiment-solver.test.ts"],
       "integration": [],
       "e2e": [
         "tests/e2e/transmission-line.spec.ts",
@@ -1220,24 +1232,10 @@
         "FR-609"
       ],
       "domain": "Экспериментальная линия C",
-      "code": [
-        "src/variable-line/profiles.ts",
-        "src/variable-line/circuit.ts",
-        "src/variable-line/solver.ts",
-        "src/variable-line/variable-line.worker.ts",
-        "src/components/VariableLineLab.tsx"
-      ],
-      "unit": [
-        "src/variable-line/profiles.test.ts",
-        "src/variable-line/circuit.test.ts"
-      ],
-      "integration": [
-        "scripts/eval-variable-line-architecture.py",
-        "src/variable-line/solver.test.ts"
-      ],
-      "e2e": [
-        "tests/lab-acceptance/variable-line-experiment.e2e.ts"
-      ],
+      "code": ["src/variable-line/profiles.ts", "src/variable-line/circuit.ts", "src/variable-line/solver.ts", "src/variable-line/variable-line.worker.ts", "src/components/VariableLineLab.tsx"],
+      "unit": ["src/variable-line/profiles.test.ts", "src/variable-line/circuit.test.ts"],
+      "integration": ["scripts/eval-variable-line-architecture.py", "src/variable-line/solver.test.ts"],
+      "e2e": ["tests/lab-acceptance/variable-line-experiment.e2e.ts"],
       "runtime": "Локальный RU/UK опыт C запускает неявный расчёт предписанных RLGC(x,t) по принятому ADR-064.",
       "security": "Контракт Worker ограничивает профили, шаг, память и объём результата.",
       "a11y": "Провода выбираются на схеме клавишей или касанием. Прогресс и причина отказа доступны текстом.",
@@ -1255,13 +1253,8 @@
         "src/circuit/reactive-lc-mode.ts",
         "src/circuit/lc-experiment.ts"
       ],
-      "unit": [
-        "src/circuit/lc-experiment.test.ts"
-      ],
-      "integration": [
-        "src/models/reactive-lc-graph.test.ts",
-        "src/circuit/reactive-lc-simplification.test.ts"
-      ],
+      "unit": ["src/circuit/lc-experiment.test.ts"],
+      "integration": ["src/models/reactive-lc-graph.test.ts", "src/circuit/reactive-lc-simplification.test.ts"],
       "e2e": [
         "tests/e2e/reactive-lc-graph.spec.ts",
         "tests/lab-acceptance/lc-experiment.e2e.ts"
@@ -1279,21 +1272,10 @@
         "FR-611"
       ],
       "domain": "Базисные разложения сигнала и контура",
-      "code": [
-        "src/fourier/basis-experiment.ts",
-        "src/fourier/basis-experiment-math.ts",
-        "src/components/BasisExperimentLab.tsx"
-      ],
-      "unit": [
-        "src/fourier/basis-experiment-math.test.ts"
-      ],
-      "integration": [
-        "src/fourier/basis-experiment.test.ts"
-      ],
-      "e2e": [
-        "tests/lab-acceptance/basis-experiment.e2e.ts",
-        "tests/e2e/fourier-lab.spec.ts"
-      ],
+      "code": ["src/fourier/basis-experiment.ts", "src/fourier/basis-experiment-math.ts", "src/components/BasisExperimentLab.tsx"],
+      "unit": ["src/fourier/basis-experiment-math.test.ts"],
+      "integration": ["src/fourier/basis-experiment.test.ts"],
+      "e2e": ["tests/lab-acceptance/basis-experiment.e2e.ts", "tests/e2e/fourier-lab.spec.ts"],
       "runtime": "Локальная лаборатория E сравнивает восемь адаптеров на одной сетке. Fourier Sketch обслуживает старый маршрут.",
       "security": "Ограниченная грамматика формул и проверенный JSON v1 с лимитом байтов и точек.",
       "a11y": "Подписанные настройки, фаза и таблицы, рисование мышью и касанием, управляемая анимация.",
@@ -1313,12 +1295,8 @@
         "src/fourier/polygon-motion-input.ts",
         "src/fourier/polygon-motion-svg.ts"
       ],
-      "unit": [
-        "src/fourier/polygon-motion-math.test.ts"
-      ],
-      "integration": [
-        "src/fourier/polygon-motion-input.test.ts"
-      ],
+      "unit": ["src/fourier/polygon-motion-math.test.ts"],
+      "integration": ["src/fourier/polygon-motion-input.test.ts"],
       "e2e": [
         "tests/lab-acceptance/polygon-motion.e2e.ts"
       ],
@@ -1335,20 +1313,10 @@
         "FR-613"
       ],
       "domain": "Численная осуществимость качения",
-      "code": [
-        "src/rolling/feasibility.mjs",
-        "src/rolling/geometry.mjs",
-        "src/rolling/replay.mjs"
-      ],
-      "unit": [
-        "src/rolling/feasibility.test.mjs"
-      ],
-      "integration": [
-        "scripts/rolling-e10.mjs"
-      ],
-      "e2e": [
-        "src/rolling/consumer.test.mjs"
-      ],
+      "code": ["src/rolling/feasibility.mjs", "src/rolling/geometry.mjs", "src/rolling/replay.mjs"],
+      "unit": ["src/rolling/feasibility.test.mjs"],
+      "integration": ["scripts/rolling-e10.mjs"],
+      "e2e": ["src/rolling/consumer.test.mjs"],
       "runtime": "Локальный Node CLI принимает JSON-след и выдаёт геометрию, позы и проверку контакта.",
       "security": "Обычный UTF-8 файл до 32 КиБ, валидация чисел и пределов работы до расчёта.",
       "a11y": "Текстовый вывод JSON с кодами диагностики.",
@@ -1362,23 +1330,10 @@
         "FR-614"
       ],
       "domain": "Траектоид",
-      "code": [
-        "src/components/RollingLab.tsx",
-        "src/rolling/rolling.worker.ts",
-        "src/rolling/lab-model.ts",
-        "src/rolling/rolling-mesh.ts",
-        "src/rolling/webgl-view.ts"
-      ],
-      "unit": [
-        "src/rolling/lab-model.test.ts",
-        "src/rolling/rolling-mesh.test.ts"
-      ],
-      "integration": [
-        "src/rolling/consumer.test.mjs"
-      ],
-      "e2e": [
-        "tests/lab-acceptance/rolling-lab.e2e.ts"
-      ],
+      "code": ["src/components/RollingLab.tsx", "src/rolling/rolling.worker.ts", "src/rolling/lab-model.ts", "src/rolling/rolling-mesh.ts", "src/rolling/webgl-view.ts"],
+      "unit": ["src/rolling/lab-model.test.ts", "src/rolling/rolling-mesh.test.ts"],
+      "integration": ["src/rolling/consumer.test.mjs"],
+      "e2e": ["tests/lab-acceptance/rolling-lab.e2e.ts"],
       "runtime": "RU/UK маршрут с фоновым расчётом и кэшированными позами, WebGL, 2D и OBJ/JSON.",
       "security": "JSON v1 до 64 КиБ, ограниченный штрих, валидированные параметры и локальный Worker.",
       "a11y": "Клавиатурные кнопки камеры и плеера, время в секундах, 2D и текстовые метрики.",
@@ -3196,296 +3151,152 @@
     {
       "domain": "distortionless-line-loss",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "LINE-LOSS-001",
-        "LINE-LOSS-002"
-      ],
+      "requirement_ids": ["LINE-LOSS-001", "LINE-LOSS-002"],
       "runtime": "Per-section distributed attenuation, physical probes and JSON round trip.",
       "security": "Section loss and geometry are validated in the worker model.",
       "a11y": "Labelled distributed-parameter inputs in the line inspector.",
       "observability": "ET-LAB-019 in STAGES and TESTING.",
       "gap": "Independent G′, moving boundaries and dispersive profiles are pending.",
       "action": "Continue with a dedicated dispersive reference model.",
-      "code": [
-        "src/transient/network.ts",
-        "src/transient/NetworkInspector.tsx"
-      ],
-      "unit": [
-        "src/transient/network-loss.test.ts"
-      ],
+      "code": ["src/transient/network.ts", "src/transient/NetworkInspector.tsx"],
+      "unit": ["src/transient/network-loss.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/transmission-loss.spec.ts"
-      ]
+      "e2e": ["tests/e2e/transmission-loss.spec.ts"]
     },
     {
       "domain": "fourier-contours",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "FOUR-SHAPE-001",
-        "FOUR-SHAPE-002",
-        "FOUR-SHAPE-003"
-      ],
+      "requirement_ids": ["FOUR-SHAPE-001", "FOUR-SHAPE-002", "FOUR-SHAPE-003"],
       "runtime": "Geometry presets, undoable smoothing and equal-component comparison of four bases.",
       "security": "Uses the bounded existing local Fourier document.",
       "a11y": "Keyboard-accessible geometry and comparison controls.",
       "observability": "ET-LAB-018 in STAGES and TESTING.",
       "gap": "Custom functions use a bounded grammar and discrete weighted inner products.",
       "action": "Validate rank, condition and reconstruction with analytical and browser cases.",
-      "code": [
-        "src/fourier/contour.ts",
-        "src/components/FourierLab.tsx"
-      ],
-      "unit": [
-        "src/fourier/contour.test.ts",
-        "src/fourier/custom-basis.test.ts"
-      ],
+      "code": ["src/fourier/contour.ts", "src/components/FourierLab.tsx"],
+      "unit": ["src/fourier/contour.test.ts", "src/fourier/custom-basis.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/fourier-shapes.spec.ts"
-      ]
+      "e2e": ["tests/e2e/fourier-shapes.spec.ts"]
     },
     {
       "domain": "three-phase-y-delta",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "THREE-LAB-001",
-        "THREE-LAB-002",
-        "THREE-LAB-003",
-        "THREE-LAB-004"
-      ],
+      "requirement_ids": ["THREE-LAB-001", "THREE-LAB-002", "THREE-LAB-003", "THREE-LAB-004"],
       "runtime": "Star load with independent source phasors, editable phase/neutral impedances and voltage/current results.",
       "security": "Validated local versioned draft.",
       "a11y": "Named source and impedance inputs, neutral switch and touch targets.",
       "observability": "ET-LABR-013 in STAGES and TESTING.",
       "gap": "The shared delta solver remains available to other consumers.",
       "action": "Check star limiting cases, neutral disconnection, bidirectional editing and persistence.",
-      "code": [
-        "src/models/star-neutral.ts",
-        "src/components/StarNeutralLab.tsx"
-      ],
-      "unit": [
-        "src/models/star-neutral.test.ts"
-      ],
+      "code": ["src/models/star-neutral.ts", "src/components/StarNeutralLab.tsx"],
+      "unit": ["src/models/star-neutral.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/three-phase-delta.spec.ts"
-      ]
+      "e2e": ["tests/e2e/three-phase-delta.spec.ts"]
     },
     {
       "domain": "circular-diagram-guide",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "CIR-GUIDE-001",
-        "CIR-GUIDE-002",
-        "CIR-GUIDE-003"
-      ],
+      "requirement_ids": ["CIR-GUIDE-001", "CIR-GUIDE-002", "CIR-GUIDE-003"],
       "runtime": "Examples, analytical chord geometry and three construction steps.",
       "security": "Examples use the existing validated versioned URL state.",
       "a11y": "Named step controls, status text and numerical center and radius.",
       "observability": "ET-LAB-016 in STAGES and TESTING.",
       "gap": "A separate assessment mode is outside the construction guide.",
       "action": "Run numerical geometry and browser history acceptance.",
-      "code": [
-        "src/models/circular-diagram.ts",
-        "src/components/CircularDiagram.tsx"
-      ],
-      "unit": [
-        "src/models/circular-diagram.test.ts"
-      ],
+      "code": ["src/models/circular-diagram.ts", "src/components/CircularDiagram.tsx"],
+      "unit": ["src/models/circular-diagram.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/circular-diagram-guide.spec.ts"
-      ]
+      "e2e": ["tests/e2e/circular-diagram-guide.spec.ts"]
     },
     {
       "domain": "reactive-two-port",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "LC-001",
-        "LC-002",
-        "LC-003",
-        "LC-004"
-      ],
+      "requirement_ids": ["LC-001", "LC-002", "LC-003", "LC-004"],
       "runtime": "Bounded LC topology, exact rational reduction, resonance analysis and saved experiments.",
       "security": "Size-limited JSON input with topology and nominal validation.",
       "a11y": "Keyboard-accessible element controls and named frequency plot.",
       "observability": "ET-LAB-015 in STAGES and TESTING.",
       "gap": "Scope is bounded to ideal series and parallel topology.",
       "action": "Keep arbitrary graphs and synthesis on separate stages.",
-      "code": [
-        "src/models/reactive-two-port.ts",
-        "src/components/ReactiveTwoPortLab.tsx"
-      ],
-      "unit": [
-        "src/models/reactive-two-port.test.ts"
-      ],
+      "code": ["src/models/reactive-two-port.ts", "src/components/ReactiveTwoPortLab.tsx"],
+      "unit": ["src/models/reactive-two-port.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/reactive-two-port.spec.ts"
-      ]
+      "e2e": ["tests/e2e/reactive-two-port.spec.ts"]
     },
     {
       "domain": "transmission-handwriting",
       "status": "PARTIAL",
-      "requirement_ids": [
-        "LINE-UX-030",
-        "LINE-UX-031",
-        "LINE-UX-032",
-        "LINE-UX-033"
-      ],
+      "requirement_ids": ["LINE-UX-030", "LINE-UX-031", "LINE-UX-032", "LINE-UX-033"],
       "runtime": "Geometric recognition in the existing line editor; accepted input shares its document history and solver.",
       "security": "Bounded local strokes and validated model before circuit edits.",
       "a11y": "Named draw, accept, correction and notation controls.",
       "observability": "ET-LAB-022 and TESTING.",
       "gap": "The solver handles one excitation and its supported network graph. Physical phone and independent handwriting corpus still pending.",
       "action": "Verify physical-device gestures and extend corpus coverage.",
-      "code": [
-        "src/engineering/handwriting.ts",
-        "src/transient/useLineInk.tsx",
-        "src/transient/network-ink.ts",
-        "src/transient/network.ts"
-      ],
-      "unit": [
-        "src/engineering/handwriting.test.ts",
-        "src/transient/network-ink.test.ts",
-        "src/transient/network-current-source.test.ts"
-      ],
+      "code": ["src/engineering/handwriting.ts", "src/transient/useLineInk.tsx", "src/transient/network-ink.ts", "src/transient/network.ts"],
+      "unit": ["src/engineering/handwriting.test.ts", "src/transient/network-ink.test.ts", "src/transient/network-current-source.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/transmission-handwriting.spec.ts"
-      ]
+      "e2e": ["tests/e2e/transmission-handwriting.spec.ts"]
     },
     {
       "domain": "transmission-context-and-duration",
       "status": "IMPLEMENTED",
-      "requirement_ids": [
-        "LINE-UX-019",
-        "LINE-UX-020",
-        "LINE-UX-021",
-        "LINE-UX-022",
-        "LINE-UX-023",
-        "LINE-UX-024",
-        "LINE-UX-025",
-        "LINE-UX-026",
-        "LINE-UX-027",
-        "LINE-UX-028",
-        "LINE-UX-029"
-      ],
+      "requirement_ids": ["LINE-UX-019", "LINE-UX-020", "LINE-UX-021", "LINE-UX-022", "LINE-UX-023", "LINE-UX-024", "LINE-UX-025", "LINE-UX-026", "LINE-UX-027", "LINE-UX-028", "LINE-UX-029"],
       "runtime": "Clear and restore, direct terminal and conductor placement, geometric actions, obstacle-aware lead routing, bounded long experiments, compact playback and time controls, full probe export and voltage SVG.",
       "security": "Validated configuration and bounded solver histories; cancellation invalidates the request and terminates the worker.",
       "a11y": "Dialog, named on-canvas actions, keyboard commands, touch placement and progress.",
       "observability": "ET-LAB-020 and ET-LAB-021 in STAGES and TESTING.",
       "gap": "Editing is bounded to the existing network topology and long runs to physical resolution and memory budgets.",
       "action": "Use the documented reference experiments and inspect estimates for stiffer models.",
-      "code": [
-        "src/components/TransmissionNetworkLab.tsx",
-        "src/circuit/CircuitEditor.tsx",
-        "src/transient/network.ts",
-        "src/transient/network.worker.ts",
-        "src/circuit/routing.ts",
-        "src/transient/network-experiment.ts"
-      ],
-      "unit": [
-        "src/transient/network-duration.test.ts",
-        "src/transient/network-routing.test.ts",
-        "src/transient/network-experiment.test.ts"
-      ],
+      "code": ["src/components/TransmissionNetworkLab.tsx", "src/circuit/CircuitEditor.tsx", "src/transient/network.ts", "src/transient/network.worker.ts", "src/circuit/routing.ts", "src/transient/network-experiment.ts"],
+      "unit": ["src/transient/network-duration.test.ts", "src/transient/network-routing.test.ts", "src/transient/network-experiment.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/transmission-editor-duration.spec.ts",
-        "tests/e2e/transmission-workbench.spec.ts"
-      ]
+      "e2e": ["tests/e2e/transmission-editor-duration.spec.ts", "tests/e2e/transmission-workbench.spec.ts"]
     },
     {
       "domain": "transmission-free-layout",
       "status": "PARTIAL",
-      "requirement_ids": [
-        "LINE-UX-015",
-        "LINE-UX-016",
-        "LINE-UX-017",
-        "LINE-UX-018"
-      ],
+      "requirement_ids": ["LINE-UX-015", "LINE-UX-016", "LINE-UX-017", "LINE-UX-018"],
       "runtime": "Separate free layout, detached palette parts, explicit reconnection and intermediate two-terminal L/C/diode calculation.",
       "security": "Bounded document import and validated network transactions.",
       "a11y": "Mouse and touch dragging with named keyboard connection targets.",
       "observability": "ET-LAB-014 in STAGES and TESTING.",
       "gap": "Physical smartphone and OS keyboard acceptance.",
       "action": "Follow the physical-device scenario in STAGES.",
-      "code": [
-        "src/circuit/CircuitEditor.tsx",
-        "src/components/TransmissionNetworkLab.tsx",
-        "src/transient/network.ts"
-      ],
-      "unit": [
-        "src/transient/network-advanced.test.ts"
-      ],
+      "code": ["src/circuit/CircuitEditor.tsx", "src/components/TransmissionNetworkLab.tsx", "src/transient/network.ts"],
+      "unit": ["src/transient/network-advanced.test.ts"],
       "integration": [],
-      "e2e": [
-        "tests/e2e/transmission-workbench.spec.ts"
-      ]
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
     },
     {
       "domain": "transmission-symbols-and-diode",
       "status": "PARTIAL",
-      "requirement_ids": [
-        "LINE-UX-011",
-        "LINE-UX-012",
-        "LINE-UX-013",
-        "LINE-UX-014"
-      ],
+      "requirement_ids": ["LINE-UX-011", "LINE-UX-012", "LINE-UX-013", "LINE-UX-014"],
       "runtime": "Unified schematic palette, view controls, separate layout and nonlinear terminal diode.",
       "security": "Bounded import, parameter validation and deterministic root solving.",
       "a11y": "Pointer, touch and keyboard placement with named controls and schematic labels.",
       "observability": "ET-LAB-013 in STAGES and TESTING.",
       "gap": "Physical smartphone and arbitrary nonlinear topology remain outside automated evidence.",
       "action": "Run physical-device acceptance for the supported connection model.",
-      "code": [
-        "src/transient/useLineOperations.tsx",
-        "src/transient/line-diode.ts",
-        "src/transient/network.ts"
-      ],
-      "unit": [
-        "src/transient/network-edit.test.ts"
-      ],
-      "integration": [
-        "scripts/transient-wasm.mjs"
-      ],
-      "e2e": [
-        "tests/e2e/transmission-workbench.spec.ts"
-      ]
+      "code": ["src/transient/useLineOperations.tsx", "src/transient/line-diode.ts", "src/transient/network.ts"],
+      "unit": ["src/transient/network-edit.test.ts"],
+      "integration": ["scripts/transient-wasm.mjs"],
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts"]
     },
     {
       "domain": "transmission-playback-and-contacts",
       "status": "PARTIAL",
-      "requirement_ids": [
-        "LINE-UX-006",
-        "LINE-UX-007",
-        "LINE-UX-008",
-        "LINE-UX-009",
-        "LINE-UX-010"
-      ],
+      "requirement_ids": ["LINE-UX-006", "LINE-UX-007", "LINE-UX-008", "LINE-UX-009", "LINE-UX-010"],
       "runtime": "Contextual schematic editing and simulation transport with resistive contacts, node-to-node branches and scheduled switching.",
       "security": "Bounded model validation protects the worker and version-compatible JSON imports.",
       "a11y": "Named controls and placement markers support touch, pointer and keyboard.",
       "observability": "ET-LAB-012 in STAGES and TESTING.",
       "gap": "Physical smartphone evidence and explicit scope for distributed branches.",
       "action": "Verify browser and analytical scenarios before physical-device acceptance.",
-      "code": [
-        "src/transient/network.ts",
-        "src/transient/useLineOperations.tsx",
-        "src/components/TransmissionNetworkLab.tsx"
-      ],
-      "unit": [
-        "src/transient/network-edit.test.ts"
-      ],
-      "integration": [
-        "scripts/transient-wasm.mjs"
-      ],
-      "e2e": [
-        "tests/e2e/transmission-workbench.spec.ts",
-        "tests/e2e/transmission-network.spec.ts"
-      ]
+      "code": ["src/transient/network.ts", "src/transient/useLineOperations.tsx", "src/components/TransmissionNetworkLab.tsx"],
+      "unit": ["src/transient/network-edit.test.ts"],
+      "integration": ["scripts/transient-wasm.mjs"],
+      "e2e": ["tests/e2e/transmission-workbench.spec.ts", "tests/e2e/transmission-network.spec.ts"]
     },
     {
       "domain": "transmission-workbench",
@@ -3745,7 +3556,7 @@
         "tests/e2e/circuit-editor.spec.ts"
       ]
     },
-    {
+      {
       "requirement_ids": [
         "CE-009"
       ],
@@ -3768,7 +3579,7 @@
         "tests/e2e/circuit-branching.spec.ts"
       ]
     },
-    {
+      {
       "requirement_ids": [
         "CE-010"
       ],
@@ -3791,7 +3602,7 @@
         "tests/e2e/circuit-branching.spec.ts"
       ]
     },
-    {
+      {
       "requirement_ids": [
         "CE-011"
       ],

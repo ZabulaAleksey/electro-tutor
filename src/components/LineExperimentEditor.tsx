@@ -5,7 +5,7 @@ import { directTargets, type DirectTarget } from "./line-slot-targets";
 import type { Language } from "../types";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 import { parallelBranchForComponent } from "../circuit/topology-branch-removal";
-import { bypassSeriesDevice } from "../circuit/topology-operations";
+import { bypassSeriesDevice, matchingOpenWire, planSeriesBypass } from "../circuit/topology-operations";
 import { lineJunctionPlacements } from "./line-junction-placement";
 import { simplifyTopologyForView } from "../circuit/topology-equivalence";
 import { parts, validPartParameter, type PartKind } from "../circuit/drawing";
@@ -258,10 +258,13 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const sourceReturn = legacyTransient
     ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
   const automaticBypass = useMemo(() => {
-    if (variable || !selected || document.attachmentSides.some(hint => hint.componentId === selected)) return false;
+    if (variable || !selected) return false;
     const reference = referenceEndpoint ?? sourceReturn;
     const protectedEnds = reference ? [...document.observedEndpoints, reference] : document.observedEndpoints;
-    try { bypassSeriesDevice(topology, selected, protectedEnds); return true; } catch { return false; }
+    try {
+      const planned = planSeriesBypass(topology, selected, protectedEnds);
+      return !matchingOpenWire(document.brokenWires ?? [], planned.wire);
+    } catch { return false; }
   }, [document, referenceEndpoint, selected, sourceReturn, topology, variable]);
   const explicitBypass = useMemo(() => {
     if (variable || !selected) return false;

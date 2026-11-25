@@ -6,7 +6,7 @@ import { moveSeriesEquivalent, reduceTopologyRlc } from "./topology-equivalence"
 import { createCrossSlot, insertTopologyComponent, listTopologySlots, resolveTopologySlot, type TopologySide, type TopologySlot } from "./topology-slots";
 import { removeDevicePreservingNets, validateCircuit, type CircuitComponent, type CircuitTopology, type CircuitWire } from "./topology";
 import { removeParallelBranch } from "./topology-branch-removal";
-import { breakTopologyWire, bypassSeriesDevice, clearTopologyDevices, restoreTopologyWire } from "./topology-operations";
+import { breakTopologyWire, clearTopologyDevices, matchingOpenWire, planSeriesBypass, restoreTopologyWire } from "./topology-operations";
 
 export type TopologyLabDocument = Readonly<{
   kind: "electrotutor-topology-lab";
@@ -205,7 +205,10 @@ export class TopologySession {
       const observed = command.preserveObservations ? observedEndpoints : [];
       const reserved = opened.map(wire => wire.id);
       if (command.mode === "conductor") {
-        next = bypassSeriesDevice(topology, command.componentId, command.protectedEndpoints ?? observedEndpoints, command.allowPortShort);
+        const planned = planSeriesBypass(topology, command.componentId, command.protectedEndpoints ?? observedEndpoints, command.allowPortShort);
+        const restored = matchingOpenWire(opened, planned.wire);
+        next = restoreTopologyWire(planned.topology, restored ?? planned.wire);
+        if (restored) opened = opened.filter(wire => wire.id !== restored.id);
       } else if (command.mode === "branch") {
         next = removeParallelBranch(topology, command.componentId, observedEndpoints, reserved);
       } else {

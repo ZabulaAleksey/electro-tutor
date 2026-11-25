@@ -158,6 +158,25 @@ test("explicit cross insertion survives preset switching and preserves prior wir
   expect(await snapshotDocument(page, testInfo, "cross-restored")).toBe(after);
 });
 
+test("the topology preset becomes editable after its controller loads", async ({ page }) => {
+  let releaseModule!: () => void;
+  const held = new Promise<void>(resolve => { releaseModule = resolve; });
+  await page.route(/\/_astro\/TopologyWorkbench\.[^/]+\.js$/, async (route) => {
+    await held;
+    await route.continue();
+  });
+  const preset = page.locator("[data-topology-preset]");
+  try {
+    await page.goto(topologyRoute("ru"), { waitUntil: "domcontentloaded" });
+    await expect(preset).toBeDisabled({ timeout: 1500 });
+  } finally {
+    releaseModule();
+  }
+  await expect(preset).toBeEnabled();
+  await preset.selectOption("50");
+  await expect(page.locator(components)).toHaveCount(50);
+});
+
 test("buttons, Ctrl+wheel, arrows and mouse drag change only the viewport", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1010, height: 900 });
   await page.goto(topologyRoute("ru"));

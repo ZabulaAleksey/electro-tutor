@@ -12,12 +12,12 @@ function opposite(wire: CircuitWire, endpoint: string) {
   return wire.from === endpoint ? wire.to : wire.from;
 }
 
-export function bypassSeriesDevice(
+export function planSeriesBypass(
   topology: CircuitTopology,
   componentId: string,
   protectedEndpoints: readonly string[] = [],
   allowPortShort = false,
-): CircuitTopology {
+) {
   const nets = netlist(topology);
   const component = topology.components.find(part => part.id === componentId);
   if (!component) throw Error("unknown-component");
@@ -53,10 +53,22 @@ export function bypassSeriesDevice(
   const [secondWire] = outgoing;
   const upstream = opposite(firstWire, first);
   const downstream = opposite(secondWire, second);
-  const cut = removeComponent(topology, componentId);
-  return firstWire.from === first
-    ? connect(cut, firstWire.id, downstream, upstream)
-    : connect(cut, firstWire.id, upstream, downstream);
+  const ends = firstWire.from === first ? [downstream, upstream] : [upstream, downstream];
+  return { topology: removeComponent(topology, componentId), wire: { id: firstWire.id, from: ends[0], to: ends[1] } };
+}
+
+export function bypassSeriesDevice(
+  topology: CircuitTopology,
+  componentId: string,
+  protectedEndpoints: readonly string[] = [],
+  allowPortShort = false,
+): CircuitTopology {
+  const planned = planSeriesBypass(topology, componentId, protectedEndpoints, allowPortShort);
+  return restoreTopologyWire(planned.topology, planned.wire);
+}
+
+export function matchingOpenWire(opened: readonly CircuitWire[], { from, to }: CircuitWire) {
+  return opened.find(wire => wire.from === from && wire.to === to || wire.from === to && wire.to === from);
 }
 
 export function breakTopologyWire(topology: CircuitTopology, id: string): { topology: CircuitTopology; wire: CircuitWire } {

@@ -189,4 +189,24 @@ describe("EVAL-03 · transactional electrical history", () => {
     session.apply({ type: "restore-wire", wireId: "W4" });
     expect(session.document.topology.wires).toContainEqual(open);
   });
+
+  it("keeps an intentional cut on device deletion and restores its exact wire on explicit bypass", () => {
+    const session = new TopologySession(JSON.stringify(initial));
+    session.apply({ type: "break-wire", wireId: conductor.id });
+    session.apply({ type: "insert", slot: session.crossSlot(conductor.from, conductor.to), component: resistor });
+    const bridged = session.export();
+
+    session.apply({ type: "remove", componentId: resistor.id, mode: "device" });
+    expect(session.document.brokenWires).toEqual([conductor]);
+    expect(netlist(session.document.topology)).not.toContainEqual([conductor.from, conductor.to]);
+    expect(session.undo()).toBe(true);
+    expect(session.export()).toBe(bridged);
+
+    session.apply({ type: "remove", componentId: resistor.id, mode: "conductor" });
+    expect(session.document.topology.wires).toContainEqual(conductor);
+    expect(session.document.brokenWires).toBeUndefined();
+    expect(session.document.schemaVersion).toBe(1);
+    expect(session.undo()).toBe(true);
+    expect(session.export()).toBe(bridged);
+  });
 });

@@ -133,3 +133,57 @@ test("EVAL-03 D: removes a full two-device parallel branch and resumes editing",
   await editor.locator('[data-line-parallel-side="right"]').click();
   await expect(editor.locator('[data-line-glyph="C1"]')).toBeVisible();
 });
+
+test("EVAL-03 A: removal preserves an intentional cut and explicit bypass restores its exact edge", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/experiment/");
+  const editor = page.locator(editorSelector);
+  const wire = { id: "W2", from: "K1:b", to: "TL1:a" };
+  const readCircuit = () => page.evaluate(key => JSON.parse(localStorage.getItem(key)!).circuit, lineArchiveKey);
+  await editor.locator("[data-line-wire-mode]").click();
+  await editor.locator('[data-line-wire-control="W2"]').click();
+  await editor.locator("[data-line-break-wire]").click();
+
+  await editor.locator('[data-line-palette="l"]').click();
+  await editor.getByRole("button", { name: "Выбрать два узла" }).click();
+  await editor.locator('[data-line-cross-endpoint="K1:b"]').click();
+  await editor.locator('[data-line-cross-endpoint="TL1:a"]').click();
+  await editor.locator('[data-line-component="L1"]').click();
+  await editor.getByRole("dialog").press("Delete");
+  await expect(editor.locator('[data-line-glyph="L1"]')).toHaveCount(0);
+  const opened = await readCircuit();
+  expect(opened.brokenWires).toEqual([wire]);
+  expect(opened.topology.wires).not.toContainEqual(wire);
+
+  await page.locator("[data-line-a-undo]").click();
+  await editor.locator('[data-line-component="L1"]').click();
+  await editor.locator("[data-line-remove]").click();
+  await editor.locator("[data-line-replace-conductor]").click();
+  await expect(editor.locator('[data-line-glyph="L1"]')).toHaveCount(0);
+  const restored = await readCircuit();
+  expect(restored.topology.wires).toContainEqual(wire);
+  expect(restored.brokenWires).toBeUndefined();
+});
+
+test("EVAL-03 A: a former parallel part bypasses after it becomes the sole series link", async ({ page }) => {
+  await page.goto("/ru/interactive/transmission-line/experiment/");
+  const editor = page.locator(editorSelector);
+  await editor.locator('[data-line-palette="l"]').click();
+  await editor.locator('[data-line-series-slot="W3"]').click();
+  await editor.locator('[data-line-palette="r"]').click();
+  await editor.locator('[data-line-parallel-part="L1"]').click();
+  await editor.locator('[data-line-parallel-side="right"]').click();
+  await editor.locator('[data-line-component="L1"]').click();
+  await editor.getByRole("dialog").press("Delete");
+  await expect(editor.locator('[data-line-glyph="L1"]')).toHaveCount(0);
+
+  await editor.locator('[data-line-component="R1"]').click();
+  await editor.getByRole("dialog").press("Delete");
+  await expect(editor.locator('[data-line-glyph="R1"]')).toHaveCount(0);
+  const attached = await page.evaluate(key => {
+    const { wires } = JSON.parse(localStorage.getItem(key)!).circuit.topology;
+    return wires.some(({ from, to }: { from: string; to: string }) =>
+      (from === "TL1:b" && to === "C1:a") || (from === "C1:a" && to === "TL1:b"));
+  }, lineArchiveKey);
+  expect(attached).toBe(true);
+  await expect(page.locator('[data-line-termination="open"]')).toHaveAttribute("aria-pressed", "false");
+});

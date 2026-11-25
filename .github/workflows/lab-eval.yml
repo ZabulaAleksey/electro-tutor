@@ -67,6 +67,11 @@ jobs:
             test-results/basis-experiment*/
             test-results/polygon-motion*/
             test-results/rolling-lab*/
+            test-results/rolling-adaptive-20261125*/
+            test-results/editor-operations-20261125*/
+            test-results/line-ports-20261125*/
+            test-results/lc-synthesis-20261125*/
+            test-results/three-phase-sequences*/
             test-results/power-system-custom-study*/
             test-results/transient-playback-layout*/
             test-results/transmission-line-glyph*/

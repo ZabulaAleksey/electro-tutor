@@ -1,0 +1,133 @@
+{
+  "baseline": "d54999787552a5ed4327cab629951de018b57a56",
+  "catalogue": {
+    "routes": [
+      "/ru/micro-labs/",
+      "/uk/micro-labs/"
+    ],
+    "legacyHash": "#micro=ohm-law",
+    "dedicatedRoute": "/interactive/experiments/micro/ohm-law/"
+  },
+  "transientSeriesDeletion": {
+    "route": "/ru/interactive/transmission-line/experiment/",
+    "archiveKey": "electrotutor:line-experiment:v1",
+    "slot": "W2",
+    "insertedId": "L1",
+    "endpoints": [
+      "K1:b",
+      "TL1:a"
+    ],
+    "initialTl1X": 322,
+    "afterInsertionTl1X": 426,
+    "afterDeleteTl1X": 426
+  },
+  "reactiveSynthesis": {
+    "route": "/ru/interactive/reactive-two-port-graph/experiment/",
+    "archive": {
+      "schema": "electrotutor-reactive-two-port-v1",
+      "circuit": {
+        "kind": "parallel",
+        "left": {
+          "kind": "series",
+          "left": {
+            "kind": "parallel",
+            "left": {
+              "kind": "l",
+              "value": 11
+            },
+            "right": {
+              "kind": "c",
+              "value": 91
+            }
+          },
+          "right": {
+            "kind": "series",
+            "left": {
+              "kind": "c",
+              "value": 172
+            },
+            "right": {
+              "kind": "parallel",
+              "left": {
+                "kind": "l",
+                "value": 7
+              },
+              "right": {
+                "kind": "c",
+                "value": 135
+              }
+            }
+          }
+        },
+        "right": {
+          "kind": "parallel",
+          "left": {
+            "kind": "l",
+            "value": 17
+          },
+          "right": {
+            "kind": "c",
+            "value": 83
+          }
+        }
+      }
+    },
+    "archiveUnits": {
+      "l": "mH",
+      "c": "uF"
+    },
+    "normalizedFrequency": "q=s/(1000 rad/s)",
+    "numeratorAscending": [
+      0,
+      17000000000,
+      0,
+      85714000000,
+      0,
+      66964513000
+    ],
+    "denominatorAscending": [
+      1000000000,
+      0,
+      9377000000,
+      0,
+      16743455000,
+      0,
+      8323997759
+    ],
+    "polesRadPerSecond": [
+      372.2454684221632,
+      914.6874010404839,
+      1017.962796316356
+    ],
+    "zerosRadPerSecond": [
+      495.3493276283291,
+      1017.1629331085832
+    ],
+    "forms": [
+      "Foster I",
+      "Foster II",
+      "Cauer I",
+      "Cauer II"
+    ],
+    "expectedElements": [
+      6,
+      6,
+      6,
+      6
+    ]
+  },
+  "rollingSmoothTrace": {
+    "route": "/ru/interactive/rolling/",
+    "archiveKind": "electrotutor-rolling-lab",
+    "schemaVersion": 1,
+    "points": 97,
+    "x": "3*u-1.5",
+    "y": "0.36*sin(4*pi*u)",
+    "u": "index/96",
+    "radius": 1,
+    "quality": "full",
+    "speed": 1,
+    "position": 0,
+    "baselineError": "TRACE_COMPLEXITY"
+  }
+}

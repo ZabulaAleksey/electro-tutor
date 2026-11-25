@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { CapacitorGlyph, InductorGlyph, ResistorGlyph, TextbookSourceGlyph } from "../engineering/symbols";
 import type { Language } from "../types";
 import { parts } from "./drawing";
@@ -151,6 +151,7 @@ function exportDocument(session: TopologySession) {
 
 export default function TopologyWorkbench({ language, referenceJson }: { language: Language; referenceJson: string }) {
   const t = copy[language];
+  const [ready, setReady] = useState(false);
   const [preset, setPreset] = useState<Preset>("e3");
   const [sessions] = useState(() => new Map<Preset, TopologySession>([["e3", new TopologySession(referenceJson)]]));
   const [revision, refresh] = useState(0);
@@ -164,6 +165,7 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
   const [to, setTo] = useState("");
   const [notice, setNotice] = useState<{ kind: "error" | "success"; message: string }>();
   const id = useId();
+  useEffect(() => { setReady(true); }, []);
   const { viewportRef, zoom, zoomIn, zoomOut, resetZoom, viewportEvents } = useTopologyViewport();
   const session = sessions.get(preset)!;
   const circuit = session.document;
@@ -275,7 +277,8 @@ export default function TopologyWorkbench({ language, referenceJson }: { languag
   return <section className="topology-workbench" data-topology-workbench data-topology-revision={revision}>
     <header className="topology-heading">
       <label className="topology-field topology-preset">{t.example}
-        <select data-topology-preset data-topology-hit value={preset} onChange={(event) => changePreset(event.target.value as Preset)}>
+        <select data-topology-preset data-topology-hit disabled={!ready} value={preset}
+          onChange={(event) => changePreset(event.target.value as Preset)}>
           {presets.map((value) => <option key={value} value={value}>{value === "e3" ? t.reference : t.elements + " " + value}</option>)}
         </select>
       </label>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CircuitComponent } from "../circuit/topology";
-import { appendSteadyLine, newSteadyExperiment, removeSteadyPart, updateSteadyCircuit, updateSteadyPart, type SteadyExperiment } from "../steady-line/experiment-document";
+import { appendSteadyLine, newSteadyExperiment, updateSteadyCircuit, updateSteadyPart, type SteadyExperiment } from "../steady-line/experiment-document";
 import { solveSteadyExperiment, type DistributedParameters } from "../steady-line/experiment-solver";
 import type { Language } from "../types";
 import LineExperimentEditor from "./LineExperimentEditor";
@@ -174,7 +174,7 @@ export default function SteadyExperimentLab({ language }: { language: Language }
         if (lines.length >= 12 || circuit.topology.components.length >= 100) { setEditError(diagnostic("steady-limit")); return; }
         if (endpoint) update(previous => appendSteadyLine(previous, endpoint));
       }}
-      onRemove={(id, source) => update(previous => removeSteadyPart({ ...previous, circuit: source }, id))}
+      onRestoreStarter={() => update(() => newSteadyExperiment())}
       onOpenSection={id => observe(previous => previous.id === id ? previous : { id, xM: 0 })} />
     {editError && <p role="alert" className="steady-experiment-error">{editError}</p>}
     {projected.error && <p role="alert" className="steady-experiment-error" data-steady-solver-error={projected.error}>{diagnostic(projected.error)}</p>}

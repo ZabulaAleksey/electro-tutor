@@ -216,4 +216,9 @@
 .line-a-playback button:disabled, .line-a-archive button:disabled { opacity: .55; }
 .line-a-archive { display: flex; flex-wrap: wrap; gap: .55rem; margin-block: 1rem; }
 
+.line-a-port-note { margin-block: .5rem; color: var(--muted); font-size: .9rem; }
+.line-a-termination { align-items: center; }
+.line-a-termination span { font-weight: 600; }
+.line-a-termination button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
 [data-line-a-model-error], [data-line-a-action-error] { padding: .65rem; border: 1px solid currentColor; color: var(--c-error, #9b2226); }

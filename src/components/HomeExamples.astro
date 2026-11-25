@@ -1,0 +1,160 @@
+---
+import TextbookFormula from "./TextbookFormula.astro";
+import DcSeriesExample from "./DcSeriesExample.astro";
+import MagneticCoreExample from "./MagneticCoreExample.astro";
+import ExampleCircuitFigure from "./ExampleCircuitFigure.astro";
+import EngineeringPlot from "../engineering/EngineeringPlot";
+import { formatEngineeringNumber, localizeLatexNumbers } from "../engineering/format";
+import { dcExampleInput, homeExamples } from "../showcase/home-examples";
+import { localePath } from "../site-path";
+import type { Language } from "../types";
+
+interface Props { language: Language }
+const { language } = Astro.props;
+const ru = language === "ru";
+const copy = {
+  heading: ru ? "Электротехника в примерах" : "Електротехніка у прикладах",
+  next: ru ? "Следующая тема" : "Наступна тема",
+  previous: ru ? "Предыдущая тема" : "Попередня тема",
+  open: ru ? "Открыть опыт" : "Відкрити дослід",
+  plot: ru ? "Расчётный график" : "Розрахунковий графік",
+  operatingPoint: ru ? "Рабочая точка" : "Робоча точка",
+  of: ru ? "из" : "з",
+};
+---
+<section class="home-examples" data-home-examples aria-roledescription="карусель" aria-labelledby="home-examples-heading">
+  <div class="examples-header">
+    <h2 id="home-examples-heading">{copy.heading}</h2>
+    <div class="example-controls" data-example-controls hidden>
+      <button type="button" data-example-step="-1" aria-label={copy.previous}>←</button>
+      <span data-example-position aria-hidden="true">{1} / {homeExamples.length}</span>
+      <span class="example-announcement" data-example-announcement data-of={copy.of} role="status">{homeExamples[0].title[language]}</span>
+      <button type="button" data-example-step="1" aria-label={copy.next}>→</button>
+    </div>
+  </div>
+  <div class="home-example-slides" data-example-slides>
+    {homeExamples.map((example, index) => {
+      const name = example.title[language];
+      return <article class="home-example" data-example-topic={example.id} data-example-name={name}
+        hidden={index !== 0} aria-labelledby={"example-heading-" + example.id}>
+        <h3 id={"example-heading-" + example.id}>{name}</h3>
+        <div class="example-composition">
+          <figure data-example-figure class="home-example-figure">
+            {example.id === "dc" ? <DcSeriesExample {language} {...dcExampleInput} /> :
+              example.id === "magnetic" ? <MagneticCoreExample {language} /> :
+                <ExampleCircuitFigure {language} kind={example.id} />}
+          </figure>
+          <div class="example-analysis">
+            <p class="example-assumptions">{example.assumptions[language]}</p>
+            <div class="example-formulas">
+              {example.formulas.map(formula => <TextbookFormula latex={localizeLatexNumbers(formula, language)} />)}
+            </div>
+            <dl class="example-metrics">
+              {example.metrics.map(metric => <div data-example-metric={metric.id}>
+                <dt>{metric.label}</dt>
+                <dd>{formatEngineeringNumber(metric.value, language, { maximumFractionDigits: 3 })}{metric.unit && " " + metric.unit}</dd>
+              </div>)}
+            </dl>
+            <div class="example-chart" data-example-chart>
+              <EngineeringPlot plot={example.plot} {language} compact focusable={false}
+                svgId={"home-example-" + example.id}
+                kind={example.stem ? "stem" : "line"} label={copy.plot + " · " + name}
+                characteristic={example.operatingPoint ? { point: example.operatingPoint, label: copy.operatingPoint } : undefined}
+                legendClass="example-legend" />
+            </div>
+          </div>
+        </div>
+        {example.route && <a class="example-link" href={localePath(language, example.route)}>{copy.open} <span aria-hidden="true">↗</span></a>}
+      </article>;
+    })}
+  </div>
+</section>
+
+<script>
+  function setUpHomeExamples() {
+    for (const carousel of document.querySelectorAll<HTMLElement>("[data-home-examples]")) {
+      const slides = carousel.querySelector<HTMLElement>("[data-example-slides]");
+      const controls = carousel.querySelector<HTMLElement>("[data-example-controls]");
+      const position = controls?.querySelector<HTMLElement>("[data-example-position]");
+      const announcement = controls?.querySelector<HTMLElement>("[data-example-announcement]");
+      if (!slides || !controls || !position || !announcement || !controls.hidden) continue;
+      const articles = [...slides.querySelectorAll<HTMLElement>("[data-example-topic]")];
+      if (articles.length < 2) continue;
+      let index = 0;
+      let start: { id: number; x: number; y: number } | undefined;
+
+      function show(candidate: number) {
+        index = (candidate + articles.length) % articles.length;
+        articles.forEach((article, articleIndex) => { article.hidden = articleIndex !== index; });
+        position!.textContent = (index + 1) + " / " + articles.length;
+        announcement!.textContent = (index + 1) + " " + announcement!.dataset.of + " " + articles.length +
+          " · " + articles[index].dataset.exampleName;
+      }
+
+      for (const button of controls.querySelectorAll<HTMLButtonElement>("[data-example-step]")) {
+        button.addEventListener("click", () => show(index + Number(button.dataset.exampleStep)));
+      }
+      controls.addEventListener("keydown", event => {
+        const targets: Record<string, number> = { ArrowLeft: index - 1, ArrowRight: index + 1, Home: 0, End: articles.length - 1 };
+        if (!Object.hasOwn(targets, event.key)) return;
+        event.preventDefault();
+        show(targets[event.key]);
+      });
+      slides.addEventListener("pointerdown", event => {
+        const target = event.target;
+        if (event.pointerType === "touch" && event.isPrimary && target instanceof Element && !target.closest("a")) {
+          start = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        }
+      });
+      slides.addEventListener("pointerup", event => {
+        const gesture = start;
+        start = undefined;
+        if (gesture?.id !== event.pointerId) return;
+        const dx = event.clientX - gesture.x;
+        const dy = event.clientY - gesture.y;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > 1.5 * Math.abs(dy)) show(index + (dx < 0 ? 1 : -1));
+      });
+      slides.addEventListener("pointercancel", () => { start = undefined; });
+      show(0);
+      controls.hidden = false;
+    }
+  }
+  setUpHomeExamples();
+  document.addEventListener("astro:page-load", setUpHomeExamples);
+</script>
+
+<style>
+  .home-examples { color: var(--ink); max-width: 74rem; margin: 2.75rem auto 2.5rem; padding: 0 1rem; }
+  .examples-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; margin-bottom: .75rem; }
+  .examples-header h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.25rem); letter-spacing: -.025em; }
+  .example-controls { display: flex; align-items: center; gap: .65rem; }
+  .example-controls[hidden], .home-example[hidden] { display: none; }
+  .example-controls button { min-width: 44px; min-height: 44px; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface, var(--white)); color: var(--accent); font: inherit; cursor: pointer; }
+  .example-controls button:hover, .example-controls button:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
+  .example-controls [data-example-position] { min-width: 2.9em; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .example-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .home-example-slides { touch-action: pan-y pinch-zoom; }
+  .home-example { padding: clamp(.8rem, 2.8vw, 1.65rem); border-radius: 1rem; border: 1px solid var(--line); background: var(--surface, var(--white)); }
+  .home-example h3 { margin: 0 0 .85rem; font-size: clamp(1.3rem, 2.7vw, 1.8rem); line-height: 1.2; }
+  .example-composition { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); gap: clamp(.9rem, 3vw, 2.1rem); align-items: start; }
+  .home-example-figure { margin: 0; overflow: hidden; border-radius: .75rem; background: #111b33; min-width: 0; }
+  .home-example-figure :global(svg), .home-example-figure img { display: block; width: 100%; height: auto; }
+  .example-analysis { min-width: 0; }
+  .home-examples .example-assumptions { max-width: none; margin: 0 0 .65rem; color: var(--muted); line-height: 1.48; }
+  .example-formulas { display: grid; gap: .32rem; }
+  .example-formulas :global(.formula) { margin: 0; max-width: 100%; }
+  .example-formulas :global(.katex-display) { margin: .24em 0; font-size: clamp(.72rem, 1.3vw, 1rem); overflow-x: auto; overflow-y: hidden; text-align: start; }
+  .example-formulas :global(.katex) { font-size: inherit; }
+  .example-metrics { display: flex; flex-wrap: wrap; gap: .4rem; margin: .65rem 0 .35rem; }
+  .example-metrics > div { padding: .36rem .55rem; border: 1px solid var(--line); border-radius: .4rem; }
+  .example-metrics dt { color: var(--muted); font-size: .8rem; }
+  .example-metrics dd { margin: .12rem 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .example-chart :global(.engineering-plot) { display: block; max-width: 100%; height: auto; }
+  .example-chart :global(.example-legend) { display: flex; flex-wrap: wrap; gap: .25rem .8rem; font-size: .8rem; color: var(--muted); }
+  .example-chart :global(.example-legend i) { display: inline-block; width: 1.1em; margin-inline-end: .32em; border-top: 2px solid; vertical-align: middle; }
+  .example-link { display: inline-flex; align-items: center; min-height: 44px; gap: .4rem; margin-top: .25rem; color: var(--accent); font-weight: 650; }
+  @media (max-width: 860px) {
+    .home-examples { margin-top: 2rem; }
+    .example-composition { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

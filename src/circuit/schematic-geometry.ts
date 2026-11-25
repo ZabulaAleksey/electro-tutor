@@ -37,7 +37,7 @@ export function readSchematicGeometry(value: unknown, topology: CircuitTopology)
 /** Make room along the existing line axis; all connections already on its
  * outlet move to the outlet of the appended section in the electrical graph. */
 export function appendSectionGeometry(geometry: SchematicGeometry | undefined, inlet: string, outlet: string,
-  terminals: readonly string[], topology: CircuitTopology): SchematicGeometry | undefined {
+  terminals: readonly string[], topology: CircuitTopology, returnOutlet?: string): SchematicGeometry | undefined {
   if (!geometry) return;
   const origin = geometry.pins[outlet], other = geometry.pins[inlet];
   if (!origin || !other) return;
@@ -49,6 +49,11 @@ export function appendSectionGeometry(geometry: SchematicGeometry | undefined, i
   const pins = Object.fromEntries(Object.entries(geometry.pins).map(([id, p]) => [id, shift(p)]));
   pins[terminals[0]] = { ...origin, [axis]: origin[axis] + 24 * direction };
   pins[terminals[1]] = { ...origin, [axis]: origin[axis] + 128 * direction };
+  const returnOrigin = returnOutlet === undefined ? undefined : geometry.pins[returnOutlet];
+  if (returnOrigin) {
+    pins[terminals[2]] = { ...returnOrigin, [axis]: returnOrigin[axis] + 24 * direction };
+    pins[terminals[3]] = { ...returnOrigin, [axis]: returnOrigin[axis] + 128 * direction };
+  }
   const bends: Record<string, Point[]> = {};
   for (const wire of topology.wires) {
     const turns = (geometry.bends[wire.id] ?? []).map(shift);

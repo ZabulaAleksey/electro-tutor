@@ -1,0 +1,93 @@
+---
+interface Props { language: "ru" | "uk" }
+const { language } = Astro.props;
+const names = language === "ru" ? {
+  title: "Обмотка на замкнутом тороидальном сердечнике",
+  description: "Обмотка охватывает сечение цельного кольца. Стрелки показывают направление магнитного поля вдоль замкнутого сердечника без воздушного зазора.",
+} : {
+  title: "Обмотка на замкненому тороїдальному осерді",
+  description: "Обмотка охоплює переріз суцільного кільця. Стрілки показують напрям магнітного поля вздовж замкненого осердя без повітряного проміжку.",
+};
+const prefix = "home-magnetic-" + language;
+const id = (name: string) => prefix + "-" + name;
+const paint = (name: string) => "url(#" + id(name) + ")";
+const project = (aroundCore: number, aroundWire: number) => {
+  const radius = 133 + 43 * Math.cos(aroundWire);
+  return [
+    260 + radius * Math.cos(aroundCore),
+    150 + .48 * radius * Math.sin(aroundCore) - 35 * Math.sin(aroundWire),
+  ];
+};
+const pathFor = (projectPoint: (t: number) => number[], steps: number) => Array.from({ length: steps + 1 }, (_, step) => {
+  const point = projectPoint(step / steps);
+  return (step === 0 ? "M" : "L") + point.map(value => value.toFixed(2)).join(" ");
+}).join("");
+const turns = Array.from({ length: 8 }, (_, index) =>
+  pathFor(t => project(.14 + index * .122 + .122 * t, -.58 + 3.40 * t), 30));
+const outsideLead = project(.14, -.58);
+const insideLead = project(.14 + 8 * .122, 2.82);
+const field = (first: number, last: number) => pathFor(t => {
+  const angle = first + (last - first) * t;
+  return [260 + 132 * Math.cos(angle), 137 + 56 * Math.sin(angle)];
+}, 36);
+---
+<svg class="magnetic-figure" viewBox="0 0 520 312" width="520" height="312"
+  role="img" aria-labelledby={id("title")} aria-describedby={id("description")}>
+  <title id={id("title")}>{names.title}</title>
+  <desc id={id("description")}>{names.description}</desc>
+  <defs>
+    <radialGradient id={id("background")} cx=".38" cy=".32" r=".74">
+      <stop stop-color="#223854" />
+      <stop offset="1" stop-color="#101b30" />
+    </radialGradient>
+    <linearGradient id={id("top")} x1=".1" y1="0" x2=".7" y2="1">
+      <stop stop-color="#abc8f1" />
+      <stop offset=".42" stop-color="#708ebb" />
+      <stop offset="1" stop-color="#50648c" />
+    </linearGradient>
+    <linearGradient id={id("front")} x2=".8" y2="1">
+      <stop stop-color="#56678d" />
+      <stop offset=".48" stop-color="#3c5177" />
+      <stop offset="1" stop-color="#293d63" />
+    </linearGradient>
+    <linearGradient id={id("wire")} x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#fff4d5" />
+      <stop offset=".44" stop-color="#ffbb80" />
+      <stop offset="1" stop-color="#df755d" />
+    </linearGradient>
+    <pattern id={id("grid")} width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#afc4e9" opacity=".12" />
+    </pattern>
+    <marker id={id("arrow")} markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0 10 5 0 10 3 5Z" fill="#b6f4ff" />
+    </marker>
+  </defs>
+
+  <rect width="520" height="312" rx="20" fill={paint("background")} />
+  <rect x="20" y="19" width="480" height="274" rx="13" fill={paint("grid")} />
+  <ellipse cx="259" cy="234" rx="170" ry="22" fill="#0b1526" opacity=".64" />
+
+  <path d="M84 143C84 185 163 220 260 220S436 185 436 143V165C436 208 357 244 260 244S84 208 84 165Z"
+    fill={paint("front")} stroke="#233552" stroke-width="2" />
+  <path d="M170 146C170 126 209 110 260 110S350 126 350 146V159C350 139 309 124 260 124S170 139 170 159Z"
+    fill={paint("front")} stroke="#2d4266" stroke-width="2" />
+  <path d="M84 143a176 77 0 1 0 352 0 176 77 0 1 0 -352 0ZM170 143a90 31 0 1 1 180 0 90 31 0 1 1 -180 0Z"
+    fill={paint("top")} fill-rule="evenodd" stroke="#7899c2" stroke-width="1.8" />
+  <path d="M102 165C124 194 188 215 260 215" fill="none" stroke="#e3ecff" stroke-opacity=".32" stroke-width="2" stroke-linecap="round" />
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d={"M" + outsideLead.join(" ") + "Q460 187 475 210"} stroke="#573541" stroke-width="8" />
+    <path d={"M" + outsideLead.join(" ") + "Q460 187 475 210"} stroke="#ffb678" stroke-width="4" />
+    <path d={"M" + insideLead.join(" ") + "Q315 148 311 149Q299 151 295 137"} stroke="#573541" stroke-width="7" />
+    <path d={"M" + insideLead.join(" ") + "Q315 148 311 149Q299 151 295 137"} stroke="#ffcb93" stroke-width="3.5" />
+    {turns.map((turn) => <path d={turn} stroke="#523548" stroke-width="9" />)}
+    {turns.map((turn) => <path d={turn} stroke={paint("wire")} stroke-width="5" />)}
+  </g>
+  <g fill="none" stroke="#b6f4ff" stroke-width="2.5" stroke-dasharray="5 6" stroke-linecap="round">
+    <path d={field(1.84, 2.91)} marker-end={paint("arrow")} />
+    <path d={field(3.24, 4.93)} marker-end={paint("arrow")} />
+  </g>
+  <text x="190" y="107" fill="#f5fbff" font-family="system-ui, sans-serif" font-size="18" font-weight="650" font-style="italic">B</text>
+</svg>
+<style>
+  .magnetic-figure { display: block; width: 100%; height: auto; }
+</style>

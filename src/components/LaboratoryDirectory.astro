@@ -1,37 +1,92 @@
 ---
 import DirectorySearch from "./DirectorySearch.astro";
 import TopicCover from "../catalogue/TopicCover";
-import { catalogueItems, showcaseLaboratories } from "../catalogue/catalog";
-import { localePath } from "../site-path";
+import { catalogueCategoryLabels, catalogueItems, showcaseLaboratories } from "../catalogue/catalog";
+import { scienceCatalog, type ScienceCategory } from "../science/models";
+import { localePath, withBasePath } from "../site-path";
 import type { Language } from "../types";
 
-interface Props { language: Language; home?: boolean }
-const { language, home = false } = Astro.props;
-const title = language === "ru" ? "Лаборатории" : "Лабораторії";
-const directoryLaboratories = catalogueItems.filter((lab) => lab.available && (lab.languages === undefined || lab.languages.includes(language)));
+interface Props { language: Language; home?: boolean; micro?: boolean; ownHeading?: boolean }
+const { language, home = false, micro = false, ownHeading = true } = Astro.props;
+const ru = language === "ru";
+const title = micro ? (ru ? "Микролаборатории" : "Мікролабораторії") : (ru ? "Лаборатории" : "Лабораторії");
+const launch = ru ? "Запустить" : "Запустити";
+const scienceLabels: Record<ScienceCategory, Record<Language, string>> = {
+  math: { ru: "Математика", uk: "Математика" },
+  mechanics: { ru: "Механика", uk: "Механіка" },
+  fluids: { ru: "Жидкости", uk: "Рідини" },
+  waves: { ru: "Волны", uk: "Хвилі" },
+  thermo: { ru: "Термодинамика", uk: "Термодинаміка" },
+  optics: { ru: "Оптика", uk: "Оптика" },
+};
+const scienceGroups = new Map(scienceCatalog.map(lab => [`science:${lab.id}`, lab.category]));
+const entries = (home ? showcaseLaboratories : catalogueItems)
+  .filter(lab => lab.available && (!micro || lab.source !== "advanced"))
+  .map((lab, index) => {
+    const scienceGroup = scienceGroups.get(lab.id);
+    const subject = lab.subject ?? lab.category;
+    return {
+      lab,
+      number: String(index + 1).padStart(2, "0"),
+      filter: scienceGroup && scienceGroup !== "waves" ? scienceGroup : subject,
+      label: scienceGroup ? scienceLabels[scienceGroup][language] : catalogueCategoryLabels[subject][language],
+    };
+  })
+  .filter(({ lab }) => lab.languages === undefined || lab.languages.includes(language));
+const categories = [...new Map(entries.map(({ filter, label }) => [filter, label]))]
+  .sort(([, left], [, right]) => left.localeCompare(right, language))
+  .map(([id, label]) => ({ id, label }));
 ---
-<section class="content-directory lab-directory" id="labs" aria-labelledby="lab-directory-title">
-  {home ? <h2 id="lab-directory-title">{title}</h2> : <h1 id="lab-directory-title">{title}</h1>}
-  {!home && <DirectorySearch {language} />}
+<section class:list={["content-directory lab-directory", { "lab-directory--home": home }]} id="labs" aria-labelledby="lab-directory-title">
+  {ownHeading && (home ? <h2 id="lab-directory-title">{title}</h2> : <h1 id="lab-directory-title">{title}</h1>)}
+  {!home && <DirectorySearch {language} {categories} />}
   <ul class="directory-grid" data-directory-group>
-    {(home ? showcaseLaboratories : directoryLaboratories).map(lab => {
+    {entries.map(({ lab, number, filter, label }, index) => {
       const href = localePath(language, lab.href);
-      const alias = showcaseLaboratories.find(featured => featured.id === lab.id)?.title[language];
-      return <li class="directory-card lab-directory-card" data-directory-entry data-directory-alias={alias}>
-        <a class="lab-directory-card-link" href={href} data-registered-content={href} aria-labelledby={`lab-${lab.id.replaceAll(":", "-")}-title`}>
-          <div aria-hidden="true"><TopicCover kind={lab.visual} /></div>
-          <h3 id={`lab-${lab.id.replaceAll(":", "-")}-title`}>{lab.title[language]}</h3>
-          {lab.description && <p id={`lab-${lab.id.replaceAll(":", "-")}-description`}>{lab.description[language]}</p>}
+      const featuredTitle = showcaseLaboratories.find(featured => featured.id === lab.id)?.title[language];
+      const alias = [lab.id, lab.description?.[language], featuredTitle].filter(Boolean).join(" ");
+      const labKey = lab.id.replace(":", "-");
+      const image = `/lab-illustrations/${labKey}`;
+      const titleId = `lab-${labKey}-title`;
+      const fragmentId = micro ? lab.id.replace(":", "=") : undefined;
+      return <li class="directory-card lab-directory-card"
+        data-directory-entry data-directory-search-text={lab.title[language]} data-directory-alias={alias} data-directory-category={filter}>
+        <a class="lab-directory-card-link" id={fragmentId} href={href} data-registered-content={href}
+          data-lab-card={home ? undefined : lab.id} aria-labelledby={titleId}>
+          {home ? <>
+            <div aria-hidden="true"><TopicCover kind={lab.visual} /></div>
+            <h3 id={titleId}>{lab.title[language]}</h3>
+            {lab.description && <p id={`lab-${labKey}-description`}>{lab.description[language]}</p>}
+          </> : <>
+            <div class="lab-card-subject"><span>{number}</span><span>{label}</span></div>
+            <img class="lab-card-illustration" src={withBasePath(`${image}-384.webp`)}
+              srcset={`${withBasePath(`${image}-384.webp`)} 384w, ${withBasePath(`${image}-768.webp`)} 768w`}
+              sizes="(min-width: 1500px) 23vw, (min-width: 1100px) 30vw, (min-width: 700px) 46vw, 94vw"
+              width="384" height="216" loading={index === 0 ? "eager" : "lazy"} decoding="async" alt="" />
+            <h3 id={titleId}>{lab.title[language]}</h3>
+            <span class="lab-card-action" aria-hidden="true"><span>{launch}</span><span>↗</span></span>
+          </>}
         </a>
       </li>;
     })}
   </ul>
 </section>
 <style>
-  .lab-directory .directory-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+  .lab-directory .directory-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  @media (min-width: 700px) { .lab-directory .directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .lab-directory .directory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1500px) { .lab-directory .directory-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .lab-directory--home .directory-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
   .lab-directory-card { padding: 0; }
-  .lab-directory-card-link { display: block; height: 100%; padding: .8rem; color: inherit; text-decoration: none; border-radius: .65rem; }
-  .lab-directory-card-link:hover, .lab-directory-card-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-  .lab-directory-card h3 { margin: .8rem 0 .25rem; font-size: 1.05rem; color: var(--accent); text-decoration: underline; }
+  .lab-directory-card-link { display: flex; flex-direction: column; height: 100%; padding: .8rem; color: inherit; text-decoration: none; border-radius: .65rem; }
+  .lab-directory-card-link { scroll-margin-top: 7rem; }
+  .lab-directory-card-link:hover, .lab-directory-card-link:focus-visible, .lab-directory-card-link:target { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .lab-directory-card h3 { margin: .75rem 0; font-size: 1.05rem; color: var(--accent); }
+  .lab-directory--home .lab-directory-card-link { display: block; }
+  .lab-directory--home .lab-directory-card h3 { margin: .8rem 0 .25rem; text-decoration: underline; }
   .lab-directory-card :global(.topic-cover) { width: 100%; height: 6rem; }
+  .lab-card-subject { display: flex; align-items: baseline; gap: .55rem; margin-bottom: .65rem; font-size: .83rem; color: var(--muted); }
+  .lab-card-subject > :first-child { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); }
+  .lab-card-illustration { display: block; width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; border-radius: .45rem; background: #101a31; }
+  .lab-card-action { display: inline-flex; align-items: center; justify-content: space-between; gap: .8rem; align-self: flex-start; margin-top: auto; padding: .5rem .75rem; background: var(--accent); color: var(--white, #fff); border-radius: .4rem; font-size: .85rem; font-weight: 650; }
 </style>

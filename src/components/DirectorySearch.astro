@@ -1,15 +1,24 @@
 ---
 import { navigationCopy } from "../learning/navigation-copy";
 import type { Language } from "../types";
-interface Props { language: Language; topics?: boolean }
-const { language, topics = false } = Astro.props;
+interface Props { language: Language; topics?: boolean; categories?: readonly { id: string; label: string }[] }
+const { language, topics = false, categories } = Astro.props;
 const copy = navigationCopy[language];
 const search = topics ? (language === "ru" ? "Поиск по темам" : "Пошук за темами") : copy.search;
 ---
-<label class="directory-search" hidden>
-  <span>{search}</span>
-  <input type="search" maxlength="120" data-directory-search />
-</label>
+<div class="directory-filters">
+  <label class="directory-search" hidden>
+    <span>{search}</span>
+    <input type="search" maxlength="120" data-directory-search />
+  </label>
+  {categories && <label class="directory-category" hidden>
+    <span>{language === "ru" ? "Направление" : "Напрям"}</span>
+    <select data-directory-category-filter>
+      <option value="all">{language === "ru" ? "Все направления" : "Усі напрями"}</option>
+      {categories.map(({ id, label }) => <option value={id}>{label}</option>)}
+    </select>
+  </label>}
+</div>
 <p role="status" data-directory-no-results hidden>{copy.noResults}</p>
 <script>
   function setUpDirectorySearch() {
@@ -17,17 +26,20 @@ const search = topics ? (language === "ru" ? "Поиск по темам" : "П�
       const directory = input.closest(".content-directory");
       const label = input.closest("label");
       if (!directory || !label || !label.hidden) continue;
+      const category = directory.querySelector<HTMLSelectElement>("[data-directory-category-filter]");
       const groups = directory.querySelectorAll<HTMLElement>("[data-directory-group]");
       const empty = directory.querySelector<HTMLElement>("[data-directory-no-results]");
       const search = () => {
         const query = input.value.trim().toLocaleLowerCase();
+        const selected = category?.value ?? "all";
         let anyMatch = false;
         for (const group of groups) {
           let groupMatch = false;
           const title = group.querySelector(":scope > summary, :scope > h2, :scope > h3")?.textContent?.toLocaleLowerCase() ?? "";
           for (const entry of group.querySelectorAll<HTMLElement>("[data-directory-entry]")) {
-            const terms = [entry.textContent, entry.dataset.directoryAlias].join(" ").toLocaleLowerCase();
-            const matches = title.includes(query) || terms.includes(query);
+            const terms = [entry.dataset.directorySearchText ?? entry.textContent, entry.dataset.directoryAlias].join(" ").toLocaleLowerCase();
+            const inCategory = selected === "all" || entry.dataset.directoryCategory === selected;
+            const matches = inCategory && (title.includes(query) || terms.includes(query));
             entry.hidden = !matches;
             groupMatch ||= matches;
           }
@@ -35,13 +47,21 @@ const search = topics ? (language === "ru" ? "Поиск по темам" : "П�
           if (query && groupMatch && group instanceof HTMLDetailsElement) group.open = true;
           anyMatch ||= groupMatch;
         }
-        if (empty) empty.hidden = anyMatch || !query;
+        if (empty) empty.hidden = anyMatch;
       };
       label.hidden = false;
+      category?.closest("label")?.removeAttribute("hidden");
       input.addEventListener("input", search);
+      category?.addEventListener("change", search);
       search();
     }
   }
   setUpDirectorySearch();
   document.addEventListener("astro:page-load", setUpDirectorySearch);
 </script>
+<style>
+  .directory-filters { display: flex; align-items: end; flex-wrap: wrap; gap: .65rem 1rem; }
+  .directory-category { display: grid; gap: .25rem; margin-bottom: 1rem; }
+  .directory-category[hidden] { display: none; }
+  .directory-category select { min-height: 44px; max-width: 100%; padding: .45rem .55rem; color: inherit; background: var(--surface, var(--white)); border: 1px solid var(--line); border-radius: .45rem; }
+</style>

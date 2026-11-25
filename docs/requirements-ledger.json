@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/electrotutor-20261125.spec.md",
       "specs/features/power-system.spec.md",
       "specs/features/circuit-engine.spec.md",
       "specs/features/engineering-showcase.spec.md",
@@ -144,6 +145,1014 @@
     "UNAVAILABLE"
   ],
   "rows": [
+    {
+      "requirement_ids": [
+        "EVAL-00"
+      ],
+      "domain": "Baseline",
+      "status": "VERIFIED",
+      "code": [
+        "scripts/validate-context-route.mjs",
+        "docs/evidence/electrotutor-20261125-baseline.md"
+      ],
+      "unit": [
+        "src/rolling/lab-model.test.ts",
+        "scripts/verify-beam-goldens.mjs"
+      ],
+      "integration": [
+        "scripts/full-verify.mjs",
+        "tests/fixtures/electrotutor-20261125-baseline.json"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
+      "runtime": "Исходный публичный и локальный контур",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-000.",
+      "gap": "Корневой baseline зафиксировал два исходных сбоя. Их устранение и итоговый зелёный прогон входят в EVAL-08.",
+      "action": "Перейти к ET-2511-001."
+    },
+    {
+      "requirement_ids": [
+        "UI-01"
+      ],
+      "domain": "Каталог",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-001.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
+    },
+    {
+      "requirement_ids": [
+        "UI-02"
+      ],
+      "domain": "Каталог",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-001.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
+    },
+    {
+      "requirement_ids": [
+        "EVAL-01"
+      ],
+      "domain": "Каталог",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LaboratoryDirectory.astro",
+        "src/components/DirectorySearch.astro",
+        "src/pages/[lang]/micro-labs.astro",
+        "public/lab-illustrations"
+      ],
+      "unit": [
+        "src/catalogue/catalog.test.ts",
+        "src/catalogue/hydration.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "scripts/build-site.mjs",
+        "src/learning/experiment-draft.ts",
+        "docs/TESTING.md"
+      ],
+      "e2e": [
+        "tests/e2e/laboratory-catalogue-20261125.spec.ts",
+        "tests/e2e/micro-labs.spec.ts",
+        "tests/e2e/science-micro-labs.spec.ts",
+        "tests/e2e/engineering-symbol-visual.spec.ts"
+      ],
+      "runtime": "Статические RU/UK каталоги и отдельные рабочие страницы.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-001.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №1 ждёт оригинал.",
+      "action": "Перейти к ET-2511-002."
+    },
+    {
+      "requirement_ids": [
+        "UI-03"
+      ],
+      "domain": "Главная",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-002.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
+    },
+    {
+      "requirement_ids": [
+        "UI-04"
+      ],
+      "domain": "Главная",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-002.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
+    },
+    {
+      "requirement_ids": [
+        "EVAL-02"
+      ],
+      "domain": "Главная",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
+      "observability": "Команды, результаты и артефакты в ET-2511-002.",
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
+    },
+    {
+      "requirement_ids": [
+        "ENG-01"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-session.ts",
+        "src/circuit/topology.ts"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "ENG-02"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-slots.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "ENG-03"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-operations.ts",
+        "src/circuit/topology-branch-removal.ts"
+      ],
+      "unit": [
+        "src/circuit/topology-operations.test.ts",
+        "src/circuit/topology-branch-removal.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "ENG-04"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-junctions.ts",
+        "src/components/line-junction-placement.ts"
+      ],
+      "unit": [
+        "src/circuit/topology-junctions.test.ts",
+        "src/components/line-junction-placement.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "ENG-05"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/line-experiment-layout.ts",
+        "src/components/line-slot-geometry.ts"
+      ],
+      "unit": [
+        "src/components/line-junction-placement.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "ENG-06"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LineExperimentEditor.tsx",
+        "src/circuit/topology-session.ts"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-03"
+      ],
+      "domain": "Редактор схем",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-session.ts",
+        "src/circuit/TopologyWorkbench.tsx"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, последующие правки, восстановление намеренного разрыва и задержка загрузки обработчика.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-003.",
+      "gap": "Текстовые проверки пройдены. Точное визуальное сравнение ждёт исходные изображения №3, 4 и 6.",
+      "action": "ET-2511-003 · Общие операции топологии и компоновка"
+    },
+    {
+      "requirement_ids": [
+        "TL-01"
+      ],
+      "domain": "Длинная линия",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-004.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
+      "action": "ET-2511-004 · Переходная длинная линия"
+    },
+    {
+      "requirement_ids": [
+        "TL-02"
+      ],
+      "domain": "Длинная линия",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-004.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
+      "action": "ET-2511-004 · Переходная длинная линия"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-04"
+      ],
+      "domain": "Длинная линия",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-004.",
+      "gap": "Точное визуальное сравнение ждёт исходное изображение №3.",
+      "action": "ET-2511-004 · Переходная длинная линия"
+    },
+    {
+      "requirement_ids": [
+        "LC-01"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-02"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-03"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/lc-rule-registry.ts"
+      ],
+      "unit": [
+        "src/circuit/lc-rule-registry.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-04"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-05"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-06"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LcTransformationResults.tsx",
+        "src/circuit/lc-synthesis-document.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "LC-07"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LcSynthesisSchematic.tsx",
+        "src/components/CauerResults.tsx",
+        "src/components/FosterResults.tsx"
+      ],
+      "unit": [
+        "src/components/LcSynthesisSchematic.test.tsx"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-05"
+      ],
+      "domain": "LC-синтез",
+      "status": "VERIFIED",
+      "code": [
+        "src/models/lc-synthesis-equivalence.ts",
+        "src/models/reactive-lc-graph.ts"
+      ],
+      "unit": [
+        "src/models/lc-synthesis-equivalence.test.ts"
+      ],
+      "integration": [
+        "src/circuit/lc-synthesis-document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/lc-synthesis-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, строгий расчёт, архив и браузерный EVAL-05.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-005.",
+      "gap": "Численные проверки выполнены на независимых номиналах. Для сверки композиции нужны исходные изображения №4–6.",
+      "action": "ET-2511-005 · Строгий синтез LC-двухполюсников"
+    },
+    {
+      "requirement_ids": [
+        "SEQ-01"
+      ],
+      "domain": "Трёхфазные цепи",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/contract.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-006.",
+      "gap": "none",
+      "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
+    },
+    {
+      "requirement_ids": [
+        "SEQ-02"
+      ],
+      "domain": "Трёхфазные цепи",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/document.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-006.",
+      "gap": "none",
+      "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
+    },
+    {
+      "requirement_ids": [
+        "SEQ-03"
+      ],
+      "domain": "Трёхфазные цепи",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/solve.ts",
+        "src/sequence/matrix.ts"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-006.",
+      "gap": "none",
+      "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
+    },
+    {
+      "requirement_ids": [
+        "SEQ-04"
+      ],
+      "domain": "Трёхфазные цепи",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/SequenceDiagrams.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-006.",
+      "gap": "none",
+      "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-06"
+      ],
+      "domain": "Трёхфазные цепи",
+      "status": "VERIFIED",
+      "code": [
+        "src/sequence/solve.ts",
+        "src/components/SequenceLab.tsx"
+      ],
+      "unit": [
+        "src/sequence/solve.test.ts",
+        "src/sequence/reference.test.ts",
+        "src/components/SequenceDiagrams.test.tsx"
+      ],
+      "integration": [
+        "src/sequence/document.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/three-phase-sequences.e2e.ts"
+      ],
+      "runtime": "Локальные сборки education/full, независимый фазный оракул, браузерный EVAL-06 RU/UK.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-006.",
+      "gap": "none",
+      "action": "ET-2511-006 · Продольная и поперечная трёхфазная несимметрия"
+    },
+    {
+      "requirement_ids": [
+        "GEO-01"
+      ],
+      "domain": "Геометрия качения",
+      "status": "VERIFIED",
+      "code": [
+        "src/rolling/trace-spline.ts",
+        "src/rolling/feasibility.mjs",
+        "src/rolling/rolling.worker.ts",
+        "src/components/RollingLab.tsx"
+      ],
+      "unit": [
+        "src/rolling/trace-spline.test.ts",
+        "src/rolling/feasibility-adaptive.test.mjs"
+      ],
+      "integration": [
+        "src/rolling/rolling-trajectories.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/rolling-adaptive-20261125.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
+      "runtime": "Локальный Worker, WebGL и 2D, независимые геометрические и численные проверки.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-007.",
+      "gap": "Браузерные замеры на локальном Chromium со SwiftShader.",
+      "action": "ET-2511-007 · Качение тела по заданному следу"
+    },
+    {
+      "requirement_ids": [
+        "GEO-02"
+      ],
+      "domain": "Геометрия качения",
+      "status": "VERIFIED",
+      "code": [
+        "src/rolling/trace-spline.ts",
+        "src/rolling/feasibility.mjs",
+        "src/rolling/rolling.worker.ts",
+        "src/components/RollingLab.tsx"
+      ],
+      "unit": [
+        "src/rolling/trace-spline.test.ts",
+        "src/rolling/feasibility-adaptive.test.mjs"
+      ],
+      "integration": [
+        "src/rolling/rolling-trajectories.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/rolling-adaptive-20261125.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
+      "runtime": "Локальный Worker, WebGL и 2D, независимые геометрические и численные проверки.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-007.",
+      "gap": "Браузерные замеры на локальном Chromium со SwiftShader.",
+      "action": "ET-2511-007 · Качение тела по заданному следу"
+    },
+    {
+      "requirement_ids": [
+        "GEO-03"
+      ],
+      "domain": "Геометрия качения",
+      "status": "VERIFIED",
+      "code": [
+        "src/rolling/trace-spline.ts",
+        "src/rolling/feasibility.mjs",
+        "src/rolling/rolling.worker.ts",
+        "src/components/RollingLab.tsx"
+      ],
+      "unit": [
+        "src/rolling/trace-spline.test.ts",
+        "src/rolling/feasibility-adaptive.test.mjs"
+      ],
+      "integration": [
+        "src/rolling/rolling-trajectories.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/rolling-adaptive-20261125.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
+      "runtime": "Локальный Worker, WebGL и 2D, независимые геометрические и численные проверки.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-007.",
+      "gap": "Браузерные замеры на локальном Chromium со SwiftShader.",
+      "action": "ET-2511-007 · Качение тела по заданному следу"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-07"
+      ],
+      "domain": "Геометрия качения",
+      "status": "VERIFIED",
+      "code": [
+        "src/rolling/trace-spline.ts",
+        "src/rolling/feasibility.mjs",
+        "src/rolling/rolling.worker.ts",
+        "src/components/RollingLab.tsx"
+      ],
+      "unit": [
+        "src/rolling/trace-spline.test.ts",
+        "src/rolling/feasibility-adaptive.test.mjs"
+      ],
+      "integration": [
+        "src/rolling/rolling-trajectories.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/rolling-adaptive-20261125.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
+      "runtime": "Локальный Worker, WebGL и 2D, независимые геометрические и численные проверки.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, результаты и артефакты в ET-2511-007.",
+      "gap": "Браузерные замеры на локальном Chromium со SwiftShader.",
+      "action": "ET-2511-007 · Качение тела по заданному следу"
+    },
+    {
+      "requirement_ids": [
+        "EVAL-08"
+      ],
+      "domain": "Релиз",
+      "status": "BLOCKED",
+      "code": [
+        "scripts/full-verify.mjs",
+        ".github/workflows/lab-eval.yml",
+        ".github/workflows/pages.yml"
+      ],
+      "unit": [
+        "src/security/playwright-discovery.test.ts",
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "scripts/lab-eval.mjs",
+        "scripts/check-base-path.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/education-release.spec.ts",
+        "tests/lab-acceptance/topology-workbench.e2e.ts"
+      ],
+      "runtime": "Локальные проверки пройдены. Отдельные корневой, education и артефакт под префиксом проверены.",
+      "security": "Границы действующих публичных маршрутов и локальных архивов.",
+      "a11y": "Применяется контракт затронутой лаборатории.",
+      "observability": "Команды, артефакты и release gate в docs/TESTING.md и docs/STAGES.md.",
+      "gap": "ET-2511-REL-02: push отклонён системной политикой. После появления ветки на origin требуются PR, CI и smoke новой опубликованной версии.",
+      "action": "ET-2511-008 · Интеграционная и релизная проверка"
+    },
     {
       "requirement_ids": [
         "FR-601",

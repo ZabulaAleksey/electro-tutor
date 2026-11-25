@@ -1,13 +1,17 @@
+import { readExactLcNominal } from "../models/lc-nominal";
 import { readSchematicGeometry, type SchematicGeometry } from "./schematic-geometry";
 import { maxCircuitFileBytes } from "./document";
 import { optionalPartParameters, parts, validPartParameter, type PartKind } from "./drawing";
 import { moveSeriesEquivalent, reduceTopologyRlc } from "./topology-equivalence";
 import { createCrossSlot, insertTopologyComponent, listTopologySlots, resolveTopologySlot, type TopologySide, type TopologySlot } from "./topology-slots";
-import { validateCircuit, type CircuitComponent, type CircuitTopology } from "./topology";
+import { removeDevicePreservingNets, validateCircuit, type CircuitComponent, type CircuitTopology, type CircuitWire } from "./topology";
+import { removeParallelBranch } from "./topology-branch-removal";
+import { breakTopologyWire, clearTopologyDevices, matchingOpenWire, planSeriesBypass, restoreTopologyWire } from "./topology-operations";
 
 export type TopologyLabDocument = Readonly<{
   kind: "electrotutor-topology-lab";
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
+  brokenWires?: readonly CircuitWire[];
   topology: CircuitTopology;
   observedEndpoints: readonly string[];
   geometry?: SchematicGeometry;
@@ -16,7 +20,10 @@ export type TopologyLabDocument = Readonly<{
 
 export type TopologyCommand =
   | { type: "insert"; slot: TopologySlot; component: CircuitComponent }
-  | { type: "move-series-equivalent"; slot: Extract<TopologySlot, { kind: "series" }>; componentId: string; extra: number };
+  | { type: "move-series-equivalent"; slot: Extract<TopologySlot, { kind: "series" }>; componentId: string; extra: number }
+  | { type: "remove"; componentId: string; mode: "device" | "branch" | "conductor"; protectedEndpoints?: readonly string[]; preserveObservations?: boolean; allowPortShort?: boolean }
+  | { type: "break-wire" | "restore-wire"; wireId: string }
+  | { type: "clear"; retainedIds: readonly string[] };
 
 const historyLimit = 64;
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -32,11 +39,14 @@ function checkBytes(text: string) {
 }
 
 function checkComponent(part: CircuitComponent) {
-  if (!Object.hasOwn(parts, part.kind) || part.terminals.length !== 2) {
+  const fourTerminalLine = part.kind === "line" && part.terminals.length === 4
+    && ["a", "b", "return-in", "return-out"].every((role, index) => part.terminals[index] === part.id + ":" + role);
+  if (!Object.hasOwn(parts, part.kind) || (part.terminals.length !== 2 && !fourTerminalLine)) {
     throw Error("unsupported-component");
   }
   const defaults = parts[part.kind as PartKind].parameters as Record<string, unknown>;
-  const entries = Object.entries(part.parameters);
+  readExactLcNominal(part);
+  const entries = Object.entries(part.parameters).filter(([key]) => key !== "lcExact");
   if (Object.keys(defaults).some((key) => !optionalPartParameters.has(key) && !Object.hasOwn(part.parameters, key))
     || entries.some(([key, value]) => !Object.hasOwn(defaults, key) || typeof value !== typeof defaults[key]
       || (typeof value === "number" && !validPartParameter(key, value)))) {
@@ -44,12 +54,52 @@ function checkComponent(part: CircuitComponent) {
   }
 }
 
+function normalizedOpenWires(input: Record<string, unknown>, graph: CircuitTopology): CircuitWire[] {
+  if (input.schemaVersion === 1) return [];
+  const stored = input.brokenWires;
+  if (!Array.isArray(stored) || !stored.length || stored.length + graph.wires.length > 800) {
+    throw Error("invalid-broken-wires");
+  }
+  const opened = (stored as unknown[]).map(item => {
+    if (!isRecord(item) || Object.keys(item).length !== 3
+      || typeof item.id !== "string" || typeof item.from !== "string" || typeof item.to !== "string") {
+      throw Error("invalid-broken-wire");
+    }
+    return { id: item.id, from: item.from, to: item.to };
+  });
+  if (validateCircuit({ ...graph, wires: [...graph.wires, ...opened] }).length) throw Error("invalid-broken-wire");
+  return opened.sort(byId);
+}
+
+// Insertion into a live graph can allocate the numeric ID of a broken wire.
+// Keep reserved IDs with their breaks until the original wire is restored or removed.
+export function avoidReservedWireIds(document: TopologyLabDocument, graph: CircuitTopology): CircuitTopology {
+  if (!document.brokenWires?.length) return graph;
+  const reserved = new Set(document.brokenWires.map(wire => wire.id));
+  if (!graph.wires.some(wire => reserved.has(wire.id))) return graph;
+  const used = new Set([
+    ...reserved, ...graph.wires.map(wire => wire.id), ...graph.junctions,
+    ...graph.components.flatMap(part => [part.id, ...part.terminals]),
+  ]);
+  let number = 1;
+  const wires = graph.wires.map(wire => {
+    if (!reserved.has(wire.id)) return wire;
+    while (used.has("W" + number)) number++;
+    const id = "W" + number++;
+    used.add(id);
+    return { ...wire, id };
+  });
+  return { ...graph, wires };
+}
+
 function validatedDocument(input: unknown): TopologyLabDocument {
-  if (!isRecord(input) || input.kind !== "electrotutor-topology-lab" || input.schemaVersion !== 1) {
+  if (!isRecord(input) || input.kind !== "electrotutor-topology-lab" || (input.schemaVersion !== 1 && input.schemaVersion !== 2)) {
     throw Error("unsupported-version");
   }
   const { topology, observedEndpoints, attachmentSides } = input;
-  if (Object.keys(input).length !== (Object.hasOwn(input, "geometry") ? 6 : 5) || !Array.isArray(observedEndpoints) || !Array.isArray(attachmentSides)
+  const fields = ["kind", "schemaVersion", "topology", "observedEndpoints", "attachmentSides", "geometry"];
+  if (input.schemaVersion === 2) fields.push("brokenWires");
+  if (Object.keys(input).some(key => !fields.includes(key)) || !Array.isArray(observedEndpoints) || !Array.isArray(attachmentSides)
     || validateCircuit(topology).length) {
     throw Error("invalid-topology-document");
   }
@@ -62,6 +112,8 @@ function validatedDocument(input: unknown): TopologyLabDocument {
     throw Error("invalid-topology-document");
   }
   graph.components.forEach(checkComponent);
+  const opened = normalizedOpenWires(input, graph);
+  const drawingGraph = opened.length ? { ...graph, wires: [...graph.wires, ...opened] } : graph;
   const endpoints = new Set([...graph.junctions, ...graph.components.flatMap((part) => part.terminals)]);
   const componentIds = new Set(graph.components.map(({ id }) => id));
   if (!observedEndpoints.every((id: unknown): id is string => typeof id === "string" && endpoints.has(id))
@@ -88,10 +140,11 @@ function validatedDocument(input: unknown): TopologyLabDocument {
   });
   const document: TopologyLabDocument = Object.freeze({
     kind: "electrotutor-topology-lab",
-    schemaVersion: 1,
+    schemaVersion: input.schemaVersion,
     topology: normalizedGraph,
+    ...(opened.length ? { brokenWires: Object.freeze(opened.map(wire => Object.freeze(wire))) } : {}),
     observedEndpoints: Object.freeze([...observedEndpoints].sort(compare)),
-    ...(input.geometry === undefined ? {} : { geometry: readSchematicGeometry(input.geometry, graph) }),
+    ...(input.geometry === undefined ? {} : { geometry: readSchematicGeometry(input.geometry, drawingGraph) }),
     attachmentSides: Object.freeze(hints.sort((a, b) => compare(a.componentId, b.componentId))),
   });
   checkBytes(JSON.stringify(document, null, 2));
@@ -132,23 +185,68 @@ export class TopologySession {
     const { topology, observedEndpoints, attachmentSides } = this.#document;
     let next = topology;
     let sides = attachmentSides;
+    let opened = this.#document.brokenWires ?? [];
+    let geometry = this.#document.geometry;
     if (command.type === "insert") {
-      next = insertTopologyComponent(topology, command.slot, command.component, observedEndpoints);
+      next = avoidReservedWireIds(this.#document, insertTopologyComponent(topology, command.slot, command.component, observedEndpoints));
       if (command.slot.kind === "parallel") {
         sides = [...sides, { componentId: command.component.id, side: command.slot.side }];
       }
     } else if (command.type === "move-series-equivalent") {
       const target = resolveTopologySlot(topology, command.slot, observedEndpoints);
       if (target.kind !== "series") throw Error("invalid-series-slot");
-      next = moveSeriesEquivalent(topology, command.componentId, target.wireId, command.extra, observedEndpoints);
+      next = avoidReservedWireIds(this.#document, moveSeriesEquivalent(topology, command.componentId, target.wireId, command.extra, observedEndpoints));
       if (next.wires !== topology.wires) {
         sides = sides.filter(({ componentId }) => componentId !== command.componentId);
       }
+    } else if (command.type === "remove") {
+      const removed = topology.components.find(part => part.id === command.componentId);
+      if (!removed) return;
+      const observed = command.preserveObservations ? observedEndpoints : [];
+      const reserved = opened.map(wire => wire.id);
+      if (command.mode === "conductor") {
+        const planned = planSeriesBypass(topology, command.componentId, command.protectedEndpoints ?? observedEndpoints, command.allowPortShort);
+        const restored = matchingOpenWire(opened, planned.wire);
+        next = restoreTopologyWire(planned.topology, restored ?? planned.wire);
+        if (restored) opened = opened.filter(wire => wire.id !== restored.id);
+      } else if (command.mode === "branch") {
+        next = removeParallelBranch(topology, command.componentId, observedEndpoints, reserved);
+      } else {
+        next = removeDevicePreservingNets(topology, command.componentId, observed, reserved);
+      }
+      const survivingIds = new Set(next.components.map(({ id }) => id));
+      sides = sides.filter(({ componentId }) => survivingIds.has(componentId));
+      // After a deletion compact the active chain without the cached gap left by the device.
+      geometry = undefined;
+    } else if (command.type === "break-wire") {
+      const cut = breakTopologyWire(topology, command.wireId);
+      next = cut.topology;
+      opened = [...opened, cut.wire];
+    } else if (command.type === "restore-wire") {
+      const wire = opened.find(item => item.id === command.wireId);
+      if (!wire) throw Error("unknown-broken-wire");
+      next = restoreTopologyWire(topology, wire);
+      opened = opened.filter(item => item.id !== wire.id);
+    } else if (command.type === "clear") {
+      next = clearTopologyDevices(topology, command.retainedIds);
+      sides = [];
+      opened = [];
+      geometry = undefined;
     } else {
       throw Error("unsupported-topology-command");
     }
 
-    const updated = validatedDocument({ ...this.#document, topology: next, attachmentSides: sides });
+    const endpoints = new Set([...next.junctions, ...next.components.flatMap(part => part.terminals)]);
+    opened = opened.filter(wire => endpoints.has(wire.from) && endpoints.has(wire.to));
+    const updated = validatedDocument({
+      kind: this.#document.kind,
+      schemaVersion: opened.length ? 2 : 1,
+      topology: next,
+      observedEndpoints: observedEndpoints.filter(endpoint => endpoints.has(endpoint)),
+      attachmentSides: sides,
+      ...(geometry ? { geometry } : {}),
+      ...(opened.length ? { brokenWires: opened } : {}),
+    });
     if (JSON.stringify(updated) === JSON.stringify(this.#document)) return;
     this.#past.push(this.#document);
     if (this.#past.length > historyLimit) this.#past.shift();

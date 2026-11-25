@@ -1,4 +1,4 @@
-import { abs, add, multiply, reduce, type Fraction, type Polynomial } from "./lc-polynomial";
+import { abs, add, bigintRatio, multiply, ratioAt, reduce, type Fraction, type Polynomial } from "./lc-polynomial";
 export type { Fraction } from "./lc-polynomial";
 
 /** Ideal LC series/parallel tree. q = s / 1000; coefficients are exact integers. */
@@ -76,7 +76,17 @@ function positiveRoots(p:Polynomial):number[]{
  const lead=p.at(-1)!;
  // A degree-aware upper bound keeps the root search local when coefficients span many orders.
  const degree=p.length-1;
- const upper=2*Math.max(1,...p.slice(0,-1).map((c,i)=>Math.abs(Number(c)/Number(lead))**(1/(degree-i))));
+ const logarithmicMagnitude = (coefficient: bigint) => {
+  const digits = abs(coefficient).toString();
+  const prefix = digits.slice(0, 16);
+  return Math.log(Number(prefix)) + (digits.length - prefix.length) * Math.LN10;
+ };
+ const limit = (coefficient: bigint, i: number) => {
+  const ratio = Math.abs(bigintRatio(coefficient, lead));
+  return Number.isFinite(ratio) ? ratio ** (1 / (degree - i))
+   : Math.exp((logarithmicMagnitude(coefficient) - logarithmicMagnitude(lead)) / (degree - i));
+ };
+ const upper = Math.min(Number.MAX_VALUE, 2 * Math.max(1, ...p.slice(0, -1).map(limit)));
  const derivative=p.slice(1).map((c,i)=>c*BigInt(i+1));
  const cuts=[0,...positiveRoots(derivative).filter(x=>x<upper),upper],roots:number[]=[];
  for(let i=1;i<cuts.length;i++){
@@ -104,7 +114,11 @@ export function resonances(z:Fraction):Resonance[]{
 export function reactance(z:Fraction,omega:number){
  const w=omega/1000;
  const inductive=parity(z.numerator)===1;
- return (inductive?w:-1/w)*evaluate(atImaginarySquare(z.numerator),w*w)/evaluate(atImaginarySquare(z.denominator),w*w);
+ const numerator = atImaginarySquare(z.numerator), denominator = atImaginarySquare(z.denominator);
+ const frequency = w * w;
+ const n = evaluate(numerator, frequency), d = evaluate(denominator, frequency);
+ const quotient = Number.isFinite(n) && Number.isFinite(d) ? n / d : ratioAt(numerator, denominator, frequency);
+ return (inductive ? w : -1 / w) * quotient;
 }
 export function limits(z:Fraction){
  return {dc:parity(z.numerator)?"zero":"pole", high:z.numerator.length>z.denominator.length?"pole":"zero"} as const;
@@ -123,6 +137,6 @@ export function factorText(z:Fraction,roots:Resonance[],format:(x:number)=>strin
   const factors=roots.filter(r=>r.kind===kind).map(r=>`(q² + ${format((r.omega/1000)**2)})`);
   return [...(parity(p)?["q"]:[]),...factors].join(" · ")||"1";
  };
- const gain=Number(z.numerator.at(-1)!)/Number(z.denominator.at(-1)!);
+ const gain = bigintRatio(z.numerator.at(-1)!, z.denominator.at(-1)!);
  return `${format(gain)} · ${term("zero",z.numerator)} / [${term("pole",z.denominator)}]`;
 }

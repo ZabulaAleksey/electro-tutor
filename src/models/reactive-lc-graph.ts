@@ -4,13 +4,16 @@ import {
   type Fraction, type Polynomial,
 } from "./lc-polynomial";
 import { isNominal } from "./reactive-two-port";
+import { readExactLcNominal, type LcTicks } from "./lc-nominal";
+export type { LcTicks } from "./lc-nominal";
 
 export const MAX_LC_GRAPH_COMPONENTS = 24;
 export const MAX_LC_GRAPH_NETS = 12;
 
-export type LcTicks = { numerator: bigint; denominator: bigint };
-
-export function lcNominalTicks({ kind, parameters }: CircuitComponent): LcTicks {
+export function lcNominalTicks(part: CircuitComponent): LcTicks {
+  const exact = readExactLcNominal(part);
+  if (exact) return exact;
+  const { kind, parameters } = part;
   const value = kind === "l" ? parameters.henry : parameters.farad;
   const nominal = typeof value === "number" ? value * (kind === "l" ? 1000 : 1_000_000) : undefined;
   if (!isNominal(nominal)) throw Error("invalid-lc-value");

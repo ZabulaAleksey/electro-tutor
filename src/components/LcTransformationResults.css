@@ -1,0 +1,19 @@
+.lc-transformations { min-width: 0; }
+.lc-transformations article { border-top: 1px solid var(--line); padding-block: .8rem; }
+.lc-transformations h3 { margin-top: 1rem; }
+.lc-transformations h4 { margin-block: .25rem; }
+.lc-transformations button { min-height: 44px; }
+.lc-transform-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.lc-transform-snapshot { margin: 0; min-width: 0; }
+.lc-transform-snapshot svg { display: block; width: 100%; max-height: 22rem; stroke: var(--ink); fill: none; }
+.lc-transform-snapshot text { fill: var(--ink); stroke: none; font-size: 16px; }
+.lc-transform-snapshot circle { fill: var(--surface, #fff); }
+.lc-transform-snapshot .lc-transform-highlight { stroke: var(--accent); stroke-width: 2.5; }
+.lc-transform-snapshot .lc-transform-highlight text { fill: var(--accent); font-weight: 700; }
+.lc-transform-equations { padding-inline-start: 1.3rem; }
+.lc-transform-equations li { overflow-wrap: anywhere; }
+.lc-transform-fraction { display: flex; align-items: center; gap: .5rem; max-width: 100%; }
+.lc-transform-fraction > span:last-child { display: grid; text-align: center; overflow-wrap: anywhere; min-width: 0; }
+.lc-transform-fraction > span:last-child > span { padding: .15rem .4rem; }
+.lc-transform-fraction > span:last-child > span:first-child { border-bottom: 1px solid currentColor; }
+@media (max-width: 620px) { .lc-transform-pair { grid-template-columns: minmax(0, 1fr); } }

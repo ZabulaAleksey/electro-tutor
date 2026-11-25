@@ -1,0 +1,183 @@
+---
+type Circuit = "ac" | "three-phase" | "transients" | "nonlinear" | "unbalanced" | "long-line";
+
+interface Props {
+  language: "ru" | "uk";
+  kind: Circuit;
+}
+
+const { language, kind } = Astro.props;
+const descriptions: Record<Circuit, { ru: string; uk: string }> = {
+  ac: {
+    ru: "Источник переменного напряжения, резистор, катушка и конденсатор соединены последовательно.",
+    uk: "Джерело змінної напруги, резистор, котушка й конденсатор з’єднані послідовно.",
+  },
+  "three-phase": {
+    ru: "Три равных резистора подключены к фазам A, B и C. Нейтральный провод соединяет звёздные точки источника и нагрузки.",
+    uk: "Три однакові резистори підключено до фаз A, B та C. Нейтральний провід з’єднує точки зірки джерела й навантаження.",
+  },
+  transients: {
+    ru: "Замыкание ключа подключает источник постоянного напряжения к последовательной цепи из резистора и конденсатора.",
+    uk: "Замикання ключа підключає джерело постійної напруги до послідовного кола з резистора та конденсатора.",
+  },
+  nonlinear: {
+    ru: "Источник постоянного напряжения, резистор и диод в прямом включении образуют один контур.",
+    uk: "Джерело постійної напруги, резистор і діод у прямому ввімкненні утворюють один контур.",
+  },
+  unbalanced: {
+    ru: "Три фазных резистора образуют несимметричную звезду. Нейтраль между источником и нагрузкой разомкнута.",
+    uk: "Три фазні резистори утворюють несиметричну зірку. Нейтраль між джерелом і навантаженням розімкнена.",
+  },
+  "long-line": {
+    ru: "Источник с последовательным согласованием подключён к двухпроводной линии с резистивной нагрузкой. Падающая и отражённая волны идут в противоположных направлениях.",
+    uk: "Джерело з послідовним узгодженням підключено до двопровідної лінії з резистивним навантаженням. Падаюча й відбита хвилі поширюються в протилежних напрямах.",
+  },
+};
+
+const id = (name: string) => "home-circuit-" + kind + "-" + language + "-" + name;
+const link = (name: string) => "#" + id(name);
+const paint = (name: string) => "url(" + link(name) + ")";
+const isolated = kind === "unbalanced";
+const phases = [
+  { letter: "A", y: 72, color: "#ffb688" },
+  { letter: "B", y: 132, color: "#83dcf7" },
+  { letter: "C", y: 192, color: "#bea8ff" },
+];
+---
+<svg class="example-circuit" data-schematic={kind} viewBox="0 0 520 312" width="520" height="312"
+  role="img" fill="#f1f6ff" aria-labelledby={id("title")}>
+  <title id={id("title")}>{descriptions[kind][language]}</title>
+  <defs>
+    <radialGradient id={id("background")} cx=".38" cy=".32" r=".74">
+      <stop stop-color="#223854" />
+      <stop offset="1" stop-color="#101b30" />
+    </radialGradient>
+    <pattern id={id("grid")} width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#afc4e9" opacity=".12" />
+    </pattern>
+    <marker id={id("forward")} markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0 10 5 0 10 3 5Z" fill="#76e6ff" />
+    </marker>
+    <marker id={id("reverse")} markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0 10 5 0 10 3 5Z" fill="#ffb688" />
+    </marker>
+
+    <g id={id("resistor")} class="symbol">
+      <path d="M-34 0H-23M23 0H34" />
+      <rect x="-23" y="-10" width="46" height="20" rx="2" fill="#172640" />
+    </g>
+    <g id={id("coil")} class="symbol">
+      <path d="M-34 0H-24a6 9 0 0 1 12 0 6 9 0 0 1 12 0 6 9 0 0 1 12 0 6 9 0 0 1 12 0H34" />
+    </g>
+    <g id={id("capacitor")} class="symbol">
+      <path d="M-34 0H-6M6 0H34M-6-14V14M6-14V14" />
+    </g>
+    <g id={id("switch")} class="symbol">
+      <path d="M-34 0H-23M23 0H34M-18-2 18-20" />
+      <circle cx="-18" r="4" fill="#172640" />
+      <circle cx="18" r="4" fill="#172640" />
+    </g>
+    <g id={id("diode")} class="symbol">
+      <path d="M-34 0H-14M13 0H34M13-14V14" />
+      <path d="M-14-13 13 0-14 13Z" fill="#172640" />
+    </g>
+    <g id={id("dc-source")} class="symbol">
+      <path d="M0-35V-23M0 23V35" />
+      <circle r="23" fill="#172640" />
+      <path d="M-6-8H6M0-14V-2M-6 9H6" />
+    </g>
+    <g id={id("ac-source")} class="symbol">
+      <path d="M-34 0H-19M19 0H34" />
+      <circle r="19" fill="#172640" />
+      <path d="M-11 0q5-10 11 0t11 0" />
+    </g>
+  </defs>
+
+  <rect width="520" height="312" rx="20" fill={paint("background")} />
+  <rect x="20" y="19" width="480" height="274" rx="13" fill={paint("grid")} />
+
+  {kind === "ac" && <g>
+    <path class="rail" d="M102 131V100H169M237 100H270M338 100H373M441 100H459V225H102V199" />
+    <use href={link("ac-source")} transform="translate(102 165) rotate(90)" color="#83dcf7" />
+    <use href={link("resistor")} x="203" y="100" color="#ffb688" />
+    <use href={link("coil")} x="304" y="100" color="#83dcf7" />
+    <use href={link("capacitor")} x="407" y="100" color="#bea8ff" />
+    <text x="203" y="67">R</text>
+    <text x="304" y="67">L</text>
+    <text x="407" y="67">C</text>
+  </g>}
+
+  {kind === "transients" && <g>
+    <path class="rail" d="M102 130V100H169M237 100H270M338 100H457V131M457 199V225H102V200" />
+    <use href={link("dc-source")} x="102" y="165" color="#ffb688" />
+    <use href={link("switch")} x="203" y="100" color="#83dcf7" />
+    <use href={link("resistor")} x="304" y="100" color="#ffb688" />
+    <use href={link("capacitor")} transform="translate(457 165) rotate(90)" color="#bea8ff" />
+    <text x="203" y="60">K</text>
+    <text x="304" y="67">R</text>
+    <text x="421" y="173">C</text>
+  </g>}
+
+  {kind === "nonlinear" && <g>
+    <path class="rail" d="M102 130V100H195M263 100H313M381 100H459V225H102V200" />
+    <use href={link("dc-source")} x="102" y="165" color="#83dcf7" />
+    <use href={link("resistor")} x="229" y="100" color="#ffb688" />
+    <use href={link("diode")} x="347" y="100" color="#bea8ff" />
+    <text x="229" y="67">R</text>
+    <text x="347" y="67">D</text>
+  </g>}
+
+  {(kind === "three-phase" || isolated) && <g>
+    {phases.map(({ letter, y, color }) => (
+      <g data-phase={letter}>
+        <path class="rail" d={"M96 132 137 " + y + "H141M209 " + y + "H318M386 " + y + "H393L427 132"} />
+        <use href={link("ac-source")} x="175" y={y} {color} />
+        <use href={link("resistor")} x="352" y={y} {color} />
+        <text x="263" y={y - 9} fill={color}>{letter}</text>
+        <text x="352" y={y - 22}>R<tspan baseline-shift="sub" font-size="11">{letter}</tspan></text>
+      </g>
+    ))}
+    {isolated ? <>
+      <path class="neutral" d="M96 132V243H239M281 243H427V132" />
+      <path class="neutral" d="M245 240 274 222" />
+      <g fill="#172640" stroke="#adbcd5" stroke-width="2.6">
+        <circle cx="244" cy="243" r="4" /><circle cx="276" cy="243" r="4" />
+      </g>
+      <text x="261" y="280">R<tspan baseline-shift="sub" font-size="11">A</tspan> ≠ R<tspan baseline-shift="sub" font-size="11">B</tspan> = R<tspan baseline-shift="sub" font-size="11">C</tspan></text>
+    </> : <>
+      <path class="neutral" d="M96 132V243H427V132" />
+      <text x="261" y="280">R<tspan baseline-shift="sub" font-size="11">A</tspan> = R<tspan baseline-shift="sub" font-size="11">B</tspan> = R<tspan baseline-shift="sub" font-size="11">C</tspan></text>
+    </>}
+    <g fill="#dceaff">
+      <circle cx="96" cy="132" r="5" /><circle cx="427" cy="132" r="5" />
+    </g>
+    <text x="73" y="138">N</text>
+    <text x="452" y="138">N′</text>
+  </g>}
+
+  {kind === "long-line" && <g>
+    <path class="rail" d="M102 130V101H166M234 101H438V131M438 199V229H102V200" />
+    <use href={link("dc-source")} x="102" y="165" color="#83dcf7" />
+    <use href={link("resistor")} x="200" y="101" color="#bea8ff" />
+    <use href={link("resistor")} transform="translate(438 165) rotate(90)" color="#ffb688" />
+    <text x="200" y="68">R<tspan baseline-shift="sub" font-size="11">s</tspan></text>
+    <text x="473" y="172">R<tspan baseline-shift="sub" font-size="11">L</tspan></text>
+    <g stroke-width="2.6" stroke-linecap="round">
+      <line x1="166" y1="148" x2="393" y2="148" stroke="#76e6ff" marker-end={paint("forward")} />
+      <line x1="393" y1="193" x2="166" y2="193" stroke="#ffb688" marker-end={paint("reverse")} />
+    </g>
+    <text x="278" y="136" fill="#76e6ff">U⁺</text>
+    <text x="278" y="182" fill="#ffb688">U⁻</text>
+  </g>}
+</svg>
+<style>
+  .example-circuit { display: block; width: 100%; height: auto; }
+  .symbol { fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+  .rail, .neutral { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+  .rail { stroke: #dceaff; }
+  .neutral { stroke: #adbcd5; }
+  text {
+    font: 650 17px system-ui, sans-serif;
+    text-anchor: middle;
+  }
+</style>

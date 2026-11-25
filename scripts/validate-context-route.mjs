@@ -165,6 +165,7 @@ const requirementTokenPattern = new RegExp(
   + "([0-9]{2,3}|[A-Z])([a-z]?)(?:\\.\\.([0-9]{2,3}|[A-Z])([a-z]?))?\\b",
   "g",
 );
+const masterRequirementHeadingPattern = /^\*\*((?:EVAL|UI|ENG|TL|SEQ|GEO)-[0-9]{2})[.: ]/gm;
 const specFiles = readdirSync(resolve(root, "specs"), {
   recursive: true,
   withFileTypes: true,
@@ -176,7 +177,11 @@ for (const specFile of specFiles) {
   const addRequirementId = (requirementId) => {
     specRequirementIds.add(requirementId);
   };
-  for (const match of readFileSync(specFile, "utf8").matchAll(requirementTokenPattern)) {
+  const source = readFileSync(specFile, "utf8");
+  for (const match of source.matchAll(masterRequirementHeadingPattern)) {
+    addRequirementId(match[1]);
+  }
+  for (const match of source.matchAll(requirementTokenPattern)) {
     const [, prefix, first, firstSuffix, last] = match;
     if (!last) {
       addRequirementId(`${prefix}-${first}${firstSuffix}`);

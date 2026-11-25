@@ -1,3 +1,6 @@
+import { rollingAdaptiveLimits } from "./feasibility.mjs";
+import { fitRollingTrace } from "./trace-spline";
+
 export type Point2 = [number, number];
 export type Vec3 = [number, number, number];
 export type RollingPose = {
@@ -23,6 +26,9 @@ export type RollingRun = {
     minSampledExteriorGapOverRadius: number | null;
   };
   requested?: Point2[];
+  traceMetrics?: ReturnType<typeof fitRollingTrace>["metrics"];
+  meshVolumeM3?: number;
+  workerMs?: number;
 };
 export type RollingRequest = { id: number; input: RollingInput };
 type RollingPhase = "trace" | "solve" | "verify" | "mesh";
@@ -178,13 +184,38 @@ function roundStroke(points: Point2[]): PlanarTrack {
   return { start: polyline[0], heading: edges[0].heading, segments };
 }
 
+function rejectSharpAlternation(points: Point2[]) {
+  let sharp = 0;
+  for (let i = 1; i + 1 < points.length; i++) {
+    const previous = points[i - 1], current = points[i], next = points[i + 1];
+    const dx = current[0] - previous[0], dy = current[1] - previous[1];
+    const ex = next[0] - current[0], ey = next[1] - current[1];
+    const length = Math.hypot(dx, dy), following = Math.hypot(ex, ey);
+    if (length < .065 || following < .065) continue;
+    const bend = Math.abs(Math.atan2(dx * ey - dy * ex, dx * ex + dy * ey));
+    if (bend >= maximumTurn) throw Error("TRACE_REVERSAL");
+    if (bend > 2 * Math.PI / 3 && ++sharp >= 8) throw Error("TRACE_COMPLEXITY");
+  }
+}
+
 export function prepareRollingTrack(input: RollingInput) {
   const { trace, radius } = validatedInput(input, "INVALID_INPUT");
-  const { start, heading, segments } = trace.kind === "preset" ? presets[trace.preset] : roundStroke(trace.points);
-  // Increase sampling only when segment rotation would otherwise exceed .06 radians per step.
-  const angularLength = Math.max(...segments.map(segment => segment.length / radius + Math.abs(segment.sweep)));
-  const stepsPerSegment = Math.max(96, Math.ceil(angularLength / .06));
-  return { start: [...start] as Point2, heading, segments: segments.map(segment => ({ ...segment })), radius, stepsPerSegment };
+  if (trace.kind === "preset" || trace.points.length === 3) {
+    const { start, heading, segments } = trace.kind === "preset" ? presets[trace.preset] : roundStroke(trace.points);
+    const angularLength = Math.max(...segments.map(segment => segment.length / radius + Math.abs(segment.sweep)));
+    const stepsPerSegment = Math.max(96, Math.ceil(angularLength / .06));
+    return { start: [...start] as Point2, heading, segments: segments.map(segment => ({ ...segment })), radius, stepsPerSegment };
+  }
+  rejectSharpAlternation(trace.points);
+  const { start, heading, segments, processed, metrics: traceMetrics } = fitRollingTrace(trace.points);
+  const maxPoseRotation = .035;
+  const segmentSteps = segments.map(segment => Math.max(2,
+    Math.ceil((segment.length / radius + Math.abs(segment.sweep)) / maxPoseRotation)));
+  if (segments.length > rollingAdaptiveLimits.maxSegments || segmentSteps.some(steps => steps > rollingAdaptiveLimits.maxStepsPerSegment)
+    || segmentSteps.reduce((total, steps) => total + steps, 1) > rollingAdaptiveLimits.maxPoses) {
+    throw Error("TRACE_BUDGET");
+  }
+  return { start, heading, segments, processed, traceMetrics, radius, segmentSteps };
 }
 
 export function rollingPreset(preset: "arc" | "s-bend"): Point2[] {

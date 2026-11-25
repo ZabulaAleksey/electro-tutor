@@ -124,6 +124,8 @@
   fill: var(--white, #fff);
 }
 
+.line-experiment-schematic .line-experiment-physical-port text { font-size: 13px; }
+
 .line-experiment-reference {
   stroke-width: 2;
 }
@@ -212,7 +214,7 @@
   font: inherit;
 }
 
-.line-experiment-editor-actions { display: flex; align-items: center; gap: .65rem; }
+.line-experiment-editor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
 .line-experiment-selection {
   position: fixed; z-index: 50; max-width: min(27rem, calc(100vw - 16px)); max-height: min(65vh, 26rem); overflow: auto;
   box-sizing: border-box; border: 1px solid var(--border); border-radius: .65rem;
@@ -226,3 +228,7 @@
 .line-experiment-editor .line-experiment-pair { margin: 6px 12px 0; }
 
 .line-experiment-palette button { touch-action: none; }
+
+.line-experiment-operation { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; padding: .45rem .65rem; }
+.line-experiment-operation button { min-height: 44px; padding: .35rem .6rem; }
+.line-experiment-schematic .line-experiment-open-wire { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 9; opacity: .75; fill: none; }

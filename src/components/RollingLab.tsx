@@ -11,7 +11,7 @@ import "./RollingLab.css";
 
 const copy = {
   ru: {
-    input: "Заданный след", draw: "Поле для рисования открытого следа", hint: "Нарисуйте открытый след одним штрихом или выберите пример.",
+    input: "Заданный след", draw: "Поле для рисования следа", hint: "Нарисуйте открытый или замкнутый след одним штрихом либо выберите пример.",
     arc: "Дуга E10", "s-bend": "S-образный след", clear: "Очистить",
     radius: "Радиус тела, м", quality: "Детализация", compact: "Компактная", full: "Полная",
     simulation: "Качение", play: "Пуск", pause: "Пауза", stop: "Стоп", cancel: "Отменить расчёт",
@@ -19,13 +19,16 @@ const copy = {
     trace: "Подготовка следа", solve: "Расчёт поз", verify: "Проверка опоры", mesh: "Построение сетки",
     cancelled: "Расчёт отменён.", import: "Открыть JSON", exportJson: "Сохранить JSON", exportObj: "Скачать OBJ",
     results: "Проверка контакта", traceError: "Ошибка следа / радиус", slipError: "Остаток скорости / скорость",
-    gap: "Мин. просвет / радиус", poses: "Позы", triangles: "Треугольники",
+    gap: "Мин. просвет / радиус", poses: "Позы", triangles: "Треугольники", volume: "Объём сетки, м³",
+    length: "Длина обработанного следа, м", fitError: "Отклонение от рисунка, м", curvature: "Макс. кривизна, 1/м", seam: "Угол шва, рад",
     plot: "Сравнение следов точки контакта", requested: "Рисунок", target: "Расчётный след", actual: "Прямой расчёт",
     model: "Тело движется по расчётным позам. OBJ содержит приближённую поверхность в метрах.",
     errors: {
-      EMPTY_TRACE: "Нарисуйте след или выберите пример.", DEGENERATE_TRACE: "След слишком короткий или почти замкнут.",
+      EMPTY_TRACE: "Нарисуйте след или выберите пример.", DEGENERATE_TRACE: "След слишком короткий или не задаёт устойчивое направление.",
       TRACE_REVERSAL: "На следе есть резкий разворот. Для расчёта нужна более плавная линия.",
-      TRACE_COMPLEXITY: "На следе слишком много поворотов. Упростите рисунок.",
+      TRACE_COMPLEXITY: "На следе много последовательных резких изломов. Снизьте остроту углов.",
+      TRACE_BUDGET: "Для заданной точности нужно больше дуг или поз, чем поддерживает опыт.",
+      TRACE_SHAPE_ERROR: "Сглаживание не сохранило форму в пределах допуска. Проверьте пересечения и шов следа.",
       INVALID_INPUT: "Проверьте точки следа и радиус.", INVALID_ARCHIVE: "Файл не соответствует формату опыта G.",
       ARCHIVE_LIMIT: "Размер JSON превышает 64 КиБ.", BUDGET_EXCEEDED: "След выходит за пределы расчёта при этом радиусе.",
       NO_CERTIFIED_SHAPE: "Для этого следа и радиуса не удалось подтвердить форму тела.",
@@ -35,7 +38,7 @@ const copy = {
     },
   },
   uk: {
-    input: "Заданий слід", draw: "Поле для малювання відкритого сліду", hint: "Намалюйте відкритий слід одним штрихом або виберіть приклад.",
+    input: "Заданий слід", draw: "Поле для малювання сліду", hint: "Намалюйте відкритий або замкнутий слід одним штрихом чи виберіть приклад.",
     arc: "Дуга E10", "s-bend": "S-подібний слід", clear: "Очистити",
     radius: "Радіус тіла, м", quality: "Деталізація", compact: "Компактна", full: "Повна",
     simulation: "Кочення", play: "Пуск", pause: "Пауза", stop: "Стоп", cancel: "Скасувати розрахунок",
@@ -43,13 +46,16 @@ const copy = {
     trace: "Підготовка сліду", solve: "Розрахунок поз", verify: "Перевірка опори", mesh: "Побудова сітки",
     cancelled: "Розрахунок скасовано.", import: "Відкрити JSON", exportJson: "Зберегти JSON", exportObj: "Завантажити OBJ",
     results: "Перевірка контакту", traceError: "Похибка сліду / радіус", slipError: "Залишок швидкості / швидкість",
-    gap: "Мін. просвіт / радіус", poses: "Пози", triangles: "Трикутники",
+    gap: "Мін. просвіт / радіус", poses: "Пози", triangles: "Трикутники", volume: "Об’єм сітки, м³",
+    length: "Довжина обробленого сліду, м", fitError: "Відхилення від малюнка, м", curvature: "Макс. кривина, 1/м", seam: "Кут шва, рад",
     plot: "Порівняння слідів точки контакту", requested: "Малюнок", target: "Розрахунковий слід", actual: "Прямий розрахунок",
     model: "Тіло рухається за розрахунковими позами. OBJ містить наближену поверхню в метрах.",
     errors: {
-      EMPTY_TRACE: "Намалюйте слід або виберіть приклад.", DEGENERATE_TRACE: "Слід надто короткий або майже замкнутий.",
+      EMPTY_TRACE: "Намалюйте слід або виберіть приклад.", DEGENERATE_TRACE: "Слід надто короткий або не задає стійкого напряму.",
       TRACE_REVERSAL: "На сліді є різкий розворот. Для розрахунку потрібна плавніша лінія.",
-      TRACE_COMPLEXITY: "На сліді забагато поворотів. Спростіть малюнок.",
+      TRACE_COMPLEXITY: "На сліді багато послідовних різких зламів. Зменште гостроту кутів.",
+      TRACE_BUDGET: "Для заданої точності потрібно більше дуг або поз, ніж підтримує дослід.",
+      TRACE_SHAPE_ERROR: "Згладжування не зберегло форму в межах допуску. Перевірте перетини та шов сліду.",
       INVALID_INPUT: "Перевірте точки сліду та радіус.", INVALID_ARCHIVE: "Файл не відповідає формату досліду G.",
       ARCHIVE_LIMIT: "Розмір JSON перевищує 64 КіБ.", BUDGET_EXCEEDED: "Слід виходить за межі розрахунку з цим радіусом.",
       NO_CERTIFIED_SHAPE: "Для цього сліду та радіуса не вдалося підтвердити форму тіла.",
@@ -324,7 +330,10 @@ export default function RollingLab({ language }: { language: Language }) {
 
     {run && <section className="rolling-card rolling-results" data-rolling-analysis data-trace={source}
       data-trace-error={run.verification.maxTraceOverRadius} data-slip-error={run.verification.maxSlipOverSpeed}
-      data-gap={run.verification.minGapOverRadius} data-triangles={triangles}>
+      data-gap={run.verification.minGapOverRadius} data-triangles={triangles}
+      data-poses={run.poses.length} data-worker-ms={run.workerMs} data-shape-volume={run.meshVolumeM3}
+      data-trace-method={run.traceMetrics?.method} data-fit-error={run.traceMetrics?.maxDeviation}
+      data-fit-length={run.traceMetrics?.length} data-fit-arcs={run.traceMetrics?.arcCount}>
       <h2>{t.results}</h2>
       <dl className="rolling-metrics">
         <div><dt>{t.traceError}</dt><dd>{number(run.verification.maxTraceOverRadius)}</dd></div>
@@ -332,6 +341,13 @@ export default function RollingLab({ language }: { language: Language }) {
         <div><dt>{t.gap}</dt><dd>{number(run.verification.minGapOverRadius)}</dd></div>
         <div><dt>{t.poses}</dt><dd>{run.poses.length}</dd></div>
         <div><dt>{t.triangles}</dt><dd>{triangles}</dd></div>
+        {run.meshVolumeM3 !== undefined && <div><dt>{t.volume}</dt><dd>{number(run.meshVolumeM3)}</dd></div>}
+        {run.traceMetrics && <>
+          <div><dt>{t.length}</dt><dd>{number(run.traceMetrics.length)}</dd></div>
+          <div><dt>{t.fitError}</dt><dd>{number(run.traceMetrics.maxDeviation)}</dd></div>
+          <div><dt>{t.curvature}</dt><dd>{number(run.traceMetrics.maxCurvature)}</dd></div>
+          {run.traceMetrics.closed && <div><dt>{t.seam}</dt><dd>{number(run.traceMetrics.seamAngle)}</dd></div>}
+        </>}
       </dl>
       <RollingComparison run={run} index={index} labels={t} />
       <p className="rolling-hint">{t.model}</p>

@@ -63,3 +63,39 @@ export function bigintRatio(numerator: bigint, denominator: bigint): number {
   const magnitude = Number(a >> BigInt(aShift)) / Number(b >> BigInt(bShift)) * 2 ** (aShift - bShift);
   return (numerator < 0n) === (denominator < 0n) ? magnitude : -magnitude;
 }
+
+/** Represent the actual IEEE 754 value exactly, including subnormal values. */
+export function binaryRatio(value: number): { numerator: bigint; denominator: bigint } {
+  if (!Number.isFinite(value)) throw Error("invalid-lc-equivalence-number");
+  if (value === 0) return { numerator: 0n, denominator: 1n };
+  const bytes = new DataView(new ArrayBuffer(8));
+  bytes.setFloat64(0, value);
+  const bits = bytes.getBigUint64(0);
+  const exponent = Number((bits >> 52n) & 2047n);
+  const fraction = (bits & ((1n << 52n) - 1n)) + (exponent ? 1n << 52n : 0n);
+  const shift = exponent ? exponent - 1075 : -1074;
+  const signed = value < 0 ? -fraction : fraction;
+  if (shift >= 0) return { numerator: signed << BigInt(shift), denominator: 1n };
+  const denominator = 1n << BigInt(-shift);
+  const divisor = gcd(signed, denominator);
+  return { numerator: signed / divisor, denominator: denominator / divisor };
+}
+
+/** Evaluate two integer polynomials at the same binary argument without
+ * cancellation from rounding intermediate products. */
+export function ratioAt(numerator: Polynomial, denominator: Polynomial, x: number): number {
+  if (!Number.isFinite(x)) return NaN;
+  if (x === 0) return bigintRatio(numerator[0], denominator[0]);
+  const { numerator: a, denominator: b } = binaryRatio(x);
+  const degree = Math.max(numerator.length, denominator.length) - 1;
+  function evaluate(p: Polynomial): bigint {
+    let result = p[degree] ?? 0n;
+    let denominatorPower = 1n;
+    for (let i = degree - 1; i >= 0; i--) {
+      denominatorPower *= b;
+      result = result * a + (p[i] ?? 0n) * denominatorPower;
+    }
+    return result;
+  }
+  return bigintRatio(evaluate(numerator), evaluate(denominator));
+}

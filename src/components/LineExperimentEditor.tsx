@@ -4,15 +4,18 @@ import { geometryAfterInsertion } from "./line-slot-geometry";
 import { directTargets, type DirectTarget } from "./line-slot-targets";
 import type { Language } from "../types";
 import { netlist, type CircuitComponent } from "../circuit/topology";
+import { parallelBranchForComponent } from "../circuit/topology-branch-removal";
+import { bypassSeriesDevice, matchingOpenWire, planSeriesBypass } from "../circuit/topology-operations";
+import { lineJunctionPlacements } from "./line-junction-placement";
 import { simplifyTopologyForView } from "../circuit/topology-equivalence";
 import { parts, validPartParameter, type PartKind } from "../circuit/drawing";
 import type { Point } from "../circuit/topology-layout";
 import { listTopologySlots, type TopologySide, type TopologySlot } from "../circuit/topology-slots";
-import { parseTopologyLabDocument, TopologySession, type TopologyLabDocument } from "../circuit/topology-session";
+import { parseTopologyLabDocument, TopologySession, type TopologyCommand, type TopologyLabDocument } from "../circuit/topology-session";
 import { useTopologyViewport } from "../circuit/use-topology-viewport";
 import { formatEngineeringValue } from "../engineering/format";
 import { CapacitorGlyph, InductorGlyph, ResistorGlyph, TextbookSourceGlyph } from "../engineering/symbols";
-import { layoutLineExperiment, placeLcCanvasTargets, wireTarget } from "./line-experiment-layout";
+import { captureLineGeometry, layoutLineExperiment, placeLcCanvasTargets, wireTarget } from "./line-experiment-layout";
 import "./LineExperimentEditor.css";
 
 type Props = {
@@ -20,8 +23,9 @@ type Props = {
   document: TopologyLabDocument;
   onChange: (next: TopologyLabDocument) => void;
   onAppendSection?: (endpoint?: string) => void;
-  onRemove: (id: string, source: TopologyLabDocument) => void;
+  onRemove?: (id: string, source: TopologyLabDocument) => void;
   onOpenSection?: (id: string) => void;
+  onRestoreStarter?: () => void;
   variant?: "transient" | "steady" | "lc" | "variable";
   seriesWireIds?: readonly string[];
   canRemove?: (id: string) => boolean;
@@ -47,7 +51,12 @@ const copy = {
     alternate: "Следующий путь между элементами", time: "Время коммутации, с", closeTime: "Время замыкания, с",
     remove: "Удалить элемент", confirm: "Удалить", cancel: "Отмена", invalid: "Здесь вставка недоступна.",
     empty: "На схеме нет подходящего участка.", zoomIn: "Увеличить", zoomOut: "Уменьшить", reset: "Вернуть масштаб 100%",
-    port: "Измерительный порт",
+    port: "Измерительный порт", inputPair: "Входная пара", outputPair: "Выходная пара",
+    wires: "Провода", clear: "Очистить схему", confirmClear: "Очистку можно отменить.",
+    breakWire: "Разорвать соединение", restoreWire: "Восстановить соединение",
+    insertIntoWire: "Вставить элемент", choosePart: "Выберите элемент в палитре.",
+    bypass: "Заменить проводником", removeBranch: "Удалить ветвь",
+    starter: "Начальная схема", emptyBoard: "Схема пуста.", operationError: "Для выбранного участка эта операция недоступна.",
   },
   uk: {
     board: "Схема досліду", palette: "Елементи схеми", append: "Додати лінію справа",
@@ -58,12 +67,17 @@ const copy = {
     alternate: "Наступний шлях між елементами", time: "Час комутації, с", closeTime: "Час замикання, с",
     remove: "Видалити елемент", confirm: "Видалити", cancel: "Скасувати", invalid: "Тут вставка недоступна.",
     empty: "На схемі немає придатної ділянки.", zoomIn: "Збільшити", zoomOut: "Зменшити", reset: "Повернути масштаб 100%",
-    port: "Вимірювальний порт",
+    port: "Вимірювальний порт", inputPair: "Вхідна пара", outputPair: "Вихідна пара",
+    wires: "Проводи", clear: "Очистити схему", confirmClear: "Очищення можна скасувати.",
+    breakWire: "Розірвати з’єднання", restoreWire: "Відновити з’єднання",
+    insertIntoWire: "Вставити елемент", choosePart: "Виберіть елемент у палітрі.",
+    bypass: "Замінити провідником", removeBranch: "Видалити гілку",
+    starter: "Початкова схема", emptyBoard: "Схема порожня.", operationError: "Для вибраної ділянки ця операція недоступна.",
   },
 } as const;
 
-function makePart(topology: TopologyLabDocument["topology"], [choice, kind, prefix]: PaletteItem): CircuitComponent {
-  const graphIds = new Set([...topology.junctions, ...topology.wires.map(({ id }) => id),
+function makePart(topology: TopologyLabDocument["topology"], [choice, kind, prefix]: PaletteItem, reservedIds: readonly string[]): CircuitComponent {
+  const graphIds = new Set([...reservedIds, ...topology.junctions, ...topology.wires.map(({ id }) => id),
     ...topology.components.flatMap(({ id, terminals }) => [id, ...terminals])]);
   let index = 1;
   while ([prefix + index, prefix + index + ":a", prefix + index + ":b"].some(id => graphIds.has(id))) index++;
@@ -94,6 +108,30 @@ function LineGlyph({ part, railOffset }: { part: CircuitComponent; railOffset?: 
     </>;
     default: return <path d="M-52 0H-18M18 0H52M-18 -13H18V13H-18Z" />;
   }
+}
+
+function PhysicalLineGlyph({ terminals, pins, inputLabel, outputLabel }: {
+  terminals: readonly string[]; pins: readonly Point[]; inputLabel: string; outputLabel: string;
+}) {
+  const [a, b, returnIn, returnOut] = pins;
+  const labels = ["1+", "2+", "1−", "2−"];
+  const across = { x: Math.sign(returnIn.x - a.x), y: Math.sign(returnIn.y - a.y) };
+  const coordinates = (point: Point, offset = 0) => `${point.x + across.x * offset} ${point.y + across.y * offset}`;
+  return <>
+    <path className="line-experiment-conductor" d={`M${coordinates(a)}L${coordinates(b)}M${coordinates(returnIn)}L${coordinates(returnOut)}`} />
+    <path className="line-experiment-electric-field" d={`M${coordinates(a, 6)}L${coordinates(returnIn, -6)}M${coordinates(b, 6)}L${coordinates(returnOut, -6)}`} />
+    {pins.map(({ x, y }, index) => {
+      const distance = index < 2 ? -12 : 12;
+      const labelX = x + across.x * distance;
+      const labelY = y + across.y * distance + 3;
+      return <g key={terminals[index]} className="line-experiment-physical-port">
+        <circle data-line-physical-terminal={terminals[index]} className="line-experiment-port" cx={x} cy={y} r={3.5}>
+          <title>{`${index % 2 === 0 ? inputLabel : outputLabel} · ${labels[index]}`}</title>
+        </circle>
+        <text x={labelX} y={labelY} textAnchor="middle">{labels[index]}</text>
+      </g>;
+    })}
+  </>;
 }
 
 function SwitchTime({ part, label, onSave }: { part: CircuitComponent; label: string; onSave: (seconds: number) => void }) {
@@ -149,7 +187,7 @@ function componentBoundary(slot: ParallelSlot, id: string) {
   return slot.componentIds[0] === id || slot.componentIds.at(-1) === id;
 }
 
-export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection,
+export default function LineExperimentEditor({ language, document, onChange, onAppendSection, onRemove, onOpenSection, onRestoreStarter,
   variant = "transient", referenceEndpoint, renderInspector, validateParameters, seriesWireIds, canRemove }: Props) {
   const t = copy[language];
   const lc = variant === "lc";
@@ -159,6 +197,10 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const referenceDescription = useId();
   const [armed, setArmed] = useState<PaletteItem>();
   const [selected, setSelected] = useState("");
+  const [wireMode, setWireMode] = useState(false);
+  const [selectedWire, setSelectedWire] = useState("");
+  const [insertIntoWire, setInsertIntoWire] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [alternate, setAlternate] = useState(0);
@@ -174,18 +216,24 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const dragTouch = useRef<{ id: number; start: Point; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
   const field = useRef<HTMLDivElement>(null);
+  const wireModeButton = useRef<HTMLButtonElement>(null);
+  const clearButton = useRef<HTMLButtonElement>(null);
+  const wireMenu = useRef<HTMLDivElement>(null);
+  const clearMenu = useRef<HTMLDivElement>(null);
   const paletteControls = useRef<HTMLDivElement>(null);
   const { viewportRef, zoom, zoomIn, zoomOut, resetZoom, viewportEvents } = useTopologyViewport();
 
   const [expandedDocument, setExpandedDocument] = useState<TopologyLabDocument>();
   const { topology } = document;
+  const emptyBoard = !topology.wires.length && !topology.junctions.length && !document.brokenWires?.length
+    && topology.components.every(part => part.kind === "port");
   const sourceIds = useMemo(() => new Set(topology.components.map(part => part.id)), [topology]);
   const displayDocument = useMemo(() => {
-    if (armed || selected || expandedDocument === document || variable) return document;
+    if (armed || wireMode || selected || document.brokenWires?.length || expandedDocument === document || variable) return document;
     const observed = referenceEndpoint ? [...document.observedEndpoints, referenceEndpoint] : document.observedEndpoints;
     const topology = simplifyTopologyForView(document.topology, observed);
     return topology === document.topology ? document : { ...document, topology };
-  }, [document, armed, selected, expandedDocument, variable, referenceEndpoint]);
+  }, [document, armed, wireMode, selected, expandedDocument, variable, referenceEndpoint]);
   const diagram = useMemo(() => layoutLineExperiment(displayDocument), [displayDocument]);
   const reference = steady && referenceEndpoint ? diagram.endpoints.get(referenceEndpoint) : undefined;
   const referenceY = reference && diagram.returnY !== undefined && reference.y > diagram.returnY - 30
@@ -205,6 +253,27 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
     slot.kind === "parallel" && slot.side === "left" && (!port || !slot.componentIds.includes(port.id))), [port, slots]);
   const selectedPart = devices.get(selected);
+  const legacyTransient = variant === "transient"
+    && !topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
+  const sourceReturn = legacyTransient
+    ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
+  const automaticBypass = useMemo(() => {
+    if (variable || !selected) return false;
+    const reference = referenceEndpoint ?? sourceReturn;
+    const protectedEnds = reference ? [...document.observedEndpoints, reference] : document.observedEndpoints;
+    try {
+      const planned = planSeriesBypass(topology, selected, protectedEnds);
+      return !matchingOpenWire(document.brokenWires ?? [], planned.wire);
+    } catch { return false; }
+  }, [document, referenceEndpoint, selected, sourceReturn, topology, variable]);
+  const explicitBypass = useMemo(() => {
+    if (variable || !selected) return false;
+    try { bypassSeriesDevice(topology, selected, [], lc); return true; } catch { return false; }
+  }, [lc, selected, topology, variable]);
+  const removableBranch = useMemo(() => !variable && selected
+    ? parallelBranchForComponent(topology, selected, document.observedEndpoints) : undefined,
+  [topology, selected, variable, document.observedEndpoints]);
+  const dots = useMemo(() => lineJunctionPlacements(displayDocument.topology, diagram), [diagram, displayDocument]);
   const fit = viewportWidth ? Math.min(1, Math.max(.65, viewportWidth / diagram.width)) : 1;
   const fieldScale = fit * zoom;
   // Choose group boundaries on the actual circuit. A closed loop can expose
@@ -246,22 +315,64 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     target?.focus({ preventScroll: true });
   }, [armed, variable, viewportRef]);
 
-  function removeSelected() {
-    let source = document;
-    if (!document.geometry && !variable) {
-      const pins = Object.fromEntries(diagram.endpoints);
-      const wires = new Map(topology.wires.map(w => [w.id, w]));
-      const bends = Object.fromEntries(diagram.wires.map(w => {
-        const a = pins[wires.get(w.id)!.from];
-        const first = w.points[0];
-        const path = first.x === a.x && first.y === a.y ? w.points : [...w.points].reverse();
-        return [w.id, path.slice(1, -1)];
-      }));
-      source = { ...document, geometry: { pins, bends, returnY: diagram.returnY } };
+  useEffect(() => { if (selectedWire) wireMenu.current?.querySelector("button")?.focus({ preventScroll: true }); }, [selectedWire]);
+  useEffect(() => { if (confirmClear) clearMenu.current?.querySelector("button")?.focus({ preventScroll: true }); }, [confirmClear]);
+
+  function closeWireMenu() {
+    const buttons = field.current?.querySelectorAll<HTMLButtonElement>("[data-line-wire-control], [data-line-broken-wire]");
+    const trigger = Array.from(buttons ?? []).find(button => (button.dataset.lineWireControl ?? button.dataset.lineBrokenWire) === selectedWire);
+    (trigger ?? wireModeButton.current)?.focus({ preventScroll: true });
+    setSelectedWire("");
+    setInsertIntoWire(false);
+  }
+
+  function cancelClear() {
+    clearButton.current?.focus({ preventScroll: true });
+    setConfirmClear(false);
+  }
+
+  function applyEdit(command: TopologyCommand, source = document) {
+    try {
+      const session = new TopologySession(JSON.stringify(source));
+      session.apply(command);
+      if (session.document !== source && JSON.stringify(session.document) !== JSON.stringify(source)) onChange(session.document);
+      setError(false);
+      return true;
+    } catch {
+      setError(true);
+      return false;
     }
-    onRemove(selected, source);
+  }
+
+  function removeSelected(mode: "device" | "branch" | "conductor" = automaticBypass ? "conductor" : "device") {
+    if (onRemove) onRemove(selected, document);
+    else if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
+      preserveObservations: lc, allowPortShort: lc && !automaticBypass })) return;
     setSelected("");
     setConfirm(false);
+  }
+
+  function editWire(type: "break-wire" | "restore-wire", wireId: string) {
+    let source = document;
+    if (type === "break-wire" && !document.geometry) {
+      source = { ...document, geometry: captureLineGeometry(topology, diagram) };
+    }
+    if (applyEdit({ type, wireId }, source)) {
+      wireModeButton.current?.focus({ preventScroll: true });
+      setSelectedWire("");
+      setInsertIntoWire(false);
+    }
+  }
+
+  function clearBoard() {
+    if (!applyEdit({ type: "clear", retainedIds: port ? [port.id] : [] })) return;
+    wireModeButton.current?.focus({ preventScroll: true });
+    setConfirmClear(false);
+    setSelected("");
+    setSelectedWire("");
+    setWireMode(false);
+    setArmed(undefined);
+    resetSelection();
   }
 
   function closeMenu() {
@@ -330,16 +441,21 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   }
 
   function arm(part: PaletteItem) {
+    const target = insertIntoWire && selectedWire ? serial.get(selectedWire) : undefined;
+    if (target) { insert(target, undefined, undefined, part); return; }
+    setWireMode(false);
+    setSelectedWire("");
+    setInsertIntoWire(false);
     setArmed(armed?.[0] === part[0] ? undefined : part);
     setSelected("");
     setConfirm(false);
     resetSelection();
   }
 
-  function insert(slot: TopologySlot, session = new TopologySession(JSON.stringify(document)), target?: DirectTarget) {
-    if (!armed) return;
+  function insert(slot: TopologySlot, session = new TopologySession(JSON.stringify(document)), target?: DirectTarget, item = armed) {
+    if (!item) return;
     try {
-      const component = makePart(topology, armed);
+      const component = makePart(topology, item, (document.brokenWires ?? []).map(wire => wire.id));
       session.apply({ type: "insert", slot, component: variable
         ? { ...component, parameters: { ...component.parameters, ohm: 25, nextOhm: 25 } } : component });
       // Keep the editable/archive document as the source of truth. The
@@ -347,10 +463,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       // export, import and undo always retain the original components.
       const next = session.document;
       const geometry = geometryAfterInsertion(diagram, topology, next.topology, slot, component, target && {
-        point: target.point, vertical: target.vertical, path: target.path });
+        point: target.point, vertical: target.vertical, path: target.path }, brokenPaths);
       onChange(parseTopologyLabDocument(JSON.stringify({ ...next, geometry })));
       paletteControls.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
       setArmed(undefined);
+      setSelectedWire("");
+      setInsertIntoWire(false);
       resetSelection();
     } catch {
       setError(true);
@@ -400,12 +518,25 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const paletteEnd = lc ? 3 : variable ? 1 : steady ? 5 : palette.length;
   const seriesTargets = armed && !first && !endpoint ? diagram.wires.filter(({ id, points }) =>
     serial.has(id) && points.length && (!seriesWireIds || seriesWireIds.includes(id))) : [];
-  const crossTargets = armed && (pairMode || !parallel.length) && !variable && !first ? endpoints : [];
+  const endpointTargets = pairMode ? new Map([...endpoints, ...diagram.junctions.map(({ id, x, y }) => [id, { x, y }] as const)]) : new Map(endpoints);
+  const crossTargets = armed && (pairMode || !parallel.length) && !variable && !first ? [...endpointTargets] : [];
   const direct = armed && !pairMode && !variable && !first ? directTargets(document, diagram, parallel, first) : [];
   const partTargets = armed && !variable && !endpoint ? diagram.components.filter(({ id }) =>
     parallel.some(slot => componentBoundary(slot, id))) : [];
-  const targets = [...seriesTargets, ...direct.map(({ slot, point }) => ({ id: slot.id, points: [point] })), ...crossTargets.map(([id, point]) => ({ id, points: [point] }))];
-  const placement = placeLcCanvasTargets(targets, diagram.width, diagram.height, fieldScale, partTargets);
+  const brokenPaths = (document.brokenWires ?? []).flatMap(wire => {
+    const from = diagram.endpoints.get(wire.from);
+    const to = diagram.endpoints.get(wire.to);
+    if (!from || !to) return [];
+    const turns = document.geometry?.bends[wire.id] ?? (from.x === to.x || from.y === to.y ? [] : [{ x: to.x, y: from.y }]);
+    return [{ id: wire.id, wire, points: [from, ...turns, to], open: true }];
+  });
+  const wireChoices = wireMode && !armed ? [
+    ...diagram.wires.filter(wire => wire.points.length > 1).map(wire => ({ ...wire, open: false })),
+    ...brokenPaths,
+  ] : [];
+  const wireChoice = wireChoices.find(wire => wire.id === selectedWire);
+  const targets = [...wireChoices.map(wire => ({ id: "wire:" + wire.id, points: wire.points })), ...seriesTargets, ...direct.map(({ slot, point }) => ({ id: slot.id, points: [point] })), ...crossTargets.map(([id, point]) => ({ id, points: [point] }))];
+  const placement = placeLcCanvasTargets(targets, diagram.width, diagram.height, fieldScale, wireMode ? diagram.components : partTargets);
   const markerPoints = new Map(placement.markers.map(({ id, point }) => [id, point]));
 
   const endpointsToShow = preview?.boundaries.map(id => diagram.endpoints.get(id)).filter((p): p is Point => !!p) ?? [];
@@ -447,6 +578,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   return <section className="line-experiment-editor" inert={!viewportWidth} data-line-experiment-editor data-line-editor-variant={variant} aria-label={t.board}
     onKeyDown={event => {
+      if ((selectedWire || confirmClear) && event.key === "Escape") {
+        event.preventDefault();
+        if (confirmClear) cancelClear();
+        else closeWireMenu();
+        return;
+      }
       if (selected && event.key === "Escape") { event.preventDefault(); closeMenu(); return; }
       if (selected && event.key === "Delete" && !(event.target instanceof HTMLInputElement)
         && (!canRemove || canRemove(selected))) {
@@ -464,6 +601,14 @@ export default function LineExperimentEditor({ language, document, onChange, onA
           <button type="button" data-line-append data-line-append-endpoint={steady ? diagram.appendEndpoint : undefined}
             aria-label={appendLabel} title={appendLabel} onClick={() => onAppendSection(steady ? diagram.appendEndpoint : undefined)}>+ TL</button>}
         <strong>{t.board}</strong>
+        {!variable && <button type="button" data-line-wire-mode ref={wireModeButton} aria-pressed={wireMode}
+          onClick={() => {
+            setWireMode(!wireMode); setSelectedWire(""); setInsertIntoWire(false);
+            setSelected(""); setArmed(undefined); resetSelection();
+          }}>{t.wires}</button>}
+        {!variable && !emptyBoard &&
+          <button type="button" data-line-clear ref={clearButton} aria-label={t.clear} title={t.clear}
+            onClick={() => { setConfirmClear(true); setSelected(""); }}><Trash2 size={16} /></button>}
       </div>
       {expandedDocument === document && <button type="button" onClick={() => {
         setExpandedDocument(undefined); setSelected(""); setArmed(undefined);
@@ -485,7 +630,8 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             points={points.map(point => `${point.x},${point.y}`).join(" ")} />)}
           {previewPath && <polyline className="line-experiment-preview" points={previewPath.map(p => p.x + "," + p.y).join(" ")} />}
           {(previewPath ?? endpointsToShow).map((p, index) => <circle key={index} className="line-experiment-boundary" cx={p.x} cy={p.y} r={7} />)}
-          {diagram.junctions.map(({ id, x, y }) => <circle key={id} cx={x} cy={y} r={3} className="line-experiment-dot" />)}
+          {brokenPaths.map(({ id, points }) => <polyline key={id} className="line-experiment-open-wire"
+            points={points.map(point => point.x + "," + point.y).join(" ")} />)}
           {reference && <path data-line-reference={referenceEndpoint} className="line-experiment-reference"
             transform={`translate(${reference.x} ${referenceY})`} d="M0 0V9M-10 9H10M-6 13H6M-3 17H3" />}
           {diagram.components.map(({ id, x, y }) => {
@@ -501,16 +647,22 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             </g>;
             const rotation = diagram.rotations.get(id) ?? 0;
             const vertical = Math.abs(rotation) === 90;
+            const physicalPins = part.kind === "line" && part.terminals.length === 4
+              ? part.terminals.map(id => diagram.endpoints.get(id)) : undefined;
             return <g key={id} transform={`translate(${x} ${y})`} data-line-glyph={id}
               data-line-kind={part.kind} data-line-rotation={rotation} data-line-highlighted={highlighted.has(id) || undefined}>
               {highlighted.has(id) && <rect className="line-experiment-part-highlight"
                 x={vertical ? -29 : -47} y={vertical ? -44 : -25} width={vertical ? 58 : 94} height={vertical ? 88 : 50} rx={8} />}
-              <g transform={`rotate(${part.kind === "line" && diagram.returnY !== undefined ? 0 : rotation})`}>
-                <LineGlyph part={part} railOffset={diagram.returnY === undefined ? undefined : diagram.returnY - y} />
-              </g>
+              {physicalPins?.every((point): point is Point => point !== undefined)
+                ? <PhysicalLineGlyph terminals={part.terminals} pins={physicalPins.map(point => ({ x: point.x - x, y: point.y - y }))}
+                    inputLabel={t.inputPair} outputLabel={t.outputPair} />
+                : <g transform={`rotate(${part.kind === "line" && diagram.returnY !== undefined ? 0 : rotation})`}>
+                    <LineGlyph part={part} railOffset={diagram.returnY === undefined ? undefined : diagram.returnY - y} />
+                  </g>}
               <text x={vertical ? 31 : 0} y={vertical ? 5 : -21} textAnchor={vertical ? "start" : "middle"}>{displayName(id)}</text>
             </g>;
           })}
+          {dots.map(({ id, x, y }) => <circle key={id} data-line-junction={id} cx={x} cy={y} r={3} className="line-experiment-dot" />)}
           {placement.markers.map(({ id, point, anchor }) => anchor && <g key={id} data-lc-target-leader={id}
             className="line-experiment-lc-leader">
             <line x1={anchor.x} y1={anchor.y} x2={point.x} y2={point.y} />
@@ -536,6 +688,13 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             <CanvasButton key={id} point={{ x, y: y + 46 }} fieldScale={fieldScale} data-line-section={id}
               className="line-experiment-minor" aria-label={`${t.open} ${id}`} title={`${t.open} ${id}`} onClick={() => onOpenSection?.(id)}>▸</CanvasButton>)}
         </>}
+        {wireChoices.map(wire => <CanvasButton key={wire.id}
+          point={markerPoints.get("wire:" + wire.id) ?? wireTarget(wire.points)} fieldScale={fieldScale}
+          data-line-wire-control={wire.open ? undefined : wire.id} data-line-broken-wire={wire.open ? wire.id : undefined}
+          aria-label={t.wires + " · " + wire.id} aria-pressed={selectedWire === wire.id}
+          onClick={() => { setSelected(""); setSelectedWire(wire.id); setInsertIntoWire(false); }}>
+          {wire.open ? "×" : "⋯"}
+        </CanvasButton>)}
         {armed && seriesTargets.map(({ id, points }) => {
           const slot = serial.get(id)!;
           return <CanvasButton key={id} point={markerPoints.get(id) ?? wireTarget(points)} fieldScale={fieldScale}
@@ -577,6 +736,31 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       onClick={() => { resetSelection(); setPairMode(!pairMode); }}>{language === "ru" ? "Выбрать два узла" : "Вибрати два вузли"}</button>}
     {armed && <p className="line-experiment-editor-note" role="status">{hasError ? t.invalid
       : variable ? (seriesTargets.length ? t.search.series : t.empty) : endpoint ? t.search.cross : first ? t.search.parallel : pairMode ? t.search.cross : (language === "ru" ? "+ — последовательно, ∥ — параллельно участку." : "+ — послідовно, ∥ — паралельно ділянці.")}</p>}
+    {confirmClear && <div className="line-experiment-operation" ref={clearMenu} role="group" aria-label={t.clear}>
+      <span>{t.confirmClear}</span>
+      <button type="button" data-line-confirm-clear onClick={clearBoard}>{t.clear}</button>
+      <button type="button" onClick={cancelClear}>{t.cancel}</button>
+    </div>}
+    {wireChoice && <div className="line-experiment-operation" ref={wireMenu} role="group" aria-label={t.wires + " · " + wireChoice.id}>
+      <strong>{wireChoice.id}</strong>
+      {wireChoice.open
+        ? <button type="button" data-line-restore-wire onClick={() => editWire("restore-wire", wireChoice.id)}>{t.restoreWire}</button>
+        : <>
+          {serial.has(wireChoice.id) && <button type="button" data-line-wire-insert onClick={() => {
+            setInsertIntoWire(true);
+            paletteControls.current?.querySelector("button")?.focus();
+          }}>{t.insertIntoWire}</button>}
+          <button type="button" data-line-break-wire onClick={() => editWire("break-wire", wireChoice.id)}>{t.breakWire}</button>
+        </>}
+      {insertIntoWire && <span role="status">{t.choosePart}</span>}
+      <button type="button" onClick={closeWireMenu}>{t.cancel}</button>
+    </div>}
+    {!variable && emptyBoard &&
+      <div className="line-experiment-operation" data-line-empty>
+        <span>{t.emptyBoard}</span>
+        {onRestoreStarter && <button type="button" onClick={onRestoreStarter}>{t.starter}</button>}
+      </div>}
+    {!armed && hasError && <p className="line-experiment-editor-note" role="alert">{t.operationError}</p>}
     {selectedPart && !armed && <div className="line-experiment-selection" role="dialog" aria-label={selected} ref={menu}
       tabIndex={-1} style={{ left: menuPoint.x, top: menuPoint.y }} data-line-selected-part={selectedPart.id}>
       {(!selectSection && !lc || !renderInspector) && <strong>{selectedPart.id}</strong>}
@@ -592,7 +776,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       {renderInspector?.(selectedPart)}
       <button type="button" aria-label={language === "ru" ? "Закрыть" : "Закрити"} onClick={closeMenu}><X size={16} /></button>
       {(!canRemove || canRemove(selected)) && (confirm ? <>
-        <button type="button" data-line-confirm-remove onClick={removeSelected}>{t.confirm} {selected}</button>
+        <button type="button" data-line-confirm-remove onClick={() => removeSelected()}>{t.confirm} {selected}</button>
+        {explicitBypass && !automaticBypass && <button type="button" data-line-replace-conductor onClick={() => removeSelected("conductor")}>{t.bypass}</button>}
+        {removableBranch && <button type="button" data-line-remove-branch onClick={() => removeSelected("branch")}>
+          {t.removeBranch} ({removableBranch.join(" + ")})
+        </button>}
         <button type="button" onClick={() => setConfirm(false)}>{t.cancel}</button>
       </> : <button type="button" data-line-remove aria-label={`${t.remove} ${selected}`}
         onClick={() => setConfirm(true)} title={t.remove}><Trash2 size={16} /></button>)}

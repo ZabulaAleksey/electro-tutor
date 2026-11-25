@@ -122,26 +122,26 @@
 
 ## ET-2511-008 — Интеграционная и релизная проверка
 
-- Status: blocked
-- Checkpoint: c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e
-- Lifecycle: локальная приёмка пройдена, владелец разрешил выпуск. BLOCKED: push.
+- Status: verified
+- Checkpoint: b23b613b3686a29612bf531259f45d3ea6db7ef1
+- Lifecycle: локальная и размещённая приёмка пройдена. PR №9, Cloudflare Pages и GitHub Pages подтверждены.
 - Dependencies: ET-2511-000…007 проверены локально. Последний продуктовый checkpoint 844361fa.
 - Scope: [EVAL-08](../specs/features/electrotutor-20261125.spec.md#stage-8-интеграция-регрессионная-проверка-релиз). Общий регрессионный прогон, release evidence и проверка границы публикации.
 - Runnable E2E: собрать корневой и education-артефакт, пройти принятые маршруты и лаборатории в Chromium, затем применить проектный релизный gate.
 - Acceptance: корневой и лабораторный набор, аналитические эталоны и артефакты, неизменность существующих ссылок и архивов, требуемый CI и smoke размещённой версии.
 - Rollback: действующий Cloudflare receipt и GitHub Pages run предшественника ET-LABR-013. Публикация после проверок и проектного разрешения.
-- Evidence: [локальная приёмка EVAL-08](TESTING.md#et-2511-008--интеграционная-и-релизная-проверка). 1069 Vitest, 428 корневых Chromium и 6 штатных SKIP, 72 лабораторных Chromium, локальный smoke 2/2, префикс 5/5.
-- Blockers: ET-2511-REL-02. Codex остановил `git push` до отправки. Инструмент потребовал системное одобрение при `AskForApproval=Never`. `origin/main` проверен на `d5499978`, удалённая рабочая ветка и PR отсутствуют.
-- User actions: ET-2511-REL-01 · DONE · владелец ответил «Да, сливай» и поручил PR, CI, слияние, публикацию и smoke. ET-2511-REL-02 · READY · при недоступном системном одобрении выполнить из `C:\Users\aleks\projects\electro-tutor` команду `git push -u origin feature/electrotutor-master-2026-11-25`. Evidence: `git ls-remote` возвращает SHA локальной ветки на одноимённом remote ref. Разблокирует: открытие PR, CI, слияние и выпуск.
-- NEXT: ET-2511-008
+- Evidence: [EVAL-08 и размещённые проверки](TESTING.md#et-2511-008--интеграционная-и-релизная-проверка). [PR №9](https://github.com/ZabulaAleksey/electro-tutor/pull/9), [CI](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45672000599), [Cloudflare](https://92021b4b.electrotutor.pages.dev/ru/) и [GitHub Pages](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45672729897).
+- Blockers: none
+- User actions: none
+- NEXT: none
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 20,
+  "state_revision": 21,
   "master": {
     "id": "ET-2511-MASTER",
-    "status": "blocked",
+    "status": "completed",
     "source": {
       "backend": "google_drive",
       "queue_id": "none",
@@ -157,7 +157,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "feature/electrotutor-master-2026-11-25",
-      "checkpoint": "c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e",
+      "checkpoint": "b23b613b3686a29612bf531259f45d3ea6db7ef1",
       "ownership": [
         "src",
         "public",
@@ -166,7 +166,7 @@
         "specs",
         "docs"
       ],
-      "status": "integration_required"
+      "status": "integrated"
     }
   ],
   "slices": [
@@ -178,7 +178,7 @@
     {"id":"ET-2511-005","master_id":"ET-2511-MASTER","title":"Строгий синтез LC-двухполюсников","status":"verified","predecessors":["ET-2511-004"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0b9902c1aae4c11c46ae1e571ce7020a47872b38","checkpoint_after":"a1a01710d80a929deee70e202a31a41779593fb3","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/models","src/components/LcExperimentLab.tsx","tests/lab-acceptance"],"requirements":["LC-01","LC-02","LC-03","LC-04","LC-05","LC-06","LC-07","EVAL-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-006","master_id":"ET-2511-MASTER","title":"Продольная и поперечная трёхфазная несимметрия","status":"verified","predecessors":["ET-2511-005"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a1a01710d80a929deee70e202a31a41779593fb3","checkpoint_after":"c22b09f97222c456c41b0639511ddc5a73846662","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components","src/pages","tests/lab-acceptance"],"requirements":["SEQ-01","SEQ-02","SEQ-03","SEQ-04","EVAL-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"verified","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"c22b09f97222c456c41b0639511ddc5a73846662","checkpoint_after":"844361fa0cab897586fe9d29c3f3758605c0ee1e","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-008","master_id":"ET-2511-MASTER","title":"Интеграционная и релизная проверка","status":"blocked","predecessors":["ET-2511-007"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"844361fa0cab897586fe9d29c3f3758605c0ee1e","checkpoint_after":"c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/TESTING.md",".github/workflows","scripts/full-verify.mjs"],"requirements":["EVAL-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
+    {"id":"ET-2511-008","master_id":"ET-2511-MASTER","title":"Интеграционная и релизная проверка","status":"verified","predecessors":["ET-2511-007"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"844361fa0cab897586fe9d29c3f3758605c0ee1e","checkpoint_after":"b23b613b3686a29612bf531259f45d3ea6db7ef1","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5","L6"],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/TESTING.md",".github/workflows","scripts/full-verify.mjs"],"requirements":["EVAL-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
   ],
   "blockers": [
     {
@@ -200,10 +200,10 @@
     {
       "id": "ET-2511-REL-02",
       "class": "environment_unavailable",
-      "status": "active",
-      "blocking": true,
+      "status": "resolved",
+      "blocking": false,
       "owner": "project-owner",
-      "evidence": "Команда git push остановлена до отправки: approval required by policy, but AskForApproval is set to Never. На GitHub нет удалённой ветки или PR."
+      "evidence": "Владелец отправил точную рабочую ветку. PR №9 и CI прошли. main опубликован."
     }
   ],
   "decisions": [
@@ -217,10 +217,10 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "После появления точной рабочей ветки на origin открыть PR, дождаться CI, выполнить штатный выпуск и проверить опубликованный SHA и smoke.",
+  "next_action": "Выпуск ET-2511 подтверждён. Действий для завершения нет.",
   "integration": {
-    "required": true,
-    "reason": "ET-2511-REL-02: системная политика остановила push до отправки. Требуется публикация рабочей ветки."
+    "required": false,
+    "reason": "PR №9 слит, продуктовая ревизия опубликована и проверена на обеих площадках."
   }
 }
 ```

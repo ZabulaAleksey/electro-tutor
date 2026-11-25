@@ -124,21 +124,21 @@
 
 - Status: blocked
 - Checkpoint: c47bd9065ff71ca5b6ce3bbca41e4bda83e0b95e
-- Lifecycle: локальная приёмка пройдена. BLOCKED: deploy.
+- Lifecycle: локальная приёмка пройдена, владелец разрешил выпуск. BLOCKED: push.
 - Dependencies: ET-2511-000…007 проверены локально. Последний продуктовый checkpoint 844361fa.
 - Scope: [EVAL-08](../specs/features/electrotutor-20261125.spec.md#stage-8-интеграция-регрессионная-проверка-релиз). Общий регрессионный прогон, release evidence и проверка границы публикации.
 - Runnable E2E: собрать корневой и education-артефакт, пройти принятые маршруты и лаборатории в Chromium, затем применить проектный релизный gate.
 - Acceptance: корневой и лабораторный набор, аналитические эталоны и артефакты, неизменность существующих ссылок и архивов, требуемый CI и smoke размещённой версии.
 - Rollback: действующий Cloudflare receipt и GitHub Pages run предшественника ET-LABR-013. Публикация после проверок и проектного разрешения.
 - Evidence: [локальная приёмка EVAL-08](TESTING.md#et-2511-008--интеграционная-и-релизная-проверка). 1069 Vitest, 428 корневых Chromium и 6 штатных SKIP, 72 лабораторных Chromium, локальный smoke 2/2, префикс 5/5.
-- Blockers: ET-2511-REL-01. Требуется решение владельца о выпуске. Хостовый CI и smoke нового размещения ожидают запуска релизного процесса.
-- User actions: ET-2511-REL-01 · READY · условие: локальные проверки пройдены. Действие: ответить «Да, сливай», если одобрен штатный push, PR и слияние через CI с последующей публикацией. Evidence: явное сообщение пользователя. Разблокирует: PR и проверку CI, затем слияние при зелёных обязательных проверках и smoke нового размещения.
+- Blockers: ET-2511-REL-02. Codex остановил `git push` до отправки. Инструмент потребовал системное одобрение при `AskForApproval=Never`. `origin/main` проверен на `d5499978`, удалённая рабочая ветка и PR отсутствуют.
+- User actions: ET-2511-REL-01 · DONE · владелец ответил «Да, сливай» и поручил PR, CI, слияние, публикацию и smoke. ET-2511-REL-02 · READY · при недоступном системном одобрении выполнить из `C:\Users\aleks\projects\electro-tutor` команду `git push -u origin feature/electrotutor-master-2026-11-25`. Evidence: `git ls-remote` возвращает SHA локальной ветки на одноимённом remote ref. Разблокирует: открытие PR, CI, слияние и выпуск.
 - NEXT: ET-2511-008
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 19,
+  "state_revision": 20,
   "master": {
     "id": "ET-2511-MASTER",
     "status": "blocked",
@@ -192,10 +192,18 @@
     {
       "id": "ET-2511-REL-01",
       "class": "product_evidence_required",
+      "status": "resolved",
+      "blocking": false,
+      "owner": "project-owner",
+      "evidence": "Владелец явно подтвердил штатный выпуск командой «Да, сливай» и поручил PR, CI, публикацию и smoke."
+    },
+    {
+      "id": "ET-2511-REL-02",
+      "class": "environment_unavailable",
       "status": "active",
       "blocking": true,
       "owner": "project-owner",
-      "evidence": "Локальные проверки пройдены. Нужны решение владельца, PR, Linux CI и smoke новой опубликованной версии."
+      "evidence": "Команда git push остановлена до отправки: approval required by policy, but AskForApproval is set to Never. На GitHub нет удалённой ветки или PR."
     }
   ],
   "decisions": [
@@ -209,10 +217,10 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "После решения владельца отправить ветку, открыть PR, подтвердить CI и выполнить штатный выпуск по проектному процессу.",
+  "next_action": "После появления точной рабочей ветки на origin открыть PR, дождаться CI, выполнить штатный выпуск и проверить опубликованный SHA и smoke.",
   "integration": {
     "required": true,
-    "reason": "ET-2511-REL-01: нужно подтверждение штатного push, PR, слияния и публикации."
+    "reason": "ET-2511-REL-02: системная политика остановила push до отправки. Требуется публикация рабочей ветки."
   }
 }
 ```

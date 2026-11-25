@@ -31,6 +31,7 @@ export default function CircularDiagram({ language, showHeading = true, route = 
   const [ready,setReady]=useState(false);
   const [step,setStep]=useState<number|null>(null);
   const [urlStatus, setUrlStatus] = useState<CircularDiagramParseStatus>("valid");
+  const showLegacyGuide = route === "/interactive/";
 
   const writeUrl = (state: CircularDiagramState, mode: "push" | "replace") => {
     if (location.pathname !== pathname) return;
@@ -130,7 +131,8 @@ export default function CircularDiagram({ language, showHeading = true, route = 
       <div className="circle-guide-actions">
         <button type="button" disabled={!ready} onClick={()=>example(true)}>{t("Пример с дугой","Приклад із дугою")}</button>
         <button type="button" disabled={!ready} onClick={()=>example(false)}>{t("Пример с прямой","Приклад із прямою")}</button>
-        <button type="button" disabled={!ready} aria-pressed={step!==null} onClick={()=>setStep(step===null?0:null)}>{t("Пошаговое построение","Покрокова побудова")}</button>
+        {showLegacyGuide && <button type="button" disabled={!ready} aria-pressed={step!==null}
+          onClick={()=>setStep(step===null?0:null)}>{t("Пошаговое построение","Покрокова побудова")}</button>}
       </div>
       {step!==null&&<div className="circle-guide-body">
         <p role="status"><b>{step+1}/3</b> {guide[step]}</p>

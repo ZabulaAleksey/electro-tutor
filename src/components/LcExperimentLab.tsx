@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { maxCircuitFileBytes } from "../circuit/document";
 import {
-  analyzeLcExperiment, newLcExperiment, readLcExperiment,
+  analyzeLcEditorDocument, analyzeLcExperiment, newLcExperiment, readLcExperiment, type LcEditorAnalysis,
 } from "../circuit/lc-experiment";
 import { applyCauerTopology, applyExactLcTopology, fosterTopologyDraft, type FosterTerm, type LcForm } from "../circuit/lc-synthesis-document";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import type { CircuitComponent } from "../circuit/topology";
 import { verifyLcRationalIdentity, type FosterVerification } from "../models/lc-synthesis-equivalence";
 import type { CauerElement } from "../models/reactive-cauer-i";
-import type { LcPortAnalysis } from "../models/reactive-lc-graph";
 import { isNominal, MAX_VALUE, MIN_VALUE } from "../models/reactive-two-port";
 import type { Language } from "../types";
 import { CauerResults } from "./CauerResults";
@@ -49,7 +48,7 @@ const copy = {
   },
 } as const;
 
-type Snapshot = { document: TopologyLabDocument; result: LcPortAnalysis };
+type Snapshot = { document: TopologyLabDocument; result: LcEditorAnalysis };
 type History = { current: Snapshot; past: Snapshot[]; future: Snapshot[] };
 
 function starter(): History {
@@ -74,7 +73,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
     ++importGeneration.current;
     if (next === experiment) return false;
     try {
-      const accepted = { document: next, result: analyzeLcExperiment(next) };
+      const accepted = { document: next, result: analyzeLcEditorDocument(next) };
       setHistory(previous => ({
         current: accepted, past: [...previous.past, previous.current].slice(-64), future: [],
       }));
@@ -83,7 +82,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
       return true;
     } catch (error) {
       const reason = error instanceof Error ? error.message : "";
-      setNotice({ type: "error", text: reason === "lc-graph-limit" ? t.range : reason === "invalid-lc-value" ? t.nominalError : t.invalid });
+      setNotice({ type: "error", text: reason === "invalid-lc-value" ? t.nominalError : t.invalid });
       return false;
     }
   }
@@ -210,18 +209,20 @@ export default function LcExperimentLab({ language }: { language: Language }) {
       </div>
       {notice && <p role={notice.type === "error" ? "alert" : "status"} data-lc-notice={notice.type}>{notice.text}</p>}
       <div className="lc-graph-results" data-lc-experiment-result={result.kind}>
-        {result.kind === "finite" ? <ReactiveImpedanceResults impedance={result.impedance} language={language} cursor={cursor} setCursor={setCursor} />
-          : <section className="lc-panel lc-results" aria-live="polite">
-              <p data-lc-formula>{result.kind === "short" ? "Z(s) = 0 Ω" : "Z(s) → ∞"}</p>
-              <p>{t[result.kind]}</p>
-            </section>}
-        <SimplifiedLcResults topology={experiment.topology} observedEndpoints={experiment.observedEndpoints} language={language} />
-        <FosterResults result={result} cursor={cursor} language={language} form="i" onApply={(terms, proof) => applyFoster("i", terms, proof)} />
-        <FosterResults result={result} cursor={cursor} language={language} form="ii" onApply={(terms, proof) => applyFoster("ii", terms, proof)} />
-        <CauerResults result={result} cursor={cursor} language={language} form="i" onApply={elements => applyCauer("i", elements)} />
-        <CauerResults result={result} cursor={cursor} language={language} form="ii" onApply={elements => applyCauer("ii", elements)} />
-        {result.kind === "finite" && <LcTransformationResults document={experiment} analysis={result} language={language}
-          onApply={plan => applyLocal(plan.topology, plan.values)} applied={applied?.after === experiment ? applied : undefined} />}
+        {result.kind === "limit" ? <p className="lc-panel" role="status">{t.range}</p> : <>
+          {result.kind === "finite" ? <ReactiveImpedanceResults impedance={result.impedance} language={language} cursor={cursor} setCursor={setCursor} />
+            : <section className="lc-panel lc-results" aria-live="polite">
+                <p data-lc-formula>{result.kind === "short" ? "Z(s) = 0 Ω" : "Z(s) → ∞"}</p>
+                <p>{t[result.kind]}</p>
+              </section>}
+          <SimplifiedLcResults topology={experiment.topology} observedEndpoints={experiment.observedEndpoints} language={language} />
+          <FosterResults result={result} cursor={cursor} language={language} form="i" onApply={(terms, proof) => applyFoster("i", terms, proof)} />
+          <FosterResults result={result} cursor={cursor} language={language} form="ii" onApply={(terms, proof) => applyFoster("ii", terms, proof)} />
+          <CauerResults result={result} cursor={cursor} language={language} form="i" onApply={elements => applyCauer("i", elements)} />
+          <CauerResults result={result} cursor={cursor} language={language} form="ii" onApply={elements => applyCauer("ii", elements)} />
+          {result.kind === "finite" && <LcTransformationResults document={experiment} analysis={result} language={language}
+            onApply={plan => applyLocal(plan.topology, plan.values)} applied={applied?.after === experiment ? applied : undefined} />}
+        </>}
       </div>
     </div>
   </fieldset>;

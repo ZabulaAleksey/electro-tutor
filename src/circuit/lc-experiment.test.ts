@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { limits, reactance, resonances, solveCircuit, type Circuit } from "../models/reactive-two-port";
 import { maxCircuitFileBytes, parseCircuit } from "./document";
 import {
-  analyzeLcExperiment, lcMoveTargets, moveLcExperiment, newLcExperiment, readLcExperiment, removeLcPart,
+  analyzeLcEditorDocument, analyzeLcExperiment, lcMoveTargets, moveLcExperiment, newLcExperiment, readLcExperiment, removeLcPart,
 } from "./lc-experiment";
 import { reactiveLcMode } from "./reactive-lc-mode";
 import { simplifyReactiveTopology } from "./reactive-lc-simplification";
@@ -29,6 +29,24 @@ function impedance(document: TopologyLabDocument) {
 }
 
 describe("topological LC experiment", () => {
+  it("keeps valid editable archives beyond the solver budget without admitting unsupported component types", () => {
+    const coil: Circuit = { kind: "l", value: 10 };
+    const chain = (count: number) => Array.from({ length: count - 1 }).reduce<Circuit>(
+      left => ({ kind: "series", left, right: coil }), coil);
+    for (const count of [12, 25]) {
+      const original = newLcExperiment(chain(count));
+      expect(() => analyzeLcExperiment(original)).toThrow("lc-graph-limit");
+      expect(analyzeLcEditorDocument(original)).toEqual({ kind: "limit" });
+      expect(readLcExperiment(JSON.stringify(original))).toEqual(original);
+    }
+    const overBudget = newLcExperiment(chain(25));
+    const invalid = { ...overBudget, topology: { ...overBudget.topology,
+      components: overBudget.topology.components.map(part => part.id === "L1"
+        ? { ...part, kind: "r", parameters: { ohm: 100 } } : part),
+    } };
+    expect(() => readLcExperiment(JSON.stringify(invalid))).toThrow("invalid-lc-component");
+  });
+
   it("matches the series and parallel resonance oracles after actual slot insertion", () => {
     const series = impedance(addCapacitor("series"));
     expect(resonances(series)).toEqual([{ kind: "zero", omega: 1000 }]);

@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { newLineExperiment } from "../transient/line-experiment";
+import { newLcExperiment } from "../circuit/lc-experiment";
 import { TopologySession, parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import { parts } from "../circuit/drawing";
 import { netlist, type CircuitComponent } from "../circuit/topology";
@@ -35,14 +36,15 @@ test("repeated series and parallel edits retain symbol length, connected endpoin
   }
 });
 
-function insert(document: TopologyLabDocument, component: CircuitComponent, isTarget: (slot: TopologySlot) => boolean) {
+function insert(document: TopologyLabDocument, component: CircuitComponent, isTarget: (slot: TopologySlot) => boolean,
+  proposed?: Parameters<typeof geometryAfterInsertion>[5], cross?: readonly [string, string]) {
   const session = new TopologySession(JSON.stringify(document));
-  const slot = session.listSlots().find(isTarget)!;
+  const slot = cross ? session.crossSlot(...cross) : session.listSlots().find(isTarget)!;
   const previous = layoutLineExperiment(document);
   session.apply({ type: "insert", slot, component });
   return parseTopologyLabDocument(JSON.stringify({
     ...session.document,
-    geometry: geometryAfterInsertion(previous, document.topology, session.document.topology, slot, component),
+    geometry: geometryAfterInsertion(previous, document.topology, session.document.topology, slot, component, proposed),
   }));
 }
 
@@ -72,6 +74,60 @@ test("a branch parallel to a load with a series return element keeps different n
     first.net !== second.net && first.y === second.y &&
     Math.max(first.min, second.min) < Math.min(first.max, second.max)))).toBe(false);
 });
+
+const lcExamples = [
+  ["parallel:[\"C1\"]:left", "port", "series:slotWire4"],
+  ["parallel:[\"C1\",\"L1\"]:left", "parallel:[\"C1\"]:left", "series:slotWire1"],
+  ["parallel:[\"C1\",\"L1\"]:left", "parallel:[\"C1\"]:left", "series:slotWire4"],
+] as const;
+
+for (const edits of lcExamples) {
+  test("LC fixed pins and orthogonal routes after " + edits.join(" → "), () => {
+    let document = newLcExperiment();
+    for (const [index, id] of edits.entries()) {
+      const partId = "C" + (10 + index);
+      const part = { id: partId, terminals: [partId + ":a", partId + ":b"], kind: "c", parameters: { ...parts.c.parameters } };
+      const cross = id === "port" ? ["P1:a", "P1:b"] as const : undefined;
+      const target = (slot: TopologySlot) => slot.id === id;
+      const before = layoutLineExperiment(document);
+      const changed = insert(document, part, target, undefined, cross);
+      const after = layoutLineExperiment(changed);
+      if (!id.startsWith("series:")) {
+        for (const [endpoint, location] of before.endpoints) expect(after.endpoints.get(endpoint)).toEqual(location);
+        for (const wire of before.wires) expect(after.wires.find(({ id }) => id === wire.id)).toEqual(wire);
+        const preview = { point: { x: 1500, y: 20 }, vertical: true };
+        expect(insert(document, part, target, preview, cross).geometry).toEqual(changed.geometry);
+      }
+      const membership = new Map(netlist(changed.topology).flatMap((net, index) => net.map(id => [id, index] as const)));
+      const segments = after.wires.flatMap(wire => {
+        const { from } = changed.topology.wires.find(({ id }) => id === wire.id)!;
+        return wire.points.slice(1).map((b, index) => ({ net: membership.get(from), a: wire.points[index], b }));
+      });
+      for (const [i, { net, a, b }] of segments.entries()) {
+        expect(a.x === b.x || a.y === b.y).toBe(true);
+        for (const { net: otherNet, a: c, b: d } of segments.slice(i + 1)) {
+          if (net === otherNet) continue;
+          if (a.y === b.y && b.y === c.y && c.y === d.y) {
+            expect(Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x))).toBeGreaterThanOrEqual(Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)));
+          }
+          if (a.x === b.x && b.x === c.x && c.x === d.x) {
+            expect(Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y))).toBeGreaterThanOrEqual(Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y)));
+          }
+        }
+      }
+      for (const component of changed.topology.components.filter(({ kind }) => kind !== "port")) {
+        const [leftPin, rightPin] = component.terminals.map(end => after.endpoints.get(end)!);
+        const horizontal = leftPin.y === rightPin.y;
+        const x = Math.min(leftPin.x, rightPin.x), y = Math.min(leftPin.y, rightPin.y);
+        const [left, right] = horizontal ? [x + 7, x + 97] : [x - 10, x + 10];
+        const [top, bottom] = horizontal ? [y - 10, y + 10] : [y + 7, y + 97];
+        expect(segments.some(({ a, b }) => Math.min(a.x, b.x) < right && Math.max(a.x, b.x) > left &&
+          Math.min(a.y, b.y) < bottom && Math.max(a.y, b.y) > top)).toBe(false);
+      }
+      document = changed;
+    }
+  });
+}
 
 test("a branch leaves the full four-terminal body clear when its preferred side is obstructed", () => {
   const inductor = insert(newLineExperiment().circuit,

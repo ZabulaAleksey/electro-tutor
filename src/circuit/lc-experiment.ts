@@ -1,5 +1,5 @@
 import { isGroup, readCircuit, type Circuit } from "../models/reactive-two-port";
-import { analyzeLcTopology, type LcPortAnalysis } from "../models/reactive-lc-graph";
+import { analyzeLcTopology, lcNominalTicks, type LcPortAnalysis } from "../models/reactive-lc-graph";
 import { maxCircuitFileBytes, parseCircuit } from "./document";
 import { splitReactivePort } from "./reactive-lc-mode";
 import { sameLcPortResponse } from "./reactive-lc-simplification";
@@ -65,6 +65,25 @@ export function analyzeLcExperiment(document: TopologyLabDocument): LcPortAnalys
   return analyzeLcTopology(topology, port);
 }
 
+export type LcEditorAnalysis = LcPortAnalysis | { kind: "limit" };
+
+export function analyzeLcEditorDocument(document: TopologyLabDocument): LcEditorAnalysis {
+  const { topology, port } = splitReactivePort(document.topology);
+  try { return analyzeLcTopology(topology, port); }
+  catch (error) {
+    if (!(error instanceof Error) || error.message !== "lc-graph-limit") throw error;
+    // The solver can check its size budget before reading components.
+    // A document beyond that budget still needs valid elements and values.
+    for (const part of topology.components) {
+      if ((part.kind !== "l" && part.kind !== "c") || part.terminals.length !== 2) {
+        throw Error("invalid-lc-component");
+      }
+      lcNominalTicks(part);
+    }
+    return { kind: "limit" };
+  }
+}
+
 /** Legacy geometry is validated by its reader and then replaced by SVG auto-layout. */
 export function readLcExperiment(text: string): TopologyLabDocument {
   const size = new TextEncoder().encode(text).length;
@@ -88,7 +107,7 @@ export function readLcExperiment(text: string): TopologyLabDocument {
   } else {
     document = labDocument(parseCircuit(text).drawing.topology);
   }
-  analyzeLcExperiment(document);
+  analyzeLcEditorDocument(document);
   return document;
 }
 

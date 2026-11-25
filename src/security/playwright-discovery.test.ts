@@ -62,8 +62,8 @@ describe("actual Playwright discovery transport contract", () => {
     it(`${label}: preserves every logical case exactly once across transports`, () => {
       const baseline = discover(config, false, education);
       const remote = discover(config, true, education);
-      // EVAL-01 and EVAL-02 add seven journeys across both full-site profiles.
-      expect(baseline.length).toBe(label === "root" ? 434 : label === "education" ? 436 : 33);
+      // ET-LABC adds the star short scenario and the dedicated locus in RU/UK.
+      expect(baseline.length).toBe(label === "root" ? 437 : label === "education" ? 439 : 33);
       expect(new Set(baseline.map(test => test.key)).size).toBe(baseline.length);
       expect(new Set(remote.map(test => test.key)).size).toBe(remote.length);
       expect(remote.map(test => test.key).sort()).toEqual(baseline.map(test => test.key).sort());

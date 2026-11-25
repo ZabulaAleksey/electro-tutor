@@ -170,17 +170,38 @@ export const transmissionCircuitAdapter = {
     const extraNets = new Set<number>();
     const resultPolarity = new Map<string, 1 | -1>();
     let current = input;
+    let foldedInputSwitchId: string | undefined;
     const remaining = new Set(lines);
     while (remaining.size) {
       let choices = [...remaining].filter(item => signalNets(item).includes(current));
       if (!choices.length) {
-        const links = devices.filter(item => !inlineIds.has(item.id) && terminals(item).includes(current))
+        const linksToLine = (node: number) => devices.filter(item => !inlineIds.has(item.id) && terminals(item).includes(node))
           .flatMap(item => {
             const [a, b] = terminals(item);
-            const next = a === current ? b : a;
+            const next = a === node ? b : a;
             return (fourTerminal || next !== reference) && !nodeByNet.has(next) && !extraNets.has(next) &&
-              [...remaining].some(line => signalNets(line).includes(next)) ? [{ item, next, reversed: b === current }] : [];
+              [...remaining].some(line => signalNets(line).includes(next)) ? [{ item, next, reversed: b === node }] : [];
           });
+        let links = linksToLine(current);
+        if (!links.length && fourTerminal && !sections.length && source.kind === "voltage" &&
+            devices.every(item => item.kind !== "l" && item.kind !== "c" || !item.parameters.initial)) {
+          const inputDevices = devices.filter(item => terminals(item).includes(current));
+          const [key] = inputDevices;
+          // A closed ideal key has zero drop. Keep the coil as a separate
+          // dynamic contact; the experiment owns the timing of a cold closure.
+          if (inputDevices.length === 1 && key.kind === "switch" && key.parameters.closed === true &&
+              Number(key.parameters.contactOhm ?? 0) === 0 && Number(key.parameters.atS ?? 0) === 0) {
+            const afterKey = terminals(key).find(node => node !== current);
+            if (afterKey !== undefined && !returnNets.has(afterKey)) {
+              const adjacent = devices.filter(item => terminals(item).includes(afterKey));
+              const candidates = linksToLine(afterKey);
+              if (adjacent.length === 2 && candidates.length === 1 && candidates[0].item.kind === "l") {
+                foldedInputSwitchId = key.id;
+                links = candidates;
+              }
+            }
+          }
+        }
         if (links.length !== 1) {
           if (fourTerminal && !sections.length && !links.length) {
             const deviceEdges = devices.map(item => {
@@ -195,7 +216,8 @@ export const transmissionCircuitAdapter = {
         const { item, next, reversed } = links[0];
         if (returnNets.has(next)) throw Error(fourTerminal ? "shorted-line-signal" : "unsupported-line-chain");
         const station = sections.length;
-        if (station === 0 && (item.kind !== "switch" || Number(item.parameters.contactOhm ?? 0) !== 0)) {
+        if (station === 0 && !foldedInputSwitchId &&
+            (item.kind !== "switch" || Number(item.parameters.contactOhm ?? 0) !== 0)) {
           throw Error("unsupported-line-input-contact");
         }
         const extraNode = station === 0 ? 2 * lines.length : lines.length + station;
@@ -253,6 +275,7 @@ export const transmissionCircuitAdapter = {
       resultPolarity.delete(part.id);
     };
     for (const part of devices) {
+      if (part.id === foldedInputSwitchId) continue;
       resultIds.set(part.id, part.id);
       const changeAt = Number(part.parameters.changeAtS ?? 0);
       if (inlineIds.has(part.id)) {
@@ -324,7 +347,7 @@ export const transmissionCircuitAdapter = {
     };
     const errors = validateNetwork(model);
     if (errors.length) throw Error(errors.join("; "));
-    return { model, resultIds, resultPolarity };
+    return { model, resultIds, resultPolarity, foldedInputSwitchId };
   },
 } satisfies LaboratoryAdapter<Network>;
 

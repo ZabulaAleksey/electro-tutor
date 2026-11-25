@@ -126,6 +126,8 @@
 - User actions: none
 - NEXT: none
 
+- Исправление LINE-UX-009A проверено локально в `fix/transient-line-input-inductor`. Топология со снимка воспроизведена, `pnpm test` и Chromium RU/UK прошли. Интеграция этой правки требует явного согласия на merge.
+
 ```master-execution
 {
   "schema_version": 2,

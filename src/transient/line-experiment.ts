@@ -76,7 +76,7 @@ function projectExperiment(circuit: TopologyLabDocument, durationS: number) {
   const converted = transmissionCircuitAdapter.convert(projected);
   const model = { ...converted.model, durationS, source: { ...converted.model.source } };
   const input = inputContact(model);
-  if (projectClosedInput && input?.id === contact?.id) {
+  if (projectClosedInput && (converted.foldedInputSwitchId ?? input?.id) === contact?.id) {
     model.source.onS = Math.max(model.source.onS, closeS);
   } else if (input?.switch?.closed === false && input.switch.atS === undefined && model.source.currentA) {
     throw Error("inconsistent-ideal-current-source-and-open-switch");

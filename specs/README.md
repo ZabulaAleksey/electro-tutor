@@ -15,6 +15,7 @@ denominator, но только binding SPEC создаёт обязательс�
 
 | SPEC | Статус | Назначение |
 |---|---|---|
+| [features/laboratory-corrections.spec.md](features/laboratory-corrections.spec.md) | Утверждён приложенным мастер-промптом | Звезда, симметричные составляющие, годограф и два редактора схем |
 | [features/electrotutor-20261125.spec.md](features/electrotutor-20261125.spec.md) | Утверждён запуском 25.11.2026 | Витрина, топология, линия, LC-синтез, трёхфазная несимметрия, качение и релиз |
 | [features/lab-reconstruction.spec.md](features/lab-reconstruction.spec.md) | Этапы 0–13 опубликованы, ADR-064 и E3 приняты | FR-601–615 и ET-LABR-013: конструктор, лаборатории A–G и приёмка по 17 референсам |
 | `system.spec.md` | Действует | Границы и требования платформы «Потенциал» |

@@ -5,7 +5,7 @@ test("interactive menu opens the RU/UK star lab", async ({ page }) => {
   await page.getByRole("link", { name: "Несимметричная звезда", exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/interactive\/star-neutral\//);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несимметричная звезда");
-  await expect(page.locator(".star-results tbody tr")).toHaveCount(8);
+  await expect(page.locator(".star-results tbody tr")).toHaveCount(11);
   await page.locator(".language-switcher__trigger").click(); await page.locator("a[data-language-link]").click();
   await expect(page).toHaveURL(/\/uk\/interactive\/star-neutral\//);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Несиметрична зірка");
@@ -79,8 +79,47 @@ test("impedance plane fits both sub-ohm and large finite data", async ({ page })
     }
     await expect.poll(async () => Number(await page.locator(".star-phase-a circle").getAttribute("cx")))
       .toBeGreaterThan(350);
-    await expect(page.locator(".star-results tbody tr")).toHaveCount(8);
+    await expect(page.locator(".star-results tbody tr")).toHaveCount(11);
   }
+});
+
+test("the schematic, line voltages and partial results follow exact shorts", async ({ page }) => {
+  await page.goto("/ru/interactive/star-neutral/");
+  const schematic = page.locator("[data-star-schematic]");
+  const phase = page.getByRole("group", { name: "Фаза A — ZA" });
+  const table = page.locator(".star-results table");
+  const row = (quantity: string) => table.getByRole("row").filter({
+    has: page.getByRole("rowheader", { name: quantity, exact: true }),
+  });
+  await page.getByRole("button", { name: "Симметричная нагрузка", exact: true }).click();
+  await expect(row("IN")).toContainText("0 ∠ 0° A");
+  const independent = page.getByLabel("Независимые фазоры источника");
+  await independent.check();
+  await expect(row("IN")).toContainText("0 ∠ 0° A");
+  await independent.uncheck();
+  await expect(row("UnN").locator("sub")).toHaveText("nN");
+  const lineValues = await Promise.all(["UAB", "UBC", "UCA"].map(quantity => row(quantity).innerText()));
+  await expect(page.locator(".star-lab table")).toHaveCount(1);
+  await phase.getByRole("spinbutton", { name: "R, Ω", exact: true }).fill("0");
+  await expect(schematic.locator('[data-star-branch="A"]')).toHaveAttribute("data-ideal", "true");
+  await expect(schematic.locator('[data-star-impedance="A"]')).toContainText("= 0 Ω");
+  await expect(page.getByRole("alert")).toContainText("Решения нет");
+  await expect(row("IA").locator("td").first()).toHaveText("—");
+
+  const neutral = page.getByRole("switch");
+  await neutral.uncheck();
+  await expect(schematic.locator("[data-star-neutral-branch]")).toHaveCount(0);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(row("Ua")).toContainText("0 ∠ 0° V");
+  await expect(row("IA").locator("td").first()).not.toHaveText("—");
+  expect(await Promise.all(["UAB", "UBC", "UCA"].map(quantity => row(quantity).innerText()))).toEqual(lineValues);
+
+  await neutral.check();
+  await page.getByRole("group", { name: "Нейтраль — ZN" })
+    .getByRole("spinbutton", { name: "X, Ω", exact: true }).fill("12");
+  await expect(schematic.locator('[data-star-impedance="N"]')).toContainText("j12 Ω");
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(row("UnN")).toContainText("230 ∠ 0° V");
 });
 
 test("touch drag follows its pointer through the axis at zoom and releases on cancellation", async ({ browser, baseURL }) => {

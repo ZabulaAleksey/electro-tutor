@@ -14,6 +14,7 @@ type ResultsProps = {
   sectionId: string;
   model: Network;
   showResults: boolean;
+  onShowResults: () => void;
   onBack: () => void;
   durationS: number;
   onDurationChange: (seconds: number) => void;
@@ -107,7 +108,7 @@ function WaveAnimation({ language, sectionId, samples, length, xM, scale }: {
   </svg>;
 }
 
-export default function LineExperimentResults({ language, sectionId, model, showResults, onBack, durationS, onDurationChange,
+export default function LineExperimentResults({ language, sectionId, model, showResults, onShowResults, onBack, durationS, onDurationChange,
   observation, onObservationChange }: ResultsProps) {
   const t = copy[language];
   const [hydrated, setHydrated] = useState(false);
@@ -207,6 +208,7 @@ export default function LineExperimentResults({ language, sectionId, model, show
     onObservationChange({ xM: clamp(position, length), timeS });
   }
   function play() {
+    if (!showResults) onShowResults();
     requestModel(model);
     const startS = timeS >= durationS ? 0 : timeS;
     if (startS !== timeS) onObservationChange({ xM, timeS: startS });

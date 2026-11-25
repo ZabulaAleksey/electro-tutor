@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import { reactiveLcMode } from "../../src/circuit/reactive-lc-mode";
+import { analyzeLcExperiment, newLcExperiment, readLcExperiment } from "../../src/circuit/lc-experiment";
+import { reactance, type Circuit } from "../../src/models/reactive-two-port";
 
 const prefix = (process.env.E2E_BASE_PATH ?? "/").replace(/\/$/, "");
 const route = (language: "ru" | "uk") => `${prefix}/${language}/interactive/reactive-two-port-graph/experiment/`;
@@ -22,6 +24,131 @@ async function downloaded(page: Page, testInfo: TestInfo, name: string) {
   await download.saveAs(path);
   return { path, document: JSON.parse(await readFile(path, "utf8")) };
 }
+
+test("two parallel groups have unique targets and the entire LC circuit remains connectable", async ({ page }, testInfo) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  const result = page.locator("[data-lc-experiment-result]");
+  const frequencyPoints = [250, 600, 2200];
+  const group = (coil: number, capacitor: number) => ({
+    kind: "parallel", left: { kind: "l", value: coil }, right: { kind: "c", value: capacitor },
+  });
+  await page.locator("[data-lc-import]").setInputFiles({
+    name: "two-parallel-groups.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schema: "electrotutor-reactive-two-port-v1",
+      circuit: { kind: "series", left: group(10, 100), right: group(20, 150) } })),
+  });
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  await expect(board.locator('[data-line-glyph="C2"]')).toBeVisible();
+  await capture(page, testInfo, "lc-two-parallel-groups-before");
+  const originalGlyphs = () => board.locator('[data-line-glyph="L1"], [data-line-glyph="C1"], [data-line-glyph="L2"], [data-line-glyph="C2"]')
+    .evaluateAll(nodes => nodes.map(node => [node.getAttribute("data-line-glyph"), node.getAttribute("transform")]));
+  const portPositions = () => board.locator("[data-lc-port-terminal]")
+    .evaluateAll(nodes => nodes.map(node => [node.getAttribute("cx"), node.getAttribute("cy")]));
+  const positions = await originalGlyphs();
+  const ports = await portPositions();
+  const whole = board.locator("[data-lc-whole-parallel]");
+  const targets = board.locator("[data-lc-parallel-pair]");
+  await board.locator('[data-line-palette="c"]').click();
+  await expect(targets).toHaveCount(3);
+  const pairs = await targets.evaluateAll(nodes => nodes.map(node => node.getAttribute("data-lc-parallel-pair")));
+  expect(new Set(pairs).size).toBe(3);
+  await expect(whole).toHaveCount(1);
+  await whole.click();
+  await expect(board.locator('[data-line-glyph="C3"]')).toBeVisible();
+  expect(await originalGlyphs()).toEqual(positions);
+  expect(await portPositions()).toEqual(ports);
+  await capture(page, testInfo, "lc-external-parallel-after");
+
+  const saved = await downloaded(page, testInfo, "lc-external-parallel");
+  const graph = readLcExperiment(JSON.stringify(saved.document));
+  const cap = graph.topology.components.find(part => part.id === "C3")!;
+  const analysis = analyzeLcExperiment(graph);
+  expect(analysis.kind).toBe("finite");
+  if (analysis.kind !== "finite") throw Error("Expected finite impedance.");
+  for (const omega of frequencyPoints) {
+    const first = omega * 100e-6 - 1 / (omega * .01);
+    const second = omega * 150e-6 - 1 / (omega * .02);
+    const oldReactance = -1 / first - 1 / second;
+    const expectedSusceptance = -1 / oldReactance + omega * Number(cap.parameters.farad);
+    expect(-1 / reactance(analysis.impedance, omega)).toBeCloseTo(expectedSusceptance, 10);
+  }
+  await page.locator("[data-lc-undo]").click();
+  await expect(board.locator('[data-line-glyph="C3"]')).toHaveCount(0);
+  await page.locator("[data-lc-redo]").click();
+  await expect(board.locator('[data-line-glyph="C3"]')).toBeVisible();
+  await page.locator("[data-lc-import]").setInputFiles(saved.path);
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  expect(await portPositions()).toEqual(ports);
+
+  await board.locator('[data-line-palette="l"]').click();
+  await board.locator("[data-lc-parallel-pair]:not([data-lc-whole-parallel])").first().click();
+  const transformations = page.locator("[data-lc-transformations]");
+  await transformations.locator("summary").click();
+  await transformations.locator("[data-lc-apply-local]").click();
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  const formula = result.locator("[data-lc-formula]");
+  const beforeParallel = await formula.innerText();
+  await board.locator('[data-line-palette="l"]').click();
+  await expect(whole).toBeVisible();
+  await whole.click();
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  await expect(formula).not.toHaveText(beforeParallel);
+});
+
+test("the LC solver node limit still permits edits and archive round trips", async ({ page }, testInfo) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  const coil: Circuit = { kind: "l", value: 10 };
+  let chain: Circuit = coil;
+  for (let i = 1; i < 11; i++) chain = { kind: "series", left: chain, right: coil };
+  await page.locator("[data-lc-import]").setInputFiles({
+    name: "twelve-nodes.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(newLcExperiment(chain))),
+  });
+  await expect(board.getByText(/Lэкв/)).toBeVisible();
+  const result = page.locator("[data-lc-experiment-result]");
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  await board.locator('[data-line-palette="c"]').click();
+  await expect(board.locator('[data-line-glyph="L11"]')).toBeVisible();
+  await board.locator("[data-line-series-slot]").first().press("Enter");
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "limit");
+  await expect(result.getByRole("status")).toContainText("12 связанных узлов");
+  await expect(result.locator("[data-lc-formula]")).toHaveCount(0);
+  const saved = await downloaded(page, testInfo, "lc-over-solver-limit");
+  await page.locator("[data-lc-undo]").click();
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "finite");
+  await page.locator("[data-lc-import]").setInputFiles(saved.path);
+  await expect(result).toHaveAttribute("data-lc-experiment-result", "limit");
+  await board.locator('[data-line-palette="l"]').click();
+  await board.locator("[data-lc-whole-parallel]").press("Enter");
+  await expect(board.locator('[data-line-glyph="L12"]')).toBeVisible();
+});
+
+test("LC branch removal preserves anchors and further edits after reopening", async ({ page }, testInfo) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  const ports = () => board.locator("[data-lc-port-terminal]")
+    .evaluateAll(nodes => nodes.map(node => [node.getAttribute("cx"), node.getAttribute("cy")]));
+  const initialPort = await ports();
+  await board.locator('[data-line-palette="c"]').click();
+  await board.locator("[data-lc-whole-parallel]").click();
+  await expect(board.locator('[data-line-glyph="C2"]')).toBeVisible();
+  const positions = (await downloaded(page, testInfo, "lc-before-removal")).document.geometry.pins;
+  await board.locator('[data-line-component="C2"]').click();
+  await board.getByRole("dialog").press("Delete");
+  await expect(board.locator('[data-line-glyph="C2"]')).toHaveCount(0);
+  expect(await ports()).toEqual(initialPort);
+  const saved = await downloaded(page, testInfo, "lc-after-removal");
+  for (const [id, point] of Object.entries(saved.document.geometry.pins)) {
+    expect(point).toEqual(positions[id]);
+  }
+  await page.locator("[data-lc-import]").setInputFiles(saved.path);
+  await board.locator('[data-line-palette="l"]').click();
+  await board.locator("[data-lc-whole-parallel]").click();
+  await expect(board.locator('[data-line-glyph="L2"]')).toBeVisible();
+  expect(await ports()).toEqual(initialPort);
+});
 
 test("catalogue D: inspect starter LC, edit inductance, undo and reopen", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 960 });

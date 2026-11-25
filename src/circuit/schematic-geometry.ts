@@ -1,5 +1,5 @@
 import type { Point } from "./topology-layout";
-import type { CircuitTopology } from "./topology";
+import type { CircuitTopology, CircuitWire } from "./topology";
 
 export type SchematicGeometry = Readonly<{
   pins: Readonly<Record<string, Point>>;
@@ -32,6 +32,88 @@ export function readSchematicGeometry(value: unknown, topology: CircuitTopology)
   }));
   return Object.freeze({ pins: Object.freeze(pins), bends: Object.freeze(bends),
     ...(value.returnY === undefined ? {} : { returnY: value.returnY }) });
+}
+
+type GeometryLink = { endpoint: string; points: readonly Point[] };
+
+function compactOrthogonalPath(points: readonly Point[]): Point[] {
+  const result: Point[] = [points[0]];
+  function append(point: Point) {
+    const previous = result.at(-1)!;
+    if (previous.x === point.x && previous.y === point.y) return;
+    const earlier = result.at(-2);
+    if (earlier && (earlier.x === previous.x && previous.x === point.x
+      || earlier.y === previous.y && previous.y === point.y)) result.pop();
+    result.push(point);
+  }
+  for (const [index, current] of points.slice(1).entries()) {
+    const previous = points[index];
+    if (previous.x !== current.x && previous.y !== current.y) append({ x: current.x, y: previous.y });
+    append(current);
+  }
+  return result;
+}
+
+function originalRoute(graph: ReadonlyMap<string, GeometryLink[]>, from: string, to: string): readonly Point[] | undefined {
+  const pending = [from];
+  const visited = new Set(pending);
+  const leadingTo = new Map<string, { from: string; points: readonly Point[] }>();
+  for (let index = 0; index < pending.length && !visited.has(to); index++) {
+    const origin = pending[index];
+    for (const { endpoint, points } of graph.get(origin) ?? []) {
+      if (visited.has(endpoint)) continue;
+      leadingTo.set(endpoint, { from: origin, points });
+      visited.add(endpoint);
+      pending.push(endpoint);
+    }
+  }
+  if (!leadingTo.has(to)) return;
+  const segments: (readonly Point[])[] = [];
+  let endpoint = to;
+  while (endpoint !== from) {
+    const previous = leadingTo.get(endpoint)!;
+    segments.push(previous.points);
+    endpoint = previous.from;
+  }
+  return segments.reverse().flat();
+}
+
+/** Keep surviving pin and wire geometry. New connections follow the old
+ * conductor routes, with a link across the old device only for explicit bypass. */
+export function geometryAfterRemoval(
+  geometry: SchematicGeometry,
+  activeBefore: readonly CircuitWire[],
+  openedBefore: readonly CircuitWire[],
+  drawingAfter: readonly CircuitWire[],
+  bypassTerminals?: readonly string[],
+): SchematicGeometry {
+  const { pins, bends, returnY } = geometry;
+  const previous = new Map([...activeBefore, ...openedBefore].map(wire => [wire.id, wire]));
+  const graph = new Map<string, GeometryLink[]>();
+  function link(from: string, to: string, turns: readonly Point[]) {
+    if (!Object.hasOwn(pins, from) || !Object.hasOwn(pins, to)) return;
+    const points = compactOrthogonalPath([pins[from], ...turns, pins[to]]);
+    graph.set(from, [...graph.get(from) ?? [], { endpoint: to, points }]);
+    graph.set(to, [...graph.get(to) ?? [], { endpoint: from, points: points.toReversed() }]);
+  }
+  for (const wire of activeBefore) {
+    link(wire.from, wire.to, Object.hasOwn(bends, wire.id) ? bends[wire.id] : []);
+  }
+  if (bypassTerminals) link(bypassTerminals[0], bypassTerminals[1], []);
+
+  const byWire = new Map<string, readonly Point[]>();
+  for (const { id, from, to } of drawingAfter) {
+    const old = previous.get(id);
+    if (old?.from === from && old.to === to) {
+      if (Object.hasOwn(bends, id)) byWire.set(id, bends[id]);
+      continue;
+    }
+    const path = originalRoute(graph, from, to);
+    if (!path) continue;
+    const turns = compactOrthogonalPath(path).slice(1, -1);
+    if (turns.length <= 64) byWire.set(id, turns);
+  }
+  return { pins, bends: Object.fromEntries(byWire), returnY };
 }
 
 /** Make room along the existing line axis; all connections already on its

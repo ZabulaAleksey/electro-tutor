@@ -60,7 +60,7 @@ function simplify(points: Point[]): Point[] {
   });
 }
 
-function positiveOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
+export function positiveOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
   if (a.x === b.x && c.x === d.x && a.x === c.x) {
     return Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y)) > Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y));
   }
@@ -68,7 +68,7 @@ function positiveOverlap(a: Point, b: Point, c: Point, d: Point): boolean {
     Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)) > Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x));
 }
 
-function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Point[][], bounds: Box): Point[] | null {
+export function routeOrthogonalWire(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Point[][], bounds: Box): Point[] | null {
   if (equal(from.pin, to.pin) || [from, to].some(({ pin, escape, owner }) =>
     obstacles.some(([id, box]) => id !== owner && intersects(box, pin, escape)))) return null;
   const segments = wirePaths.flatMap(path => path.slice(1).map((point, i) => [path[i], point] as const));
@@ -83,7 +83,11 @@ function route(from: Port, to: Port, obstacles: [string, Box][], wirePaths: Poin
   if (xs.length * ys.length > limit) return null;
   const columns = xs.length;
   const points = ys.flatMap(y => xs.map(x => ({ x, y })));
-  const indexOf = (point: Point) => xs.indexOf(point.x) + ys.indexOf(point.y) * columns;
+  function indexOf(point: Point) {
+    const column = xs.indexOf(point.x);
+    const row = ys.indexOf(point.y);
+    return column < 0 || row < 0 ? -1 : column + row * columns;
+  }
   const start = indexOf(from.escape), end = indexOf(to.escape);
   if (start < 0 || end < 0 || !points[start] || !points[end]) return null;
   const costs = new Map([[start * 3, 0]]);
@@ -228,7 +232,7 @@ export function routeDrawing(
     if (paths[wire.id]) continue;
     const from = ports.get(wire.from), to = ports.get(wire.to);
     const points = from && to && contains(bounds, from.escape) && contains(bounds, to.escape)
-      ? route(from, to, obstaclesFor(wire.from, wire.to), Object.entries(paths)
+      ? routeOrthogonalWire(from, to, obstaclesFor(wire.from, wire.to), Object.entries(paths)
         .filter(([id]) => netByWire.get(id) !== netByWire.get(wire.id)).map(([, path]) => path), bounds) : null;
     if (points) paths[wire.id] = points;
     else unrouted.push(wire.id);

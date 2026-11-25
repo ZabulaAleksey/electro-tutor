@@ -5,6 +5,33 @@ const prefix = (process.env.E2E_BASE_PATH ?? "/").replace(/\/$/, "");
 const route = (language: "ru" | "uk") => `${prefix}/${language}/interactive/three-phase-sequences/`;
 const labSelector = '[data-seq-lab][data-ready="true"]';
 
+test("section impedances are edited on the compact schematic", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/ru/interactive/three-phase-sequences/");
+  const lab = page.locator(labSelector);
+  const scheme = lab.locator("[data-seq-schematic]");
+  await expect(scheme).toBeVisible();
+  const size = (await scheme.boundingBox())!;
+  expect(size.height).toBeLessThan(400);
+  await expect(scheme.locator("[data-seq-zone-impedance]")).toHaveCount(9);
+  await expect(lab.locator(".seq-networks")).toBeVisible();
+  await expect(lab.locator(".seq-networks .seq-network-block")).toHaveCount(0);
+
+  const area = scheme.locator('[data-seq-zone="load"]');
+  const loadZ1 = area.locator('[data-seq-zone-impedance="1"]');
+  const before = await lab.locator('[data-seq-reading="I1"]').getAttribute("data-magnitude");
+  const fields = lab.locator('[data-seq-impedance-settings="load"]');
+  await fields.locator("summary").click();
+  const loadResistance = fields.getByLabel("Z1 R, Ω", { exact: true });
+  await loadResistance.fill("25");
+  await loadResistance.press("Enter");
+  await expect(loadZ1).toContainText("25");
+  await expect(lab.locator('[data-seq-reading="I1"]')).not.toHaveAttribute("data-magnitude", before!);
+  await lab.locator('[data-seq-pick-area="load"]').click();
+  await expect(area.locator("rect").first()).toHaveAttribute("data-selected", "true");
+  await expect(lab.locator('[data-seq-area]')).toHaveValue("load");
+});
+
 async function addSeries(lab: Locator, area: string, at: number, resistance: number) {
   await lab.locator("[data-seq-area]").selectOption(area);
   await lab.locator('[data-seq-kind]').selectOption("series");

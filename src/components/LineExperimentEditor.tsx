@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Trash2, X } from "lucide-react";
 import { geometryAfterInsertion } from "./line-slot-geometry";
-import { directTargets, type DirectTarget } from "./line-slot-targets";
+import { directTargets, distinctLcParallelSlots, type DirectTarget } from "./line-slot-targets";
 import type { Language } from "../types";
 import { netlist, type CircuitComponent } from "../circuit/topology";
 import { parallelBranchForComponent } from "../circuit/topology-branch-removal";
@@ -48,6 +48,7 @@ const copy = {
     search: { series: "Выберите участок провода.", parallel: "Выберите элемент или два крайних элемента группы.", cross: "Выберите два вывода или узла." },
     add: "Вставить", open: "Открыть опыт для", select: "Выбрать", reference: "Полюс отсчёта общего обратного провода",
     left: "Вставить ветвь с левой стороны", right: "Вставить ветвь с правой стороны",
+    parallel: "Подключить параллельно", wholeParallel: "Подключить параллельно всему двухполюснику (a–b)",
     alternate: "Следующий путь между элементами", time: "Время коммутации, с", closeTime: "Время замыкания, с",
     remove: "Удалить элемент", confirm: "Удалить", cancel: "Отмена", invalid: "Здесь вставка недоступна.",
     empty: "На схеме нет подходящего участка.", zoomIn: "Увеличить", zoomOut: "Уменьшить", reset: "Вернуть масштаб 100%",
@@ -64,6 +65,7 @@ const copy = {
     search: { series: "Виберіть ділянку проводу.", parallel: "Виберіть елемент або два крайні елементи групи.", cross: "Виберіть два виводи або вузли." },
     add: "Вставити", open: "Відкрити дослід для", select: "Вибрати", reference: "Полюс відліку спільного зворотного проводу",
     left: "Вставити гілку з лівого боку", right: "Вставити гілку з правого боку",
+    parallel: "Підключити паралельно", wholeParallel: "Підключити паралельно всьому двополюснику (a–b)",
     alternate: "Наступний шлях між елементами", time: "Час комутації, с", closeTime: "Час замикання, с",
     remove: "Видалити елемент", confirm: "Видалити", cancel: "Скасувати", invalid: "Тут вставка недоступна.",
     empty: "На схемі немає придатної ділянки.", zoomIn: "Збільшити", zoomOut: "Зменшити", reset: "Повернути масштаб 100%",
@@ -225,15 +227,20 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   const [expandedDocument, setExpandedDocument] = useState<TopologyLabDocument>();
   const { topology } = document;
+  const physicalLine = variant === "transient"
+    && topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
   const emptyBoard = !topology.wires.length && !topology.junctions.length && !document.brokenWires?.length
     && topology.components.every(part => part.kind === "port");
   const sourceIds = useMemo(() => new Set(topology.components.map(part => part.id)), [topology]);
   const displayDocument = useMemo(() => {
-    if (armed || wireMode || selected || document.brokenWires?.length || expandedDocument === document || variable) return document;
+    // Reduced components have synthetic pins and wires. The physical editor
+    // uses its editable graph to keep both rails and their geometry addressable.
+    if (physicalLine || armed || wireMode || selected || document.brokenWires?.length || expandedDocument === document || variable) return document;
     const observed = referenceEndpoint ? [...document.observedEndpoints, referenceEndpoint] : document.observedEndpoints;
-    const topology = simplifyTopologyForView(document.topology, observed);
+    // Synthetic parallel folds do not have positions on the saved editable canvas.
+    const topology = simplifyTopologyForView(document.topology, observed, { preserveParallelGeometry: lc && !!document.geometry });
     return topology === document.topology ? document : { ...document, topology };
-  }, [document, armed, wireMode, selected, expandedDocument, variable, referenceEndpoint]);
+  }, [document, physicalLine, armed, wireMode, selected, expandedDocument, variable, referenceEndpoint, lc]);
   const diagram = useMemo(() => layoutLineExperiment(displayDocument), [displayDocument]);
   const reference = steady && referenceEndpoint ? diagram.endpoints.get(referenceEndpoint) : undefined;
   const referenceY = reference && diagram.returnY !== undefined && reference.y > diagram.returnY - 30
@@ -252,9 +259,10 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const slots = useMemo(() => listTopologySlots(topology, document.observedEndpoints), [topology, document.observedEndpoints]);
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
     slot.kind === "parallel" && slot.side === "left" && (!port || !slot.componentIds.includes(port.id))), [port, slots]);
+  const nets = useMemo(() => netlist(topology), [topology]);
+  const membership = useMemo(() => new Map(nets.flatMap((net, index) => net.map(endpoint => [endpoint, index] as const))), [nets]);
   const selectedPart = devices.get(selected);
-  const legacyTransient = variant === "transient"
-    && !topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
+  const legacyTransient = variant === "transient" && !physicalLine;
   const sourceReturn = legacyTransient
     ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
   const automaticBypass = useMemo(() => {
@@ -278,9 +286,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const fieldScale = fit * zoom;
   // Choose group boundaries on the actual circuit. A closed loop can expose
   // two paths with the same end components, so both remain selectable.
-  const groupPaths = useMemo(() => first ? parallel.filter(slot =>
-    last ? componentBoundary(slot, first) && componentBoundary(slot, last)
-      : slot.componentIds.length === 1 && slot.componentIds[0] === first) : [], [first, last, parallel]);
+  const groupPaths = useMemo(() => {
+    if (!first) return [];
+    const paths = parallel.filter(slot => last ? componentBoundary(slot, first) && componentBoundary(slot, last)
+      : slot.componentIds.length === 1 && slot.componentIds[0] === first);
+    return lc ? distinctLcParallelSlots(paths, membership) : paths;
+  }, [first, last, parallel, lc, membership]);
   const activeGroup = groupPaths.length ? groupPaths[alternate % groupPaths.length] : undefined;
   const highlighted = new Set(preview?.kind === "parallel" ? preview.componentIds : activeGroup?.componentIds);
   const groupEndParts = useMemo(() => new Set(parallel
@@ -289,7 +300,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const serial = useMemo(() => new Map(slots.flatMap(slot =>
     slot.kind === "series" ? [[slot.wireId, slot] as const] : [])), [slots]);
   const endpoints = useMemo(() => {
-    return netlist(topology).flatMap(net => {
+    return nets.flatMap(net => {
       const portTerminal = port?.terminals.find(id => net.includes(id));
       const portPoint = portTerminal ? diagram.endpoints.get(portTerminal) : undefined;
       if (portTerminal && portPoint) return [[portTerminal, portPoint] as const];
@@ -297,7 +308,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
       if (!id) return [];
       return [[id, diagram.endpoints.get(id)!] as const];
     });
-  }, [port, topology, diagram]);
+  }, [port, nets, diagram]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -346,8 +357,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   function removeSelected(mode: "device" | "branch" | "conductor" = automaticBypass ? "conductor" : "device") {
     if (onRemove) onRemove(selected, document);
-    else if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
-      preserveObservations: lc, allowPortShort: lc && !automaticBypass })) return;
+    else {
+      const source = (physicalLine || lc) && !document.geometry
+        ? { ...document, geometry: captureLineGeometry(topology, diagram) } : document;
+      if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
+        preserveObservations: lc, allowPortShort: lc && !automaticBypass }, source)) return;
+    }
     setSelected("");
     setConfirm(false);
   }
@@ -498,7 +513,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
     if (!endpoint || endpoint === id) { setEndpoint(id === endpoint ? "" : id); return; }
     try {
       const session = new TopologySession(JSON.stringify(document));
-      insert(session.crossSlot(endpoint, id), session);
+      const differentPortOrder = endpoint === port?.terminals[1] && id === port?.terminals[0];
+      const samePortOrder = endpoint === port?.terminals[0] && id === port?.terminals[1];
+      const reverse = lc && (differentPortOrder || !samePortOrder && membership.get(endpoint)! > membership.get(id)!);
+      const [from, to] = reverse ? [id, endpoint] : [endpoint, id];
+      insert(session.crossSlot(from, to), session);
     } catch {
       setError(true);
       setEndpoint(id);
@@ -518,10 +537,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const paletteEnd = lc ? 3 : variable ? 1 : steady ? 5 : palette.length;
   const seriesTargets = armed && !first && !endpoint ? diagram.wires.filter(({ id, points }) =>
     serial.has(id) && points.length && (!seriesWireIds || seriesWireIds.includes(id))) : [];
-  const endpointTargets = pairMode ? new Map([...endpoints, ...diagram.junctions.map(({ id, x, y }) => [id, { x, y }] as const)]) : new Map(endpoints);
+  const endpointTargets = pairMode && !lc
+    ? new Map([...endpoints, ...diagram.junctions.map(({ id, x, y }) => [id, { x, y }] as const)]) : new Map(endpoints);
   const crossTargets = armed && (pairMode || !parallel.length) && !variable && !first ? [...endpointTargets] : [];
-  const direct = armed && !pairMode && !variable && !first ? directTargets(document, diagram, parallel, first) : [];
-  const partTargets = armed && !variable && !endpoint ? diagram.components.filter(({ id }) =>
+  const direct = armed && !pairMode && !variable && !first
+    ? directTargets(document, diagram, parallel, first, port && { terminals: port.terminals, membership }) : [];
+  const partTargets = armed && !variable && !endpoint && !(lc && pairMode) ? diagram.components.filter(({ id }) =>
     parallel.some(slot => componentBoundary(slot, id))) : [];
   const brokenPaths = (document.brokenWires ?? []).flatMap(wire => {
     const from = diagram.endpoints.get(wire.from);
@@ -706,8 +727,9 @@ export default function LineExperimentEditor({ language, document, onChange, onA
           const { slot } = target;
           const point = markerPoints.get(slot.id) ?? target.point;
           const name = slot.kind === "parallel" ? slot.componentIds.join(" + ") : slot.boundaries.join(" / ");
-          const label = (language === "ru" ? "Подключить параллельно" : "Підключити паралельно") + " · " + name;
+          const label = target.wholePort ? t.wholeParallel : t.parallel + " · " + name;
           return <CanvasButton key={slot.id} point={point} fieldScale={fieldScale} data-line-direct-slot={slot.id}
+            data-lc-whole-parallel={target.wholePort || undefined} data-lc-parallel-pair={target.netPair}
             aria-label={label} title={label} {...insertionEvents(slot, target)}>∥</CanvasButton>;
         })}
         {partTargets.map(({ id, x, y }) =>
@@ -715,10 +737,11 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             className="line-experiment-object" aria-label={`${t.select} ${id}`}
             aria-pressed={id === first || id === last} onClick={() => selectParallel(id)} />)}
         {armed && focusPoint && activeGroup && <>
-          <CanvasButton point={{ x: groupControlsX(focusPoint.x - 33 / fieldScale), y: groupControlsY }} fieldScale={fieldScale}
-            data-line-parallel-side="left" aria-label={t.left} title={t.left} onClick={() => insertParallel("left")}>←+</CanvasButton>
+          {!lc && <CanvasButton point={{ x: groupControlsX(focusPoint.x - 33 / fieldScale), y: groupControlsY }} fieldScale={fieldScale}
+            data-line-parallel-side="left" aria-label={t.left} title={t.left} onClick={() => insertParallel("left")}>←+</CanvasButton>}
           <CanvasButton point={{ x: groupControlsX(focusPoint.x + 33 / fieldScale), y: groupControlsY }} fieldScale={fieldScale}
-            data-line-parallel-side="right" aria-label={t.right} title={t.right} onClick={() => insertParallel("right")}>+→</CanvasButton>
+            data-line-parallel-side="right" aria-label={lc ? t.parallel : t.right} title={lc ? t.parallel : t.right}
+            onClick={() => insertParallel("right")}>{lc ? "∥" : "+→"}</CanvasButton>
           {groupPaths.length > 1 && <CanvasButton point={{ x: focusPoint.x, y: focusPoint.y + 57 / fieldScale }}
             fieldScale={fieldScale} data-line-parallel-alternate className="line-experiment-minor"
             aria-label={t.alternate} onClick={() => setAlternate(value => value + 1)}>↻</CanvasButton>}

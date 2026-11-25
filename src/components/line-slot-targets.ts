@@ -3,15 +3,38 @@ import type { TopologyLabDocument } from "../circuit/topology-session";
 import type { Point } from "../circuit/topology-layout";
 import { wireTarget, type LineLayout } from "./line-experiment-layout";
 
-export type DirectTarget = { slot: TopologySlot; point: Point; vertical: boolean; path?: readonly Point[] };
+type ParallelSlot = Extract<TopologySlot, { kind: "parallel" }>;
+type LcAttachments = { terminals: readonly string[]; membership: ReadonlyMap<string, number> };
+export type DirectTarget = {
+  slot: TopologySlot; point: Point; vertical: boolean; path?: readonly Point[]; netPair?: string; wholePort?: boolean;
+};
+
+function pairKey([first, second]: readonly string[], membership: ReadonlyMap<string, number>) {
+  const a = membership.get(first), b = membership.get(second);
+  if (a === undefined || b === undefined || a === b) return;
+  return a < b ? `${a}:${b}` : `${b}:${a}`;
+}
+
+export function distinctLcParallelSlots(slots: readonly ParallelSlot[], membership: ReadonlyMap<string, number>) {
+  const unique = new Map<string, ParallelSlot>();
+  for (const slot of slots) {
+    const key = pairKey(slot.boundaries, membership);
+    if (key !== undefined && !unique.has(key)) unique.set(key, slot);
+  }
+  return [...unique.values()];
+}
 
 export function directTargets(document: TopologyLabDocument, diagram: LineLayout,
-  paths: readonly Extract<TopologySlot, { kind: "parallel" }>[], near: string): DirectTarget[] {
+  paths: readonly ParallelSlot[], near: string, lc?: LcAttachments): DirectTarget[] {
   const result: DirectTarget[] = [];
   const positions = new Map(diagram.components.map(p => [p.id, p]));
   const selected = paths.length > 24 ? paths.filter(s => s.componentIds.length === 1 ||
     (near && (s.componentIds[0] === near || s.componentIds.at(-1) === near))) : paths;
-  for (const slot of diagram.returnY === undefined ? selected : []) {
+  const external = lc && pairKey(lc.terminals, lc.membership);
+  const spans = lc ? distinctLcParallelSlots(selected, lc.membership) : selected;
+  for (const slot of lc || diagram.returnY === undefined ? spans : []) {
+    const netPair = lc && pairKey(slot.boundaries, lc.membership);
+    if (netPair !== undefined && netPair === external) continue;
     const [a, b] = slot.boundaries.map(key => diagram.endpoints.get(key));
     if (!a || !b) continue;
     const members = slot.componentIds.map(id => positions.get(id)!);
@@ -23,7 +46,20 @@ export function directTargets(document: TopologyLabDocument, diagram: LineLayout
     const x = vertical ? Math.max(a.x, b.x) + layer : (a.x + b.x) / 2;
     const y = vertical ? (a.y + b.y) / 2 : Math.min(...members.map(p => p.y)) - layer;
     const point = { x, y: y >= 24 ? y : Math.max(...members.map(p => p.y)) + layer };
-    result.push({ slot, point, vertical });
+    result.push({ slot, point, vertical, netPair });
+  }
+  if (lc) {
+    const [from, to] = lc.terminals;
+    const a = diagram.endpoints.get(from), b = diagram.endpoints.get(to);
+    if (external && a && b) {
+      const slot = createCrossSlot(document.topology, from, to, document.observedEndpoints);
+      const vertical = Math.abs(a.y - b.y) > Math.abs(a.x - b.x);
+      const point = vertical
+        ? { x: Math.max(a.x, b.x) + 86, y: (a.y + b.y) / 2 }
+        : { x: (a.x + b.x) / 2, y: Math.min(a.y, b.y) >= 110 ? Math.min(a.y, b.y) - 86 : Math.max(a.y, b.y) + 86 };
+      result.push({ slot, point, vertical, netPair: external, wholePort: true });
+    }
+    return result;
   }
   if (diagram.returnY !== undefined) {
     const wires = new Map(document.topology.wires.map(w => [w.id, w]));

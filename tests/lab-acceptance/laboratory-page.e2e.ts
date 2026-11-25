@@ -26,6 +26,8 @@ for (const language of ["ru", "uk"] as const) {
     const paused = await time();
     await expect(start).toBeEnabled();
     await expect.poll(time).toBe(paused);
+    await expect(simulation.locator("[data-line-a-plot]")).toHaveCount(4);
+    await simulation.locator("[data-line-a-back]").click();
     await page.locator('[data-line-section="TL1"]').click();
     await expect(simulation).toHaveAttribute("data-calculation-ready", "true");
     await expect(simulation).toHaveAttribute("data-time-s", String(paused));

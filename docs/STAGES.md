@@ -1,6 +1,198 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-RUM
+- Stage ID: ET-LABC-08
+
+## ET-LABC-MASTER — Исправления электротехнических лабораторий
+
+- Status: partial
+- Scope: [исполняемый контракт](../specs/features/laboratory-corrections.spec.md), ET-LABC-00…08.
+- Blockers: оригинальные кадры из текста отсутствуют. Используются воспроизводимые по описанию примеры и кадры текущей версии.
+- User actions: ET-LABC-REF-01 / CONDITIONAL PENDING. Приложить исходные изображения, если требуется буквальная сверка с ними.
+- NEXT: ET-LABC-08
+
+## ET-LABC-00 — Исходное состояние лабораторий
+
+- Status: verified
+- Checkpoint: `43d763d4351b58e7104e084d192c2771afa04839`; локальный `main` совпал с GitHub, рабочее дерево было чистым.
+- Scope: [контракт лабораторий](../specs/features/laboratory-corrections.spec.md). Численные и визуальные исходные данные для сравнения.
+- Evidence: 161 Vitest файл, 1069 тестов, 13 независимых эталонов / 49 проверок. Chromium зафиксировал пять страниц с HTTP 200 и без page errors, две исходные таблицы звезды, путь дуги годографа и старт линии без кривых через 1,8 с. Кадры и численные данные сохранены локально в `work/lab-corrections` чата.
+- Blockers: оригинальные скриншоты, упомянутые в приложенном тексте, отсутствуют. Сценарии восстанавливаются по описанию и текущему интерфейсу.
+- User actions: ET-LABC-REF-01 / CONDITIONAL PENDING. Приложить упомянутые исходные скриншоты для проверки совпадения пользовательских схем с оригиналами.
+- NEXT: ET-LABC-01
+
+## ET-LABC-01 — Несимметричная звезда
+
+- Status: verified
+- Dependencies: ET-LABC-00 verified. Доступны редактор фазных импедансов, переключатель нейтрали и исходные результаты.
+- Scope: [STAR-01–04](../specs/features/laboratory-corrections.spec.md), модель звезды и её страница RU/UK. Δ и общие форматы данных сохраняются.
+- Runnable E2E: открыть лабораторию, изменить R/X фаз и нейтрали, сверить схему и общую таблицу, отключить нейтраль и проверить идеальный, неопределённый и противоречивый режимы.
+- Acceptance: независимые комплексные проверки KCL/KVL, три строки линейных напряжений и одинаковые результаты при переключении нейтрали, отсутствие ложного округления и незапрошенных изменений топографической диаграммы.
+- Rollback: вернуть коммит этапа. Схема черновика не меняется.
+- Evidence: 27 целевых Vitest, 9 Chromium, `pnpm check` без ошибок. Независимый расчёт 20 000 случаев, включая 2000 точных КЗ, дал максимальную относительную невязку 3,54·10⁻¹⁴. Четыре старых пресета совпали с исходным вычислителем с абсолютной разницей до 5,69·10⁻¹⁴. Сравнили кадры и сохранили топографические векторы.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-02
+
+## ET-LABC-02 — Продольная и поперечная несимметрия
+
+- Status: verified
+- Dependencies: ET-LABC-01 verified. Существующий расчёт связанных составляющих, ввод параметров и переключение сечения доступны.
+- Scope: [SEQ-01–03](../specs/features/laboratory-corrections.spec.md). Компоновка и обозначения в редакторе и диаграммах.
+- Runnable E2E: открыть опыт, изменить сопротивление участка возле его изображения, выбрать фазы A/B/C и проверить конец суммы и результаты.
+- Acceptance: сохранены выбранный участок, редактирование всех Z и старые численные эталоны. Векторы 0→1→2 и фаза используют одну шкалу для выбранной величины. Фазы, токи и напряжения проверены в браузере и unit.
+- Rollback: вернуть коммит среза. Архив схемы сохраняет прежний формат.
+- Evidence: 32 целевых Vitest, 5 Chromium на живой странице. Начальная таблица совпала с исходной. В RU/UK на ширинах 320/390/1440 px проверены выбор участка, обновление импеданса, границы подписей и отсутствие горизонтального переполнения.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-03
+
+## ET-LABC-03 — Годограф тока четырёхполюсника
+
+- Status: verified
+- Dependencies: ET-LABC-02 verified. Модель годографа и оба пресета доступны, сохранены исходные SVG и показания.
+- Scope: [ET-LABC-03](../specs/features/laboratory-corrections.spec.md). Убрать последовательное построение на отдельной странице лаборатории. Ввод, примеры, формулы и старый маршрутизатор доступны согласно прежнему контракту.
+- Runnable E2E: открыть годограф, выбрать дугу и прямую, менять нагрузку, сверить рассчитанный ток, полное SVG-представление и историю URL.
+- Acceptance: отсутствуют шаги, полные контуры и числовые результаты обоих примеров совпадают с исходными. RU/UK и прежняя ссылка проверены.
+- Rollback: вернуть коммит среза. URL-состояние совместимо.
+- Evidence: 32 Vitest и 7 Chromium. SVG, снимки области графика, URL и показания примеров дуги и прямой совпали побайтово с исходными. Прежние query-ссылки и их учебные шаги проверены отдельно.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-04
+
+## ET-LABC-04 — Переходная длинная линия
+
+- Status: verified
+- Dependencies: ET-LABC-03 verified. Существуют четырёхвыводная модель, локальный worker и проверенные аналитические режимы оконечной нагрузки.
+- Scope: [TL-01–02](../specs/features/laboratory-corrections.spec.md). Воспроизведение старта, маршрутизация настоящего результата и исправление локальных редакторских операций.
+- Runnable E2E: старт из редактора, просмотр реальных эпюр, пауза и повторный старт, добавление и удаление ветвей с обеих сторон линии, проверка выводов TL1, undo/redo и архив.
+- Acceptance: независимые уравнения нагрузки и коммутации, геометрия и все четыре электрических вывода, отличимые предупреждения об ограничениях вычислителя при сохранении допустимого редакторского состояния.
+- Rollback: вернуть срез. Старые архивы и сохранённая модель поддерживаются.
+- Evidence: 157 целевых Vitest и 11 Chromium. Worker уже считал при прежнем старте, но эпюры были привязаны к просмотру секции. Четыре реальные эпюры, 12 кривых, управление временем, значения согласованного режима, КЗ и ХХ проверены. Найдено наложение разных узлов после вставок L на W4 и C параллельно нагрузке. Опорные положения, разрывы, вставка секции при неподдерживаемой входной ветви и архив проверены.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-05
+
+## ET-LABC-05 — LC-двухполюсник
+
+- Status: verified
+- Dependencies: ET-LABC-04 verified. Доступны общий прозрачный граф, модель выводов порта, синтез, история, архив и исходный браузерный контрпример.
+- Scope: [LC-01–03](../specs/features/laboratory-corrections.spec.md). Варианты вставки формируются по парам электрических узлов. Компоновка сохраняет наружные выводы и позиции незатронутых элементов.
+- Runnable E2E: открыть две последовательные параллельные группы, подключить L и C к внешней паре и к одной группе, проверить анализ, историю и повторное открытие JSON.
+- Acceptance: внешняя пара доступна всегда при разных узлах a/b, дубликаты исчезли, геометрия детерминирована и без наложений разных проводов на опорных случаях, входная проводимость совпадает с независимым расчётом.
+- Rollback: вернуть срез. Формат архива сохраняется, старые координаты читаются.
+- Evidence: 46 целевых Vitest, 14 Chromium на education-сборке, `pnpm check` без ошибок. В двух группах видны три пары, независимая проводимость после внешнего C совпадает на трёх частотах. После локального преобразования доступен внешний L. Редактирование и архив за пределами решателя проверены. 1000 seed × 10 вставок прошли независимую проверку коллизий при неизменных опорных выводах.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-06
+
+## ET-LABC-06 — Общие инварианты редакторов
+
+- Status: verified
+- Dependencies: ET-LABC-05 verified. Линия и LC поддерживают раздельные адресуемые выводы, локальную компоновку и историю.
+- Scope: [ET-LABC-06](../specs/features/laboratory-corrections.spec.md). Атомарность, сохранность топологии, геометрии, повторяемость, совместимость архивов и эквивалентные операции.
+- Runnable E2E: собрать ветви, удалить или переместить эквивалентный участок, восстановить историю, открыть архив и продолжить редактирование в каждом редакторе.
+- Acceptance: электрическая топология не следует из геометрии. Допустимые команды сохраняют внешние выводы и прежние наблюдения. Ошибка операции не сохраняет промежуточное состояние.
+- Rollback: вернуть срез и использовать прежний формат архива.
+- Evidence: 42 целевых Vitest и 8 Chromium. Совпадающие координаты независимых выводов не объединяют электрические узлы. Отклонённая команда со старым срезом не меняет архив или историю. Удаление LC-ветви сохраняет опорные выводы и маршруты. Подтверждены повторный импорт, продолжение редактирования, осознанный обрыв и короткое соединение.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-07
+
+## ET-LABC-07 — Генеративные Evals редакторов
+
+- Status: verified
+- Dependencies: ET-LABC-06 verified. Доступны чистые команды и воспроизводимые регрессии браузерных сценариев.
+- Scope: [ET-LABC-07](../specs/features/laboratory-corrections.spec.md). Детерминированные профили fast/extended/stress для обоих редакторов.
+- Runnable E2E: реальные лаборатории исполняют сохранённые регрессионные последовательности. Чистый harness масштабирует проверку на ≥1000 последовательностей на редактор и сравнивает ожидаемую топологию независимо от production netlist.
+- Acceptance: документированы профили, seed и состояниe при отказе, количество прогонов и независимые проверки согласованности LC.
+- Rollback: вернуть срез проверок, форматы продукта сохраняются.
+- Evidence: быстрые профили, 1000 расширенных и 2000 стрессовых топологических последовательностей на каждый редактор. Топологический stress — 233 806 операций и 45 903 независимые частотные проверки LC. Геометрические extended/stress — по 1000/2000 на редактор. Добавлены регрессии ключа в ответвлении (TL seed 22), перехода через границу поля и пересечения символа с разомкнутым проводом.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-08
+
+## ET-LABC-08 — Интеграция и публикация
+
+- Status: implemented
+- Dependencies: ET-LABC-07 verified. Все пять страниц и обязательные редакторские операции прошли локальные Evals.
+- Scope: [ET-LABC-08](../specs/features/laboratory-corrections.spec.md). Контроль diff, обязательные тесты и сборка, интеграция, опубликованные маршруты и очистка временной ветки.
+- Runnable E2E: посетить все пять HTTPS-страниц, воспроизвести короткую фазу, повороты составляющих, два годографа, эпюры после первого старта и внешнюю LC-ветвь. Подтвердить SHA релиза по CI и хосту.
+- Acceptance: матрица проверок и снимки, успешный CI, публикация, проверенные потребительские маршруты. Очистить только ветку текущей задачи после подтверждения интеграции.
+- Rollback: штатный откат релизного артефакта и отдельный revert при необходимости.
+- Evidence: `pnpm check` 0 ошибок, lint, 1106 Vitest, full/education сборки и проверки артефактов. Корневой Chromium: 427 прошли сразу, все 4 ошибки среды прошли отдельно, 6 штатных пропусков. Education: 77 браузерных сценариев плюс 2 прогона контракта первого Start, 2 production smoke и `eval:labs --check-rejection`. На итоговом локальном артефакте 10/10 ответов RU/UK и 5 сценариев с реальными действиями.
+- Lifecycle: локальные ворота пройдены. Ожидаются PR, CI, production и проверка на опубликованных страницах.
+- Blockers: none
+- User actions: none
+- NEXT: none
+
+```master-execution
+{
+  "schema_version": 2,
+  "state_revision": 8,
+  "master": {
+    "id": "ET-LABC-MASTER",
+    "status": "running",
+    "source": {
+      "backend": "attachment",
+      "queue_id": "none",
+      "item_id": "90270ee0-c4be-4851-85df-91ad5a553fe4",
+      "revision": "e1e117f4a7617d6f45893d3c3a98c7682b599beb750c3a5d504f00afd243a94a",
+      "prompt_type": "master_prompt",
+      "retention": "Исходный текст приложен к чату; контракт подключён в SPEC."
+    }
+  },
+  "tracks": [
+    {
+      "id": "electrotutor-laboratory-corrections",
+      "repository": "C:/Users/aleks/projects/electro-tutor",
+      "worktree": "C:/Users/aleks/projects/electro-tutor",
+      "branch": "fix/electrotutor-laboratory-corrections",
+      "checkpoint": "d85545a723afcb1081023b9577be2593b9725eee",
+      "ownership": [
+        "src",
+        "tests",
+        "specs",
+        "docs"
+      ],
+      "status": "active"
+    }
+  ],
+  "slices": [
+    {"id":"ET-LABC-00","master_id":"ET-LABC-MASTER","title":"Исходное состояние","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"43d763d4351b58e7104e084d192c2771afa04839","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/laboratory-corrections.spec.md","docs/STAGES.md"],"requirements":["ET-LABC-00"],"capabilities":["project.framework.governance"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-01","master_id":"ET-LABC-MASTER","title":"Несимметричная звезда","status":"verified","predecessors":["ET-LABC-00"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"3e90c4c84102af8fd910bbd644b96f6e8389856c","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/models/star-neutral.ts"],"requirements":["ET-LABC-01"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-02","master_id":"ET-LABC-MASTER","title":"Симметричные составляющие","status":"verified","predecessors":["ET-LABC-01"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"3e90c4c84102af8fd910bbd644b96f6e8389856c","checkpoint_after":"b324aa9308ed17a8631fc227e7c3324ace10370d","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/SequenceDiagrams.tsx"],"requirements":["ET-LABC-02"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-03","master_id":"ET-LABC-MASTER","title":"Годограф","status":"verified","predecessors":["ET-LABC-02"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"b324aa9308ed17a8631fc227e7c3324ace10370d","checkpoint_after":"ea86974b753872fc797853403f10be6b1142f7f0","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/CircularDiagram.tsx"],"requirements":["ET-LABC-03"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-LABC-04","master_id":"ET-LABC-MASTER","title":"Переходная линия","status":"verified","predecessors":["ET-LABC-03"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"ea86974b753872fc797853403f10be6b1142f7f0","checkpoint_after":"efa9e3da3c876ed69c6ec52ae4644bb033439338","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LineExperimentLab.tsx"],"requirements":["ET-LABC-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-05","master_id":"ET-LABC-MASTER","title":"LC-двухполюсник","status":"verified","predecessors":["ET-LABC-04"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"efa9e3da3c876ed69c6ec52ae4644bb033439338","checkpoint_after":"6d4fc5c6897e77ec40d1d7f20d0b955e2fdfa1ef","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LcExperimentLab.tsx"],"requirements":["ET-LABC-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-06","master_id":"ET-LABC-MASTER","title":"Инварианты редакторов","status":"verified","predecessors":["ET-LABC-05"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"6d4fc5c6897e77ec40d1d7f20d0b955e2fdfa1ef","checkpoint_after":"195801628edb2c03569007e3f4fe87c6c333506f","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/circuit"],"requirements":["ET-LABC-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-07","master_id":"ET-LABC-MASTER","title":"Генеративные Evals","status":"verified","predecessors":["ET-LABC-06"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"195801628edb2c03569007e3f4fe87c6c333506f","checkpoint_after":"d85545a723afcb1081023b9577be2593b9725eee","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","tests/topology-eval"],"requirements":["ET-LABC-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-08","master_id":"ET-LABC-MASTER","title":"Интеграция и публикация","status":"ready","predecessors":["ET-LABC-07"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"d85545a723afcb1081023b9577be2593b9725eee","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5","L6"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md",".github/workflows"],"requirements":["ET-LABC-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
+  ],
+  "blockers": [
+    {
+      "id": "ET-LABC-REF-01",
+      "class": "product_evidence_required",
+      "status": "active",
+      "blocking": false,
+      "owner": "user",
+      "evidence": "Текст доступен; исходные картинки отсутствуют. Есть браузерные исходные кадры текущего приложения."
+    }
+  ],
+  "decisions": [],
+  "context_budget": {
+    "max_chars": 40000,
+    "max_items": 16,
+    "max_contours": 3,
+    "max_decisions": 5,
+    "max_evidence_threads": 8
+  },
+  "next_action": "ET-LABC-08",
+  "integration": {
+    "required": false,
+    "reason": ""
+  }
+}
+```
 
 ## ET-2511-RUM — Cloudflare Insights на electrotutor.org
 

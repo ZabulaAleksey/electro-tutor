@@ -2,7 +2,7 @@ import {
   addComplex, complexMagnitude, multiplyComplex, type Complex,
 } from "../models/circular-diagram";
 import {
-  absolutePosition, areas, phases, z, type Area, type Matrix3, type Neutral, type SectionReading,
+  absolutePosition, areas, phases, z, type Area, type Matrix3, type Neutral, type Phase, type SectionReading,
   type SequenceCoupling, type SequenceDocument, type SequenceEdit, type SequenceSolution, type Triple,
 } from "./contract";
 import { validateSequenceDocument } from "./document";
@@ -43,6 +43,12 @@ function diagonal(values: Triple): Matrix3 {
 
 export const abcTo012 = (values: Triple): Triple => matrixVector(sequenceTransform, values);
 export const sequenceToAbc = (values: Triple): Triple => matrixVector(phaseTransform, values);
+
+/** Ordered zero, positive and negative terms of one reconstructed phase. */
+export function sequencePhaseTerms(values: Triple, phase: Phase): Triple {
+  const [, positive, negative] = phaseTransform[phases.indexOf(phase)];
+  return [values[0], multiplyComplex(positive, values[1]), multiplyComplex(negative, values[2])];
+}
 
 const sequenceMatrix = (values: Matrix3) => matrixProduct(matrixProduct(sequenceTransform, values), phaseTransform);
 const phaseMatrix = (values: Matrix3) => matrixProduct(matrixProduct(phaseTransform, values), sequenceTransform);

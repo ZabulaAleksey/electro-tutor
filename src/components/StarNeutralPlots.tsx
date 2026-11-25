@@ -206,7 +206,8 @@ export function StarVectorDiagram({ result, copy, language }: { result: StarResu
         <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} markerEnd={length > 8 ? `url(#star-arrow-${arrow.kind})` : undefined}/>
       </g>)}
       {vectors.map(({ arrow, label }) => label && <g key={arrow.id} className={`star-vector star-${arrow.kind}`}>
-        <text x={label.x} y={label.y}>{arrow.label}</text>
+        <text x={label.x} y={label.y}>{arrow.id === "displacement"
+          ? <>U<tspan baselineShift="sub" fontSize=".75em">nN</tspan></> : arrow.label}</text>
       </g>)}
       {nodeLabels.map(({name, p, label}) => <g key={name} className="star-node">
         <circle cx={p.x} cy={p.y} r="4"/><text x={label.x} y={label.y}>{name}</text>
@@ -221,7 +222,7 @@ export function StarVectorDiagram({ result, copy, language }: { result: StarResu
       <span className="star-key-source">{copy.sourceVectors} UA · UB · UC</span>
       <span className="star-key-line">{copy.lineVectors} UAB · UBC · UCA</span>
       <span className="star-key-load">{copy.loadVectors} Ua · Ub · Uc</span>
-      <span className="star-key-displacement">{copy.displacementVector} UₙN</span>
+      <span className="star-key-displacement">{copy.displacementVector} U<sub>nN</sub></span>
       <span className="star-key-current">{copy.currentVectors} IA · IB · IC · Iₙ</span>
     </div>
   </section>;

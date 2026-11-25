@@ -71,6 +71,11 @@
 - [GitHub Pages CI и deploy](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45672729897) прошли для того же SHA при повторе. Первый прогон дал 427 PASS, шесть штатных SKIP и один прежний сбой возврата к радиусу круговой диаграммы. На основном опубликованном сайте этот сценарий прошёл все 16 повторов. На [размещении под префиксом /electro-tutor/](https://zabulaaleksey.github.io/electro-tutor/ru/) прошли 16 браузерных сценариев.
 - Подтверждённая предыдущая версия для отката 1df69c50. [Неизменяемый Cloudflare артефакт](https://f5c37451.electrotutor.pages.dev/ru/) и [GitHub Pages run предшественника](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45265165903).
 
+## ET-2511-RUM — автоматическая вставка Cloudflare Insights
+
+- На `electrotutor.org` исходный HTTP-ответ Chromium содержал внешний счётчик Cloudflare Insights и нарушал действующую CSP. В Web Analytics перевод только этого сайта в режим Enable with JS Snippet installation отключил автоматическую подстановку. Ручной скрипт на сайте отсутствует. Выбранный режим сохранён и подтверждён после повторного открытия панели.
+- На опубликованной версии прошли 10 из 10 независимых загрузок Chromium. В HTML, сетевых запросах и консоли следов счётчика нет. Все ответы дали HTTP 200 и исходный SHA-256 заголовка CSP `8f76cf3ec0e61b9f4cc64b0164625ddb1dc72eeb57f971cabfe5958888862211`. Три принятых сценария `three-phase-sequences` и два `education-release.spec.ts` прошли на основном домене. Отчёт в `playwright-report/master-20261125/hosted/rum-after/`.
+
 ## ET-LABR-013 — визуальные референсы №1–17
 
 [Матрица 61 проверки](evidence/et-labr-013-evals.csv) связывает пользовательские требования с тестами, лабораторией и номерами изображений. До изменений на базе `7984997f` прошли 929 Vitest. Для контроля физических величин отдельно используются численные эталоны.

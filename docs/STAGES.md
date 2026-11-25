@@ -1,6 +1,18 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-008
+- Stage ID: ET-2511-RUM
+
+## ET-2511-RUM — Cloudflare Insights на electrotutor.org
+
+- Status: verified
+- Checkpoint: `b23b613b` и проверенная настройка Web Analytics для `electrotutor.org`.
+- Scope: остановить автоматическую вставку браузерного счётчика на `electrotutor.org`. Действующая CSP остаётся контрольным эталоном.
+- Dependencies: выпуск `b23b613b`, документация `acc4aa90`.
+- Evidence: Cloudflare сохранил ручной режим Web Analytics после перезагрузки панели. Chromium подтвердил 10/10 загрузок RU/UK и лабораторий без скрипта, его запросов и ошибок консоли. Ещё 5/5 размещённых сценариев проверили лабораторию последовательностей, ограниченные маршруты и WASM онлайн и офлайн. SHA-256 CSP на всех 10 загрузках совпал с исходным `8f76cf3ec0e61b9f4cc64b0164625ddb1dc72eeb57f971cabfe5958888862211`.
+- Blockers: none
+- User actions: none
+- Rollback: исходный режим Web Analytics — Enable, excluding visitor data in the EU. Восстановление вернёт автоматическую вставку.
+- NEXT: none
 
 ## ET-2511-000 — Разведка и исходные проверки
 

@@ -150,17 +150,29 @@
         "EVAL-00"
       ],
       "domain": "Baseline",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
+      "status": "VERIFIED",
+      "code": [
+        "scripts/validate-context-route.mjs",
+        "docs/evidence/electrotutor-20261125-baseline.md"
+      ],
+      "unit": [
+        "src/rolling/lab-model.test.ts",
+        "scripts/verify-beam-goldens.mjs"
+      ],
+      "integration": [
+        "scripts/full-verify.mjs",
+        "tests/fixtures/electrotutor-20261125-baseline.json"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts",
+        "tests/lab-acceptance/rolling-lab.e2e.ts"
+      ],
       "runtime": "Исходный публичный и локальный контур",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-000.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-000 · Разведка и исходные проверки"
+      "gap": "Корневой baseline зафиксировал два исходных сбоя. Их устранение и итоговый зелёный прогон входят в EVAL-08.",
+      "action": "Перейти к ET-2511-001."
     },
     {
       "requirement_ids": [

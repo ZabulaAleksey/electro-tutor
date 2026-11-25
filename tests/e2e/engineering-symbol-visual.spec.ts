@@ -1,23 +1,99 @@
-import { expect, test } from "@playwright/test";
-for (const width of [390, 900, 1440]) test(`all MicroLabs bounds and readable scheme labels at ${width}px`, async ({ page }) => {
-  await page.setViewportSize({ width, height: 1000 }); await page.goto("/ru/micro-labs/");
-  await expect(page.locator(".micro-card[data-micro-model]")).toHaveCount(14);
-  await expect(page.locator("[data-science-id]")).toHaveCount(12);
-  await page.evaluate(() => document.fonts.ready);
-  const findings = await page.locator(".micro-card .micro-circuit").evaluateAll(nodes => nodes.flatMap(node => {
-    const svg = node as SVGSVGElement, view = svg.viewBox.baseVal, scale = svg.getBoundingClientRect().width / view.width;
-    return [...svg.querySelectorAll("text")].flatMap(t => { const b = t.getBBox(), matrix = t.getCTM()!, root = svg.getCTM()!, transform = root.inverse().multiply(matrix), p = new DOMPoint(b.x, b.y).matrixTransform(transform), q = new DOMPoint(b.x + b.width, b.y + b.height).matrixTransform(transform), px = parseFloat(getComputedStyle(t).fontSize) * scale; return p.x < -1 || p.y < -1 || q.x > view.width + 1 || q.y > view.height + 1 || px < 8 ? [{ id: svg.closest("[data-micro]")?.getAttribute("data-micro"), text: t.textContent, p: [p.x, p.y], q: [q.x, q.y], px }] : []; });
-  }));
-  expect(findings).toEqual([]);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-  await page.evaluate(() => document.documentElement.dataset.theme = "dark");
-  for (const card of await page.locator(".micro-card[data-micro-model]").all()) { const bounds = await card.boundingBox(); expect(bounds!.width).toBeGreaterThan(240); }
-});
+import { expect, test, type Page } from "@playwright/test";
+import { microLabs } from "../../src/showcase/micro-catalog";
+
+for (const width of [390, 900, 1440]) {
+  test("all MicroLabs bounds and readable scheme labels at " + width + "px", async ({ page }) => {
+    test.slow();
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto("/ru/micro-labs/");
+    await expect(page.locator('[data-lab-card][href*="/interactive/experiments/micro/"]')).toHaveCount(14);
+    await expect(page.locator('[data-lab-card][href*="/interactive/experiments/science/"]')).toHaveCount(12);
+    for (const { id } of microLabs) {
+      await test.step(id, async () => {
+        await page.goto("/ru/interactive/experiments/micro/" + id + "/");
+        const card = page.locator('[data-micro="' + id + '"]');
+        await expect(card.locator(".micro-circuit")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        const findings = await card.locator(".micro-circuit").evaluate(node => {
+          const svg = node as SVGSVGElement;
+          const view = svg.viewBox.baseVal;
+          const scale = svg.getBoundingClientRect().width / view.width;
+          return [...svg.querySelectorAll("text")].flatMap(label => {
+            const box = label.getBBox();
+            const transform = svg.getCTM()!.inverse().multiply(label.getCTM()!);
+            const start = new DOMPoint(box.x, box.y).matrixTransform(transform);
+            const end = new DOMPoint(box.x + box.width, box.y + box.height).matrixTransform(transform);
+            const fontSize = parseFloat(getComputedStyle(label).fontSize) * scale;
+            const clipped = start.x < -1 || start.y < -1 || end.x > view.width + 1 || end.y > view.height + 1;
+            return clipped || fontSize < 8 ? [{ text: label.textContent, start, end, fontSize }] : [];
+          });
+        });
+        expect(findings).toEqual([]);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        await page.evaluate(() => document.documentElement.dataset.theme = "dark");
+        const bounds = await card.boundingBox();
+        expect(bounds!.width).toBeGreaterThan(240);
+      });
+    }
+  });
+}
+
+// Compare the existing models in the gallery layout in which the reference
+// images were approved. Dedicated routes and new card layout have their own
+// browser assertions. This fixture mounts the real built application islands.
+async function renderOriginalGallery(page: Page) {
+  await page.goto("/ru/micro-labs/");
+  await page.evaluate(async () => {
+    const views = await Promise.all([
+      { path: "/ru/interactive/experiments/micro/ohm-law/", props: { language: "ru", focusSelected: true } },
+      { path: "/ru/interactive/experiments/science/pendulum/", props: { language: "ru" } },
+    ].map(async ({ path, props }) => {
+      const response = await fetch(path);
+      if (!response.ok) throw new Error("Experiment route unavailable: " + path);
+      const html = new DOMParser().parseFromString(await response.text(), "text/html");
+      const island = html.querySelector("astro-island[component-url][renderer-url]");
+      const componentUrl = island?.getAttribute("component-url");
+      const rendererUrl = island?.getAttribute("renderer-url");
+      const componentExport = island?.getAttribute("component-export");
+      if (!componentUrl || !rendererUrl || !componentExport) throw new Error("Experiment island missing: " + path);
+      const [components, renderer] = await Promise.all([import(componentUrl), import(rendererUrl)]);
+      return { component: components[componentExport], render: renderer.default, props };
+    }));
+    const main = document.querySelector("main");
+    if (!main) throw new Error("Gallery main region missing");
+    main.innerHTML = [
+      '<section class="section container micro-labs-page">',
+      '<p class="eyebrow">Инженерная визуализация</p>',
+      '<h1>MicroLabs</h1>',
+      '<p class="page-lead">Меняйте параметры и сразу проверяйте формулу, единицы и график.</p>',
+      '<div ssr style="display: contents" data-gallery-reference-mount></div>',
+      '<h2>Математика и естественные науки</h2>',
+      '<div ssr style="display: contents" data-gallery-reference-mount></div>',
+      '</section>',
+    ].join("");
+    const mounts = main.querySelectorAll("[data-gallery-reference-mount]");
+    views.forEach(({ component, render, props }, index) =>
+      render(mounts[index])(component, props, {}, { client: "only" }),
+    );
+  });
+}
+
 test("reviewed visual goldens cover every electrical/science thumbnail", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 }); await page.goto("/ru/micro-labs/");
-  await expect(page.locator(".micro-card[data-micro-model]")).toHaveCount(14); await page.evaluate(() => document.fonts.ready);
-  for (const card of await page.locator(".micro-card[data-micro-model]").all()) { const id = await card.getAttribute("data-micro"); await expect.soft(card.locator(".micro-circuit")).toHaveScreenshot(`${id}.png`, { animations: "disabled" }); }
-  for (const card of await page.locator("[data-science-id]").all()) { const id = await card.getAttribute("data-science-id"); await expect.soft(card.locator(".science-visual,.science-plot").first()).toHaveScreenshot(`science-${id}.png`, { animations: "disabled" }); }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await renderOriginalGallery(page);
+  const microCards = page.locator(".micro-card[data-micro-model]");
+  const scienceCards = page.locator("[data-science-id]");
+  await expect(microCards).toHaveCount(14);
+  await expect(scienceCards).toHaveCount(12);
+  await page.evaluate(() => document.fonts.ready);
+  for (const card of await microCards.all()) {
+    const id = await card.getAttribute("data-micro");
+    await expect.soft(card.locator(".micro-circuit")).toHaveScreenshot(id + ".png", { animations: "disabled" });
+  }
+  for (const card of await scienceCards.all()) {
+    const id = await card.getAttribute("data-science-id");
+    await expect.soft(card.locator(".science-visual,.science-plot").first()).toHaveScreenshot("science-" + id + ".png", { animations: "disabled" });
+  }
 });
 
 

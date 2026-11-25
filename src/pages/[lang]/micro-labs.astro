@@ -1,23 +1,111 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import MicroLabs from "../../showcase/MicroLabs";
-import ScienceMicroLabs from "../../components/ScienceMicroLabs";
+import LaboratoryDirectory from "../../components/LaboratoryDirectory.astro";
+import "../../showcase/micro-labs.css";
+import "../../components/ScienceMicroLabs.css";
 
 export function getStaticPaths() {
   return [{ params: { lang: "ru" } }, { params: { lang: "uk" } }];
 }
 
 const language = Astro.params.lang === "uk" ? "uk" : "ru";
-const title = "MicroLabs";
+const title = language === "ru" ? "Микролаборатории" : "Мікролабораторії";
+const description = language === "ru" ? "Интерактивные научные микролаборатории ElectroTutor" : "Інтерактивні наукові мікролабораторії ElectroTutor";
 ---
-
-<BaseLayout {title} description={language === "ru" ? "Интерактивные научные микролаборатории ElectroTutor" : "Інтерактивні наукові мікролабораторії ElectroTutor"} language={language} active="interactive" alternatePath="/micro-labs/">
-  <section class="section container micro-labs-page">
-    <p class="eyebrow">{language === "ru" ? "Инженерная визуализация" : "Інженерна візуалізація"}</p>
-    <h1>{title}</h1>
-    <p class="page-lead">{language === "ru" ? "Меняйте параметры и сразу проверяйте формулу, единицы и график." : "Змінюйте параметри та одразу перевіряйте формулу, одиниці й графік."}</p>
-    <MicroLabs client:load language={language} focusSelected />
-    <h2>{language==="ru"?"Математика и естественные науки":"Математика та природничі науки"}</h2>
-    <ScienceMicroLabs client:load language={language} />
-  </section>
+<BaseLayout {title} {description} {language} active="interactive" alternatePath="/micro-labs/">
+  <div data-micro-lab-page data-language={language}>
+    <h1 class="container micro-lab-title" id="lab-directory-title" tabindex="-1">{title}</h1>
+    <div data-micro-directory>
+      <LaboratoryDirectory {language} micro ownHeading={false} />
+    </div>
+    <section class="section container micro-labs-page" data-legacy-experiment hidden>
+      <a href="#" class="button">{language === "ru" ? "Все микролаборатории" : "Усі мікролабораторії"}</a>
+      <div data-legacy-player></div>
+    </section>
+    <p class="container" role="status" data-legacy-fallback hidden>
+      <a>{language === "ru" ? "Открыть выбранный опыт" : "Відкрити вибраний дослід"}</a>
+    </p>
+  </div>
 </BaseLayout>
+<script>
+  import type { Root } from "react-dom/client";
+  import type { ScienceId } from "../../science/models";
+
+  function setUpBookmarks() {
+    const page = document.querySelector<HTMLElement>("[data-micro-lab-page]");
+    if (!page || page.dataset.initialized) return;
+    const directory = page.querySelector<HTMLElement>("[data-micro-directory]");
+    const legacy = page.querySelector<HTMLElement>("[data-legacy-experiment]");
+    const player = page.querySelector<HTMLElement>("[data-legacy-player]");
+    const fallback = page.querySelector<HTMLElement>("[data-legacy-fallback]");
+    const fallbackLink = fallback?.querySelector("a");
+    if (!directory || !legacy || !player || !fallback || !fallbackLink) return;
+    const language = page.dataset.language === "uk" ? "uk" : "ru";
+    const cards = [...directory.querySelectorAll<HTMLAnchorElement>("a[data-lab-card]")];
+    const heading = page.querySelector<HTMLElement>("#lab-directory-title");
+    let root: Root | undefined;
+    let request = 0;
+    page.dataset.initialized = "true";
+
+    async function showBookmark() {
+      if (!directory || !legacy || !player || !fallback || !fallbackLink) return;
+      const current = ++request;
+      const params = new URLSearchParams(location.hash.slice(1));
+      const family = params.has("micro") ? "micro" : "science";
+      const id = params.get(family);
+      const destination = cards.find(card => card.dataset.labCard === `${family}:${id}`);
+      fallback.hidden = true;
+      if (!destination || !id) {
+        const restoreFocus = legacy.contains(document.activeElement);
+        root?.unmount();
+        root = undefined;
+        legacy.hidden = true;
+        directory.hidden = false;
+        if (restoreFocus) heading?.focus();
+        return;
+      }
+      try {
+        const [{ createElement }, { createRoot }] = await Promise.all([
+          import("react"), import("react-dom/client"),
+        ]);
+        const content = family === "micro"
+          ? createElement((await import("../../showcase/MicroLabs")).default, {
+              language, legacySelection: id, focusSelected: true, key: destination.dataset.labCard,
+            })
+          : createElement((await import("../../components/ScienceMicroLabs")).default, {
+              language, legacySelection: id as ScienceId, key: destination.dataset.labCard,
+            });
+        if (current !== request) return;
+        root ??= createRoot(player);
+        const restoreFocus = directory.contains(document.activeElement);
+        legacy.hidden = false;
+        directory.hidden = true;
+        root.render(content);
+        if (restoreFocus) heading?.focus();
+      } catch {
+        if (current !== request) return;
+        root?.unmount();
+        root = undefined;
+        legacy.hidden = true;
+        directory.hidden = false;
+        fallbackLink.href = destination.href;
+        fallback.hidden = false;
+      }
+    }
+
+    addEventListener("hashchange", showBookmark);
+    document.addEventListener("astro:before-swap", () => {
+      request += 1;
+      removeEventListener("hashchange", showBookmark);
+      root?.unmount();
+    }, { once: true });
+    void showBookmark();
+  }
+
+  setUpBookmarks();
+  document.addEventListener("astro:page-load", setUpBookmarks);
+</script>
+
+<style>
+  .micro-lab-title { margin-block: 2rem 0; }
+</style>

@@ -51,3 +51,11 @@ RLC reference: https://openstax.org/books/university-physics-volume-2/pages/15-5
 - `THEME-001`: existing active light/dark theme owns semantic surfaces/text/wire/grid/axis/curves/selection/warning/error across SVG/Canvas/surfaces/board/menus. No fixed white plot in dark, no forced dark visualization in light, no filter invert; scientific colour meaning stable.
 - `THEME-002`: theme updates presentation only: preserve parameters/time/speed/history/scale/probes/camera/results. Canvas redraw uses current tokens, no solver reset; pre-paint theme established by existing shell.
 - `SCI-003`: numeric baseline/extremes/invariants and real UI/reset/permalink/RU-UK/390px/theme-with-retained-state tests. Core site/PWA/auth boundaries remain; no new fake lesson links/contact/payment claims.
+
+## ET-2511-001 — каталог и рабочие страницы
+
+UI-01 и UI-02 переводят карточки `/interactive/` и `/micro-labs/` в статический каталог. Поиск и категории применяются к ссылкам. Каждая карточка открывает зарегистрированный опыт, а параметры, расчёты, формулы, сброс и графики живут на страницах опытов. Это уточняет место действия SHOW-008, SHOW-009, SHOW-011 и SHOW-014. Сетка 4/3/2/1 остаётся критерием каталога. Черновик входов одного опыта сохраняется в текущей вкладке при выходе в каталог и возвращении.
+
+Фрагменты `#micro=` и `#science=` на `/micro-labs/` открывают выбранную рабочую страницу в той же оболочке, с прежним URL и переключением RU/UK. Без JavaScript обычные карточки работают как ссылки. При недоступности локального черновика опыт работает с исходными значениями.
+
+По явно запрошенному переносу органа управления проверки прежнего каталога с вычислениями следуют за соответствующим опытом. Утверждённые численные утверждения, исходные PNG и проверки сброса, единиц, клавиатуры, компоновки и локализации остаются обязательными.

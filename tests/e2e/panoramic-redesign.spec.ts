@@ -1,22 +1,26 @@
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
-test("reference grid reflows, expands a real experiment, and retains computed state", async ({page}) => {
-  await page.emulateMedia({reducedMotion:"reduce",colorScheme:"light"});
-  for(const [width,cols] of [[1600,4],[1300,3],[900,2],[390,1]]) {
-    await page.setViewportSize({width,height:900}); await page.goto("/ru/micro-labs/");
-    await expect(page.locator("[data-micro]")).toHaveCount(14);
-    expect(await page.locator(".micro-grid").evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(cols);
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+test("reference grid reflows, opens a real experiment, and retains computed state", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  for (const [width, cols] of [[1600, 4], [1300, 3], [900, 2], [390, 1]]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/ru/micro-labs/");
+    await expect(page.locator('[data-lab-card][href*="/interactive/experiments/micro/"]')).toHaveCount(14);
+    await expect(page.locator(".directory-grid")).toHaveCSS("display", "grid");
+    expect(await page.locator(".directory-grid").evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(cols);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   }
-  const card=page.locator('[data-micro="ohm-law"]');
-  await card.getByRole("slider",{name:"U, V",exact:true}).press("End");
-  await card.getByRole("button",{name:"Исследовать →",exact:true}).click();
-  await expect(card).toHaveAttribute("data-expanded","true");
+  await page.getByRole("link", { name: "Закон Ома", exact: true }).click();
+  await expect(page).toHaveURL("/ru/interactive/experiments/micro/ohm-law/");
+  const card = page.locator('[data-micro="ohm-law"]');
+  await card.getByRole("slider", { name: "U, V", exact: true }).press("End");
+  await card.getByRole("button", { name: "Исследовать →", exact: true }).click();
+  await expect(card).toHaveAttribute("data-expanded", "true");
   await expect(card.locator('[data-micro-result="I"]')).toContainText("0,8");
-  await expect(card.getByRole("link",{name:"Учебный материал ↗",exact:true})).toHaveAttribute("href","/ru/topics/dc/mesh-current-method/");
-  await card.getByRole("button",{name:"Свернуть ↑",exact:true}).click();
-  await expect(card).toHaveAttribute("data-expanded","false");
+  await expect(card.getByRole("link", { name: "Учебный материал ↗", exact: true })).toHaveAttribute("href", "/ru/topics/dc/mesh-current-method/");
+  await card.getByRole("button", { name: "Свернуть ↑", exact: true }).click();
+  await expect(card).toHaveAttribute("data-expanded", "false");
 });
 
 test("lossless surface, schematic and time section share boundary and parameter state", async ({page}) => {

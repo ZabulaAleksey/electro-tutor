@@ -93,6 +93,7 @@ export function appendExperimentSection(circuit: TopologyLabDocument, durationS 
   const lastPart = topology.components.find(({ id }) => id === last.id)!;
   const outlet = lastPart.terminals[resultPolarity.get(last.id) === -1 ? 0 : 1];
   const used = new Set([
+    ...(circuit.brokenWires ?? []).map(wire => wire.id),
     ...topology.junctions,
     ...topology.wires.map(({ id }) => id),
     ...topology.components.flatMap(({ id, terminals }) => [id, ...terminals]),

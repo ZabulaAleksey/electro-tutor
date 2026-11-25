@@ -1,23 +1,28 @@
 import type { SchematicGeometry } from "../circuit/schematic-geometry";
 import type { Point } from "../circuit/topology-layout";
 import type { TopologySlot } from "../circuit/topology-slots";
-import type { CircuitComponent, CircuitTopology } from "../circuit/topology";
+import type { CircuitComponent, CircuitTopology, CircuitWire } from "../circuit/topology";
 import type { LineLayout } from "./line-experiment-layout";
 
 type Axis = "x" | "y";
 type Placement = { point: Point; vertical?: boolean; path?: readonly Point[] };
+type OpenWireDrawing = { wire: CircuitWire; points: readonly Point[] };
 
 const midpoint = (a: Point, b: Point): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
 
 export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopology, after: CircuitTopology,
-  slot: TopologySlot, part: CircuitComponent, proposed?: Placement): SchematicGeometry {
+  slot: TopologySlot, part: CircuitComponent, proposed?: Placement, opened: readonly OpenWireDrawing[] = []): SchematicGeometry {
   const pins = Object.fromEntries(layout.endpoints);
   const paths = new Map<string, Point[]>();
   const oldWires = new Map(before.wires.map(w => [w.id, w]));
   for (const wire of layout.wires) {
     const from = pins[oldWires.get(wire.id)!.from];
     paths.set(wire.id, same(wire.points[0], from) ? [...wire.points] : [...wire.points].reverse());
+  }
+  for (const { wire, points } of opened) {
+    oldWires.set(wire.id, wire);
+    paths.set(wire.id, [...points]);
   }
   let returnY = layout.returnY;
   function shift(axis: Axis, cut: number, distance: number) {
@@ -97,5 +102,6 @@ export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopolo
     else if (wire.from === q && wire.to === b) bends[wire.id] = newPathB;
     else bends[wire.id] = paths.get(wire.id)?.slice(1, -1) ?? [];
   }
+  for (const { wire } of opened) bends[wire.id] = paths.get(wire.id)!.slice(1, -1);
   return { pins, bends, returnY };
 }

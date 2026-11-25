@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { maxCircuitFileBytes } from "../circuit/document";
 import {
-  analyzeLcExperiment, newLcExperiment, readLcExperiment, removeLcPart,
+  analyzeLcExperiment, newLcExperiment, readLcExperiment,
 } from "../circuit/lc-experiment";
 import { parseTopologyLabDocument, type TopologyLabDocument } from "../circuit/topology-session";
 import type { CircuitComponent } from "../circuit/topology";
@@ -150,7 +150,7 @@ export default function LcExperimentLab({ language }: { language: Language }) {
   return <fieldset className="lab-hydration-guard" disabled={!ready}>
     <div className="lc-experiment" data-lc-experiment data-ready={String(ready)}>
       <LineExperimentEditor language={language} variant="lc" document={experiment} onChange={commit}
-        onRemove={(id, source) => commit(removeLcPart(source, id))}
+        onRestoreStarter={() => commit(newLcExperiment())}
         renderInspector={inspector} />
       <div className="lc-experiment-tools" role="group" aria-label={t.archive}>
         <p>{t.port} · {port?.id}</p>

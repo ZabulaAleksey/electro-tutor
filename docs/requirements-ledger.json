@@ -284,63 +284,119 @@
         "UI-03"
       ],
       "domain": "Главная",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-002.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-002 · Тематическая карусель главной"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
     },
     {
       "requirement_ids": [
         "UI-04"
       ],
       "domain": "Главная",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-002.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-002 · Тематическая карусель главной"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
     },
     {
       "requirement_ids": [
         "EVAL-02"
       ],
       "domain": "Главная",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/HomeExamples.astro",
+        "src/components/DcSeriesExample.astro",
+        "src/components/ExampleCircuitFigure.astro",
+        "src/showcase/home-examples.ts"
+      ],
+      "unit": [
+        "src/showcase/home-examples.test.ts",
+        "src/security/playwright-discovery.test.ts"
+      ],
+      "integration": [
+        "src/engineering/EngineeringPlot.tsx",
+        "scripts/build-site.mjs"
+      ],
+      "e2e": [
+        "tests/e2e/home-examples-20261125.spec.ts",
+        "tests/e2e/editorial-learning.spec.ts",
+        "tests/e2e/panoramic-home.spec.ts"
+      ],
+      "runtime": "Статическая карусель RU/UK с восемью проверенными демонстрациями.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Клавиатура, доступное имя, RU/UK и адаптивность.",
       "observability": "Команды, результаты и артефакты в ET-2511-002.",
-      "gap": "Приёмка по новому контракту ожидается.",
-      "action": "ET-2511-002 · Тематическая карусель главной"
+      "gap": "Текстовый контракт проверен. Точное визуальное сопоставление с №2 ждёт оригинал.",
+      "action": "Перейти к ET-2511-003."
     },
     {
       "requirement_ids": [
         "ENG-01"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-session.ts",
+        "src/circuit/topology.ts"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -352,12 +408,23 @@
         "ENG-02"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-slots.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -369,12 +436,24 @@
         "ENG-03"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-operations.ts",
+        "src/circuit/topology-branch-removal.ts"
+      ],
+      "unit": [
+        "src/circuit/topology-operations.test.ts",
+        "src/circuit/topology-branch-removal.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -386,12 +465,24 @@
         "ENG-04"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-junctions.ts",
+        "src/components/line-junction-placement.ts"
+      ],
+      "unit": [
+        "src/circuit/topology-junctions.test.ts",
+        "src/components/line-junction-placement.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -403,12 +494,23 @@
         "ENG-05"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/line-experiment-layout.ts",
+        "src/components/line-slot-geometry.ts"
+      ],
+      "unit": [
+        "src/components/line-junction-placement.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -420,12 +522,23 @@
         "ENG-06"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/components/LineExperimentEditor.tsx",
+        "src/circuit/topology-session.ts"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",
@@ -437,12 +550,22 @@
         "EVAL-03"
       ],
       "domain": "Редактор схем",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/circuit/topology-session.ts"
+      ],
+      "unit": [
+        "tests/topology-eval/editor-history-20261125.test.ts"
+      ],
+      "integration": [
+        "tests/topology-eval/editor-history-20261125.test.ts",
+        "src/transient/line-experiment.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/editor-operations-20261125.e2e.ts",
+        "tests/lab-acceptance/circuit-reference-interactions.e2e.ts"
+      ],
+      "runtime": "Локальная сборка education, 60 сценариев Chromium. Референсы проверены по текстовому контракту.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-003.",

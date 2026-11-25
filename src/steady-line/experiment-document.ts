@@ -86,6 +86,7 @@ export function appendSteadyLine(previous: SteadyExperiment, outlet: string): St
   const anchor = lines.find(part => part.terminals.includes(outlet));
   if (!anchor) return previous;
   const used = identifiers(topology);
+  for (const wire of circuit.brokenWires ?? []) used.add(wire.id);
   let count = 1;
   while (["TL" + count, ...twoTerminals("TL" + count)].some(key => used.has(key))) count++;
   const nextId = "TL" + count;

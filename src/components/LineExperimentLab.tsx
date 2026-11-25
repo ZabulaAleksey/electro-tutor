@@ -4,7 +4,7 @@ import { networkError } from "../transient/network-copy";
 import { lineArchiveByteLimit } from "../transient/line-archive-document";
 import {
   appendExperimentSection, lineExperimentModel, newLineExperiment, observationAt, readLineExperiment,
-  removeExperimentPart, type LineExperiment, type LineObservation,
+  type LineExperiment, type LineObservation,
 } from "../transient/line-experiment";
 import type { Language } from "../types";
 import LineExperimentEditor from "./LineExperimentEditor";
@@ -210,10 +210,6 @@ export default function LineExperimentLab({ language }: { language: Language }) 
             validateParameters={next => { if (projection.model) lineExperimentModel(next, durationS); }}
             onAppendSection={() => {
               try { edit(appendExperimentSection(circuit, durationS)); }
-              catch (error) { setActionError(report(error)); }
-            }}
-            onRemove={(id, source) => {
-              try { edit(removeExperimentPart(source, id)); }
               catch (error) { setActionError(report(error)); }
             }} />
           {recovery !== undefined && <div role="alert">

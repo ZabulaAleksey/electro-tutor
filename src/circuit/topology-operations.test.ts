@@ -5,6 +5,18 @@ import { addComponent, addJunction, connect, disconnect, netlist, validateCircui
 import { breakTopologyWire, bypassSeriesDevice, clearTopologyDevices, restoreTopologyWire } from "./topology-operations";
 import { TopologySession } from "./topology-session";
 
+const pins = {
+  "E1:a": { x: 100, y: 90 }, "E1:b": { x: 100, y: 260 },
+  "K1:a": { x: 160, y: 90 }, "K1:b": { x: 240, y: 90 },
+  "L9:a": { x: 300, y: 120 }, "L9:b": { x: 380, y: 120 },
+  "TL1:a": { x: 460, y: 90 }, "TL1:b": { x: 580, y: 90 },
+  "TL1:return-in": { x: 460, y: 260 }, "TL1:return-out": { x: 580, y: 260 },
+  "C1:a": { x: 670, y: 155 }, "C1:b": { x: 670, y: 230 },
+};
+const originalBends = {
+  W3: [{ x: 670, y: 90 }], W4: [{ x: 670, y: 260 }], W5: [{ x: 200, y: 260 }],
+};
+
 function insertLineInductor() {
   const circuit = newLineExperiment().circuit;
   const session = new TopologySession(JSON.stringify(circuit));
@@ -47,6 +59,86 @@ describe("guarded topology commands", () => {
     const repaired = bypassSeriesDevice(reverseLead, "L9");
 
     expect(repaired.wires.find(wire => wire.id === "W2")).toEqual({ id: "W2", from: "TL1:a", to: "K1:b" });
+  });
+
+  it.each([false, true])("preserves four-terminal line geometry, bypass bends and undo/redo (reversed lead: %s)", reversed => {
+    const { initial, inserted } = insertLineInductor();
+    const trailing = inserted.topology.wires.find(wire => wire.from === "L9:b" || wire.to === "L9:b")!;
+    const topology = {
+      ...inserted.topology,
+      wires: inserted.topology.wires.map(wire => reversed && wire.id === "W2"
+        ? { ...wire, from: wire.to, to: wire.from } : wire),
+    };
+    const session = new TopologySession(JSON.stringify({
+      ...inserted, topology, geometry: {
+        pins, returnY: 260, bends: {
+          ...originalBends,
+          W2: [{ x: 240, y: 120 }],
+          [trailing.id]: [{ x: 460, y: 120 }],
+        },
+      },
+    }));
+    const before = session.export();
+    session.apply({ type: "remove", componentId: "L9", mode: "conductor" });
+
+    expect(netlist(session.document.topology)).toEqual(netlist(initial.topology));
+    const remainingPins = Object.fromEntries(Object.entries(pins).filter(([id]) => !id.startsWith("L9:")));
+    const detour = [{ x: 240, y: 120 }, { x: 460, y: 120 }];
+    expect(session.document.geometry).toEqual({
+      pins: remainingPins, returnY: 260, bends: { ...originalBends, W2: reversed ? detour.toReversed() : detour },
+    });
+    const bypassed = session.export();
+    expect(new TopologySession(bypassed).export()).toBe(bypassed);
+    expect(session.undo()).toBe(true);
+    expect(session.export()).toBe(before);
+    expect(session.redo()).toBe(true);
+    expect(session.export()).toBe(bypassed);
+  });
+
+  it("keeps broken wire geometry and rebuilds a conducting tee after removing its device", () => {
+    const initial = newLineExperiment().circuit;
+    const kept = initial.topology.wires.filter(wire => wire.id !== "W2" && wire.id !== "W5");
+    const brokenWire = initial.topology.wires.find(wire => wire.id === "W5")!;
+    const topology = {
+      ...initial.topology,
+      components: [...initial.topology.components,
+        { id: "L9", kind: "l", terminals: ["L9:a", "L9:b"], parameters: { henry: 0.01, initial: 0 } }],
+      wires: [...kept, { id: "W6", from: "K1:b", to: "L9:a" }, { id: "W7", from: "L9:a", to: "TL1:a" }],
+    };
+    const session = new TopologySession(JSON.stringify({
+      ...initial, topology, schemaVersion: 2, brokenWires: [brokenWire],
+      geometry: { pins, returnY: 260, bends: {
+        ...originalBends, W6: [{ x: 240, y: 120 }], W7: [{ x: 460, y: 120 }],
+      } },
+    }));
+    session.apply({ type: "remove", componentId: "L9", mode: "device" });
+    expect(netlist(session.document.topology).find(net => net.includes("K1:b"))).toEqual(["K1:b", "TL1:a"]);
+    expect(session.document.brokenWires).toEqual([brokenWire]);
+    expect(session.document.geometry?.bends).toEqual({
+      ...originalBends, W2: [{ x: 240, y: 120 }, { x: 460, y: 120 }],
+    });
+    session.apply({ type: "restore-wire", wireId: "W5" });
+    expect(session.document.topology.wires).toContainEqual(brokenWire);
+    expect(session.document.geometry?.bends.W5).toEqual(originalBends.W5);
+  });
+
+  it("deletes a parallel line load branch without shifting any remaining pin or return conductor", () => {
+    const initial = newLineExperiment().circuit;
+    const topology = {
+      ...initial.topology,
+      components: [...initial.topology.components,
+        { id: "L9", kind: "l", terminals: ["L9:a", "L9:b"], parameters: { henry: 0.01, initial: 0 } }],
+      wires: [...initial.topology.wires, { id: "W6", from: "C1:a", to: "L9:a" }, { id: "W7", from: "L9:b", to: "C1:b" }],
+    };
+    const session = new TopologySession(JSON.stringify({
+      ...initial, topology, geometry: { pins, returnY: 260, bends: { ...originalBends,
+        W6: [{ x: 300, y: 155 }], W7: [{ x: 380, y: 230 }],
+      } },
+    }));
+    session.apply({ type: "remove", componentId: "L9", mode: "branch" });
+    expect(session.document.topology).toEqual(initial.topology);
+    expect(session.document.geometry?.pins).toEqual(Object.fromEntries(Object.entries(pins).filter(([id]) => !id.startsWith("L9:"))));
+    expect(session.document.geometry?.bends).toEqual(originalBends);
   });
 
   it("refuses bypassing a protected net or an inductor with a branch deeper in its connection", () => {

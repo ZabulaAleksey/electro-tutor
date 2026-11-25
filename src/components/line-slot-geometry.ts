@@ -1,7 +1,8 @@
 import type { SchematicGeometry } from "../circuit/schematic-geometry";
 import type { Point } from "../circuit/topology-layout";
 import type { TopologySlot } from "../circuit/topology-slots";
-import type { CircuitComponent, CircuitTopology, CircuitWire } from "../circuit/topology";
+import { netlist, type CircuitComponent, type CircuitTopology, type CircuitWire } from "../circuit/topology";
+import { positiveOverlap, routeOrthogonalWire } from "../circuit/routing";
 import type { LineLayout } from "./line-experiment-layout";
 
 type Axis = "x" | "y";
@@ -10,6 +11,62 @@ type OpenWireDrawing = { wire: CircuitWire; points: readonly Point[] };
 
 const midpoint = (a: Point, b: Point): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
+
+function routePhysicalLineConflicts(topology: CircuitTopology, pins: Record<string, Point>,
+  bends: Record<string, Point[]>, oldWires: ReadonlyMap<string, CircuitWire>) {
+  const membership = new Map(netlist(topology).flatMap((net, index) => net.map(id => [id, index] as const)));
+  const ports = new Map<string, Parameters<typeof routeOrthogonalWire>[0]>(
+    topology.junctions.map(id => [id, { pin: pins[id], escape: pins[id] }]));
+  const boxes: Parameters<typeof routeOrthogonalWire>[2] = [];
+  for (const part of topology.components) {
+    const [a, b] = part.terminals.map(id => pins[id]);
+    const along: Axis = a.y === b.y ? "x" : "y";
+    const across: Axis = along === "x" ? "y" : "x";
+    const sign = Math.sign(b[along] - a[along]);
+    part.terminals.forEach((id, index) => {
+      const pin = pins[id];
+      const escape = { ...pin, [along]: pin[along] + (index % 2 ? sign : -sign) * 6 };
+      ports.set(id, { pin, escape, owner: part.id });
+    });
+    const ret = part.kind === "line" && part.terminals.length === 4 ? pins[part.terminals[2]][across] : undefined;
+    const range = {
+      [along]: [Math.min(a[along], b[along]) + 2, Math.max(a[along], b[along]) - 2],
+      [across]: ret === undefined ? [a[across] - 16, a[across] + 16]
+        : [Math.min(a[across], ret) - 2, Math.max(a[across], ret) + 2],
+    };
+    boxes.push([part.id, { left: range.x[0], right: range.x[1], top: range.y[0], bottom: range.y[1] }]);
+  }
+  const original = ({ id, from, to }: CircuitWire) => oldWires.get(id)?.from === from && oldWires.get(id)?.to === to;
+  const paths: { net: number; path: Point[] }[] = [];
+  const points = [...Object.values(pins), ...Object.values(bends).flat()];
+  const bounds = { left: 1, top: 1, right: Math.max(...points.map(p => p.x)) + 88, bottom: Math.max(...points.map(p => p.y)) + 88 };
+  // The rails can share a trace within one net. Reserve surviving routes
+  // before routing added wires, so a new branch yields to the old layout.
+  const order = topology.wires.toSorted((a, b) => Number(original(b)) - Number(original(a))
+    || (a.id < b.id ? -1 : a.id === b.id ? 0 : 1));
+  for (const { id, from, to } of order) {
+    const net = membership.get(from)!;
+    let path = [pins[from], ...bends[id], pins[to]];
+    const remaining = paths.filter(wire => wire.net !== net).map(wire => wire.path);
+    const conflict = path.slice(1).some((end, index) => {
+      const start = path[index];
+      return boxes.some(([, { left, right, top, bottom }]) =>
+        Math.min(start.x, end.x) <= right && Math.max(start.x, end.x) >= left &&
+        Math.min(start.y, end.y) <= bottom && Math.max(start.y, end.y) >= top)
+        || remaining.some(other => other.slice(1).some((point, i) => positiveOverlap(start, end, other[i], point)));
+    });
+    if (conflict) {
+      const a = ports.get(from)!, b = ports.get(to)!;
+      const detour = routeOrthogonalWire(a, b, boxes, remaining, bounds)
+        ?? routeOrthogonalWire({ ...a, escape: a.pin }, { ...b, escape: b.pin }, boxes, remaining, bounds);
+      if (detour) {
+        path = detour;
+        bends[id] = path.slice(1, -1);
+      }
+    }
+    paths.push({ net, path });
+  }
+}
 
 export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopology, after: CircuitTopology,
   slot: TopologySlot, part: CircuitComponent, proposed?: Placement, opened: readonly OpenWireDrawing[] = []): SchematicGeometry {
@@ -117,5 +174,6 @@ export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopolo
     bends[wire.id] = orthogonalBends(wire, turns);
   }
   for (const { wire } of opened) bends[wire.id] = orthogonalBends(wire, paths.get(wire.id)!.slice(1, -1));
+  if (hasSeparateReturn) routePhysicalLineConflicts(after, pins, bends, oldWires);
   return { pins, bends, returnY };
 }

@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-LABC-03
+- Stage ID: ET-LABC-04
 
 ## ET-LABC-MASTER — Исправления электротехнических лабораторий
 
@@ -8,7 +8,7 @@
 - Scope: [исполняемый контракт](../specs/features/laboratory-corrections.spec.md), ET-LABC-00…08.
 - Blockers: оригинальные кадры из текста отсутствуют. Используются воспроизводимые по описанию примеры и кадры текущей версии.
 - User actions: ET-LABC-REF-01 / CONDITIONAL PENDING. Приложить исходные изображения, если требуется буквальная сверка с ними.
-- NEXT: ET-LABC-03
+- NEXT: ET-LABC-04
 
 ## ET-LABC-00 — Исходное состояние лабораторий
 
@@ -59,10 +59,23 @@
 - User actions: none
 - NEXT: ET-LABC-04
 
+## ET-LABC-04 — Переходная длинная линия
+
+- Status: verified
+- Dependencies: ET-LABC-03 verified. Существуют четырёхвыводная модель, локальный worker и проверенные аналитические режимы оконечной нагрузки.
+- Scope: [TL-01–02](../specs/features/laboratory-corrections.spec.md). Воспроизведение старта, маршрутизация настоящего результата и исправление локальных редакторских операций.
+- Runnable E2E: старт из редактора, просмотр реальных эпюр, пауза и повторный старт, добавление и удаление ветвей с обеих сторон линии, проверка выводов TL1, undo/redo и архив.
+- Acceptance: независимые уравнения нагрузки и коммутации, геометрия и все четыре электрических вывода, отличимые предупреждения об ограничениях вычислителя при сохранении допустимого редакторского состояния.
+- Rollback: вернуть срез. Старые архивы и сохранённая модель поддерживаются.
+- Evidence: 157 целевых Vitest и 11 Chromium. Worker уже считал при прежнем старте, но эпюры были привязаны к просмотру секции. Четыре реальные эпюры, 12 кривых, управление временем, значения согласованного режима, КЗ и ХХ проверены. Найдено наложение разных узлов после вставок L на W4 и C параллельно нагрузке. Опорные положения, разрывы, вставка секции при неподдерживаемой входной ветви и архив проверены.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-05
+
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 3,
+  "state_revision": 4,
   "master": {
     "id": "ET-LABC-MASTER",
     "status": "running",
@@ -81,7 +94,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "fix/electrotutor-laboratory-corrections",
-      "checkpoint": "b324aa9308ed17a8631fc227e7c3324ace10370d",
+      "checkpoint": "ea86974b753872fc797853403f10be6b1142f7f0",
       "ownership": [
         "src",
         "tests",
@@ -95,8 +108,8 @@
     {"id":"ET-LABC-00","master_id":"ET-LABC-MASTER","title":"Исходное состояние","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"43d763d4351b58e7104e084d192c2771afa04839","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/laboratory-corrections.spec.md","docs/STAGES.md"],"requirements":["ET-LABC-00"],"capabilities":["project.framework.governance"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-LABC-01","master_id":"ET-LABC-MASTER","title":"Несимметричная звезда","status":"verified","predecessors":["ET-LABC-00"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"3e90c4c84102af8fd910bbd644b96f6e8389856c","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/models/star-neutral.ts"],"requirements":["ET-LABC-01"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-LABC-02","master_id":"ET-LABC-MASTER","title":"Симметричные составляющие","status":"verified","predecessors":["ET-LABC-01"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"3e90c4c84102af8fd910bbd644b96f6e8389856c","checkpoint_after":"b324aa9308ed17a8631fc227e7c3324ace10370d","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/SequenceDiagrams.tsx"],"requirements":["ET-LABC-02"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-LABC-03","master_id":"ET-LABC-MASTER","title":"Годограф","status":"ready","predecessors":["ET-LABC-02"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"b324aa9308ed17a8631fc227e7c3324ace10370d","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/CircularDiagram.tsx"],"requirements":["ET-LABC-03"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-LABC-04","master_id":"ET-LABC-MASTER","title":"Переходная линия","status":"queued","predecessors":["ET-LABC-03"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LineExperimentLab.tsx"],"requirements":["ET-LABC-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-03","master_id":"ET-LABC-MASTER","title":"Годограф","status":"verified","predecessors":["ET-LABC-02"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"b324aa9308ed17a8631fc227e7c3324ace10370d","checkpoint_after":"ea86974b753872fc797853403f10be6b1142f7f0","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/CircularDiagram.tsx"],"requirements":["ET-LABC-03"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-LABC-04","master_id":"ET-LABC-MASTER","title":"Переходная линия","status":"ready","predecessors":["ET-LABC-03"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"ea86974b753872fc797853403f10be6b1142f7f0","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LineExperimentLab.tsx"],"requirements":["ET-LABC-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-LABC-05","master_id":"ET-LABC-MASTER","title":"LC-двухполюсник","status":"queued","predecessors":["ET-LABC-04"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LcExperimentLab.tsx"],"requirements":["ET-LABC-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-LABC-06","master_id":"ET-LABC-MASTER","title":"Инварианты редакторов","status":"queued","predecessors":["ET-LABC-05"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/circuit"],"requirements":["ET-LABC-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-LABC-07","master_id":"ET-LABC-MASTER","title":"Генеративные Evals","status":"queued","predecessors":["ET-LABC-06"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","tests/topology-eval"],"requirements":["ET-LABC-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -120,7 +133,7 @@
     "max_decisions": 5,
     "max_evidence_threads": 8
   },
-  "next_action": "ET-LABC-03",
+  "next_action": "ET-LABC-04",
   "integration": {
     "required": false,
     "reason": ""

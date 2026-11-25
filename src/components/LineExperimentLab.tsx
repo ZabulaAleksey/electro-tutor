@@ -32,6 +32,53 @@ const copy = {
   },
 } as const;
 
+const projectionErrors: Readonly<Record<string, Record<Language, string>>> = {
+  "ambiguous-line-append": {
+    ru: "Нельзя однозначно определить выход последней секции. Проверьте обратные выводы и соединения каскада.",
+    uk: "Не вдається однозначно визначити вихід останньої секції. Перевірте зворотні виводи та з’єднання каскаду.",
+  },
+  "unsupported-line-circuit": {
+    ru: "Расчёт требует одного источника, от одной до шести секций с одинаковым типом выводов и не более 32 устройств.",
+    uk: "Розрахунок потребує одного джерела, від однієї до шести секцій з однаковим типом виводів і не більше 32 пристроїв.",
+  },
+  "shorted-line-source": {
+    ru: "Оба вывода источника находятся в одном электрическом узле.",
+    uk: "Обидва виводи джерела перебувають в одному електричному вузлі.",
+  },
+  "unsupported-line-chain": {
+    ru: "Вычислитель требует однозначного каскада секций и не более одного последовательного элемента на каждом стыке.",
+    uk: "Обчислювач потребує однозначного каскаду секцій і не більше одного послідовного елемента на кожному стику.",
+  },
+  "unsupported-line-input-contact": {
+    ru: "Между источником и первой секцией вычислитель поддерживает только один идеальный ключ.",
+    uk: "Між джерелом і першою секцією обчислювач підтримує лише один ідеальний ключ.",
+  },
+  "unsupported-series-node": {
+    ru: "Вычислитель не поддерживает ответвление от промежуточного узла последовательного элемента между секциями.",
+    uk: "Обчислювач не підтримує відгалуження від проміжного вузла послідовного елемента між секціями.",
+  },
+  "unsupported-line-load": {
+    ru: "Вычислитель требует нагрузку между сигнальным и обратным выводами либо поддерживаемое последовательное или параллельное соединение.",
+    uk: "Обчислювач потребує навантаження між сигнальним і зворотним виводами або підтримуване послідовне чи паралельне з’єднання.",
+  },
+  "unsupported-line-switch": {
+    ru: "Вычислитель не поддерживает ключ в этой ветви нагрузки. Ключ можно использовать в поддерживаемой сигнальной цепи.",
+    uk: "Обчислювач не підтримує ключ у цій гілці навантаження. Ключ можна використовувати в підтримуваному сигнальному колі.",
+  },
+  "shorted-line-device": {
+    ru: "Оба вывода одного из элементов подключены к одному электрическому узлу.",
+    uk: "Обидва виводи одного з елементів підключено до одного електричного вузла.",
+  },
+  "unattached-line-net": {
+    ru: "В схеме есть узел, который не подключён ни к одному выводу устройства.",
+    uk: "У схемі є вузол, який не підключено до жодного виводу пристрою.",
+  },
+  "unsupported-line-resistance-event": {
+    ru: "Во время расчёта менять сопротивление можно только в конечной нагрузке.",
+    uk: "Під час розрахунку змінювати опір можна лише в кінцевому навантаженні.",
+  },
+};
+
 export default function LineExperimentLab({ language }: { language: Language }) {
   const t = copy[language];
   const [{ experiment, past, future }, setHistory] = useState(() => ({
@@ -110,13 +157,13 @@ export default function LineExperimentLab({ language }: { language: Language }) 
     const code = error instanceof Error ? error.message : String(error);
     if (code === "inconsistent-ideal-current-source-and-open-switch") return t.openInput;
     if (code === "line-section-limit") return t.sectionLimit;
-    return networkError(code, language);
+    return projectionErrors[code]?.[language] ?? networkError(code, language);
   }
 
-  function updateExperiment(update: (previous: LineExperiment) => LineExperiment, undoable = false) {
+  function updateExperiment(update: (previous: LineExperiment, history: readonly LineExperiment[]) => LineExperiment, undoable = false) {
     setEdited(true);
     setHistory(previous => {
-      const next = update(previous.experiment);
+      const next = update(previous.experiment, previous.past);
       if (next === previous.experiment) return previous;
       return undoable
         ? { experiment: next, past: [...previous.past, previous.experiment].slice(-64), future: [] }
@@ -147,14 +194,21 @@ export default function LineExperimentLab({ language }: { language: Language }) 
     const sectionIds = new Set(next.topology.components.filter(part => part.kind === "line").map(({ id }) => id));
     const lastSwitchS = Math.max(0, ...next.topology.components.filter(({ kind }) => kind === "switch")
       .map(({ parameters }) => Number(parameters.atS ?? 0)));
-    updateExperiment(previous => {
+    updateExperiment((previous, history) => {
       if (previous.circuit === next) return previous;
+      const prior = history.at(-1)?.circuit;
+      // An immediate insert/bypass round trip has an exact saved layout.
+      // Restore its spacing instead of leaving the temporary gap for the part.
+      const restoresLastShape = prior && next.topology.components.length < previous.circuit.topology.components.length &&
+        JSON.stringify([next.topology, next.brokenWires, next.observedEndpoints, next.attachmentSides]) ===
+        JSON.stringify([prior.topology, prior.brokenWires, prior.observedEndpoints, prior.attachmentSides]);
+      const editedCircuit = restoresLastShape ? { ...next, geometry: prior.geometry } : next;
       const nextDurationS = lastSwitchS >= previous.durationS ? Math.min(10, lastSwitchS + .02) : previous.durationS;
       return {
-        ...previous, circuit: next, durationS: nextDurationS,
+        ...previous, circuit: editedCircuit, durationS: nextDurationS,
         selectedSection: previous.selectedSection && sectionIds.has(previous.selectedSection) ? previous.selectedSection : null,
         observations: Object.fromEntries(Object.entries(previous.observations).filter(([id]) => sectionIds.has(id))
-          .map(([id]) => [id, observationAt({ ...previous, circuit: next, durationS: nextDurationS }, id)])),
+          .map(([id]) => [id, observationAt({ ...previous, circuit: editedCircuit, durationS: nextDurationS }, id)])),
       };
     }, true);
     setActionError("");
@@ -221,6 +275,7 @@ export default function LineExperimentLab({ language }: { language: Language }) 
   return <div data-line-a-lab data-line-a-view={view}>
     {activeSection && projection.model
       ? <LineExperimentResults language={language} sectionId={activeSection} model={projection.model} showResults={view === "results"}
+          onShowResults={() => openSection(activeSection)}
           onBack={() => { setView("editor"); setActionError(""); }}
           durationS={durationS} onDurationChange={durationChanged}
           observation={observationAt(experiment, activeSection)} onObservationChange={updateObservation} />
@@ -228,7 +283,13 @@ export default function LineExperimentLab({ language }: { language: Language }) 
     {view === "editor" && <>
           {hasPhysicalPairs && <p className="line-a-port-note">{t.physicalPairs}</p>}
           <LineExperimentEditor language={language} document={circuit} onChange={edit} onOpenSection={openSection}
-            validateParameters={next => { if (projection.model) lineExperimentModel(next, durationS); }}
+            validateParameters={next => {
+              if (!projection.model) return;
+              try { lineExperimentModel(next, durationS); }
+              catch (error) {
+                if (!(error instanceof Error) || !Object.hasOwn(projectionErrors, error.message)) throw error;
+              }
+            }}
             onAppendSection={() => {
               try { edit(appendExperimentSection(circuit, durationS)); }
               catch (error) { setActionError(report(error)); }
@@ -250,7 +311,7 @@ export default function LineExperimentLab({ language }: { language: Language }) 
             }}>{language === "ru" ? "Сохранить текущую схему" : "Зберегти поточну схему"}</button>
           </div>}
           {storageError && <p role="status">{language === "ru" ? "Не удалось прочитать или сохранить локальную копию. Схему можно сохранить в JSON." : "Не вдалося прочитати або зберегти локальну копію. Схему можна зберегти у JSON."}</p>}
-          {projection.error && <p role="alert" data-line-a-model-error>{report(projection.error)}</p>}
+          {projection.error && <p role="alert" data-line-a-model-error={projection.error}>{report(projection.error)}</p>}
         </>}
     {actionError && <p role="alert" data-line-a-action-error>{actionError}</p>}
     <div className="line-a-archive" role="group" aria-label={t.archive}>

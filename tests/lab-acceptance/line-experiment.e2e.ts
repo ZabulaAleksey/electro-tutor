@@ -15,6 +15,84 @@ async function rangeValue(element: Locator, value: number) {
   }, value);
 }
 
+test("the first Start displays calculated waveforms and playback restarts", async ({ page }) => {
+  await page.goto(route("ru"));
+  const lab = page.locator("[data-line-a-lab]");
+  const plot = lab.locator(results);
+  await expect(lab).toHaveAttribute("data-line-a-view", "editor");
+  await lab.locator('[data-line-termination="matched"]').click();
+  await lab.locator("[data-line-a-play]").click();
+  await expect(lab).toHaveAttribute("data-line-a-view", "results");
+  await expect(plot).toHaveAttribute("data-calculation-ready", "true");
+  await expect(plot.locator("[data-line-a-plot]")).toHaveCount(4);
+  const curves = plot.locator("[data-line-a-plot] [data-plot-curve]");
+  await expect(curves).toHaveCount(12);
+  expect(await curves.evaluateAll(lines => lines.every(line => {
+    const points = (line.getAttribute("points") ?? "").split(" ").map(point => point.split(",").map(Number));
+    return points.length > 3 && points.every(pair => pair.length === 2 && pair.every(Number.isFinite));
+  }))).toBe(true);
+  await expect.poll(async () => Number(await plot.getAttribute("data-time-s"))).toBeGreaterThan(0);
+  await lab.locator("[data-line-a-pause]").press("Enter");
+  const pausedAt = await plot.getAttribute("data-time-s");
+  await expect(lab.locator("[data-line-a-play]")).toBeEnabled();
+  await expect(plot).toHaveAttribute("data-time-s", pausedAt!);
+  await rangeValue(plot.locator("[data-line-a-time]"), .008);
+  expect(Number(await plot.getAttribute("data-u"))).toBeCloseTo(12, 5);
+  expect(Number(await plot.getAttribute("data-i"))).toBeCloseTo(.24, 5);
+  await lab.locator("[data-line-a-stop]").press("Enter");
+  await expect(plot).toHaveAttribute("data-time-s", "0");
+  await lab.locator("[data-line-a-play]").press("Enter");
+  await expect.poll(async () => Number(await plot.getAttribute("data-time-s"))).toBeGreaterThan(0);
+  await lab.locator("[data-line-a-stop]").press("Enter");
+  await plot.locator("[data-line-a-back]").press("Enter");
+  await lab.locator('[data-line-termination="short"]').click();
+  await lab.locator("[data-line-a-play]").click();
+  await expect(plot).toHaveAttribute("data-calculation-ready", "true");
+  await lab.locator("[data-line-a-pause]").press("Enter");
+  await rangeValue(plot.locator("[data-line-a-position]"), 1_000_000);
+  await rangeValue(plot.locator("[data-line-a-time]"), .008);
+  expect(Number(await plot.getAttribute("data-u"))).toBeCloseTo(0, 5);
+  expect(Number(await plot.getAttribute("data-i"))).toBeCloseTo(.48, 5);
+});
+
+test("parallel load edits and undo leave the source and physical line at their anchors", async ({ page }) => {
+  await page.goto(route("ru"));
+  const board = page.locator(editor);
+  const anchors = ["E1", "K1", "TL1"];
+  const glyph = (id: string) => board.locator(`[data-line-glyph="${id}"]`);
+  const originals = await Promise.all(anchors.map(async id => (await glyph(id).getAttribute("transform"))!));
+  async function expectAnchors() {
+    for (const [index, id] of anchors.entries()) await expect(glyph(id)).toHaveAttribute("transform", originals[index]);
+    await expect(glyph("E1")).toHaveAttribute("data-line-rotation", "90");
+  }
+  for (const kind of ["r", "l", "c"]) {
+    await board.locator(`[data-line-palette="${kind}"]`).click();
+    await board.locator('[data-line-parallel-part="C1"]').click();
+    await board.locator('[data-line-parallel-side="right"]').click();
+    await expectAnchors();
+  }
+  const circuit = () => page.evaluate(() => JSON.parse(localStorage.getItem("electrotutor:line-experiment:v1")!).circuit);
+  const edited = await circuit();
+  expect(edited.topology.components.find((part: { id: string }) => part.id === "TL1").terminals).toEqual([
+    "TL1:a", "TL1:b", "TL1:return-in", "TL1:return-out",
+  ]);
+  await board.locator('[data-line-component="R1"]').click();
+  await board.getByRole("dialog").press("Delete");
+  await expect(glyph("R1")).toHaveCount(0);
+  await expectAnchors();
+  const deleted = await circuit();
+  await page.locator("[data-line-a-undo]").click();
+  await expect(glyph("R1")).toBeVisible();
+  expect(await circuit()).toEqual(edited);
+  await page.locator("[data-line-a-redo]").click();
+  expect(await circuit()).toEqual(deleted);
+  await page.reload();
+  await expectAnchors();
+  expect(await circuit()).toEqual(deleted);
+  await page.locator("[data-line-a-play]").click();
+  await expect(page.locator(results)).toHaveAttribute("data-calculation-ready", "true");
+});
+
 test("Lab A from catalogue: delayed EMF, cascade, selected section, playback, SVG and archive", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -96,13 +174,19 @@ test("Lab A from catalogue: delayed EMF, cascade, selected section, playback, SV
   expect(failures).toEqual([]);
 });
 
-test("an invalid series edit can be undone and a late closure remains calculable", async ({ page }) => {
+test("an unsupported series edit stays in the diagram and can be undone", async ({ page }) => {
   await page.goto(route("ru"));
   const board = page.locator(editor);
   await board.locator('[data-line-palette="r"]').click();
   await expect(board.locator("[data-line-slot-mode]")).toHaveCount(0);
   await board.locator('[data-line-series-slot="W1"]').press("Enter");
-  await expect(page.locator("[data-line-a-model-error]")).toBeVisible();
+  await expect(board.locator('[data-line-glyph="R1"]')).toBeVisible();
+  await expect(page.locator("[data-line-a-model-error]")).toContainText(/вычислитель/i);
+  await board.locator("[data-line-append]").click();
+  await expect(board.locator('[data-line-section="TL2"]')).toBeVisible();
+  await expect(board.locator('[data-line-glyph="R1"]')).toBeVisible();
+  await page.locator("[data-line-a-undo]").click();
+  await expect(board.locator('[data-line-section="TL2"]')).toHaveCount(0);
   await page.locator("[data-line-a-undo]").click();
   await expect(page.locator("[data-line-a-model-error]")).toHaveCount(0);
   await board.locator('[data-line-component="K1"]').click();

@@ -225,15 +225,19 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   const [expandedDocument, setExpandedDocument] = useState<TopologyLabDocument>();
   const { topology } = document;
+  const physicalLine = variant === "transient"
+    && topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
   const emptyBoard = !topology.wires.length && !topology.junctions.length && !document.brokenWires?.length
     && topology.components.every(part => part.kind === "port");
   const sourceIds = useMemo(() => new Set(topology.components.map(part => part.id)), [topology]);
   const displayDocument = useMemo(() => {
-    if (armed || wireMode || selected || document.brokenWires?.length || expandedDocument === document || variable) return document;
+    // Reduced components have synthetic pins and wires. The physical editor
+    // uses its editable graph to keep both rails and their geometry addressable.
+    if (physicalLine || armed || wireMode || selected || document.brokenWires?.length || expandedDocument === document || variable) return document;
     const observed = referenceEndpoint ? [...document.observedEndpoints, referenceEndpoint] : document.observedEndpoints;
     const topology = simplifyTopologyForView(document.topology, observed);
     return topology === document.topology ? document : { ...document, topology };
-  }, [document, armed, wireMode, selected, expandedDocument, variable, referenceEndpoint]);
+  }, [document, physicalLine, armed, wireMode, selected, expandedDocument, variable, referenceEndpoint]);
   const diagram = useMemo(() => layoutLineExperiment(displayDocument), [displayDocument]);
   const reference = steady && referenceEndpoint ? diagram.endpoints.get(referenceEndpoint) : undefined;
   const referenceY = reference && diagram.returnY !== undefined && reference.y > diagram.returnY - 30
@@ -253,8 +257,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
     slot.kind === "parallel" && slot.side === "left" && (!port || !slot.componentIds.includes(port.id))), [port, slots]);
   const selectedPart = devices.get(selected);
-  const legacyTransient = variant === "transient"
-    && !topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
+  const legacyTransient = variant === "transient" && !physicalLine;
   const sourceReturn = legacyTransient
     ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
   const automaticBypass = useMemo(() => {
@@ -346,8 +349,12 @@ export default function LineExperimentEditor({ language, document, onChange, onA
 
   function removeSelected(mode: "device" | "branch" | "conductor" = automaticBypass ? "conductor" : "device") {
     if (onRemove) onRemove(selected, document);
-    else if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
-      preserveObservations: lc, allowPortShort: lc && !automaticBypass })) return;
+    else {
+      const source = physicalLine && !document.geometry
+        ? { ...document, geometry: captureLineGeometry(topology, diagram) } : document;
+      if (!applyEdit({ type: "remove", componentId: selected, mode, protectedEndpoints: [],
+        preserveObservations: lc, allowPortShort: lc && !automaticBypass }, source)) return;
+    }
     setSelected("");
     setConfirm(false);
   }

@@ -1,5 +1,5 @@
 import { readExactLcNominal } from "../models/lc-nominal";
-import { readSchematicGeometry, type SchematicGeometry } from "./schematic-geometry";
+import { geometryAfterRemoval, readSchematicGeometry, type SchematicGeometry } from "./schematic-geometry";
 import { maxCircuitFileBytes } from "./document";
 import { optionalPartParameters, parts, validPartParameter, type PartKind } from "./drawing";
 import { moveSeriesEquivalent, reduceTopologyRlc } from "./topology-equivalence";
@@ -216,8 +216,11 @@ export class TopologySession {
       }
       const survivingIds = new Set(next.components.map(({ id }) => id));
       sides = sides.filter(({ componentId }) => survivingIds.has(componentId));
-      // After a deletion compact the active chain without the cached gap left by the device.
-      geometry = undefined;
+      const previousBreaks = this.#document.brokenWires ?? [];
+      geometry = geometry && topology.components.some(part => part.kind === "line" && part.terminals.length === 4)
+        ? geometryAfterRemoval(geometry, topology.wires, previousBreaks, [...next.wires, ...opened],
+          command.mode === "conductor" ? removed.terminals : undefined)
+        : undefined;
     } else if (command.type === "break-wire") {
       const cut = breakTopologyWire(topology, command.wireId);
       next = cut.topology;

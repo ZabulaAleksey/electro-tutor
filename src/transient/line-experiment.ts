@@ -117,10 +117,39 @@ function allocatedIds(circuit: TopologyLabDocument, additionalWires: readonly Ci
   };
 }
 
+function lastPhysicalSection(circuit: TopologyLabDocument, sections: readonly CircuitComponent[]) {
+  const { topology } = circuit;
+  const sources = topology.components.filter(part => part.kind === "voltage" || part.kind === "current");
+  if (sources.length !== 1) throw Error("ambiguous-line-append");
+  const membership = new Map(netlist(topology).flatMap((net, index) => net.map(id => [id, index] as const)));
+  const remaining = new Set(sections);
+  let reference = membership.get(sources[0].terminals[1]);
+  const visited = new Set([reference]);
+  let last: { part: CircuitComponent; inlet: string; outlet: string; returnOutlet: string } | undefined;
+  while (remaining.size) {
+    const choices = [...remaining].filter(part => part.terminals.slice(2).some(terminal => membership.get(terminal) === reference));
+    if (choices.length !== 1) throw Error("ambiguous-line-append");
+    const part = choices[0];
+    const reversed = membership.get(part.terminals[3]) === reference;
+    const returnOutlet = part.terminals[reversed ? 2 : 3];
+    reference = membership.get(returnOutlet);
+    if (visited.has(reference)) throw Error("ambiguous-line-append");
+    visited.add(reference);
+    remaining.delete(part);
+    last = { part, inlet: part.terminals[reversed ? 1 : 0], outlet: part.terminals[reversed ? 0 : 1], returnOutlet };
+  }
+  if (!last) throw Error("ambiguous-line-append");
+  return last;
+}
+
 export function appendExperimentSection(circuit: TopologyLabDocument, durationS = DEFAULT_NETWORK.durationS): TopologyLabDocument {
-  const projected = projectExperiment(circuit, durationS);
-  if (projected.model.sections.length >= MAX_SECTIONS) throw Error("line-section-limit");
-  const { part, inlet, outlet, returnOutlet } = finalLine(circuit, projected);
+  const sections = circuit.topology.components.filter(part => part.kind === "line");
+  if (sections.length >= MAX_SECTIONS) throw Error("line-section-limit");
+  // Physical return pairs order an editable cascade even if, for example, the
+  // source has a valid impedance chain outside the transient solver's scope.
+  const physical = sections.length > 0 && sections.every(part => part.terminals.length === 4);
+  const { part, inlet, outlet, returnOutlet } = physical ? lastPhysicalSection(circuit, sections)
+    : finalLine(circuit, projectExperiment(circuit, durationS));
   const allocate = allocatedIds(circuit);
   const terminals = (id: string) => lineTerminals(id, returnOutlet !== undefined);
   const id = allocate("TL", terminals);

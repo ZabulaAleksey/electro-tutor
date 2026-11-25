@@ -2,9 +2,10 @@ import { useId, useState, type MouseEvent } from "react";
 import { formatEngineeringNumber } from "../engineering/format";
 import { niceStep } from "../engineering/scale";
 import { SourceGlyph } from "../engineering/symbols";
-import { addComplex, complexFromPolar, multiplyComplex, type Complex } from "../models/circular-diagram";
+import { addComplex, type Complex } from "../models/circular-diagram";
 import { absolutePosition, areas, phases, z, type Area, type Neutral, type Phase, type SectionReading,
   type SequenceDocument, type SequenceEdit, type SequenceSolution, type Triple } from "../sequence/contract";
+import { sequencePhaseTerms } from "../sequence/solve";
 import type { Language } from "../types";
 import "./SequenceDiagrams.css";
 
@@ -47,9 +48,9 @@ const copy = {
   },
 } as const;
 
-const left = 84, span = 132, phaseY = [80, 124, 168], right = left + 3 * span;
-const sourceX = 51, generatorNeutralX = 23, loadNeutralX = 503, groundY = 228;
-const svgWidth = 526;
+const left = 84, span = 132, phaseY = [82, 114, 146], right = left + 3 * span;
+const sourceX = 51, generatorNeutralX = 23, loadNeutralX = 514, groundY = 195;
+const svgWidth = 536;
 const sequenceOrder = [1, 2, 0] as const;
 const phaseClass = (phase: Phase) => "seq-phase-" + phase.toLowerCase();
 const sequenceClass = (sequence: number) => "seq-sequence-" + sequence;
@@ -83,21 +84,25 @@ function NeutralPath({ neutral, x, name, label, language }: {
 }) {
   const connected = neutral.mode === "grounded";
   const finite = connected && !isZero(neutral.impedance);
+  const endY = 161;
+  const xOffset = name === "generator" ? 12 : -12;
+  const anchor = name === "generator" ? "start" : "end";
   return <g className="seq-neutral" data-seq-neutral={name} data-mode={neutral.mode}>
     <title>{`${label} · ${connected ? copy[language].grounded : copy[language].isolated}${finite
-      ? ` · ${complexLabel(neutral.impedance, language)} Ом` : ""}`}</title>
-    <path d={`M${x} ${phaseY[0]}V${connected ? (finite ? 192 : groundY) : 191}`} />
+      ? ` · Zₙ = ${complexLabel(neutral.impedance, language)} Ω · 3Zₙ = ${complexLabel({
+        re: 3 * neutral.impedance.re, im: 3 * neutral.impedance.im,
+      }, language)} Ω` : ""}`}</title>
+    <path d={`M${x} ${phaseY[0]}V${connected && !finite ? groundY : endY}`} />
     {connected ? <>
       {finite && <>
-        <rect className="seq-impedance" x={x - 7} y="192" width="14" height="14" rx="2" />
-        <path d={`M${x} 206V${groundY}`} />
-        <text x={x + (name === "generator" ? 11 : -11)} y="203"
-          textAnchor={name === "generator" ? "start" : "end"}>Zₙ</text>
+        <rect className="seq-impedance" x={x - 7} y={endY} width="14" height="14" rx="2" />
+        <path d={`M${x} ${endY + 14}V${groundY}`} />
       </>}
       <Ground x={x} y={groundY} />
-    </> : <circle className="seq-open-point" cx={x} cy="192" r="3" />}
-    <text x={x + (name === "generator" ? 12 : -12)} y="250" textAnchor={name === "generator" ? "start" : "end"}>
+    </> : <circle className="seq-open-point" cx={x} cy={endY} r="3" />}
+    <text x={x + xOffset} y="216" textAnchor={anchor}>
       {name === "generator" ? "Nᵍ" : "Nₗ"}
+      {connected && <> · Zₙ = {finite ? complexLabel(neutral.impedance, language) : "0"} Ω</>}
     </text>
   </g>;
 }
@@ -139,7 +144,8 @@ function PhaseWire({ phase, index, edits, language }: { phase: Phase; index: num
           <circle className="seq-open-point" cx={x + half} cy={y} r="2" />
         </> : <rect className="seq-impedance" x={x - half} y={y - 5} width={2 * half} height="10" rx="1.5" />}
       </g>)}
-    <path className="seq-conductor" d={`M${stamps.length ? stamps.at(-1)!.x + stamps.at(-1)!.half : left - 10} ${y}H${loadNeutralX}`} />
+    <path className="seq-conductor" d={`M${stamps.length ? stamps.at(-1)!.x + stamps.at(-1)!.half : left - 10} ${y}H${right + 12}M${right + 30} ${y}H${loadNeutralX}`} />
+    <rect className="seq-impedance" x={right + 12} y={y - 5} width="18" height="10" rx="1.5" />
     {(index === 1 || index === 2) && <>
       <circle className="seq-node" cx={generatorNeutralX} cy={y} r="2.3" />
       <circle className="seq-node" cx={loadNeutralX} cy={y} r="2.3" />
@@ -152,7 +158,7 @@ function ShuntPaths({ edit, language }: { edit: Extract<SequenceEdit, { kind: "s
   const finite = !isZero(edit.impedance);
   const sharedGround = edit.target === "ground" && edit.phases.length > 1;
   const branchImpedance = finite && !sharedGround;
-  const jointY = 191;
+  const jointY = 159;
   const tapOffset = 11 * (edit.phases.length - 1) / 2;
   return <g className="seq-shunt" data-seq-edit-kind="shunt" data-seq-edit-id={edit.id}>
     <title>{`${edit.id} · ${edit.phases.join(", ")} → ${edit.target === "ground" ? copy[language].ground : edit.target}${finite
@@ -178,21 +184,22 @@ function ShuntPaths({ edit, language }: { edit: Extract<SequenceEdit, { kind: "s
       </g>;
     })}
     {sharedGround && <g data-seq-fault-junction>
-      <path className="seq-edit" d={`M${x - tapOffset} ${jointY}H${x + tapOffset}M${x} ${jointY}V${finite ? 200 : groundY}`} />
+      <path className="seq-edit" d={`M${x - tapOffset} ${jointY}H${x + tapOffset}M${x} ${jointY}V${finite ? 169 : groundY}`} />
       <circle className="seq-node" cx={x} cy={jointY} r="2.7" />
       {finite && <>
-        <rect className="seq-impedance" x={x - 5} y="200" width="10" height="14" rx="1.5" />
-        <path className="seq-edit" d={`M${x} 214V${groundY}`} />
-        <text x={x + 8} y="212">Z<tspan baselineShift="sub" fontSize="10">f</tspan></text>
+        <rect className="seq-impedance" x={x - 5} y="169" width="10" height="14" rx="1.5" />
+        <path className="seq-edit" d={`M${x} 183V${groundY}`} />
+        <text x={x + 8} y="181">Z<tspan baselineShift="sub" fontSize="10">f</tspan></text>
       </>}
       <Ground x={x} y={groundY} />
     </g>}
   </g>;
 }
 
-export function SequenceCircuit({ document, language, selectedArea, selectedAt, onSelect }: {
+export function SequenceCircuit({ document, language, selectedArea, selectedAt, onSelect, controls }: {
   document: SequenceDocument; language: Language; selectedArea: Area; selectedAt: number;
   onSelect: (area: Area, at: number) => void;
+  controls?: import("react").ReactNode;
 }) {
   const t = copy[language];
   const key = useId();
@@ -202,7 +209,7 @@ export function SequenceCircuit({ document, language, selectedArea, selectedAt, 
     const matrix = event.currentTarget.getScreenCTM();
     if (!matrix) return;
     const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
-    if (point.x < left || point.x > right || point.y < 30 || point.y > 188) return;
+    if (point.x < left || point.x > right || point.y < 8 || point.y > 160) return;
     const normalized = (point.x - left) / span;
     const index = Math.min(areas.length - 1, Math.floor(normalized));
     onSelect(areas[index], Math.round((normalized - index) * 1000) / 1000);
@@ -210,14 +217,20 @@ export function SequenceCircuit({ document, language, selectedArea, selectedAt, 
 
   return <figure className="seq-card seq-circuit-card">
     <figcaption id={key}>{t.circuit}</figcaption>
-    <svg className="seq-svg seq-schematic" viewBox={`0 0 ${svgWidth} 260`} role="img"
+    <svg className="seq-svg seq-schematic" viewBox={`0 0 ${svgWidth} 224`} role="img"
       aria-labelledby={key} data-seq-schematic onClick={selectPoint}>
       {areas.map(area => <g key={area} data-seq-zone={area}>
-        <rect className="seq-zone" x={placement(area, 0) + 2} y="21" width={span - 4} height="169" rx="8"
+        <rect className="seq-zone" x={placement(area, 0) + 2} y="5" width={span - 4} height="155" rx="8"
           data-selected={area === selectedArea} />
-        <text className="seq-zone-name" x={placement(area, .5)} y="43" textAnchor="middle">{t.area[area]}</text>
+        <text className="seq-zone-name" x={placement(area, .5)} y="21" textAnchor="middle">{t.area[area]}</text>
+        {document.sections[area].map((value, sequence) => {
+          const label = `Z${subscript[sequence]} = ${complexLabel(value, language)} Ω`;
+          return <text className="seq-zone-impedance" key={sequence} x={placement(area, .5)} y={37 + 13 * sequence}
+            textAnchor="middle" textLength={label.length > 17 ? 116 : undefined} lengthAdjust="spacingAndGlyphs"
+            data-seq-zone-impedance={sequence}>{label}</text>;
+        })}
       </g>)}
-      <path className="seq-station" d={`M${selectedX} 55V190`} />
+      <path className="seq-station" d={`M${selectedX} 68V160`} />
       <NeutralPath x={generatorNeutralX} neutral={document.generatorNeutral} name="generator" label={t.generatorNeutral} language={language} />
       <NeutralPath x={loadNeutralX} neutral={document.loadNeutral} name="load" label={t.loadNeutral} language={language} />
       {phases.map((phase, index) => <PhaseWire key={phase} phase={phase} index={index} edits={document.edits} language={language} />)}
@@ -228,6 +241,7 @@ export function SequenceCircuit({ document, language, selectedArea, selectedAt, 
         onClick={() => onSelect(area, area === selectedArea ? selectedAt : .5)}>{t.area[area]}</button>)}
     </div>
     <p className="seq-hint">{t.choose}</p>
+    {controls}
   </figure>;
 }
 
@@ -240,31 +254,17 @@ function SequenceNetworks({ document, solution, reading, language }: {
   const number = (x: number) => formatEngineeringNumber(x, language);
   const rows = { 1: 61, 2: 113, 0: 165 };
   const key = useId();
-  const blocks = [["G", "generator"], ["L", "line"], ["H", "load"]] as const;
   const links = solution.couplings.filter(coupling => coupling.sequences.length > 1);
-  const neutrals = [
-    { key: "G", name: t.generatorNeutral, value: document.generatorNeutral },
-    { key: "H", name: t.loadNeutral, value: document.loadNeutral },
-  ].filter(({ value }) => value.mode === "grounded");
   return <section className="seq-card seq-networks" aria-labelledby={key}>
     <h3 id={key}>{t.networks}</h3>
     <svg className="seq-svg" viewBox={`0 0 ${svgWidth} 195`} role="img" aria-labelledby={key}>
-      {blocks.map(([code, area]) => <text className="seq-zone-name" key={code} x={placement(area, .5)} y="22" textAnchor="middle">{t.area[area]}</text>)}
+      {areas.map(area => <text className="seq-zone-name" key={area} x={placement(area, .5)} y="22" textAnchor="middle">{t.area[area]}</text>)}
       {sequenceOrder.map(sequence => {
         const y = rows[sequence], inactive = sequence === 0 && !reading.zeroPath;
         return <g className={sequenceClass(sequence)} key={sequence} data-seq-network={sequence} data-open={inactive}>
           <text x="10" y={y - 2}>{t.names[sequence]}</text>
           <text className="seq-index" x="10" y={y + 15}>E{subscript[sequence]}{sequence === 1 ? "" : " = 0"}</text>
           <path className="seq-network-line" d={`M${left - 3} ${y}H${right}`} />
-          {blocks.map(([code, area]) => {
-            const x = placement(area, .5);
-            return <g key={area}>
-              <title>{`${t.area[area]} · Z${subscript[sequence]}${inactive
-                ? "" : ` = ${complexLabel(document.sections[area][sequence], language)} Ом`}`}</title>
-              <rect className="seq-network-block" x={x - 27} y={y - 11} width="54" height="22" rx="4" />
-              <text className="seq-network-symbol" x={x} y={y + 5} textAnchor="middle">Z{code}{subscript[sequence]}</text>
-            </g>;
-          })}
           {inactive && <g className="seq-network-open">
             <rect x={right - 9} y={y - 6} width="18" height="12" />
             <circle className="seq-open-point" cx={right - 8} cy={y} r="2.5" />
@@ -284,10 +284,6 @@ function SequenceNetworks({ document, solution, reading, language }: {
     </svg>
     <p className="seq-hint">{t.source} E₁ = {number(document.sourceVolts)} В · {number(document.frequencyHz)} Гц</p>
     {!reading.zeroPath && <p className="seq-hint" data-seq-zero-path-note>{t.openZeroPath}</p>}
-    {reading.zeroPath && neutrals.map(({ key: neutral, name, value }) =>
-      <p className="seq-hint" key={neutral}>{name} · 3Z<sub>N,{neutral}</sub> = {complexLabel({
-        re: 3 * value.impedance.re, im: 3 * value.impedance.im,
-      }, language)} Ом</p>)}
     <p className="seq-hint">{links.length ? t.coupled : t.independent}</p>
     {links.length > 0 && <ul className="seq-coupling-list">
       {links.map(coupling => <li key={coupling.id} data-seq-coupling={coupling.id}>
@@ -298,15 +294,16 @@ function SequenceNetworks({ document, solution, reading, language }: {
 }
 
 function partialSums(components: Triple, phase: Phase) {
-  const phaseIndex = phases.indexOf(phase);
-  return components.reduce<Complex[]>((points, term, index) => {
-    const rotate = complexFromPolar(1, -120 * phaseIndex * index);
-    points.push(addComplex(points.at(-1)!, multiplyComplex(term, rotate)));
-    return points;
-  }, [z()]);
+  const [zero, direct, reverse] = sequencePhaseTerms(components, phase);
+  const intermediate = addComplex(zero, direct);
+  return [z(), zero, intermediate, addComplex(intermediate, reverse)] as const;
 }
 
 type Vector = { id: string; label: string; className: string; from: Complex; to: Complex };
+
+const sumOrder = [0, 1, 2] as const;
+const sumFactors = { A: ["", "", ""], B: ["", "a²", "a"], C: ["", "a", "a²"] } as const;
+const isZeroVector = ({ from, to }: Vector) => from.re === to.re && from.im === to.im;
 
 function Arrow({ vector, max }: { vector: Vector; max: number }) {
   const point = (value: Complex) => [
@@ -318,10 +315,9 @@ function Arrow({ vector, max }: { vector: Vector; max: number }) {
   const length = stableNumber(Math.hypot(dx, dy));
   const head = Math.min(5, length / 3);
   const ux = length ? dx / length : 0, uy = length ? dy / length : 0;
-  const zero = vector.from.re === vector.to.re && vector.from.im === vector.to.im;
   const headA = `${stableNumber(endX - head * ux + .6 * head * uy)} ${stableNumber(endY - head * uy - .6 * head * ux)}`;
   const headB = `${stableNumber(endX - head * ux - .6 * head * uy)} ${stableNumber(endY - head * uy + .6 * head * ux)}`;
-  return <g className={vector.className} data-seq-vector={vector.id} data-zero={zero}>
+  return <g className={vector.className} data-seq-vector={vector.id} data-zero={isZeroVector(vector)}>
     {length > .1 && <>
       <line x1={x} y1={y} x2={endX} y2={endY} />
       <path d={`M${endX} ${endY}L${headA}L${headB}Z`} />
@@ -354,13 +350,17 @@ function Phasors({ phaseValues, symmetric, quantity, phase, language }: {
     id: prefix + index, label: prefix + subscript[index], className: sequenceClass(index), from: z(), to: symmetric[index],
   }));
   const sums = partialSums(symmetric, phase);
-  const parts = [0, 1, 2].map(index => ({
-    id: prefix + phase + index, label: subscript[index], className: sequenceClass(index), from: sums[index], to: sums[index + 1],
+  const parts = sumOrder.map(index => ({
+    id: prefix + phase + index, label: sumFactors[phase][index] + prefix + subscript[index],
+    className: sequenceClass(index), from: sums[index], to: sums[index + 1],
   }));
-  const legend = (vectors: Vector[]) => vectors.map(vector => <li key={vector.id} className={vector.className}>
-    <i aria-hidden="true" />{vector.label}{isZero(vector.to) && <span title={t.zero}> = 0</span>}
+  const resultant: Vector = {
+    id: prefix + phase + "-sum", label: prefix + phase, className: "seq-result-vector", from: sums[0], to: sums[3],
+  };
+  const legend = (vectors: Vector[], showZero = true) => vectors.map(vector => <li key={vector.id} className={vector.className}>
+    <i aria-hidden="true" />{vector.label}{showZero && isZeroVector(vector) && <span title={t.zero}> = 0</span>}
   </li>);
-  return <figure className="seq-card seq-phasors" data-seq-phasors={quantity}>
+  return <figure className="seq-card seq-phasors" data-seq-phasors={quantity} data-seq-scale={max}>
     <figcaption>{t[quantity]} · {unit}</figcaption>
     <p className="seq-hint">{t.scale} ±{formatEngineeringNumber(max, language)} {unit}</p>
     <div className="seq-plot-columns">
@@ -368,12 +368,12 @@ function Phasors({ phaseValues, symmetric, quantity, phase, language }: {
         <ul className="seq-vector-legend">{legend(byPhase)}</ul></div>
       <div><h4>{t.sequences}</h4><VectorPlot vectors={bySequence} max={max} label={t.sequences + " · " + t[quantity]} />
         <ul className="seq-vector-legend">{legend(bySequence)}</ul></div>
-      <div><h4>{t.sum} {phase}</h4>
-        <VectorPlot vectors={[...parts, { ...byPhase[phases.indexOf(phase)], id: prefix + phase + "-sum", className: "seq-result-vector" }]}
-          max={max} label={t.sum + " " + phase + " · " + t[quantity]} />
-        <ul className="seq-vector-legend">{parts.map(vector => <li className={vector.className} key={vector.id}>
-          <i aria-hidden="true" />{vector.label}
-        </li>)}<li className="seq-result-vector"><i aria-hidden="true" />{prefix}<sub>{phase}</sub></li></ul>
+      <div className="seq-sum-plot" data-seq-sum={phase}><h4>{t.sum} {phase}</h4>
+        <VectorPlot vectors={[...parts, resultant]} max={max} label={t.sum + " " + phase + " · " + t[quantity]} />
+        <ul className="seq-vector-legend">
+          {legend(parts, false)}
+          <li className={resultant.className}><i aria-hidden="true" />{prefix}<sub>{phase}</sub></li>
+        </ul>
       </div>
     </div>
   </figure>;

@@ -9,14 +9,15 @@
 .seq-lab button:not(:disabled) { cursor: pointer; }
 .seq-lab button:hover:not(:disabled) { border-color: var(--accent); }
 .seq-lab button:disabled { opacity: .5; }
-.seq-panel label, .seq-reader { display: grid; gap: .18rem; min-inline-size: 0; font-size: .92rem; }
-.seq-panel input:not([type=checkbox]), .seq-panel select, .seq-reader select { width: 100%; min-inline-size: 0; }
+.seq-panel label, .seq-schematic-settings label, .seq-reader { display: grid; gap: .18rem; min-inline-size: 0; font-size: .92rem; }
+.seq-panel input:not([type=checkbox]), .seq-panel select, .seq-schematic-settings input, .seq-reader select { width: 100%; min-inline-size: 0; }
 .seq-edit-form { display: grid; gap: .65rem; }
 .seq-phase-pick { display: flex; flex-wrap: wrap; border: 0; margin: 0; padding: 0; gap: .5rem; }
 .seq-phase-pick label { display: flex; gap: .4rem; align-items: center; padding: .35rem .6rem; min-block-size: 44px; }
 .seq-phase-pick input { margin: 0; inline-size: 1.12rem; block-size: 1.12rem; }
 .seq-impedance, .seq-source-settings { display: grid; gap: .45rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.seq-parameter-area { border-bottom: 1px solid var(--line); padding-block: .5rem; }
+.seq-schematic-settings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; align-items: start; }
+.seq-parameter-area { border-bottom: 1px solid var(--line); padding-block: .1rem; min-width: 0; }
 .seq-parameter-area summary { cursor: pointer; min-block-size: 44px; padding-block: .55rem; }
 .seq-parameter-area .seq-impedance { margin-block: .25rem .55rem; }
 .seq-neutral-settings { margin-top: .7rem; display: grid; gap: .4rem; }
@@ -30,3 +31,4 @@
 .seq-reader { max-inline-size: 24rem; margin-bottom: .8rem; }
 .seq-archive { border-top: 1px solid var(--line); padding-top: .8rem; }
 @media (max-width: 760px) { .seq-workspace { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .seq-schematic-settings { grid-template-columns: 1fr; gap: 0; } }

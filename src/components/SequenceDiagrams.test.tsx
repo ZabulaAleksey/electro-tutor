@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 import { complexFromPolar } from "../models/circular-diagram";
-import { newSequenceDocument, z, type SectionReading, type SequenceDocument, type SequenceSolution } from "../sequence/contract";
+import { newSequenceDocument, phases, z, type SectionReading, type SequenceDocument, type SequenceSolution, type Triple } from "../sequence/contract";
+import { sequencePhaseTerms } from "../sequence/solve";
 import { SequenceCircuit, SequenceResults } from "./SequenceDiagrams";
 
 it("draws explicit phase edits, branch endpoints and separate neutral connections", () => {
@@ -22,10 +23,10 @@ it("draws explicit phase edits, branch endpoints and separate neutral connection
   expect(graph).toContain('data-seq-neutral="load" data-mode="isolated"');
   expect(graph).toContain('data-seq-edit-kind="open" data-seq-edit-id="break"');
   const shunt = graph.slice(graph.indexOf('data-seq-edit-id="tap"'));
-  expect(shunt).toContain('d="M282 80V121M282 127V168"');
-  expect(shunt).toContain('cx="282" cy="80"');
-  expect(shunt).toContain('cx="282" cy="168"');
-  expect(shunt).not.toContain('cx="282" cy="124"');
+  expect(shunt).toContain('d="M282 82V111M282 117V146"');
+  expect(shunt).toContain('cx="282" cy="82"');
+  expect(shunt).toContain('cx="282" cy="146"');
+  expect(shunt).not.toContain('cx="282" cy="114"');
 });
 
 it("joins a finite multiphase ground fault before one fault impedance and earth glyph", () => {
@@ -39,10 +40,10 @@ it("joins a finite multiphase ground fault before one fault impedance and earth 
   const fault = graph.slice(graph.indexOf('data-seq-edit-id="shared-earth"'));
   expect(fault.match(/class="seq-impedance"/g)).toHaveLength(1);
   expect(fault.match(/class="seq-ground"/g)).toHaveLength(1);
-  expect(fault).toContain('d="M276.5 124V165M276.5 171V191"');
-  expect(fault).toContain('d="M287.5 168V191"');
-  expect(fault).toContain('d="M276.5 191H287.5M282 191V200"');
-  expect(fault).toContain('class="seq-node" cx="282" cy="191"');
+  expect(fault).toContain('d="M276.5 114V143M276.5 149V159"');
+  expect(fault).toContain('d="M287.5 146V159"');
+  expect(fault).toContain('d="M276.5 159H287.5M282 159V169"');
+  expect(fault).toContain('class="seq-node" cx="282" cy="159"');
 });
 
 it("keeps three sequence rows, genuine reported couplings and separate voltage/current plots", () => {
@@ -75,6 +76,20 @@ it("keeps three sequence rows, genuine reported couplings and separate voltage/c
     expect(content).toContain(`data-seq-vector="${id}" data-zero="true"`);
   }
   expect(reading.voltage012[0]).toEqual(z(7e-15));
+});
+
+const pureSequences: readonly { name: string; values: Triple; expected: Triple; sequence: 0 | 1 | 2 }[] = [
+  { name: "zero", values: [z(2), z(), z()], expected: [z(2), z(2), z(2)], sequence: 0 },
+  { name: "positive", values: [z(), z(2), z()], expected: [z(2), z(-1, -Math.sqrt(3)), z(-1, Math.sqrt(3))], sequence: 1 },
+  { name: "negative", values: [z(), z(), z(2)], expected: [z(2), z(-1, Math.sqrt(3)), z(-1, -Math.sqrt(3))], sequence: 2 },
+];
+
+it.each(pureSequences)("projects pure $name components to all three phase sums", ({ values, expected, sequence }) => {
+  for (const [phaseIndex, phase] of phases.entries()) {
+    const terms = sequencePhaseTerms(values, phase);
+    expect(terms[sequence]).toEqual(expected[phaseIndex]);
+    expect(terms.filter(term => Math.hypot(term.re, term.im) > 0)).toHaveLength(1);
+  }
 });
 
 it("normalizes last-bit differences in phasor markup and preserves nonzero readings below plot resolution", () => {

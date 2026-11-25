@@ -195,7 +195,14 @@ export default function SequenceLab({ language }: { language: Language }) {
   }
 
   return <div className="seq-lab" data-seq-lab data-ready={String(ready)}>
-    <SequenceCircuit document={document} language={language} selectedArea={draft.area} selectedAt={Number(draft.at)} onSelect={setLocation} />
+    <SequenceCircuit document={document} language={language} selectedArea={draft.area} selectedAt={Number(draft.at)}
+      onSelect={setLocation} controls={<div className="seq-schematic-settings">
+        {areas.map(area => <details key={area} className="seq-parameter-area" data-seq-impedance-settings={area}>
+          <summary>{t.area[area]} · Z</summary>
+          {document.sections[area].map((impedance, index) => <ImpedanceFields key={index} name={`Z${index}`} impedance={impedance}
+            onUpdate={value => changeImpedance(area, index, value)} />)}
+        </details>)}
+      </div>} />
     <div className="seq-workspace">
       <section className="seq-panel" aria-label={t.editHeading}>
         <h2>{t.editHeading}</h2>
@@ -252,10 +259,6 @@ export default function SequenceLab({ language }: { language: Language }) {
           <NumberField label={t.source} value={document.sourceVolts} minimum={0} maximum={1e6} onUpdate={sourceVolts => commit({ ...document, sourceVolts })} />
           <NumberField label={t.frequency} value={document.frequencyHz} minimum={.001} maximum={1e6} onUpdate={frequencyHz => commit({ ...document, frequencyHz })} />
         </div>
-        {areas.map(area => <details key={area} className="seq-parameter-area"><summary>{t.area[area]}</summary>
-          {document.sections[area].map((impedance, index) => <ImpedanceFields key={index} name={`Z${index}`} impedance={impedance}
-            onUpdate={value => changeImpedance(area, index, value)} />)}
-        </details>)}
         {(["generator", "load"] as const).map(side => {
           const neutral = document[neutralKey(side)];
           return <div key={side} className="seq-neutral-settings"><label>{t.neutral} · {t.area[side]}

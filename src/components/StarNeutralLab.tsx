@@ -1,6 +1,6 @@
 import { formatEngineeringNumber } from "../engineering/format";
-import { useMemo, useState, useEffect, useRef } from "react";
-import {subtractComplex,type Complex} from "../models/circular-diagram";
+import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
+import { subtractComplex, type Complex } from "../models/circular-diagram";
 import {
   calculateStar, LINE_PAIRS, MAX_INPUT, PHASES, readThreePhaseDraft, polarToRectangular, rectangularToPolar,
   STAR_PRESETS, type Phase, type StarParameters,
@@ -58,14 +58,77 @@ function ImpedanceFields({ label, value, onChange, copy, disabled = false }: {
   </fieldset>;
 }
 
-function ComplexReadout({ label, value, unit, language }: { label: string; value: Complex; unit: string; language: Language }) {
+const diagnostics = {
+  ru: {
+    inconsistent: "Идеальные соединения задают разные потенциалы одному узлу. Решения нет.",
+    indeterminate: "У схемы несколько решений. Показаны однозначно определяемые величины.",
+    unstable: "Система близка к вырожденной. Расчёт токов или напряжений численно неустойчив.",
+  },
+  uk: {
+    inconsistent: "Ідеальні з’єднання задають різні потенціали одному вузлу. Розв’язку немає.",
+    indeterminate: "Схема має кілька розв’язків. Показано однозначно визначені величини.",
+    unstable: "Система близька до виродженої. Розрахунок струмів чи напруг чисельно нестійкий.",
+  },
+} as const;
+
+function rectangularText(value: Complex, language: Language) {
+  const display = (number: number) => formatEngineeringNumber(number, language);
+  return `${display(value.re)} ${value.im < 0 ? "−" : "+"} j${display(Math.abs(value.im))}`;
+}
+
+function ComplexReadout({ label, value, unit, language }: { label: ReactNode; value?: Complex; unit: string; language: Language }) {
+  if (!value) return <tr><th scope="row">{label}</th><td>—</td><td>—</td></tr>;
   const display = (number: number) => formatEngineeringNumber(number, language);
   const polar = rectangularToPolar(value);
-  const angle = polar.magnitude === 0 ? 0 : polar.angle;
-  const sign = value.im < 0 ? "−" : "+";
   return <tr><th scope="row">{label}</th>
-    <td>{display(polar.magnitude)} ∠ {display(angle)}° {unit}</td>
-    <td>{display(value.re)} {sign} j{display(Math.abs(value.im))} {unit}</td></tr>;
+    <td>{display(polar.magnitude)} ∠ {display(polar.magnitude === 0 ? 0 : polar.angle)}° {unit}</td>
+    <td>{rectangularText(value, language)} {unit}</td></tr>;
+}
+
+function StarSchematic({ language, parameters }: { language: Language; parameters: StarParameters }) {
+  const ru = language === "ru";
+  const title = ru ? "Схема несимметричной звезды" : "Схема несиметричної зірки";
+  const connected = parameters.mode !== "open";
+  const neutral = parameters.mode === "ideal" ? { re: 0, im: 0 } : parameters.neutral;
+  const isWire = (value: Complex) => value.re === 0 && value.im === 0;
+  const impedance = (value: Complex) => isWire(value) ? "0" : rectangularText(value, language);
+  const index = (value: string) => <tspan baselineShift="sub" fontSize="9">{value}</tspan>;
+  return <section className="star-card star-schematic">
+    <h2>{title}</h2>
+    <svg viewBox="0 -11 416 227" role="img" aria-label={title} data-star-schematic>
+      <defs><marker id="star-schematic-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/>
+      </marker></defs>
+      <path className="star-schematic-wire" d="M31 130 V28 M383 28 V130"/>
+      {PHASES.map((phase, position) => {
+        const y = 28 + position * 51;
+        const value = parameters.phases[phase];
+        return <g key={phase} transform={`translate(0 ${y})`} data-star-branch={phase} data-ideal={isWire(value)}>
+          <path className="star-schematic-wire" d={isWire(value) ? "M31 0 H61 M85 0 H383" : "M31 0 H61 M85 0 H255 M305 0 H383"}/>
+          <circle className="star-schematic-wire" cx="73" r="12"/>
+          <path className="star-schematic-wire" d="M65 0 q4 -7 8 0 t8 0"/>
+          <circle cx="121" r="2.8"/><text x="119" y="-9" textAnchor="middle">{phase}</text>
+          <path className="star-schematic-wire" d="M140 -10 H174" markerEnd="url(#star-schematic-arrow)"/>
+          <text x="152" y="-17">I{index(phase)}</text>
+          {!isWire(value) && <rect className="star-schematic-wire" x="255" y="-7" width="50" height="14"/>}
+          <text x="280" y="-13" textAnchor="middle" data-star-impedance={phase}>Z{index(phase)} = {impedance(value)} Ω</text>
+          <text x="89" y="17">U{index(phase)}</text>
+          <text x="281" y="22" textAnchor="middle">U{index(phase.toLowerCase())}</text>
+        </g>;
+      })}
+      <circle cx="31" cy="130" r="3"/><text x="18" y="134">N</text>
+      <circle cx="383" cy="130" r="3"/><text x="391" y="134">n</text>
+      {connected && <g data-star-neutral-branch data-ideal={isWire(neutral)}>
+        <path className="star-schematic-wire" d={isWire(neutral) ? "M31 130 V167 H383 V130" : "M31 130 V167 H182 M234 167 H383 V130"}/>
+        {!isWire(neutral) && <rect className="star-schematic-wire" x="182" y="160" width="52" height="14"/>}
+        <path className="star-schematic-wire" d="M351 155 H318" markerEnd="url(#star-schematic-arrow)"/>
+        <text x="332" y="149">I{index("N")}</text>
+        <text x="208" y="155" textAnchor="middle" data-star-impedance="N">Z{index("N")} = {impedance(neutral)} Ω</text>
+      </g>}
+      <path className="star-schematic-wire" d="M31 185 H383" strokeDasharray="4 3" markerEnd="url(#star-schematic-arrow)"/>
+      <text x="208" y="202" textAnchor="middle">U{index("nN")}</text>
+    </svg>
+  </section>;
 }
 
 export default function StarNeutralLab({ language }: { language: Language }) {
@@ -99,6 +162,18 @@ export default function StarNeutralLab({ language }: { language: Language }) {
     if(source)setParameters({...parameters,source:{...source,[phase]:{...source[phase],[field]:value}}});
   };
   const connected = parameters.mode !== "open";
+  const result = calculation.ok ? calculation.result : calculation.partial;
+  const reason = calculation.ok ? null : calculation.reason;
+  const message = reason === "inconsistent" || reason === "indeterminate" || reason === "unstable"
+    ? diagnostics[language][reason] : reason && copy[reason === "phase-short" ? "phaseShort" : reason];
+  const angles = source && [source.B.angle - source.A.angle, source.C.angle - source.A.angle]
+    .map(angle => (angle + 360) % 360).sort((a, b) => a - b);
+  const balancedSource = !source || (source.A.magnitude === source.B.magnitude &&
+    source.A.magnitude === source.C.magnitude && (source.A.magnitude === 0 || angles?.[0] === 120 && angles[1] === 240));
+  const balanced = balancedSource && PHASES.every(phase =>
+    parameters.phases[phase].re === parameters.phases.A.re &&
+    parameters.phases[phase].im === parameters.phases.A.im);
+  const displayNeutral = calculation.ok && balanced ? { re: 0, im: 0 } : result?.neutralCurrent;
   const changeNeutral = (neutral: Complex) => setParameters(current => ({
     ...current, neutral, mode: neutral.re === 0 && neutral.im === 0 ? "ideal" : "finite",
   }));
@@ -107,6 +182,7 @@ export default function StarNeutralLab({ language }: { language: Language }) {
   const selectPreset = (key: keyof typeof STAR_PRESETS) => setParameters(STAR_PRESETS[key]);
 
   return <fieldset disabled={!ready} aria-hidden={!ready} className="lab-hydration-guard"><div className="star-lab" data-three-phase="star">
+    <StarSchematic language={language} parameters={parameters} />
     <section className="star-card star-controls">
       <h2>{copy.source}</h2>
       <label><input type="checkbox" checked={!!source} onChange={event=>setParameters({...parameters,source:event.target.checked?
@@ -137,23 +213,20 @@ export default function StarNeutralLab({ language }: { language: Language }) {
       </ImpedancePlane>
       {calculation.ok ? <StarVectorDiagram language={language} result={calculation.result} copy={copy}/> :
         <section className="star-card star-phasors"><h2>{copy.combinedPlot}</h2>
-          <p role="alert" className="star-error">{copy[calculation.reason === "phase-short" ? "phaseShort" : calculation.reason]}</p>
+          <p role="alert" className="star-error">{message}</p>
         </section>}
     </div>
-    {calculation.ok && <section className="star-card star-results" aria-live="polite"><h2>{copy.results}</h2>
+    {result && <section className="star-card star-results" aria-live="polite"><h2>{copy.results}</h2>
       <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
         <tbody>
-          <ComplexReadout language={language} label="UₙN" value={calculation.result.displacement} unit="V" />
-          {PHASES.map(phase => <ComplexReadout language={language} key={`U${phase}`} label={`U${phase.toLowerCase()}`} value={calculation.result.voltages[phase]} unit="V" />)}
-          {PHASES.map(phase => <ComplexReadout language={language} key={`I${phase}`} label={`I${phase}`} value={calculation.result.currents[phase]} unit="A" />)}
-          <ComplexReadout language={language} label="Iₙ" value={calculation.result.neutralCurrent} unit="A"/>
+          <ComplexReadout language={language} label={<>U<sub>nN</sub></>}
+            value={calculation.ok && balanced ? { re: 0, im: 0 } : result.displacement} unit="V" />
+          {PHASES.map(phase => <ComplexReadout language={language} key={`U${phase}`} label={<>U<sub>{phase.toLowerCase()}</sub></>} value={result.voltages?.[phase]} unit="V" />)}
+          {PHASES.map(phase => <ComplexReadout language={language} key={`I${phase}`} label={<>I<sub>{phase}</sub></>} value={result.currents?.[phase]} unit="A" />)}
+          <ComplexReadout language={language} label={<>I<sub>N</sub></>} value={displayNeutral} unit="A" />
+          {LINE_PAIRS.map(([name, from, to]) => <ComplexReadout language={language} key={name}
+            label={<>U<sub>{name}</sub></>} value={subtractComplex(result.sources[from], result.sources[to])} unit="V" />)}
         </tbody></table></div>
-    </section>}
-    {calculation.ok&&<section className="star-card star-line-results"><h2>{t("Линейные напряжения","Лінійні напруги")}</h2>
-      <div className="star-table-scroll"><table><thead><tr><th scope="col">{copy.quantity}</th><th scope="col">{copy.polarValue}</th><th scope="col">{copy.rectangularValue}</th></tr></thead>
-        <tbody>{LINE_PAIRS.map(([name,from,to])=><ComplexReadout language={language} key={name} label={"U"+name}
-          value={subtractComplex(calculation.result.sources[from],calculation.result.sources[to])} unit="V"/>)}</tbody>
-      </table></div>
     </section>}
   </div></fieldset>;
 }

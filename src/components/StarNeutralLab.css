@@ -11,8 +11,10 @@
 .star-presets > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .star-presets button, .star-plot-actions button { border: 1px solid var(--line); background: var(--white); padding: 8px 11px; border-radius: 8px; cursor: pointer; }
 .star-presets button:hover, .star-plot-actions button:hover { border-color: var(--green); }
-.star-line-results table{width:100%;border-collapse:collapse;text-align:start}
-.star-line-results th,.star-line-results td{text-align:start;border-bottom:1px solid var(--line);padding:7px}
+.star-card.star-schematic { padding-block: 16px 10px; }
+.star-card.star-schematic h2 { margin-bottom: 0; }
+.star-card.star-schematic svg { margin: 2px auto 0; max-width: 510px; color: var(--ink); fill: currentColor; font-size: 12px; }
+.star-schematic-wire { fill: none; stroke: currentColor; stroke-width: 1.4; }
 .star-source-fields{display:grid;gap:8px;margin:10px 0}
 .star-top-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: 20px; align-items: start; }
 .star-card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 15px; background: var(--white); }
@@ -84,6 +86,8 @@
 @media (max-width: 600px) {
   .star-page { padding: 32px 20px 70px; }
   .star-card { padding: 16px; }
+  .star-card.star-schematic svg { font-size: 16px; }
+  .star-schematic tspan { font-size: .78em; }
   .star-field input { font-size: 16px; padding: 7px 4px; }
   .star-form-pair { gap: 6px; }
   .star-vector text, .star-node text { font-size: 19px; }

@@ -1,6 +1,106 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-RUM
+- Stage ID: ET-LABC-01
+
+## ET-LABC-MASTER — Исправления электротехнических лабораторий
+
+- Status: partial
+- Scope: [исполняемый контракт](../specs/features/laboratory-corrections.spec.md), ET-LABC-00…08.
+- Blockers: оригинальные кадры из текста отсутствуют. Используются воспроизводимые по описанию примеры и кадры текущей версии.
+- User actions: ET-LABC-REF-01 / CONDITIONAL PENDING. Приложить исходные изображения, если требуется буквальная сверка с ними.
+- NEXT: ET-LABC-01
+
+## ET-LABC-00 — Исходное состояние лабораторий
+
+- Status: verified
+- Checkpoint: `43d763d4351b58e7104e084d192c2771afa04839`; локальный `main` совпал с GitHub, рабочее дерево было чистым.
+- Scope: [контракт лабораторий](../specs/features/laboratory-corrections.spec.md). Численные и визуальные исходные данные для сравнения.
+- Evidence: 161 Vitest файл, 1069 тестов, 13 независимых эталонов / 49 проверок. Chromium зафиксировал пять страниц с HTTP 200 и без page errors, две исходные таблицы звезды, путь дуги годографа и старт линии без кривых через 1,8 с. Кадры и численные данные сохранены локально в `work/lab-corrections` чата.
+- Blockers: оригинальные скриншоты, упомянутые в приложенном тексте, отсутствуют. Сценарии восстанавливаются по описанию и текущему интерфейсу.
+- User actions: ET-LABC-REF-01 / CONDITIONAL PENDING. Приложить упомянутые исходные скриншоты для проверки совпадения пользовательских схем с оригиналами.
+- NEXT: ET-LABC-01
+
+## ET-LABC-01 — Несимметричная звезда
+
+- Status: verified
+- Dependencies: ET-LABC-00 verified. Доступны редактор фазных импедансов, переключатель нейтрали и исходные результаты.
+- Scope: [STAR-01–04](../specs/features/laboratory-corrections.spec.md), модель звезды и её страница RU/UK. Δ и общие форматы данных сохраняются.
+- Runnable E2E: открыть лабораторию, изменить R/X фаз и нейтрали, сверить схему и общую таблицу, отключить нейтраль и проверить идеальный, неопределённый и противоречивый режимы.
+- Acceptance: независимые комплексные проверки KCL/KVL, три строки линейных напряжений и одинаковые результаты при переключении нейтрали, отсутствие ложного округления и незапрошенных изменений топографической диаграммы.
+- Rollback: вернуть коммит этапа. Схема черновика не меняется.
+- Evidence: 27 целевых Vitest, 9 Chromium, `pnpm check` без ошибок. Независимый расчёт 20 000 случаев, включая 2000 точных КЗ, дал максимальную относительную невязку 3,54·10⁻¹⁴. Четыре старых пресета совпали с исходным вычислителем с абсолютной разницей до 5,69·10⁻¹⁴. Сравнили кадры и сохранили топографические векторы.
+- Blockers: none
+- User actions: none
+- NEXT: ET-LABC-02
+
+```master-execution
+{
+  "schema_version": 2,
+  "state_revision": 1,
+  "master": {
+    "id": "ET-LABC-MASTER",
+    "status": "running",
+    "source": {
+      "backend": "attachment",
+      "queue_id": "none",
+      "item_id": "90270ee0-c4be-4851-85df-91ad5a553fe4",
+      "revision": "e1e117f4a7617d6f45893d3c3a98c7682b599beb750c3a5d504f00afd243a94a",
+      "prompt_type": "master_prompt",
+      "retention": "Исходный текст приложен к чату; контракт подключён в SPEC."
+    }
+  },
+  "tracks": [
+    {
+      "id": "electrotutor-laboratory-corrections",
+      "repository": "C:/Users/aleks/projects/electro-tutor",
+      "worktree": "C:/Users/aleks/projects/electro-tutor",
+      "branch": "fix/electrotutor-laboratory-corrections",
+      "checkpoint": "43d763d4351b58e7104e084d192c2771afa04839",
+      "ownership": [
+        "src",
+        "tests",
+        "specs",
+        "docs"
+      ],
+      "status": "active"
+    }
+  ],
+  "slices": [
+    {"id":"ET-LABC-00","master_id":"ET-LABC-MASTER","title":"Исходное состояние","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"43d763d4351b58e7104e084d192c2771afa04839","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/laboratory-corrections.spec.md","docs/STAGES.md"],"requirements":["ET-LABC-00"],"capabilities":["project.framework.governance"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-01","master_id":"ET-LABC-MASTER","title":"Несимметричная звезда","status":"ready","predecessors":["ET-LABC-00"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"43d763d4351b58e7104e084d192c2771afa04839","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/models/star-neutral.ts"],"requirements":["ET-LABC-01"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-02","master_id":"ET-LABC-MASTER","title":"Симметричные составляющие","status":"queued","predecessors":["ET-LABC-01"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/SequenceDiagrams.tsx"],"requirements":["ET-LABC-02"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-03","master_id":"ET-LABC-MASTER","title":"Годограф","status":"queued","predecessors":["ET-LABC-02"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/CircularDiagram.tsx"],"requirements":["ET-LABC-03"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
+    {"id":"ET-LABC-04","master_id":"ET-LABC-MASTER","title":"Переходная линия","status":"queued","predecessors":["ET-LABC-03"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LineExperimentLab.tsx"],"requirements":["ET-LABC-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-05","master_id":"ET-LABC-MASTER","title":"LC-двухполюсник","status":"queued","predecessors":["ET-LABC-04"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/components/LcExperimentLab.tsx"],"requirements":["ET-LABC-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-06","master_id":"ET-LABC-MASTER","title":"Инварианты редакторов","status":"queued","predecessors":["ET-LABC-05"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","src/circuit"],"requirements":["ET-LABC-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-07","master_id":"ET-LABC-MASTER","title":"Генеративные Evals","status":"queued","predecessors":["ET-LABC-06"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md","tests/topology-eval"],"requirements":["ET-LABC-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-LABC-08","master_id":"ET-LABC-MASTER","title":"Интеграция и публикация","status":"queued","predecessors":["ET-LABC-07"],"dependencies":[],"worktree_track":"electrotutor-laboratory-corrections","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5","L6"],"evidence":[],"context_scope":["specs/features/laboratory-corrections.spec.md",".github/workflows"],"requirements":["ET-LABC-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
+  ],
+  "blockers": [
+    {
+      "id": "ET-LABC-REF-01",
+      "class": "product_evidence_required",
+      "status": "active",
+      "blocking": false,
+      "owner": "user",
+      "evidence": "Текст доступен; исходные картинки отсутствуют. Есть браузерные исходные кадры текущего приложения."
+    }
+  ],
+  "decisions": [],
+  "context_budget": {
+    "max_chars": 40000,
+    "max_items": 16,
+    "max_contours": 3,
+    "max_decisions": 5,
+    "max_evidence_threads": 8
+  },
+  "next_action": "ET-LABC-01",
+  "integration": {
+    "required": false,
+    "reason": ""
+  }
+}
+```
 
 ## ET-2511-RUM — Cloudflare Insights на electrotutor.org
 

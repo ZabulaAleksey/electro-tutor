@@ -6,6 +6,7 @@
   "coverage_scope": {
     "denominator": "all_stable_requirements",
     "binding_spec_files": [
+      "specs/features/laboratory-corrections.spec.md",
       "specs/features/electrotutor-20261125.spec.md",
       "specs/features/power-system.spec.md",
       "specs/features/circuit-engine.spec.md",

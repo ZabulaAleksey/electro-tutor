@@ -2,7 +2,7 @@ import {
   addComplex, complexMagnitude, multiplyComplex, type Complex,
 } from "../models/circular-diagram";
 import {
-  absolutePosition, areas, phases, z, type Area, type Matrix3, type Neutral, type SectionReading,
+  absolutePosition, areas, phases, z, type Area, type Matrix3, type Neutral, type Phase, type SectionReading,
   type SequenceCoupling, type SequenceDocument, type SequenceEdit, type SequenceSolution, type Triple,
 } from "./contract";
 import { validateSequenceDocument } from "./document";

@@ -577,12 +577,23 @@
         "TL-01"
       ],
       "domain": "Длинная линия",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",
@@ -594,12 +605,23 @@
         "TL-02"
       ],
       "domain": "Длинная линия",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",
@@ -611,12 +633,23 @@
         "EVAL-04"
       ],
       "domain": "Длинная линия",
-      "status": "PLANNED",
-      "code": [],
-      "unit": [],
-      "integration": [],
-      "e2e": [],
-      "runtime": "Сценарий и допуски определены в SPEC.",
+      "status": "VERIFIED",
+      "code": [
+        "src/transient/circuit-adapter.ts",
+        "src/transient/line-experiment.ts",
+        "src/components/LineExperimentEditor.tsx"
+      ],
+      "unit": [
+        "src/transient/circuit-adapter-four-terminal.test.ts",
+        "src/components/line-ports-20261125.test.ts"
+      ],
+      "integration": [
+        "src/transient/line-experiment-four-terminal.test.ts"
+      ],
+      "e2e": [
+        "tests/lab-acceptance/line-ports-20261125.e2e.ts"
+      ],
+      "runtime": "Локальная education сборка, физические эталоны и 63 сценария Chromium.",
       "security": "Границы действующих публичных маршрутов и локальных архивов.",
       "a11y": "Применяется контракт затронутой лаборатории.",
       "observability": "Команды, результаты и артефакты в ET-2511-004.",

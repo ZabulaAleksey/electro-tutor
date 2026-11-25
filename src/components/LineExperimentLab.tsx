@@ -3,11 +3,12 @@ import type { TopologyLabDocument } from "../circuit/topology-session";
 import { networkError } from "../transient/network-copy";
 import { lineArchiveByteLimit } from "../transient/line-archive-document";
 import {
-  appendExperimentSection, lineExperimentModel, newLineExperiment, observationAt, readLineExperiment,
-  type LineExperiment, type LineObservation,
+  appendExperimentSection, lineExperimentModel, newLineExperiment, observationAt, readLineExperiment, setLineExperimentTermination,
+  type LineExperiment, type LineExperimentTermination, type LineObservation,
 } from "../transient/line-experiment";
 import type { Language } from "../types";
 import LineExperimentEditor from "./LineExperimentEditor";
+import { captureLineGeometry, layoutLineExperiment } from "./line-experiment-layout";
 import LineExperimentResults, { PlaybackBar } from "./LineExperimentResults";
 
 const copy = {
@@ -17,6 +18,8 @@ const copy = {
     archiveError: "Архив не открыт. Проверьте формат файла и выбранную секцию.",
     openInput: "Идеальный источник тока: ненулевой ток при разомкнутом входном ключе не даёт конечного решения.",
     sectionLimit: "Можно каскадировать до шести секций.",
+    termination: "Окончание линии", matched: "Согласование", short: "КЗ", open: "Холостой ход",
+    physicalPairs: "Пары 1+/1− и 2+/2− — вход и выход. Обратный провод внутри секции принят идеальным.",
   },
   uk: {
     archive: "Архів досліду", download: "Зберегти JSON", upload: "Відкрити JSON",
@@ -24,6 +27,8 @@ const copy = {
     archiveError: "Архів не відкрито. Перевірте формат файлу й вибрану секцію.",
     openInput: "Ідеальне джерело струму: ненульовий струм при розімкненому вхідному ключі не дає скінченного розв’язку.",
     sectionLimit: "Можна каскадувати до шести секцій.",
+    termination: "Кінцеве навантаження", matched: "Узгодження", short: "КЗ", open: "Холостий хід",
+    physicalPairs: "Пари 1+/1− і 2+/2− — вхід і вихід. Зворотний провід усередині секції прийнято ідеальним.",
   },
 } as const;
 
@@ -94,6 +99,12 @@ export default function LineExperimentLab({ language }: { language: Language }) 
   }, [circuit, durationS]);
 
   const activeSection = selectedSection ?? projection.model?.sections[0]?.id;
+  const finalSection = projection.model?.sections.at(-1);
+  const load = projection.model?.load;
+  const activeTermination = load?.kind === "wire" || (load?.kind === "r" && load.value === 0) ? "short"
+    : load?.kind === "open" ? "open"
+    : load?.kind === "r" && load.value === finalSection?.impedanceOhm ? "matched" : undefined;
+  const hasPhysicalPairs = circuit.topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
 
   function report(error: unknown) {
     const code = error instanceof Error ? error.message : String(error);
@@ -147,6 +158,15 @@ export default function LineExperimentLab({ language }: { language: Language }) 
       };
     }, true);
     setActionError("");
+  }
+
+  function changeTermination(mode: LineExperimentTermination) {
+    try {
+      const source = circuit.geometry ? circuit : { ...circuit,
+        geometry: captureLineGeometry(circuit.topology, layoutLineExperiment(circuit)) };
+      const next = setLineExperimentTermination(source, mode, durationS);
+      if (next !== source) edit(next);
+    } catch (error) { setActionError(report(error)); }
   }
 
   function openSection(id: string) {
@@ -206,12 +226,19 @@ export default function LineExperimentLab({ language }: { language: Language }) 
           observation={observationAt(experiment, activeSection)} onObservationChange={updateObservation} />
       : <PlaybackBar language={language} disabled />}
     {view === "editor" && <>
+          {hasPhysicalPairs && <p className="line-a-port-note">{t.physicalPairs}</p>}
           <LineExperimentEditor language={language} document={circuit} onChange={edit} onOpenSection={openSection}
             validateParameters={next => { if (projection.model) lineExperimentModel(next, durationS); }}
             onAppendSection={() => {
               try { edit(appendExperimentSection(circuit, durationS)); }
               catch (error) { setActionError(report(error)); }
             }} />
+          {finalSection && <div className="line-a-archive line-a-termination" role="group" aria-label={t.termination}>
+            <span>{t.termination}</span>
+            {(["matched", "short", "open"] as readonly LineExperimentTermination[]).map(mode => <button key={mode}
+              type="button" data-line-termination={mode} aria-pressed={activeTermination === mode}
+              onClick={() => changeTermination(mode)}>{t[mode]}</button>)}
+          </div>}
           {recovery !== undefined && <div role="alert">
             {language === "ru" ? "Локальный архив требует восстановления или изменён в другой вкладке. Исходная запись сохранена." : "Локальний архів потребує відновлення або змінений в іншій вкладці. Вихідний запис збережено."}
             <button type="button" onClick={() => download(recovery)}>{language === "ru" ? "Скачать исходный архив" : "Завантажити вихідний архів"}</button>

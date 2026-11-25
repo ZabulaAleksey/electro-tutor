@@ -14,6 +14,7 @@ const same = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
 export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopology, after: CircuitTopology,
   slot: TopologySlot, part: CircuitComponent, proposed?: Placement, opened: readonly OpenWireDrawing[] = []): SchematicGeometry {
   const pins = Object.fromEntries(layout.endpoints);
+  const hasSeparateReturn = before.components.some(device => device.kind === "line" && device.terminals.length === 4);
   const paths = new Map<string, Point[]>();
   const oldWires = new Map(before.wires.map(w => [w.id, w]));
   for (const wire of layout.wires) {
@@ -29,11 +30,11 @@ export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopolo
     const move = (p: Point): Point => p[axis] > cut ? { ...p, [axis]: p[axis] + distance } : p;
     const beforeMove = { ...pins };
     for (const id of Object.keys(pins)) pins[id] = move(pins[id]);
-    // A cut can cross an unrelated parallel branch. Move a whole device
-    // together so changing another wire never stretches its two leads.
+    // Choose a single translation from the symbol's primary pins. All pins
+    // of a four-terminal line follow, including those on its return rail.
     for (const device of before.components) {
       if (device.kind === "port") continue;
-      const [a, b] = device.terminals.map(id => beforeMove[id]);
+      const a = beforeMove[device.terminals[0]], b = beforeMove[device.terminals[1]];
       const delta = midpoint(a, b)[axis] > cut ? distance : 0;
       for (const key of device.terminals) {
         const point = beforeMove[key];
@@ -96,12 +97,25 @@ export function geometryAfterInsertion(layout: LineLayout, before: CircuitTopolo
       newPathB = [{ x: at.x, y: lower.y }, { x: last.x, y: lower.y }];
     }
   }
+  function orthogonalBends(wire: CircuitWire, turns: Point[]) {
+    if (!hasSeparateReturn) return turns;
+    // Enlarging a slot can move its neighbours' elbows without moving a
+    // line's complete body. Connect those displaced ends orthogonally.
+    const path = [pins[wire.from], ...turns, pins[wire.to]];
+    const result: Point[] = [];
+    for (let index = 1; index < path.length; index++) {
+      const previous = path[index - 1], point = path[index];
+      if (previous.x !== point.x && previous.y !== point.y) result.push({ x: point.x, y: previous.y });
+      if (index < path.length - 1) result.push(point);
+    }
+    return result;
+  }
   const bends: Record<string, Point[]> = {};
   for (const wire of after.wires) {
-    if (wire.from === a && wire.to === p) bends[wire.id] = newPathA;
-    else if (wire.from === q && wire.to === b) bends[wire.id] = newPathB;
-    else bends[wire.id] = paths.get(wire.id)?.slice(1, -1) ?? [];
+    const turns = wire.from === a && wire.to === p ? newPathA
+      : wire.from === q && wire.to === b ? newPathB : paths.get(wire.id)?.slice(1, -1) ?? [];
+    bends[wire.id] = orthogonalBends(wire, turns);
   }
-  for (const { wire } of opened) bends[wire.id] = paths.get(wire.id)!.slice(1, -1);
+  for (const { wire } of opened) bends[wire.id] = orthogonalBends(wire, paths.get(wire.id)!.slice(1, -1));
   return { pins, bends, returnY };
 }

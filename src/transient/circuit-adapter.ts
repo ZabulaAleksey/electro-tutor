@@ -77,6 +77,68 @@ function terminalLoad(edges: LoadEdge[], output: number, reference: number, allo
   return from === output && to === reference ? load : reverseLoad(load, polarity);
 }
 
+function reachableNets(edges: readonly { from: number; to: number }[], start: number) {
+  const reached = new Set([start]);
+  for (const net of reached) {
+    for (const { from, to } of edges) {
+      if (from === net) reached.add(to);
+      if (to === net) reached.add(from);
+    }
+  }
+  return reached;
+}
+
+/** Unattached and single-ended limbs carry no terminal current. */
+function connectedTerminalEdges(edges: LoadEdge[], output: number, outputReturn: number): LoadEdge[] {
+  if (output === outputReturn) return [];
+  const adjacent = new Map<number, LoadEdge[]>();
+  for (const edge of edges) {
+    for (const node of [edge.from, edge.to]) {
+      const neighbors = adjacent.get(node) ?? [];
+      neighbors.push(edge);
+      adjacent.set(node, neighbors);
+    }
+  }
+
+  // Keep exactly the blocks between the two terminals. An attached cycle can
+  // have no leaves and still meet the rest of the graph at just one node.
+  const discovered = new Map<number, number>();
+  const pending: LoadEdge[] = [];
+  const active = new Set<LoadEdge>();
+  function visit(node: number, parent?: LoadEdge): { low: number; containsReturn: boolean } {
+    const order = discovered.size;
+    discovered.set(node, order);
+    let low = order;
+    let containsReturn = node === outputReturn;
+    for (const edge of adjacent.get(node) ?? []) {
+      if (edge === parent) continue;
+      const neighbor = edge.from === node ? edge.to : edge.from;
+      const previous = discovered.get(neighbor);
+      if (previous !== undefined) {
+        if (previous < order) {
+          pending.push(edge);
+          low = Math.min(low, previous);
+        }
+        continue;
+      }
+      pending.push(edge);
+      const child = visit(neighbor, edge);
+      low = Math.min(low, child.low);
+      containsReturn ||= child.containsReturn;
+      if (child.low >= order) {
+        let member: LoadEdge;
+        do {
+          member = pending.pop()!;
+          if (child.containsReturn) active.add(member);
+        } while (member !== edge);
+      }
+    }
+    return { low, containsReturn };
+  }
+  visit(output);
+  return edges.filter(edge => active.has(edge));
+}
+
 export const transmissionCircuitAdapter = {
   convert(topology: CircuitTopology) {
     const nets = netlist(topology);
@@ -84,14 +146,23 @@ export const transmissionCircuitAdapter = {
     const sources = topology.components.filter(item => item.kind === "voltage" || item.kind === "current");
     const lines = topology.components.filter(item => item.kind === "line");
     const devices = topology.components.filter(item => isPassive(item.kind) || item.kind === "diode" || item.kind === "switch");
+    const fourTerminal = lines.some(item => item.terminals.length === 4);
     if (sources.length !== 1 || !lines.length || lines.length > MAX_SECTIONS || devices.length > 32 ||
         sources.length + lines.length + devices.length !== topology.components.length ||
-        topology.components.some(item => item.terminals.length !== 2)) throw Error("unsupported-line-circuit");
+        lines.some(item => item.terminals.length !== (fourTerminal ? 4 : 2)) ||
+        [...sources, ...devices].some(item => item.terminals.length !== 2)) throw Error("unsupported-line-circuit");
 
     const terminals = (item: CircuitComponent) => item.terminals.map(id => membership.get(id)!);
+    const signalNets = (item: CircuitComponent) => terminals(item).slice(0, 2);
     const source = sources[0];
     const [input, reference] = terminals(source);
     if (input === reference) throw Error("shorted-line-source");
+    const returnNets = new Set(lines.flatMap(item => terminals(item).slice(2)));
+    returnNets.add(reference);
+    if (returnNets.has(input)) throw Error("shorted-line-signal");
+    const returnStations = new Set([reference]);
+    let outputReturn = reference;
+    let terminalShort = false;
     const nodeByNet = new Map([[input, 0]]);
     const sections: Section[] = [];
     const inline: (Contact & { to: number })[] = [];
@@ -101,17 +172,28 @@ export const transmissionCircuitAdapter = {
     let current = input;
     const remaining = new Set(lines);
     while (remaining.size) {
-      let choices = [...remaining].filter(item => terminals(item).includes(current));
+      let choices = [...remaining].filter(item => signalNets(item).includes(current));
       if (!choices.length) {
         const links = devices.filter(item => !inlineIds.has(item.id) && terminals(item).includes(current))
           .flatMap(item => {
             const [a, b] = terminals(item);
             const next = a === current ? b : a;
-            return next !== reference && !nodeByNet.has(next) && !extraNets.has(next) &&
-              [...remaining].some(line => terminals(line).includes(next)) ? [{ item, next, reversed: b === current }] : [];
+            return (fourTerminal || next !== reference) && !nodeByNet.has(next) && !extraNets.has(next) &&
+              [...remaining].some(line => signalNets(line).includes(next)) ? [{ item, next, reversed: b === current }] : [];
           });
-        if (links.length !== 1) throw Error("unsupported-line-chain");
+        if (links.length !== 1) {
+          if (fourTerminal && !sections.length && !links.length) {
+            const deviceEdges = devices.map(item => {
+              const [from, to] = terminals(item);
+              return { from, to };
+            }).filter(({ from, to }) => !returnNets.has(from) && !returnNets.has(to));
+            const reached = reachableNets(deviceEdges, current);
+            if (!lines.some(line => signalNets(line).some(node => reached.has(node)))) throw Error("open-line-source-signal");
+          }
+          throw Error("unsupported-line-chain");
+        }
         const { item, next, reversed } = links[0];
+        if (returnNets.has(next)) throw Error(fourTerminal ? "shorted-line-signal" : "unsupported-line-chain");
         const station = sections.length;
         if (station === 0 && (item.kind !== "switch" || Number(item.parameters.contactOhm ?? 0) !== 0)) {
           throw Error("unsupported-line-input-contact");
@@ -122,12 +204,22 @@ export const transmissionCircuitAdapter = {
         resultPolarity.set(item.id, reversed ? -1 : 1);
         extraNets.add(next);
         current = next;
-        choices = [...remaining].filter(line => terminals(line).includes(current));
+        choices = [...remaining].filter(line => signalNets(line).includes(current));
       }
       if (choices.length !== 1) throw Error("unsupported-line-chain");
       const part = choices[0];
-      const [a, b] = terminals(part);
-      const next = a === current ? b : a;
+      const [a, b, returnA, returnB] = terminals(part);
+      const forward = a === current;
+      const next = forward ? b : a;
+      if (fourTerminal) {
+        const [returnIn, returnOut] = forward ? [returnA, returnB] : [returnB, returnA];
+        if (returnIn !== outputReturn) throw Error(sections.length ? "open-line-cascade-return" : "open-line-source-return");
+        if (returnStations.has(returnOut)) throw Error("bypassed-line-return");
+        returnStations.add(returnOut);
+        outputReturn = returnOut;
+        terminalShort = next === returnOut && remaining.size === 1;
+        if (returnNets.has(current) || returnNets.has(next) && !terminalShort) throw Error("shorted-line-signal");
+      }
       if (next === reference || nodeByNet.has(next) || extraNets.has(next)) throw Error("unsupported-line-chain");
       remaining.delete(part);
       sections.push({
@@ -137,12 +229,12 @@ export const transmissionCircuitAdapter = {
         velocityMS: numeric(part, "velocityMS"),
         ...(Number(part.parameters.resistanceOhmM) > 0 ? { resistanceOhmM: numeric(part, "resistanceOhmM") } : {}),
       });
-      resultPolarity.set(part.id, a === current ? 1 : -1);
-      nodeByNet.set(next, sections.length);
+      resultPolarity.set(part.id, forward ? 1 : -1);
+      if (!terminalShort) nodeByNet.set(next, sections.length);
       current = next;
     }
     const connectedComponents = new Set(topology.components.flatMap(item => item.terminals));
-    if (nets.some(net => !net.some(id => connectedComponents.has(id)))) throw Error("unattached-line-net");
+    if (!fourTerminal && nets.some(net => !net.some(id => connectedComponents.has(id)))) throw Error("unattached-line-net");
 
     const ids = new Set(topology.components.map(item => item.id));
     let number = 1;
@@ -153,7 +245,13 @@ export const transmissionCircuitAdapter = {
     const resultIds = new Map(sections.map(section => [section.id, section.id]));
     const branches: Contact[] = [];
     const loadEdges: LoadEdge[] = [];
-    const events: ModelEvent[] = [];
+    let events: ModelEvent[] = [];
+    const projectReference = (node: number) => returnNets.has(node) ? reference : node;
+    const forgetInactivePart = (part: { id: string; initial?: number }) => {
+      if (part.initial) throw Error("inconsistent-initial-state:" + part.id);
+      resultIds.delete(part.id);
+      resultPolarity.delete(part.id);
+    };
     for (const part of devices) {
       resultIds.set(part.id, part.id);
       const changeAt = Number(part.parameters.changeAtS ?? 0);
@@ -162,14 +260,19 @@ export const transmissionCircuitAdapter = {
         continue;
       }
       resultPolarity.set(part.id, 1);
-      const [a, b] = terminals(part);
+      const [rawA, rawB] = terminals(part);
+      const a = projectReference(rawA), b = projectReference(rawB);
       if (extraNets.has(a) || extraNets.has(b)) throw Error("unsupported-series-node");
-      if (a === b) throw Error("shorted-line-device");
+      if (a === b) {
+        if (!terminalShort || rawA !== current || rawB !== current) throw Error("shorted-line-device");
+        forgetInactivePart({ id: part.id, initial: Number(part.parameters.initial ?? 0) });
+        continue;
+      }
       const kind = part.kind;
       const load: Load = kind === "switch" ? { id: part.id, kind: "switch", closed: part.parameters.closed === true } : isPassive(kind)
         ? { id: part.id, kind, value: numeric(part, property[kind]), ...(typeof part.parameters.initial === "number" && part.parameters.initial !== 0 ? { initial: part.parameters.initial } : {}) }
         : { id: part.id, kind: "diode", diode: { ...DEFAULT_DIODE, reversed: false } };
-      const isEndLoad = (a === current && b === reference) || (b === current && a === reference);
+      const isEndLoad = !terminalShort && ((a === current && b === reference) || (b === current && a === reference));
       const from = nodeByNet.get(a), to = nodeByNet.get(b);
       if (!isEndLoad && (from !== undefined && (to !== undefined || b === reference) ||
           to !== undefined && a === reference)) {
@@ -181,21 +284,35 @@ export const transmissionCircuitAdapter = {
         resultPolarity.set(part.id, flipped ? -1 : 1);
         branches.push(contactFor(part, left, right, flipped));
       } else {
-        if (load.kind === "switch") throw Error("unsupported-line-switch");
+        if (!fourTerminal && load.kind === "switch") throw Error("unsupported-line-switch");
         const touchesIntermediate = [a, b].some(net => net !== current && nodeByNet.has(net));
         if (touchesIntermediate) throw Error("unsupported-line-load");
         if (kind === "r" && changeAt > 0) events.push({
           id: allocateId(), atS: changeAt, target: part.id, kind: "resistance", value: numeric(part, "nextOhm"),
         });
-        loadEdges.push({ from: a, to: b, load });
+        // The physical load must reach the final return terminal. Keeping its
+        // raw nets here detects an external return routed past the line port.
+        loadEdges.push({ from: rawA, to: rawB, load });
       }
     }
-    loadEdges.sort((a, b) => a.load.id.localeCompare(b.load.id));
+    if (fourTerminal && [...reachableNets(loadEdges, current)].some(node => node !== outputReturn && returnNets.has(node))) {
+      throw Error("bypassed-line-return");
+    }
+    const connected = fourTerminal ? connectedTerminalEdges(loadEdges, current, outputReturn) : loadEdges;
+    if (fourTerminal) {
+      const active = new Set(connected.map(({ load }) => load.id));
+      for (const { load } of loadEdges) if (!active.has(load.id)) forgetInactivePart(load);
+      events = events.filter(event => active.has(event.target));
+      if (connected.some(({ load }) => load.kind === "switch")) throw Error("unsupported-line-switch");
+    }
+    connected.sort((a, b) => a.load.id.localeCompare(b.load.id));
+    const load = terminalShort ? { id: allocateId(), kind: "wire" } as const
+      : terminalLoad(connected, current, outputReturn, allocateId, resultPolarity);
     const onS = Number(source.parameters.onS ?? 0);
     const offS = Number(source.parameters.offS ?? 0);
     const latestEvent = Math.max(onS, offS, ...events.map(event => event.atS), ...[...inline, ...branches].map(link => link.switch?.atS ?? 0));
     const model: Network = {
-      ...DEFAULT_NETWORK, durationS: Math.max(DEFAULT_NETWORK.durationS, latestEvent), sections, load: terminalLoad(loadEdges, current, reference, allocateId, resultPolarity), events, shunts: [],
+      ...DEFAULT_NETWORK, durationS: Math.max(DEFAULT_NETWORK.durationS, latestEvent), sections, load, events, shunts: [],
       source: {
         voltageV: source.kind === "current" ? 0 : numeric(source, "voltageV"),
         ...(source.kind === "current" ? { currentA: numeric(source, "currentA") } : {}),

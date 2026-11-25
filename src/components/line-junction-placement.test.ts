@@ -11,7 +11,7 @@ it("marks both departures of a shunt from the transient line rails", () => {
   const document = newLineExperiment().circuit;
   const layout = layoutLineExperiment(document);
   const target = directTargets(document, layout, [], "").find(({ slot }) =>
-    slot.boundaries[0] === "K1:b" && slot.boundaries[1] === "C1:b");
+    slot.boundaries[0] === "K1:b" && slot.boundaries[1] === "E1:b");
   if (!target) throw new Error("Missing W2 rail target");
   const branch = { id: "R1", kind: "r", terminals: ["R1:a", "R1:b"], parameters: { ohm: 25 } };
   const session = new TopologySession(JSON.stringify(document));
@@ -23,14 +23,14 @@ it("marks both departures of a shunt from the transient line rails", () => {
   const branched = layoutLineExperiment(next);
 
   expect(lineJunctionPlacements(next.topology, branched)).toEqual([
-    { id: "C1:b", x: 249, y: 254 },
+    { id: "E1:b", x: 249, y: 254 },
     { id: "K1:b", x: 249, y: 106 },
   ]);
   expect(branched.endpoints.get("K1:b")).toEqual({ x: 228, y: 106 });
-  expect(branched.endpoints.get("C1:b")).toEqual({ x: 442, y: 232 });
+  expect(branched.endpoints.get("E1:b")).toEqual({ x: 69, y: 232 });
   expect(next.topology.wires).toEqual(expect.arrayContaining([
     expect.objectContaining({ from: "K1:b", to: "R1:a" }),
-    expect.objectContaining({ from: "R1:b", to: "C1:b" }),
+    expect.objectContaining({ from: "R1:b", to: "E1:b" }),
   ]));
 });
 

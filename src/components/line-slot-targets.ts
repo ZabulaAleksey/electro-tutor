@@ -27,15 +27,31 @@ export function directTargets(document: TopologyLabDocument, diagram: LineLayout
   }
   if (diagram.returnY !== undefined) {
     const wires = new Map(document.topology.wires.map(w => [w.id, w]));
-    const bottom = diagram.wires.find(w => w.points.some((a, i) => i > 0 && a.y === diagram.returnY &&
-      w.points[i - 1].y === a.y && Math.abs(a.x - w.points[i - 1].x) > 100));
-    const linePins = new Set(document.topology.components.filter(c => c.kind === "line").flatMap(c => c.terminals));
-    if (bottom) for (const line of diagram.wires) {
-      const wire = wires.get(line.id)!;
-      if (line === bottom || !(linePins.has(wire.from) || linePins.has(wire.to))) continue;
+    const returnY = diagram.returnY;
+    const hasLowerRail = (points: readonly Point[], x?: number) => points.some((point, index) => {
+      const previous = points[index - 1];
+      return previous?.y === returnY && point.y === returnY && (x === undefined
+        ? Math.abs(point.x - previous.x) > 100
+        : x >= Math.min(point.x, previous.x) && x <= Math.max(point.x, previous.x));
+    });
+    const sections = document.topology.components.filter(part => part.kind === "line");
+    const pairedReturns = new Map(sections.filter(part => part.terminals.length === 4)
+      .flatMap(({ terminals: [a, b, returnIn, returnOut] }) => [[a, returnIn], [b, returnOut]]));
+    const legacyRail = !pairedReturns.size ? diagram.wires.find(wire => hasLowerRail(wire.points)) : undefined;
+    const signalPins = new Set(sections.flatMap(part => part.terminals.slice(0, 2)));
+    for (const line of diagram.wires) {
+      const wire = wires.get(line.id);
+      if (!wire || !(signalPins.has(wire.from) || signalPins.has(wire.to))) continue;
       const location = wireTarget(line.points);
-      if (location.y >= diagram.returnY - 80) continue;
-      const from = wires.get(line.id)!.from, to = wires.get(bottom.id)!.from;
+      if (location.y >= returnY - 80) continue;
+      const paired = pairedReturns.get(wire.from) ?? pairedReturns.get(wire.to);
+      const physicalRail = paired && diagram.wires.find(candidate => {
+        const connection = wires.get(candidate.id);
+        return connection && (connection.from === paired || connection.to === paired) && hasLowerRail(candidate.points, location.x);
+      });
+      const bottom = physicalRail || legacyRail;
+      if (!bottom || line === bottom) continue;
+      const from = wire.from, to = wires.get(bottom.id)!.from;
       try {
         const slot = createCrossSlot(document.topology, from, to, document.observedEndpoints);
         const point = { x: location.x, y: (location.y + diagram.returnY) / 2 };

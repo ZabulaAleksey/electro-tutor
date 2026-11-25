@@ -124,6 +124,8 @@
   fill: var(--white, #fff);
 }
 
+.line-experiment-schematic .line-experiment-physical-port text { font-size: 13px; }
+
 .line-experiment-reference {
   stroke-width: 2;
 }

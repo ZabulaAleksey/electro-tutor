@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-003
+- Stage ID: ET-2511-004
 
 ## ET-2511-000 — Разведка и исходные проверки
 
@@ -48,7 +48,8 @@
 
 ## ET-2511-003 — Общие операции топологии и компоновка
 
-- Status: partial
+- Status: verified
+- Checkpoint: 457c5023a3820fe8e90660961f6e8f0118692931
 - Lifecycle: EVAL-03 проверен на локальной сборке. RED воспроизвёл отсутствие W2 и лишний кружок в D. GREEN включает независимое ревью, 966 Vitest и 60 лабораторных сценариев Chromium.
 - Evidence: [EVAL-03 и команды](TESTING.md#et-2511-003--обратимые-операции-с-проводами-и-ветвями).
 - Dependencies: ET-2511-002 verified, `0061de26`. Доступны `TopologySession` v1, существующие режимы A/B/D, экспорт и Chromium.
@@ -59,12 +60,26 @@
 - Rollback: предыдущий checkpoint и чтение исходного формата. Очистка рабочего поля обратима и сохраняет отдельные экспортированные файлы.
 - Blockers: визуальные референсы №3, 4 и 6 отсутствуют. Измеряются экспортированный граф и синтетическая геометрия.
 - User actions: ET-2511-REF-01 остаётся условным.
-- NEXT: ET-2511-003
+- NEXT: ET-2511-004
+
+## ET-2511-004 — Переходная длинная линия
+
+- Status: partial
+- Lifecycle: EVAL-04 проверен локально. Согласование, КЗ, ХХ и линия с потерями проходят физические эталоны.
+- Evidence: [EVAL-04](TESTING.md#et-2511-004--четырёхклеммная-переходная-линия), 993 Vitest, 63 Chromium, education build, типы, ESLint и независимое ревью.
+- Dependencies: ET-2511-003 verified, `457c5023`. Работают обратимые изменения соединений и сохранение активного графа.
+- Scope: [TL-01, TL-02 и EVAL-04](../specs/features/electrotutor-20261125.spec.md#stage-4-переходные-процессы-в-длинной-линии-скрин-3). Физические портовые пары, сохранность прежних опытов, согласованное окончание, КЗ, ХХ и эталон с потерями.
+- Runnable E2E: открыть A, проверить четыре вывода и их соединения, удалить и вернуть последовательный элемент, применить три окончания и сравнить показания и эпюры после прихода волны.
+- Acceptance: портовые пары совпадают со связностью, коэффициенты отражения 0/-1/+1 для линии без потерь, конечные физические границы, независимый эталон с потерями и контроль редактирования.
+- Rollback: вернуть checkpoint текущего среза, прежние документы остаются читаемыми.
+- Blockers: референс №3 отсутствует. Используется топология из описания и синтетические граничные случаи.
+- User actions: ET-2511-REF-01 остаётся условным.
+- NEXT: ET-2511-004
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 7,
+  "state_revision": 10,
   "master": {
     "id": "ET-2511-MASTER",
     "status": "running",
@@ -83,7 +98,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "feature/electrotutor-master-2026-11-25",
-      "checkpoint": "0061de26c4c465b429a7d4f4dd6ae9374fe034e1",
+      "checkpoint": "457c5023a3820fe8e90660961f6e8f0118692931",
       "ownership": [
         "src",
         "public",
@@ -99,8 +114,8 @@
     {"id":"ET-2511-000","master_id":"ET-2511-MASTER","title":"Разведка и исходные проверки","status":"verified","predecessors":[],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"d54999787552a5ed4327cab629951de018b57a56","checkpoint_after":"a46f4ab185ae5f8606521c7f20c4536c7035728c","required_evidence":["L1","L2","L3"],"evidence":["L1","L2","L3"],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/evidence/electrotutor-20261125-baseline.md","tests/fixtures/electrotutor-20261125-baseline.json"],"requirements":["EVAL-00"],"capabilities":["project.framework.governance"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-001","master_id":"ET-2511-MASTER","title":"Каталог микролабораторий","status":"verified","predecessors":["ET-2511-000"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a46f4ab185ae5f8606521c7f20c4536c7035728c","checkpoint_after":"3faeb9dc58a8c45d056326854ef06d9a7cbec29d","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/catalogue","src/components/LaboratoryDirectory.astro","src/pages/[lang]/micro-labs.astro","tests/e2e"],"requirements":["UI-01","UI-02","EVAL-01"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
     {"id":"ET-2511-002","master_id":"ET-2511-MASTER","title":"Тематическая карусель главной","status":"verified","predecessors":["ET-2511-001"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"3faeb9dc58a8c45d056326854ef06d9a7cbec29d","checkpoint_after":"0061de26c4c465b429a7d4f4dd6ae9374fe034e1","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/components/EditorialHome.astro","src/showcase","tests/e2e"],"requirements":["UI-03","UI-04","EVAL-02"],"capabilities":["stage.implement"],"model_class":"MEDIUM","reasoning_effort":"medium","stop_after":false},
-    {"id":"ET-2511-003","master_id":"ET-2511-MASTER","title":"Общие операции топологии и компоновка","status":"running","predecessors":["ET-2511-002"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0061de26c4c465b429a7d4f4dd6ae9374fe034e1","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components/LineExperimentEditor.tsx","tests/topology-eval","tests/lab-acceptance"],"requirements":["ENG-01","ENG-02","ENG-03","ENG-04","ENG-05","ENG-06","EVAL-03"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-004","master_id":"ET-2511-MASTER","title":"Переходная длинная линия","status":"queued","predecessors":["ET-2511-003"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/transient","src/components/LineExperimentLab.tsx","tests/lab-acceptance","tests/lab-eval"],"requirements":["TL-01","TL-02","EVAL-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-2511-003","master_id":"ET-2511-MASTER","title":"Общие операции топологии и компоновка","status":"verified","predecessors":["ET-2511-002"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0061de26c4c465b429a7d4f4dd6ae9374fe034e1","checkpoint_after":"457c5023a3820fe8e90660961f6e8f0118692931","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components/LineExperimentEditor.tsx","tests/topology-eval","tests/lab-acceptance"],"requirements":["ENG-01","ENG-02","ENG-03","ENG-04","ENG-05","ENG-06","EVAL-03"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-2511-004","master_id":"ET-2511-MASTER","title":"Переходная длинная линия","status":"running","predecessors":["ET-2511-003"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"457c5023a3820fe8e90660961f6e8f0118692931","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/transient","src/components/LineExperimentLab.tsx","tests/lab-acceptance","tests/lab-eval"],"requirements":["TL-01","TL-02","EVAL-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-005","master_id":"ET-2511-MASTER","title":"Строгий синтез LC-двухполюсников","status":"queued","predecessors":["ET-2511-004"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/models","src/components/LcExperimentLab.tsx","tests/lab-acceptance"],"requirements":["LC-01","LC-02","LC-03","LC-04","LC-05","LC-06","LC-07","EVAL-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-006","master_id":"ET-2511-MASTER","title":"Продольная и поперечная трёхфазная несимметрия","status":"queued","predecessors":["ET-2511-005"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components","src/pages","tests/lab-acceptance"],"requirements":["SEQ-01","SEQ-02","SEQ-03","SEQ-04","EVAL-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"queued","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
@@ -127,7 +142,7 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Пройти EVAL-03, проверить обратимые архивы и регрессии редакторов A/B/D.",
+  "next_action": "Проверить физические пары выводов и выполнить EVAL-04 для согласования, КЗ, ХХ и потерь.",
   "integration": {
     "required": false,
     "reason": "Интеграция наступает после завершения продуктовых этапов и проверок."

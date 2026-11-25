@@ -1,6 +1,7 @@
 import { layoutTopology, type Point, type TopologyLayout } from "../circuit/topology-layout";
 import type { TopologyLabDocument } from "../circuit/topology-session";
-import { netlist, type CircuitComponent } from "../circuit/topology";
+import { netlist, type CircuitComponent, type CircuitTopology } from "../circuit/topology";
+import type { SchematicGeometry } from "../circuit/schematic-geometry";
 
 type Rotation = 0 | 90 | -90 | 180;
 export type LineLayout = TopologyLayout & {
@@ -23,6 +24,9 @@ function loopLayout({ topology }: TopologyLabDocument): LineLayout | undefined {
   // drawing. Branched and disconnected graphs use the general topology layout.
   const membership = new Map(netlist(topology).flatMap((net, index) => net.map(id => [id, index] as const)));
   const components = topology.components;
+  const lines = components.filter(part => part.kind === "line");
+  const separateReturn = lines.some(part => part.terminals.length === 4);
+  if (separateReturn && lines.some(part => part.terminals.length !== 4)) return;
   const source = components.find(part => part.kind === "current" || part.kind === "voltage");
   if (!source || topology.junctions.length || components.length < 3) return;
   const terminal = (part: CircuitComponent, index: number) => membership.get(part.terminals[index]);
@@ -32,20 +36,38 @@ function loopLayout({ topology }: TopologyLabDocument): LineLayout | undefined {
 
   const path: Array<{ part: CircuitComponent; reversed: boolean }> = [];
   const visited = new Set([source.id]);
+  const signalNets = new Set([inNet]);
   let right = inNet;
-  while (right !== returnNet) {
+  while (separateReturn || right !== returnNet) {
     const next = components.filter(part => !visited.has(part.id) && (terminal(part, 0) === right || terminal(part, 1) === right));
+    if (separateReturn && next.length === 0) break;
     if (next.length !== 1) return;
     const part = next[0];
     const reversed = terminal(part, 1) === right;
     path.push({ part, reversed });
     visited.add(part.id);
     right = terminal(part, reversed ? 0 : 1);
+    if (separateReturn && signalNets.has(right)) return;
+    signalNets.add(right);
   }
   const loadEntry = path.at(-1);
   const upperPath = path.slice(0, -1);
   if (visited.size !== components.length || !loadEntry || !upperPath.some(entry => entry.part.kind === "line")
     || loadEntry.part.kind === "line" || upperPath.some(({ part }) => part.kind === "current" || part.kind === "voltage")) return;
+
+  const returnNets = new Set([returnNet]);
+  if (separateReturn) {
+    let precedingReturn = returnNet;
+    for (const { part, reversed } of upperPath) {
+      if (part.kind !== "line") continue;
+      const inputReturn = terminal(part, reversed ? 3 : 2);
+      const outputReturn = terminal(part, reversed ? 2 : 3);
+      if (inputReturn !== precedingReturn || returnNets.has(outputReturn)) return;
+      returnNets.add(outputReturn);
+      precedingReturn = outputReturn;
+    }
+    if (right !== precedingReturn || [...returnNets].some(net => net !== right && signalNets.has(net))) return;
+  }
 
   const firstX = 69;
   const load = loadEntry.part;
@@ -69,12 +91,16 @@ function loopLayout({ topology }: TopologyLabDocument): LineLayout | undefined {
     if (reversed) rotations.set(part.id, 180);
     endpoints.set(part.terminals[reversed ? 1 : 0], { x: x - terminalOffset, y: upper });
     endpoints.set(part.terminals[reversed ? 0 : 1], { x: x + terminalOffset, y: upper });
+    if (part.kind === "line" && separateReturn) {
+      endpoints.set(part.terminals[reversed ? 3 : 2], { x: x - terminalOffset, y: lower });
+      endpoints.set(part.terminals[reversed ? 2 : 3], { x: x + terminalOffset, y: lower });
+    }
   }
 
   const wires = topology.wires.map(({ id, from, to }) => {
     const a = endpoints.get(from)!;
     const b = endpoints.get(to)!;
-    const lane = membership.get(from) === returnNet ? lower : upper;
+    const lane = returnNets.has(membership.get(from)) ? lower : upper;
     const points = a.y === b.y && a.y === upper ? [a, b] : [a, { x: a.x, y: lane }, { x: b.x, y: lane }, b];
     return { id, points: points.filter((point, index) => index === 0 || !samePoint(point, points[index - 1])) };
   });
@@ -127,8 +153,17 @@ function seriesPortLayout({ topology }: TopologyLabDocument, port: CircuitCompon
 
 export function layoutLineExperiment(document: TopologyLabDocument): LineLayout {
   const saved = document.geometry;
-  if (saved && document.topology.components.every(part => part.terminals.every(id => saved.pins[id]))
-    && document.topology.junctions.every(id => saved.pins[id])) {
+  if (saved && document.topology.components.every(part => {
+    if (!part.terminals.every(id => Object.hasOwn(saved.pins, id))) return false;
+    const pins = part.terminals.map(id => saved.pins[id]);
+    if (part.kind !== "line" || pins.length !== 4) return true;
+    const [a, b, returnIn, returnOut] = pins;
+    return a.x !== b.x && a.y === b.y && a.x === returnIn.x && b.x === returnOut.x &&
+        returnIn.y === returnOut.y && a.y !== returnIn.y
+      || a.y !== b.y && a.x === b.x && a.y === returnIn.y && b.y === returnOut.y &&
+        returnIn.x === returnOut.x && a.x !== returnIn.x;
+  })
+    && document.topology.junctions.every(id => Object.hasOwn(saved.pins, id))) {
     const endpoints = new Map(Object.entries(saved.pins));
     const rotations = new Map<string, Rotation>();
     const components = document.topology.components.map(part => {
@@ -143,17 +178,24 @@ export function layoutLineExperiment(document: TopologyLabDocument): LineLayout 
       return { id, points: [a, ...turns, b] };
     });
     const points = [...endpoints.values(), ...wires.flatMap(wire => wire.points)];
-    const last = document.topology.components.filter(part => part.kind === "line")
+    const lines = document.topology.components.filter(part => part.kind === "line");
+    const physicalRails = lines.filter(part => part.terminals.length === 4);
+    const actualReturnY = physicalRails.length ? endpoints.get(physicalRails[0].terminals[2])!.y : saved.returnY;
+    const hasCommonRail = actualReturnY !== undefined && physicalRails.every(({ terminals }) =>
+      endpoints.get(terminals[2])!.y === actualReturnY && endpoints.get(terminals[3])!.y === actualReturnY
+      && endpoints.get(terminals[0])!.y < actualReturnY && endpoints.get(terminals[1])!.y < actualReturnY);
+    const returnY = saved.returnY !== undefined && hasCommonRail ? actualReturnY : undefined;
+    const last = lines
       .sort((a, b) => endpoints.get(a.terminals[1])!.x - endpoints.get(b.terminals[1])!.x).at(-1);
     return { components, junctions: document.topology.junctions.map(id => ({ id, ...endpoints.get(id)! })),
       endpoints, wires, rotations, anchors: new Map(), append: { x: 30, y: 30 },
-      appendEndpoint: last?.terminals[1], returnY: saved.returnY,
+      appendEndpoint: last?.terminals[1], returnY,
       width: Math.max(275, ...points.map(p => p.x + 66)), height: Math.max(235, ...points.map(p => p.y + 65)) };
   }
   const loop = loopLayout(document);
   if (loop) return loop;
   const port = document.topology.components.find(part => part.kind === "port");
-  const chain = port && seriesPortLayout(document, port);
+  const chain = port && document.topology.components.every(part => part.terminals.length === 2) && seriesPortLayout(document, port);
   if (chain) return chain;
   const layout = layoutTopology(document, port?.id);
   const kinds = new Map(document.topology.components.map(part => [part.id, part]));
@@ -161,6 +203,18 @@ export function layoutLineExperiment(document: TopologyLabDocument): LineLayout 
   return { ...layout, width: Math.max(layout.width, 330), rotations: new Map(),
     append: { x: Math.max(layout.width, 330) - 40, y: 34 },
     appendEndpoint: last && kinds.get(last.id)?.terminals[1] };
+}
+
+export function captureLineGeometry(topology: CircuitTopology, diagram: LineLayout): SchematicGeometry {
+  const pins = Object.fromEntries(diagram.endpoints);
+  const active = new Map(topology.wires.map(wire => [wire.id, wire]));
+  const bends = Object.fromEntries(diagram.wires.map(wire => {
+    const endpoint = active.get(wire.id)?.from;
+    const from = endpoint && pins[endpoint];
+    const points = from && samePoint(wire.points[0], from) ? wire.points : [...wire.points].reverse();
+    return [wire.id, points.slice(1, -1)];
+  }));
+  return { pins, bends, returnY: diagram.returnY };
 }
 
 export function wireTarget(points: readonly Point[]): Point {

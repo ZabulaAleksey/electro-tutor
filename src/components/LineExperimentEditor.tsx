@@ -15,7 +15,7 @@ import { parseTopologyLabDocument, TopologySession, type TopologyCommand, type T
 import { useTopologyViewport } from "../circuit/use-topology-viewport";
 import { formatEngineeringValue } from "../engineering/format";
 import { CapacitorGlyph, InductorGlyph, ResistorGlyph, TextbookSourceGlyph } from "../engineering/symbols";
-import { layoutLineExperiment, placeLcCanvasTargets, wireTarget } from "./line-experiment-layout";
+import { captureLineGeometry, layoutLineExperiment, placeLcCanvasTargets, wireTarget } from "./line-experiment-layout";
 import "./LineExperimentEditor.css";
 
 type Props = {
@@ -51,7 +51,7 @@ const copy = {
     alternate: "Следующий путь между элементами", time: "Время коммутации, с", closeTime: "Время замыкания, с",
     remove: "Удалить элемент", confirm: "Удалить", cancel: "Отмена", invalid: "Здесь вставка недоступна.",
     empty: "На схеме нет подходящего участка.", zoomIn: "Увеличить", zoomOut: "Уменьшить", reset: "Вернуть масштаб 100%",
-    port: "Измерительный порт",
+    port: "Измерительный порт", inputPair: "Входная пара", outputPair: "Выходная пара",
     wires: "Провода", clear: "Очистить схему", confirmClear: "Очистку можно отменить.",
     breakWire: "Разорвать соединение", restoreWire: "Восстановить соединение",
     insertIntoWire: "Вставить элемент", choosePart: "Выберите элемент в палитре.",
@@ -67,7 +67,7 @@ const copy = {
     alternate: "Наступний шлях між елементами", time: "Час комутації, с", closeTime: "Час замикання, с",
     remove: "Видалити елемент", confirm: "Видалити", cancel: "Скасувати", invalid: "Тут вставка недоступна.",
     empty: "На схемі немає придатної ділянки.", zoomIn: "Збільшити", zoomOut: "Зменшити", reset: "Повернути масштаб 100%",
-    port: "Вимірювальний порт",
+    port: "Вимірювальний порт", inputPair: "Вхідна пара", outputPair: "Вихідна пара",
     wires: "Проводи", clear: "Очистити схему", confirmClear: "Очищення можна скасувати.",
     breakWire: "Розірвати з’єднання", restoreWire: "Відновити з’єднання",
     insertIntoWire: "Вставити елемент", choosePart: "Виберіть елемент у палітрі.",
@@ -108,6 +108,30 @@ function LineGlyph({ part, railOffset }: { part: CircuitComponent; railOffset?: 
     </>;
     default: return <path d="M-52 0H-18M18 0H52M-18 -13H18V13H-18Z" />;
   }
+}
+
+function PhysicalLineGlyph({ terminals, pins, inputLabel, outputLabel }: {
+  terminals: readonly string[]; pins: readonly Point[]; inputLabel: string; outputLabel: string;
+}) {
+  const [a, b, returnIn, returnOut] = pins;
+  const labels = ["1+", "2+", "1−", "2−"];
+  const across = { x: Math.sign(returnIn.x - a.x), y: Math.sign(returnIn.y - a.y) };
+  const coordinates = (point: Point, offset = 0) => `${point.x + across.x * offset} ${point.y + across.y * offset}`;
+  return <>
+    <path className="line-experiment-conductor" d={`M${coordinates(a)}L${coordinates(b)}M${coordinates(returnIn)}L${coordinates(returnOut)}`} />
+    <path className="line-experiment-electric-field" d={`M${coordinates(a, 6)}L${coordinates(returnIn, -6)}M${coordinates(b, 6)}L${coordinates(returnOut, -6)}`} />
+    {pins.map(({ x, y }, index) => {
+      const distance = index < 2 ? -12 : 12;
+      const labelX = x + across.x * distance;
+      const labelY = y + across.y * distance + 3;
+      return <g key={terminals[index]} className="line-experiment-physical-port">
+        <circle data-line-physical-terminal={terminals[index]} className="line-experiment-port" cx={x} cy={y} r={3.5}>
+          <title>{`${index % 2 === 0 ? inputLabel : outputLabel} · ${labels[index]}`}</title>
+        </circle>
+        <text x={labelX} y={labelY} textAnchor="middle">{labels[index]}</text>
+      </g>;
+    })}
+  </>;
 }
 
 function SwitchTime({ part, label, onSave }: { part: CircuitComponent; label: string; onSave: (seconds: number) => void }) {
@@ -229,7 +253,10 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   const parallel = useMemo(() => slots.filter((slot): slot is ParallelSlot =>
     slot.kind === "parallel" && slot.side === "left" && (!port || !slot.componentIds.includes(port.id))), [port, slots]);
   const selectedPart = devices.get(selected);
-  const sourceReturn = variant === "transient" ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
+  const legacyTransient = variant === "transient"
+    && !topology.components.some(part => part.kind === "line" && part.terminals.length === 4);
+  const sourceReturn = legacyTransient
+    ? topology.components.find(part => part.kind === "voltage" || part.kind === "current")?.terminals[1] : undefined;
   const automaticBypass = useMemo(() => {
     if (variable || !selected || document.attachmentSides.some(hint => hint.componentId === selected)) return false;
     const reference = referenceEndpoint ?? sourceReturn;
@@ -325,16 +352,7 @@ export default function LineExperimentEditor({ language, document, onChange, onA
   function editWire(type: "break-wire" | "restore-wire", wireId: string) {
     let source = document;
     if (type === "break-wire" && !document.geometry) {
-      const pins = Object.fromEntries(diagram.endpoints);
-      const active = new Map(topology.wires.map(wire => [wire.id, wire]));
-      const bends = Object.fromEntries(diagram.wires.map(wire => {
-        const endpoint = active.get(wire.id)?.from;
-        const from = endpoint && pins[endpoint];
-        const first = wire.points[0];
-        const points = from && first.x === from.x && first.y === from.y ? wire.points : [...wire.points].reverse();
-        return [wire.id, points.slice(1, -1)];
-      }));
-      source = { ...document, geometry: { pins, bends, returnY: diagram.returnY } };
+      source = { ...document, geometry: captureLineGeometry(topology, diagram) };
     }
     if (applyEdit({ type, wireId }, source)) {
       wireModeButton.current?.focus({ preventScroll: true });
@@ -626,13 +644,18 @@ export default function LineExperimentEditor({ language, document, onChange, onA
             </g>;
             const rotation = diagram.rotations.get(id) ?? 0;
             const vertical = Math.abs(rotation) === 90;
+            const physicalPins = part.kind === "line" && part.terminals.length === 4
+              ? part.terminals.map(id => diagram.endpoints.get(id)) : undefined;
             return <g key={id} transform={`translate(${x} ${y})`} data-line-glyph={id}
               data-line-kind={part.kind} data-line-rotation={rotation} data-line-highlighted={highlighted.has(id) || undefined}>
               {highlighted.has(id) && <rect className="line-experiment-part-highlight"
                 x={vertical ? -29 : -47} y={vertical ? -44 : -25} width={vertical ? 58 : 94} height={vertical ? 88 : 50} rx={8} />}
-              <g transform={`rotate(${part.kind === "line" && diagram.returnY !== undefined ? 0 : rotation})`}>
-                <LineGlyph part={part} railOffset={diagram.returnY === undefined ? undefined : diagram.returnY - y} />
-              </g>
+              {physicalPins?.every((point): point is Point => point !== undefined)
+                ? <PhysicalLineGlyph terminals={part.terminals} pins={physicalPins.map(point => ({ x: point.x - x, y: point.y - y }))}
+                    inputLabel={t.inputPair} outputLabel={t.outputPair} />
+                : <g transform={`rotate(${part.kind === "line" && diagram.returnY !== undefined ? 0 : rotation})`}>
+                    <LineGlyph part={part} railOffset={diagram.returnY === undefined ? undefined : diagram.returnY - y} />
+                  </g>}
               <text x={vertical ? 31 : 0} y={vertical ? 5 : -21} textAnchor={vertical ? "start" : "middle"}>{displayName(id)}</text>
             </g>;
           })}

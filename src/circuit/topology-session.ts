@@ -38,7 +38,9 @@ function checkBytes(text: string) {
 }
 
 function checkComponent(part: CircuitComponent) {
-  if (!Object.hasOwn(parts, part.kind) || part.terminals.length !== 2) {
+  const fourTerminalLine = part.kind === "line" && part.terminals.length === 4
+    && ["a", "b", "return-in", "return-out"].every((role, index) => part.terminals[index] === part.id + ":" + role);
+  if (!Object.hasOwn(parts, part.kind) || (part.terminals.length !== 2 && !fourTerminalLine)) {
     throw Error("unsupported-component");
   }
   const defaults = parts[part.kind as PartKind].parameters as Record<string, unknown>;

@@ -16,7 +16,7 @@ export type TopologyLayout = Readonly<{
 }>;
 
 type Cell = Readonly<{ id: string; x: number; row: number }>;
-type Port = Readonly<{ cell: Cell; offset: number }>;
+type Port = Readonly<{ cell: Cell; offset: number; yOffset?: number }>;
 type Trace = { id: string; net: number; from: Port; to: Port; direct: boolean; exitX: number; entranceX: number };
 type Span = { net: number; min: number; max: number };
 
@@ -25,6 +25,8 @@ const columnPitch = 184;
 const anchorOffset = 80;
 const terminalOffset = 52;
 const portalOffset = 76;
+const returnRailOffset = 44;
+const returnPortalOffset = 88;
 const firstX = 105;
 const firstY = 115;
 const rowPitch = 232;
@@ -77,7 +79,7 @@ function orderBase(
           || a.index - b.index || compareId(a.part.id, b.part.id))[0];
       if (!following) break;
       part = following.part;
-      outgoing = 1 - following.index;
+      outgoing = following.index % 2 === 0 ? following.index + 1 : following.index - 1;
     }
   }
   for (const id of [...junctions].sort(compareId)) place(id);
@@ -128,7 +130,7 @@ function cellGroups(document: TopologyLabDocument, nets: readonly (readonly stri
 
 function portal(port: Port, destination: Port) {
   const side = Math.sign(port.offset) || Math.sign(destination.cell.x - port.cell.x) || 1;
-  return port.cell.x + side * portalOffset;
+  return port.cell.x + side * (port.yOffset ? returnPortalOffset : portalOffset);
 }
 
 function sketchWire(wire: CircuitWire, ports: ReadonlyMap<string, Port>, netByEndpoint: ReadonlyMap<string, number>,
@@ -136,7 +138,7 @@ function sketchWire(wire: CircuitWire, ports: ReadonlyMap<string, Port>, netByEn
   const from = ports.get(wire.from)!;
   const to = ports.get(wire.to)!;
   const direction = Math.sign(to.cell.x - from.cell.x);
-  const direct = from.cell.row === to.cell.row && direction !== 0
+  const direct = from.cell.row === to.cell.row && (from.yOffset ?? 0) === (to.yOffset ?? 0) && direction !== 0
     && (from.offset === 0 || Math.sign(from.offset) === direction)
     && (to.offset === 0 || Math.sign(to.offset) === -direction)
     && occupants[from.cell.row].every(({ x }) => x <= Math.min(from.cell.x, to.cell.x) || x >= Math.max(from.cell.x, to.cell.x));
@@ -152,7 +154,7 @@ function includeSpan(row: Map<number, Span>, net: number, x1: number, x2: number
   });
 }
 
-function bundleTracks(rows: readonly ReadonlyMap<number, Span>[]) {
+function bundleTracks(rows: readonly ReadonlyMap<number, Span>[], firstTrack: number) {
   let rowY = firstY;
   return rows.map((spans) => {
     const trackByNet = new Map<number, number>();
@@ -162,10 +164,10 @@ function bundleTracks(rows: readonly ReadonlyMap<number, Span>[]) {
       const free = rightEdges.findIndex(edge => edge + trackPitch <= min);
       const track = free >= 0 ? free : rightEdges.length;
       rightEdges[track] = max;
-      trackByNet.set(net, rowY + trackStart + track * trackPitch);
+      trackByNet.set(net, rowY + firstTrack + track * trackPitch);
     }
     const center = rowY;
-    const lastTrack = rowY + trackStart + Math.max(0, rightEdges.length - 1) * trackPitch;
+    const lastTrack = rowY + firstTrack + Math.max(0, rightEdges.length - 1) * trackPitch;
     rowY = Math.max(center + rowPitch, lastTrack + anchorOffset + 45);
     return { center, lastTrack, trackByNet };
   });
@@ -190,12 +192,15 @@ function tidy(points: readonly Point[]) {
 /** Compute geometric projection only. Existing terminal and wire IDs remain the electrical source of truth. */
 export function layoutTopology(document: TopologyLabDocument, boundaryPortId?: string): TopologyLayout {
   const { topology } = document;
+  if (topology.components.some(part => part.terminals.length !== 2 && (part.kind !== "line" || part.terminals.length !== 4))) {
+    throw Error("invalid-layout-part");
+  }
+  const hasSeparateReturn = topology.components.some(part => part.terminals.length === 4);
   const nets = netlist(topology);
   const netByEndpoint = new Map(nets.flatMap((net, index) => net.map(endpoint => [endpoint, index] as const)));
   const { cells, occupants, columns } = cellGroups(document, nets, netByEndpoint);
   const ports = new Map<string, Port>();
   for (const { id, terminals } of topology.components) {
-    if (terminals.length !== 2) throw Error("invalid-layout-part");
     const cell = cells.get(id)!;
     if (id === boundaryPortId) {
       // Represent external leads as individual points at the edges of the circuit.
@@ -210,6 +215,10 @@ export function layoutTopology(document: TopologyLabDocument, boundaryPortId?: s
     }
     ports.set(terminals[0], { cell, offset: -terminalOffset });
     ports.set(terminals[1], { cell, offset: terminalOffset });
+    if (terminals.length === 4) {
+      ports.set(terminals[2], { cell, offset: -terminalOffset, yOffset: returnRailOffset });
+      ports.set(terminals[3], { cell, offset: terminalOffset, yOffset: returnRailOffset });
+    }
   }
   for (const id of topology.junctions) ports.set(id, { cell: cells.get(id)!, offset: 0 });
 
@@ -217,7 +226,8 @@ export function layoutTopology(document: TopologyLabDocument, boundaryPortId?: s
     .map(wire => sketchWire(wire, ports, netByEndpoint, occupants));
   const externalNets = [...new Set(traces.filter(({ from, to }) => from.cell.row !== to.cell.row)
     .map(({ net }) => net))].sort((a, b) => a - b);
-  const gridRight = firstX + (boundaryPortId ? columns : columns - 1) * columnPitch + portalOffset;
+  const gridRight = firstX + (boundaryPortId ? columns : columns - 1) * columnPitch
+    + (hasSeparateReturn ? returnPortalOffset : portalOffset);
   const trunkByNet = new Map(externalNets.map((net, index) => [net, gridRight + 30 + index * trackPitch]));
   const bands = occupants.map(() => new Map<number, Span>());
   for (const { direct, net, from, to, exitX, entranceX } of traces) {
@@ -230,18 +240,18 @@ export function layoutTopology(document: TopologyLabDocument, boundaryPortId?: s
     includeSpan(bands[from.cell.row], net, exitX, trunk);
     includeSpan(bands[to.cell.row], net, entranceX, trunk);
   }
-  const rows = bundleTracks(bands);
+  // Leave room for the four-pin glyph's return labels before routing tracks.
+  const rows = bundleTracks(bands, hasSeparateReturn ? returnRailOffset + 30 : trackStart);
   const placed = ({ id, x, row }: Cell) => ({ id, x, y: rows[row].center });
   const components = [...topology.components].sort((a, b) => compareId(a.id, b.id)).map(({ id }) => placed(cells.get(id)!));
   const junctions = [...topology.junctions].sort(compareId).map(id => placed(cells.get(id)!));
-  const endpoints = new Map([...ports].map(([id, { cell, offset }]) =>
-    [id, { x: cell.x + offset, y: rows[cell.row].center }]));
   const anchors = new Map([...components, ...junctions].map(({ id, x, y }) =>
     [id, { left: { x, y: y - anchorOffset }, right: { x, y: y + anchorOffset } }]));
 
   function point(port: Port): Point {
-    return { x: port.cell.x + port.offset, y: rows[port.cell.row].center };
+    return { x: port.cell.x + port.offset, y: rows[port.cell.row].center + (port.yOffset ?? 0) };
   }
+  const endpoints = new Map([...ports].map(([id, port]) => [id, point(port)]));
   const wires = traces.map(({ id, from, to, net, direct, exitX, entranceX }) => {
     const a = point(from);
     const b = point(to);

@@ -83,7 +83,11 @@ export function routeOrthogonalWire(from: Port, to: Port, obstacles: [string, Bo
   if (xs.length * ys.length > limit) return null;
   const columns = xs.length;
   const points = ys.flatMap(y => xs.map(x => ({ x, y })));
-  const indexOf = (point: Point) => xs.indexOf(point.x) + ys.indexOf(point.y) * columns;
+  function indexOf(point: Point) {
+    const column = xs.indexOf(point.x);
+    const row = ys.indexOf(point.y);
+    return column < 0 || row < 0 ? -1 : column + row * columns;
+  }
   const start = indexOf(from.escape), end = indexOf(to.escape);
   if (start < 0 || end < 0 || !points[start] || !points[end]) return null;
   const costs = new Map([[start * 3, 0]]);

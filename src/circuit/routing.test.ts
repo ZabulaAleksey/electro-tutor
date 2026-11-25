@@ -1,7 +1,15 @@
 import { expect, it } from "vitest";
 import { canPlace, emptyDrawing, placeComponent, type Drawing } from "./drawing";
 import { connect, netlist } from "./topology";
-import { routeDrawing } from "./routing";
+import { routeDrawing, routeOrthogonalWire } from "./routing";
+
+it("rejects an escape point outside the routing grid instead of wrapping into another row", () => {
+  const from = { x: 0, y: 10 }, to = { x: 20, y: 20 };
+  const bounds = { left: 1, top: 1, right: 40, bottom: 40 };
+  const ports = [{ pin: from, escape: from }, { pin: to, escape: to }] as const;
+  expect(routeOrthogonalWire(...ports, [], [], bounds)).toBeNull();
+  expect(routeOrthogonalWire(...ports, [], [], { ...bounds, left: 0 })).toEqual([from, { x: 0, y: 20 }, to]);
+});
 
 function sample(): Drawing {
   return placeComponent(placeComponent(placeComponent(emptyDrawing(), "r", { x: 80, y: 120 }),

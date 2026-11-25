@@ -10,6 +10,10 @@ CE-012 → Circuit Engine SPEC → editor-mode, CircuitEditor, transient/circuit
 
 CE-008 → circuit-engine SPEC → routing, routing.worker и CircuitEditor → routing-corpus.test.ts, тесты сохранения netlist и Chromium в circuit-editor.spec.ts и transmission-workbench.spec.ts.
 
+## Витрина и расчётные лаборатории ET-2511
+
+[Контракт 25.11.2026](../specs/features/electrotutor-20261125.spec.md) → [реестр требований](requirements-ledger.json) → [исходные маршруты и воспроизводимые случаи](evidence/electrotutor-20261125-baseline.md). Результаты следующих этапов фиксируются в [TESTING](TESTING.md) и [STAGES](STAGES.md).
+
 ## Реконструкция лабораторий ET-LABR
 
 [FR-601–615](../specs/features/lab-reconstruction.spec.md#матрица-требований-и-исходного-покрытия)

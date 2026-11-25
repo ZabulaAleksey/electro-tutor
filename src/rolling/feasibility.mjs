@@ -6,7 +6,7 @@ export { maxArcProjection };
 /** @typedef {import("./geometry.mjs").Quaternion} Quaternion */
 /** @typedef {[number, number]} Point2 */
 /** @typedef {{length: number, sweep: number}} Segment */
-/** @typedef {{radius: number, start: Point2, heading: number, segments: Segment[], stepsPerSegment: number}} RollingInput */
+/** @typedef {{radius: number, start: Point2, heading: number, segments: Segment[], segmentSteps: number[]}} RollingInput */
 /** @typedef {{s: number, center: Vector3, localCenter: Vector3, orientation: Quaternion, target: Point2}} Pose */
 
 /** @type {Vector3} */
@@ -17,6 +17,12 @@ const minRelativeLength = 1e-6;
 const maxRelativeLength = 1000;
 const maxAngleBudget = 200;
 const maxSampleRotation = 0.5;
+// The tighter opt-in cap controls the browser's complete pose/replay payload.
+// Continuous support verification still checks every primitive, independent
+// of its sampling density. Legacy CLI inputs keep their original limits.
+export const rollingAdaptiveLimits = Object.freeze({
+  maxSegments: 256, maxPoses: 4096, maxStepsPerSegment: 1024, maxStepRotation: maxSampleRotation,
+});
 const maxExtent = 1.6;
 const extraVertexMargin = 0.02;
 const roundoffGuard = 64 * Number.EPSILON;
@@ -51,23 +57,34 @@ function isFiniteNumber(value) {
 /** @param {unknown} input @returns {RollingInput} */
 function validatedInput(input) {
   if (!record(input)) throw Error("INVALID_INPUT");
-  const { radius, start, heading, segments, stepsPerSegment } = input;
+  const { radius, start, heading, segments, stepsPerSegment, segmentSteps } = input;
+  const adaptive = segmentSteps !== undefined;
   if (!isFiniteNumber(radius) || radius < 0.01 || radius > 100
     || !Array.isArray(start) || start.length !== 2 || !isFiniteNumber(start[0]) || !isFiniteNumber(start[1])
-    || !isFiniteNumber(heading) || !Array.isArray(segments)
-    || !isFiniteNumber(stepsPerSegment) || !Number.isInteger(stepsPerSegment)) {
+    || !isFiniteNumber(heading) || !Array.isArray(segments)) {
     throw Error("INVALID_INPUT");
   }
+  if (adaptive) {
+    if (stepsPerSegment !== undefined || !Array.isArray(segmentSteps) || segmentSteps.length !== segments.length) {
+      throw Error("INVALID_INPUT");
+    }
+  } else if (!isFiniteNumber(stepsPerSegment) || !Number.isInteger(stepsPerSegment)) throw Error("INVALID_INPUT");
   const [x, y] = start;
   if (segments.length === 0) throw Error("DEGENERATE_TRACE");
-  if (Math.max(Math.abs(x), Math.abs(y)) > 1e4 || segments.length > 16
-    || stepsPerSegment < 8 || stepsPerSegment > 1024) {
+  if (Math.max(Math.abs(x), Math.abs(y)) > 1e4 || segments.length > (adaptive ? rollingAdaptiveLimits.maxSegments : 16)) {
+    throw Error("BUDGET_EXCEEDED");
+  }
+  /** @type {number[]} */
+  const sampleCounts = adaptive ? Array.from(segmentSteps) : Array(segments.length).fill(stepsPerSegment);
+  if (sampleCounts.some(count => !isFiniteNumber(count) || !Number.isInteger(count))) throw Error("INVALID_INPUT");
+  if (sampleCounts.some(count => count < (adaptive ? 1 : 8) || count > rollingAdaptiveLimits.maxStepsPerSegment)
+    || adaptive && 1 + sampleCounts.reduce((total, count) => total + count, 0) > rollingAdaptiveLimits.maxPoses) {
     throw Error("BUDGET_EXCEEDED");
   }
   let totalAngleBudget = 0;
   /** @type {Segment[]} */
   const checkedSegments = [];
-  for (const segment of segments) {
+  for (const [index, segment] of segments.entries()) {
     if (!record(segment) || !isFiniteNumber(segment.length) || !isFiniteNumber(segment.sweep)) {
       throw Error("INVALID_INPUT");
     }
@@ -77,12 +94,12 @@ function validatedInput(input) {
     const angleBudget = relativeLength + Math.abs(sweep);
     totalAngleBudget += angleBudget;
     if (relativeLength > maxRelativeLength || Math.abs(sweep) > 2 * Math.PI
-      || totalAngleBudget > maxAngleBudget || angleBudget / stepsPerSegment > maxSampleRotation) {
+      || totalAngleBudget > maxAngleBudget || angleBudget / sampleCounts[index] > maxSampleRotation) {
       throw Error("BUDGET_EXCEEDED");
     }
     checkedSegments.push({ length, sweep });
   }
-  return { radius, start: [x, y], heading, segments: checkedSegments, stepsPerSegment };
+  return { radius, start: [x, y], heading, segments: checkedSegments, segmentSteps: sampleCounts };
 }
 
 /**
@@ -138,7 +155,7 @@ function segmentMotion(start, origin, heading, startS, startRotation, radius, { 
  * @param {unknown} input planar positions and lengths in metres, angles in radians
  */
 export function solveRollingFeasibility(input) {
-  const { radius, start, heading, segments, stepsPerSegment } = validatedInput(input);
+  const { radius, start, heading, segments, segmentSteps } = validatedInput(input);
   let turn = Math.atan2(Math.sin(heading), Math.cos(heading));
   /** @type {Pose} */
   let last = {
@@ -167,8 +184,9 @@ export function solveRollingFeasibility(input) {
   if (vertices.length === 0) throw Error("NO_CERTIFIED_SHAPE");
 
   const poses = [motions[0].poseAt(0)];
-  for (const motion of motions) {
-    for (let i = 1; i <= stepsPerSegment; i++) poses.push(motion.poseAt(i / stepsPerSegment));
+  for (const [index, motion] of motions.entries()) {
+    const count = segmentSteps[index];
+    for (let i = 1; i <= count; i++) poses.push(motion.poseAt(i / count));
   }
   return { shape: { radius, vertices, clearanceLowerBound }, poses };
 }

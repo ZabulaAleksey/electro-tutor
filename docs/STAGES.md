@@ -1,6 +1,6 @@
 # Этапы Electro Tutor — active local track
 
-- Stage ID: ET-2511-006
+- Stage ID: ET-2511-007
 
 ## ET-2511-000 — Разведка и исходные проверки
 
@@ -94,7 +94,8 @@
 
 ## ET-2511-006 — Продольная и поперечная трёхфазная несимметрия
 
-- Status: partial
+- Status: verified
+- Checkpoint: c22b09f97222c456c41b0639511ddc5a73846662
 - Lifecycle: EVAL-06 проверен локально. Активны отдельный маршрут, правки трёх областей, связанные последовательности и архив.
 - Evidence: [EVAL-06](TESTING.md#et-2511-006--трёхфазные-несимметрии), 1 050 Vitest, лабораторные 67/67 и 11/11 после ревью, восемь корневых проверок, обе сборки, типы и ESLint.
 - Dependencies: ET-2511-005 verified, `a1a01710`. Доступны принципы атомарной правки графа и отдельные лабораторные страницы RU/UK.
@@ -103,12 +104,25 @@
 - Acceptance: аналитика КЗ и обрывов, независимый фазный оракул, правильный порядок фаз, условия нулевой последовательности, остатки, все три последовательности и RU/UK desktop/mobile.
 - Rollback: вернуть коммит новой лаборатории и её ссылки, прежний опыт звезды остаётся на установленном маршруте.
 - Blockers: none.
-- NEXT: ET-2511-006
+- NEXT: ET-2511-007
+
+## ET-2511-007 — Качение тела по заданному следу
+
+- Status: partial
+- Lifecycle: EVAL-07 RED воспроизведён. Пройдена локальная численная и браузерная приёмка.
+- Dependencies: ET-2511-006 verified, `c22b09f9`. Доступен действующий Worker, обратная задача и сертификат контакта.
+- Scope: [GEO-01–03 и EVAL-07](../specs/features/electrotutor-20261125.spec.md#stage-7-качение-тела-по-заданному-следу-без-скриншота). Сглаживание и адаптивная дискретизация, независимая геометрия и воспроизведение.
+- Runnable E2E: открыть G, загрузить гладкую кривую, рассчитать тело в Worker, увидеть исходный и обработанный след и запустить качение.
+- Acceptance: отклонение и длина, шов замкнутой кривой, различие геометрии, корректный mesh, контакт и качение, пределы памяти и времени.
+- Evidence: [39 проверок качения, 1068 Vitest, пять сценариев Chromium, обе сборки и численные метрики](TESTING.md#et-2511-007--сглаживание-следа-и-форма-тела).
+- Rollback: вернуть один checkpoint. Прежние архивы v1 остаются читаемыми.
+- Blockers: none.
+- NEXT: ET-2511-007
 
 ```master-execution
 {
   "schema_version": 2,
-  "state_revision": 14,
+  "state_revision": 16,
   "master": {
     "id": "ET-2511-MASTER",
     "status": "running",
@@ -127,7 +141,7 @@
       "repository": "C:/Users/aleks/projects/electro-tutor",
       "worktree": "C:/Users/aleks/projects/electro-tutor",
       "branch": "feature/electrotutor-master-2026-11-25",
-      "checkpoint": "a1a01710d80a929deee70e202a31a41779593fb3",
+      "checkpoint": "c22b09f97222c456c41b0639511ddc5a73846662",
       "ownership": [
         "src",
         "public",
@@ -146,8 +160,8 @@
     {"id":"ET-2511-003","master_id":"ET-2511-MASTER","title":"Общие операции топологии и компоновка","status":"verified","predecessors":["ET-2511-002"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0061de26c4c465b429a7d4f4dd6ae9374fe034e1","checkpoint_after":"457c5023a3820fe8e90660961f6e8f0118692931","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components/LineExperimentEditor.tsx","tests/topology-eval","tests/lab-acceptance"],"requirements":["ENG-01","ENG-02","ENG-03","ENG-04","ENG-05","ENG-06","EVAL-03"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-004","master_id":"ET-2511-MASTER","title":"Переходная длинная линия","status":"verified","predecessors":["ET-2511-003"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"457c5023a3820fe8e90660961f6e8f0118692931","checkpoint_after":"0b9902c1aae4c11c46ae1e571ce7020a47872b38","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/transient","src/components/LineExperimentLab.tsx","tests/lab-acceptance","tests/lab-eval"],"requirements":["TL-01","TL-02","EVAL-04"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-005","master_id":"ET-2511-MASTER","title":"Строгий синтез LC-двухполюсников","status":"verified","predecessors":["ET-2511-004"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"0b9902c1aae4c11c46ae1e571ce7020a47872b38","checkpoint_after":"a1a01710d80a929deee70e202a31a41779593fb3","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/models","src/components/LcExperimentLab.tsx","tests/lab-acceptance"],"requirements":["LC-01","LC-02","LC-03","LC-04","LC-05","LC-06","LC-07","EVAL-05"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-006","master_id":"ET-2511-MASTER","title":"Продольная и поперечная трёхфазная несимметрия","status":"running","predecessors":["ET-2511-005"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a1a01710d80a929deee70e202a31a41779593fb3","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components","src/pages","tests/lab-acceptance"],"requirements":["SEQ-01","SEQ-02","SEQ-03","SEQ-04","EVAL-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
-    {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"queued","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-2511-006","master_id":"ET-2511-MASTER","title":"Продольная и поперечная трёхфазная несимметрия","status":"verified","predecessors":["ET-2511-005"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"a1a01710d80a929deee70e202a31a41779593fb3","checkpoint_after":"c22b09f97222c456c41b0639511ddc5a73846662","required_evidence":["L1","L2","L3","L4","L5"],"evidence":["L1","L2","L3","L4","L5"],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/circuit","src/components","src/pages","tests/lab-acceptance"],"requirements":["SEQ-01","SEQ-02","SEQ-03","SEQ-04","EVAL-06"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
+    {"id":"ET-2511-007","master_id":"ET-2511-MASTER","title":"Качение тела по заданному следу","status":"running","predecessors":["ET-2511-006"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"c22b09f97222c456c41b0639511ddc5a73846662","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","src/rolling","src/components/RollingLab.tsx","tests/lab-acceptance"],"requirements":["GEO-01","GEO-02","GEO-03","EVAL-07"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false},
     {"id":"ET-2511-008","master_id":"ET-2511-MASTER","title":"Интеграционная и релизная проверка","status":"queued","predecessors":["ET-2511-007"],"dependencies":[],"worktree_track":"electrotutor-20261125","checkpoint_before":"","checkpoint_after":"","required_evidence":["L1","L2","L3","L4","L5"],"evidence":[],"context_scope":["specs/features/electrotutor-20261125.spec.md","docs/TESTING.md",".github/workflows","scripts/full-verify.mjs"],"requirements":["EVAL-08"],"capabilities":["stage.implement"],"model_class":"HIGH","reasoning_effort":"high","stop_after":false}
   ],
   "blockers": [
@@ -171,7 +185,7 @@
     "max_decisions": 4,
     "max_evidence_threads": 4
   },
-  "next_action": "Зафиксировать EVAL-06 RED и проверить связанную систему симметричных составляющих и отдельный маршрут.",
+  "next_action": "Воспроизвести EVAL-07 RED. Проверить адаптивный след, контакт и геометрические различия.",
   "integration": {
     "required": false,
     "reason": "Интеграция наступает после завершения продуктовых этапов и проверок."

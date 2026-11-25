@@ -134,3 +134,16 @@ export function buildRollingMesh(radius: number, exterior: Vec3[], quality: Roll
   });
   return { vertices: new Float32Array(packed), triangles: new Uint32Array(indices) };
 }
+
+/** Volume of the closed outward-oriented triangular approximation, in cubic metres. */
+export function rollingMeshVolume({ vertices, triangles }: RollingMesh): number {
+  let volumeTimesSix = 0;
+  for (let index = 0; index < triangles.length; index += 3) {
+    const a = triangles[index] * 3, b = triangles[index + 1] * 3, c = triangles[index + 2] * 3;
+    const [ax, ay, az] = [vertices[a], vertices[a + 1], vertices[a + 2]];
+    const [bx, by, bz] = [vertices[b], vertices[b + 1], vertices[b + 2]];
+    const [cx, cy, cz] = [vertices[c], vertices[c + 1], vertices[c + 2]];
+    volumeTimesSix += ax * (by * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - by * cx);
+  }
+  return Math.abs(volumeTimesSix) / 6;
+}

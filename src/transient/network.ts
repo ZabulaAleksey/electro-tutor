@@ -120,8 +120,8 @@ export function historyValue(h:WaveHistory,t:number,linear=false,leftLimit=false
 function push(h:{times:number[];values:number[]},t:number,v:number){const n=h.times.length;if(n&&Math.abs(h.times[n-1]-t)<1e-15){h.values[n-1]=v;return;}h.times.push(t);h.values.push(v);}
 function validSeriesContact(contact: Contact, count: number) {
  return Number.isInteger(contact.from) && contact.from >= 0 && contact.from < count &&
-   (contact.from === 0 ? contact.to === 2 * count && !!contact.switch &&
-     contact.resistanceOhm === undefined && contact.component === undefined : contact.to === count + contact.from);
+   (contact.from === 0 ? contact.to === 2 * count && contact.resistanceOhm === undefined &&
+     (contact.switch ? contact.component === undefined : contact.component?.kind === "l") : contact.to === count + contact.from);
 }
 function sameFrontTime(a: number, b: number) {
  return Math.abs(a-b)<=Math.max(1e-15,Math.abs(a)*1e-12);

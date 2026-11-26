@@ -126,7 +126,7 @@
 - User actions: none
 - NEXT: none
 
-- Исправление LINE-UX-009A проверено локально в `fix/transient-line-input-inductor`. Топология со снимка воспроизведена, `pnpm test` и Chromium RU/UK прошли. Интеграция этой правки требует явного согласия на merge.
+- Исправление LINE-UX-009A опубликовано из `725e200c` после [PR №14](https://github.com/ZabulaAleksey/electro-tutor/pull/14). Прошли локальный `pnpm test`, CI лабораторий и [выкладка зеркала](https://github.com/ZabulaAleksey/electro-tutor/actions/runs/45786661423). Chromium подтвердил запуск топологии со снимка на страницах RU/UK в Cloudflare и GitHub Pages.
 
 ```master-execution
 {
